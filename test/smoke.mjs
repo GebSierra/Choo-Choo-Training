@@ -275,6 +275,26 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   await ctx.close();
 }
 
+// Recorder tool (step 10): loads clean, guards unsupported browsers, is not linked from the app.
+{
+  const { ctx, page, errors } = await newPage(browser, { width: 1000, height: 800, deviceScaleFactor: 1 });
+  await page.addInitScript(() => { delete window.MediaRecorder; });
+  await page.goto(url + 'tools/record.html');
+  await page.waitForSelector('.card');
+  ok((await page.locator('.card').count()) === 3, 'recorder shows three sound cards');
+  ok(await page.locator('#unsupported').isVisible(), 'recorder explains when MediaRecorder is missing');
+  ok(await page.locator('button.rec').first().isDisabled(), 'record button disabled when unsupported');
+  ok(errors.length === 0, 'recorder errors ' + errors.join(' | '));
+  await ctx.close();
+  const { ctx: c2, page: p2, errors: e2 } = await newPage(browser, { width: 1000, height: 800, deviceScaleFactor: 1 });
+  await p2.goto(url + 'tools/record.html');
+  await p2.waitForSelector('.card');
+  ok(e2.length === 0, 'recorder (supported) errors ' + e2.join(' | '));
+  await c2.close();
+  const appSrc = ['index.html', 'js/app.js', 'js/screens/home.js', 'js/screens/grownups.js', 'js/screens/lesson.js'].map((f) => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n');
+  ok(!/record\.html|getUserMedia/.test(appSrc), 'the app never links the recorder or requests the microphone');
+}
+
 // Speech queue (step 5): order, missing clip skipped, isolated sounds refused, gesture required.
 {
   const vp = VIEWPORTS[0];

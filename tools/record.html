@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Record letter sounds</title>
+<style>
+  :root { --ink:#1E2140; --muted:#6E7391; --violet:#5A4BD6; --cream:#FFF8EC; }
+  * { box-sizing: border-box; }
+  body { margin:0; font: 18px/1.4 system-ui, Roboto, sans-serif; background: var(--cream); color: var(--ink); padding: 24px 16px 60px; }
+  main { max-width: 720px; margin: 0 auto; display: grid; gap: 16px; }
+  h1 { margin: 0; font-size: 28px; }
+  .note { color: var(--muted); }
+  .card { background:#fff; border-radius: 20px; padding: 18px; box-shadow: 0 6px 20px rgba(60,40,20,.12); display: grid; gap: 10px; }
+  .card h2 { margin: 0; font-size: 22px; }
+  .say { font-weight: 700; } .dont { color: #B3261E; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  button, a.btn { min-height: 48px; padding: 0 18px; border-radius: 999px; border: 0; background: var(--violet); color:#fff; font: 700 17px system-ui; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+  button.rec { background: #E5484D; } button:disabled { opacity: .45; cursor: default; }
+  .meter { height: 10px; border-radius: 5px; background:#E9ECF8; overflow: hidden; } .meter i { display:block; height:100%; width:0; background:#2FB37A; transition: width 60ms; }
+  .status { color: var(--muted); min-height: 1.4em; }
+  #unsupported { background:#FFE9C2; padding:14px; border-radius: 14px; display:none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Record letter sounds</h1>
+  <p class="note">Use a laptop with Chrome or Edge in a quiet room. Press Record, say the sound, press Stop, listen, then Download. Save each file into <code>assets/audio/sounds/</code> with the exact name shown. This page asks for the microphone; the reading app itself never does.</p>
+  <p class="note">The app looks for <code>m.mp3</code> first and <code>m.webm</code> second. To use your own recording, delete the matching <code>.mp3</code> from that folder.</p>
+  <div id="unsupported">This browser cannot record audio here (no microphone access or no MediaRecorder). Open this page in Chrome or Edge on a laptop, from a secure address (https or localhost).</div>
+  <div id="cards" style="display:grid;gap:16px"></div>
+</main>
+<script>
+(function () {
+  var SOUNDS = [
+    { key: 'm', say: 'Hold it about one second: mmm. Lips together, hum.', dont: 'Do not say "muh".', hold: 1000 },
+    { key: 'a', say: 'Say the sound at the start of "apple". Mouth wide, short and clean.', dont: 'Do not say the letter name.', hold: 700 },
+    { key: 's', say: 'Hold it about one second: sss. Teeth close together, push air out like a snake.', dont: 'Do not say "suh".', hold: 1000 }
+  ];
+  var supported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  if (!supported) document.getElementById('unsupported').style.display = 'block';
+
+  var cards = document.getElementById('cards');
+  SOUNDS.forEach(function (s) {
+    var card = document.createElement('section'); card.className = 'card';
+    card.innerHTML = '<h2></h2><p class="say"></p><p class="dont"></p><div class="meter"><i></i></div><div class="row"></div><audio controls hidden></audio><p class="status"></p>';
+    card.querySelector('h2').textContent = 'Sound: ' + s.key + '.webm';
+    card.querySelector('.say').textContent = s.say;
+    card.querySelector('.dont').textContent = s.dont;
+    var row = card.querySelector('.row'), audio = card.querySelector('audio'), status = card.querySelector('.status'), bar = card.querySelector('.meter i');
+    var rec = btn('Record', 'rec'), stop = btn('Stop'), dl = document.createElement('a');
+    dl.className = 'btn'; dl.textContent = 'Download ' + s.key + '.webm'; dl.download = s.key + '.webm'; dl.style.display = 'none';
+    stop.disabled = true; rec.disabled = !supported;
+    row.append(rec, stop, dl);
+    var recorder = null, chunks = [], stream = null, raf = 0, ctx = null;
+
+    function btn(t, c) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (c) b.className = c; return b; }
+
+    rec.onclick = function () {
+      navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (st) {
+        stream = st; chunks = [];
+        recorder = new MediaRecorder(st);
+        recorder.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+        recorder.onstop = function () {
+          cancelAnimationFrame(raf); bar.style.width = '0';
+          st.getTracks().forEach(function (t) { t.stop(); });
+          var blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
+          audio.src = URL.createObjectURL(blob); audio.hidden = false; audio.play();
+          dl.href = audio.src; dl.style.display = 'inline-flex';
+          status.textContent = 'Recorded ' + Math.round(blob.size / 1024) + ' KB. Listen, then download or record again.';
+          rec.disabled = false; stop.disabled = true;
+        };
+        // Level meter so you can see the microphone is hearing you.
+        try {
+          ctx = new (window.AudioContext || window.webkitAudioContext)();
+          var an = ctx.createAnalyser(); an.fftSize = 512; ctx.createMediaStreamSource(st).connect(an);
+          var buf = new Uint8Array(an.fftSize);
+          (function tick() { an.getByteTimeDomainData(buf); var m = 0; for (var i = 0; i < buf.length; i++) m = Math.max(m, Math.abs(buf[i] - 128)); bar.style.width = Math.min(100, m * 1.6) + '%'; raf = requestAnimationFrame(tick); })();
+        } catch (e) { /* meter is optional */ }
+        recorder.start();
+        rec.disabled = true; stop.disabled = false; status.textContent = 'Recording... say the sound, then press Stop.';
+      }).catch(function (err) { status.textContent = 'Could not open the microphone: ' + (err && err.name ? err.name : err); });
+    };
+    stop.onclick = function () { if (recorder && recorder.state !== 'inactive') recorder.stop(); };
+    cards.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>
