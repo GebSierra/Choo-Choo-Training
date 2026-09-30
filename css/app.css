@@ -40,3 +40,9 @@ body {
 button { font: inherit; color: inherit; }
 h1, h2, h3, p { margin: 0; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* debug */
+.debug { padding: 16px; }
+.debug-glyph { width: 100%; max-width: 380px; display: block; background: #fff; border-radius: 16px; margin: 12px 0; }
+.debug-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+.debug-row .glyph { height: 70px; width: auto; }

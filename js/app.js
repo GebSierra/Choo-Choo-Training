@@ -2,6 +2,7 @@ import { createStore } from './store.js';
 import { createRouter } from './router.js';
 import { homeScreen } from './screens/home.js';
 import { lessonScreen } from './screens/lesson.js';
+import { glyphsDebug } from './screens/glyphs-debug.js';
 
 async function boot() {
   const root = document.getElementById('app');
@@ -19,6 +20,7 @@ async function boot() {
   const routes = [
     { re: /^\/home$/, screen: homeScreen },
     { re: /^\/lesson\/(\d+)$/, screen: lessonScreen },
+    { re: /^\/glyphs$/, screen: glyphsDebug },
   ];
   ctx.router = createRouter(root, routes, ctx);
   await ctx.router.start();
