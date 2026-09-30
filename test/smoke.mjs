@@ -10,6 +10,7 @@ import { huntChecks, barnChecks, reducedChecks } from './games.mjs';
 import { blendChecks, blendReducedChecks } from './blend.mjs';
 import { sackChecks, sackMapChecks, sackGrownupsChecks } from './sack.mjs';
 import { dealerChecks } from './deal.mjs';
+import { sfxChecks, sfxGrownupsChecks } from './sfx.mjs';
 import { lettersSlideChecks, pictureWordSlideChecks, wordsSlideChecks, slideReducedChecks } from './slide.mjs';
 
 const OUT = path.join(ROOT, '_test');
@@ -209,6 +210,9 @@ for (const vp of VIEWPORTS) {
 }
 // Letter Hunt's dealer on its own, with a seeded generator.
 dealerChecks(ok);
+// Sound effects: what would be scheduled for each event (Web Audio is a recorder in the tests).
+await sfxChecks({ browser, url, ok });
+await sfxGrownupsChecks({ browser, url, ok });
 // The games (Letter Hunt, Barn Doors): layout and touch behaviour at the three viewports, plus reduced motion.
 const shotTo = (dir) => async (page, name) => { await page.screenshot({ path: path.join(dir, `${name}.png`) }); };
 for (const vp of VIEWPORTS) {
@@ -365,7 +369,7 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   ok((await page.locator('.gu-pill').count()) === 3, 'clip status lists three sounds');
   // Voice choice persists.
   await page.selectOption('.gu-select', 'g-us');
-  await page.locator('.gu-range').evaluate((el) => { el.value = 1.05; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  await page.locator('[aria-label="Speaking speed"]').evaluate((el) => { el.value = 1.05; el.dispatchEvent(new Event('input', { bubbles: true })); });
   await page.click('.gu-switch');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings);
   ok(saved.voiceURI === 'g-us' && saved.rate === 1.05 && saved.autoSpeak === false, 'voice, rate and auto-speak persist ' + JSON.stringify(saved));

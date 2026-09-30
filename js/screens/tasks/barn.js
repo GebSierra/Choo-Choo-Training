@@ -5,6 +5,7 @@ import { sparkle } from '../../components/sparkle.js';
 import { timers, farm, watchSize, findCard, starRow, shake } from '../../components/game-kit.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase } from '../../lessons.js';
+import { sfx } from '../../sfx.js';
 
 const STARS = 5;
 const INK = '#1E2140';
@@ -42,6 +43,7 @@ export function build({ lesson, sound, speech, curriculum }) {
 
   // Doors swing from their outer edges and hold their last frame. With reduced motion they swap instantly by opacity.
   function swing(open) {
+    if (open) sfx.play('doors'); // closing is silent
     doorAnims = cancel(doorAnims);
     doorAnims = doors.map((d) => (reduced()
       ? d.animate([{ opacity: open ? 1 : 0 }, { opacity: open ? 0 : 1 }], { duration: 0, fill: 'forwards' })
@@ -105,12 +107,14 @@ export function build({ lesson, sound, speech, curriculum }) {
     hop();
     if (stars >= STARS) {
       sparkle(scene, c.x, c.y, { count: 28, size: [16, 34], reach: [80, 170] });
+      sfx.play('win');
       T.later(() => hop(2), 500);
       running = false;
       setState('done');
       return;
     }
-    sparkle(scene, c.x, c.y, { count: 12, size: [12, 26], reach: [44, 90] });
+    sparkle(scene, c.x, c.y, { count: 12, size: [12, 26], reach: [44, 90], sound: 'sparkle' });
+    sfx.play('star', { delay: 0.4 }); // the chime lands as the star fills
     T.later(() => { closeDoors(); T.later(startRound, OPEN_MS + 900); }, 600);
   });
 

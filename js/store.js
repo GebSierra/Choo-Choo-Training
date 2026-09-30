@@ -5,7 +5,7 @@ const fresh = () => ({
   schema: 1,
   lessons: {},
   checkpoints: {}, // bonus review games between lessons, by id: {result, completedAt, unlocked}
-  settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: false },
+  settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: false, sfx: true, sfxVolume: 0.6 },
   firstRunDone: false,
   lastOpened: null,
 });

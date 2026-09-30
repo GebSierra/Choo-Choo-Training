@@ -3,6 +3,7 @@ import { fullscreenButton } from '../components/fullscreen-button.js';
 import { soundCard } from '../components/sound-card.js';
 import { glyphSvg } from '../glyphs.js';
 import { sackSvg } from '../art.js';
+import { sfx } from '../sfx.js';
 import { accentOf } from '../theme.js';
 import { APP_VERSION } from '../version.js';
 import { richText } from '../letters.js';
@@ -71,6 +72,13 @@ export function grownupsScreen(ctx) {
   const soundsSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(!!store.settings.playSounds), 'aria-label': 'Play recorded letter sounds', onclick: () => { const v = !store.settings.playSounds; store.setSetting('playSounds', v); soundsSwitch.setAttribute('aria-checked', String(v)); } }, h('i'));
   const test = h('button', { class: 'btn small', type: 'button', onclick: () => speech.say([{ tts: 'moon, apple, sun' }]) }, icon('speaker', 20), 'Test voice');
 
+  // ---- sound effects ----
+  const sfxOn = () => store.settings.sfx !== false;
+  const sfxSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(sfxOn()), 'aria-label': 'Sound effects', onclick: () => { store.setSetting('sfx', !sfxOn()); sfxSwitch.setAttribute('aria-checked', String(sfxOn())); sfxTest.disabled = !sfxOn(); } }, h('i'));
+  const sfxOut = h('output', {}, `${Math.round((store.settings.sfxVolume ?? 0.6) * 100)}%`);
+  const sfxRange = h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: store.settings.sfxVolume ?? 0.6, 'aria-label': 'Sound effects volume', class: 'gu-range', oninput: () => { store.setSetting('sfxVolume', Number(sfxRange.value)); sfxOut.textContent = `${Math.round(Number(sfxRange.value) * 100)}%`; } });
+  const sfxTest = h('button', { class: 'btn small', type: 'button', disabled: !sfxOn(), onclick: () => sfx.play('lesson') }, icon('speaker', 20), 'Test sound');
+
   // ---- clips ----
   const clipList = h('div', { class: 'gu-list' });
   const paintClips = (status) => clipList.replaceChildren(...Object.keys(curriculum.sounds).map((k) => h('div', { class: 'gu-row slim' },
@@ -89,6 +97,8 @@ export function grownupsScreen(ctx) {
       sec('Voice', h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate),
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Speak automatically'), toggle), test,
         h('p', { class: 'gu-note' }, speech.hasSynth ? 'The voice comes from your phone. If a voice sounds robotic, pick another one here.' : 'This browser has no text to speech.')),
+      sec('Sound effects', h('div', { class: 'gu-field inline' }, h('span', {}, 'Sound effects'), sfxSwitch), h('label', { class: 'gu-field' }, h('span', {}, 'Volume ', sfxOut), sfxRange), sfxTest,
+        h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a sheep home, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),
       sec('Recorded sounds', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play recorded letter sounds'), soundsSwitch), h('p', { class: 'gu-note' }, 'Off: your grown up says the sounds.'), clipList, h('p', { class: 'gu-note' }, 'When the switch is on, isolated sounds play from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT)),
       sec('The three sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
       sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Sound story playlist'),

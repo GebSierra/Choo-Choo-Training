@@ -6,6 +6,7 @@ import { timers, farm, watchSize, findCard, starRow, shake } from '../../compone
 import { skyCells, deal } from './hunt-deal.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase } from '../../lessons.js';
+import { sfx } from '../../sfx.js';
 
 const STEPS = 5;     // correct touches to cross the field
 const BOX = 56;      // touch target
@@ -102,6 +103,7 @@ export function build({ lesson, sound, speech, curriculum }) {
     animate(l.face, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(1.4)', opacity: 0 }], { duration: 340, fill: 'forwards' });
     T.later(() => l.btn.remove(), 400);
     sparkle(scene, l.x, l.y, { count: 9, size: [10, 20], reach: [30, 62] });
+    sfx.play('pop', { step: steps }); // one step up the scale for each step of the sheep
     stars.fill(steps);
     steps++;
     el.dataset.steps = String(steps);
@@ -116,6 +118,7 @@ export function build({ lesson, sound, speech, curriculum }) {
     el.dataset.state = 'done';
     sky.classList.add('done');
     sparkle(scene, W - 8 - GOAL_W / 2, H - 40 - 50, { count: 28, size: [16, 34], reach: [80, 170] });
+    sfx.play('win');
     if (reduced()) return;
     sheepHop.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-22px)' }, { transform: 'translateY(0)' }], { duration: 440, iterations: 2, easing: 'cubic-bezier(.34,1.56,.64,1)' });
     sheep.querySelector('.wave-leg').animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(-55deg)' }], { duration: 330, iterations: 6, direction: 'alternate', easing: 'ease-in-out', delay: 300 });

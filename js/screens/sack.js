@@ -6,6 +6,7 @@ import { picture } from '../components/picture.js';
 import { timers, farm, watchSize, starRow, shake } from '../components/game-kit.js';
 import { accentOf } from '../theme.js';
 import { soundPhrase } from '../lessons.js';
+import { sfx } from '../sfx.js';
 
 const SPRING = 'cubic-bezier(.34,1.56,.64,1)';
 const ease = (list) => [...list].sort(() => Math.random() - 0.5);
@@ -142,6 +143,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
     T.later(() => {
       wiggle();
       sparkle(scene, m.x, m.y, { count: 14, size: [12, 26], reach: [50, 100] });
+      sfx.play('star', { bloop: true });
       row.fill(round);
       el.dataset.stars = String(round + 1);
       round++;
@@ -155,6 +157,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
     el.dataset.state = 'done';
     const m = mouth();
     sparkle(scene, m.x, m.y, { count: 30, size: [16, 34], reach: [90, 180] });
+    sfx.play('checkpoint');
     wiggle(2);
     for (let i = 0; i < 7; i++) {
       const ang = (-70 + i * (140 / 6)) * (Math.PI / 180), r = sackRect.w * (0.26 + (i % 2) * 0.1), s = 26 + (i % 3) * 6;

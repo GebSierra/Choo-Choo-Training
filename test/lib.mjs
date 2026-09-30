@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { AUDIO_STUB } from './stubs.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -48,6 +49,7 @@ export const VIEWPORTS = [
 export async function newPage(browser, vp, extra = {}) {
   const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: vp.deviceScaleFactor, hasTouch: true, isMobile: true, serviceWorkers: 'block', ...extra });
   const page = await ctx.newPage();
+  await page.addInitScript(AUDIO_STUB); // sound cannot be heard here: Web Audio is a recorder in every test
   const errors = [];
   // A missing recorded clip is expected until Geb records it; the browser logs its 404 itself.
   // Only that one known message is ignored: a 404 for a file under /assets/audio/.

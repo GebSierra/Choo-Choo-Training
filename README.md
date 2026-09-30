@@ -205,3 +205,31 @@ Geb noticed that some targets kept coming back in the same spots (top left, bott
 - Rules (a) and (b) are hard: they are given up, in that order, only if no choice can satisfy (c). In the 300-deal tests on all three screen shapes that never happens. Rule (d) is best effort; where two targets cannot be kept apart at all (the landscape sky is two dense rows) it is simply minimised.
 - To keep every slot's share fair, slots that hosted targets more often in the remembered deals are tried later; over 300 deals no slot hosts a target more than about a third of the time (the test allows 45%).
 - The grid grew from 14 to up to 16 slots; with six distractor letters at most twice each a sky of 16 slots and four targets fits exactly.
+
+## Sound effects (step 10, version 1.3.3)
+
+Geb asked for little jingles when things are completed. `js/sfx.js` makes them with the Web Audio API, so there are no audio files and nothing more to precache. They are soft bells from the C major pentatonic scale (C5 D5 E5 G5 A5 C6), quiet by default, and they never say or imitate a letter sound or a word. There is no sound for ordinary taps, Next, Again, navigation or a wrong touch.
+
+| Event | Sound |
+| --- | --- |
+| A slide track reaches its end; a slide-to-blend word is completed; a Barn Doors letter is found | `sparkle`: a quick rising arpeggio C5 E5 G5 with a high shimmer C6 |
+| A right touch in Letter Hunt | `pop`: one bell, a step higher each time with the sheep (C5, D5, E5, G5, A5) |
+| A Barn Doors star fills; a Sound Sack card goes into the bag | `star`: a two-note chime G5 then C6 (the sack adds a tiny downward bloop) |
+| Barn doors open | `doors`: a soft airy whoosh (closing is silent) |
+| The sheep reaches the barn; five Barn Doors stars | `win`: seven notes up the scale ending on a held C6, about 1.6 s |
+| The finish screen appears | `lesson`: a warmer melody and a soft chord, about 1.9 s, after the voice's "Good job." |
+| The second tap on "Yes, go on" | `unlock`: a sparkle and a rising two-note flourish |
+| The six Sound Sack rounds are done | `checkpoint`: a longer `win`, about 2.2 s |
+
+Grownups has a "Sound effects" switch, a volume slider and a "Test sound" button (it plays the lesson jingle once). Both settings survive "Reset all progress". **Nothing here could be heard while building it**: the tests record what would be scheduled (which notes, how high, how long) but no speaker was involved, so how it sounds and how loud it is on a real phone is for Geb's ears.
+
+### Decisions made during build: sound effects (step 10)
+
+- The master level is 0.22 at the default volume of 0.6, and the slider scales it linearly (0 is silent, 1 is about 0.37) into a soft limiter, so even full volume is gentle.
+- Every step of Letter Hunt has its own pitch; the fifth right touch plays A5 and then, a moment later, the `win` jingle when the sheep arrives.
+- A right Barn Doors letter plays `sparkle` and, 0.4 s later as the star fills, `star`. The fifth star plays only `win` (no small sparkle under it).
+- A short effect is skipped while the voice is speaking, never delayed; a jingle waits for a voice that started within the last second and plays when it finishes (a voice that has been speaking longer is not waited for). On the finish screen the voice says "Good job." first and the jingle follows it.
+- A new jingle cuts short anything still ringing with a fast fade; a short sound that would start over a ringing jingle is dropped.
+- "Test sound" is disabled while the switch is off, so it never looks broken.
+- The service worker precaches `js/sfx.js` with the other scripts; no audio files exist.
+- Version 1.3.3: steps 9 and 10 each changed shipped files, so each gets its own bump (1.3.2 for the Letter Hunt re-deal, 1.3.3 here), which makes installed copies update every time.

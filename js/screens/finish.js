@@ -3,6 +3,7 @@ import { glyphSvg } from '../glyphs.js';
 import { sackSvg } from '../art.js';
 import { lessonByNumber } from '../lessons.js';
 import { accentOf } from '../theme.js';
+import { sfx } from '../sfx.js';
 
 // Calm finish: no confetti. The parent decides whether the child got it.
 // Taps are ignored for the first 1.5 s, and "Yes" takes two taps, so a child cannot move on by accident.
@@ -12,7 +13,7 @@ function finishView({ speech, router, heading, badge, accent, armedLabel, armedN
   let armed = false; // the first "Yes" tap has been made
   const label = h('span', {}, 'Yes, go on');
   const gotIt = h('button', { class: 'btn big got', type: 'button', disabled: true, onclick: () => {
-    if (armed) { onContinue(); return; }
+    if (armed) { sfx.play('unlock'); onContinue(); return; }
     armed = true;
     onArm();
     note.textContent = armedNote;
@@ -30,7 +31,8 @@ function finishView({ speech, router, heading, badge, accent, armedLabel, armedN
     back);
   animate(badge, [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 480, easing: 'cubic-bezier(.34,1.56,.64,1)' });
   animate(ring, [{ transform: 'scale(.8)', opacity: 0 }, { transform: 'scale(.9)', opacity: .7, offset: .2 }, { transform: 'scale(1.5)', opacity: 0 }], { duration: 560, delay: 420, easing: 'cubic-bezier(.2,.8,.2,1)' });
-  const t = setTimeout(() => speech.autoSay([{ tts: 'Good job.' }]), 500);
+  // The voice says "Good job." first; the jingle waits for it to finish (see sfx.js).
+  const t = setTimeout(() => { speech.autoSay([{ tts: 'Good job.' }]); sfx.play('lesson'); }, 500);
   const ready = setTimeout(() => { for (const b of [gotIt, again, back]) b.disabled = false; }, 1500);
   root.cleanup = () => { clearTimeout(t); clearTimeout(ready); };
   return root;

@@ -53,7 +53,7 @@ export function slideTrack({ letter, onComplete }) {
     a1.finished.then(() => { place(0); stopGlide(); track.classList.remove('is-end'); atEnd = false; homing = false; }).catch(() => {});
   }
 
-  const burst = () => sparkle(track, track.clientWidth - 8 - 36, 44);
+  const burst = () => sparkle(track, track.clientWidth - 8 - 36, 44, { sound: 'sparkle' });
 
   function complete() {
     if (atEnd) return; // a drag and a key press cannot both complete

@@ -37,7 +37,7 @@ Success for stage 1: Geb opens the URL on his Android phone, installs it to the 
 
 **App principles (Geb).**
 
-9. The app speaks but never listens. No microphone permission is ever requested by the app. The parent says every letter sound; the app does not pronounce them. The browser's text to speech reads words, prompts and instructions. Recorded clips for isolated letter sounds (see 7.5) stay in the project but play only if the parent turns on "Play recorded letter sounds" in Grownups (setting `playSounds`, off by default). With it off, a clip part in any spoken line is skipped silently and never replaced by text to speech, and the lines that would end in a clip have quiet variants in `curriculum.json`. The parent's live voice is the teacher; the app's voice supports it.
+9. The app speaks but never listens. No microphone permission is ever requested by the app. The parent says every letter sound; the app does not pronounce them. The browser's text to speech reads words, prompts and instructions. Recorded clips for isolated letter sounds (see 7.5) stay in the project but play only if the parent turns on "Play recorded letter sounds" in Grownups (setting `playSounds`, off by default). With it off, a clip part in any spoken line is skipped silently and never replaced by text to speech, and the lines that would end in a clip have quiet variants in `curriculum.json`. The parent's live voice is the teacher; the app's voice supports it. Separate from all of that, the app plays short musical sound effects for things that get completed (section 18); they never say or imitate a letter sound or a word, and there is none for a wrong touch.
 10. An adult sits with the child. Every task shows a short parent script.
 11. Progress is decided by the parent, who taps "Got it" or "Practice again" at the end of each lesson. No automatic pass or fail.
 12. Lesson flow copies the seven Reading.com tasks in order: Letter Review, New Letter, Sound Story, Saying Words, Saying Sounds, Letter Writing, Quick Check, with two games of our own inserted before Quick Check (see 6.4): Letter Hunt and Barn Doors. Lesson 1 has nothing to review and so has eight tasks; lessons 2 and 3 have nine.
@@ -558,7 +558,7 @@ Defaults in this plan, taken as approved unless Geb says otherwise:
 Decided by Geb in round 2 (see section 17):
 
 - The app does not pronounce letter sounds; the parent says them. The recorded clips stay behind the Grownups switch "Play recorded letter sounds", off by default.
-- Each lesson gets two games of our own, Letter Hunt (a sheep crosses a field) and Barn Doors, modelled on the example screenshots in `docs/reference/`. They are silent, never score and never say wrong.
+- Each lesson gets two games of our own, Letter Hunt (a sheep crosses a field) and Barn Doors, modelled on the example screenshots in `docs/reference/`. They never score and never say wrong; they have musical sound effects for completions only (section 18), never for a wrong touch.
 
 ## 16. Post-review changes
 
@@ -573,7 +573,7 @@ Five independent reviews produced `docs/FIXES-round1.md` (37 numbered fixes in f
 Decisions fixed by Geb in that round: inside words m and s may render from the font (only "a" always comes from `glyphs.js`); words with untaught letters may appear as picture labels; the alphabet song row stays, as Geb's deliberate exception to the letters-not-names rule; the debug routes stay but are not precached.
 
 
-## 17. Round 2: quiet sounds, games, sack, tiles and sliding (v1.3.1)
+## 17. Round 2: quiet sounds, games, sack, tiles and sliding
 
 Specified in `docs/ROUND2-games.md`; Geb's example screenshots are in `docs/reference/`.
 
@@ -585,3 +585,24 @@ Specified in `docs/ROUND2-games.md`; Geb's example screenshots are in `docs/refe
 - **Tests.** `test/games.mjs` drives both games by real touch at the three viewports (overlap, sizes, wrong and right touches, done state, Again, reduced motion, no clip or speech during play); `test/smoke.mjs` runs it.
 
 Mentava picture tiles (step 7 of round 2): Geb supplied Mentava's pictures for every sound; they are 512 px WebP in `assets/images/mentava/web/<slug>/<word>.webp`, indexed by `web/index.json`. The app uses them wherever a child sees a picture of a word, in a fixed square frame (`object-fit: contain`, rounded, soft background) so different tile shapes never move a layout: New Letter tiles, Saying Sounds picture words, Quick Check picture options and the Sound Sack cards. Word lists: m = map, milk, mop, moon; a = apple, hat, cat, crab; s = sock, snake, snail, sun. Lesson 1's picture words are moon, map, mop. The Sound Sack start words are m: map, milk, mop, moon; a: apple, astronaut; s: sock, snake, snail, sun, and its distractor pool is 49 tiles of words that begin with none of m, a or s. Image alt text is the word. The service worker precaches exactly the tiles `curriculum.json` uses (`node tools/precache-images.mjs` prints the list).
+
+## 18. Sound effects (`js/sfx.js`)
+
+Geb wanted little jingles when things are completed. This changes an earlier decision (round 2 had the games play no sound effects); the rule about letter sounds is unchanged: sound effects are musical and never say or imitate a letter sound or a word.
+
+- Synthesized with the Web Audio API: no audio files, nothing to precache but the script, works offline. One shared `AudioContext`, made lazily on the first tap (the same gesture that unlocks speech), resumed after the page was hidden or the context suspended. Every call is wrapped: a missing, blocked or throwing `AudioContext` never throws and never blocks the screen.
+- A master gain (0.22 at the default volume setting of 0.6; the volume setting scales it) into a soft limiter (a `DynamicsCompressor`), so nothing is ever loud or harsh. The voice is a soft bell: a sine with one quiet partial an octave up (only where that stays under about 2.1 kHz), a 5 ms attack and an exponential decay of 350 to 900 ms. Notes come only from C major pentatonic (C5 D5 E5 G5 A5 C6), so anything heard together is pleasant. No square waves, nothing shrill, nothing above C6 (its partial is 2.09 kHz).
+- Events, each played with `sfx.play(name)`:
+  - `sparkle`: a quick rising arpeggio C5 E5 G5 with a high shimmer C6 (about 1.2 s). Played by the sparkle helper when a slide track reaches its end, a slide-to-blend word is completed, and a Barn Doors letter is found.
+  - `pop`: one bell, one step up the scale for each right touch in Letter Hunt (C5, D5, E5, G5, A5), as the sheep takes its step.
+  - `star`: a bright two-note chime G5 then C6 when a Barn Doors star fills (just after the sparkle) and when a Sound Sack card goes into the bag (with a tiny downward "bloop" under it).
+  - `doors`: a soft airy whoosh (filtered noise, 250 ms, very quiet) as the barn doors open. Closing is silent.
+  - `win`: a happy jingle of seven notes up the scale, ending on a held C6 with a gentle shimmer (about 1.6 s), when the sheep reaches the barn and at five Barn Doors stars.
+  - `lesson`: a warmer jingle (C5 E5 G5 A5 G5 C6 and a soft chord, about 1.9 s) when the finish screen appears, after the voice's "Good job." has finished.
+  - `unlock`: a sparkle and a rising two-note flourish on the second tap of "Yes, go on".
+  - `checkpoint`: like `win` but a longer phrase (about 2.2 s) when the six Sound Sack rounds are done.
+  - No sound for ordinary taps, Next, Again, navigation or any wrong touch, ever.
+- Every sound is under 2.5 s and they do not overlap: a new jingle (`win`, `lesson`, `unlock`, `checkpoint`) cuts short anything still ringing, and a short sound never starts over a ringing jingle.
+- The voice comes first: a short effect is skipped while text to speech is speaking; a jingle waits for a voice that started within the last second and plays when it finishes.
+- Settings `sfx` (default on) and `sfxVolume` (default 0.6, 0 to 1). Grownups has a "Sound effects" switch, a volume slider and a "Test sound" button that plays `lesson`. Both settings survive a reset like the voice settings. Reduced motion does not affect sound.
+- Tests record what would be scheduled (`AUDIO_STUB` in `test/stubs.mjs` replaces Web Audio in every test); `test/sfx.mjs` checks the notes, pitch, length and wiring of each event. Sound cannot be heard in the test environment.
