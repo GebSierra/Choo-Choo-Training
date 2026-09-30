@@ -1,1 +1,437 @@
-{"version":2,"sounds":{},"lessons":[]}
+{
+  "version": 2,
+  "playlistUrl": "https://m.youtube.com/playlist?list=PL2hNdtrsO2hIINInfmEb55IpwTw0IrQZW",
+  "sounds": {
+    "m": {
+      "glyph": "m",
+      "sayItLike": "mmm",
+      "hold": true,
+      "doNotSay": "muh",
+      "howTo": "Press your lips together and hum. Hold it: mmm.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/m.webm",
+      "words": [
+        {
+          "word": "moon",
+          "image": null,
+          "emoji": "🌙"
+        },
+        {
+          "word": "map",
+          "image": null,
+          "emoji": "🗺️"
+        },
+        {
+          "word": "milk",
+          "image": null,
+          "emoji": "🥛"
+        },
+        {
+          "word": "monkey",
+          "image": null,
+          "emoji": "🐵"
+        },
+        {
+          "word": "mouse",
+          "image": null,
+          "emoji": "🐭"
+        }
+      ]
+    },
+    "a": {
+      "glyph": "a",
+      "sayItLike": "a",
+      "hold": true,
+      "doNotSay": null,
+      "howTo": "Say a as in apple. Open your mouth wide.",
+      "asIn": "apple",
+      "clip": "assets/audio/sounds/a.webm",
+      "words": [
+        {
+          "word": "apple",
+          "image": "assets/images/mentava/web/a/apple.webp",
+          "emoji": "🍎"
+        },
+        {
+          "word": "hat",
+          "image": "assets/images/mentava/web/a/hat.webp",
+          "emoji": "👒"
+        },
+        {
+          "word": "cat",
+          "image": "assets/images/mentava/web/a/cat.webp",
+          "emoji": "🐈"
+        },
+        {
+          "word": "crab",
+          "image": "assets/images/mentava/web/a/crab.webp",
+          "emoji": "🦀"
+        },
+        {
+          "word": "astronaut",
+          "image": "assets/images/mentava/web/a/astronaut.webp",
+          "emoji": "🧑‍🚀"
+        },
+        {
+          "word": "axe",
+          "image": "assets/images/mentava/web/a/axe.webp",
+          "emoji": "🪓"
+        }
+      ]
+    },
+    "s": {
+      "glyph": "s",
+      "sayItLike": "sss",
+      "hold": true,
+      "doNotSay": "suh",
+      "howTo": "Teeth close together, push air out like a snake. Hold it: sss.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/s.webm",
+      "words": [
+        {
+          "word": "sun",
+          "image": null,
+          "emoji": "☀️"
+        },
+        {
+          "word": "sock",
+          "image": null,
+          "emoji": "🧦"
+        },
+        {
+          "word": "snake",
+          "image": null,
+          "emoji": "🐍"
+        },
+        {
+          "word": "soup",
+          "image": null,
+          "emoji": "🍲"
+        },
+        {
+          "word": "swan",
+          "image": null,
+          "emoji": "🦢"
+        }
+      ]
+    }
+  },
+  "lessons": [
+    {
+      "number": 1,
+      "sound": "m",
+      "review": [],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "m"
+        }
+      ],
+      "sayingWords": [
+        {
+          "parts": [
+            "sun",
+            "set"
+          ],
+          "word": "sunset",
+          "emoji": [
+            "☀️",
+            "🌇"
+          ]
+        },
+        {
+          "parts": [
+            "cup",
+            "cake"
+          ],
+          "word": "cupcake",
+          "emoji": [
+            "☕",
+            "🧁"
+          ]
+        },
+        {
+          "parts": [
+            "pop",
+            "corn"
+          ],
+          "word": "popcorn",
+          "emoji": [
+            "💥",
+            "🌽"
+          ]
+        },
+        {
+          "parts": [
+            "rain",
+            "bow"
+          ],
+          "word": "rainbow",
+          "emoji": [
+            "🌧️",
+            "🌈"
+          ]
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "moon",
+          "emoji": "🌙",
+          "showLetters": false
+        },
+        {
+          "word": "map",
+          "emoji": "🗺️",
+          "showLetters": false
+        },
+        {
+          "word": "mom",
+          "emoji": "👩",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which picture starts with"
+          },
+          {
+            "clip": "m"
+          }
+        ],
+        "promptText": "Which picture starts with mmm?",
+        "kind": "picture",
+        "options": [
+          {
+            "emoji": "🌙",
+            "word": "moon",
+            "correct": true
+          },
+          {
+            "emoji": "🍎",
+            "word": "apple",
+            "correct": false
+          },
+          {
+            "emoji": "☀️",
+            "word": "sun",
+            "correct": false
+          }
+        ]
+      }
+    },
+    {
+      "number": 2,
+      "sound": "a",
+      "review": [
+        "m"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "a"
+        },
+        {
+          "tts": "as in apple."
+        }
+      ],
+      "sayingWords": [
+        {
+          "parts": [
+            "cat",
+            "fish"
+          ],
+          "word": "catfish",
+          "emoji": [
+            "🐈",
+            "🐟"
+          ]
+        },
+        {
+          "parts": [
+            "pan",
+            "cake"
+          ],
+          "word": "pancake",
+          "emoji": [
+            "🍳",
+            "🥞"
+          ]
+        },
+        {
+          "parts": [
+            "hand",
+            "bag"
+          ],
+          "word": "handbag",
+          "emoji": [
+            "✋",
+            "👜"
+          ]
+        },
+        {
+          "parts": [
+            "star",
+            "fish"
+          ],
+          "word": "starfish",
+          "emoji": [
+            "⭐",
+            "🐟"
+          ]
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "am",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "ma",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "map",
+          "emoji": "🗺️",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "a"
+          },
+          {
+            "tts": "as in apple?"
+          }
+        ],
+        "promptText": "Which letter says a, as in apple?",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "a",
+            "correct": true
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      }
+    },
+    {
+      "number": 3,
+      "sound": "s",
+      "review": [
+        "m",
+        "a"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "s"
+        }
+      ],
+      "sayingWords": [
+        {
+          "parts": [
+            "sun",
+            "flower"
+          ],
+          "word": "sunflower",
+          "emoji": [
+            "☀️",
+            "🌻"
+          ]
+        },
+        {
+          "parts": [
+            "snow",
+            "man"
+          ],
+          "word": "snowman",
+          "emoji": [
+            "❄️",
+            "⛄"
+          ]
+        },
+        {
+          "parts": [
+            "sea",
+            "horse"
+          ],
+          "word": "seahorse",
+          "emoji": [
+            "🌊",
+            "🐴"
+          ]
+        },
+        {
+          "parts": [
+            "foot",
+            "ball"
+          ],
+          "word": "football",
+          "emoji": [
+            "🦶",
+            "🏈"
+          ]
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "sam",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "am",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "ma",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "s"
+          }
+        ],
+        "promptText": "Which letter says sss?",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "s",
+            "correct": true
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          },
+          {
+            "glyph": "a",
+            "correct": false
+          }
+        ]
+      }
+    }
+  ]
+}
