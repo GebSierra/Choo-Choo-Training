@@ -70,12 +70,12 @@ export function grownupsScreen(ctx) {
   const paintClips = (status) => clipList.replaceChildren(...Object.keys(curriculum.sounds).map((k) => h('div', { class: 'gu-row slim' },
     h('span', { class: 'gu-glyph' }, glyphSvg(k, { color: accentOf(k), label: 'sound clip' })),
     h('div', { class: 'gu-row-text' }, h('span', { class: 'gu-sub' }, richText(soundPhrase(curriculum.sounds[k])))),
-    h('span', { class: 'gu-pill ' + (status && status[k] ? 'ok' : 'no') }, status ? (status[k] ? 'found' : 'missing') : 'checking'))));
+    h('span', { class: 'gu-pill ' + (status && status[k] ? 'ok' : 'no') }, status ? (status[k] ? 'found' : status[k] === false ? 'missing' : 'unknown') : 'checking'))));
   paintClips(null);
   speech.checkClips().then(paintClips).catch(() => paintClips({}));
 
   const sec = (title, ...kids) => h('section', { class: 'gu-card' }, h('h2', {}, title), ...kids);
-  return h('div', { class: 'grownups' },
+  const root = h('div', { class: 'grownups' },
     h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to the path', onclick: () => router.go('/home') }, icon('back', 28)), h('h1', {}, 'Grownups')),
     h('div', { class: 'gu-body' },
       sec('Lessons', lessonsBox, resetBox),
@@ -88,4 +88,6 @@ export function grownupsScreen(ctx) {
         h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Alphabet song')),
       sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),
       h('p', { class: 'gu-version' }, `Reading version ${APP_VERSION}`)));
+  root.cleanup = () => clearTimeout(voiceTimer);
+  return root;
 }

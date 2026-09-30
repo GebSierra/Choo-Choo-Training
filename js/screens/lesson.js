@@ -58,7 +58,7 @@ export function lessonScreen({ store, router, curriculum, speech }, n) {
   } }, startLabel, icon('arrowRight', 24));
 
   // Optional alphabet song: not one of the tasks, so it never counts toward progress.
-  const openSong = () => { const w = window.open(curriculum.alphabetSongUrl, '_blank'); if (w) w.opener = null; };
+  const openSong = () => window.open(curriculum.alphabetSongUrl, '_blank', 'noopener');
   const song = h('section', { class: 'song-row', 'aria-label': 'Alphabet song' },
     h('span', { class: 'song-thumb' }, icon('play', 26)),
     h('div', { class: 'song-text' }, h('strong', {}, 'Alphabet song'), h('p', { class: 'parent-note' }, 'Optional: play the alphabet song together, then start the lesson.')),

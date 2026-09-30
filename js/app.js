@@ -6,8 +6,6 @@ import { createSpeech } from './speech.js';
 import { grownupsScreen } from './screens/grownups.js';
 import { taskScreen } from './screens/task.js';
 import { finishScreen } from './screens/finish.js';
-import { labScreen } from './screens/lab.js';
-import { glyphsDebug } from './screens/glyphs-debug.js';
 
 async function boot() {
   const root = document.getElementById('app');
@@ -32,8 +30,8 @@ async function boot() {
   const speech = createSpeech({ store, curriculum });
   store.touch();
   const ctx = { store, curriculum, speech, router: null };
-  // Browsers only allow speech after a tap. The first pointerdown unlocks it for this page session.
-  addEventListener('pointerdown', () => speech.unlock(), { capture: true, once: true });
+  // Browsers only allow speech after a completed tap, so the first pointerup (or click) unlocks it for this page session.
+  for (const type of ['pointerup', 'click']) addEventListener(type, () => speech.unlock(), { capture: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) speech.cancel(); });
   const routes = [
     { re: /^\/home$/, screen: homeScreen },
@@ -41,11 +39,19 @@ async function boot() {
     { re: /^\/lesson\/(\d+)\/task\/(\d+)$/, screen: taskScreen },
     { re: /^\/lesson\/(\d+)\/finish$/, screen: finishScreen },
     { re: /^\/grownups$/, screen: grownupsScreen },
-    { re: /^\/lab$/, screen: labScreen },
-    { re: /^\/glyphs$/, screen: glyphsDebug },
+    // Debug routes for development and the smoke test. Loaded on demand and not precached by sw.js.
+    { re: /^\/lab$/, screen: (...a) => import('./screens/lab.js').then((m) => m.labScreen(...a)) },
+    { re: /^\/glyphs$/, screen: (...a) => import('./screens/glyphs-debug.js').then((m) => m.glyphsDebug(...a)) },
   ];
   ctx.router = createRouter(root, routes, ctx);
   await ctx.router.start();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if ('serviceWorker' in navigator) {
+    // A new service worker takes over: reload, but only when the parent next returns to Home, never mid-task.
+    const hadController = !!navigator.serviceWorker.controller;
+    let updated = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) updated = true; });
+    addEventListener('hashchange', () => { if (updated && location.hash === '#/home') location.reload(); });
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
 }
 boot();

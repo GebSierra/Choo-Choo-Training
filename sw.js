@@ -7,7 +7,7 @@ const APP_FILES = [
   'css/app.css',
   'js/app.js', 'js/dom.js', 'js/router.js', 'js/store.js', 'js/speech.js', 'js/glyphs.js', 'js/theme.js', 'js/letters.js', 'js/lessons.js', 'js/scripts.js', 'js/version.js',
   'js/components/slide-track.js', 'js/components/trace-pad.js', 'js/components/hold-button.js', 'js/components/speak-button.js', 'js/components/sound-card.js',
-  'js/screens/home.js', 'js/screens/lesson.js', 'js/screens/task.js', 'js/screens/finish.js', 'js/screens/grownups.js', 'js/screens/lab.js', 'js/screens/glyphs-debug.js',
+  'js/screens/home.js', 'js/screens/lesson.js', 'js/screens/task.js', 'js/screens/finish.js', 'js/screens/grownups.js',
   'js/screens/tasks/review.js', 'js/screens/tasks/new-letter.js', 'js/screens/tasks/story.js', 'js/screens/tasks/words.js', 'js/screens/tasks/sounds.js', 'js/screens/tasks/writing.js', 'js/screens/tasks/check.js',
   'data/curriculum.json',
   'assets/fonts/nunito-latin.woff2',
@@ -22,8 +22,10 @@ const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3'
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_VERSION);
-    await cache.addAll(APP_FILES);
-    await Promise.all(OPTIONAL_FILES.map((f) => cache.add(f).catch(() => {})));
+    // cache: 'reload' skips the browser's HTTP cache, so a new version never precaches stale files.
+    const fresh = (f) => new Request(f, { cache: 'reload' });
+    await cache.addAll(APP_FILES.map(fresh));
+    await Promise.all(OPTIONAL_FILES.map((f) => cache.add(fresh(f)).catch(() => {})));
     await self.skipWaiting();
   })());
 });
@@ -42,15 +44,22 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.origin && url.origin !== location.origin) return; // never touch other origins
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_VERSION);
-    // Content: network first, cache as the fallback, so edits show up when online.
+    // Content: network first (2.5 s, then the cache), so edits show up when online and a bad connection does not hang.
     if (url.pathname.endsWith('/data/curriculum.json')) {
-      try { const res = await fetch(req); if (res.ok) cache.put(req, res.clone()); return res; } catch { const hit = await cache.match(req); if (hit) return hit; throw new Error('offline'); }
+      const stop = new AbortController();
+      const timer = setTimeout(() => stop.abort(), 2500);
+      try {
+        const res = await fetch(req, { signal: stop.signal });
+        clearTimeout(timer);
+        if (res.status === 200) event.waitUntil(cache.put(req, res.clone()));
+        return res;
+      } catch { clearTimeout(timer); const hit = await cache.match(req); if (hit) return hit; throw new Error('offline'); }
     }
     const hit = await cache.match(req, { ignoreSearch: true });
     if (hit) return hit;
     try {
       const res = await fetch(req);
-      if (res.ok && res.type === 'basic') cache.put(req, res.clone()); // 404s (missing clips) are not cached
+      if (res.status === 200 && res.type === 'basic') event.waitUntil(cache.put(req, res.clone())); // not 404s (missing clips) and not 206 partial audio
       return res;
     } catch {
       if (req.mode === 'navigate') { const shell = await cache.match('index.html'); if (shell) return shell; }

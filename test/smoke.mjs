@@ -395,9 +395,14 @@ for (const [name, raw] of [
   const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
   const listed = new Set([...sw.matchAll(/'((?:js|css|data|icons|assets)\/[^']+)'/g)].map((m) => m[1]));
   const walk = (d) => fs.readdirSync(path.join(ROOT, d), { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
-  const need = [...walk('js'), 'css/app.css', 'data/curriculum.json'];
+  const DEBUG = ['js/screens/lab.js', 'js/screens/glyphs-debug.js'];
+  const need = [...walk('js').filter((f) => !DEBUG.includes(f)), 'css/app.css', 'data/curriculum.json'];
   const missingFromSw = need.filter((f) => !listed.has(f));
   ok(missingFromSw.length === 0, 'sw precache lists every js/css/data file; missing: ' + missingFromSw.join(', '));
+  ok(DEBUG.every((f) => !listed.has(f)), 'sw does not precache the lab and glyphs debug screens');
+  const cur = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
+  const images = Object.values(cur.sounds).flatMap((s) => s.words.map((w) => w.image)).filter(Boolean);
+  ok(images.length > 0 && images.every((f) => listed.has(f)), 'every image in curriculum.json is precached; missing: ' + images.filter((f) => !listed.has(f)).join(', '));
   ok(![...listed].some((f) => f.includes('/ipa/') || f.endsWith('.png') && f.includes('mentava/') && !f.includes('/web/')), 'sw does not precache ipa recordings or the PNG originals');
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0], { serviceWorkers: 'allow' });
   await page.addInitScript(SEED({}));
@@ -506,6 +511,46 @@ for (const [name, raw] of [
   await page.goto(url);
   await page.waitForSelector('.retry-card');
   ok(/try again/i.test(await page.locator('.retry-card .btn').innerText()), 'retry card appears when the lessons do not load');
+  await ctx.close();
+}
+
+{
+  // Fixes 14, 16, 17: Quick Check picks reset, no stale speech after leaving, cancel stops the queue.
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(ALL_OPEN);
+  await page.goto(url + '#/lesson/3/task/6');
+  await page.waitForSelector('.opt-card');
+  await page.waitForTimeout(500);
+  const picked = () => page.locator('.opt-card.picked').count();
+  await page.locator('.opt-card').nth(0).click();
+  await page.locator('.opt-card').nth(1).click();
+  ok((await picked()) === 1 && (await page.locator('.opt-card').nth(1).getAttribute('class')).includes('picked'), 'Quick Check: only the last pick is raised');
+  await page.click('.btn.again');
+  ok((await picked()) === 0 && (await page.locator('.opt-card[aria-pressed="true"]').count()) === 0, 'Quick Check: Again lowers every card');
+  // Saying Words: leave right after revealing; the word must not be spoken on the next screen.
+  await page.goto(url + '#/lesson/1/task/2');
+  await page.waitForSelector('.merged-tile');
+  await page.waitForTimeout(700);
+  await page.locator('.merged-tile').click();
+  await page.evaluate(() => { location.hash = '#/lesson/1'; });
+  await page.waitForSelector('.lesson-overview');
+  await page.evaluate(() => { window.__spoken.length = 0; });
+  await page.waitForTimeout(700);
+  ok(!(await page.evaluate(() => window.__spoken)).includes('sunhat'), 'no speech from the screen we just left (stale timer)');
+  // Cancel while a clip plays: the rest of the line never plays.
+  await page.evaluate(() => { window.__clipMs = 700; });
+  await page.goto(url + '#/lesson/2/task/1');
+  await page.waitForSelector('.task-stage > .speak-btn');
+  await page.waitForTimeout(1800); // the automatic line on entry has finished
+  await page.evaluate(() => { window.__events.length = 0; });
+  await page.locator('.task-stage > .speak-btn').click();
+  await page.waitForFunction(() => window.__events.some((e) => e.type === 'clip'));
+  await page.locator('.task-stage > .speak-btn').click();
+  await page.evaluate(() => { window.__events.length = 0; });
+  await page.waitForTimeout(1000);
+  ok((await page.evaluate(() => window.__events.length)) === 0 && !(await page.locator('.task-stage > .speak-btn.is-speaking').count()), 'cancel during a clip stops the rest of the line');
+  ok(errors.length === 0, 'cancel/stale errors ' + errors.join(' | '));
   await ctx.close();
 }
 

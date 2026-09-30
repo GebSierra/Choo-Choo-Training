@@ -72,7 +72,7 @@ export function taskScreen(ctx, n, idx) {
   // Next stays dimmed for a second so a quick double tap cannot skip the task.
   const nextTimer = setTimeout(() => { next.disabled = false; }, 1000);
   const timer = setTimeout(() => { if (current.onShow) current.onShow(); speech.autoSay(current.parts()); }, 420);
-  root.cleanup = () => { clearTimeout(timer); clearTimeout(nextTimer); if (current.cleanup) current.cleanup(); };
+  root.cleanup = () => { clearTimeout(timer); clearTimeout(nextTimer); speaker.cleanup(); scriptSpeaker.cleanup(); if (current.cleanup) current.cleanup(); };
   animate(stage, [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 60 });
   animate(foot, [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 120 });
   return root;

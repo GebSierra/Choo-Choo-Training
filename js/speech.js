@@ -71,29 +71,31 @@ export function createSpeech({ store, curriculum }) {
     return els;
   }
 
-  function playAudio(url, key, run, quiet, el) {
+  // Resolves 'played', 'missing' (the file failed to load) or 'skipped' (cancelled, blocked by the
+  // browser or timed out, which says nothing about the file).
+  function playAudio(url, key, run, el) {
     return new Promise((resolve) => {
       let settled = false;
       const audio = el || new Audio();
-      const finish = (ok) => {
+      const mine = { stop: () => { audio.pause(); finish('skipped'); } };
+      const finish = (state) => {
         if (settled) return; settled = true;
         clearTimeout(startTimer); clearTimeout(maxTimer);
-        active = null;
-        if (key && ok) { clipStatus[key] = true; if (missing.delete(key)) emit(); }
-        if (key && !ok && !quiet) { missing.add(key); emit(); }
-        resolve(ok);
+        if (active === mine) active = null;
+        if (key && state === 'played') { clipStatus[key] = true; if (missing.delete(key)) emit(); }
+        resolve(state);
       };
-      const startTimer = setTimeout(() => { audio.pause(); finish(false); }, START_TIMEOUT + 1500);
-      const maxTimer = setTimeout(() => { audio.pause(); finish(true); }, 8000);
+      const startTimer = setTimeout(() => { audio.pause(); finish('skipped'); }, START_TIMEOUT + 1500);
+      const maxTimer = setTimeout(() => { audio.pause(); finish('skipped'); }, 8000);
       audio.addEventListener('playing', () => clearTimeout(startTimer), { once: true });
-      audio.addEventListener('ended', () => finish(true), { once: true });
-      audio.addEventListener('error', () => finish(false), { once: true });
-      active = { stop: () => { audio.pause(); finish(true); } };
+      audio.addEventListener('ended', () => finish('played'), { once: true });
+      audio.addEventListener('error', () => finish('missing'), { once: true });
+      active = mine;
       if (!el) { audio.preload = 'auto'; audio.src = url; }
-      else if (audio.error) return finish(false); // the preloaded file already failed to load
+      else if (audio.error) return finish('missing'); // the preloaded file already failed to load
       else audio.currentTime = 0; // the same clip may play twice in one phrase
       const p = audio.play();
-      if (p && p.catch) p.catch(() => finish(false));
+      if (p && p.catch) p.catch(() => finish('skipped')); // a refused play() is not a missing file
     });
   }
 
@@ -126,7 +128,6 @@ export function createSpeech({ store, curriculum }) {
     const run = ++runId;
     speaking = true; emit();
     try {
-      if (synth) { try { synth.cancel(); } catch {} }
       const loaded = preload(list);
       for (const part of list) {
         if (run !== runId) return;
@@ -135,9 +136,14 @@ export function createSpeech({ store, curriculum }) {
           await speakText(part.tts, run);
         } else if (part.clip !== undefined) {
           // Try each candidate file; if none plays, skip the part. Never replaced by text to speech.
-          let played = false;
-          for (const url of clipUrls(part.clip)) { if (run !== runId) return; if (await playAudio(url, part.clip, run, true, loaded.get(url))) { played = true; break; } }
-          if (!played && clipUrls(part.clip).length) { missing.add(part.clip); clipStatus[part.clip] = false; emit(); }
+          const states = [];
+          for (const url of clipUrls(part.clip)) {
+            if (run !== runId) return;
+            const st = await playAudio(url, part.clip, run, loaded.get(url));
+            states.push(st);
+            if (st !== 'missing') break;
+          }
+          if (states.length && states.every((st) => st === 'missing')) { missing.add(part.clip); clipStatus[part.clip] = false; emit(); }
         } else if (part.src !== undefined) {
           await playAudio(part.src, null, run);
         } else if (part.pause !== undefined) {
@@ -156,17 +162,19 @@ export function createSpeech({ store, curriculum }) {
     if (speaking) { speaking = false; emit(); }
   }
 
-  // Ask the server whether each clip exists, for the Grownups screen.
+  // Ask whether each clip exists, for the Grownups screen. A network failure means unknown (null), not missing.
   async function checkClips() {
     for (const key of Object.keys(curriculum.sounds)) {
-      try {
-        clipStatus[key] = false;
-        for (const url of clipUrls(key)) {
-          const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
-          if (r.ok && /audio|video|octet/i.test(r.headers.get('content-type') || 'audio')) { clipStatus[key] = url; break; }
-        }
-      } catch { clipStatus[key] = false; }
-      if (clipStatus[key]) missing.delete(key); else missing.add(key);
+      let found = false, unknown = false;
+      for (const url of clipUrls(key)) {
+        try {
+          const r = await fetch(url);
+          if (r.body) r.body.cancel();
+          if (r.ok && /audio|video|octet/i.test(r.headers.get('content-type') || 'audio')) { found = url; break; }
+        } catch { unknown = true; }
+      }
+      clipStatus[key] = found || (unknown ? null : false);
+      if (found) missing.delete(key); else if (!unknown) missing.add(key);
     }
     emit();
     return { ...clipStatus };

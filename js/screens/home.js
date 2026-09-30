@@ -9,6 +9,9 @@ const LANDSCAPE = [[26, 56], [50, 52], [78, 30]];
 const PORTRAIT_PATH = [[26, 74], [48, 71], [60, 62], [58, 50], [44, 42], [58, 35], [72, 27]];
 const LANDSCAPE_PATH = [[26, 56], [36, 63], [44, 60], [50, 52], [62, 46], [70, 38], [78, 30]];
 
+// Stone n's position; a fourth lesson and beyond continue up and to the right.
+const at = (list, n) => list[n - 1] || [Math.min(88, list[list.length - 1][0] + 8 * (n - list.length)), Math.max(10, list[list.length - 1][1] - 14 * (n - list.length))];
+
 // Smooth curve through points (Catmull-Rom to cubic Bezier), in a 0..100 box.
 function curve(pts) {
   let d = `M${pts[0][0]} ${pts[0][1]}`;
@@ -59,7 +62,7 @@ function stone(n, sound, state, curriculum, onTap, speech) {
     : state === 'locked' ? h('span', { class: 'stone-badge lock' }, icon('lock', 16)) : null;
   const btn = h('button', { class: `stone is-${state}`, type: 'button', style: { '--accent': accent }, 'aria-label': `Lesson ${n}${state === 'locked' ? ', locked' : state === 'done' ? ', done' : ''}`, 'aria-disabled': state === 'locked' ? 'true' : null, onclick: () => onTap(btn, state) },
     state === 'current' ? h('span', { class: 'stone-ring' }) : null, h('span', { class: 'stone-base' }), top, badge);
-  const wrap = h('div', { class: 'stone-wrap', style: { '--px': PORTRAIT[n - 1][0] + '%', '--py': PORTRAIT[n - 1][1] + '%', '--lx': LANDSCAPE[n - 1][0] + '%', '--ly': LANDSCAPE[n - 1][1] + '%' } });
+  const wrap = h('div', { class: 'stone-wrap', style: { '--px': at(PORTRAIT, n)[0] + '%', '--py': at(PORTRAIT, n)[1] + '%', '--lx': at(LANDSCAPE, n)[0] + '%', '--ly': at(LANDSCAPE, n)[1] + '%' } });
   if (state === 'current') {
     wrap.append(h('button', { class: 'bubble', type: 'button', onclick: () => speech.say([{ tts: 'Tap to start' }]) }, icon('speaker', 18), h('span', {}, 'Tap to start')));
   }

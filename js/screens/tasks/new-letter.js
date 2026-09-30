@@ -19,12 +19,14 @@ export function build({ lesson, sound, speech, refresh }) {
       h('span', { class: 'pic' }, pic), h('span', { class: 'word' }, letterText(w.word, { tint: sound.glyph })));
     return t;
   }));
-  const el = h('div', { class: 'new-letter' }, card, soundCard(sound), slideTrack({ letter: sound.glyph, speech, sound }), tiles);
+  const track = slideTrack({ letter: sound.glyph, speech, sound });
+  const el = h('div', { class: 'new-letter' }, card, soundCard(sound), track, tiles);
   return {
     el,
     parts: () => lesson.intro,
     script: () => `Say ${soundPhrase(sound)}. Now you try. Slide the letter as you say it.`,
     onShow: () => drawIn(g),
+    cleanup: () => track.cleanup(),
     again: () => { drawIn(g); speech.say(lesson.intro); },
   };
 }

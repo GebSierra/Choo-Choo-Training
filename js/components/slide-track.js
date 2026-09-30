@@ -26,7 +26,7 @@ export function slideTrack({ letter, speech, sound, onComplete }) {
   const track = h('div', { class: 'slide-track', style: { '--accent': accent }, dataset: { count: '0' } }, fill, hint, goal, bloom, handle);
   track.classList.add('hold');
 
-  let W = 0, max = 0, x = 0, startX = 0, startPointer = 0, dragging = false, atEnd = false, idleTimer = 0, homeTimer = 0, glide = null, count = 0;
+  let W = 0, max = 0, x = 0, startX = 0, startPointer = 0, dragging = false, atEnd = false, idleTimer = 0, homeTimer = 0, glide = [], count = 0, keyBusy = false;
   const measure = () => { W = track.clientWidth; max = Math.max(1, W - HANDLE - PAD * 2); };
   const place = (px) => {
     x = Math.max(0, Math.min(max, px));
@@ -43,17 +43,20 @@ export function slideTrack({ letter, speech, sound, onComplete }) {
     idleTimer = setTimeout(() => track.classList.remove('moving'), 140);
   };
 
+  const stopGlide = () => { glide.forEach((a) => a.cancel()); glide = []; };
+
   function goHome(ms, easing) {
-    if (glide) glide.cancel();
+    stopGlide();
     const from = x;
     const a1 = animate(handle, [{ transform: `translate3d(${from}px,0,0)` }, { transform: 'translate3d(0,0,0)' }], { duration: ms, easing, fill: 'forwards' });
     const a2 = animate(fill, [{ transform: `translate3d(${from + HANDLE / 2 + PAD - W}px,0,0)` }, { transform: `translate3d(${HANDLE / 2 + PAD - W}px,0,0)` }], { duration: ms, easing, fill: 'forwards' });
-    glide = a1;
+    glide = [a1, a2];
     x = 0;
-    a1.finished.then(() => { place(0); a1.cancel(); a2.cancel(); glide = null; track.classList.remove('is-end'); atEnd = false; }).catch(() => {});
+    a1.finished.then(() => { place(0); stopGlide(); track.classList.remove('is-end'); atEnd = false; }).catch(() => {});
   }
 
   function complete() {
+    if (atEnd) return; // a drag and a key press cannot both complete
     atEnd = true; dragging = false;
     track.classList.remove('dragging');
     track.classList.add('is-end');
@@ -71,7 +74,7 @@ export function slideTrack({ letter, speech, sound, onComplete }) {
     if (atEnd) return;
     e.preventDefault();
     measure();
-    if (glide) { glide.cancel(); glide = null; }
+    stopGlide(); place(x);
     dragging = true; startPointer = e.clientX; startX = x;
     handle.setPointerCapture(e.pointerId);
     track.classList.add('dragging');
@@ -96,11 +99,11 @@ export function slideTrack({ letter, speech, sound, onComplete }) {
   handle.addEventListener('lostpointercapture', release);
   // Keyboard: activate to slide it across automatically.
   handle.addEventListener('keydown', (e) => {
-    if ((e.key === 'Enter' || e.key === ' ') && !atEnd) {
-      e.preventDefault(); measure();
+    if ((e.key === 'Enter' || e.key === ' ') && !atEnd && !keyBusy) {
+      e.preventDefault(); measure(); keyBusy = true;
       if (speech) speech.say([{ clip: letter }]);
       const a = animate(handle, [{ transform: 'translate3d(0,0,0)' }, { transform: `translate3d(${max}px,0,0)` }], { duration: 500, fill: 'forwards' });
-      a.finished.then(() => { a.cancel(); complete(); }).catch(() => {});
+      a.finished.then(() => { a.cancel(); keyBusy = false; complete(); }).catch(() => { keyBusy = false; });
     }
   });
   track.cleanup = () => { clearTimeout(homeTimer); clearTimeout(idleTimer); };

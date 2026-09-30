@@ -29,9 +29,10 @@ export const SPEECH_STUB = () => {
     a.play = () => {
       const src = a.src;
       window.__events.push({ type: 'clip', src: src.split('/').slice(-1)[0] });
-      if (/none|missing/.test(src)) { setTimeout(() => a.dispatchEvent(new Event('error')), 5); return Promise.reject(new Error('missing')); }
+      // A missing file fires its error event first, then the play() promise rejects, as browsers do.
+      if (/none|missing/.test(src)) return new Promise((_, reject) => setTimeout(() => { a.dispatchEvent(new Event('error')); reject(new Error('missing')); }, 5));
       setTimeout(() => { a.dispatchEvent(new Event('playing')); }, 5);
-      setTimeout(() => a.dispatchEvent(new Event('ended')), 30);
+      setTimeout(() => a.dispatchEvent(new Event('ended')), window.__clipMs || 30);
       return Promise.resolve();
     };
     return a;

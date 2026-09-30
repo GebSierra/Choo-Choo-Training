@@ -13,12 +13,15 @@ export function build({ lesson, curriculum, speech, refresh }) {
   const dots = h('div', { class: 'review-count' });
   const el = h('div', { class: 'review' }, dots, holder);
   const sound = () => curriculum.sounds[keys[i]];
+  let track = null;
 
   function show() {
     const s = sound();
+    if (track) track.cleanup();
     holder.replaceChildren();
     const g = glyphSvg(s.glyph, { color: accentOf(s.glyph), label: 'review letter' });
-    holder.append(h('div', { class: 'letter-card' }, g), slideTrack({ letter: s.glyph, speech, sound: s }), soundCard(s));
+    track = slideTrack({ letter: s.glyph, speech, sound: s });
+    holder.append(h('div', { class: 'letter-card' }, g), track, soundCard(s));
     dots.replaceChildren(...keys.map((k, j) => h('i', { class: j === i ? 'on' : '' })));
     drawIn(g, { per: 380 });
     refresh();
@@ -29,6 +32,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
     parts: () => { const s = sound(); return [{ clip: s.glyph }, { tts: s.words[0].word }]; },
     script: () => `Slide the letter and say its sound: ${soundPhrase(sound())}.`,
     again: () => { show(); speech.say([{ clip: sound().glyph }, { tts: sound().words[0].word }]); },
+    cleanup: () => track.cleanup(),
     next: () => { if (i < keys.length - 1) { i++; show(); speech.say([{ clip: sound().glyph }, { tts: sound().words[0].word }]); return true; } return false; },
   };
 }

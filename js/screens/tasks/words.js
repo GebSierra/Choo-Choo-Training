@@ -4,7 +4,7 @@ import { letterText } from '../../letters.js';
 // Task 4: two parts come together into a word.
 export function build({ lesson, speech, refresh }) {
   const list = lesson.sayingWords;
-  let i = 0, revealed = false;
+  let i = 0, revealed = false, sayTimer = 0;
   const body = h('div', { class: 'merge' });
   const el = h('div', { class: 'words-task' }, body);
   const cur = () => list[i];
@@ -12,6 +12,7 @@ export function build({ lesson, speech, refresh }) {
 
   function show() {
     revealed = false;
+    clearTimeout(sayTimer);
     const w = cur();
     const tileA = h('div', { class: 'part-tile a' }, h('span', { class: 'emoji' }, w.emoji[0]), h('span', { class: 'word' }, letterText(w.parts[0])));
     const tileB = h('div', { class: 'part-tile b' }, h('span', { class: 'emoji' }, w.emoji[1]), h('span', { class: 'word' }, letterText(w.parts[1])));
@@ -28,7 +29,7 @@ export function build({ lesson, speech, refresh }) {
       merged.replaceChildren(h('span', { class: 'emoji stack' }, w.emoji[1], h('span', { class: 'mini' }, w.emoji[0])), h('span', { class: 'word big' }, letterText(w.word)));
       merged.classList.add('revealed');
       animate(merged, [{ transform: 'scale(.8)', opacity: 0.4 }, { transform: 'scale(1)', opacity: 1 }], { duration: 360, delay: reduced() ? 0 : 200, easing: 'cubic-bezier(.34,1.56,.64,1)' });
-      setTimeout(() => speech.say([{ tts: w.word }]), 260);
+      sayTimer = setTimeout(() => speech.say([{ tts: w.word }]), 260);
     };
     merged.addEventListener('click', reveal);
     const nextWord = h('button', { class: 'btn ghost small', type: 'button', onclick: () => { i = (i + 1) % list.length; show(); speech.say(partsFor()); } }, 'Next word');
@@ -42,5 +43,6 @@ export function build({ lesson, speech, refresh }) {
     parts: () => (revealed ? [{ tts: cur().word }] : partsFor()),
     script: () => `I say two parts. You put them together. ${cur().parts[0]} ... ${cur().parts[1]}. What word? Then tap the picture to show the word.`,
     again: () => { show(); speech.say(partsFor()); },
+    cleanup: () => clearTimeout(sayTimer),
   };
 }

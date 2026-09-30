@@ -4,10 +4,7 @@ import { soundPhrase } from '../../lessons.js';
 
 // Task 3: the only place a child screen leads outside the app, and it sits behind a hold.
 export function build({ lesson, sound, curriculum, speech }) {
-  const open = () => {
-    const w = window.open(curriculum.playlistUrl, '_blank');
-    if (w) w.opener = null;
-  };
+  const open = () => window.open(curriculum.playlistUrl, '_blank', 'noopener');
   const el = h('div', { class: 'story' },
     h('div', { class: 'story-art' }, h('span', { class: 'play' }, icon('play', 52))),
     h('h2', {}, 'Time for the sound story.'),

@@ -13,13 +13,15 @@ export function tracePad({ letter, onStroke }) {
   const pad = h('div', { class: 'trace-pad', style: { '--accent': accent } }, guide, ink, fx);
   const strokes = strokePoints(letter, 120);
   let w = 0, hgt = 0, dpr = 1, s = 1, ox = 0, oy = 0;
-  let showing = false, raf = 0;
+  let showing = false, raf = 0, lastW = 0, lastH = 0;
+  const inked = []; // the child's strokes as fractions of the pad, so a resize can redraw them
 
   const map = ([x, y]) => [ox + x * s, oy + y * s];
 
   function layout() {
     const r = pad.getBoundingClientRect();
-    if (!r.width) return;
+    if (!r.width || (r.width === lastW && r.height === lastH)) return;
+    lastW = r.width; lastH = r.height;
     dpr = window.devicePixelRatio || 1;
     w = r.width; hgt = r.height;
     for (const c of [guide, ink, fx]) { c.width = Math.round(w * dpr); c.height = Math.round(hgt * dpr); }
@@ -27,6 +29,7 @@ export function tracePad({ letter, onStroke }) {
     ox = (w - BOX.w * s) / 2 - BOX.x * s;
     oy = (hgt - BOX.h * s) / 2 - BOX.y * s;
     drawGuide();
+    redrawInk();
   }
 
   function drawGuide() {
@@ -61,6 +64,18 @@ export function tracePad({ letter, onStroke }) {
     });
   }
 
+  function redrawInk() {
+    const c = ink.getContext('2d');
+    c.setTransform(dpr, 0, 0, dpr, 0, 0); c.lineCap = 'round'; c.lineJoin = 'round'; c.strokeStyle = accent; c.fillStyle = accent; c.lineWidth = width();
+    for (const st of inked) {
+      const p = st.map(([x, y]) => [x * w, y * hgt]);
+      if (p.length === 1) { c.beginPath(); c.arc(p[0][0], p[0][1], width() * 0.25, 0, Math.PI * 2); c.fill(); continue; }
+      c.beginPath(); c.moveTo(p[0][0], p[0][1]);
+      for (let i = 1; i < p.length; i++) c.lineTo(p[i][0], p[i][1]);
+      c.stroke();
+    }
+  }
+
   // ---- the child's ink ----
   let drawing = false, pts = [], t0 = 0;
   const width = () => w * 0.06;
@@ -72,6 +87,7 @@ export function tracePad({ letter, onStroke }) {
     e.preventDefault();
     ink.setPointerCapture(e.pointerId);
     drawing = true; t0 = performance.now(); pts = [pos(e)];
+    inked.push([[pts[0][0] / w, pts[0][1] / hgt]]);
     const c = ictx();
     // The round cap grows in over 80 ms at the start of each stroke.
     c.fillStyle = accent; c.beginPath(); c.arc(pts[0][0], pts[0][1], width() * 0.25, 0, Math.PI * 2); c.fill();
@@ -85,6 +101,7 @@ export function tracePad({ letter, onStroke }) {
       const last = pts[pts.length - 1];
       if (Math.hypot(p[0] - last[0], p[1] - last[1]) < 1.2) continue;
       pts.push(p);
+      inked[inked.length - 1].push([p[0] / w, p[1] / hgt]);
       const grow = reduced() ? 1 : Math.min(1, 0.25 + (performance.now() - t0) / 80 * 0.75);
       c.lineWidth = width() * grow;
       const n = pts.length;
@@ -99,7 +116,7 @@ export function tracePad({ letter, onStroke }) {
   ink.addEventListener('pointerup', end);
   ink.addEventListener('pointercancel', end);
 
-  pad.clear = () => { const c = ink.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, ink.width, ink.height); };
+  pad.clear = () => { inked.length = 0; const c = ink.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, ink.width, ink.height); };
 
   // "Show me": a glowing dot walks each stroke in order, leaving a fading trail.
   pad.showMe = () => new Promise((resolve) => {

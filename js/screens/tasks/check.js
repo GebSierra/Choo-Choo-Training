@@ -1,4 +1,4 @@
-import { h, animate } from '../../dom.js';
+import { h } from '../../dom.js';
 import { glyphSvg } from '../../glyphs.js';
 import { letterText, richText } from '../../letters.js';
 import { accentOf } from '../../theme.js';
@@ -16,7 +16,6 @@ export function build({ lesson, sound, speech }) {
       : h('span', { class: 'opt-pic' }, h('span', { class: 'emoji' }, o.emoji), h('span', { class: 'word' }, letterText(o.word)));
     const b = h('button', { class: 'opt-card', type: 'button', 'aria-pressed': 'false', 'aria-label': o.glyph ? 'letter choice' : o.word, onclick: () => {
       cards.forEach((c) => { c.classList.toggle('picked', c === b); c.setAttribute('aria-pressed', String(c === b)); });
-      animate(b, [{ transform: 'translateY(0)' }, { transform: 'translateY(-10px)' }], { duration: 160, fill: 'forwards' }).finished.then(() => {}).catch(() => {});
     } }, face);
     return b;
   });
