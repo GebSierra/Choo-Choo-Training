@@ -1,6 +1,6 @@
 # Reading App, Stage 1: Build Plan (v2)
 
-Owner: Geb. Executor: Claude Sonnet 5.5. Status: awaiting Geb's approval.
+Owner: Geb. Executor: Claude Sonnet 5.5. Status: approved by Geb on 2026-09-30. Lesson 3 is s.
 
 This plan tells the executing model exactly what to build, in what order, and how to prove it works. Read it all before writing code. Where it says "fixed", do not reopen the decision. Where it says "ask", stop and ask Geb.
 
