@@ -1,0 +1,501 @@
+{
+ "a": {
+  "sound": "a",
+  "sayItLike": "a as in apple",
+  "doNotSay": "",
+  "note": "Default sound for the letter a.",
+  "words": [
+   "apple",
+   "hat",
+   "cat",
+   "crab",
+   "astronaut",
+   "axe"
+  ]
+ },
+ "b": {
+  "sound": "b",
+  "sayItLike": "b-",
+  "doNotSay": "buh",
+  "note": "",
+  "words": [
+   "baby",
+   "banana",
+   "ball",
+   "bear",
+   "bus"
+  ]
+ },
+ "c-k": {
+  "sound": "c, k",
+  "sayItLike": "k-",
+  "doNotSay": "kuh",
+  "note": "One page covers both letters.",
+  "words": [
+   "cat",
+   "camel",
+   "candy",
+   "king",
+   "koala"
+  ]
+ },
+ "d": {
+  "sound": "d",
+  "sayItLike": "d-",
+  "doNotSay": "duh",
+  "note": "",
+  "words": [
+   "duck",
+   "deer",
+   "dog",
+   "door",
+   "dolphin"
+  ]
+ },
+ "e": {
+  "sound": "e",
+  "sayItLike": "ehhh",
+  "doNotSay": "ihhh",
+  "note": "Default sound for the letter e, as in egg.",
+  "words": [
+   "egg",
+   "hen",
+   "tent",
+   "red",
+   "nest"
+  ]
+ },
+ "f": {
+  "sound": "f",
+  "sayItLike": "fff",
+  "doNotSay": "fuh",
+  "note": "",
+  "words": [
+   "fan",
+   "fish",
+   "fork"
+  ]
+ },
+ "g": {
+  "sound": "g",
+  "sayItLike": "g-",
+  "doNotSay": "guh",
+  "note": "",
+  "words": [
+   "goat",
+   "gate",
+   "goose"
+  ]
+ },
+ "h": {
+  "sound": "h",
+  "sayItLike": "h-",
+  "doNotSay": "huh",
+  "note": "",
+  "words": [
+   "hat",
+   "hand",
+   "hippo"
+  ]
+ },
+ "i": {
+  "sound": "i",
+  "sayItLike": "i as in igloo",
+  "doNotSay": "",
+  "note": "Default sound for the letter i.",
+  "words": [
+   "igloo",
+   "sit",
+   "stick"
+  ]
+ },
+ "j": {
+  "sound": "j",
+  "sayItLike": "j-",
+  "doNotSay": "juh",
+  "note": "",
+  "words": [
+   "jam",
+   "jet",
+   "jump"
+  ]
+ },
+ "l": {
+  "sound": "l",
+  "sayItLike": "l-",
+  "doNotSay": "ull or luh",
+  "note": "Say lion but stop before ion.",
+  "words": [
+   "leaf",
+   "leg",
+   "ladder"
+  ]
+ },
+ "m": {
+  "sound": "m",
+  "sayItLike": "mmm",
+  "doNotSay": "muh",
+  "note": "",
+  "words": [
+   "map",
+   "milk",
+   "mop"
+  ]
+ },
+ "n": {
+  "sound": "n",
+  "sayItLike": "nnn",
+  "doNotSay": "nuh",
+  "note": "",
+  "words": [
+   "nut",
+   "nose",
+   "necklace"
+  ]
+ },
+ "o": {
+  "sound": "o",
+  "sayItLike": "o as in ox",
+  "doNotSay": "",
+  "note": "Default sound for the letter o.",
+  "words": [
+   "octopus",
+   "pot",
+   "rock"
+  ]
+ },
+ "p": {
+  "sound": "p",
+  "sayItLike": "p-",
+  "doNotSay": "puh",
+  "note": "",
+  "words": [
+   "pig",
+   "panda",
+   "pumpkin"
+  ]
+ },
+ "q": {
+  "sound": "q",
+  "sayItLike": "kw",
+  "doNotSay": "kwuh",
+  "note": "Say queen but stop before ee.",
+  "words": [
+   "queen",
+   "quack",
+   "quilt"
+  ]
+ },
+ "r": {
+  "sound": "r",
+  "sayItLike": "rrr",
+  "doNotSay": "ruh",
+  "note": "",
+  "words": [
+   "rabbit",
+   "rocket",
+   "robot"
+  ]
+ },
+ "s": {
+  "sound": "s",
+  "sayItLike": "sss",
+  "doNotSay": "suh",
+  "note": "",
+  "words": [
+   "sock",
+   "snake",
+   "snail"
+  ]
+ },
+ "t": {
+  "sound": "t",
+  "sayItLike": "t-",
+  "doNotSay": "tuh",
+  "note": "",
+  "words": [
+   "tiger",
+   "table",
+   "tree"
+  ]
+ },
+ "u": {
+  "sound": "u",
+  "sayItLike": "u as in up",
+  "doNotSay": "",
+  "note": "Default sound for the letter u.",
+  "words": [
+   "up",
+   "umbrella",
+   "bug",
+   "sun"
+  ]
+ },
+ "v": {
+  "sound": "v",
+  "sayItLike": "vvv",
+  "doNotSay": "vuh",
+  "note": "",
+  "words": [
+   "van",
+   "vest",
+   "volcano"
+  ]
+ },
+ "w": {
+  "sound": "w",
+  "sayItLike": "www",
+  "doNotSay": "wuh",
+  "note": "",
+  "words": [
+   "wagon",
+   "window",
+   "worm"
+  ]
+ },
+ "x": {
+  "sound": "x",
+  "sayItLike": "ks",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "box",
+   "fox",
+   "ox"
+  ]
+ },
+ "y": {
+  "sound": "y",
+  "sayItLike": "yee",
+  "doNotSay": "yuh",
+  "note": "Say yo but stop before oh.",
+  "words": [
+   "yarn",
+   "yellow",
+   "yoyo"
+  ]
+ },
+ "z": {
+  "sound": "z",
+  "sayItLike": "zzz",
+  "doNotSay": "sss",
+  "note": "",
+  "words": [
+   "zebra",
+   "zoo",
+   "zipper"
+  ]
+ },
+ "sh": {
+  "sound": "sh",
+  "sayItLike": "shhh as in shell",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "shark",
+   "ship",
+   "shoe"
+  ]
+ },
+ "ch": {
+  "sound": "ch",
+  "sayItLike": "ch as in cheese",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "chair",
+   "cheese",
+   "chick"
+  ]
+ },
+ "th-voiced": {
+  "sound": "th (voiced)",
+  "sayItLike": "th as in this",
+  "doNotSay": "",
+  "note": "Fingers on throat: you feel it vibrate.",
+  "words": [
+   "mother",
+   "father",
+   "feather",
+   "brother"
+  ]
+ },
+ "th-unvoiced": {
+  "sound": "th (unvoiced)",
+  "sayItLike": "th as in thin",
+  "doNotSay": "",
+  "note": "Fingers on throat: it stays still.",
+  "words": [
+   "thumb",
+   "thunder",
+   "bath"
+  ]
+ },
+ "ng": {
+  "sound": "ng",
+  "sayItLike": "ing, ang, ong",
+  "doNotSay": "",
+  "note": "Hard to say alone, so always pair it with a vowel.",
+  "words": [
+   "ring",
+   "wing",
+   "sing"
+  ]
+ },
+ "zh": {
+  "sound": "zh",
+  "sayItLike": "zh as in treasure",
+  "doNotSay": "",
+  "note": "Like sh but voiced. Throat vibrates.",
+  "words": [
+   "treasure",
+   "measure",
+   "explosion",
+   "asia"
+  ]
+ },
+ "ae": {
+  "sound": "ae",
+  "sayItLike": "a as in cake",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "cake",
+   "train",
+   "hay",
+   "steak"
+  ]
+ },
+ "ee": {
+  "sound": "ee",
+  "sayItLike": "ee as in bee",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "bee",
+   "eat",
+   "key",
+   "puppy"
+  ]
+ },
+ "ie": {
+  "sound": "ie",
+  "sayItLike": "the word eye",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "kite",
+   "pie",
+   "cry",
+   "light"
+  ]
+ },
+ "oe": {
+  "sound": "oe",
+  "sayItLike": "the sound in go",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "coat",
+   "bone",
+   "toe",
+   "taco"
+  ]
+ },
+ "oo-moon": {
+  "sound": "ue, oo (moon)",
+  "sayItLike": "oo as in moon",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "moon",
+   "glue",
+   "fruit",
+   "tulip"
+  ]
+ },
+ "oo-book": {
+  "sound": "oo (book)",
+  "sayItLike": "oo as in book",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "book",
+   "wolf",
+   "bull",
+   "bush"
+  ]
+ },
+ "ue-you": {
+  "sound": "ue (yoo)",
+  "sayItLike": "the word you",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "cube",
+   "unicorn",
+   "ukulele",
+   "mule"
+  ]
+ },
+ "ow": {
+  "sound": "ow",
+  "sayItLike": "ow as in cow",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "cow",
+   "owl",
+   "house",
+   "cloud"
+  ]
+ },
+ "oi": {
+  "sound": "oi",
+  "sayItLike": "oy as in boy",
+  "doNotSay": "",
+  "note": "",
+  "words": [
+   "oil",
+   "toy",
+   "coin",
+   "oyster"
+  ]
+ },
+ "ar": {
+  "sound": "ar",
+  "sayItLike": "r-controlled vowel",
+  "doNotSay": "",
+  "note": "Many vowels change before r. Cat vs car.",
+  "words": [
+   "car",
+   "star",
+   "farm",
+   "barn"
+  ]
+ },
+ "or": {
+  "sound": "or",
+  "sayItLike": "r-controlled vowel",
+  "doNotSay": "",
+  "note": "The letter o changes before r. Con vs corn.",
+  "words": [
+   "horse",
+   "corn",
+   "fork",
+   "door"
+  ]
+ },
+ "er-ir-ur": {
+  "sound": "er, ir, ur",
+  "sayItLike": "same sound for all three spellings",
+  "doNotSay": "",
+  "note": "Spelled three ways, pronounced the same.",
+  "words": [
+   "butter",
+   "bird",
+   "turtle",
+   "purple"
+  ]
+ }
+}

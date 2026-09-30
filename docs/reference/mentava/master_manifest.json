@@ -1,0 +1,1366 @@
+{
+ "source": "Mentava Alphabet Sounds (PDF, 75 pages). Images are the book's own illustrations, extracted without the printed word labels.",
+ "note": "Each image was matched to its word by the position of the printed label, then checked by eye on a contact sheet. Sounds not included: wh and raised a.",
+ "sounds": [
+  {
+   "slug": "a",
+   "sound": "a",
+   "book_page": 4,
+   "say_it_like": "a as in apple",
+   "do_not_say": "",
+   "book_note": "Default sound for the letter a.",
+   "images": [
+    {
+     "word": "apple",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "a/apple.png",
+     "size": "512x498"
+    },
+    {
+     "word": "hat",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "a/hat.png",
+     "size": "999x1024"
+    },
+    {
+     "word": "cat",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "a/cat.png",
+     "size": "512x512"
+    },
+    {
+     "word": "crab",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "a/crab.png",
+     "size": "499x498"
+    },
+    {
+     "word": "astronaut",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "a/astronaut.png",
+     "size": "1024x999"
+    },
+    {
+     "word": "axe",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "a/axe.png",
+     "size": "998x996"
+    }
+   ]
+  },
+  {
+   "slug": "b",
+   "sound": "b",
+   "book_page": 5,
+   "say_it_like": "b-",
+   "do_not_say": "buh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "baby",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "b/baby.png",
+     "size": "512x491"
+    },
+    {
+     "word": "banana",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "b/banana.png",
+     "size": "512x512"
+    },
+    {
+     "word": "ball",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "b/ball.png",
+     "size": "998x896"
+    },
+    {
+     "word": "bear",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "b/bear.png",
+     "size": "512x499"
+    },
+    {
+     "word": "bus",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "b/bus.png",
+     "size": "478x500"
+    }
+   ]
+  },
+  {
+   "slug": "c-k",
+   "sound": "c, k",
+   "book_page": 6,
+   "say_it_like": "k-",
+   "do_not_say": "kuh",
+   "book_note": "One page covers both letters.",
+   "images": [
+    {
+     "word": "cat",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "c-k/cat.png",
+     "size": "512x440"
+    },
+    {
+     "word": "camel",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "c-k/camel.png",
+     "size": "497x440"
+    },
+    {
+     "word": "candy",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "c-k/candy.png",
+     "size": "499x500"
+    },
+    {
+     "word": "king",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "c-k/king.png",
+     "size": "499x448"
+    },
+    {
+     "word": "koala",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "c-k/koala.png",
+     "size": "499x435"
+    }
+   ]
+  },
+  {
+   "slug": "d",
+   "sound": "d",
+   "book_page": 7,
+   "say_it_like": "d-",
+   "do_not_say": "duh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "duck",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "d/duck.png",
+     "size": "500x454"
+    },
+    {
+     "word": "deer",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "d/deer.png",
+     "size": "512x455"
+    },
+    {
+     "word": "dog",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "d/dog.png",
+     "size": "1024x1024"
+    },
+    {
+     "word": "door",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "d/door.png",
+     "size": "512x499"
+    },
+    {
+     "word": "dolphin",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "d/dolphin.png",
+     "size": "499x451"
+    }
+   ]
+  },
+  {
+   "slug": "e",
+   "sound": "e",
+   "book_page": 8,
+   "say_it_like": "ehhh",
+   "do_not_say": "ihhh",
+   "book_note": "Default sound for the letter e, as in egg.",
+   "images": [
+    {
+     "word": "egg",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "e/egg.png",
+     "size": "499x455"
+    },
+    {
+     "word": "hen",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "e/hen.png",
+     "size": "499x448"
+    },
+    {
+     "word": "tent",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "e/tent.png",
+     "size": "999x1024"
+    },
+    {
+     "word": "red",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "e/red.png",
+     "size": "997x999"
+    },
+    {
+     "word": "nest",
+     "zip": "mentava_images_a_b_ck_d_e.zip",
+     "path": "e/nest.png",
+     "size": "1024x879"
+    }
+   ]
+  },
+  {
+   "slug": "f",
+   "sound": "f",
+   "book_page": 9,
+   "say_it_like": "fff",
+   "do_not_say": "fuh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "fan",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "f/fan.png",
+     "size": "512x485"
+    },
+    {
+     "word": "fish",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "f/fish.png",
+     "size": "512x512"
+    },
+    {
+     "word": "fork",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "f/fork.png",
+     "size": "920x999"
+    }
+   ]
+  },
+  {
+   "slug": "g",
+   "sound": "g",
+   "book_page": 10,
+   "say_it_like": "g-",
+   "do_not_say": "guh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "goat",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "g/goat.png",
+     "size": "512x512"
+    },
+    {
+     "word": "gate",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "g/gate.png",
+     "size": "999x886"
+    },
+    {
+     "word": "goose",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "g/goose.png",
+     "size": "512x459"
+    }
+   ]
+  },
+  {
+   "slug": "h",
+   "sound": "h",
+   "book_page": 11,
+   "say_it_like": "h-",
+   "do_not_say": "huh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "hat",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "h/hat.png",
+     "size": "460x500"
+    },
+    {
+     "word": "hand",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "h/hand.png",
+     "size": "512x512"
+    },
+    {
+     "word": "hippo",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "h/hippo.png",
+     "size": "512x458"
+    }
+   ]
+  },
+  {
+   "slug": "i",
+   "sound": "i",
+   "book_page": 12,
+   "say_it_like": "i as in igloo",
+   "do_not_say": "",
+   "book_note": "Default sound for the letter i.",
+   "images": [
+    {
+     "word": "igloo",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "i/igloo.png",
+     "size": "998x910"
+    },
+    {
+     "word": "sit",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "i/sit.png",
+     "size": "920x999"
+    },
+    {
+     "word": "stick",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "i/stick.png",
+     "size": "997x999"
+    }
+   ]
+  },
+  {
+   "slug": "j",
+   "sound": "j",
+   "book_page": 13,
+   "say_it_like": "j-",
+   "do_not_say": "juh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "jam",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "j/jam.png",
+     "size": "512x512"
+    },
+    {
+     "word": "jet",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "j/jet.png",
+     "size": "998x996"
+    },
+    {
+     "word": "jump",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "j/jump.png",
+     "size": "1024x1024"
+    }
+   ]
+  },
+  {
+   "slug": "l",
+   "sound": "l",
+   "book_page": 14,
+   "say_it_like": "l-",
+   "do_not_say": "ull or luh",
+   "book_note": "Say lion but stop before ion.",
+   "images": [
+    {
+     "word": "leaf",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "l/leaf.png",
+     "size": "500x512"
+    },
+    {
+     "word": "leg",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "l/leg.png",
+     "size": "500x500"
+    },
+    {
+     "word": "ladder",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "l/ladder.png",
+     "size": "512x500"
+    }
+   ]
+  },
+  {
+   "slug": "m",
+   "sound": "m",
+   "book_page": 15,
+   "say_it_like": "mmm",
+   "do_not_say": "muh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "map",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "m/map.png",
+     "size": "512x512"
+    },
+    {
+     "word": "milk",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "m/milk.png",
+     "size": "499x497"
+    },
+    {
+     "word": "mop",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "m/mop.png",
+     "size": "500x500"
+    }
+   ]
+  },
+  {
+   "slug": "n",
+   "sound": "n",
+   "book_page": 16,
+   "say_it_like": "nnn",
+   "do_not_say": "nuh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "nut",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "n/nut.png",
+     "size": "512x512"
+    },
+    {
+     "word": "nose",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "n/nose.png",
+     "size": "500x512"
+    },
+    {
+     "word": "necklace",
+     "zip": "mentava_images_batch1a_f-to-n.zip",
+     "path": "n/necklace.png",
+     "size": "499x497"
+    }
+   ]
+  },
+  {
+   "slug": "o",
+   "sound": "o",
+   "book_page": 17,
+   "say_it_like": "o as in ox",
+   "do_not_say": "",
+   "book_note": "Default sound for the letter o.",
+   "images": [
+    {
+     "word": "octopus",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "o/octopus.png",
+     "size": "1005x999"
+    },
+    {
+     "word": "pot",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "o/pot.png",
+     "size": "512x512"
+    },
+    {
+     "word": "rock",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "o/rock.png",
+     "size": "499x498"
+    }
+   ]
+  },
+  {
+   "slug": "p",
+   "sound": "p",
+   "book_page": 18,
+   "say_it_like": "p-",
+   "do_not_say": "puh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "pig",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "p/pig.png",
+     "size": "1024x1024"
+    },
+    {
+     "word": "panda",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "p/panda.png",
+     "size": "999x1024"
+    },
+    {
+     "word": "pumpkin",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "p/pumpkin.png",
+     "size": "998x996"
+    }
+   ]
+  },
+  {
+   "slug": "q",
+   "sound": "q",
+   "book_page": 19,
+   "say_it_like": "kw",
+   "do_not_say": "kwuh",
+   "book_note": "Say queen but stop before ee.",
+   "images": [
+    {
+     "word": "queen",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "q/queen.png",
+     "size": "500x500"
+    },
+    {
+     "word": "quack",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "q/quack.png",
+     "size": "500x512"
+    },
+    {
+     "word": "quilt",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "q/quilt.png",
+     "size": "499x512"
+    }
+   ]
+  },
+  {
+   "slug": "r",
+   "sound": "r",
+   "book_page": 20,
+   "say_it_like": "rrr",
+   "do_not_say": "ruh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "rabbit",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "r/rabbit.png",
+     "size": "999x1024"
+    },
+    {
+     "word": "rocket",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "r/rocket.png",
+     "size": "999x1000"
+    },
+    {
+     "word": "robot",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "r/robot.png",
+     "size": "1024x999"
+    }
+   ]
+  },
+  {
+   "slug": "s",
+   "sound": "s",
+   "book_page": 21,
+   "say_it_like": "sss",
+   "do_not_say": "suh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "sock",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "s/sock.png",
+     "size": "998x996"
+    },
+    {
+     "word": "snake",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "s/snake.png",
+     "size": "998x1024"
+    },
+    {
+     "word": "snail",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "s/snail.png",
+     "size": "1024x1024"
+    }
+   ]
+  },
+  {
+   "slug": "t",
+   "sound": "t",
+   "book_page": 22,
+   "say_it_like": "t-",
+   "do_not_say": "tuh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "tiger",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "t/tiger.png",
+     "size": "1024x996"
+    },
+    {
+     "word": "table",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "t/table.png",
+     "size": "999x1024"
+    },
+    {
+     "word": "tree",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "t/tree.png",
+     "size": "1024x1024"
+    }
+   ]
+  },
+  {
+   "slug": "u",
+   "sound": "u",
+   "book_page": 23,
+   "say_it_like": "u as in up",
+   "do_not_say": "",
+   "book_note": "Default sound for the letter u.",
+   "images": [
+    {
+     "word": "up",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "u/up.png",
+     "size": "512x498"
+    },
+    {
+     "word": "umbrella",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "u/umbrella.png",
+     "size": "499x498"
+    },
+    {
+     "word": "bug",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "u/bug.png",
+     "size": "1024x1024"
+    },
+    {
+     "word": "sun",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "u/sun.png",
+     "size": "499x498"
+    }
+   ]
+  },
+  {
+   "slug": "v",
+   "sound": "v",
+   "book_page": 24,
+   "say_it_like": "vvv",
+   "do_not_say": "vuh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "van",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "v/van.png",
+     "size": "1024x1024"
+    },
+    {
+     "word": "vest",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "v/vest.png",
+     "size": "1024x993"
+    },
+    {
+     "word": "volcano",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "v/volcano.png",
+     "size": "999x1024"
+    }
+   ]
+  },
+  {
+   "slug": "w",
+   "sound": "w",
+   "book_page": 25,
+   "say_it_like": "www",
+   "do_not_say": "wuh",
+   "book_note": "",
+   "images": [
+    {
+     "word": "wagon",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "w/wagon.png",
+     "size": "999x886"
+    },
+    {
+     "word": "window",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "w/window.png",
+     "size": "1024x1024"
+    },
+    {
+     "word": "worm",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "w/worm.png",
+     "size": "998x820"
+    }
+   ]
+  },
+  {
+   "slug": "x",
+   "sound": "x",
+   "book_page": 27,
+   "say_it_like": "ks",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "box",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "x/box.png",
+     "size": "1186x1138"
+    },
+    {
+     "word": "fox",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "x/fox.png",
+     "size": "999x998"
+    },
+    {
+     "word": "ox",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "x/ox.png",
+     "size": "1024x1024"
+    }
+   ]
+  },
+  {
+   "slug": "y",
+   "sound": "y",
+   "book_page": 28,
+   "say_it_like": "yee",
+   "do_not_say": "yuh",
+   "book_note": "Say yo but stop before oh.",
+   "images": [
+    {
+     "word": "yarn",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "y/yarn.png",
+     "size": "999x1024"
+    },
+    {
+     "word": "yellow",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "y/yellow.png",
+     "size": "999x998"
+    },
+    {
+     "word": "yoyo",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "y/yoyo.png",
+     "size": "1024x993"
+    }
+   ]
+  },
+  {
+   "slug": "z",
+   "sound": "z",
+   "book_page": 29,
+   "say_it_like": "zzz",
+   "do_not_say": "sss",
+   "book_note": "",
+   "images": [
+    {
+     "word": "zebra",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "z/zebra.png",
+     "size": "1024x993"
+    },
+    {
+     "word": "zoo",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "z/zoo.png",
+     "size": "1747x1746"
+    },
+    {
+     "word": "zipper",
+     "zip": "mentava_images_batch1b_o-to-z.zip",
+     "path": "z/zipper.png",
+     "size": "999x1024"
+    }
+   ]
+  },
+  {
+   "slug": "sh",
+   "sound": "sh",
+   "book_page": 30,
+   "say_it_like": "shhh as in shell",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "shark",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "sh/shark.png",
+     "size": "1024x996"
+    },
+    {
+     "word": "ship",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "sh/ship.png",
+     "size": "998x994"
+    },
+    {
+     "word": "shoe",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "sh/shoe.png",
+     "size": "999x1024"
+    }
+   ]
+  },
+  {
+   "slug": "ch",
+   "sound": "ch",
+   "book_page": 31,
+   "say_it_like": "ch as in cheese",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "chair",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "ch/chair.png",
+     "size": "512x498"
+    },
+    {
+     "word": "cheese",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "ch/cheese.png",
+     "size": "500x512"
+    },
+    {
+     "word": "chick",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "ch/chick.png",
+     "size": "512x497"
+    }
+   ]
+  },
+  {
+   "slug": "th-voiced",
+   "sound": "th (voiced)",
+   "book_page": 32,
+   "say_it_like": "th as in this",
+   "do_not_say": "",
+   "book_note": "Fingers on throat: you feel it vibrate.",
+   "images": [
+    {
+     "word": "mother",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "th-voiced/mother.png",
+     "size": "437x435"
+    },
+    {
+     "word": "father",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "th-voiced/father.png",
+     "size": "448x448"
+    },
+    {
+     "word": "feather",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "th-voiced/feather.png",
+     "size": "494x512"
+    },
+    {
+     "word": "brother",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "th-voiced/brother.png",
+     "size": "521x308"
+    }
+   ]
+  },
+  {
+   "slug": "th-unvoiced",
+   "sound": "th (unvoiced)",
+   "book_page": 33,
+   "say_it_like": "th as in thin",
+   "do_not_say": "",
+   "book_note": "Fingers on throat: it stays still.",
+   "images": [
+    {
+     "word": "thumb",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "th-unvoiced/thumb.png",
+     "size": "1024x1024"
+    },
+    {
+     "word": "thunder",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "th-unvoiced/thunder.png",
+     "size": "999x1024"
+    },
+    {
+     "word": "bath",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "th-unvoiced/bath.png",
+     "size": "998x1024"
+    }
+   ]
+  },
+  {
+   "slug": "ng",
+   "sound": "ng",
+   "book_page": 34,
+   "say_it_like": "ing, ang, ong",
+   "do_not_say": "",
+   "book_note": "Hard to say alone, so always pair it with a vowel.",
+   "images": [
+    {
+     "word": "ring",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "ng/ring.png",
+     "size": "998x993"
+    },
+    {
+     "word": "wing",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "ng/wing.png",
+     "size": "997x999"
+    },
+    {
+     "word": "sing",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "ng/sing.png",
+     "size": "1024x879"
+    }
+   ]
+  },
+  {
+   "slug": "zh",
+   "sound": "zh",
+   "book_page": 35,
+   "say_it_like": "zh as in treasure",
+   "do_not_say": "",
+   "book_note": "Like sh but voiced. Throat vibrates.",
+   "images": [
+    {
+     "word": "treasure",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "zh/treasure.png",
+     "size": "1595x1003"
+    },
+    {
+     "word": "measure",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "zh/measure.png",
+     "size": "1769x897"
+    },
+    {
+     "word": "explosion",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "zh/explosion.png",
+     "size": "1769x818"
+    },
+    {
+     "word": "asia",
+     "zip": "mentava_images_batch2_consonant-pairs.zip",
+     "path": "zh/asia.png",
+     "size": "1430x1005"
+    }
+   ]
+  },
+  {
+   "slug": "ae",
+   "sound": "ae",
+   "book_page": 36,
+   "say_it_like": "a as in cake",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "cake",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ae/cake.png",
+     "size": "499x498"
+    },
+    {
+     "word": "train",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ae/train.png",
+     "size": "1288x1214"
+    },
+    {
+     "word": "hay",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ae/hay.png",
+     "size": "1024x1024"
+    },
+    {
+     "word": "steak",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ae/steak.png",
+     "size": "1024x1024"
+    }
+   ]
+  },
+  {
+   "slug": "ee",
+   "sound": "ee",
+   "book_page": 37,
+   "say_it_like": "ee as in bee",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "bee",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ee/bee.png",
+     "size": "999x1024"
+    },
+    {
+     "word": "eat",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ee/eat.png",
+     "size": "499x498"
+    },
+    {
+     "word": "key",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ee/key.png",
+     "size": "998x1024"
+    },
+    {
+     "word": "puppy",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ee/puppy.png",
+     "size": "998x993"
+    }
+   ]
+  },
+  {
+   "slug": "ie",
+   "sound": "ie",
+   "book_page": 38,
+   "say_it_like": "the word eye",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "kite",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ie/kite.png",
+     "size": "997x1024"
+    },
+    {
+     "word": "pie",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ie/pie.png",
+     "size": "512x512"
+    },
+    {
+     "word": "cry",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ie/cry.png",
+     "size": "1024x922"
+    },
+    {
+     "word": "light",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ie/light.png",
+     "size": "1024x999"
+    }
+   ]
+  },
+  {
+   "slug": "oe",
+   "sound": "oe",
+   "book_page": 39,
+   "say_it_like": "the sound in go",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "coat",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oe/coat.png",
+     "size": "1136x996"
+    },
+    {
+     "word": "bone",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oe/bone.png",
+     "size": "1294x1138"
+    },
+    {
+     "word": "toe",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oe/toe.png",
+     "size": "1024x993"
+    },
+    {
+     "word": "taco",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oe/taco.png",
+     "size": "998x994"
+    }
+   ]
+  },
+  {
+   "slug": "oo-moon",
+   "sound": "ue, oo (moon)",
+   "book_page": 40,
+   "say_it_like": "oo as in moon",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "moon",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oo-moon/moon.png",
+     "size": "1024x1024"
+    },
+    {
+     "word": "glue",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oo-moon/glue.png",
+     "size": "1024x993"
+    },
+    {
+     "word": "fruit",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oo-moon/fruit.png",
+     "size": "998x993"
+    },
+    {
+     "word": "tulip",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oo-moon/tulip.png",
+     "size": "1024x996"
+    }
+   ]
+  },
+  {
+   "slug": "oo-book",
+   "sound": "oo (book)",
+   "book_page": 41,
+   "say_it_like": "oo as in book",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "book",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oo-book/book.png",
+     "size": "998x996"
+    },
+    {
+     "word": "wolf",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oo-book/wolf.png",
+     "size": "999x1024"
+    },
+    {
+     "word": "bull",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oo-book/bull.png",
+     "size": "1024x1024"
+    },
+    {
+     "word": "bush",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oo-book/bush.png",
+     "size": "1024x993"
+    }
+   ]
+  },
+  {
+   "slug": "ue-you",
+   "sound": "ue (yoo)",
+   "book_page": 42,
+   "say_it_like": "the word you",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "cube",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ue-you/cube.png",
+     "size": "998x918"
+    },
+    {
+     "word": "unicorn",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ue-you/unicorn.png",
+     "size": "830x1001"
+    },
+    {
+     "word": "ukulele",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ue-you/ukulele.png",
+     "size": "1024x1024"
+    },
+    {
+     "word": "mule",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ue-you/mule.png",
+     "size": "998x820"
+    }
+   ]
+  },
+  {
+   "slug": "ow",
+   "sound": "ow",
+   "book_page": 43,
+   "say_it_like": "ow as in cow",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "cow",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ow/cow.png",
+     "size": "500x500"
+    },
+    {
+     "word": "owl",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ow/owl.png",
+     "size": "998x995"
+    },
+    {
+     "word": "house",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ow/house.png",
+     "size": "998x996"
+    },
+    {
+     "word": "cloud",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "ow/cloud.png",
+     "size": "997x1024"
+    }
+   ]
+  },
+  {
+   "slug": "oi",
+   "sound": "oi",
+   "book_page": 44,
+   "say_it_like": "oy as in boy",
+   "do_not_say": "",
+   "book_note": "",
+   "images": [
+    {
+     "word": "oil",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oi/oil.png",
+     "size": "998x996"
+    },
+    {
+     "word": "toy",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oi/toy.png",
+     "size": "1186x1138"
+    },
+    {
+     "word": "coin",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oi/coin.png",
+     "size": "1217x1125"
+    },
+    {
+     "word": "oyster",
+     "zip": "mentava_images_batch3_vowel-pairs.zip",
+     "path": "oi/oyster.png",
+     "size": "1271x1102"
+    }
+   ]
+  },
+  {
+   "slug": "ar",
+   "sound": "ar",
+   "book_page": 45,
+   "say_it_like": "r-controlled vowel",
+   "do_not_say": "",
+   "book_note": "Many vowels change before r. Cat vs car.",
+   "images": [
+    {
+     "word": "car",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "ar/car.png",
+     "size": "512x497"
+    },
+    {
+     "word": "star",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "ar/star.png",
+     "size": "512x512"
+    },
+    {
+     "word": "farm",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "ar/farm.png",
+     "size": "512x512"
+    },
+    {
+     "word": "barn",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "ar/barn.png",
+     "size": "512x498"
+    }
+   ]
+  },
+  {
+   "slug": "or",
+   "sound": "or",
+   "book_page": 46,
+   "say_it_like": "r-controlled vowel",
+   "do_not_say": "",
+   "book_note": "The letter o changes before r. Con vs corn.",
+   "images": [
+    {
+     "word": "horse",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "or/horse.png",
+     "size": "499x498"
+    },
+    {
+     "word": "corn",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "or/corn.png",
+     "size": "498x512"
+    },
+    {
+     "word": "fork",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "or/fork.png",
+     "size": "1024x999"
+    },
+    {
+     "word": "door",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "or/door.png",
+     "size": "1024x1024"
+    }
+   ]
+  },
+  {
+   "slug": "er-ir-ur",
+   "sound": "er, ir, ur",
+   "book_page": 47,
+   "say_it_like": "same sound for all three spellings",
+   "do_not_say": "",
+   "book_note": "Spelled three ways, pronounced the same.",
+   "images": [
+    {
+     "word": "butter",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "er-ir-ur/butter.png",
+     "size": "512x498"
+    },
+    {
+     "word": "bird",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "er-ir-ur/bird.png",
+     "size": "998x996"
+    },
+    {
+     "word": "turtle",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "er-ir-ur/turtle.png",
+     "size": "499x512"
+    },
+    {
+     "word": "purple",
+     "zip": "mentava_images_batch4_r-controlled.zip",
+     "path": "er-ir-ur/purple.png",
+     "size": "512x498"
+    }
+   ]
+  }
+ ]
+}
