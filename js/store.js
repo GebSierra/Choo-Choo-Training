@@ -4,7 +4,7 @@ const KEY = 'reading.v1';
 const fresh = () => ({
   schema: 1,
   lessons: {},
-  settings: { voiceURI: null, rate: 0.9, autoSpeak: true },
+  settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: false },
   firstRunDone: false,
   lastOpened: null,
 });

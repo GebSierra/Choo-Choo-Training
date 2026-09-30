@@ -47,7 +47,7 @@ export function taskScreen(ctx, n, idx) {
   const light = task.color === 'violet' || task.color === 'coral';
   const speaker = speakButton({ speech, getParts: () => current.parts(), label: 'Hear this again' });
   if (light) speaker.classList.add('light');
-  const scriptSpeaker = speakButton({ speech, getParts: () => scriptToParts(current.script(), soundKeys), label: 'Hear the parent script' });
+  const scriptSpeaker = speakButton({ speech, getParts: () => scriptToParts(current.script(), soundKeys, { quiet: !store.settings.playSounds }), label: 'Hear the parent script' });
   scriptSpeaker.classList.add('small');
 
   const head = h('header', { class: 'task-head' },

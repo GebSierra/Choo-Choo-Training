@@ -16,7 +16,7 @@ export function spokenStrings(c) {
   const out = [];
   for (const s of Object.values(c.sounds)) s.words.forEach((w) => out.push(w.word));
   for (const L of c.lessons) {
-    for (const part of [...L.intro, ...L.quickCheck.prompt]) if (part.tts !== undefined) out.push(part.tts);
+    for (const part of [...L.intro, ...L.introQuiet, ...L.quickCheck.prompt, ...L.quickCheck.promptQuiet]) if (part.tts !== undefined) out.push(part.tts);
     L.sayingWords.forEach((w) => out.push(w.word, ...w.parts));
     L.sayingSounds.forEach((w) => out.push(w.word));
   }
@@ -53,6 +53,13 @@ export function checkCurriculum(c, root = ROOT) {
     });
   };
 
+  // Quiet variants are spoken when the grown up says the sound: text only, never a clip.
+  const checkQuiet = (parts, p) => {
+    if (!Array.isArray(parts) || !parts.length) return err(`${p} missing`);
+    checkParts(parts, p);
+    parts.forEach((part, i) => { if (part.tts === undefined) err(`${p}[${i}]: a quiet variant may only contain tts parts`); });
+  };
+
   for (const k of ['playlistUrl', 'alphabetSongUrl']) if (!isYouTube(c[k] || '') || !/^https:\/\//.test(c[k])) err(`${k} must be an https YouTube URL`);
   const sounds = c.sounds || {};
   for (const [k, s] of Object.entries(sounds)) {
@@ -81,6 +88,8 @@ export function checkCurriculum(c, root = ROOT) {
     for (const r of L.review || []) if (!taught.has(r)) err(`${lp}.review "${r}" was not taught earlier`);
     for (const f of ['review', 'intro', 'sayingWords', 'sayingSounds']) if (!Array.isArray(L[f])) err(`${lp}.${f} missing`);
     checkParts(L.intro, `${lp}.intro`);
+    checkQuiet(L.introQuiet, `${lp}.introQuiet`);
+    if (JSON.stringify(L.introQuiet) !== JSON.stringify([{ tts: 'Today we learn a new letter. Your grown up will say its sound.' }])) err(`${lp}.introQuiet must be the agreed sentence`);
     (L.sayingWords || []).forEach((w, j) => {
       const p = `${lp}.sayingWords[${j}]`;
       if (!Array.isArray(w.parts) || w.parts.length !== 2) err(`${p}.parts needs exactly two parts`);
@@ -102,6 +111,9 @@ export function checkCurriculum(c, root = ROOT) {
     const q = L.quickCheck;
     if (q) {
       checkParts(q.prompt, `${lp}.quickCheck.prompt`);
+      checkQuiet(q.promptQuiet, `${lp}.quickCheck.promptQuiet`);
+      const wantQuiet = q.kind === 'letter' ? 'Listen to your grown up. Then touch the letter.' : 'Listen to your grown up. Then touch the picture that starts the same.';
+      if (JSON.stringify(q.promptQuiet) !== JSON.stringify([{ tts: wantQuiet }]) || q.promptTextQuiet !== wantQuiet) err(`${lp}.quickCheck.promptQuiet and promptTextQuiet must be "${wantQuiet}"`);
       if (q.promptText !== q.promptText.toLowerCase().replace(/^./, (x) => x.toUpperCase()) && /[A-Z]/.test(q.promptText.slice(1))) err(`${lp}.quickCheck.promptText has stray capitals`);
       (q.options || []).forEach((o, j) => {
         for (const f of ['glyph', 'word']) if (o[f] && o[f] !== o[f].toLowerCase()) err(`${lp}.quickCheck.options[${j}].${f} not lowercase`);

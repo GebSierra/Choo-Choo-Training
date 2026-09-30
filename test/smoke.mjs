@@ -25,7 +25,7 @@ for (const vp of VIEWPORTS) {
 }
 
 // Home and lesson overview (step 6).
-const SEED = (lessons) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${JSON.stringify(lessons)},settings:{},firstRunDone:true}))`;
+const SEED = (lessons, settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${JSON.stringify(lessons)},settings:${JSON.stringify(settings)},firstRunDone:true}))`;
 for (const vp of VIEWPORTS) {
   const { ctx, page, errors } = await newPage(browser, vp);
   await page.addInitScript(SPEECH_STUB);
@@ -113,6 +113,7 @@ const LESSONS = CUR.lessons.map((l) => l.number);
 const TASK_COUNTS = Object.fromEntries(CUR.lessons.map((l) => [l.number, l.review.length ? 7 : 6]));
 const TOTAL_TASKS = Object.values(TASK_COUNTS).reduce((a, b) => a + b, 0);
 const ALL_OPEN = SEED({ 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' } });
+const ALL_OPEN_SOUNDS = SEED({ 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' } }, { playSounds: true });
 const allSpoken = [];
 for (const vp of VIEWPORTS) {
   const { ctx, page, errors } = await newPage(browser, vp);
@@ -254,8 +255,8 @@ for (const vp of VIEWPORTS) {
   await page.waitForSelector('.task-screen');
   await page.waitForTimeout(800);
   let spoken = await page.evaluate(() => window.__spoken);
-  ok(spoken.includes('Today we learn a new sound:'), 'entry speech for New Letter: ' + JSON.stringify(spoken));
-  ok(await page.evaluate(() => window.__events.some((e) => e.type === 'clip' && e.src === 'm.mp3')), 'entry speech plays the m clip');
+  ok(spoken.includes('Today we learn a new letter. Your grown up will say its sound.'), 'entry speech for New Letter (quiet): ' + JSON.stringify(spoken));
+  ok(!(await page.evaluate(() => window.__events.some((e) => e.type === 'clip'))), 'with the default settings the entry speech plays no clip');
   // Next to the Sound Story and open the playlist with a hold.
   await page.click('.btn.next');
   await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Sound Story');
@@ -335,6 +336,11 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   await page.click('.gu-switch');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings);
   ok(saved.voiceURI === 'g-us' && saved.rate === 1.05 && saved.autoSpeak === false, 'voice, rate and auto-speak persist ' + JSON.stringify(saved));
+  ok(saved.playSounds === false && (await page.getAttribute('[aria-label="Play recorded letter sounds"]', 'aria-checked')) === 'false', 'Grownups: Play recorded letter sounds is off by default');
+  await page.click('[aria-label="Play recorded letter sounds"]');
+  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.playSounds)) === true, 'Grownups: the switch turns playSounds on');
+  await page.click('[aria-label="Play recorded letter sounds"]');
+  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.playSounds)) === false, 'Grownups: the switch turns playSounds off again');
   await page.evaluate(() => window.__spoken.length = 0);
   await page.click('text=Test voice');
   await page.waitForTimeout(300);
@@ -525,7 +531,7 @@ for (const [name, raw] of [
   await page.waitForSelector('.task-screen');
   await page.waitForTimeout(1200);
   ok((await page.evaluate(() => window.__spoken.length + window.__events.length)) === 0, 'no speech or clip before the first tap');
-  const spokenAll = [];
+  const spokenAll = [], clipEvents = [];
   for (const L of LESSONS) {
     for (let i = 0; i < TASK_COUNTS[L]; i++) {
       await page.evaluate((h) => { location.hash = h; }, `#/lesson/${L}/task/${i}`);
@@ -537,8 +543,10 @@ for (const [name, raw] of [
       await page.locator('.task-stage > .speak-btn').click();
       await page.waitForTimeout(250);
       spokenAll.push(...(await page.evaluate(() => window.__spoken)));
+      clipEvents.push(...(await page.evaluate(() => window.__events.filter((e) => e.type === 'clip'))));
     }
   }
+  ok(clipEvents.length === 0, 'with the default settings no clip event occurs in any task, script or speaker: ' + JSON.stringify(clipEvents));
   const bad = spokenAll.filter(isIso);
   ok(bad.length === 0, 'no script or child line ever sends an isolated sound to tts: ' + JSON.stringify(bad));
   ok(spokenAll.length > 20, 'scripts and child lines were actually spoken (' + spokenAll.length + ' parts)');
@@ -601,7 +609,7 @@ for (const [name, raw] of [
   // Fixes 14, 16, 17: Quick Check picks reset, no stale speech after leaving, cancel stops the queue.
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
   await page.addInitScript(SPEECH_STUB);
-  await page.addInitScript(ALL_OPEN);
+  await page.addInitScript(ALL_OPEN_SOUNDS);
   await page.goto(url + '#/lesson/3/task/6');
   await page.waitForSelector('.opt-card');
   await page.waitForTimeout(500);
@@ -637,11 +645,28 @@ for (const [name, raw] of [
   await ctx.close();
 }
 
+{
+  // With playSounds on, the clips play as before and the full lines are spoken.
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(ALL_OPEN_SOUNDS);
+  await page.goto(url + '#/lesson/2/task/1');
+  await page.waitForSelector('.task-screen');
+  await page.waitForTimeout(900);
+  await page.locator('.task-stage > .speak-btn').click(); // the first tap lets the page speak
+  await page.waitForTimeout(1500);
+  const ev = await page.evaluate(() => window.__events.map((e) => e.type === 'tts' ? 'tts:' + e.text : 'clip:' + e.src));
+  ok(JSON.stringify(ev) === JSON.stringify(['tts:Today we learn a new sound:', 'clip:a.mp3', 'tts:as in apple.']), 'playSounds on: New Letter plays its clip in the line ' + JSON.stringify(ev));
+  ok(errors.length === 0, 'playSounds-on errors ' + errors.join(' | '));
+  await ctx.close();
+}
+
 // Speech queue (step 5): order, missing clip skipped, isolated sounds refused, gesture required.
 {
   const vp = VIEWPORTS[0];
   const { ctx, page, errors } = await newPage(browser, vp);
   await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(SEED({}, { playSounds: true }));
   await page.route('**/assets/audio/sounds/m.mp3', (r) => r.fulfill({ status: 200, contentType: 'audio/wav', body: silentWav() }));
   await page.goto(url + '#/lab');
   await page.waitForSelector('#lab-log');

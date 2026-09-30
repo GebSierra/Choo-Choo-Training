@@ -1,5 +1,6 @@
 // The app speaks but never listens. Words and instructions use the browser's text to speech;
-// isolated sounds (mmm, aaa, sss) only ever come from recorded clips, never from text to speech.
+// isolated sounds (mmm, aaa, sss) only ever come from recorded clips, never from text to speech,
+// and those clips play only when the parent turns on "Play recorded letter sounds" (off by default).
 //
 // say(parts) takes [{tts:'text'} | {clip:'m'} | {src:'path'} | {pause:ms}] and plays them in order.
 // A new say() cancels the one before it. The returned promise always resolves, so no screen ever waits
@@ -122,7 +123,12 @@ export function createSpeech({ store, curriculum }) {
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   async function say(parts) {
-    const list = (Array.isArray(parts) ? parts : [parts]).map((p) => (typeof p === 'string' ? { tts: p } : p)).filter(Boolean);
+    let list = (Array.isArray(parts) ? parts : [parts]).map((p) => (typeof p === 'string' ? { tts: p } : p)).filter(Boolean);
+    // By default the grown up says every sound: clip parts are skipped silently, never replaced by text to speech.
+    if (!store.settings.playSounds) {
+      list = list.filter((p) => p.clip === undefined);
+      while (list.length && list[0].pause !== undefined) list.shift();
+    }
     cancel();
     if (!unlocked || !list.length) return;
     const run = ++runId;

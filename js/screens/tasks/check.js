@@ -2,14 +2,15 @@ import { h } from '../../dom.js';
 import { glyphSvg } from '../../glyphs.js';
 import { letterText, richText } from '../../letters.js';
 import { accentOf } from '../../theme.js';
-import { soundPhrase } from '../../lessons.js';
+import { soundPhrase, checkPrompt } from '../../lessons.js';
 
 // Task 7: one question, big cards. Nothing tells the child right or wrong.
-export function build({ lesson, sound, speech }) {
+export function build({ lesson, sound, speech, store }) {
   const q = lesson.quickCheck;
+  const prompted = checkPrompt(q, store);
   const order = [...q.options].sort(() => Math.random() - 0.5);
   const prompt = h('h2', { class: 'check-prompt' });
-  prompt.append(h('span', {}, richText(q.promptText, { every: true })));
+  prompt.append(h('span', {}, richText(prompted.text, { every: true })));
   const cards = order.map((o) => {
     const face = o.glyph
       ? h('span', { class: 'opt-glyph' }, glyphSvg(o.glyph, { color: accentOf(o.glyph), label: 'letter choice' }))
@@ -22,8 +23,8 @@ export function build({ lesson, sound, speech }) {
   const el = h('div', { class: 'check' }, prompt, h('div', { class: 'opts n' + cards.length }, cards));
   return {
     el,
-    parts: () => q.prompt,
+    parts: () => prompted.parts,
     script: () => `Say: 'Which one ${q.kind === 'picture' ? 'starts with' : 'says'} ${soundPhrase(sound)}?' Let them touch one. There is no right or wrong here.`,
-    again: () => { cards.forEach((c) => { c.classList.remove('picked'); c.setAttribute('aria-pressed', 'false'); }); speech.say(q.prompt); },
+    again: () => { cards.forEach((c) => { c.classList.remove('picked'); c.setAttribute('aria-pressed', 'false'); }); speech.say(prompted.parts); },
   };
 }

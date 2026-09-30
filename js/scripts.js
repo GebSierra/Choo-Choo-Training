@@ -5,7 +5,18 @@ export const stretchWord = (word, held) => [...word].map((c, i) => (held.has(c) 
 
 export function stretchLetters(word) { return [...word].map((c) => c.repeat(3)).join(''); }
 
-export function scriptToParts(text, soundKeys) {
+// quiet (the default, when the grown up says the sounds): any sentence that contains a sound is left out,
+// so only the framing sentences are read ("Now you try. Slide the letter as you say it.").
+export function scriptToParts(text, soundKeys, { quiet = false } = {}) {
+  if (quiet) {
+    const hasSound = (tok) => {
+      const m = tok.match(/^['"]*([A-Za-z]+)[.,:;!?'"]*$/);
+      const core = m ? m[1].toLowerCase() : '';
+      const runs = core ? core.match(/(.)\1*/g) : null;
+      return (runs && runs.some((r) => r.length >= 3)) || (core.length === 1 && soundKeys.includes(core));
+    };
+    text = text.replaceAll('...', '\u2026').split(/(?<=[.?!]['"]?)\s+/).filter((s) => !s.split(/\s+/).some(hasSound)).join(' ').replaceAll('\u2026', '...');
+  }
   const parts = [];
   let buf = [];
   const flush = () => { const t = buf.join(' ').trim(); if (t) parts.push({ tts: t }); buf = []; };

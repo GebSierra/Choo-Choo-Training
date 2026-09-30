@@ -2,7 +2,7 @@ import { h, animate, icon } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { holdButton } from '../components/hold-button.js';
 import { speakButton } from '../components/speak-button.js';
-import { tasksFor, lessonByNumber, targetsFor, soundPhrase } from '../lessons.js';
+import { tasksFor, lessonByNumber, targetsFor, soundPhrase, introParts } from '../lessons.js';
 import { richText, letterText } from '../letters.js';
 
 // Little illustrations for the task cards, drawn from our own shapes and emoji.
@@ -35,7 +35,7 @@ export function lessonScreen({ store, router, curriculum, speech }, n) {
   const header = h('header', { class: 'lo-head' },
     h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back', onclick: () => router.back() }, icon('back', 28)),
     h('div', { class: 'lo-title' }, h('h1', {}, `Lesson ${lesson.number}`), h('p', {}, richText(`Today: the sound ${soundPhrase(sound)}.`, { every: true }))),
-    speakButton({ speech, getParts: () => lesson.intro, label: 'Hear the lesson intro', accent }));
+    speakButton({ speech, getParts: () => introParts(lesson, store), label: 'Hear the lesson intro', accent }));
 
   const cards = tasks.map((t, i) => {
     const isDone = done.includes(t.index);

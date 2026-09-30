@@ -16,6 +16,10 @@ export function tasksFor(lesson) {
   return list.map((type, index) => ({ type, index, ...TASK_TYPES[type] }));
 }
 
+// Spoken lines have a quiet variant for when the grown up says the sound (the default). Both live in curriculum.json.
+export const introParts = (lesson, store) => (store.settings.playSounds ? lesson.intro : lesson.introQuiet);
+export const checkPrompt = (q, store) => (store.settings.playSounds ? { parts: q.prompt, text: q.promptText } : { parts: q.promptQuiet, text: q.promptTextQuiet });
+
 export const lessonByNumber = (curriculum, n) => curriculum.lessons.find((l) => l.number === Number(n));
 
 // What each task practices, as chips: {glyph} for a taught letter or {text} for a word.

@@ -125,6 +125,11 @@
           "clip": "m"
         }
       ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
       "sayingWords": [
         {
           "parts": [
@@ -197,7 +202,13 @@
             "clip": "m"
           }
         ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the picture that starts the same."
+          }
+        ],
         "promptText": "Which picture starts with mmm?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the picture that starts the same.",
         "kind": "picture",
         "options": [
           {
@@ -233,6 +244,11 @@
         },
         {
           "tts": "as in apple."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
         }
       ],
       "sayingWords": [
@@ -310,7 +326,13 @@
             "tts": "as in apple?"
           }
         ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the letter."
+          }
+        ],
         "promptText": "Which letter says a as in apple?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -337,6 +359,11 @@
         },
         {
           "clip": "s"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
         }
       ],
       "sayingWords": [
@@ -411,7 +438,13 @@
             "clip": "s"
           }
         ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the letter."
+          }
+        ],
         "promptText": "Which letter says sss?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {

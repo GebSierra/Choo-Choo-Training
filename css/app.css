@@ -351,7 +351,10 @@ body.night { background: var(--night); }
 .letter-card.tappable:active { transform: scale(.97); }
 .sound-card { --accent: var(--m); display: grid; grid-template-columns: 40px 1fr; gap: 12px; background: #fff; color: var(--ink); border-radius: 20px; padding: 14px; margin-bottom: 14px; box-shadow: var(--shadow); border-left: 6px solid var(--accent); }
 .sc-ic { width: 40px; height: 40px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 14%, #fff); color: var(--accent); display: grid; place-items: center; }
-.sc-first { font-size: 19px; font-weight: 800; } .sc-first strong { color: var(--accent); }
+.sc-first { font-size: 19px; font-weight: 800; }
+.sound-card.lead { padding: 16px; }
+.sound-card.lead .sc-first { font-size: 24px; line-height: 1.2; }
+.sound-card.lead .sc-rules { font-size: 19px; } .sc-first strong { color: var(--accent); }
 .sc-rules { font-weight: 700; margin-top: 2px; }
 .sc-how { font-size: 17px; color: var(--muted); margin-top: 4px; }
 @media (max-width: 380px) { .new-letter .letter-card.big { height: 140px; } .sc-how { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } }
