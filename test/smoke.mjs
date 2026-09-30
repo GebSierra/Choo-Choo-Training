@@ -332,6 +332,91 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   await ctx.close();
 }
 
+// Adversarial checks (step 13).
+{
+  const isIso = (t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, ''); return z.length === 1 || (z.length > 1 && /^(.)\1+$/.test(z)); };
+  // 1. Nothing is spoken before a tap; nothing leaves the origin at runtime; every script speaker is safe.
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(ALL_OPEN);
+  const external = [];
+  page.on('request', (r) => { if (!r.url().startsWith(url) && !r.url().startsWith('data:') && !r.url().startsWith('blob:')) external.push(r.url()); });
+  await page.goto(url + '#/lesson/2/task/1');
+  await page.waitForSelector('.task-screen');
+  await page.waitForTimeout(1200);
+  ok((await page.evaluate(() => window.__spoken.length + window.__events.length)) === 0, 'no speech or clip before the first tap');
+  const spokenAll = [];
+  for (const L of [1, 2, 3]) {
+    for (let i = 0; i < TASK_COUNTS[L]; i++) {
+      await page.evaluate((h) => { location.hash = h; }, `#/lesson/${L}/task/${i}`);
+      await page.waitForSelector('.task-screen');
+      await page.waitForTimeout(700);
+      await page.evaluate(() => { window.__spoken.length = 0; window.__events.length = 0; });
+      await page.locator('.script-card .speak-btn').click();
+      await page.waitForTimeout(250);
+      await page.locator('.task-stage > .speak-btn').click();
+      await page.waitForTimeout(250);
+      spokenAll.push(...(await page.evaluate(() => window.__spoken)));
+    }
+  }
+  const bad = spokenAll.filter(isIso);
+  ok(bad.length === 0, 'no script or child line ever sends an isolated sound to tts: ' + JSON.stringify(bad));
+  ok(spokenAll.length > 20, 'scripts and child lines were actually spoken (' + spokenAll.length + ' parts)');
+  ok(external.length === 0, 'no external requests at runtime: ' + external.join(', '));
+  ok(errors.length === 0, 'adversarial errors ' + errors.join(' | '));
+  await ctx.close();
+}
+{
+  // 2. Speech that never starts must not block the screen.
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'speechSynthesis', { value: { getVoices: () => [], addEventListener() {}, cancel() {}, speak() { /* never starts */ } }, configurable: true });
+  });
+  await page.addInitScript(ALL_OPEN);
+  await page.goto(url + '#/lesson/2/task/1');
+  await page.waitForSelector('.task-screen');
+  await page.click('.slide-track .st-handle', { force: true, trial: true }).catch(() => {});
+  const t0 = Date.now();
+  await page.locator('.task-stage > .speak-btn').click();
+  await page.waitForFunction(() => !document.querySelector('.task-stage > .speak-btn').classList.contains('is-speaking'), null, { timeout: 6000 });
+  ok(Date.now() - t0 < 4500, 'speech that never starts gives up within a few seconds (' + (Date.now() - t0) + ' ms)');
+  await page.click('.btn.next');
+  await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Sound Story', null, { timeout: 3000 });
+  ok(true, 'Next works while speech never starts');
+  ok(errors.length === 0, 'silent-speech errors ' + errors.join(' | '));
+  await ctx.close();
+}
+{
+  // 3. Reduced motion must not shorten the hold gate; Home and the first-run card pass the audits.
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0], { reducedMotion: 'reduce' });
+  await page.addInitScript(SPEECH_STUB);
+  await page.goto(url + '#/home');
+  await page.waitForSelector('.first-run');
+  await page.waitForTimeout(700);
+  let hp = await audit(page, 'home first-run');
+  ok(hp.length === 0, hp.join(' | '));
+  await page.click('.first-run .btn');
+  await page.waitForTimeout(500);
+  hp = await audit(page, 'home');
+  ok(hp.length === 0, hp.join(' | '));
+  const gb = await page.locator('.pill-hold').boundingBox();
+  await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2);
+  await page.mouse.down(); await page.waitForTimeout(600); await page.mouse.up();
+  await page.waitForTimeout(300);
+  ok(page.url().endsWith('#/home'), 'reduced motion: a 0.6 s hold still does not open Grownups');
+  ok(errors.length === 0, 'reduced-motion errors ' + errors.join(' | '));
+  await ctx.close();
+}
+{
+  // 4. The lessons failing to load shows a friendly retry card.
+  const { ctx, page } = await newPage(browser, VIEWPORTS[0]);
+  await page.route('**/data/curriculum.json', (r) => r.abort());
+  await page.goto(url);
+  await page.waitForSelector('.retry-card');
+  ok(/try again/i.test(await page.locator('.retry-card .btn').innerText()), 'retry card appears when the lessons do not load');
+  await ctx.close();
+}
+
 // Speech queue (step 5): order, missing clip skipped, isolated sounds refused, gesture required.
 {
   const vp = VIEWPORTS[0];

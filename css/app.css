@@ -478,3 +478,10 @@ body.night { background: var(--night); }
 .gu-actions { display: flex; gap: 10px; }
 .btn.danger { background: var(--a); }
 .grownups .sound-card { box-shadow: none; background: #F7F8FD; margin-bottom: 0; }
+
+.retry-card { min-height: 100dvh; display: grid; place-content: center; gap: 20px; text-align: center; padding: 24px; font-weight: 700; font-size: 20px; }
+.retry-card .btn { justify-self: center; }
+/* No long-press menus on child surfaces. */
+html { touch-action: manipulation; }
+button, .stone, .slide-track, .trace-pad { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+button img, .word-tile img { pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none; }

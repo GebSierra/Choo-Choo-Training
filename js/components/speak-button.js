@@ -9,11 +9,13 @@ export function speakButton({ speech, getParts, label = 'Hear it', accent }) {
     class: 'speak-btn', type: 'button', 'aria-label': label, style: accent ? { '--accent': accent } : {},
     onclick: () => { if (speech.speaking) speech.cancel(); else speech.say(getParts()); },
   }, icon('speaker', 26), bars, dot);
-  const sync = () => { btn.classList.toggle('is-speaking', speech.speaking); dot.hidden = speech.missing.length === 0; };
+  let wasConnected = false;
+  const sync = () => {
+    if (btn.isConnected) wasConnected = true; else if (wasConnected) { off(); return; }
+    btn.classList.toggle('is-speaking', speech.speaking); dot.hidden = speech.missing.length === 0;
+  };
   const off = speech.onChange(sync);
   sync();
   btn.cleanup = off;
-  const obs = new MutationObserver(() => { if (!btn.isConnected) { off(); obs.disconnect(); } });
-  queueMicrotask(() => obs.observe(document.body, { childList: true, subtree: true }));
   return btn;
 }

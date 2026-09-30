@@ -18,10 +18,19 @@ async function boot() {
     if (!res.ok) throw new Error(res.status);
     curriculum = await res.json();
   } catch (e) {
-    root.textContent = 'Could not load the lessons. Please check the connection and reload.';
+    const card = document.createElement('div');
+    card.className = 'retry-card';
+    const msg = document.createElement('p');
+    msg.textContent = 'The lessons did not load. Check the connection and try again.';
+    const btn = document.createElement('button');
+    btn.className = 'btn'; btn.type = 'button'; btn.textContent = 'Try again';
+    btn.addEventListener('click', () => location.reload());
+    card.append(msg, btn);
+    root.replaceChildren(card);
     return;
   }
   const speech = createSpeech({ store, curriculum });
+  store.touch();
   const ctx = { store, curriculum, speech, router: null };
   // Browsers only allow speech after a tap. The first pointerdown unlocks it for this page session.
   addEventListener('pointerdown', () => speech.unlock(), { capture: true, once: true });

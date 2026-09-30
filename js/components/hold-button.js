@@ -1,4 +1,7 @@
-import { h, animate, icon } from '../dom.js';
+import { h, icon } from '../dom.js';
+
+// The hold is a safety gate, not decoration: it keeps its full length even under reduced motion.
+const run = (el, keyframes, opts) => el.animate(keyframes, { fill: 'backwards', ...opts });
 
 const HOLD_MS = 1500;
 const C = 2 * Math.PI * 13; // ring circumference
@@ -20,7 +23,7 @@ export function holdButton({ label, hint = 'Press and hold', onComplete, classNa
     holding = true; done = false;
     btn.classList.add('holding');
     try { btn.setPointerCapture(e.pointerId); } catch {}
-    anim = animate(ring, [{ strokeDashoffset: C }, { strokeDashoffset: 0 }], { duration: holdMs, easing: 'linear' });
+    anim = run(ring, [{ strokeDashoffset: C }, { strokeDashoffset: 0 }], { duration: holdMs, easing: 'linear' });
     anim.finished.then(() => {
       if (!holding || done) return;
       done = true;
@@ -41,7 +44,7 @@ export function holdButton({ label, hint = 'Press and hold', onComplete, classNa
       const t = anim.currentTime || 0;
       const from = C * (1 - Math.min(1, t / holdMs));
       anim.cancel();
-      const back = animate(ring, [{ strokeDashoffset: from }, { strokeDashoffset: C }], { duration: 160 });
+      const back = run(ring, [{ strokeDashoffset: from }, { strokeDashoffset: C }], { duration: 160 });
       back.finished.then(() => back.cancel()).catch(() => {});
     }
   }
