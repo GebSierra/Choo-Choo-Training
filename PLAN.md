@@ -395,10 +395,35 @@ Warm, bright, tactile, close to Reading.com's cheer without copying its characte
 - **Color tokens.** Background: soft cream `#FFF8EC` for app chrome; the home map uses Reading.com-style greens and blues (`#3DD68C` grass, `#5AC8FA` water, `#6C5CE7` house). Ink `#1E2140`. Muted `#6E7391`. Card white. Accent per sound: m ocean `#3B7DD8`, a apple `#E5484D`, s leaf `#2FB37A`, each with a 12% tint. Task card colors follow the screenshots: sky `#5DE0F0`, violet `#5A4BD6`, coral `#F0556A`, sun `#FFD166`, mint `#5FE3B0`, lilac `#CDC4F8`, blue `#7DB8F5`.
 - **Type.** Nunito (self-hosted woff2, weights 400, 700, 800), fallback `system-ui, Roboto, sans-serif`. Sizes: display 40, title 28, body 18, script 17, caption 15. Line height 1.35. Taught letters never use the font (7.6).
 - **Shape.** Radius 24 on cards, 999 on pills and stones. Soft shadow `0 6px 20px rgba(60,40,20,.12)`.
-- **Motion.** 200 to 300 ms ease-out. Idle pulses slow (2 s). Honor `prefers-reduced-motion`.
+- **Motion.** See 8.1. Honor `prefers-reduced-motion` everywhere by cutting durations to 0 and removing loops.
 - **Touch.** 48 px minimum targets, 12 px gaps, active scale 0.97.
 - **Icons.** Inline SVG, stroke 2, rounded caps.
 - **App icon.** Cream circle with the three glyphs in their accents, drawn from `glyphs.js`; export 192, 512, maskable 512 and 180 via a Playwright screenshot of an SVG page.
+
+### 8.1 Motion: the A-class bar
+
+Animation is how the app feels alive without noise. Every animation must have a reason a child or parent would feel, and none may delay a tap. Use CSS transitions and the Web Animations API; no animation library.
+
+Timing tokens: `--t-fast: 160ms`, `--t-base: 260ms`, `--t-slow: 480ms`; easing `--ease-out: cubic-bezier(.2,.8,.2,1)`, `--ease-spring: cubic-bezier(.34,1.56,.64,1)` for small pops only.
+
+Required moments:
+
+- **Screen change.** Outgoing screen fades and drifts 12 px; incoming fades and settles from 16 px, `--t-base`, staggered 60 ms. Back navigation reverses direction.
+- **Home path.** On load, stones rise into place one after another (80 ms stagger, `--t-slow`, ease-out). The current stone breathes: a soft ring scales 1 to 1.12 and fades over 2.2 s, looping. A locked stone wobbles 6 degrees and back over `--t-base` when tapped. Butterflies or leaves drift slowly in the background at very low contrast, no more than two moving elements at once.
+- **Cards and buttons.** Press: scale 0.97 over `--t-fast`. Release: spring back. Cards enter a list with a 40 ms stagger, fade plus 8 px rise. A done tick draws itself with a stroke-dashoffset animation over `--t-base`.
+- **New Letter reveal.** The glyph draws itself along its stroke path (stroke-dashoffset, `--t-slow` per stroke, in handwriting order), then fills and settles with a tiny spring. Repeat on tapping the glyph.
+- **Slide track.** The handle follows the finger with no lag. The fill trails 40 ms behind the handle. For held sounds a sine wave ripples along the fill while the finger moves and stills when it stops. At the end: a bloom ring expands and fades over `--t-slow`; the handle glides home over 600 ms with ease-in-out.
+- **Saying Sounds sweep.** A soft highlight glides left to right across the glyphs over 2 s, pauses 600 ms, repeats. It stops when the word is revealed, and the whole word lifts 6 px and settles.
+- **Saying Words merge.** The two tiles slide together and the merged tile pops in with `--ease-spring`, scale 0.8 to 1.
+- **Trace pad.** The child's stroke has a slight round cap that grows in over 80 ms at the start of each stroke. "Show me" moves a glowing dot along the stroke at a steady pace, leaving a fading trail.
+- **Speak button.** While speaking, three bars bounce at different phases. On cancel they collapse over `--t-fast`.
+- **Progress dots.** The active dot widens into a pill over `--t-base` when the task changes.
+- **Finish screen.** The glyph scales in with a spring, then a single ring pulses once. No confetti, no fireworks.
+- **Hold button.** The ring fills linearly over 1.5 s. Releasing early rewinds it over `--t-fast`.
+
+Never: bounce loops on idle screens other than the current stone's breath; parallax; animations longer than 600 ms except the deliberate slow loops named above; motion that moves a tap target while a finger might be heading for it.
+
+Performance: animate only `transform` and `opacity` where possible; `will-change` on the handle and the sweep; keep 60 fps on a mid-range Android phone, checked by eye in the Playwright trace and by avoiding layout-triggering properties.
 
 ## 9. Engineering rules
 
@@ -447,7 +472,7 @@ Each step ends with a verify gate. Do not start the next step until it passes. C
 9. **Grownups, hold gate, voice settings.** Gate: gate blocks a short tap and opens on hold; reset returns Home to first run; voice choice persists.
 10. **Recorder tool.** `tools/record.html` records, plays back and downloads a `.webm` clip. Gate: manual check in headed Chromium is not possible here, so verify the page loads without console errors in Playwright and that `MediaRecorder` code paths are guarded when unsupported.
 11. **PWA.** Manifest, icons, service worker, meta tags. Gate: offline reload passes; manifest validates (no console warnings about it).
-12. **Polish pass.** Re-read section 8 and every screen at 412 by 915 and 915 by 412 against the Reading.com screenshots. Fix spacing, type, motion. Gate: the screenshots would not embarrass a professional designer. If in doubt, simplify.
+12. **Polish pass.** Re-read sections 8 and 8.1 and every screen at 412 by 915 and 915 by 412 against the Reading.com screenshots. Fix spacing, type, motion. Gate: the screenshots would not embarrass a professional designer. If in doubt, simplify.
 13. **Adversarial review.** Read the whole diff as a critic: any letter name or capital on a child screen or in a `tts` string; any `showLetters: true` word using an untaught letter; any target under 48 px; page scroll during drag; any external request other than the playlist link and none at runtime for fonts; a crash when `localStorage` throws; speech called before a gesture; the screen waiting on speech that never starts. Fix everything. Gate: checker and smoke green; push.
 14. **Handoff.** Update `README.md`: the Pages URL, install steps for Chrome and Edge on Android, how to record the three clips and where to put them, how to reset progress, what stage 2 adds. Push. Tell Geb the URL, the recording steps, and the manual checklist.
 
