@@ -37,10 +37,10 @@ Success for stage 1: Geb opens the URL on his Android phone, installs it to the 
 
 **App principles (Geb).**
 
-9. The app speaks but never listens. No microphone permission is ever requested by the app. Speech output comes from two sources: the browser's text to speech for words, prompts and instructions; and recorded audio clips for isolated letter sounds (see 7.5). The parent's live voice stays the main teacher; the app's voice supports it.
+9. The app speaks but never listens. No microphone permission is ever requested by the app. The parent says every letter sound; the app does not pronounce them. The browser's text to speech reads words, prompts and instructions. Recorded clips for isolated letter sounds (see 7.5) stay in the project but play only if the parent turns on "Play recorded letter sounds" in Grownups (setting `playSounds`, off by default). With it off, a clip part in any spoken line is skipped silently and never replaced by text to speech, and the lines that would end in a clip have quiet variants in `curriculum.json`. The parent's live voice is the teacher; the app's voice supports it.
 10. An adult sits with the child. Every task shows a short parent script.
 11. Progress is decided by the parent, who taps "Got it" or "Practice again" at the end of each lesson. No automatic pass or fail.
-12. Lesson flow copies the seven Reading.com tasks in order: Letter Review, New Letter, Sound Story, Saying Words, Saying Sounds, Letter Writing, Quick Check. Lesson 1 has nothing to review and so has six tasks.
+12. Lesson flow copies the seven Reading.com tasks in order: Letter Review, New Letter, Sound Story, Saying Words, Saying Sounds, Letter Writing, Quick Check, with two games of our own inserted before Quick Check (see 6.4): Letter Hunt and Barn Doors. Lesson 1 has nothing to review and so has eight tasks; lessons 2 and 3 have nine.
 13. Sound Story opens this YouTube playlist in a new tab and tells the parent to find the video for the lesson's sound: https://m.youtube.com/playlist?list=PL2hNdtrsO2hIINInfmEb55IpwTw0IrQZW
 14. Lesson order: 1 = m, 2 = a, 3 = s.
 15. Pictures: Mentava's tiles where they exist (a has six). For m and s, no tiles exist yet; use emoji until Geb extracts them from the book PDF (ask him; see section 15). Reading.com's layout, colors and card style are copied closely; its characters are not reproduced, since we only have screenshots. Add a line to `README.md`: "Private personal build. Contains material from Mentava and Reading.com. Not for publication or sale without their permission."
@@ -288,7 +288,7 @@ Key `reading.v1`:
   "lessons": {
     "1": {"tasksDone": [0, 1, 2], "result": null, "completedAt": null}
   },
-  "settings": {"voiceURI": null, "rate": 0.9, "autoSpeak": true},
+  "settings": {"voiceURI": null, "rate": 0.9, "autoSpeak": true, "playSounds": false},
   "lastOpened": "2026-10-03T14:12:00Z"
 }
 ```
@@ -333,11 +333,13 @@ Match the dark list style of `03` to `06` for the task detail header, and keep t
 - Bottom: parent script card (grey, adult icon, small speaker icon) with the exact words to say, then two buttons: "Again" and "Next". Next marks the task done and advances. The last task's Next opens the finish screen.
 - Transitions: 250 ms slide, honoring `prefers-reduced-motion`.
 
-### 6.4 The seven tasks
+### 6.4 The tasks
 
-**Task 1: Letter Review.** For each review sound: glyph on a slide track (7.1), sound card beneath. Speaker button plays that sound's clip, then its first example word via text to speech. "Next" moves through the review letters. Parent script: "Slide the letter and say its sound: mmm."
+Every lesson runs these in order (Letter Review only when there is something to review): Letter Review, New Letter, Sound Story, Saying Words, Saying Sounds, Letter Writing, Letter Hunt, Barn Doors, Quick Check. Tasks are numbered by position in the lesson; the headings below keep the original seven numbers and add the two games, so the headings read 1 to 9 and lesson 1 skips Letter Review. The spoken lines below assume `playSounds` is off, which is the default: the clip parts they mention play only when the parent turns the switch on, and each line that ends in a clip has a quiet variant (`introQuiet`, `promptQuiet`, `promptTextQuiet`).
 
-**Task 2: New Letter.** Big glyph fades in and settles. Speech on entry: the lesson `intro` parts. Below: the sound card ("This letter says mmm. Hold it. Do not say muh." plus `howTo`), then the slide track, then the example words as a horizontal strip of picture tiles (Mentava image when present, else emoji) with the word beneath in lowercase, the target letter tinted. Tapping a tile speaks its word. Parent script: "Say mmm. Now you try. Slide the letter as you say it."
+**Task 1: Letter Review.** For each review sound: glyph on a slide track (7.1), sound card beneath. Speaker button speaks the sound's first example word via text to speech (and plays that sound's clip first when `playSounds` is on). "Next" moves through the review letters. Parent script: "Slide the letter and say its sound: mmm."
+
+**Task 2: New Letter.** Big glyph fades in and settles. Speech on entry: `introQuiet` ("Today we learn a new letter. Your grown up will say its sound."), or `intro` with its clip when `playSounds` is on. The sound card ("This letter says mmm. Hold it. Do not say muh." plus `howTo`) is the main instruction, drawn large, because the parent carries the sound. Below it: the slide track, then the example words as a horizontal strip of picture tiles (Mentava image when present, else emoji) with the word beneath in lowercase, the target letter tinted. Tapping a tile speaks its word. Parent script: "Say mmm. Now you try. Slide the letter as you say it."
 
 **Task 3: Sound Story.** Card: "Time for the sound story." Speech: "Time for the sound story." Parent text: "Open the playlist and find the video for the sound mmm. Come back when it ends." One large hold button "Open playlist" opens `playlistUrl` in a new tab. Nothing else navigates away.
 
@@ -347,7 +349,11 @@ Match the dark list style of `03` to `06` for the task detail header, and keep t
 
 **Task 6: Letter Writing.** Trace pad (7.2) with the lesson's glyph. Numbered start dots and arrows. Finger draws in the accent color. Buttons: "Clear", "Show me" (animates stroke order). Speech on entry: "Start at the dot. Follow the arrow." Parent script says the same.
 
-**Task 7: Quick Check.** `promptText` shown; speaker speaks `prompt` parts. Options as large cards (picture or glyph). Child taps one; the card lifts. Nothing says right or wrong to the child. Parent script: "Ask the question. Let them tap." Then the finish screen.
+**Task 7: Letter Hunt.** A storybook farm scene: sunny sky, rolling hills, a white picket fence, all own SVG. About fourteen small lowercase letters float in the sky, four or five of them the target; the rest come from `games.hunt.distractors` for the lesson's sound. A "Find this" card at the top left shows the target glyph in its accent colour (the child matches shapes; the parent says the sound). Letters are ink-coloured until touched, so colour is never a clue. m, a and s are drawn from `glyphs.js`, every other letter from the font at the same size. Touch targets are 56 px, at least 12 px apart, and bob slowly (vertical only, 4 px, paused while a finger is on that letter). A right touch pops the letter in its accent colour with a small sparkle, refills the slot after 500 ms (at least three targets always stay in the sky) and the sheep trots one step toward the barn. Five right touches take it across; it hops, waves a hoof and a bigger sparkle plays. A wrong touch gives the letter a small shake and nothing else. Five small rings under the scene fill with gold stars. No score, no sound effects, no timer. Spoken line (text to speech): `games.hunt.say`. Parent script: "Say: 'Find the letter that says mmm. Touch it.' Then say mmm together." Again resets the sheep and refreshes the sky.
+
+**Task 8: Barn Doors.** The same farm with a big red barn and white X doors. The doors swing open from their outer edges (400 ms) on a dark interior with one big letter on a warm lit tile (about 40% of the barn width). Rounds 1 and 2 always show the target. After that about one round in three shows a distractor (never two in a row). On a target round the doors stay open and the letter breathes until it is touched: it turns to its accent colour and pops with a sparkle, the barn hops, a star fills, the doors close 600 ms later and the next round opens 900 ms after that. On a distractor round the letter shakes if touched and the doors close on their own after 2.5 s. Five stars end the game: a bigger sparkle, the barn hops twice and the doors stay open. With reduced motion the doors swap by opacity and nothing hops. Spoken line: `games.barn.say`. Parent script: "Say: 'Watch the doors. When you see the letter that says mmm, touch it.' Then say mmm together."
+
+**Task 9: Quick Check.** `promptTextQuiet` shown and `promptQuiet` spoken ("Listen to your grown up. Then touch the letter." or "...the picture that starts the same."); with `playSounds` on, `promptText` and `prompt` (with its clip) instead. Options as large cards (picture or glyph). Child taps one; the card lifts. Nothing says right or wrong to the child. Parent script: "Ask the question. Let them tap." Then the finish screen.
 
 ### 6.5 Lesson finish
 
@@ -533,6 +539,11 @@ Defaults in this plan, taken as approved unless Geb says otherwise:
 - Pictures for m and s are emoji until Geb extracts those tiles from the Mentava PDF, the same way the a to e tiles were extracted (the manifest shows page and xref per image).
 - Nunito is the app font, self-hosted.
 
+Decided by Geb in round 2 (see section 17):
+
+- The app does not pronounce letter sounds; the parent says them. The recorded clips stay behind the Grownups switch "Play recorded letter sounds", off by default.
+- Each lesson gets two games of our own, Letter Hunt (a sheep crosses a field) and Barn Doors, modelled on the example screenshots in `docs/reference/`. They are silent, never score and never say wrong.
+
 ## 16. Post-review changes
 
 Five independent reviews produced `docs/FIXES-round1.md` (37 numbered fixes in five groups). All are applied. What changed, in short:
@@ -545,3 +556,11 @@ Five independent reviews produced `docs/FIXES-round1.md` (37 numbered fixes in f
 
 Decisions fixed by Geb in that round: inside words m and s may render from the font (only "a" always comes from `glyphs.js`); words with untaught letters may appear as picture labels; the alphabet song row stays, as Geb's deliberate exception to the letters-not-names rule; the debug routes stay but are not precached.
 
+
+## 17. Round 2: quiet sounds and two games (v1.3.0)
+
+Specified in `docs/ROUND2-games.md`; Geb's example screenshots are in `docs/reference/`.
+
+- **Quiet sounds.** The app no longer pronounces letter sounds. `playSounds` (Grownups, off by default) brings the recorded clips back. `speech.say` skips clip parts silently when it is off. Quiet variants of the lines that ended in a clip live in `curriculum.json`. Parent scripts read aloud only their framing sentences: any sentence that contains a sound is left out.
+- **Two games per lesson**, Letter Hunt and Barn Doors (6.4), inserted before Quick Check, so Quick Check stays last. Lesson 1 has eight tasks, lessons 2 and 3 have nine. They never score, never say wrong, never play a sound effect and never time the child out. `games.hunt` and `games.barn` in `curriculum.json` hold the spoken line and the distractor letters per taught sound. Art is our own inline SVG in `js/art.js`; the sparkle burst is shared in `js/components/sparkle.js`.
+- **Tests.** `test/games.mjs` drives both games by real touch at the three viewports (overlap, sizes, wrong and right touches, done state, Again, reduced motion, no clip or speech during play); `test/smoke.mjs` runs it.

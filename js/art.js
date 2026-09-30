@@ -35,6 +35,8 @@ export function sheepSvg() {
       h('g', { fill: '#DCE2F4' }, ...fluff.map(([x, y, r]) => h('circle', { cx: x, cy: y + 4, r }))),
       h('g', { fill: '#FFFFFF' }, ...fluff.map(([x, y, r]) => h('circle', { cx: x, cy: y, r }))),
       h('circle', { cx: 18, cy: 60, r: 9, fill: '#fff' }),
+      h('g', { fill: 'none', stroke: '#DCE2F4', 'stroke-width': 2.6, 'stroke-linecap': 'round' },
+        h('path', { d: 'M34 50 q6 -8 13 -2' }), h('path', { d: 'M58 36 q7 -7 14 0' }), h('path', { d: 'M74 54 q6 -7 13 -1' }), h('path', { d: 'M46 68 q6 -6 12 0' }), h('path', { d: 'M68 70 q6 -6 12 0' }), h('path', { d: 'M28 64 q3 -5 8 -2' })),
       h('ellipse', { cx: 96, cy: 42, rx: 6.5, ry: 11, fill: '#9E8EEB', transform: 'rotate(-28 96 42)' }),
       h('ellipse', { cx: 121, cy: 42, rx: 6.5, ry: 11, fill: '#9E8EEB', transform: 'rotate(28 121 42)' }),
       h('ellipse', { cx: 108, cy: 56, rx: 18, ry: 17, fill: '#BBAEF6' }),

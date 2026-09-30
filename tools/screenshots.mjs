@@ -49,6 +49,18 @@ await page.goto(url + '#/lesson/2/task/8'); await page.waitForTimeout(1200);
 await page.locator('.opt-card').nth(1).click(); await page.waitForTimeout(400);
 await save(page, '06-quick-check.png');
 
+// The two games mid-play, and the overview scrolled to their cards.
+await page.goto(url + '#/lesson/1/task/5'); await page.waitForSelector('.sky-letter'); await page.waitForTimeout(1200);
+for (let i = 0; i < 2; i++) { await page.evaluate(() => document.querySelector('.sky-letter[data-target="1"]:not(.popped)').click()); await page.waitForTimeout(i ? 350 : 1600); }
+await save(page, '09-letter-hunt.png');
+await page.goto(url + '#/lesson/2/task/7'); await page.waitForSelector('.barn-letter:not([disabled])'); await page.waitForTimeout(900);
+await page.click('.barn-letter'); await page.waitForTimeout(330);
+await save(page, '10-barn-doors.png');
+await page.goto(url + '#/lesson/2'); await page.waitForSelector('.task-card'); await page.waitForTimeout(900);
+await page.evaluate(() => { const s = document.querySelector('.cards-scroll'); const c = document.querySelectorAll('.task-card')[6]; s.scrollTo({ left: c.offsetLeft - 20 }); });
+await page.waitForTimeout(700);
+await save(page, '11-lesson-overview-games.png');
+
 // Landscape: the lesson overview and New Letter.
 await ctx.close();
 const land = await browser.newContext({ viewport: { width: 915, height: 412 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
@@ -57,5 +69,11 @@ await lp.addInitScript(SPEECH_STUB);
 await lp.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[0,1,2,3,4,5],result:'got-it',completedAt:'2026-09-30T12:00:00Z'},2:{tasksDone:[0,1],result:null}},settings:{},firstRunDone:true})); }`);
 await lp.goto(url + '#/lesson/2'); await lp.waitForTimeout(1200); await save(lp, '07-lesson-overview-landscape.png');
 await lp.goto(url + '#/lesson/2/task/1'); await lp.waitForTimeout(2200); await save(lp, '08-new-letter-landscape.png');
+await lp.goto(url + '#/lesson/1/task/5'); await lp.waitForSelector('.sky-letter'); await lp.waitForTimeout(1200);
+for (let i = 0; i < 2; i++) { await lp.evaluate(() => document.querySelector('.sky-letter[data-target="1"]:not(.popped)').click()); await lp.waitForTimeout(i ? 350 : 1600); }
+await save(lp, '12-letter-hunt-landscape.png');
+await lp.goto(url + '#/lesson/2/task/7'); await lp.waitForSelector('.barn-letter:not([disabled])'); await lp.waitForTimeout(900);
+await lp.click('.barn-letter'); await lp.waitForTimeout(330);
+await save(lp, '13-barn-doors-landscape.png');
 
 await browser.close(); server.close();

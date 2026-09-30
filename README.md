@@ -31,11 +31,14 @@ Debug pages (not linked from the app; the smoke test uses them, and the service 
 ## Test
 
     node test/check-content.mjs   # curriculum.json against the teaching rules
-    node test/smoke.mjs           # Playwright walkthrough at three Android viewports (takes about four minutes)
+    node test/smoke.mjs           # Playwright walkthrough at three Android viewports (takes about eight minutes)
+    node test/games.mjs           # only the two games (part of the smoke test; takes about two minutes)
 
 The smoke test starts its own server, uses the preinstalled Chromium, fails on any console error, and saves screenshots to `_test/` (ignored by git). `tools/screenshots.mjs` refreshes the pictures in `docs/screenshots/`. `npm install` is only needed if Playwright is not already installed globally; the app itself has no dependencies.
 
 ## Recording the sound clips
+
+By default the app does not pronounce letter sounds at all: your grown up says them, and the screens tell the parent how. The clips below play only if you turn on "Play recorded letter sounds" in Grownups (off by default).
 
 Isolated sounds (mmm, a as in apple, sss) are never made by the phone voice. They play from audio files:
 
@@ -73,7 +76,7 @@ The plan left these open or made them impossible to follow literally. Each is th
 - Fonts: one variable Nunito file (`nunito-latin.woff2`) covers weights 400, 700 and 800, instead of three files.
 - WebP: the bundled ffmpeg has no WebP encoder, so `tools/make-webp.mjs` converts the 26 tiles with Chromium's canvas encoder (512 px, all under 60 KB). The PNG originals stay and are not precached.
 - Every "a" a child reads is drawn from our own single-story glyph (`js/letters.js`), including inside words such as "apple" or "catfish". Inside words, m and s may render from the font: "a" is the only letter whose font shape differs, so only "a" always comes from `js/glyphs.js`.
-- Task numbers in the URL are positions in that lesson's task list, so lesson 1 has tasks 0 to 5 (no Letter Review) and lessons 2 and 3 have 0 to 6.
+- Task numbers in the URL are positions in that lesson's task list, so lesson 1 has tasks 0 to 7 (no Letter Review) and lessons 2 and 3 have 0 to 8 (Letter Hunt and Barn Doors sit just before Quick Check).
 - Back always goes to the parent screen (task to lesson overview to Home), so it is predictable and animates in reverse.
 - Grownups opens only through the hold gate on Home and expires after ten minutes; typing `#/grownups` bounces to Home. The gate is used up on entry, so Back then the browser's back button cannot re-enter. Redirects replace the history entry.
 - Hold gates (Grownups, Open playlist, Play for the alphabet song) take 2 seconds, keep that length even with reduced motion on, and each shows a permanent small "Hold" line.
@@ -101,3 +104,22 @@ The plan left these open or made them impossible to follow literally. Each is th
 - A sparkle of small stars bursts when the letter reaches the end. The slider then resets at once and can be grabbed again, even mid-glide.
 - Full screen button: top right on Home, and in Grownups under "Screen". It uses the browser's Fullscreen API and is hidden where the browser cannot do it.
 - The m and s clips were rebuilt. The first versions kept a vowel after the sound ("maah", "sah") because Wikipedia's recordings are the consonant followed by a vowel. The new m is the hum alone, looped at matching pitch points to about 0.9 s; the new s is the hiss alone, looped with crossfades to about 0.9 s. Both were checked on a spectrogram (no vowel bands). The a clip is unchanged.
+
+
+## Round 2 (v1.3.0): quiet sounds and two games
+
+- The app no longer pronounces letter sounds. The parent says every sound. A new Grownups switch, "Play recorded letter sounds" (off by default), brings the clips back. With it off, clip parts in any spoken line are skipped silently and never replaced by text to speech. Lines that used to end in a clip have quiet variants (`introQuiet`, `promptQuiet`, `promptTextQuiet` in `data/curriculum.json`); New Letter shows its sound card large as the main instruction.
+- Two new tasks per lesson, before Quick Check: Letter Hunt (touch the matching letters in the sky; a sheep trots across the farm) and Barn Doors (the doors open on a letter; touch it when it matches). Lesson 1 now has 8 tasks, lessons 2 and 3 have 9. Silent, no scoring, nothing says wrong.
+- Art is our own inline SVG (`js/art.js`); the sparkle burst is one shared helper (`js/components/sparkle.js`); `test/games.mjs` covers the games.
+
+### Decisions made during round 2
+
+- Quick Check shows the quiet question ("Listen to your grown up. Then touch the letter.") on screen too when sounds are off, so what the child sees matches what is spoken; `promptTextQuiet` holds it.
+- Reading a parent script aloud with sounds off keeps only the sentences that contain no sound. "Say mmm. Now you try. Slide the letter as you say it." reads "Now you try. Slide the letter as you say it." A script whose every sentence holds a sound reads nothing.
+- The one-line spoken instruction of each game lives in `curriculum.json` (`games.hunt.say`, `games.barn.say`), so `check-content.mjs` applies the letter-name and single-letter rules to it: "Find this letter. Touch it." and "Watch the barn doors. Touch the letter that matches."
+- Distractors are keyed by the taught sound (`games.hunt.distractors.m`), which is the same thing as keyed by lesson; Letter Hunt and Barn Doors use the same lists.
+- Letter Hunt keeps fourteen letters where the grid has room (the smallest phone fits fourteen; it would show fewer rather than crowd them). Letters sit on a soft round disc so each one reads as a thing to touch. The five star rings sit in a strip under the scene in both orientations.
+- Letter Hunt drift is vertical only, 4 px, and each letter holds still while a finger is on it. Replacement letters fade in where the old one was; nothing moves toward a finger.
+- Barn Doors: a round is one opening of the doors. A distractor round does not fill a star, so the game always ends after five stars, and never shows two distractor rounds in a row. The letter sits on a warm lit tile inside the dark barn so ink-coloured letters stay readable there; the colour-is-not-a-clue rule holds (ink until found).
+- Barn Doors with reduced motion: the door leaves swap by opacity instantly; nothing hops, breathes or drifts. Letter Hunt with reduced motion: no drift, no trot animation (the sheep moves at once), pops and sparkles are skipped.
+- Overview cards for the games use the sheep and the barn as their picture and the target letter chip; Letter Hunt is sky blue and Barn Doors coral. The landscape overview keeps its grid that scrolls vertically (Round 1 fix 23), now with more cards.
