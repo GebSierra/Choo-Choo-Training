@@ -22,6 +22,7 @@ export function createRouter(root, routes, ctx) {
       if (m) { match = { r, params: m.slice(1) }; break; }
     }
     if (!match) { location.replace('#/home'); return; }
+    if (ctx && ctx.speech) ctx.speech.cancel();
     const next = document.createElement('div');
     next.className = 'screen';
     let el;

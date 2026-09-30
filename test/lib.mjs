@@ -49,7 +49,8 @@ export async function newPage(browser, vp, extra = {}) {
   const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: vp.deviceScaleFactor, hasTouch: true, isMobile: true, ...extra });
   const page = await ctx.newPage();
   const errors = [];
-  page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+  // A missing recorded clip is expected until Geb records it; the browser logs its 404 itself.
+  page.on('console', (m) => { if (m.type() === 'error' && !m.location().url.includes('/assets/audio/')) errors.push('console: ' + m.text() + ' ' + m.location().url); });
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
   return { ctx, page, errors };
 }
