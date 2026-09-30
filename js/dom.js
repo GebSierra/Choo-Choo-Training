@@ -1,0 +1,56 @@
+// Tiny DOM helper. Content goes in through textContent only, never innerHTML.
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+export function h(tag, attrs, ...children) {
+  const svg = ['svg', 'path', 'circle', 'g', 'rect', 'line', 'defs', 'linearGradient', 'stop', 'ellipse', 'polyline'].includes(tag);
+  const el = svg ? document.createElementNS(SVG_NS, tag) : document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') el.setAttribute('class', v);
+    else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+    else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k === 'dataset') Object.assign(el.dataset, v);
+    else el.setAttribute(k, v === true ? '' : String(v));
+  }
+  append(el, children);
+  return el;
+}
+
+function append(el, children) {
+  for (const c of children.flat(Infinity)) {
+    if (c == null || c === false) continue;
+    el.append(c.nodeType ? c : document.createTextNode(String(c)));
+  }
+}
+
+export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Web Animations wrapper that respects reduced motion (resolves immediately).
+export function animate(el, keyframes, opts) {
+  if (!el || !el.animate) return { finished: Promise.resolve(), cancel() {} };
+  if (reduced()) opts = { ...opts, duration: 0, iterations: 1 };
+  const a = el.animate(keyframes, { fill: 'both', easing: 'cubic-bezier(.2,.8,.2,1)', ...opts });
+  return a;
+}
+
+export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+export function icon(name, size = 24) {
+  const paths = {
+    back: 'M15 5l-7 7 7 7',
+    speaker: 'M4 9v6h4l5 4V5L8 9H4z M16.5 8.5a5 5 0 010 7 M19 6a8.5 8.5 0 010 12',
+    adult: 'M12 4a3 3 0 100 6 3 3 0 000-6z M5 20c0-4 3-6 7-6s7 2 7 6',
+    check: 'M5 12.5l4.5 4.5L19 7.5',
+    lock: 'M7 11V8a5 5 0 0110 0v3 M6 11h12v9H6z',
+    slider: 'M4 8h9 M17 8h3 M4 16h3 M11 16h9 M15 5v6 M9 13v6',
+    close: 'M6 6l12 12 M18 6L6 18',
+    arrowRight: 'M5 12h14 M13 6l6 6-6 6',
+    redo: 'M20 12a8 8 0 11-3-6.2 M20 4v5h-5',
+    eraser: 'M4 15l8-9 8 8-5 5H8z M9 10l7 7',
+    play: 'M8 5l11 7-11 7z',
+    external: 'M14 4h6v6 M20 4l-9 9 M18 14v5H5V6h5',
+  };
+  const svg = h('svg', { viewBox: '0 0 24 24', width: size, height: size, fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true', class: 'icon' });
+  for (const d of paths[name].split(' M').map((s, i) => (i ? 'M' + s : s))) svg.append(h('path', { d }));
+  return svg;
+}
