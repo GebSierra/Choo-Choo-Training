@@ -43,7 +43,7 @@ Success for stage 1: Geb opens the URL on his Android phone, installs it to the 
 12. Lesson flow copies the seven Reading.com tasks in order: Letter Review, New Letter, Sound Story, Saying Words, Saying Sounds, Letter Writing, Quick Check, with two games of our own inserted before Quick Check (see 6.4): Letter Hunt and Barn Doors. Lesson 1 has nothing to review and so has eight tasks; lessons 2 and 3 have nine.
 13. Sound Story opens this YouTube playlist in a new tab and tells the parent to find the video for the lesson's sound: https://m.youtube.com/playlist?list=PL2hNdtrsO2hIINInfmEb55IpwTw0IrQZW
 14. Lesson order: 1 = m, 2 = a, 3 = s.
-15. Pictures: Mentava's tiles where they exist (a has six). For m and s, no tiles exist yet; use emoji until Geb extracts them from the book PDF (ask him; see section 15). Reading.com's layout, colors and card style are copied closely; its characters are not reproduced, since we only have screenshots. Add a line to `README.md`: "Private personal build. Contains material from Mentava and Reading.com. Not for publication or sale without their permission."
+15. Pictures: Mentava's tiles wherever a child sees a picture of a word (every sound now has its tiles in `assets/images/mentava/web`, see section 17). Emoji remain only where no tile exists: the compound words of Saying Words. Reading.com's layout, colors and card style are copied closely; its characters are not reproduced, since we only have screenshots. Add a line to `README.md`: "Private personal build. Contains material from Mentava and Reading.com. Not for publication or sale without their permission."
 
 **Engineering.**
 
@@ -121,6 +121,8 @@ Rules:
 ## 5. Data model
 
 ### 5.1 `curriculum.json`
+
+Picture fields: a word's `image` is a Mentava tile path (`assets/images/mentava/web/<slug>/<word>.webp`); the examples below were written when m and s had only emoji, and the shipped file uses `image` for every sound word, `sayingSounds` picture word and Quick Check picture option, keeping `emoji` only for `sayingWords`. Every tile is under 70 KB and precached.
 
 Speech is written as parts so that isolated sounds always come from a clip, never from text to speech. A part is `{"tts": "text"}` or `{"clip": "m"}`. If a clip is missing on the device, `speech.js` skips it (see 7.4).
 
@@ -371,7 +373,7 @@ A checkpoint is a bonus review game between lessons, not one of a lesson's tasks
 
 The game: on the farm scene a burlap sack (own SVG, stitched, with a rope tie) sits bottom centre with the round's letter glyph on its front in the accent colour. Three white picture cards with a thin dark border sit across the top, staggered, never overlapping each other or the sack. Exactly one card is a word that starts with the sack's sound; the child drags it into the sack. Pointer events, `touch-action: none` on the scene and the cards, so the page never scrolls; the card follows the finger and counts as dropped in the sack when its centre is inside the sack's box grown by 24 px. Right: the card shrinks into the sack, the sack wiggles, a sparkle bursts and a gold star fills in the row; the next round's cards fade in 1.2 s later. A wrong card in the sack glides home with a small shake; a card let go anywhere else springs home; nothing else happens, no red, no sound. Cards are at least 96 px, the sack at least 130 px wide; it all fits in portrait and landscape without scrolling. Six rounds, shuffled over the checkpoint's sounds so the same sound never comes twice in a row. After the sixth round a bigger sparkle plays and the sack overflows with stars.
 
-Data: each sound has `startWords` (`{word, emoji}`, each beginning with the sound's letter); `gameDistractors` is one shared pool of words that begin with none of the taught sounds; `games.sack.say` is the one spoken line ("Listen to your grown up. Then drag the picture into the bag."). Parent script: "Say: 'Which one starts with mmm?' Let them drag it into the bag. There is no right or wrong here." (the current round's sound, "sss" or "a as in apple"). No clip and no sound effect play, with any setting.
+Data: each sound has `startWords` (`{word, image}`, each beginning with the sound's letter); `gameDistractors` is one shared pool of `{word, image}` words that begin with none of the taught sounds; `games.sack.say` is the one spoken line ("Listen to your grown up. Then drag the picture into the bag."). Parent script: "Say: 'Which one starts with mmm?' Let them drag it into the bag. There is no right or wrong here." (the current round's sound, "sss" or "a as in apple"). No clip and no sound effect play, with any setting.
 
 Finish (`#/checkpoint/ID/finish`): the same calm two-step finish as a lesson: "That's the sound sack." / "Did your child get it?" / "Yes, go on" (first tap arms it, second returns to the path, where the sack stone now has a tick) / "Not yet, practice again" (starts the game again). Results are stored under `checkpoints` in the store (5.2). Saved data without a `checkpoints` key loads fine.
 
@@ -548,7 +550,7 @@ Defaults in this plan, taken as approved unless Geb says otherwise:
 
 - Lesson 3 is s. If Geb prefers t, swap the sound entry and change the `sayingSounds` words to "at", "am", "mat".
 - Isolated letter sounds come from clips Geb records once with `tools/record.html` on a laptop. Until then the app runs without them. Alternative: Geb extracts sound audio from another source and drops it in the same paths.
-- Pictures for m and s are emoji until Geb extracts those tiles from the Mentava PDF, the same way the a to e tiles were extracted (the manifest shows page and xref per image).
+- Pictures are Mentava's tiles for every sound (extracted by Geb; see section 17). The compound words of Saying Words keep emoji.
 - Nunito is the app font, self-hosted.
 
 Decided by Geb in round 2 (see section 17):
@@ -578,3 +580,5 @@ Specified in `docs/ROUND2-games.md`; Geb's example screenshots are in `docs/refe
 - **Slide to blend** on Saying Sounds (6.4, task 5): a silent finger slide under the word lights the letters one by one; `test/blend.mjs` covers it by real touch.
 - **Sound Sack checkpoint** (6.7): a bonus review game after lesson 3, reached from its own stone on the map; `test/sack.mjs` covers it by real touch drags.
 - **Tests.** `test/games.mjs` drives both games by real touch at the three viewports (overlap, sizes, wrong and right touches, done state, Again, reduced motion, no clip or speech during play); `test/smoke.mjs` runs it.
+
+Mentava picture tiles (step 7 of round 2): Geb supplied Mentava's pictures for every sound; they are 512 px WebP in `assets/images/mentava/web/<slug>/<word>.webp`, indexed by `web/index.json`. The app uses them wherever a child sees a picture of a word, in a fixed square frame (`object-fit: contain`, rounded, soft background) so different tile shapes never move a layout: New Letter tiles, Saying Sounds picture words, Quick Check picture options and the Sound Sack cards. Word lists: m = map, milk, mop, moon; a = apple, hat, cat, crab; s = sock, snake, snail, sun. Lesson 1's picture words are moon, map, mop. The Sound Sack start words are m: map, milk, mop, moon; a: apple, astronaut; s: sock, snake, snail, sun, and its distractor pool is 49 tiles of words that begin with none of m, a or s. Image alt text is the word. The service worker precaches exactly the tiles `curriculum.json` uses (`node tools/precache-images.mjs` prints the list).

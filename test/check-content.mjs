@@ -43,6 +43,14 @@ export function checkCurriculum(c, root = ROOT) {
     if (m) err(`${p}: contains letter name "${m[0]}" in "${s}"`);
   }
 
+  // Every picture tile exists and stays small enough to precache (under 70 KB).
+  for (const [p, s] of strings) {
+    if (!/(^|\.)image$/.test(p)) continue;
+    const f = path.join(root, s);
+    if (!fs.existsSync(f)) err(`${p}: picture missing on disk: ${s}`);
+    else if (fs.statSync(f).size > 70 * 1024) err(`${p}: picture is over 70 KB: ${s}`);
+  }
+
   // No tts part is a single letter or a run of one repeated letter.
   const checkParts = (parts, p) => {
     (parts || []).forEach((part, i) => {
@@ -158,7 +166,7 @@ export function checkCurriculum(c, root = ROOT) {
       if (w.word !== w.word.toLowerCase()) err(`${p}.word not lowercase`);
       if (w.word === 'as') err(`${p} is "as"`);
       if (isIsolated(w.word)) err(`${p} "${w.word}" is an isolated sound and is spoken by tts`);
-      if (!w.showLetters && !w.emoji) err(`${p} needs an emoji when it does not show letters`);
+      if (!w.showLetters && !w.emoji && !w.image) err(`${p} needs a picture when it does not show letters`);
       if (w.showLetters) for (const ch of w.word) if (!allowed.has(ch)) err(`${p} "${w.word}" uses untaught letter "${ch}"`);
     });
     const q = L.quickCheck;
@@ -173,6 +181,10 @@ export function checkCurriculum(c, root = ROOT) {
         if (o.word === 'as') err(`${lp}.quickCheck.options[${j}] is "as"`);
         if (o.word && isIsolated(o.word)) err(`${lp}.quickCheck.options[${j}] "${o.word}" is an isolated sound`);
         if (o.glyph && !sounds[o.glyph]) err(`${lp}.quickCheck.options[${j}].glyph "${o.glyph}" unknown`);
+        if (q.kind === 'picture') {
+          if (!o.image && !o.emoji) err(`${lp}.quickCheck.options[${j}] needs a picture`);
+          if (o.word && (o.word[0] === L.sound) !== !!o.correct) err(`${lp}.quickCheck.options[${j}] "${o.word}": only the right answer may start with ${L.sound}`);
+        }
       });
       if (!Array.isArray(q.options) || !q.options.length) err(`${lp}.quickCheck.options missing`);
       if ((q.options || []).filter((o) => o.correct).length !== 1) err(`${lp}.quickCheck needs exactly one correct option`);

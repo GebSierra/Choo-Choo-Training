@@ -3,6 +3,7 @@ import { glyphSvg } from '../../glyphs.js';
 import { letterText, richText } from '../../letters.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase, checkPrompt } from '../../lessons.js';
+import { picture } from '../../components/picture.js';
 
 // Task 7: one question, big cards. Nothing tells the child right or wrong.
 export function build({ lesson, sound, speech, store }) {
@@ -14,7 +15,7 @@ export function build({ lesson, sound, speech, store }) {
   const cards = order.map((o) => {
     const face = o.glyph
       ? h('span', { class: 'opt-glyph' }, glyphSvg(o.glyph, { color: accentOf(o.glyph), label: 'letter choice' }))
-      : h('span', { class: 'opt-pic' }, h('span', { class: 'emoji' }, o.emoji), h('span', { class: 'word' }, letterText(o.word)));
+      : h('span', { class: 'opt-pic' }, picture(o), h('span', { class: 'word' }, letterText(o.word)));
     const b = h('button', { class: 'opt-card', type: 'button', 'aria-pressed': 'false', 'aria-label': o.glyph ? 'letter choice' : o.word, onclick: () => {
       cards.forEach((c) => { c.classList.toggle('picked', c === b); c.setAttribute('aria-pressed', String(c === b)); });
     } }, face);

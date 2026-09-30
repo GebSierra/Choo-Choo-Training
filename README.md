@@ -135,7 +135,7 @@ The plan left these open or made them impossible to follow literally. Each is th
 
 - A fourth stone appears on the path after lesson 3, with a small sack instead of a letter. It is locked until lesson 3 is marked "Got it" (or unlocked in Grownups). It opens `#/checkpoint/c1`: a burlap sack with a letter on it and three picture cards across the top; the child drags the card whose word starts with that sound into the sack. Six rounds, the same sound never twice in a row, a gold star per round, and the sack overflows with stars at the end. Then the usual two-step finish ("That's the sound sack.").
 - It is data-driven: `checkpoints` in `data/curriculum.json` (`after: N` puts a stone after stone N), `startWords` per sound, one shared `gameDistractors` pool of words that start with none of the taught sounds. Stage 2 can add more checkpoints by adding entries.
-- Pictures are emoji for now, so every card has one consistent style.
+- Pictures are Mentava's tiles, like everywhere else in the app.
 - `test/sack.mjs` drives it by real touch at the three viewports.
 
 ### Decisions made for the Sound Sack
@@ -147,3 +147,26 @@ The plan left these open or made them impossible to follow literally. Each is th
 - "Not yet, practice again" on the checkpoint finish starts the game again (a lesson's goes to its overview); it keeps a "Got it" result if there already was one.
 - Checkpoint stones take the next number on the path but show a sack instead of a number badge. The path winds to the fourth stone near the top; in landscape it sits left of stone 3. A checkpoint that is unlocked while a lesson is still current does not get the ring or "Tap to start" bubble, so only one stone asks to be tapped.
 - The shared task shell (header with dots, stage, parent script, Again / Next) moved into `js/screens/shell.js`, used by lesson tasks and the checkpoint.
+
+## Mentava picture tiles (step 7)
+
+Everywhere a child sees a picture of a word, the app now shows Mentava's tile instead of an emoji, so the whole app has one art style. Tiles sit in a fixed square frame (`object-fit: contain`, rounded, soft background), so their different shapes never move a layout. Emoji stay only for the compound words in Saying Words, which have no tiles.
+
+Tiles in use now (paths are `assets/images/mentava/web/<slug>/<word>.webp`):
+
+- m (New Letter and Sound Sack): map, milk, mop, and moon (from `oo-moon`).
+- a: apple, hat, cat, crab (New Letter); apple and astronaut start the Sound Sack.
+- s: sock, snake, snail, and sun (from `u`).
+- Saying Sounds picture words: lesson 1 moon, map, mop (mom had no tile); lesson 2 map.
+- Quick Check (lesson 1): moon, dog, banana.
+- Sound Sack distractors: 49 tiles for words that start with none of m, a or s (baby, ball, banana, bear, bus, camel, candy, king, koala, duck, deer, dog, door, dolphin, egg, hen, tent, red, nest, fan, fish, fork, goat, gate, goose, hand, hippo, jam, jet, leaf, leg, ladder, nut, nose, pig, panda, pumpkin, queen, rabbit, rocket, tiger, table, tree, van, vest, wagon, window).
+
+For later lessons the tiles for every sound are already in `assets/images/mentava/web` (see `index.json` there and `docs/reference/mentava/master_manifest.json`). Only the tiles the curriculum uses are precached by the service worker (60 files, about 1 MB); `node tools/precache-images.mjs` prints the list to paste into `sw.js`, and the smoke test checks that the two agree.
+
+### Decisions made for the tiles
+
+- The shipped lesson 1 picture words are moon, map, mop; "mom" was replaced because it has no tile, and the stretched script reads "mmmop".
+- Quick Check lesson 1 offers moon (right), dog and banana, two distinct-looking words that do not start with m.
+- Word labels under tiles are kept (lowercase, the taught letter tinted, every "a" from the glyph); the tile's alt text is the word alone. The tiles themselves contain no text.
+- `moon` and `sun` come from the `oo-moon` and `u` folders because the m and s folders have no such tile; when a word exists in two folders (door, fork) the first folder in `index.json` is used.
+- The audit now fails any screen with an image that did not load, or whose alt text is not just a lowercase word.

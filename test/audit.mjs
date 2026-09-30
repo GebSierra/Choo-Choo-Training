@@ -5,7 +5,7 @@ const NAMES = LETTER_NAMES;
 
 // Returns a list of problems found on the current screen.
 export async function audit(page, label) {
-  const problems = await page.evaluate((names) => {
+  const problems = await page.evaluate(async (names) => {
     const out = [];
     const re = new RegExp(`\\b(${names.join('|')})\\b`, 'i');
     const root = document.querySelector('.screen:not(.leaving)') || document.body;
@@ -17,6 +17,14 @@ export async function audit(page, label) {
       const act = root.querySelector('.task-activity');
       if (act && act.scrollHeight > act.clientHeight + 1) out.push(`landscape: task content is ${act.scrollHeight} tall in a ${act.clientHeight} stage`);
       if (root.querySelector('.finish') && de.scrollHeight > innerHeight + 1) out.push(`landscape: finish screen scrolls (${de.scrollHeight} > ${innerHeight})`);
+    }
+    // Picture tiles: every image loaded, and its alt text is just the word (lowercase, no letter name).
+    const imgs = [...root.querySelectorAll('img')];
+    await Promise.all(imgs.map((i) => (i.complete ? 0 : new Promise((r) => { i.addEventListener('load', r, { once: true }); i.addEventListener('error', r, { once: true }); setTimeout(r, 4000); }))));
+    for (const i of imgs) {
+      if (!i.naturalWidth) out.push(`image failed to load: ${i.getAttribute('src')}`);
+      const alt = i.getAttribute('alt') || '';
+      if (!/^[a-z]+$/.test(alt) || re.test(alt)) out.push(`image alt must be just the word: "${alt}" (${i.getAttribute('src')})`);
     }
     // Tap targets.
     for (const el of root.querySelectorAll('button, a, [role=button]')) {

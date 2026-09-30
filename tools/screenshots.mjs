@@ -21,6 +21,7 @@ await page.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorag
 await page.goto(url + '#/home'); await page.waitForTimeout(2000); await save(page, '01-home.png');
 await page.goto(url + '#/lesson/2'); await page.waitForTimeout(1200); await save(page, '02-lesson-overview.png');
 await page.goto(url + '#/lesson/2/task/1'); await page.waitForTimeout(2200); await save(page, '03-new-letter.png');
+await page.goto(url + '#/lesson/1/task/0'); await page.waitForTimeout(2200); await save(page, '17-new-letter-lesson1.png');
 
 // Slide track mid-drag.
 const hb = await page.locator('.st-handle').boundingBox();

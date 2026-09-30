@@ -13,51 +13,38 @@
       "clip": "assets/audio/sounds/m.mp3",
       "words": [
         {
-          "word": "moon",
-          "image": null,
-          "emoji": "🌙"
-        },
-        {
           "word": "map",
-          "image": null,
-          "emoji": "🗺️"
+          "image": "assets/images/mentava/web/m/map.webp"
         },
         {
           "word": "milk",
-          "image": null,
-          "emoji": "🥛"
+          "image": "assets/images/mentava/web/m/milk.webp"
         },
         {
-          "word": "monkey",
-          "image": null,
-          "emoji": "🐵"
+          "word": "mop",
+          "image": "assets/images/mentava/web/m/mop.webp"
         },
         {
-          "word": "mouse",
-          "image": null,
-          "emoji": "🐭"
+          "word": "moon",
+          "image": "assets/images/mentava/web/oo-moon/moon.webp"
         }
       ],
       "startWords": [
         {
-          "word": "moon",
-          "emoji": "🌙"
-        },
-        {
           "word": "map",
-          "emoji": "🗺️"
+          "image": "assets/images/mentava/web/m/map.webp"
         },
         {
           "word": "milk",
-          "emoji": "🥛"
+          "image": "assets/images/mentava/web/m/milk.webp"
         },
         {
-          "word": "monkey",
-          "emoji": "🐵"
+          "word": "mop",
+          "image": "assets/images/mentava/web/m/mop.webp"
         },
         {
-          "word": "mouse",
-          "emoji": "🐭"
+          "word": "moon",
+          "image": "assets/images/mentava/web/oo-moon/moon.webp"
         }
       ]
     },
@@ -72,38 +59,29 @@
       "words": [
         {
           "word": "apple",
-          "image": "assets/images/mentava/web/a/apple.webp",
-          "emoji": "🍎"
+          "image": "assets/images/mentava/web/a/apple.webp"
         },
         {
           "word": "hat",
-          "image": "assets/images/mentava/web/a/hat.webp",
-          "emoji": "👒"
+          "image": "assets/images/mentava/web/a/hat.webp"
         },
         {
           "word": "cat",
-          "image": "assets/images/mentava/web/a/cat.webp",
-          "emoji": "🐈"
+          "image": "assets/images/mentava/web/a/cat.webp"
         },
         {
           "word": "crab",
-          "image": "assets/images/mentava/web/a/crab.webp",
-          "emoji": "🦀"
-        },
-        {
-          "word": "ant",
-          "image": null,
-          "emoji": "🐜"
+          "image": "assets/images/mentava/web/a/crab.webp"
         }
       ],
       "startWords": [
         {
           "word": "apple",
-          "emoji": "🍎"
+          "image": "assets/images/mentava/web/a/apple.webp"
         },
         {
-          "word": "ant",
-          "emoji": "🐜"
+          "word": "astronaut",
+          "image": "assets/images/mentava/web/a/astronaut.webp"
         }
       ]
     },
@@ -117,51 +95,38 @@
       "clip": "assets/audio/sounds/s.mp3",
       "words": [
         {
-          "word": "sun",
-          "image": null,
-          "emoji": "☀️"
-        },
-        {
           "word": "sock",
-          "image": null,
-          "emoji": "🧦"
-        },
-        {
-          "word": "soup",
-          "image": null,
-          "emoji": "🍲"
-        },
-        {
-          "word": "seal",
-          "image": null,
-          "emoji": "🦭"
+          "image": "assets/images/mentava/web/s/sock.webp"
         },
         {
           "word": "snake",
-          "image": null,
-          "emoji": "🐍"
+          "image": "assets/images/mentava/web/s/snake.webp"
+        },
+        {
+          "word": "snail",
+          "image": "assets/images/mentava/web/s/snail.webp"
+        },
+        {
+          "word": "sun",
+          "image": "assets/images/mentava/web/u/sun.webp"
         }
       ],
       "startWords": [
         {
-          "word": "sun",
-          "emoji": "☀️"
-        },
-        {
           "word": "sock",
-          "emoji": "🧦"
-        },
-        {
-          "word": "soup",
-          "emoji": "🍲"
-        },
-        {
-          "word": "seal",
-          "emoji": "🦭"
+          "image": "assets/images/mentava/web/s/sock.webp"
         },
         {
           "word": "snake",
-          "emoji": "🐍"
+          "image": "assets/images/mentava/web/s/snake.webp"
+        },
+        {
+          "word": "snail",
+          "image": "assets/images/mentava/web/s/snail.webp"
+        },
+        {
+          "word": "sun",
+          "image": "assets/images/mentava/web/u/sun.webp"
         }
       ]
     }
@@ -233,17 +198,17 @@
       "sayingSounds": [
         {
           "word": "moon",
-          "emoji": "🌙",
+          "image": "assets/images/mentava/web/oo-moon/moon.webp",
           "showLetters": false
         },
         {
           "word": "map",
-          "emoji": "🗺️",
+          "image": "assets/images/mentava/web/m/map.webp",
           "showLetters": false
         },
         {
-          "word": "mom",
-          "emoji": "👩",
+          "word": "mop",
+          "image": "assets/images/mentava/web/m/mop.webp",
           "showLetters": false
         }
       ],
@@ -266,18 +231,18 @@
         "kind": "picture",
         "options": [
           {
-            "emoji": "🌙",
+            "image": "assets/images/mentava/web/oo-moon/moon.webp",
             "word": "moon",
             "correct": true
           },
           {
-            "emoji": "🍎",
-            "word": "apple",
+            "image": "assets/images/mentava/web/d/dog.webp",
+            "word": "dog",
             "correct": false
           },
           {
-            "emoji": "☀️",
-            "word": "sun",
+            "image": "assets/images/mentava/web/b/banana.webp",
+            "word": "banana",
             "correct": false
           }
         ]
@@ -364,7 +329,7 @@
         },
         {
           "word": "map",
-          "emoji": "🗺️",
+          "image": "assets/images/mentava/web/m/map.webp",
           "showLetters": false
         }
       ],
@@ -595,52 +560,192 @@
   ],
   "gameDistractors": [
     {
-      "word": "dog",
-      "emoji": "🐶"
+      "word": "baby",
+      "image": "assets/images/mentava/web/b/baby.webp"
     },
     {
-      "word": "frog",
-      "emoji": "🐸"
-    },
-    {
-      "word": "bear",
-      "emoji": "🐻"
-    },
-    {
-      "word": "bus",
-      "emoji": "🚌"
-    },
-    {
-      "word": "egg",
-      "emoji": "🥚"
-    },
-    {
-      "word": "duck",
-      "emoji": "🦆"
+      "word": "ball",
+      "image": "assets/images/mentava/web/b/ball.webp"
     },
     {
       "word": "banana",
-      "emoji": "🍌"
+      "image": "assets/images/mentava/web/b/banana.webp"
     },
     {
-      "word": "horse",
-      "emoji": "🐴"
+      "word": "bear",
+      "image": "assets/images/mentava/web/b/bear.webp"
     },
     {
-      "word": "hen",
-      "emoji": "🐔"
+      "word": "bus",
+      "image": "assets/images/mentava/web/b/bus.webp"
     },
     {
-      "word": "door",
-      "emoji": "🚪"
+      "word": "camel",
+      "image": "assets/images/mentava/web/c-k/camel.webp"
     },
     {
-      "word": "tent",
-      "emoji": "⛺"
+      "word": "candy",
+      "image": "assets/images/mentava/web/c-k/candy.webp"
     },
     {
       "word": "king",
-      "emoji": "🤴"
+      "image": "assets/images/mentava/web/c-k/king.webp"
+    },
+    {
+      "word": "koala",
+      "image": "assets/images/mentava/web/c-k/koala.webp"
+    },
+    {
+      "word": "duck",
+      "image": "assets/images/mentava/web/d/duck.webp"
+    },
+    {
+      "word": "deer",
+      "image": "assets/images/mentava/web/d/deer.webp"
+    },
+    {
+      "word": "dog",
+      "image": "assets/images/mentava/web/d/dog.webp"
+    },
+    {
+      "word": "door",
+      "image": "assets/images/mentava/web/d/door.webp"
+    },
+    {
+      "word": "dolphin",
+      "image": "assets/images/mentava/web/d/dolphin.webp"
+    },
+    {
+      "word": "egg",
+      "image": "assets/images/mentava/web/e/egg.webp"
+    },
+    {
+      "word": "hen",
+      "image": "assets/images/mentava/web/e/hen.webp"
+    },
+    {
+      "word": "tent",
+      "image": "assets/images/mentava/web/e/tent.webp"
+    },
+    {
+      "word": "red",
+      "image": "assets/images/mentava/web/e/red.webp"
+    },
+    {
+      "word": "nest",
+      "image": "assets/images/mentava/web/e/nest.webp"
+    },
+    {
+      "word": "fan",
+      "image": "assets/images/mentava/web/f/fan.webp"
+    },
+    {
+      "word": "fish",
+      "image": "assets/images/mentava/web/f/fish.webp"
+    },
+    {
+      "word": "fork",
+      "image": "assets/images/mentava/web/f/fork.webp"
+    },
+    {
+      "word": "goat",
+      "image": "assets/images/mentava/web/g/goat.webp"
+    },
+    {
+      "word": "gate",
+      "image": "assets/images/mentava/web/g/gate.webp"
+    },
+    {
+      "word": "goose",
+      "image": "assets/images/mentava/web/g/goose.webp"
+    },
+    {
+      "word": "hand",
+      "image": "assets/images/mentava/web/h/hand.webp"
+    },
+    {
+      "word": "hippo",
+      "image": "assets/images/mentava/web/h/hippo.webp"
+    },
+    {
+      "word": "jam",
+      "image": "assets/images/mentava/web/j/jam.webp"
+    },
+    {
+      "word": "jet",
+      "image": "assets/images/mentava/web/j/jet.webp"
+    },
+    {
+      "word": "leaf",
+      "image": "assets/images/mentava/web/l/leaf.webp"
+    },
+    {
+      "word": "leg",
+      "image": "assets/images/mentava/web/l/leg.webp"
+    },
+    {
+      "word": "ladder",
+      "image": "assets/images/mentava/web/l/ladder.webp"
+    },
+    {
+      "word": "nut",
+      "image": "assets/images/mentava/web/n/nut.webp"
+    },
+    {
+      "word": "nose",
+      "image": "assets/images/mentava/web/n/nose.webp"
+    },
+    {
+      "word": "pig",
+      "image": "assets/images/mentava/web/p/pig.webp"
+    },
+    {
+      "word": "panda",
+      "image": "assets/images/mentava/web/p/panda.webp"
+    },
+    {
+      "word": "pumpkin",
+      "image": "assets/images/mentava/web/p/pumpkin.webp"
+    },
+    {
+      "word": "queen",
+      "image": "assets/images/mentava/web/q/queen.webp"
+    },
+    {
+      "word": "rabbit",
+      "image": "assets/images/mentava/web/r/rabbit.webp"
+    },
+    {
+      "word": "rocket",
+      "image": "assets/images/mentava/web/r/rocket.webp"
+    },
+    {
+      "word": "tiger",
+      "image": "assets/images/mentava/web/t/tiger.webp"
+    },
+    {
+      "word": "table",
+      "image": "assets/images/mentava/web/t/table.webp"
+    },
+    {
+      "word": "tree",
+      "image": "assets/images/mentava/web/t/tree.webp"
+    },
+    {
+      "word": "van",
+      "image": "assets/images/mentava/web/v/van.webp"
+    },
+    {
+      "word": "vest",
+      "image": "assets/images/mentava/web/v/vest.webp"
+    },
+    {
+      "word": "wagon",
+      "image": "assets/images/mentava/web/w/wagon.webp"
+    },
+    {
+      "word": "window",
+      "image": "assets/images/mentava/web/w/window.webp"
     }
   ]
 }

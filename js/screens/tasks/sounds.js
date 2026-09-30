@@ -3,6 +3,7 @@ import { wordSvg, hasGlyph } from '../../glyphs.js';
 import { letterText } from '../../letters.js';
 import { stretchWord, stretchLetters } from '../../scripts.js';
 import { slideBlend } from '../../components/slide-blend.js';
+import { picture } from '../../components/picture.js';
 
 // Task 5: stretch the sounds, then say the word.
 export function build({ lesson, speech, refresh }) {
@@ -35,7 +36,7 @@ export function build({ lesson, speech, refresh }) {
       // The sweep is only a demonstration: the first touch on the word hands over to the child's finger.
       blend = slideBlend({ row, svg: art, bar, host: stage, onFirstTouch: () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } sweep.style.opacity = '0'; } });
     } else {
-      art = h('span', { class: 'emoji huge' }, w.emoji);
+      art = picture(w, 'huge');
       stage.append(art);
     }
     const label = h('span', { class: 'reveal-word' }, letterText(w.word));

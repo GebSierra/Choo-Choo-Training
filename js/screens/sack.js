@@ -2,6 +2,7 @@ import { h, animate, reduced } from '../dom.js';
 import { sackSvg, barnSvg, starSvg } from '../art.js';
 import { glyphSvg } from '../glyphs.js';
 import { sparkle } from '../components/sparkle.js';
+import { picture } from '../components/picture.js';
 import { timers, farm, watchSize, starRow, shake } from '../components/game-kit.js';
 import { accentOf } from '../theme.js';
 import { soundPhrase } from '../lessons.js';
@@ -70,7 +71,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
     const choices = ease([{ ...right, correct: true }, ...wrong.map((w) => ({ ...w, correct: false }))]);
     front.replaceChildren(glyphSvg(key, { color: accentOf(key), label: 'the sound on the sack' }));
     cards = choices.map((c, i) => {
-      const card = h('button', { class: 'sack-card', type: 'button', 'aria-label': c.word, dataset: { correct: c.correct ? '1' : '0', word: c.word } }, h('span', { class: 'emoji', 'aria-hidden': 'true' }, c.emoji));
+      const card = h('button', { class: 'sack-card', type: 'button', 'aria-label': c.word, dataset: { correct: c.correct ? '1' : '0', word: c.word } }, picture(c));
       placeCard(card, i);
       hookDrag(card, i);
       animate(card, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 60 * i });
