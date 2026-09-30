@@ -7,13 +7,14 @@ export const TASK_TYPES = {
   sounds:  { name: 'Saying Sounds', color: 'mint',   dark: true,  blurb: 'Stretch the sounds, then say the word.', label: "Today we'll stretch" },
   writing: { name: 'Letter Writing', color: 'lilac', dark: true,  blurb: 'Trace the letter with a finger.', label: "Today we'll write" },
   hunt:    { name: 'Letter Hunt',   color: 'sky',    dark: true,  blurb: 'Find the letter in the sky and help the sheep home.', label: "Today we'll practice" },
+  barn:    { name: 'Barn Doors',    color: 'coral',  dark: false, blurb: 'Open the barn doors and touch the letter.', label: "Today we'll practice" },
   check:   { name: 'Quick Check',   color: 'blue',   dark: true,  blurb: 'A quick look at what stuck.', label: "Today we'll check" },
 };
 
 export function tasksFor(lesson) {
   const list = [];
   if (lesson.review && lesson.review.length) list.push('review');
-  list.push('newLetter', 'story', 'words', 'sounds', 'writing', 'hunt', 'check');
+  list.push('newLetter', 'story', 'words', 'sounds', 'writing', 'hunt', 'barn', 'check');
   return list.map((type, index) => ({ type, index, ...TASK_TYPES[type] }));
 }
 
@@ -27,7 +28,7 @@ export const lessonByNumber = (curriculum, n) => curriculum.lessons.find((l) => 
 export function targetsFor(task, lesson) {
   switch (task.type) {
     case 'review': return lesson.review.map((g) => ({ glyph: g }));
-    case 'newLetter': case 'writing': case 'hunt': case 'check': return [{ glyph: lesson.sound }];
+    case 'newLetter': case 'writing': case 'hunt': case 'barn': case 'check': return [{ glyph: lesson.sound }];
     case 'story': return [{ glyph: lesson.sound }];
     case 'words': return lesson.sayingWords.slice(0, 2).map((w) => ({ text: w.word }));
     case 'sounds': return lesson.sayingSounds.slice(0, 3).map((w) => ({ text: w.word }));

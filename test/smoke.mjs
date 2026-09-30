@@ -5,7 +5,7 @@ import { SPEECH_STUB, silentWav } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag } from './lib.mjs';
 import { spokenStrings, isIsolated } from './check-content.mjs';
 import { tasksFor } from '../js/lessons.js';
-import { huntChecks, reducedChecks } from './games.mjs';
+import { huntChecks, barnChecks, reducedChecks } from './games.mjs';
 
 const OUT = path.join(ROOT, '_test');
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
@@ -202,12 +202,14 @@ for (const vp of VIEWPORTS) {
   ok(errors.length === 0, `${vp.name}: touch drag errors ${errors.join(' | ')}`);
   await ctx.close();
 }
-// The games (Letter Hunt): layout and touch behaviour at the three viewports, plus reduced motion.
+// The games (Letter Hunt, Barn Doors): layout and touch behaviour at the three viewports, plus reduced motion.
 const shotTo = (dir) => async (page, name) => { await page.screenshot({ path: path.join(dir, `${name}.png`) }); };
 for (const vp of VIEWPORTS) {
   await huntChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) });
+  await barnChecks({ browser, url, ok, CUR, vp, full: vp.name === 'pixel7', shot: shotTo(OUT) });
 }
 for (const lessonNo of [2, 3]) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
+await barnChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo: 3 });
 await reducedChecks({ browser, url, ok, CUR });
 {
   // Full screen button on Home and in Grownups (the Fullscreen API is stubbed so the call can be counted).

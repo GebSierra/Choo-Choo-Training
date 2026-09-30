@@ -1,4 +1,4 @@
-// The two lesson games (Letter Hunt): layout, touch behaviour and their done states.
+// The two lesson games (Letter Hunt, Barn Doors): layout, touch behaviour and their done states.
 // Run alone with `node test/games.mjs`, or as part of test/smoke.mjs.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -91,7 +91,67 @@ export async function huntChecks({ browser, url, ok, CUR, vp, lessonNo = 1, shot
   await ctx.close();
 }
 
-// Reduced motion: the game still plays and the letters do not drift.
+export async function barnChecks({ browser, url, ok, CUR, vp, lessonNo = 1, full = true, shot }) {
+  const { ctx, page, errors } = await open(browser, url, vp);
+  const lesson = CUR.lessons[lessonNo - 1];
+  // Every round after the second is a distractor when it can be, so the distractor path is tested deterministically.
+  if (full) await page.addInitScript(() => { Math.random = () => 0.1; });
+  await page.goto(url + `#/lesson/${lessonNo}/task/${taskIndex(CUR, lessonNo, 'barn')}`);
+  await page.waitForSelector('.barn-letter');
+  const tag = `${vp.name} Barn L${lessonNo}`;
+  const g = (k) => page.evaluate((key) => document.querySelector('.barn-game').dataset[key], k);
+  const letterBtn = page.locator('.barn-letter');
+  const waitOpen = async () => { await page.waitForFunction(() => document.querySelector('.barn-game').dataset.state === 'open', null, { timeout: 6000 }); await page.waitForTimeout(450); };
+  const barn = (await rects(page, '.barn'))[0], scene = (await rects(page, '.farm'))[0];
+  ok(barn.x >= scene.x - 1 && barn.x + barn.w <= scene.x + scene.w + 1 && barn.y >= scene.y && barn.y + barn.h <= scene.y + scene.h, `${tag}: the barn fits inside the scene`);
+  ok(barn.w >= 200, `${tag}: the barn is big (${Math.round(barn.w)} px)`);
+  const before = await plain(page);
+  let done = false;
+  for (let round = 1; round <= 12 && !done; round++) {
+    await waitOpen();
+    const kind = await g('kind');
+    const isTarget = (await letterBtn.getAttribute('data-target')) === '1';
+    const letter = await letterBtn.getAttribute('data-letter');
+    ok(isTarget === (kind === 'target'), `${tag}: round ${round} kind matches its letter`);
+    if (round <= 2) ok(kind === 'target' && letter === lesson.sound, `${tag}: round ${round} shows the target`);
+    const lb = (await rects(page, '.barn-letter'))[0];
+    ok(lb.w >= 55.5 && lb.h >= 55.5 && lb.w >= barn.w * 0.39, `${tag}: the letter is about 40% of the barn width (${Math.round((lb.w / barn.w) * 100)}%)`);
+    const starsBefore = await g('stars');
+    if (kind === 'distractor') {
+      ok(letter !== lesson.sound && CUR.games.barn.distractors[lesson.sound].includes(letter), `${tag}: the distractor is one of the lesson's distractors (${letter})`);
+      await tap(page, letterBtn);
+      await page.waitForTimeout(500);
+      ok((await g('stars')) === starsBefore, `${tag}: touching a distractor does nothing`);
+      // The doors close on their own, and the next round opens after them.
+      await page.waitForFunction(() => ['closing', 'closed'].includes(document.querySelector('.barn-game').dataset.state), null, { timeout: 4000 });
+      ok(true, `${tag}: the doors close by themselves after a distractor`);
+      continue;
+    }
+    if (shot && round === 1) await shot(page, 'open');
+    await tap(page, letterBtn);
+    await page.waitForTimeout(250);
+    if (shot && round === 1) await shot(page, 'found');
+    const n = Number(starsBefore) + 1;
+    ok((await g('stars')) === String(n), `${tag}: a correct touch fills star ${n}`);
+    if (n >= 5) done = true;
+    else await page.waitForFunction(() => document.querySelector('.barn-game').dataset.state !== 'open', null, { timeout: 3000 });
+  }
+  await page.waitForTimeout(800);
+  ok(done && (await g('state')) === 'done', `${tag}: five stars reach the done state`);
+  ok((await letterBtn.count()) === 1 && !(await letterBtn.isDisabled()), `${tag}: the doors stay open on the letter`);
+  if (shot) await shot(page, 'done');
+  const after = await plain(page);
+  ok(after.clips === before.clips && after.tts === before.tts, `${tag}: no sound or speech during play`);
+  await page.click('.btn.again');
+  await page.waitForTimeout(300);
+  ok((await g('stars')) === '0' && (await g('state')) === 'closed', `${tag}: Again closes the doors and clears the stars`);
+  await waitOpen();
+  ok((await g('kind')) === 'target', `${tag}: Again opens on a target round`);
+  ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
+  await ctx.close();
+}
+
+// Reduced motion: both games still play, with no hops and doors that swap by opacity.
 export async function reducedChecks({ browser, url, ok, CUR }) {
   const vp = VIEWPORTS[0];
   const { ctx, page, errors } = await open(browser, url, vp, {}, { reducedMotion: 'reduce' });
@@ -102,7 +162,15 @@ export async function reducedChecks({ browser, url, ok, CUR }) {
   await tap(page, page.locator('.sky-letter[data-target="1"]').first());
   await page.waitForTimeout(400);
   ok((await page.evaluate(() => document.querySelector('.hunt').dataset.steps)) === '1', 'reduced motion: Hunt still counts a correct touch');
-  ok(errors.length === 0, 'reduced motion game: errors ' + errors.join(' | '));
+  await page.goto(url + `#/lesson/1/task/${taskIndex(CUR, 1, 'barn')}`);
+  await page.waitForSelector('.barn-letter:not([disabled])', { timeout: 5000 });
+  await page.waitForTimeout(500);
+  const doorOpacity = await page.evaluate(() => getComputedStyle(document.querySelector('.door-l')).opacity);
+  ok(doorOpacity === '0', `reduced motion: the barn doors swap by opacity (${doorOpacity})`);
+  await tap(page, page.locator('.barn-letter'));
+  await page.waitForTimeout(300);
+  ok((await page.evaluate(() => document.querySelector('.barn-game').dataset.stars)) === '1', 'reduced motion: Barn still counts a correct touch');
+  ok(errors.length === 0, 'reduced motion games: errors ' + errors.join(' | '));
   await ctx.close();
 }
 
@@ -113,7 +181,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const ok = (c, m) => { checks++; if (!c) { failures++; console.error('FAIL: ' + m); } };
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
-  for (const vp of VIEWPORTS) { await huntChecks({ browser, url, ok, CUR, vp }); }
+  for (const vp of VIEWPORTS) { await huntChecks({ browser, url, ok, CUR, vp }); await barnChecks({ browser, url, ok, CUR, vp, full: vp.name === 'pixel7' }); }
   await reducedChecks({ browser, url, ok, CUR });
   await browser.close(); server.close();
   console.log(`games: ${checks - failures}/${checks} checks passed`);

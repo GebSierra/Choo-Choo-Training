@@ -556,8 +556,14 @@ button img, .word-tile img { pointer-events: none; -webkit-user-drag: none; -web
 .sheep-wrap { left: 10px; bottom: 12px; z-index: 3; transition: transform 900ms cubic-bezier(.45,.05,.3,1); will-change: transform; pointer-events: none; }
 .sheep { display: block; width: 100%; height: auto; overflow: visible; }
 .hunt-goal { right: 8px; bottom: 40px; z-index: 1; pointer-events: none; } .hunt-goal .barn-art { display: block; width: 100%; height: auto; }
+.barn { left: 50%; bottom: 20px; z-index: 1; margin-left: calc(var(--bw, 300px) / -2); will-change: transform; }
+.barn .barn-art { display: block; width: 100%; height: 100%; overflow: visible; }
+.barn-letter { position: absolute; left: 50%; top: 73%; width: calc(var(--bw, 300px) * .4); height: calc(var(--bw, 300px) * .4); transform: translate(-50%, -50%); padding: 0; border: 0; background: none; cursor: pointer; touch-action: manipulation; }
+.barn-letter:disabled { cursor: default; }
+.barn-letter .face { position: absolute; inset: 5%; display: grid; place-items: center; border-radius: 30%; background: radial-gradient(circle, #FFF6DC 55%, #F5DCA4); box-shadow: 0 0 28px rgba(255,214,120,.55); }
+.barn-letter .glyph { width: 90%; height: auto; }
+.barn-letter .font-letter { font-size: calc(var(--bw, 300px) * .4); }
 .spark { z-index: 6; }
+.art-sheep, .art-barn { display: block; width: 150px; }
+.art-sheep svg, .art-barn svg { display: block; width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) { .sheep-wrap { transition: none; } }
-
-.art-sheep { display: block; width: 150px; }
-.art-sheep svg { display: block; width: 100%; height: auto; }

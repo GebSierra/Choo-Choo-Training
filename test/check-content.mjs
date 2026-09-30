@@ -81,7 +81,7 @@ export function checkCurriculum(c, root = ROOT) {
   }
 
   // The two games: one spoken line each, and distractor letters per taught sound.
-  for (const kind of ['hunt']) {
+  for (const kind of ['hunt', 'barn']) {
     const g = (c.games || {})[kind];
     const p = `games.${kind}`;
     if (!g) { err(`${p} missing`); continue; }

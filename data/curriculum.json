@@ -492,6 +492,35 @@
           "o"
         ]
       }
+    },
+    "barn": {
+      "say": "Watch the barn doors. Touch the letter that matches.",
+      "distractors": {
+        "m": [
+          "a",
+          "s",
+          "o",
+          "t",
+          "l",
+          "i"
+        ],
+        "a": [
+          "m",
+          "s",
+          "t",
+          "l",
+          "i",
+          "n"
+        ],
+        "s": [
+          "m",
+          "a",
+          "t",
+          "l",
+          "i",
+          "o"
+        ]
+      }
     }
   }
 }
