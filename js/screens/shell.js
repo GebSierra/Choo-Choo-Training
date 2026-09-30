@@ -7,12 +7,12 @@ import { richText } from '../letters.js';
 // stage with its speaker, the parent script card and Again / Next.
 //
 // Two steps, because a task builds itself before the shell can show it (its own refresh() runs while it is built):
-//   const shell = makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel, stepNoun });
+//   const shell = makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel, stepNoun, seenKeys });
 //   const current = build({ ...env, refresh: shell.refresh, setProgress: shell.setPos });
 //   return shell.mount(current, advance);
 // current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?, lockScroll?}.
 // lockScroll: the activity never scrolls and ignores pan gestures (tasks where a finger slides across the screen).
-export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step' }) {
+export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [] }) {
   const { router, speech, store } = ctx;
   let current = null;
   const scriptText = h('p', { class: 'script-text' });
@@ -30,15 +30,23 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
   };
   requestAnimationFrame(() => requestAnimationFrame(() => setPos(pos)));
 
+  // The parent script is a compact bar by default and opens, on demand, as a sheet over the stage (never resizing it).
+  // With the Grownups switch "Always show full instructions" on, it is the old card, always open.
+  const sheetId = 'script-sheet-' + Math.random().toString(36).slice(2, 7);
+  const firstLine = h('span', { class: 'script-first' });
+  const refreshAll = () => { refresh(); firstLine.replaceChildren(richText(current ? current.script() : '')); };
+
   return {
-    refresh, setPos,
+    refresh: () => refreshAll(), setPos,
     mount(cur, advance) {
       current = cur;
+      const full = !!store.settings.fullInstructions;
       const light = color === 'violet' || color === 'coral';
       const speaker = speakButton({ speech, getParts: () => current.parts(), label: 'Hear this again' });
       if (light) speaker.classList.add('light');
-      const scriptSpeaker = speakButton({ speech, getParts: () => scriptToParts(current.script(), soundKeys, { quiet: !store.settings.playSounds }), label: 'Hear the parent script' });
-      scriptSpeaker.classList.add('small');
+      const scriptParts = () => scriptToParts(current.script(), soundKeys, { quiet: !store.settings.playSounds });
+      const mkScriptSpeaker = () => { const b = speakButton({ speech, getParts: scriptParts, label: 'Hear the parent script' }); b.classList.add('small'); return b; };
+      const speakers = [mkScriptSpeaker()];
 
       const head = h('header', { class: 'task-head' },
         h('button', { class: 'icon-btn light', type: 'button', 'aria-label': backLabel, onclick: () => router.back() }, icon('back', 28)),
@@ -47,22 +55,66 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
         bar);
       const stage = h('main', { class: `task-stage c-${color}${light ? ' on-dark' : ''}` }, h('div', { class: 'task-activity' + (current.flush ? ' flush' : '') + (current.lockScroll ? ' lock' : '') }, current.el), speaker);
 
-      const again = h('button', { class: 'btn again', type: 'button', onclick: () => { current.again(); refresh(); } }, icon('redo', 22), 'Again');
-      const next = h('button', { class: 'btn next', type: 'button', disabled: true, onclick: () => { if (current.next && current.next()) { refresh(); return; } advance(); } }, isLast ? 'Finish' : 'Next', icon('arrowRight', 22));
-      const foot = h('footer', { class: 'task-foot' },
-        h('section', { class: 'script-card', 'aria-label': 'Parent script' },
+      // ---- the script: compact bar + sheet, or the full card ----
+      let isOpen = false, closeTimer = 0, wrap, toggle = null, sheet = null, closeBtn = null;
+      const setOpen = (open, { focus = false, hold = 15000 } = {}) => {
+        if (full || !sheet || open === isOpen) return;
+        isOpen = open;
+        clearTimeout(closeTimer);
+        toggle.setAttribute('aria-expanded', String(open));
+        wrap.classList.toggle('is-open', open);
+        if (open) {
+          sheet.hidden = false;
+          animate(sheet, [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 260 });
+          closeTimer = setTimeout(() => setOpen(false), hold);
+          if (focus) closeBtn.focus({ preventScroll: true });
+        } else {
+          const hadFocus = sheet.contains(document.activeElement);
+          animate(sheet, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(12px)' }], { duration: 260, fill: 'forwards' }).finished.then(() => { if (!isOpen) sheet.hidden = true; }).catch(() => { if (!isOpen) sheet.hidden = true; });
+          if (hadFocus) toggle.focus({ preventScroll: true });
+        }
+      };
+      const closeScript = () => setOpen(false);
+      if (full) {
+        const fullCard = h('section', { class: 'script-card full', 'aria-label': 'Parent script' },
           h('span', { class: 'script-ic' }, icon('adult', 22)),
           h('div', { class: 'script-body' }, h('span', { class: 'script-tag' }, 'Say this'), scriptText),
-          scriptSpeaker),
-        h('div', { class: 'task-buttons' }, again, next));
-      refresh();
+          speakers[0]);
+        wrap = h('div', { class: 'script-wrap always' }, fullCard);
+      } else {
+        toggle = h('button', { class: 'script-toggle', type: 'button', 'aria-expanded': 'false', 'aria-controls': sheetId, onclick: () => setOpen(true, { focus: true }) },
+          h('span', { class: 'script-ic' }, icon('adult', 22)),
+          h('span', { class: 'script-peek' }, h('span', { class: 'script-tag' }, 'Say this'), firstLine),
+          h('span', { class: 'script-chev' }, icon('chevronUp', 22)));
+        speakers.push(mkScriptSpeaker());
+        closeBtn = h('button', { class: 'icon-btn sheet-close', type: 'button', 'aria-label': 'Close the script', onclick: closeScript }, icon('chevronDown', 26));
+        sheet = h('section', { class: 'script-sheet', id: sheetId, 'aria-label': 'Parent script', hidden: true },
+          h('div', { class: 'sheet-head' }, h('span', { class: 'script-ic' }, icon('adult', 22)), h('span', { class: 'script-tag' }, 'Say this'), speakers[1], closeBtn),
+          h('div', { class: 'sheet-body' }, scriptText));
+        wrap = h('div', { class: 'script-wrap' }, h('div', { class: 'script-bar' }, toggle, speakers[0]), sheet);
+        // Touching the stage, Next or Again puts the sheet away (the touch itself still does its work).
+        stage.addEventListener('pointerdown', () => { if (isOpen) closeScript(); }, true);
+      }
 
-      const root = h('div', { class: 'task-screen' }, head, stage, foot);
+      const again = h('button', { class: 'btn again', type: 'button', onclick: () => { closeScript(); current.again(); refreshAll(); } }, icon('redo', 22), 'Again');
+      const next = h('button', { class: 'btn next', type: 'button', disabled: true, onclick: () => { closeScript(); if (current.next && current.next()) { refreshAll(); return; } advance(); } }, isLast ? 'Finish' : 'Next', icon('arrowRight', 22));
+      const foot = h('footer', { class: 'task-foot' }, wrap, h('div', { class: 'task-buttons' }, again, next));
+      refreshAll();
+
+      const root = h('div', { class: 'task-screen' + (full ? ' full-script' : '') }, head, stage, foot);
       // Speak the child's line on entry once the screen has settled.
       // Next stays dimmed for a second so a quick double tap cannot skip the task.
       const nextTimer = setTimeout(() => { next.disabled = false; }, 1000);
       const timer = setTimeout(() => { if (current.onShow) current.onShow(); speech.autoSay(current.parts()); }, 420);
-      root.cleanup = () => { clearTimeout(timer); clearTimeout(nextTimer); speaker.cleanup(); scriptSpeaker.cleanup(); if (current.cleanup) current.cleanup(); };
+      // A new parent should see what the bar is: the first time a kind of task (or a lesson) is opened on this device,
+      // the script opens by itself for 6 seconds and then tucks itself away.
+      let introTimer = 0;
+      const saved = store.settings.seenScripts, seen = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+      if (!full && seenKeys.some((k) => !seen[k])) {
+        store.setSetting('seenScripts', { ...seen, ...Object.fromEntries(seenKeys.map((k) => [k, true])) });
+        introTimer = setTimeout(() => setOpen(true, { hold: 6000 }), 500);
+      }
+      root.cleanup = () => { clearTimeout(timer); clearTimeout(nextTimer); clearTimeout(closeTimer); clearTimeout(introTimer); speaker.cleanup(); speakers.forEach((s) => s.cleanup()); if (current.cleanup) current.cleanup(); };
       // Opacity only: the tap targets must not move while a finger may be heading for them.
       animate(stage, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 60 });
       animate(foot, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 120 });

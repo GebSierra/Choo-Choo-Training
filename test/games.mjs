@@ -3,10 +3,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
 
-const SEED = (settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'}},settings:${JSON.stringify(settings)},firstRunDone:true}))`;
+const SEED = (settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'}},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
 const OUT = path.join(ROOT, '_test');
 
 const center = async (loc) => { const b = await loc.boundingBox(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };

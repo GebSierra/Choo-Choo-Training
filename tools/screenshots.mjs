@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, startServer, loadPlaywright, launch } from '../test/lib.mjs';
 import { SPEECH_STUB } from '../test/stubs.mjs';
-import { touchSession } from '../test/lib.mjs';
+import { touchSession, SEEN } from '../test/lib.mjs';
 
 const OUTS = [path.join(ROOT, '_test'), path.join(ROOT, 'docs/screenshots')];
 OUTS.forEach((d) => fs.mkdirSync(d, { recursive: true }));
@@ -16,7 +16,7 @@ const browser = await launch(pw);
 const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
 const page = await ctx.newPage();
 await page.addInitScript(SPEECH_STUB);
-await page.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[0,1,2,3,4,5],result:'got-it',completedAt:'2026-09-30T12:00:00Z'},2:{tasksDone:[0,1],result:null}},settings:{},firstRunDone:true})); }`);
+await page.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[0,1,2,3,4,5],result:'got-it',completedAt:'2026-09-30T12:00:00Z'},2:{tasksDone:[0,1],result:null}},settings:{seenScripts:${JSON.stringify(SEEN)}},firstRunDone:true})); }`);
 
 await page.goto(url + '#/home'); await page.waitForTimeout(2000); await save(page, '01-home.png');
 await page.goto(url + '#/lesson/2'); await page.waitForTimeout(1200); await save(page, '02-lesson-overview.png');
@@ -80,6 +80,20 @@ await page.goto(url + '#/lesson/2/task/4'); await page.waitForSelector('.glyph-l
   await page.touchscreen.tap(m.x + m.width / 2, m.y + m.height / 2); await page.waitForSelector('.slide-band'); await page.waitForTimeout(900);
   await slide('19-saying-words-slide.png', 0.5);
 }
+// The parent script as a compact bar and as an open sheet; the screens that clipped on Geb's phone have room now.
+await page.goto(url + '#/lesson/1/task/3'); await page.waitForSelector('.sounds-stage'); await page.waitForTimeout(1200);
+{
+  const pf = await page.locator('.sounds-stage .pic-frame').boundingBox();
+  await page.touchscreen.tap(pf.x + pf.width / 2, pf.y + pf.height / 2); await page.waitForSelector('.slide-band'); await page.waitForTimeout(700);
+  await save(page, '20-script-compact.png');
+  await page.click('.script-toggle'); await page.waitForTimeout(500);
+  await save(page, '21-script-open.png');
+  await page.click('.sheet-close'); await page.waitForTimeout(400);
+  await page.goto(url + '#/lesson/2/task/3'); await page.waitForSelector('.merged-tile'); await page.waitForTimeout(1000);
+  const m = await page.locator('.merged-tile').boundingBox();
+  await page.touchscreen.tap(m.x + m.width / 2, m.y + m.height / 2); await page.waitForSelector('.slide-band'); await page.waitForTimeout(900);
+  await save(page, '22-saying-words-compact.png');
+}
 // The two games mid-play, and the overview scrolled to their cards.
 await page.goto(url + '#/lesson/1/task/5'); await page.waitForSelector('.sky-letter'); await page.waitForTimeout(1200);
 for (let i = 0; i < 2; i++) { await page.evaluate(() => document.querySelector('.sky-letter[data-target="1"]:not(.popped)').click()); await page.waitForTimeout(i ? 350 : 1600); }
@@ -93,7 +107,7 @@ await page.waitForTimeout(700);
 await save(page, '11-lesson-overview-games.png');
 
 // The path with the sound sack after lesson 3, and the sack game with a card on its way to the bag.
-await page.evaluate(() => localStorage.setItem('reading.v1', JSON.stringify({ schema: 1, lessons: { 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' }, 3: { tasksDone: [], result: 'got-it' } }, settings: {}, firstRunDone: true })));
+await page.evaluate((seen) => localStorage.setItem('reading.v1', JSON.stringify({ schema: 1, lessons: { 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' }, 3: { tasksDone: [], result: 'got-it' } }, settings: { seenScripts: seen }, firstRunDone: true })), SEEN);
 await page.goto(url + '#/home'); await page.reload(); await page.waitForSelector('.stone'); await page.waitForTimeout(2000);
 await save(page, '15-home-with-sound-sack.png');
 await page.goto(url + '#/checkpoint/c1'); await page.waitForSelector('.sack-card'); await page.waitForTimeout(1200);
@@ -113,9 +127,11 @@ await ctx.close();
 const land = await browser.newContext({ viewport: { width: 915, height: 412 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
 const lp = await land.newPage();
 await lp.addInitScript(SPEECH_STUB);
-await lp.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[0,1,2,3,4,5],result:'got-it',completedAt:'2026-09-30T12:00:00Z'},2:{tasksDone:[0,1],result:null}},settings:{},firstRunDone:true})); }`);
+await lp.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[0,1,2,3,4,5],result:'got-it',completedAt:'2026-09-30T12:00:00Z'},2:{tasksDone:[0,1],result:null}},settings:{seenScripts:${JSON.stringify(SEEN)}},firstRunDone:true})); }`);
 await lp.goto(url + '#/lesson/2'); await lp.waitForTimeout(1200); await save(lp, '07-lesson-overview-landscape.png');
 await lp.goto(url + '#/lesson/2/task/1'); await lp.waitForTimeout(2200); await save(lp, '08-new-letter-landscape.png');
+await lp.goto(url + '#/lesson/1/task/3'); await lp.waitForSelector('.sounds-stage'); await lp.waitForTimeout(1200);
+{ const pf = await lp.locator('.sounds-stage .pic-frame').boundingBox(); await lp.touchscreen.tap(pf.x + pf.width / 2, pf.y + pf.height / 2); await lp.waitForSelector('.slide-band'); await lp.waitForTimeout(600); await lp.click('.script-toggle'); await lp.waitForTimeout(500); await save(lp, '23-script-open-landscape.png'); }
 await lp.goto(url + '#/lesson/1/task/5'); await lp.waitForSelector('.sky-letter'); await lp.waitForTimeout(1200);
 for (let i = 0; i < 2; i++) { await lp.evaluate(() => document.querySelector('.sky-letter[data-target="1"]:not(.popped)').click()); await lp.waitForTimeout(i ? 350 : 1600); }
 await save(lp, '12-letter-hunt-landscape.png');

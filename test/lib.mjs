@@ -80,3 +80,7 @@ export async function touchSession(page) {
     end: async () => { await send('touchEnd', []); await cdp.detach(); },
   };
 }
+
+// Every kind of task and lesson already seen on this device, so the parent script does not open by itself over the
+// controls a test is about to tap. (The first-visit behaviour is tested with an empty list.)
+export const SEEN = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, barn: true, check: true, checkpoint: true, 'lesson:1': true, 'lesson:2': true, 'lesson:3': true };

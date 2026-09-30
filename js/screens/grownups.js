@@ -70,6 +70,7 @@ export function grownupsScreen(ctx) {
   const rate = h('input', { type: 'range', min: 0.7, max: 1.1, step: 0.05, value: store.settings.rate, 'aria-label': 'Speaking speed', class: 'gu-range', oninput: () => { store.setSetting('rate', Number(rate.value)); rateOut.textContent = Number(rate.value).toFixed(2); } });
   const toggle = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(store.settings.autoSpeak), 'aria-label': 'Speak automatically when a task opens', onclick: () => { const v = !store.settings.autoSpeak; store.setSetting('autoSpeak', v); toggle.setAttribute('aria-checked', String(v)); } }, h('i'));
   const soundsSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(!!store.settings.playSounds), 'aria-label': 'Play recorded letter sounds', onclick: () => { const v = !store.settings.playSounds; store.setSetting('playSounds', v); soundsSwitch.setAttribute('aria-checked', String(v)); } }, h('i'));
+  const fullSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(!!store.settings.fullInstructions), 'aria-label': 'Always show full instructions', onclick: () => { const v = !store.settings.fullInstructions; store.setSetting('fullInstructions', v); fullSwitch.setAttribute('aria-checked', String(v)); } }, h('i'));
   const test = h('button', { class: 'btn small', type: 'button', onclick: () => speech.say([{ tts: 'moon, apple, sun' }]) }, icon('speaker', 20), 'Test voice');
 
   // ---- sound effects ----
@@ -96,6 +97,8 @@ export function grownupsScreen(ctx) {
       sec('Lessons', lessonsBox, resetBox),
       sec('Voice', h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate),
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Speak automatically'), toggle), test,
+        h('div', { class: 'gu-field inline' }, h('span', {}, 'Always show full instructions'), fullSwitch),
+        h('p', { class: 'gu-note' }, 'Off: the "Say this" line is one tidy bar that opens when you tap it. On: the full words are always shown, which leaves the activity less room.'),
         h('p', { class: 'gu-note' }, speech.hasSynth ? 'The voice comes from your phone. If a voice sounds robotic, pick another one here.' : 'This browser has no text to speech.')),
       sec('Sound effects', h('div', { class: 'gu-field inline' }, h('span', {}, 'Sound effects'), sfxSwitch), h('label', { class: 'gu-field' }, h('span', {}, 'Volume ', sfxOut), sfxRange), sfxTest,
         h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a sheep home, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),

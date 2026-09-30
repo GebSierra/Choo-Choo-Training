@@ -4,9 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { audit } from './audit.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN } from './lib.mjs';
 
-const seed = (lessons, extra = {}) => `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons, settings: {}, firstRunDone: true, ...extra })}))`;
+const seed = (lessons, extra = {}) => `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons, settings: { seenScripts: SEEN }, firstRunDone: true, ...extra })}))`;
 const DONE = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it' }]));
 const rect = (page, sel, i = 0) => page.evaluate(([s, k]) => { const e = document.querySelectorAll(s)[k]; if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }, [sel, i]);
 const rects = (page, sel) => page.evaluate((s) => [...document.querySelectorAll(s)].map((e) => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }), sel);

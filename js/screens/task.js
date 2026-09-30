@@ -25,7 +25,9 @@ export function taskScreen(ctx, n, idx) {
   const pos = tasks.indexOf(task);
   const isLast = pos === tasks.length - 1;
 
-  const shell = makeShell({ ctx, title: task.name, color: task.color, steps: tasks.length, pos, from: tasks.findIndex((t) => t.index === lastIndex[lesson.number]), isLast, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to lesson', stepNoun: 'Task' });
+  const shell = makeShell({ ctx, title: task.name, color: task.color, steps: tasks.length, pos, from: tasks.findIndex((t) => t.index === lastIndex[lesson.number]), isLast, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to lesson', stepNoun: 'Task',
+    // The parent script opens by itself the first time this kind of task, or this lesson, is opened on the device.
+    seenKeys: [task.type, ...(pos === 0 && !store.lesson(lesson.number).tasksDone.length ? [`lesson:${lesson.number}`] : [])] });
   const current = BUILDERS[task.type]({ ...ctx, lesson, sound, refresh: shell.refresh });
 
   const advance = () => {

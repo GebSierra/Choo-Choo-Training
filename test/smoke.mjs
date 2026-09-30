@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { audit } from './audit.mjs';
 import { SPEECH_STUB, silentWav } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN } from './lib.mjs';
 import { spokenStrings, isIsolated } from './check-content.mjs';
 import { tasksFor } from '../js/lessons.js';
 import { usedImages } from '../tools/precache-images.mjs';
@@ -11,6 +11,7 @@ import { blendChecks, blendReducedChecks } from './blend.mjs';
 import { sackChecks, sackMapChecks, sackGrownupsChecks } from './sack.mjs';
 import { dealerChecks } from './deal.mjs';
 import { sfxChecks, sfxGrownupsChecks } from './sfx.mjs';
+import { roomChecks, barChecks, timerAndFirstVisitChecks, grownupsScriptChecks } from './script.mjs';
 import { lettersSlideChecks, pictureWordSlideChecks, wordsSlideChecks, slideReducedChecks } from './slide.mjs';
 
 const OUT = path.join(ROOT, '_test');
@@ -34,7 +35,7 @@ for (const vp of VIEWPORTS) {
 }
 
 // Home and lesson overview (step 6).
-const SEED = (lessons, settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${JSON.stringify(lessons)},settings:${JSON.stringify(settings)},firstRunDone:true}))`;
+const SEED = (lessons, settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${JSON.stringify(lessons)},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
 for (const vp of VIEWPORTS) {
   const { ctx, page, errors } = await newPage(browser, vp);
   await page.addInitScript(SPEECH_STUB);
@@ -210,6 +211,11 @@ for (const vp of VIEWPORTS) {
 }
 // Letter Hunt's dealer on its own, with a seeded generator.
 dealerChecks(ok);
+// The parent script: one compact bar that opens as a sheet, and the room it gives every task.
+await roomChecks({ browser, url, ok });
+for (const vp of VIEWPORTS) await barChecks({ browser, url, ok, vp, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `script-${vp.name}-${name}.png`) }) });
+await timerAndFirstVisitChecks({ browser, url, ok });
+await grownupsScriptChecks({ browser, url, ok });
 // Sound effects: what would be scheduled for each event (Web Audio is a recorder in the tests).
 await sfxChecks({ browser, url, ok });
 await sfxGrownupsChecks({ browser, url, ok });
@@ -579,7 +585,7 @@ for (const [name, raw] of [
       await page.waitForSelector('.task-screen');
       await page.waitForTimeout(700);
       await page.evaluate(() => { window.__spoken.length = 0; window.__events.length = 0; });
-      await page.locator('.script-card .speak-btn').click();
+      await page.locator('.script-bar .speak-btn').click();
       await page.waitForTimeout(250);
       await page.locator('.task-stage > .speak-btn').click();
       await page.waitForTimeout(250);

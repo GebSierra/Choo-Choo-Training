@@ -36,6 +36,8 @@ export function animate(el, keyframes, opts) {
 export function icon(name, size = 24) {
   const paths = {
     back: 'M15 5l-7 7 7 7',
+    chevronUp: 'M6 15l6-6 6 6',
+    chevronDown: 'M6 9l6 6 6-6',
     speaker: 'M4 9v6h4l5 4V5L8 9H4z M16.5 8.5a5 5 0 010 7 M19 6a8.5 8.5 0 010 12',
     adult: 'M12 4a3 3 0 100 6 3 3 0 000-6z M5 20c0-4 3-6 7-6s7 2 7 6',
     check: 'M5 12.5l4.5 4.5L19 7.5',

@@ -35,7 +35,7 @@ export async function audit(page, label) {
       if (r.width < 47.5 || r.height < 47.5) out.push(`small target ${Math.round(r.width)}x${Math.round(r.height)}: ${(el.getAttribute('aria-label') || el.textContent || el.className).slice(0, 40)}`);
     }
     // Text that a child might read: skip parent-facing blocks.
-    const skip = '.script-card, .finish-card, .first-card, .debug, .grownups, .hold-hint, .script-text';
+    const skip = '.script-card, .script-bar, .script-sheet, .finish-card, .first-card, .debug, .grownups, .hold-hint, .script-text';
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     let n;
     while ((n = walker.nextNode())) {

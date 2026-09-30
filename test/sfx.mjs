@@ -4,10 +4,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
 
-const seed = (settings = {}, lessons = { 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' }, 3: { tasksDone: [], result: 'got-it' } }) => `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons, settings, firstRunDone: true })}))`;
+const seed = (settings = {}, lessons = { 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' }, 3: { tasksDone: [], result: 'got-it' } }) => `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons, settings: { seenScripts: SEEN, ...settings }, firstRunDone: true })}))`;
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const taskIdx = (n, type) => tasksFor(CUR.lessons[n - 1]).find((t) => t.type === type).index;
 const C5 = 523.25, D5 = 587.33, E5 = 659.25, G5 = 783.99, A5 = 880;

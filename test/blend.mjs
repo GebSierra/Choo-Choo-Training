@@ -4,10 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { audit } from './audit.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchSession } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchSession, SEEN } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
 
-const SEED = `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'}},settings:{},firstRunDone:true}))`;
+const SEED = `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'}},settings:{seenScripts:${JSON.stringify(SEEN)}},firstRunDone:true}))`;
 const plain = (page) => page.evaluate(() => ({ clips: window.__events.filter((e) => e.type === 'clip').length, tts: window.__events.filter((e) => e.type === 'tts').length }));
 const litCount = (page) => page.evaluate(() => document.querySelectorAll('.glyph-letter.lit').length);
 const sparks = (page) => page.evaluate(() => document.querySelectorAll('.sounds-stage .spark').length);

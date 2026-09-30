@@ -233,3 +233,21 @@ Grownups has a "Sound effects" switch, a volume slider and a "Test sound" button
 - "Test sound" is disabled while the switch is off, so it never looks broken.
 - The service worker precaches `js/sfx.js` with the other scripts; no audio files exist.
 - Version 1.3.3: steps 9 and 10 each changed shipped files, so each gets its own bump (1.3.2 for the Letter Hunt re-deal, 1.3.3 here), which makes installed copies update every time.
+
+## The parent script is a compact bar (step 11, version 1.3.4)
+
+Geb's phone: on Saying Sounds the tall "Say this" card squeezed the activity and "Next word" was cut off behind it. Now the script is one 56 px bar (adult icon, "Say this", the first line of the script cut with an ellipsis, its speaker, a chevron). Tapping the bar opens the full script as a sheet over the stage (at most 55% of the screen; in landscape it opens in place in the right-hand column); the stage never changes size, so nothing jumps. The chevron, a touch on the stage, Again, Next, or 15 seconds close it.
+
+- The first time a kind of task, or a lesson, is opened on a device, the sheet opens by itself for 6 seconds and then tucks away (260 ms), so a new parent sees what the bar is. After that it stays compact until tapped. (Stored as `seenScripts` in the settings; "Reset all progress" keeps it, like the voice.)
+- Grownups has "Always show full instructions" (off by default): the old always-open card, with 16 px type, and the stage gets its room first while the card scrolls.
+- Every task keeps all of its primary controls inside the stage and the screen at 360x780, 412x915 and in landscape, with no scrolling (New Letter and Quick Check were tightened to get there). On the tall-script tasks the stage gains more than 100 px.
+- `test/script.mjs`: every task at the three viewports (controls fully visible, nothing scrolls, what the bar gives back), the states that clipped on Geb's phone, opening and every way of closing (with fake timers for the 15 s and 6 s), first-visit behaviour, aria and focus, the Grownups switch, and that the speaker says the same text in every state.
+
+### Decisions made during build: the script bar (step 11)
+
+- The gain is measured against the always-open layout (the Grownups switch on), because the old card is gone: the stage gains the card's height less the 56 px bar, at least 90 px where the card was tall (Saying Words and Saying Sounds gain 106 to 127 px); a two or three line script can only give back what the card took beyond 56 px, which is 23 to 65 px. In landscape the stage is a column of its own and keeps its size either way.
+- "The first task of each new lesson's first visit" and "by task kind" are both kept: the sheet opens by itself the first time each kind of task is shown on the device, and also for the first task of a lesson that has not been started (`lesson:N` in `seenScripts`).
+- The one line shown in the bar is the start of the whole script, clipped by the width of the bar (about 25 to 34 characters depending on the phone), so taught letters are still drawn from the glyph (a cut at a fixed character count could strand a font "a").
+- The sheet has its own copy of the speaker (the bar's is covered by the sheet); both say the same text. Closing by touching the stage uses a capturing listener, so the touch still does its work.
+- New Letter and the three-picture Quick Check were tightened on narrow and short portrait phones so they no longer need scrolling.
+- Version 1.3.4: the script bar changes shipped files, so it gets its own bump.
