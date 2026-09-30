@@ -1,6 +1,6 @@
 // Service worker: precache the app shell and everything the three lessons use, then serve cache-first.
 // Bump CACHE_VERSION whenever any file below changes, or installed copies keep the old files.
-const CACHE_VERSION = 'reading-v1.3.1';
+const CACHE_VERSION = 'reading-v1.3.2';
 
 const APP_FILES = [
   './', 'index.html', 'manifest.webmanifest',
@@ -8,7 +8,7 @@ const APP_FILES = [
   'js/app.js', 'js/dom.js', 'js/router.js', 'js/store.js', 'js/speech.js', 'js/glyphs.js', 'js/theme.js', 'js/letters.js', 'js/lessons.js', 'js/scripts.js', 'js/version.js', 'js/art.js',
   'js/components/slide-track.js', 'js/components/trace-pad.js', 'js/components/hold-button.js', 'js/components/fullscreen-button.js', 'js/components/speak-button.js', 'js/components/sound-card.js', 'js/components/sparkle.js', 'js/components/letter-face.js', 'js/components/game-kit.js', 'js/components/picture.js', 'js/components/slide-blend.js',
   'js/screens/home.js', 'js/screens/lesson.js', 'js/screens/task.js', 'js/screens/shell.js', 'js/screens/sack.js', 'js/screens/checkpoint.js', 'js/screens/finish.js', 'js/screens/grownups.js',
-  'js/screens/tasks/review.js', 'js/screens/tasks/new-letter.js', 'js/screens/tasks/story.js', 'js/screens/tasks/words.js', 'js/screens/tasks/sounds.js', 'js/screens/tasks/writing.js', 'js/screens/tasks/hunt.js', 'js/screens/tasks/barn.js', 'js/screens/tasks/check.js',
+  'js/screens/tasks/review.js', 'js/screens/tasks/new-letter.js', 'js/screens/tasks/story.js', 'js/screens/tasks/words.js', 'js/screens/tasks/sounds.js', 'js/screens/tasks/writing.js', 'js/screens/tasks/hunt.js', 'js/screens/tasks/hunt-deal.js', 'js/screens/tasks/barn.js', 'js/screens/tasks/check.js',
   'data/curriculum.json',
   'assets/fonts/nunito-latin.woff2',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',

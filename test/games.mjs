@@ -33,7 +33,7 @@ export async function huntChecks({ browser, url, ok, CUR, vp, lessonNo = 1, shot
   const tag = `${vp.name} Hunt L${lessonNo}`;
   const letters = () => rects(page, '.sky-letter:not(.popped)');
   const first = await letters();
-  ok(first.length >= 12 && first.length <= 14, `${tag}: about fourteen letters in the sky (${first.length})`);
+  ok(first.length >= 12 && first.length <= 16, `${tag}: fourteen to sixteen letters in the sky (${first.length})`);
   ok(first.every((r) => r.w >= 55.5 && r.h >= 55.5), `${tag}: every sky letter is at least 56 px`);
   const scene = (await rects(page, '.farm'))[0];
   const card = (await rects(page, '.find-card'))[0];
@@ -56,25 +56,43 @@ export async function huntChecks({ browser, url, ok, CUR, vp, lessonNo = 1, shot
   const stars = () => page.evaluate(() => document.querySelector('.star-row').dataset.filled);
   const scrollTop = () => page.evaluate(() => document.querySelector('.task-activity').scrollTop + scrollY);
   const before = await plain(page);
-  // A wrong touch changes nothing.
+  // Which slots hold targets, and the whole sky as a string, to see whether it was dealt again.
+  const targetSlots = () => page.evaluate(() => [...document.querySelectorAll('.sky-letter[data-target="1"]:not(.popped)')].map((b) => Number(b.dataset.slot)).sort((a, b) => a - b));
+  const skyKey = () => page.evaluate(() => [...document.querySelectorAll('.sky-letter:not(.popped)')].map((b) => b.dataset.slot + b.dataset.letter).join(' '));
+  // A wrong touch changes nothing, and the sky is not dealt again.
+  const skyBefore = await skyKey();
   await tap(page, page.locator('.sky-letter[data-target="0"]').first());
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(900);
   ok((await steps()) === '0' && (await stars()) === '0' && (await sheepX()) === 0, `${tag}: a wrong touch does not move the sheep or fill a star`);
-  ok((await page.locator('.sky-letter').count()) === first.length, `${tag}: a wrong touch leaves the letter where it is`);
+  ok((await page.locator('.sky-letter').count()) === first.length && (await skyKey()) === skyBefore, `${tag}: a wrong touch leaves the sky exactly as it was (no re-deal)`);
   // Five right touches take the sheep across.
-  let lastX = 0, minTargets = 99;
+  let lastX = 0, minTargets = 99, repeats = 0, unchanged = 0;
   for (let i = 1; i <= 5; i++) {
+    const slotsBefore = await targetSlots();
     await tap(page, page.locator('.sky-letter[data-target="1"]:not(.popped)').first());
     await page.waitForTimeout(i === 1 ? 250 : 120);
-    if (i === 1) await shot && shot(page, 'mid');
-    await page.waitForTimeout(1100);
+    if (i === 1 && shot) await shot(page, 'mid');
+    if (i === 2) {
+      // The new sky is fading in: touches are ignored until the swap (450 ms) is over, so the sheep takes no extra step.
+      await page.waitForTimeout(170);
+      await tap(page, page.locator('.sky-letter[data-target="1"]:not(.popped)').first());
+      await page.waitForTimeout(150);
+      ok((await steps()) === '2', `${tag}: a touch during the swap is ignored (steps ${await steps()})`);
+    }
+    await page.waitForTimeout(i === 1 ? 1100 : 930);
+    if (i < 5) {
+      const slotsAfter = await targetSlots();
+      if (slotsAfter.some((s) => slotsBefore.includes(s))) repeats++;
+      if (JSON.stringify(slotsAfter) === JSON.stringify(slotsBefore)) unchanged++;
+    }
     ok((await steps()) === String(i) && (await stars()) === String(i), `${tag}: touch ${i} moves the sheep one step and fills star ${i}`);
     const x = await sheepX();
     ok(x > lastX, `${tag}: the sheep is further right after touch ${i} (${Math.round(x)})`);
     lastX = x;
     if (i < 5) { await page.waitForTimeout(500); minTargets = Math.min(minTargets, await page.locator('.sky-letter[data-target="1"]:not(.popped)').count()); }
   }
-  ok(minTargets >= 3, `${tag}: at least three target letters stayed in the sky (${minTargets})`);
+  ok(minTargets >= 4, `${tag}: every deal has four or five target letters (${minTargets})`);
+  ok(unchanged === 0 && repeats === 0, `${tag}: the sky is dealt again after each right touch and no target slot repeats from the deal before (${repeats} repeats, ${unchanged} unchanged)`);
   await page.waitForTimeout(1200);
   ok((await page.evaluate(() => document.querySelector('.hunt').dataset.state)) === 'done', `${tag}: five touches reach the done state`);
   await page.waitForTimeout(700);
@@ -83,10 +101,12 @@ export async function huntChecks({ browser, url, ok, CUR, vp, lessonNo = 1, shot
   const after = await plain(page);
   ok(after.clips === before.clips && after.tts === before.tts, `${tag}: no sound or speech during play`);
   // Again starts over.
+  const skyBeforeAgain = await targetSlots();
   await page.click('.btn.again');
   await page.waitForTimeout(900);
   ok((await steps()) === '0' && (await stars()) === '0' && (await sheepX()) === 0 && (await page.evaluate(() => document.querySelector('.hunt').dataset.state)) === 'playing', `${tag}: Again puts the sheep back at the start`);
   ok((await page.locator('.sky-letter').count()) >= 12, `${tag}: Again refreshes the sky`);
+  ok((await targetSlots()).every((s) => !skyBeforeAgain.includes(s)), `${tag}: Again deals a layout whose targets avoid the slots of the sky before it`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
   await ctx.close();
 }

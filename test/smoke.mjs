@@ -9,6 +9,7 @@ import { usedImages } from '../tools/precache-images.mjs';
 import { huntChecks, barnChecks, reducedChecks } from './games.mjs';
 import { blendChecks, blendReducedChecks } from './blend.mjs';
 import { sackChecks, sackMapChecks, sackGrownupsChecks } from './sack.mjs';
+import { dealerChecks } from './deal.mjs';
 import { lettersSlideChecks, pictureWordSlideChecks, wordsSlideChecks, slideReducedChecks } from './slide.mjs';
 
 const OUT = path.join(ROOT, '_test');
@@ -206,6 +207,8 @@ for (const vp of VIEWPORTS) {
   ok(errors.length === 0, `${vp.name}: touch drag errors ${errors.join(' | ')}`);
   await ctx.close();
 }
+// Letter Hunt's dealer on its own, with a seeded generator.
+dealerChecks(ok);
 // The games (Letter Hunt, Barn Doors): layout and touch behaviour at the three viewports, plus reduced motion.
 const shotTo = (dir) => async (page, name) => { await page.screenshot({ path: path.join(dir, `${name}.png`) }); };
 for (const vp of VIEWPORTS) {

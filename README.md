@@ -189,3 +189,19 @@ Geb's first phone test: "the sliding only seems to happen occasionally", and the
 - Pointer cancel is treated as "wait and see" rather than "stop": on a real phone the browser sends one only when it has decided to take over the gesture, and with `touch-action: none` and the locked activity it should not; if it does, a slide that resumes within 350 ms carries on, otherwise it ends like a lift.
 - Buttons inside the stage (Next word) sit above the band so they stay tappable where the band overlaps them.
 - What could not be checked here: how the slide feels under a real finger on a real Android phone (the tests drive the browser's own touch pipeline, which honours `touch-action` but is not a finger).
+
+## Letter Hunt re-deals the sky (step 9)
+
+Geb noticed that some targets kept coming back in the same spots (top left, bottom right), so a child could learn where the target sits instead of looking for the letter. Only the popped slot used to be refilled, and the first sky used a fixed spread. Now the whole sky is dealt again after every right touch.
+
+- `js/screens/tasks/hunt-deal.js` holds two pure functions: `skyCells(W, H)` (the slot grid, 14 to 16 slots, same spacing and no-overlap guarantee as before) and `deal({positions, history, rng, target, distractors})`, which returns the target slots and a letter for every slot. `test/deal.mjs` tests it with a seeded generator.
+- Rules for each deal: four or five targets (both happen); (a) no slot that held a target in the previous deal holds one; (b) no slot holds a target in three of any four deals in a row; (c) at least one target in each of the left, right, upper and lower halves; (d) no two targets side by side when that can be avoided; distractors are random with no letter more than twice; each letter is jittered by up to 6 px.
+- The swap: the letters that are left fade out over 180 ms, a fresh layout fades in over 260 ms (opacity and a 6 px rise only), and all touches are ignored for 450 ms. The popped letter finishes its own pop. The sheep takes one step per right touch as before; a wrong touch shakes the letter and changes nothing (no re-deal). The fifth touch ends the game without a new deal.
+- The first sky and the sky after Again are dealt the same way. The last twelve deals are remembered between visits to the task, so even a new visit or Again never opens with the layout before it.
+
+### Decisions made during build: Letter Hunt re-deal (step 9)
+
+- "Adjacent" means side by side or one above the other (a diagonal is not adjacent; the two are about 1.4 times as far apart). A slot on the middle line counts for both halves, otherwise a three-row sky would force a target into the top row every second deal.
+- Rules (a) and (b) are hard: they are given up, in that order, only if no choice can satisfy (c). In the 300-deal tests on all three screen shapes that never happens. Rule (d) is best effort; where two targets cannot be kept apart at all (the landscape sky is two dense rows) it is simply minimised.
+- To keep every slot's share fair, slots that hosted targets more often in the remembered deals are tried later; over 300 deals no slot hosts a target more than about a third of the time (the test allows 45%).
+- The grid grew from 14 to up to 16 slots; with six distractor letters at most twice each a sky of 16 slots and four targets fits exactly.

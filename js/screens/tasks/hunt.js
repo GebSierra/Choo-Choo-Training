@@ -3,23 +3,28 @@ import { sheepSvg, barnSvg } from '../../art.js';
 import { letterFace, tintLetter } from '../../components/letter-face.js';
 import { sparkle } from '../../components/sparkle.js';
 import { timers, farm, watchSize, findCard, starRow, shake } from '../../components/game-kit.js';
+import { skyCells, deal } from './hunt-deal.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase } from '../../lessons.js';
 
-const SLOTS = 14;    // letters in the sky
 const STEPS = 5;     // correct touches to cross the field
 const BOX = 56;      // touch target
 const INK = '#1E2140';
 const SHEEP_W = 100, GOAL_W = 88;
+const FADE_OUT = 180, FADE_IN = 260, SWAP = 450; // a new sky: the old one fades out, a fresh one fades in, taps wait
+
+// Where the targets sat in the last few skies, kept between visits so even a new visit never starts with the last layout.
+let memory = { slots: 0, deals: [] };
 
 // Task 7: Letter Hunt. The sky is full of small letters; each one that matches the card pops and the sheep trots on.
-// Nothing scores, nothing says wrong, nothing is timed.
+// After every right touch the whole sky is dealt again (see hunt-deal.js), so the target never sits in a place the child
+// could learn. Nothing scores, nothing says wrong, nothing is timed.
 export function build({ lesson, sound, speech, curriculum }) {
   const target = lesson.sound, accent = accentOf(target);
   const cfg = curriculum.games.hunt;
   const others = cfg.distractors[target];
   const T = timers();
-  let steps = 0, done = false, W = 0, H = 0, slots = [], mix = [];
+  let steps = 0, done = false, locked = false, W = 0, H = 0, grid = [], letters = [];
 
   const sheepHop = h('div', { class: 'sheep-hop' }, sheepSvg());
   const sheep = h('div', { class: 'sheep-wrap', style: { width: SHEEP_W + 'px' } }, sheepHop);
@@ -30,55 +35,31 @@ export function build({ lesson, sound, speech, curriculum }) {
   scene.append(goal, sheep, sky, findCard(target));
   const el = h('div', { class: 'game hunt', dataset: { steps: '0', state: 'playing' } }, scene, stars.el);
 
-  const pick = (list) => list[Math.floor(Math.random() * list.length)];
-  const nextDistractor = () => { if (!mix.length) mix = [...others].sort(() => Math.random() - 0.5); return mix.pop(); };
-  const visibleTargets = () => slots.filter((s) => s.isTarget && !s.busy).length;
+  const jitter = (room) => Math.round((Math.random() * 2 - 1) * Math.min(6, room)); // a few pixels, so equal slots never look equal
 
-  // Cells of a loose grid in the sky, clear of the "Find this" card, the speaker button and the grass.
-  function cells() {
-    const y0 = 10, yMax = H - 92;
-    const cols = Math.max(1, Math.floor((W - 20) / 70)), rows = Math.max(1, Math.floor((yMax - y0) / 68));
-    const cw = (W - 20) / cols, ch = (yMax - y0) / rows;
-    const keepOut = [[0, 0, 120, 80], [W - 76, 0, W, 76], [W * 0.56 - 8, 0, W * 0.56 + 64, 72], [W - GOAL_W - 20, H - 140, W, H]]; // find card, speaker button, sun, goal barn
-    const out = [];
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      const x = 10 + cw * (c + 0.5), y = y0 + ch * (r + 0.5);
-      if (keepOut.some(([a, b, c2, d]) => x + BOX / 2 > a && x - BOX / 2 < c2 && y + BOX / 2 > b && y - BOX / 2 < d)) continue;
-      out.push({ x, y, jx: Math.max(0, Math.floor((cw - BOX - 12) / 2)), jy: Math.max(0, Math.floor((ch - BOX - 12) / 2)) });
-    }
-    const n = Math.min(SLOTS, out.length);
-    return Array.from({ length: n }, (_, i) => out[Math.floor(((i + 0.5) * out.length) / n)]);
-  }
-
-  const place = (s) => {
-    s.btn.style.left = s.x + s.dx - BOX / 2 + 'px';
-    s.btn.style.top = s.y + s.dy - BOX / 2 + 'px';
-  };
-
-  function fill(s, isTarget, enter) {
-    const ch = isTarget ? target : nextDistractor();
-    s.isTarget = isTarget; s.busy = false;
-    const face = h('span', { class: 'face' }, letterFace(ch, INK));
-    const btn = h('button', { class: 'sky-letter', type: 'button', 'aria-label': 'letter', dataset: { target: isTarget ? '1' : '0', letter: ch }, onclick: () => tap(s) }, face);
-    s.btn = btn; s.face = face;
-    place(s);
-    sky.append(btn);
-    if (!reduced()) {
-      s.drift = btn.animate([{ transform: 'translateY(-4px)' }, { transform: 'translateY(4px)' }], { duration: 3200 + Math.random() * 2200, direction: 'alternate', iterations: Infinity, easing: 'ease-in-out', delay: -Math.random() * 3000 });
-      // A finger on a letter holds it still.
-      btn.addEventListener('pointerdown', () => s.drift.pause());
-      for (const t of ['pointerup', 'pointercancel', 'pointerleave']) btn.addEventListener(t, () => { if (!s.busy) s.drift.play(); });
-    }
-    if (enter !== undefined) animate(face, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: enter });
-  }
-
-  function populate() {
-    sky.replaceChildren();
-    slots = cells().map((c) => ({ ...c, dx: Math.round((Math.random() * 2 - 1) * c.jx), dy: Math.round((Math.random() * 2 - 1) * c.jy) }));
-    const want = new Set();
-    const nTargets = Math.min(slots.length, 4 + Math.floor(Math.random() * 2));
-    while (want.size < nTargets) want.add(Math.floor(Math.random() * slots.length));
-    slots.forEach((s, i) => fill(s, want.has(i), 30 * i));
+  // Deals a whole new sky onto the grid. The letters that have popped finish their own animation and are left alone.
+  function dealSky() {
+    letters.filter((l) => !l.btn.classList.contains('popped')).forEach((l) => { if (l.drift) l.drift.cancel(); l.btn.remove(); });
+    if (memory.slots !== grid.length) memory = { slots: grid.length, deals: [] };
+    const d = deal({ positions: grid, history: memory.deals, rng: Math.random, target, distractors: others });
+    memory.deals = [...memory.deals, d.targets].slice(-12);
+    letters = d.letters.map((ch, i) => {
+      const isTarget = d.targets.includes(i), c = grid[i];
+      const l = { i, isTarget, x: c.x + jitter(c.jx), y: c.y + jitter(c.jy) };
+      l.face = h('span', { class: 'face' }, letterFace(ch, INK));
+      l.btn = h('button', { class: 'sky-letter', type: 'button', 'aria-label': 'letter', dataset: { target: isTarget ? '1' : '0', letter: ch, slot: String(i) }, onclick: () => tap(l) }, l.face);
+      l.btn.style.left = l.x - BOX / 2 + 'px';
+      l.btn.style.top = l.y - BOX / 2 + 'px';
+      sky.append(l.btn);
+      if (!reduced()) {
+        l.drift = l.btn.animate([{ transform: 'translateY(-4px)' }, { transform: 'translateY(4px)' }], { duration: 3200 + Math.random() * 2200, direction: 'alternate', iterations: Infinity, easing: 'ease-in-out', delay: -Math.random() * 3000 });
+        // A finger on a letter holds it still.
+        l.btn.addEventListener('pointerdown', () => l.drift.pause());
+        for (const t of ['pointerup', 'pointercancel', 'pointerleave']) l.btn.addEventListener(t, () => l.drift.play());
+      }
+      animate(l.face, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: FADE_IN });
+      return l;
+    });
   }
 
   function layout(w, hgt) {
@@ -87,24 +68,9 @@ export function build({ lesson, sound, speech, curriculum }) {
     const travel = Math.max(40, W - SHEEP_W - GOAL_W - 26);
     sheep.style.setProperty('--travel', travel + 'px');
     sheep.style.transform = `translateX(${(travel * steps) / STEPS}px)`;
-    if (first) return populate();
-    // The scene changed size (the parent script wrapped, or the phone turned): put the same letters on the new grid.
-    const fresh = cells();
-    slots.slice(fresh.length).forEach((s) => { if (s.drift) s.drift.cancel(); s.btn.remove(); });
-    slots = slots.slice(0, fresh.length);
-    slots.forEach((s, i) => { s.x = fresh[i].x; s.y = fresh[i].y; place(s); });
-    for (let i = slots.length; i < fresh.length && !done; i++) {
-      const s = { ...fresh[i], dx: 0, dy: 0 };
-      slots.push(s);
-      fill(s, false, 0);
-    }
-    while (!done && visibleTargets() < 4) {
-      const s = slots.find((x) => !x.isTarget && !x.busy);
-      if (!s) break;
-      if (s.drift) s.drift.cancel();
-      s.btn.remove();
-      fill(s, true, 0);
-    }
+    grid = skyCells(W, H, { goalW: GOAL_W });
+    // The scene changed size (the parent script wrapped, or the phone turned): deal the sky again onto the new grid.
+    if (first || !done) dealSky();
   }
   const stopWatching = watchSize(scene, layout);
 
@@ -117,29 +83,32 @@ export function build({ lesson, sound, speech, curriculum }) {
     sheep.querySelector('.sheep-body').animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-3px)' }], { duration: 150, iterations: 6, direction: 'alternate', easing: 'ease-in-out' });
   }
 
-  function refill(s) {
-    if (s.drift) s.drift.cancel();
-    s.btn.remove();
-    const t = visibleTargets();
-    fill(s, t < 4 ? true : t >= 5 ? false : Math.random() < 0.4, 0);
+  // The rest of the sky fades out, a fresh random one fades in; touches are ignored while that takes place, so a finger
+  // never lands on a letter that is moving or about to go.
+  function redeal() {
+    locked = true;
+    letters.filter((l) => !l.btn.classList.contains('popped')).forEach((l) => { l.btn.style.pointerEvents = 'none'; animate(l.face, [{ opacity: 1 }, { opacity: 0 }], { duration: FADE_OUT, fill: 'forwards' }); });
+    T.later(dealSky, reduced() ? 0 : FADE_OUT);
+    T.later(() => { locked = false; }, reduced() ? 0 : SWAP);
   }
 
-  function tap(s) {
-    if (done || s.busy) return;
-    if (!s.isTarget) { shake(s.face); return; }
-    s.busy = true;
-    if (s.drift) s.drift.cancel();
-    s.btn.style.pointerEvents = 'none';
-    s.btn.classList.add('popped');
-    tintLetter(s.face.firstChild, accent);
-    animate(s.face, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(1.4)', opacity: 0 }], { duration: 340, fill: 'forwards' });
-    sparkle(scene, s.x + s.dx, s.y + s.dy, { count: 9, size: [10, 20], reach: [30, 62] });
+  function tap(l) {
+    if (done || locked || l.btn.classList.contains('popped')) return;
+    if (!l.isTarget) { shake(l.face); return; }
+    if (l.drift) l.drift.cancel();
+    l.btn.style.pointerEvents = 'none';
+    l.btn.classList.add('popped');
+    tintLetter(l.face.firstChild, accent);
+    animate(l.face, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(1.4)', opacity: 0 }], { duration: 340, fill: 'forwards' });
+    T.later(() => l.btn.remove(), 400);
+    sparkle(scene, l.x, l.y, { count: 9, size: [10, 20], reach: [30, 62] });
     stars.fill(steps);
     steps++;
     el.dataset.steps = String(steps);
     trot();
-    if (steps < STEPS) T.later(() => refill(s), 500);
-    else T.later(finish, 950);
+    if (steps < STEPS) { redeal(); return; }
+    locked = true;
+    T.later(finish, 950);
   }
 
   function finish() {
@@ -154,7 +123,7 @@ export function build({ lesson, sound, speech, curriculum }) {
 
   function again() {
     T.clear();
-    steps = 0; done = false;
+    steps = 0; done = false; locked = false;
     el.dataset.steps = '0'; el.dataset.state = 'playing';
     sky.classList.remove('done');
     stars.reset();
@@ -162,7 +131,9 @@ export function build({ lesson, sound, speech, curriculum }) {
     sheep.style.transform = 'translateX(0)';
     void sheep.offsetWidth;
     sheep.style.transition = '';
-    populate();
+    letters.forEach((l) => l.btn.remove());
+    letters = [];
+    dealSky(); // a fresh random layout, never the one before
   }
 
   const say = [{ tts: cfg.say }];
