@@ -25,7 +25,7 @@ export function labScreen({ speech }) {
     ),
     h('div', { class: 'lab-row' }, speakButton({ speech, getParts: () => [{ tts: 'moon' }], label: 'Hear moon' })),
     h('div', { id: 'lab-extra', class: 'lab-extra' },
-      slideTrack({ letter: 'm', speech }),
+      slideTrack({ letter: 'm' }),
       pad,
       h('div', { class: 'lab-row' }, h('button', { class: 'lab-btn', id: 'lab-show', type: 'button', onclick: () => pad.showMe() }, 'show me'), h('button', { class: 'lab-btn', id: 'lab-clear', type: 'button', onclick: () => pad.clear() }, 'clear'))),
     log);

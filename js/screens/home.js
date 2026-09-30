@@ -1,6 +1,7 @@
 import { h, animate, icon, reduced } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { holdButton } from '../components/hold-button.js';
+import { fullscreenButton } from '../components/fullscreen-button.js';
 
 // Stone positions as percentages of the scene, per orientation (bottom left to top right).
 const PORTRAIT = [[26, 74], [58, 50], [72, 27]];
@@ -99,7 +100,8 @@ export function homeScreen(ctx) {
 
   const grown = holdButton({ label: 'Grownups · hold', caption: null, hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
   const top = h('div', { class: 'home-top' }, grown);
-  const root = h('div', { class: 'home' }, scene, top);
+  const fs = fullscreenButton({ className: 'home-fs' });
+  const root = h('div', { class: 'home' }, scene, top, ...(fs ? [fs] : []));
 
   if (!store.state.firstRunDone) {
     const card = h('div', { class: 'first-run', role: 'dialog', 'aria-label': 'Welcome' },

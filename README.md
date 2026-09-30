@@ -93,3 +93,11 @@ The plan left these open or made them impossible to follow literally. Each is th
 - The letter clips come from Wikipedia's IPA recordings (see Attribution); that credit stays in the Attribution section and on Grownups.
 - Next is dimmed for one second after a task opens, and the finish screen ignores taps for 1.5 seconds; "Yes, go on" takes two taps. Practicing a lesson again after "Yes" keeps the best result, so the next lesson is not locked again.
 - `CACHE_VERSION` in `sw.js` and `APP_VERSION` in `js/version.js` carry the same number; the smoke test asserts it.
+
+
+## Changes after the first phone test (v1.2.0)
+
+- The slide track is silent. It no longer plays the letter clip when dragged.
+- A sparkle of small stars bursts when the letter reaches the end. The slider then resets at once and can be grabbed again, even mid-glide.
+- Full screen button: top right on Home, and in Grownups under "Screen". It uses the browser's Fullscreen API and is hidden where the browser cannot do it.
+- The m and s clips were rebuilt. The first versions kept a vowel after the sound ("maah", "sah") because Wikipedia's recordings are the consonant followed by a vowel. The new m is the hum alone, looped at matching pitch points to about 0.9 s; the new s is the hiss alone, looped with crossfades to about 0.9 s. Both were checked on a spectrogram (no vowel bands). The a clip is unchanged.

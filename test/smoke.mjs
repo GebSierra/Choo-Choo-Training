@@ -182,14 +182,41 @@ for (const vp of VIEWPORTS) {
   const hb = await page.locator('.st-handle').boundingBox();
   const top = () => page.evaluate(() => document.querySelector('.task-activity').scrollTop);
   const before = await top();
-  let mid = null, reached = null;
+  const eventsBefore = await page.evaluate(() => window.__events.length);
+  let mid = null, reached = null, sparks = 0;
   await touchDrag(page, { x: hb.x + hb.width / 2, y: hb.y + hb.height / 2 }, { x: hb.x + hb.width / 2 + tb.width - hb.width + 4, y: hb.y + hb.height / 2 }, {
-    during: async () => { mid = await top(); reached = await page.evaluate(() => document.querySelector('.slide-track').classList.contains('is-end')); },
+    during: async () => { mid = await top(); const s = await page.evaluate(() => ({ end: document.querySelector('.slide-track').classList.contains('is-end'), sparks: document.querySelectorAll('.slide-track .spark').length })); reached = s.end; sparks = Math.max(sparks, s.sparks); },
   });
   ok(reached, `${vp.name}: New Letter slide track reaches the end by touch`);
+  ok((await page.evaluate(() => window.__events.length)) === eventsBefore, `${vp.name}: dragging the letter plays no sound and speaks nothing`);
+  ok(sparks > 0, `${vp.name}: a sparkle bursts when the letter reaches the end (${sparks} stars)`);
+  await page.waitForTimeout(1600);
+  ok((await page.evaluate(() => document.querySelectorAll('.slide-track .spark').length)) === 0, `${vp.name}: sparkles clean themselves up`);
+  ok(!(await page.evaluate(() => document.querySelector('.slide-track').classList.contains('is-end'))), `${vp.name}: the slider resets after the sparkle`);
   ok(mid === before && (await top()) === before, `${vp.name}: New Letter stage did not scroll during the touch drag`);
   ok((await page.evaluate(() => document.querySelector('.slide-track').dataset.count)) === '1', `${vp.name}: New Letter completion counted once`);
   ok(errors.length === 0, `${vp.name}: touch drag errors ${errors.join(' | ')}`);
+  await ctx.close();
+}
+{
+  // Full screen button on Home and in Grownups (the Fullscreen API is stubbed so the call can be counted).
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(SEED({}));
+  await page.addInitScript(() => {
+    window.__fs = 0;
+    Object.defineProperty(document, 'fullscreenEnabled', { value: true, configurable: true });
+    Element.prototype.requestFullscreen = function () { window.__fs++; return Promise.resolve(); };
+  });
+  await page.goto(url + '#/home');
+  await page.waitForSelector('.home-fs');
+  await page.waitForTimeout(800);
+  const fb = await page.locator('.home-fs').boundingBox();
+  ok(fb.width >= 48 && fb.height >= 48, `home: full screen button is at least 48px (${fb.width}x${fb.height})`);
+  ok((await page.getAttribute('.home-fs', 'aria-label')) === 'Full screen', 'home: full screen button is labelled');
+  await page.click('.home-fs');
+  ok((await page.evaluate(() => window.__fs)) === 1, 'home: tapping the full screen button asks the browser for full screen');
+  ok(errors.length === 0, 'full screen errors ' + errors.join(' | '));
   await ctx.close();
 }
 {

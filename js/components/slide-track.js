@@ -4,10 +4,12 @@ import { accentOf } from '../theme.js';
 
 const HANDLE = 76;
 const PAD = 6;
+const STAR = 'M12 0 L14.6 9.4 L24 12 L14.6 14.6 L12 24 L9.4 14.6 L0 12 L9.4 9.4 Z';
+const SPARK_COLORS = ['#FFD166', '#FFFFFF', '#FFE9A8'];
 
-// Drag the letter along the track while saying its sound. The one interaction where a clip
-// is tied to a child's gesture: it plays once when the drag starts (skipped if no clip exists).
-export function slideTrack({ letter, speech, onComplete }) {
+// Drag the letter along the track while saying its sound. The track itself is silent: the child
+// says the sound, and the app only shows the glide and a sparkle when the letter gets to the end.
+export function slideTrack({ letter, onComplete }) {
   const accent = accentOf(letter);
   const wave = h('span', { class: 'st-wave', 'aria-hidden': 'true' },
     h('svg', { viewBox: '0 0 400 40', preserveAspectRatio: 'none' }, h('path', { d: 'M0 20 Q25 4 50 20 T100 20 T150 20 T200 20 T250 20 T300 20 T350 20 T400 20', fill: 'none', stroke: 'rgba(255,255,255,.55)', 'stroke-width': 5, 'stroke-linecap': 'round' }),
@@ -18,10 +20,11 @@ export function slideTrack({ letter, speech, onComplete }) {
   const bloom = h('span', { class: 'st-bloom', style: { '--accent': accent }, 'aria-hidden': 'true' });
   const glyph = h('span', { class: 'st-glyph' }, glyphSvg(letter, { color: accent, label: 'slide this letter' }));
   const handle = h('button', { class: 'st-handle', type: 'button', 'aria-label': 'Slide the letter and say its sound', style: { '--accent': accent } }, glyph);
-  const track = h('div', { class: 'slide-track', style: { '--accent': accent }, dataset: { count: '0' } }, fill, hint, goal, bloom, handle);
+  const clip = h('span', { class: 'st-clip', 'aria-hidden': 'true' }, fill, bloom);
+  const track = h('div', { class: 'slide-track', style: { '--accent': accent }, dataset: { count: '0' } }, clip, hint, goal, handle);
   track.classList.add('hold');
 
-  let W = 0, max = 0, x = 0, startX = 0, startPointer = 0, dragging = false, atEnd = false, idleTimer = 0, homeTimer = 0, glide = [], count = 0, keyBusy = false;
+  let W = 0, max = 0, x = 0, startX = 0, startPointer = 0, dragging = false, atEnd = false, idleTimer = 0, homeTimer = 0, glide = [], count = 0, keyBusy = false, homing = false;
   const measure = () => { W = track.clientWidth; max = Math.max(1, W - HANDLE - PAD * 2); };
   const place = (px) => {
     x = Math.max(0, Math.min(max, px));
@@ -42,12 +45,32 @@ export function slideTrack({ letter, speech, onComplete }) {
 
   function goHome(ms, easing) {
     stopGlide();
+    homing = true;
     const from = x;
     const a1 = animate(handle, [{ transform: `translate3d(${from}px,0,0)` }, { transform: 'translate3d(0,0,0)' }], { duration: ms, easing, fill: 'forwards' });
     const a2 = animate(fill, [{ transform: `translate3d(${from + HANDLE / 2 + PAD - W}px,0,0)` }, { transform: `translate3d(${HANDLE / 2 + PAD - W}px,0,0)` }], { duration: ms, easing, fill: 'forwards' });
     glide = [a1, a2];
     x = 0;
-    a1.finished.then(() => { place(0); stopGlide(); track.classList.remove('is-end'); atEnd = false; }).catch(() => {});
+    a1.finished.then(() => { place(0); stopGlide(); track.classList.remove('is-end'); atEnd = false; homing = false; }).catch(() => {});
+  }
+
+  // A burst of small stars where the letter lands. Transform and opacity only; removed when done.
+  function sparkle() {
+    if (reduced()) return;
+    const cx = track.clientWidth - 8 - 36, cy = 44;
+    for (let i = 0; i < 18; i++) {
+      const size = 16 + Math.round(Math.random() * 16);
+      const color = SPARK_COLORS[i % 3];
+      const star = h('svg', { class: 'spark', viewBox: '0 0 24 24', width: size, height: size, 'aria-hidden': 'true', style: { left: cx - size / 2 + 'px', top: cy - size / 2 + 'px' } }, h('path', { d: STAR, fill: color }));
+      track.append(star);
+      const ang = (i / 18) * Math.PI * 2 + Math.random() * 0.4, dist = 64 + Math.random() * 56;
+      const a = animate(star, [
+        { transform: 'translate(0,0) scale(0) rotate(0deg)', opacity: 1 },
+        { transform: `translate(${Math.cos(ang) * dist * 0.7}px,${Math.sin(ang) * dist * 0.7}px) scale(1) rotate(90deg)`, opacity: 1, offset: 0.55 },
+        { transform: `translate(${Math.cos(ang) * dist}px,${Math.sin(ang) * dist}px) scale(0) rotate(180deg)`, opacity: 0 },
+      ], { duration: 720 + Math.random() * 280, delay: Math.random() * 90, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+      a.finished.then(() => star.remove()).catch(() => star.remove());
+    }
   }
 
   function complete() {
@@ -59,21 +82,26 @@ export function slideTrack({ letter, speech, onComplete }) {
     place(max);
     if (navigator.vibrate) navigator.vibrate(20);
     bloom.classList.remove('go'); void bloom.offsetWidth; bloom.classList.add('go');
+    sparkle();
     if (!reduced()) animate(handle.firstChild, [{ transform: 'scale(1.15)' }, { transform: 'scale(1.3)', offset: 0.4 }, { transform: 'scale(1)' }], { duration: 320, easing: 'cubic-bezier(.34,1.56,.64,1)' });
     if (onComplete) onComplete();
     clearTimeout(homeTimer);
-    homeTimer = setTimeout(() => goHome(reduced() ? 0 : 600, 'ease-in-out'), 600);
+    homeTimer = setTimeout(() => goHome(reduced() ? 0 : 450, 'ease-in-out'), reduced() ? 0 : 650);
   }
 
   handle.addEventListener('pointerdown', (e) => {
-    if (atEnd) return;
+    if (atEnd && !homing) return;
     e.preventDefault();
     measure();
-    stopGlide(); place(x);
+    if (homing) {
+      // Grabbed the handle while it glides home: pick it up where it is.
+      const pos = handle.getBoundingClientRect().left - track.getBoundingClientRect().left - PAD;
+      stopGlide(); homing = false; atEnd = false; track.classList.remove('is-end');
+      place(pos);
+    } else { stopGlide(); place(x); }
     dragging = true; startPointer = e.clientX; startX = x;
     handle.setPointerCapture(e.pointerId);
     track.classList.add('dragging');
-    if (speech) speech.say([{ clip: letter }]);
     setMoving();
   });
   handle.addEventListener('pointermove', (e) => {
@@ -96,7 +124,6 @@ export function slideTrack({ letter, speech, onComplete }) {
   handle.addEventListener('keydown', (e) => {
     if ((e.key === 'Enter' || e.key === ' ') && !atEnd && !keyBusy) {
       e.preventDefault(); measure(); keyBusy = true;
-      if (speech) speech.say([{ clip: letter }]);
       const a = animate(handle, [{ transform: 'translate3d(0,0,0)' }, { transform: `translate3d(${max}px,0,0)` }], { duration: 500, fill: 'forwards' });
       a.finished.then(() => { a.cancel(); keyBusy = false; complete(); }).catch(() => { keyBusy = false; });
     }

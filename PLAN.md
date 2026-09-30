@@ -366,7 +366,7 @@ The signature interaction.
 - Horizontal rounded track; glyph in a round handle at the left; the child drags it right. Pointer events, `touch-action: none` on the track so the page never scrolls during a drag.
 - While dragging: glyph scales to 1.15, the track fills in the accent color behind it, and for a held sound a soft wave ripples along the fill.
 - At the end: gentle snap, `navigator.vibrate(20)` if available, a short bloom, then it eases back after 600 ms.
-- Optional sound: when the drag starts, play the letter's clip once if a clip exists (this is the one place a clip is tied to a child gesture). If no clip, silence.
+- Silent (changed after Geb's first phone test): the track plays no sound and speaks nothing. The child says the sound. At the end a burst of about 18 small stars sparkles, then the handle resets and can be grabbed again, even while it glides home.
 
 Accept: a Playwright mouse drag reaches the end state; `scrollY` does not change during the drag.
 

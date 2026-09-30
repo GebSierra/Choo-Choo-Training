@@ -48,6 +48,8 @@ export function icon(name, size = 24) {
     play: 'M8 5l11 7-11 7z',
     tap: 'M9 11V5a2 2 0 014 0v6 M13 10.5a2 2 0 014 0V12 M17 11.5a2 2 0 014 0V15a6 6 0 01-6 6h-2a6 6 0 01-5-3l-3-5a2 2 0 013-2l2 2',
     external: 'M14 4h6v6 M20 4l-9 9 M18 14v5H5V6h5',
+    expand: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
+    shrink: 'M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5',
   };
   const svg = h('svg', { viewBox: '0 0 24 24', width: size, height: size, fill: 'none', stroke: 'currentColor', 'stroke-width': name === 'back' ? 3 : 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true', class: 'icon' });
   for (const d of paths[name].split(' M').map((s, i) => (i ? 'M' + s : s))) svg.append(h('path', { d }));

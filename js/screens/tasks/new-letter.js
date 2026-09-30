@@ -20,7 +20,7 @@ export function build({ lesson, sound, speech }) {
       h('span', { class: 'pic' }, pic), h('span', { class: 'word' }, letterText(w.word, { tint: sound.glyph })));
     return t;
   }));
-  const track = slideTrack({ letter: sound.glyph, speech });
+  const track = slideTrack({ letter: sound.glyph });
   const el = h('div', { class: 'new-letter' }, card, soundCard(sound), track, tiles);
   return {
     el,

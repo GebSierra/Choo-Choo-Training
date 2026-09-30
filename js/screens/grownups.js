@@ -1,4 +1,5 @@
 import { h, icon } from '../dom.js';
+import { fullscreenButton } from '../components/fullscreen-button.js';
 import { soundCard } from '../components/sound-card.js';
 import { glyphSvg } from '../glyphs.js';
 import { accentOf } from '../theme.js';
@@ -74,6 +75,7 @@ export function grownupsScreen(ctx) {
   paintClips(null);
   speech.checkClips().then(paintClips).catch(() => paintClips({}));
 
+  const fsBtn = fullscreenButton({ label: true, className: 'btn small fs-row' });
   const sec = (title, ...kids) => h('section', { class: 'gu-card' }, h('h2', {}, title), ...kids);
   const root = h('div', { class: 'grownups' },
     h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to the path', onclick: () => router.go('/home') }, icon('back', 28)), h('h1', {}, 'Grownups')),
@@ -86,6 +88,7 @@ export function grownupsScreen(ctx) {
       sec('The three sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
       sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Sound story playlist'),
         h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Alphabet song')),
+      ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),
       sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),
       h('p', { class: 'gu-version' }, `Reading version ${APP_VERSION}`)));
   root.cleanup = () => clearTimeout(voiceTimer);
