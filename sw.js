@@ -1,6 +1,6 @@
 // Service worker: precache the app shell and everything the three lessons use, then serve cache-first.
 // Bump CACHE_VERSION whenever any file below changes, or installed copies keep the old files.
-const CACHE_VERSION = 'reading-v1.0.0-2';
+const CACHE_VERSION = 'reading-v1.0.0-3';
 
 const APP_FILES = [
   './', 'index.html', 'manifest.webmanifest',
