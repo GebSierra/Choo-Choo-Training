@@ -3,6 +3,7 @@ import { createRouter } from './router.js';
 import { homeScreen } from './screens/home.js';
 import { lessonScreen } from './screens/lesson.js';
 import { createSpeech } from './speech.js';
+import { grownupsScreen } from './screens/grownups.js';
 import { taskScreen } from './screens/task.js';
 import { finishScreen } from './screens/finish.js';
 import { labScreen } from './screens/lab.js';
@@ -30,6 +31,7 @@ async function boot() {
     { re: /^\/lesson\/(\d+)$/, screen: lessonScreen },
     { re: /^\/lesson\/(\d+)\/task\/(\d+)$/, screen: taskScreen },
     { re: /^\/lesson\/(\d+)\/finish$/, screen: finishScreen },
+    { re: /^\/grownups$/, screen: grownupsScreen },
     { re: /^\/lab$/, screen: labScreen },
     { re: /^\/glyphs$/, screen: glyphsDebug },
   ];

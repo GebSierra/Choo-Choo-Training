@@ -67,7 +67,8 @@ function stone(n, sound, state, curriculum, onTap, speech) {
   return wrap;
 }
 
-export function homeScreen({ store, router, curriculum, speech }) {
+export function homeScreen(ctx) {
+  const { store, router, curriculum, speech } = ctx;
   const total = curriculum.lessons.length;
   const current = store.currentLesson(total);
   const scene = h('div', { class: 'scene' },
@@ -91,7 +92,7 @@ export function homeScreen({ store, router, curriculum, speech }) {
   });
   stones.forEach((s) => scene.append(s));
 
-  const grown = holdButton({ label: 'Grownups', hint: 'Press and hold', className: 'pill-hold', onComplete: () => router.go('/grownups') });
+  const grown = holdButton({ label: 'Grownups', hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
   const top = h('div', { class: 'home-top' }, grown);
   const root = h('div', { class: 'home' }, scene, top);
 

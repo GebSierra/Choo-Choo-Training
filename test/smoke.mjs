@@ -212,6 +212,69 @@ for (const vp of VIEWPORTS) {
 }
 ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, ''); return !(z.length === 1 || (z.length > 1 && /^(.)\1+$/.test(z))); }), 'speak never called with a single letter or repeated run');
 
+// Grownups gate, reset and voice settings (step 9).
+{
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[0],result:'got-it',completedAt:'2026-09-30T12:00:00Z'}},settings:{},firstRunDone:true})); }`);
+  await page.goto(url + '#/home');
+  await page.waitForSelector('.pill-hold');
+  await page.waitForTimeout(600);
+  // Direct navigation without the gate bounces home.
+  await page.evaluate(() => { location.hash = '#/grownups'; });
+  await page.waitForTimeout(500);
+  ok(page.url().endsWith('#/home'), 'grownups without the gate bounces home');
+  // A short tap does not open it.
+  await page.click('.pill-hold');
+  await page.waitForTimeout(500);
+  ok(page.url().endsWith('#/home') && (await page.locator('.hold-hint.show').count()) === 1, 'short tap on Grownups shows a hint and stays');
+  const gb = await page.locator('.pill-hold').boundingBox();
+  await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2);
+  await page.mouse.down(); await page.waitForTimeout(700); await page.mouse.up();
+  await page.waitForTimeout(400);
+  ok(page.url().endsWith('#/home'), 'releasing early cancels the gate');
+  await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2);
+  await page.mouse.down(); await page.waitForTimeout(1750); await page.mouse.up();
+  await page.waitForSelector('.grownups');
+  ok(page.url().endsWith('#/grownups'), 'holding opens Grownups');
+  await page.waitForTimeout(900);
+  const gp = await audit(page, 'grownups');
+  ok(gp.length === 0, gp.join(' | '));
+  await page.screenshot({ path: path.join(OUT, 'grownups-pixel7.png'), fullPage: true });
+  ok((await page.locator('.gu-pill').count()) === 3, 'clip status lists three sounds');
+  // Voice choice persists.
+  await page.selectOption('.gu-select', 'g-us');
+  await page.locator('.gu-range').evaluate((el) => { el.value = 1.05; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  await page.click('.gu-switch');
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings);
+  ok(saved.voiceURI === 'g-us' && saved.rate === 1.05 && saved.autoSpeak === false, 'voice, rate and auto-speak persist ' + JSON.stringify(saved));
+  await page.evaluate(() => window.__spoken.length = 0);
+  await page.click('text=Test voice');
+  await page.waitForTimeout(300);
+  ok((await page.evaluate(() => window.__spoken)).includes('moon, apple, sun'), 'Test voice speaks moon, apple, sun');
+  // Reset returns Home to first run and keeps the voice.
+  await page.click('text=Reset all progress');
+  await page.click('.btn.danger');
+  await page.waitForSelector('.home');
+  await page.waitForTimeout(800);
+  ok((await page.locator('.first-run').count()) === 1, 'reset returns Home to the first-run card');
+  ok((await page.locator('.stone.is-done').count()) === 0, 'reset clears done stones');
+  const after = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.voiceURI);
+  ok(after === 'g-us', 'reset keeps the chosen voice');
+  ok(errors.length === 0, 'grownups errors ' + errors.join(' | '));
+  await ctx.close();
+}
+// A throwing localStorage must not crash the app.
+{
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }); });
+  await page.goto(url + '#/home');
+  await page.waitForSelector('.stone');
+  ok((await page.locator('.stone').count()) === 3, 'app renders when localStorage throws');
+  ok(errors.length === 0, 'storage-blocked errors ' + errors.join(' | '));
+  await ctx.close();
+}
+
 // Speech queue (step 5): order, missing clip skipped, isolated sounds refused, gesture required.
 {
   const vp = VIEWPORTS[0];

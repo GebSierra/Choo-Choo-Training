@@ -59,6 +59,7 @@ export function createStore() {
     setSetting(k, v) { state.settings = { ...state.settings, [k]: v }; save(); },
     setFirstRunDone() { state.firstRunDone = true; save(); },
     touch() { state.lastOpened = new Date().toISOString(); save(); },
-    resetAll() { state = fresh(); save(); },
+    // Progress only: the parent's voice settings are kept.
+    resetAll() { const settings = state.settings; state = { ...fresh(), settings }; save(); },
   };
 }
