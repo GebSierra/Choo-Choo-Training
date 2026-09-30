@@ -61,6 +61,25 @@ await page.goto(url + '#/lesson/2/task/4'); await page.waitForSelector('.glyph-l
   await save(page, '14-saying-sounds-slide.png');
   await t.end();
 }
+// Saying Sounds picture word (moon) and Saying Words (catfish), each with a finger sliding across it.
+{
+  const slide = async (name, fraction) => {
+    const r = await page.evaluate(() => { const svg = document.querySelector('.word-glyphs'), b = svg.getBoundingClientRect(), k = b.width / Number(svg.dataset.width); const e = [...svg.querySelectorAll('.glyph-letter')].map((g) => ({ l: b.left + Number(g.dataset.x0) * k, r: b.left + Number(g.dataset.x1) * k })); return { first: e[0].l, last: e[e.length - 1].r, y: b.top + b.height / 2, band: document.querySelector('.slide-band').getBoundingClientRect().left }; });
+    const t = await touchSession(page);
+    await t.start(r.band + 8, r.y); await t.move(r.band + 20, r.y); await t.move(r.first + (r.last - r.first) * fraction, r.y + 10);
+    await page.waitForTimeout(300);
+    await save(page, name);
+    await t.end();
+  };
+  await page.goto(url + '#/lesson/1/task/3'); await page.waitForSelector('.sounds-stage'); await page.waitForTimeout(1200);
+  const pf = await page.locator('.sounds-stage .pic-frame').boundingBox();
+  await page.touchscreen.tap(pf.x + pf.width / 2, pf.y + pf.height / 2); await page.waitForSelector('.slide-band'); await page.waitForTimeout(700);
+  await slide('18-picture-word-slide.png', 0.55);
+  await page.goto(url + '#/lesson/2/task/3'); await page.waitForSelector('.merged-tile'); await page.waitForTimeout(1200);
+  const m = await page.locator('.merged-tile').boundingBox();
+  await page.touchscreen.tap(m.x + m.width / 2, m.y + m.height / 2); await page.waitForSelector('.slide-band'); await page.waitForTimeout(900);
+  await slide('19-saying-words-slide.png', 0.5);
+}
 // The two games mid-play, and the overview scrolled to their cards.
 await page.goto(url + '#/lesson/1/task/5'); await page.waitForSelector('.sky-letter'); await page.waitForTimeout(1200);
 for (let i = 0; i < 2; i++) { await page.evaluate(() => document.querySelector('.sky-letter[data-target="1"]:not(.popped)').click()); await page.waitForTimeout(i ? 350 : 1600); }

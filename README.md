@@ -31,8 +31,9 @@ Debug pages (not linked from the app; the smoke test uses them, and the service 
 ## Test
 
     node test/check-content.mjs   # curriculum.json against the teaching rules
-    node test/smoke.mjs           # Playwright walkthrough at three Android viewports (takes about eight minutes)
+    node test/smoke.mjs           # Playwright walkthrough at three Android viewports (takes about twenty minutes)
     node test/games.mjs           # only the two games (part of the smoke test; takes about two minutes)
+    node test/blend.mjs && node test/slide.mjs   # only the sliding tasks (also part of the smoke test)
 
 The smoke test starts its own server, uses the preinstalled Chromium, fails on any console error, and saves screenshots to `_test/` (ignored by git). `tools/screenshots.mjs` refreshes the pictures in `docs/screenshots/`. `npm install` is only needed if Playwright is not already installed globally; the app itself has no dependencies.
 
@@ -71,7 +72,7 @@ Fonts: Nunito (SIL Open Font License), self-hosted. Pictures for the sound "a": 
 
 ## Decisions made during build
 
-The plan left these open or made them impossible to follow literally. Each is the simplest choice consistent with the plan.
+The plan left these open or made them impossible to follow literally. Each is the simplest choice consistent with the plan. The decisions of round 2 and the steps after it are listed further down, each under its feature, in sections titled "Decisions made during build: ...".
 
 - Fonts: one variable Nunito file (`nunito-latin.woff2`) covers weights 400, 700 and 800, instead of three files.
 - WebP: the bundled ffmpeg has no WebP encoder, so `tools/make-webp.mjs` converts the 26 tiles with Chromium's canvas encoder (512 px, all under 60 KB). The PNG originals stay and are not precached.
@@ -112,7 +113,7 @@ The plan left these open or made them impossible to follow literally. Each is th
 - Two new tasks per lesson, before Quick Check: Letter Hunt (touch the matching letters in the sky; a sheep trots across the farm) and Barn Doors (the doors open on a letter; touch it when it matches). Lesson 1 now has 8 tasks, lessons 2 and 3 have 9. Silent, no scoring, nothing says wrong.
 - Art is our own inline SVG (`js/art.js`); the sparkle burst is one shared helper (`js/components/sparkle.js`); `test/games.mjs` covers the games.
 
-### Decisions made during round 2
+### Decisions made during build: round 2 (quiet sounds and the two games)
 
 - Quick Check shows the quiet question ("Listen to your grown up. Then touch the letter.") on screen too when sounds are off, so what the child sees matches what is spoken; `promptTextQuiet` holds it.
 - Reading a parent script aloud with sounds off keeps only the sentences that contain no sound. "Say mmm. Now you try. Slide the letter as you say it." reads "Now you try. Slide the letter as you say it." A script whose every sentence holds a sound reads nothing.
@@ -128,7 +129,7 @@ The plan left these open or made them impossible to follow literally. Each is th
 
 - For words that show letters (am, ma, sam) the child slides a finger left to right under the word; each letter lights in its own accent colour as the finger passes its left edge, the letter under the finger grows a little with a soft halo, and a thin bar grows to the finger. It is silent: the grown up stretches the sounds in time. Dragging back un-lights letters. At the end the word lifts, a small sparkle bursts, the lit word holds for 700 ms and resets. Lifting early holds the lit letters for 500 ms and fades them.
 - The looping sweep stays as a demonstration until the first touch on the word; it comes back on Again or Next word. A tap without a drag still reveals the word.
-- The touch zone is the whole row, which spans the white card, so a finger may start a little left of the first letter. A letter's edges are the glyph's own width (stroke included). Reduced motion keeps the lighting and drops the scale, halo fade and lift.
+- A letter's edges are the glyph's own width (stroke included). Reduced motion keeps the lighting and drops the scale, halo fade and lift. (The touch zone described here was widened in step 8; see below.)
 - Pictures-only words (moon, map, mom) are unchanged. `test/blend.mjs` drives the slide by real touch at the three viewports.
 
 ### Sound Sack (checkpoint after lesson 3)
@@ -138,7 +139,7 @@ The plan left these open or made them impossible to follow literally. Each is th
 - Pictures are Mentava's tiles, like everywhere else in the app.
 - `test/sack.mjs` drives it by real touch at the three viewports.
 
-### Decisions made for the Sound Sack
+### Decisions made during build: the Sound Sack
 
 - The spoken line lives in `games.sack.say`, next to the other two games, so `check-content.mjs` applies the same rules to it.
 - A card is dropped in the sack when its centre is inside the sack's box grown by 24 px, as specified. A wrong card dropped there glides home with a small shake; any card let go elsewhere (right or wrong) springs home without the shake.
@@ -163,10 +164,28 @@ Tiles in use now (paths are `assets/images/mentava/web/<slug>/<word>.webp`):
 
 For later lessons the tiles for every sound are already in `assets/images/mentava/web` (see `index.json` there and `docs/reference/mentava/master_manifest.json`). Only the tiles the curriculum uses are precached by the service worker (60 files, about 1 MB); `node tools/precache-images.mjs` prints the list to paste into `sw.js`, and the smoke test checks that the two agree.
 
-### Decisions made for the tiles
+### Decisions made during build: the picture tiles
 
 - The shipped lesson 1 picture words are moon, map, mop; "mom" was replaced because it has no tile, and the stretched script reads "mmmop".
 - Quick Check lesson 1 offers moon (right), dog and banana, two distinct-looking words that do not start with m.
 - Word labels under tiles are kept (lowercase, the taught letter tinted, every "a" from the glyph); the tile's alt text is the word alone. The tiles themselves contain no text.
 - `moon` and `sun` come from the `oo-moon` and `u` folders because the m and s folders have no such tile; when a word exists in two folders (door, fork) the first folder in `index.json` is used.
 - The audit now fails any screen with an image that did not load, or whose alt text is not just a lowercase word.
+
+## Sliding across words, made solid (step 8, version 1.3.1)
+
+Geb's first phone test: "the sliding only seems to happen occasionally", and there was nothing to slide on a picture word such as map. Fixed and extended:
+
+- One shared component, `js/components/slide-blend.js`, now drives every slide. The slide surface is a transparent band as wide as the stage and at least 140 px tall, centred on the letters, with `touch-action: none`; the activity that holds it is locked (no scrolling, no panning) for these two tasks. The pointer is captured on pointerdown, a non-passive touchmove refuses panning, and only horizontal movement counts, so a finger that wobbles up or down by 40 px or more still works. A finger may start left of the word (it counts from zero), on it, above it or below it, or in the middle of it (everything to its left lights at once). A pointercancel or a lost capture does not end the slide; it waits 350 ms for the next move. Nothing drawn over the word takes pointer events. A move of under 8 px is a tap.
+- Saying Sounds, picture words (moon, map, mop): the picture stays as it was until it is tapped; then the word's letters appear as a row (glyphs for m, a, s; the font in ink for the other letters, same size and weight) with the same sweep as a demonstration until the first touch, and the row slides exactly like the letters words. Every letter lights in the lesson's colour.
+- Saying Words: once the merged tile is tapped, the revealed word is a slide surface. The picture starts dimmed (opacity .35, desaturated) and a full-colour copy is uncovered from left to right by a clip that follows the finger; the word's letters light in step; at the right end a sparkle and a lift, then everything dims again after 700 ms. Dragging back dims it again. The parent script has the new line "Then slide your finger across the picture as you say the whole word slowly."
+- `test/slide.mjs` runs ten slides per task at each of the three viewports (letters words in lessons 2 and 3, the three picture words, the revealed word in Saying Words for lessons 1 and 2) with five different starting points and a 40 px wobble; all ten must light monotonically to the end, sparkle, leave the stage unscrolled and never receive a pointercancel. It also checks the letter-by-letter lighting, dragging back, the wash, taps, Again, reduced motion and that dragging makes no sound or speech.
+
+### Decisions made during build: sliding across words (step 8)
+
+- This is the second change after 1.3.0 reached Geb's phone, so the version is 1.3.1 (`APP_VERSION` and `CACHE_VERSION` together), which makes installed copies update.
+- A tap on a slide surface is handled on pointerup and the click that follows is ignored once, so a tap reveals (or speaks the word again) exactly once however the browser orders its events.
+- The demonstration sweep over a picture word's revealed letters is the same highlight as on letters words. The row's letters are at most 96 px tall (64 px in landscape) and the Saying Words letters at most 56 px (40 px in landscape), so long words still fit.
+- Pointer cancel is treated as "wait and see" rather than "stop": on a real phone the browser sends one only when it has decided to take over the gesture, and with `touch-action: none` and the locked activity it should not; if it does, a slide that resumes within 350 ms carries on, otherwise it ends like a lift.
+- Buttons inside the stage (Next word) sit above the band so they stay tappable where the band overlaps them.
+- What could not be checked here: how the slide feels under a real finger on a real Android phone (the tests drive the browser's own touch pipeline, which honours `touch-action` but is not a finger).

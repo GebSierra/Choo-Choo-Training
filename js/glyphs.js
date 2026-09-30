@@ -53,12 +53,30 @@ export function glyphSvg(ch, opts = {}) {
   return svg;
 }
 
+// Letters without a glyph of ours are drawn from the font (Nunito 800) in the same svg, sized so the x-height matches
+// the glyphs: 87 units of font size gives an x-height of 42, the glyphs' own (baseline 80, top 38).
+const TEXT_SIZE = 87;
+let measurer = null;
+const advance = (ch) => {
+  try { measurer = measurer || document.createElement('canvas').getContext('2d'); measurer.font = `800 ${TEXT_SIZE}px Nunito, system-ui, sans-serif`; return Math.max(24, measurer.measureText(ch).width); } catch { return TEXT_SIZE * 0.6; }
+};
+
 // A row of letters as one <svg>; each letter is its own <g class="glyph-letter"> for sweeps and highlights.
+// Only m, a and s are drawn from our glyphs unless opts.all is set, when every other letter comes from the font.
 export function wordSvg(word, opts = {}) {
   let x = 0;
-  const letters = [...word].filter(hasGlyph);
+  const letters = [...word].filter((c) => opts.all || hasGlyph(c));
   const groups = [];
   for (const ch of letters) {
+    if (!hasGlyph(ch)) {
+      const w = advance(ch);
+      const grp = h('g', { class: 'glyph-letter', transform: `translate(${x} 0)`, dataset: { letter: ch, x0: String(x), x1: String(x + w) } });
+      const pop = h('g', { class: 'glyph-pop' }, h('text', { class: 'glyph-text', x: w / 2, y: BASELINE, 'text-anchor': 'middle', fill: opts.color || 'currentColor' }, ch));
+      grp.append(h('ellipse', { class: 'glyph-halo', cx: w / 2, cy: 59, rx: w / 2 + 2, ry: 31 }), pop);
+      groups.push({ grp });
+      x += w + SPACING;
+      continue;
+    }
     const g = GLYPHS[ch];
     const grp = h('g', { class: 'glyph-letter', transform: `translate(${x - g.minX} 0)`, dataset: { letter: ch } });
     // A soft halo behind the letter and an inner group for the pop, so Saying Sounds can light a letter by

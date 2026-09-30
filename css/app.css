@@ -568,7 +568,14 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 @media (prefers-reduced-motion: reduce) { .sheep-wrap { transition: none; } }
 
 /* ---------- Saying Sounds: slide to blend ---------- */
-.glyph-row.slidable { touch-action: none; cursor: grab; -webkit-touch-callout: none; }
+.task-activity.lock { overflow: hidden; touch-action: none; }
+.glyph-row { pointer-events: none; }
+/* the slide surface: a transparent band over the word, the stage's full width, touch-action none so it never pans */
+.slide-band { position: absolute; left: 0; right: 0; z-index: 3; touch-action: none; cursor: grab; -webkit-touch-callout: none; }
+.glyph-text { font: 800 87px 'Nunito', system-ui, sans-serif; }
+.glyph-letter.lit .glyph-text { fill: var(--accent); }
+.glyph-text { transition: fill var(--t-fast); }
+.task-stage .btn { position: relative; z-index: 4; }
 .glyph-row .glyph { overflow: visible; }
 .glyph-letter { --accent: var(--ink); }
 .glyph-letter .stroke { transition: stroke var(--t-fast); }
@@ -611,3 +618,15 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .opt-pic .pic-frame { width: 88px; height: 88px; }
 .sack-card .pic-frame { width: 84%; height: 84%; border-radius: 10px; background: transparent; }
 @media (orientation: landscape) and (max-height: 520px) { .pic-frame.huge { width: 96px; height: 96px; } .opt-pic .pic-frame { width: 64px; height: 64px; } }
+
+/* ---------- Saying Words / Sounds: the revealed word is slid across ---------- */
+.words-task, .sounds-task { position: relative; }
+.wash { display: grid; margin-top: 10px; }
+.wash > .emoji { grid-area: 1 / 1; }
+.emoji.stack.dim { opacity: .35; filter: saturate(.4); }
+.emoji.stack.bright { transition: clip-path 70ms linear; }
+.word-letters { display: block; width: 100%; }
+.word-letters svg { display: block; width: 100%; height: auto; margin: 0 auto; overflow: visible; }
+.merged-tile .blend-bar { width: 70%; height: 10px; }
+.merged-tile.revealed .emoji.stack { font-size: 84px; }
+@media (orientation: landscape) and (max-height: 520px) { .merged-tile { --cap: 40px; } .merged-tile.revealed .emoji.stack { font-size: 52px; } .sounds-stage { --cap: 64px; } .sounds-stage.revealed .pic-frame.huge { width: 80px; height: 80px; } .merged-tile .blend-bar { height: 8px; } }

@@ -10,7 +10,8 @@ import { richText } from '../letters.js';
 //   const shell = makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel, stepNoun });
 //   const current = build({ ...env, refresh: shell.refresh, setProgress: shell.setPos });
 //   return shell.mount(current, advance);
-// current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?}.
+// current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?, lockScroll?}.
+// lockScroll: the activity never scrolls and ignores pan gestures (tasks where a finger slides across the screen).
 export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step' }) {
   const { router, speech, store } = ctx;
   let current = null;
@@ -44,7 +45,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
         h('h1', {}, title),
         h('span', { class: 'head-spacer' }),
         bar);
-      const stage = h('main', { class: `task-stage c-${color}${light ? ' on-dark' : ''}` }, h('div', { class: 'task-activity' + (current.flush ? ' flush' : '') }, current.el), speaker);
+      const stage = h('main', { class: `task-stage c-${color}${light ? ' on-dark' : ''}` }, h('div', { class: 'task-activity' + (current.flush ? ' flush' : '') + (current.lockScroll ? ' lock' : '') }, current.el), speaker);
 
       const again = h('button', { class: 'btn again', type: 'button', onclick: () => { current.again(); refresh(); } }, icon('redo', 22), 'Again');
       const next = h('button', { class: 'btn next', type: 'button', disabled: true, onclick: () => { if (current.next && current.next()) { refresh(); return; } advance(); } }, isLast ? 'Finish' : 'Next', icon('arrowRight', 22));

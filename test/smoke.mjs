@@ -9,6 +9,7 @@ import { usedImages } from '../tools/precache-images.mjs';
 import { huntChecks, barnChecks, reducedChecks } from './games.mjs';
 import { blendChecks, blendReducedChecks } from './blend.mjs';
 import { sackChecks, sackMapChecks, sackGrownupsChecks } from './sack.mjs';
+import { lettersSlideChecks, pictureWordSlideChecks, wordsSlideChecks, slideReducedChecks } from './slide.mjs';
 
 const OUT = path.join(ROOT, '_test');
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
@@ -217,6 +218,14 @@ await reducedChecks({ browser, url, ok, CUR });
 // Saying Sounds, slide to blend: real touch drags across am (lesson 2) and sam (lesson 3).
 for (const vp of VIEWPORTS) for (const lessonNo of [2, 3]) await blendChecks({ browser, url, ok, vp, lessonNo, shot: shotTo(OUT) });
 await blendReducedChecks({ browser, url, ok });
+// Ten awkward slides per task (starting left of, on, above, below and in the middle of the word, with vertical drift) must all work:
+// letters, a picture word after its tap, and the revealed word in Saying Words with its picture wash.
+for (const vp of VIEWPORTS) {
+  for (const lessonNo of [2, 3]) await lettersSlideChecks({ browser, url, ok, vp, lessonNo });
+  await pictureWordSlideChecks({ browser, url, ok, vp, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `slide-picture-${vp.name}-${name}.png`) }) });
+  for (const lessonNo of [1, 2]) await wordsSlideChecks({ browser, url, ok, vp, lessonNo, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `slide-words-${vp.name}-L${lessonNo}-${name}.png`) }) });
+}
+await slideReducedChecks({ browser, url, ok });
 // The Sound Sack checkpoint: its stone on the map, the drag game by real touch, the finish screen, Grownups.
 for (const vp of VIEWPORTS) { await sackMapChecks({ browser, url, ok, vp }); await sackChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) }); }
 await sackGrownupsChecks({ browser, url, ok });
