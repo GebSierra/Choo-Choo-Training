@@ -74,3 +74,183 @@ h1, h2, h3, p { margin: 0; }
 .lab-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
 .lab-btn { min-height: 48px; padding: 0 16px; border-radius: 999px; border: 2px solid var(--violet); background: #fff; font-weight: 700; }
 .lab-log { background: #fff; padding: 12px; border-radius: 12px; font-size: 16px; white-space: pre-wrap; }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 56px; padding: 0 28px; border-radius: 999px; border: 0; cursor: pointer;
+  font-weight: 800; font-size: 20px; color: #fff; background: var(--violet);
+  box-shadow: 0 6px 0 rgba(30,33,64,.22), var(--shadow);
+  touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out);
+}
+.btn:active { transform: translateY(3px) scale(.97); box-shadow: 0 3px 0 rgba(30,33,64,.22), var(--shadow); }
+.btn.ghost { background: #fff; color: var(--ink); box-shadow: 0 4px 0 rgba(30,33,64,.12), var(--shadow); }
+.btn.big { min-height: 64px; font-size: 22px; padding: 0 40px; }
+.btn[disabled] { opacity: .5; }
+
+/* ---------- hold button ---------- */
+.hold-wrap { position: relative; display: inline-block; }
+.hold-btn {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px 0 8px;
+  border-radius: 999px; border: 0; background: #fff; color: var(--violet); font-weight: 800; font-size: 18px;
+  box-shadow: var(--shadow); touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  transition: transform var(--t-fast) var(--ease-out);
+}
+.hold-btn.holding { transform: scale(.97); }
+.hold-dial { position: relative; width: 32px; height: 32px; display: grid; place-items: center; }
+.hold-dial svg:first-child { position: absolute; inset: 0; }
+.hold-label { color: var(--ink); }
+.hold-hint {
+  position: absolute; left: 50%; top: calc(100% + 8px); transform: translate(-50%, -4px); white-space: nowrap; opacity: 0; pointer-events: none;
+  background: var(--ink); color: #fff; font-size: 16px; font-weight: 700; padding: 6px 12px; border-radius: 999px; z-index: 5;
+  transition: opacity var(--t-base), transform var(--t-base) var(--ease-out);
+}
+.hold-hint.show { opacity: 1; transform: translate(-50%, 0); }
+.hold-btn.big { min-height: 64px; padding: 0 28px 0 12px; font-size: 22px; background: var(--violet); color: #fff; box-shadow: 0 6px 0 rgba(30,33,64,.22), var(--shadow); }
+.hold-btn.big .hold-label { color: #fff; }
+.hold-btn.big .hold-dial { color: #fff; }
+
+/* ---------- home map ---------- */
+.home { position: fixed; inset: 0; overflow: hidden; background: var(--grass); }
+.scene { position: absolute; inset: 0; background:
+  radial-gradient(120% 60% at 30% 40%, rgba(0,0,0,.05), transparent 60%), var(--grass); overflow: hidden; }
+.scene-water { position: absolute; background: var(--water); border-radius: 50%; box-shadow: 0 0 0 14px rgba(255,255,255,.22); top: -14%; right: -34%; width: 82%; height: 34%; }
+.scene-bush { position: absolute; background: #4DA3FF; border-radius: 50%; }
+.scene-bush.b1 { right: -16%; bottom: -8%; width: 56%; height: 22%; }
+.scene-bush.b2 { right: 14%; bottom: -12%; width: 40%; height: 18%; background: #3B86F0; }
+.scene-house { position: absolute; left: -6%; bottom: -2%; width: 60%; height: auto; }
+.scene-tree { position: absolute; }
+.scene-tree.mushroom { left: 6%; top: 14%; width: 22%; max-width: 92px; }
+.scene-tree.drop { left: 8%; top: 56%; width: 12%; max-width: 50px; opacity: .95; }
+.scene-patch { position: absolute; border-radius: 50%; background: rgba(0,110,70,.11); }
+.scene-patch.p1 { left: -20%; top: 30%; width: 70%; height: 22%; }
+.scene-patch.p2 { right: -18%; top: 44%; width: 60%; height: 18%; }
+.scene-patch.p3 { left: 20%; top: 84%; width: 70%; height: 20%; background: rgba(0,110,70,.09); }
+.daisy { position: absolute; width: 18px; height: 18px; opacity: .9; }
+.map-path { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-path.landscape { display: none; }
+.map-path path { stroke-linecap: round; stroke-linejoin: round; }
+.path-line { stroke: #fff; stroke-width: 26px; }
+.path-shadow { stroke: rgba(0,80,60,.18); stroke-width: 34px; transform: translateY(5px); }
+.butterfly { position: absolute; width: 34px; height: 26px; opacity: .65; }
+.butterfly.b-one { left: 62%; top: 80%; animation: drift1 26s ease-in-out infinite alternate; }
+.butterfly.b-two { left: 18%; top: 38%; width: 26px; animation: drift2 32s ease-in-out infinite alternate; }
+.butterfly .wing { transform-origin: 20px 15px; animation: flap 900ms ease-in-out infinite alternate; }
+@keyframes flap { from { transform: scaleX(1); } to { transform: scaleX(.55); } }
+@keyframes drift1 { 0% { transform: translate(0,0); } 50% { transform: translate(-50px,-26px); } 100% { transform: translate(24px,-70px); } }
+@keyframes drift2 { 0% { transform: translate(0,0); } 50% { transform: translate(40px,30px); } 100% { transform: translate(-16px,64px); } }
+
+.stone-wrap { position: absolute; left: var(--px); top: var(--py); width: 0; height: 0; }
+.stone {
+  --size: 92px; position: absolute; left: calc(var(--size) / -2); top: calc(var(--size) / -2);
+  width: var(--size); height: var(--size); border: 0; padding: 0; background: none; cursor: pointer;
+  touch-action: manipulation; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+  transition: transform var(--t-fast) var(--ease-out);
+}
+.stone:active { transform: scale(.97); }
+.stone-base { position: absolute; left: 0; right: 0; bottom: 0; height: 84%; border-radius: 50%; background: #E7E9FB; box-shadow: 0 8px 0 #BFC4EA, 0 14px 18px rgba(0,60,40,.25); }
+.stone-top { position: absolute; left: 6%; right: 6%; top: 0; height: 80%; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: inset 0 -5px 0 rgba(30,33,64,.08); }
+.stone-top .glyph { width: 62%; height: auto; }
+.stone-num { position: absolute; left: 4%; top: 4%; min-width: 26px; height: 26px; padding: 0 6px; display: grid; place-items: center; border-radius: 999px; background: var(--ink); color: #fff; font-weight: 800; font-size: 16px; }
+.stone-badge { position: absolute; right: -2px; top: -4px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; border: 3px solid #fff; }
+.stone-badge.done { background: var(--s); }
+.stone-badge.lock { background: #8E93B5; color: #fff; }
+.stone.is-done .tick { stroke-dasharray: 26; stroke-dashoffset: 0; animation: draw-tick var(--t-base) var(--ease-out) 500ms backwards; }
+@keyframes draw-tick { from { stroke-dashoffset: 26; } }
+.stone.is-locked .stone-top { background: #D5D9F0; }
+.stone.is-locked .stone-base { background: #C9CDE8; box-shadow: 0 8px 0 #A9AED6, 0 14px 18px rgba(0,60,40,.2); }
+.stone.is-locked .glyph { opacity: .28; }
+.stone.is-current { --size: 112px; }
+.stone-ring { position: absolute; left: 4%; right: 4%; top: -2%; height: 84%; border-radius: 50%; border: 5px solid var(--accent); opacity: 0; animation: breathe 2.2s ease-out infinite; pointer-events: none; }
+@keyframes breathe { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.12); opacity: 0; } }
+.bubble {
+  position: absolute; left: 0; bottom: 78px; transform: translateX(-50%); white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 16px 0 12px; border: 0; border-radius: 999px;
+  background: #fff; color: var(--ink); font-weight: 800; font-size: 17px; box-shadow: var(--shadow); touch-action: manipulation; z-index: 3;
+}
+.bubble::after { content: ''; position: absolute; left: 50%; bottom: -7px; width: 16px; height: 16px; background: #fff; transform: translateX(-50%) rotate(45deg); border-radius: 3px; }
+.bubble .icon { color: var(--violet); }
+.home-top { position: absolute; left: calc(16px + var(--sal)); top: calc(16px + var(--sat)); z-index: 10; }
+.pill-hold .hold-label { color: var(--violet); }
+.first-run { position: absolute; inset: 0; z-index: 20; background: rgba(30,33,64,.45); display: grid; place-items: center; padding: 24px; }
+.first-card { background: #fff; border-radius: var(--radius); padding: 28px 24px; max-width: 380px; text-align: center; box-shadow: var(--shadow); display: grid; gap: 18px; justify-items: center; }
+.first-card p { font-size: 20px; font-weight: 700; }
+.adult-ic { width: 52px; height: 52px; border-radius: 50%; background: var(--lilac); color: var(--violet); display: grid; place-items: center; }
+@media (orientation: landscape) {
+  .map-path.portrait { display: none; }
+  .map-path.landscape { display: block; }
+  .stone-wrap { left: var(--lx); top: var(--ly); }
+  .stone { --size: 76px; } .stone.is-current { --size: 92px; }
+  .bubble { bottom: 66px; }
+  .scene-water { top: -30%; right: -10%; width: 38%; height: 70%; }
+  .scene-house { width: 24%; left: -5%; bottom: -4%; }
+  .scene-tree.mushroom { left: 40%; top: 4%; width: 9%; }
+  .scene-tree.drop { left: 60%; top: 60%; width: 5%; }
+  .scene-bush.b1 { right: -6%; bottom: -16%; width: 28%; height: 34%; }
+  .scene-bush.b2 { right: 18%; bottom: -24%; width: 22%; height: 32%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .butterfly { animation: none; } .stone-ring { animation: none; opacity: .4; }
+}
+
+/* ---------- lesson overview ---------- */
+.icon-btn { width: 52px; height: 52px; border-radius: 50%; border: 0; background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; transition: transform var(--t-fast) var(--ease-out), background var(--t-fast); }
+.icon-btn:active { transform: scale(.94); background: rgba(30,33,64,.08); }
+.lesson-overview { min-height: 100dvh; display: flex; flex-direction: column; background: #fff; padding-left: var(--sal); padding-right: var(--sar); }
+.lo-head { display: grid; grid-template-columns: 52px 1fr 56px; align-items: center; gap: 8px; padding: calc(12px + var(--sat)) 16px 8px; }
+.lo-title { text-align: center; }
+.lo-title h1 { font-size: 30px; font-weight: 800; }
+.lo-title p { color: var(--muted); font-size: 17px; margin-top: 2px; }
+.cards-scroll { flex: 1; display: flex; align-items: center; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 16px 0 24px; }
+.cards-scroll::-webkit-scrollbar { display: none; }
+.cards { display: flex; gap: 14px; padding: 0 20px; }
+.task-card {
+  --bg: var(--sky); --fg: var(--ink);
+  position: relative; flex: 0 0 auto; width: min(64vw, 250px); height: min(64vh, 520px); min-height: 340px; border: 0; padding: 0; border-radius: 28px;
+  background: var(--bg); color: var(--fg); text-align: left; overflow: hidden; scroll-snap-align: center; cursor: pointer;
+  display: flex; flex-direction: column; justify-content: flex-end; box-shadow: 0 8px 0 rgba(30,33,64,.10), var(--shadow);
+  touch-action: manipulation; transition: transform var(--t-fast) var(--ease-out);
+}
+.task-card:active { transform: scale(.97); }
+.task-card:not(.dark-ink) { --fg: #fff; }
+.c-sky { --bg: var(--sky); } .c-violet { --bg: var(--violet); } .c-coral { --bg: var(--coral); } .c-sun { --bg: var(--sun); }
+.c-mint { --bg: var(--mint); } .c-lilac { --bg: var(--lilac); } .c-blue { --bg: var(--blue); }
+.card-num { position: absolute; left: 18px; top: 4px; font-size: 120px; line-height: 1; font-weight: 800; color: rgba(255,255,255,.32); }
+.dark-ink .card-num { color: rgba(255,255,255,.5); }
+.card-tick { position: absolute; right: 14px; top: 14px; width: 38px; height: 38px; border-radius: 50%; background: var(--s); display: grid; place-items: center; border: 3px solid #fff; }
+.is-done .tick { stroke-dasharray: 26; animation: draw-tick var(--t-base) var(--ease-out) 300ms backwards; }
+.card-art { position: absolute; left: 0; right: 0; top: 96px; height: 40%; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.card-art .flash { width: 84px; height: 100px; background: #fff; border-radius: 14px; display: grid; place-items: center; transform: rotate(var(--r)); box-shadow: var(--shadow); }
+.card-art .flash .glyph { width: 70%; }
+.big-glyph .glyph { width: 130px; height: auto; }
+.big-glyph.ghost { color: rgba(30,33,64,.35); } .big-glyph.ghost .stroke { stroke-dasharray: 3 14; }
+.pencil { font-size: 40px; margin-left: -18px; margin-top: 50px; }
+.play { width: 84px; height: 84px; border-radius: 50%; background: #fff; color: var(--coral); display: grid; place-items: center; box-shadow: var(--shadow); }
+.play .icon { fill: currentColor; margin-left: 4px; }
+.emo { font-size: 52px; line-height: 1; } .plus { font-size: 34px; font-weight: 800; opacity: .7; }
+.wave { display: flex; gap: 8px; align-items: center; height: 80px; }
+.wave i { width: 12px; border-radius: 6px; background: rgba(30,33,64,.75); }
+.wave i:nth-child(1) { height: 30px; } .wave i:nth-child(2) { height: 56px; } .wave i:nth-child(3) { height: 80px; } .wave i:nth-child(4) { height: 48px; } .wave i:nth-child(5) { height: 24px; }
+.qmark { font-size: 100px; font-weight: 800; color: #fff; line-height: 1; }
+.card-body { position: relative; display: grid; gap: 4px; padding: 18px 18px 20px; background: linear-gradient(to top, rgba(0,0,0,.10), transparent); }
+.card-name { font-size: 24px; font-weight: 800; line-height: 1.15; }
+.card-label { font-size: 16px; font-weight: 700; opacity: .85; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.chip { display: inline-flex; align-items: center; min-height: 34px; padding: 0 14px; border-radius: 12px; background: #fff; color: var(--ink); font-weight: 800; font-size: 17px; }
+.chip-glyph { padding: 0 12px; } .chip-glyph .glyph { height: 20px; width: auto; }
+.lo-foot { padding: 8px 20px calc(20px + var(--sab)); display: grid; }
+.start-btn { width: 100%; max-width: 520px; margin: 0 auto; }
+@media (orientation: landscape) {
+  .lo-head { padding-bottom: 0; }
+  .cards-scroll { align-items: flex-start; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
+  .task-card { width: auto; height: 132px; min-height: 0; flex-direction: row; align-items: center; justify-content: flex-start; }
+  .card-num { font-size: 84px; left: 10px; top: -6px; }
+  .card-art { position: absolute; left: auto; right: 6px; top: 12px; width: 40%; height: 70px; transform: scale(.62); transform-origin: right top; }
+  .card-body { padding: 8px 12px 10px; position: absolute; left: 0; right: 0; bottom: 0; }
+  .card-name { font-size: 19px; } .card-label { display: none; }
+  .chips { margin-top: 2px; } .chip { min-height: 30px; font-size: 16px; padding: 0 10px; }
+  .lo-foot { padding-top: 4px; }
+  .lo-foot .btn { min-height: 56px; }
+}

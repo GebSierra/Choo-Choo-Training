@@ -36,7 +36,7 @@ export function createRouter(root, routes, ctx) {
     if (prev) {
       prev.el.classList.add('leaving');
       prev.el.setAttribute('inert', '');
-      animate(prev.el, [{ opacity: 1, transform: 'translateX(0)' }, { opacity: 0, transform: `translateX(${-12 * dir}px)` }], { duration: 200 }).finished.then(() => prev.el.remove());
+      animate(prev.el, [{ opacity: 1, transform: 'translateX(0)' }, { opacity: 0, transform: `translateX(${-12 * dir}px)` }], { duration: 200, fill: 'forwards' }).finished.then(() => prev.el.remove());
       if (prev.cleanup) prev.cleanup();
     }
     root.append(next);
