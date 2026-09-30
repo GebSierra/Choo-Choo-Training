@@ -295,6 +295,43 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   ok(!/record\.html|getUserMedia/.test(appSrc), 'the app never links the recorder or requests the microphone');
 }
 
+// PWA (step 11): manifest is valid, sw precache list is complete, offline reload renders Home.
+{
+  const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8'));
+  ok(man.display === 'standalone' && man.orientation === 'portrait-primary' && man.scope === './' && man.start_url === './index.html#/home' && man.name === 'Reading', 'manifest fields');
+  ok(man.icons.some((i) => i.purpose === 'maskable') && man.icons.every((i) => fs.existsSync(path.join(ROOT, i.src))), 'manifest icons exist, including maskable');
+  const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+  const listed = new Set([...sw.matchAll(/'((?:js|css|data|icons|assets)\/[^']+)'/g)].map((m) => m[1]));
+  const walk = (d) => fs.readdirSync(path.join(ROOT, d), { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+  const need = [...walk('js'), 'css/app.css', 'data/curriculum.json'];
+  const missingFromSw = need.filter((f) => !listed.has(f));
+  ok(missingFromSw.length === 0, 'sw precache lists every js/css/data file; missing: ' + missingFromSw.join(', '));
+  ok(![...listed].some((f) => f.includes('/ipa/') || f.endsWith('.png') && f.includes('mentava/') && !f.includes('/web/')), 'sw does not precache ipa recordings or the PNG originals');
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0], { serviceWorkers: 'allow' });
+  await page.addInitScript(SEED({}));
+  const swErrors = [];
+  page.on('console', (m) => { if (/manifest|service ?worker/i.test(m.text()) && m.type() !== 'log') swErrors.push(m.text()); });
+  await page.goto(url + 'index.html#/home');
+  await page.waitForSelector('.stone');
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+  await page.reload();
+  await page.waitForFunction(() => navigator.serviceWorker.controller);
+  ok(true, 'service worker registered and controlling');
+  await ctx.setOffline(true);
+  await page.reload();
+  await page.waitForSelector('.stone', { timeout: 8000 });
+  ok((await page.locator('.stone').count()) === 3, 'offline reload renders Home');
+  await page.goto(url + 'index.html#/lesson/1/task/0');
+  await page.reload();
+  await page.waitForSelector('.task-screen', { timeout: 8000 });
+  ok(true, 'offline task renders');
+  const fontOk = await page.evaluate(() => document.fonts.load('800 20px Nunito').then((f) => f.length > 0));
+  ok(fontOk, 'font renders offline');
+  await ctx.setOffline(false);
+  ok(swErrors.length === 0 && errors.length === 0, 'pwa warnings/errors ' + swErrors.concat(errors).join(' | '));
+  await ctx.close();
+}
+
 // Speech queue (step 5): order, missing clip skipped, isolated sounds refused, gesture required.
 {
   const vp = VIEWPORTS[0];

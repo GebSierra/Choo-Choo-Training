@@ -37,5 +37,6 @@ async function boot() {
   ];
   ctx.router = createRouter(root, routes, ctx);
   await ctx.router.start();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 boot();

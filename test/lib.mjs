@@ -46,7 +46,7 @@ export const VIEWPORTS = [
 ];
 
 export async function newPage(browser, vp, extra = {}) {
-  const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: vp.deviceScaleFactor, hasTouch: true, isMobile: true, ...extra });
+  const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: vp.deviceScaleFactor, hasTouch: true, isMobile: true, serviceWorkers: 'block', ...extra });
   const page = await ctx.newPage();
   const errors = [];
   // A missing recorded clip is expected until Geb records it; the browser logs its 404 itself.
