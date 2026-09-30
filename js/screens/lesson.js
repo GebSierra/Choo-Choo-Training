@@ -1,5 +1,6 @@
 import { h, animate, icon } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
+import { holdButton } from '../components/hold-button.js';
 import { speakButton } from '../components/speak-button.js';
 import { tasksFor, lessonByNumber, targetsFor } from '../lessons.js';
 
@@ -55,7 +56,14 @@ export function lessonScreen({ store, router, curriculum, speech }, n) {
     router.go(`/lesson/${lesson.number}/task/${nextIndex === -1 ? 0 : tasks[nextIndex].index}`);
   } }, startLabel, icon('arrowRight', 24));
 
-  const root = h('div', { class: 'lesson-overview' }, header, h('div', { class: 'cards-scroll' }, h('div', { class: 'cards' }, cards)), h('footer', { class: 'lo-foot' }, start));
+  // Optional alphabet song: not one of the tasks, so it never counts toward progress.
+  const openSong = () => { const w = window.open(curriculum.alphabetSongUrl, '_blank'); if (w) w.opener = null; };
+  const song = h('section', { class: 'song-row', 'aria-label': 'Alphabet song' },
+    h('span', { class: 'song-thumb' }, icon('play', 26)),
+    h('div', { class: 'song-text' }, h('strong', {}, 'Alphabet song'), h('p', { class: 'parent-note' }, 'Optional: play the alphabet song together, then start the lesson.')),
+    holdButton({ label: 'Play', hint: 'Press and hold', className: 'song-hold', leading: icon('external', 16), onComplete: openSong }));
+
+  const root = h('div', { class: 'lesson-overview' }, header, song, h('div', { class: 'cards-scroll' }, h('div', { class: 'cards' }, cards)), h('footer', { class: 'lo-foot' }, start));
   cards.forEach((c, i) => animate(c, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 140 + i * 40 }));
   return root;
 }

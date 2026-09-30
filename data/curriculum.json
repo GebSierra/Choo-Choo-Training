@@ -1,6 +1,7 @@
 {
   "version": 2,
   "playlistUrl": "https://m.youtube.com/playlist?list=PL2hNdtrsO2hIINInfmEb55IpwTw0IrQZW",
+  "alphabetSongUrl": "https://youtu.be/qKQAQc2NEuk",
   "sounds": {
     "m": {
       "glyph": "m",
@@ -9,7 +10,7 @@
       "doNotSay": "muh",
       "howTo": "Press your lips together and hum. Hold it: mmm.",
       "asIn": null,
-      "clip": "assets/audio/sounds/m.webm",
+      "clip": "assets/audio/sounds/m.mp3",
       "words": [
         {
           "word": "moon",
@@ -45,7 +46,7 @@
       "doNotSay": null,
       "howTo": "Say a as in apple. Open your mouth wide.",
       "asIn": "apple",
-      "clip": "assets/audio/sounds/a.webm",
+      "clip": "assets/audio/sounds/a.mp3",
       "words": [
         {
           "word": "apple",
@@ -86,7 +87,7 @@
       "doNotSay": "suh",
       "howTo": "Teeth close together, push air out like a snake. Hold it: sss.",
       "asIn": null,
-      "clip": "assets/audio/sounds/s.webm",
+      "clip": "assets/audio/sounds/s.mp3",
       "words": [
         {
           "word": "sun",

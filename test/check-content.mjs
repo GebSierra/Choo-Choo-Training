@@ -37,9 +37,11 @@ export function checkCurriculum(c, root = ROOT) {
     });
   };
 
+  for (const k of ['playlistUrl', 'alphabetSongUrl']) if (!/^https:\/\//.test(c[k] || '')) err(`${k} must be an https URL`);
   const sounds = c.sounds || {};
   for (const [k, s] of Object.entries(sounds)) {
     if (!s.clip) err(`sounds.${k}.clip missing`);
+    else if (!/\.(mp3|webm)$/.test(s.clip)) err(`sounds.${k}.clip must be .mp3 (a .webm next to it is tried second)`);
     if (s.glyph !== s.glyph.toLowerCase()) err(`sounds.${k}.glyph not lowercase`);
     if (s.sayItLike !== s.sayItLike.toLowerCase()) err(`sounds.${k}.sayItLike not lowercase`);
     (s.words || []).forEach((w, i) => {

@@ -207,7 +207,7 @@ h1, h2, h3, p { margin: 0; }
 .cards { display: flex; gap: 14px; padding: 0 20px; }
 .task-card {
   --bg: var(--sky); --fg: var(--ink);
-  position: relative; flex: 0 0 auto; width: min(64vw, 250px); height: min(64vh, 520px); min-height: 340px; border: 0; padding: 0; border-radius: 28px;
+  position: relative; flex: 0 0 auto; width: min(64vw, 250px); height: min(56vh, 480px); min-height: 320px; border: 0; padding: 0; border-radius: 28px;
   background: var(--bg); color: var(--fg); text-align: left; overflow: hidden; scroll-snap-align: center; cursor: pointer;
   display: flex; flex-direction: column; justify-content: flex-end; box-shadow: 0 8px 0 rgba(30,33,64,.10), var(--shadow);
   touch-action: manipulation; transition: transform var(--t-fast) var(--ease-out);
@@ -432,3 +432,14 @@ body.night { background: var(--night); }
   .finish { flex-direction: row; flex-wrap: wrap; gap: 14px 28px; }
   .finish-glyph { width: 120px; height: 120px; }
 }
+
+/* alphabet song row (optional video item above the task cards) */
+.song-row { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; margin: 4px 16px 0; padding: 10px 12px; border-radius: 20px; background: #F1EEFF; color: var(--ink); }
+.song-thumb { width: 56px; height: 56px; border-radius: 16px; background: var(--lilac); color: var(--violet); display: grid; place-items: center; opacity: .85; }
+.song-thumb .icon { fill: currentColor; }
+.song-text strong { font-size: 18px; font-weight: 800; }
+.parent-note { font-size: 16px; color: var(--muted); line-height: 1.25; }
+.song-hold .hold-label { color: var(--violet); }
+.song-hold.hold-btn { min-height: 48px; padding: 0 16px 0 6px; box-shadow: 0 2px 8px rgba(30,33,64,.15); }
+@media (max-width: 420px) { .song-row { grid-template-columns: 56px 1fr; } .song-row .hold-wrap { grid-column: 1 / -1; justify-self: end; } }
+@media (orientation: landscape) { .song-row { margin-top: 0; padding: 6px 12px; } }

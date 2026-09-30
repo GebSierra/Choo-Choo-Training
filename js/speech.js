@@ -53,9 +53,14 @@ export function createSpeech({ store, curriculum }) {
     setTimeout(loadVoices, 800); // second try for browsers that never fire voiceschanged
   }
 
-  const clipUrl = (key) => curriculum.sounds[key] && curriculum.sounds[key].clip;
+  // A clip is declared as one path (mp3). If a webm recorded with tools/record.html sits next to it, that is tried second.
+  const clipUrls = (key) => {
+    const c = curriculum.sounds[key] && curriculum.sounds[key].clip;
+    if (!c) return [];
+    return /\.mp3$/.test(c) ? [c, c.replace(/\.mp3$/, '.webm')] : [c];
+  };
 
-  function playAudio(url, key, run) {
+  function playAudio(url, key, run, quiet) {
     return new Promise((resolve) => {
       let settled = false;
       const audio = new Audio();
@@ -63,8 +68,9 @@ export function createSpeech({ store, curriculum }) {
         if (settled) return; settled = true;
         clearTimeout(startTimer); clearTimeout(maxTimer);
         active = null;
-        if (key) { clipStatus[key] = ok; if (ok) missing.delete(key); else { missing.add(key); emit(); } }
-        resolve();
+        if (key && ok) { clipStatus[key] = true; if (missing.delete(key)) emit(); }
+        if (key && !ok && !quiet) { missing.add(key); emit(); }
+        resolve(ok);
       };
       const startTimer = setTimeout(() => { audio.pause(); finish(false); }, START_TIMEOUT + 1500);
       const maxTimer = setTimeout(() => { audio.pause(); finish(true); }, 8000);
@@ -115,8 +121,10 @@ export function createSpeech({ store, curriculum }) {
           if (isIsolatedSound(part.tts)) { console.warn('speech: refused to speak an isolated sound with text to speech:', part.tts); continue; }
           await speakText(part.tts, run);
         } else if (part.clip !== undefined) {
-          const url = clipUrl(part.clip);
-          if (url) await playAudio(url, part.clip, run); // missing file: skipped, never replaced by text to speech
+          // Try each candidate file; if none plays, skip the part. Never replaced by text to speech.
+          let played = false;
+          for (const url of clipUrls(part.clip)) { if (run !== runId) return; if (await playAudio(url, part.clip, run, true)) { played = true; break; } }
+          if (!played && clipUrls(part.clip).length) { missing.add(part.clip); clipStatus[part.clip] = false; emit(); }
         } else if (part.src !== undefined) {
           await playAudio(part.src, null, run);
         } else if (part.pause !== undefined) {
@@ -139,8 +147,11 @@ export function createSpeech({ store, curriculum }) {
   async function checkClips() {
     for (const key of Object.keys(curriculum.sounds)) {
       try {
-        const r = await fetch(curriculum.sounds[key].clip, { method: 'HEAD', cache: 'no-store' });
-        clipStatus[key] = r.ok && /audio|video|octet/i.test(r.headers.get('content-type') || 'audio');
+        clipStatus[key] = false;
+        for (const url of clipUrls(key)) {
+          const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+          if (r.ok && /audio|video|octet/i.test(r.headers.get('content-type') || 'audio')) { clipStatus[key] = url; break; }
+        }
       } catch { clipStatus[key] = false; }
       if (clipStatus[key]) missing.delete(key); else missing.add(key);
     }

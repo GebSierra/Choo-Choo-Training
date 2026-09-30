@@ -151,17 +151,28 @@ for (const vp of VIEWPORTS) {
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
   await page.addInitScript(SPEECH_STUB);
   await page.addInitScript(SEED({}));
-  await ctx.route('**/youtube.com/**', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>video</title>' }));
+  await ctx.route(/youtu(\.be|be\.com)/, (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>video</title>' }));
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone.is-current');
   await page.locator('.stone.is-current').click();
   await page.waitForSelector('.lesson-overview');
+  // Optional alphabet song: behind the same hold gate, opens a popup, is not a task.
+  ok((await page.locator('.song-row').count()) === 1 && (await page.locator('.task-card').count()) === 6, 'alphabet song row exists and is not a task card');
+  await page.locator('.song-hold').scrollIntoViewIfNeeded();
+  const sb = await page.locator('.song-hold').boundingBox();
+  const [songPopup] = await Promise.all([
+    page.waitForEvent('popup', { timeout: 4000 }),
+    (async () => { await page.mouse.move(sb.x + sb.width / 2, sb.y + sb.height / 2); await page.mouse.down(); await page.waitForTimeout(1700); await page.mouse.up(); })(),
+  ]);
+  await songPopup.waitForLoadState('domcontentloaded');
+  ok(/qKQAQc2NEuk/.test(songPopup.url()), 'alphabet song opens its video: ' + songPopup.url());
+  await songPopup.close();
   await page.click('.start-btn');
   await page.waitForSelector('.task-screen');
   await page.waitForTimeout(800);
   let spoken = await page.evaluate(() => window.__spoken);
   ok(spoken.includes('Today we learn a new sound:'), 'entry speech for New Letter: ' + JSON.stringify(spoken));
-  ok(await page.evaluate(() => window.__events.some((e) => e.type === 'clip' && e.src === 'm.webm')), 'entry speech plays the m clip');
+  ok(await page.evaluate(() => window.__events.some((e) => e.type === 'clip' && e.src === 'm.mp3')), 'entry speech plays the m clip');
   // Next to the Sound Story and open the playlist with a hold.
   await page.click('.btn.next');
   await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Sound Story');
@@ -206,7 +217,7 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   const vp = VIEWPORTS[0];
   const { ctx, page, errors } = await newPage(browser, vp);
   await page.addInitScript(SPEECH_STUB);
-  await page.route('**/assets/audio/sounds/m.webm', (r) => r.fulfill({ status: 200, contentType: 'audio/wav', body: silentWav() }));
+  await page.route('**/assets/audio/sounds/m.mp3', (r) => r.fulfill({ status: 200, contentType: 'audio/wav', body: silentWav() }));
   await page.goto(url + '#/lab');
   await page.waitForSelector('#lab-log');
   // No gesture yet: nothing is spoken.
@@ -219,7 +230,7 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   await page.click('text=mixed');
   await page.waitForFunction(() => document.getElementById('lab-log').textContent.includes('done mixed'));
   let ev = await page.evaluate(() => window.__events.map((e) => e.type === 'tts' ? 'tts:' + e.text : 'clip:' + e.src));
-  ok(JSON.stringify(ev) === JSON.stringify(['tts:Today we learn a new sound:', 'clip:m.webm', 'tts:moon']), 'speech: mixed sequence in order ' + JSON.stringify(ev));
+  ok(JSON.stringify(ev) === JSON.stringify(['tts:Today we learn a new sound:', 'clip:m.mp3', 'tts:moon']), 'speech: mixed sequence in order ' + JSON.stringify(ev));
   await page.evaluate(() => { window.__events.length = 0; });
   await page.click('text=missing clip');
   await page.waitForFunction(() => document.getElementById('lab-log').textContent.includes('done missing clip'));
@@ -234,6 +245,12 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   ok(ev2 && ev2.voice === 'g-us' && ev2.lang === 'en-US', 'speech: picked the Google en-US voice ' + JSON.stringify(ev2));
   ok(errors.length === 0, 'lab: console errors ' + errors.join(' | '));
   await ctx.close();
+}
+
+// Clip files: informational until they are installed (the app skips a missing clip by design).
+for (const k of ['m', 'a', 's']) {
+  const have = ['mp3', 'webm'].some((e) => fs.existsSync(path.join(ROOT, `assets/audio/sounds/${k}.${e}`)));
+  if (!have) console.warn(`note: assets/audio/sounds/${k}.mp3 (or .webm) is not installed yet; the app skips it`);
 }
 
 await browser.close();
