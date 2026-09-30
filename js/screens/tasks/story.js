@@ -11,7 +11,7 @@ export function build({ lesson, sound, curriculum, speech }) {
   const el = h('div', { class: 'story' },
     h('div', { class: 'story-art' }, h('span', { class: 'play' }, icon('play', 52))),
     h('h2', {}, 'Time for the sound story.'),
-    holdButton({ label: 'Open playlist', hint: 'Press and hold', className: 'big', leading: icon('external', 16), onComplete: open }));
+    holdButton({ label: 'Open playlist', caption: 'Hold to open', hint: 'Press and hold', className: 'big', leading: icon('external', 16), onComplete: open }));
   const parts = [{ tts: 'Time for the sound story.' }];
   return {
     el,

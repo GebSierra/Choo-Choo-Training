@@ -18,9 +18,14 @@ export function createStore() {
       const raw = localStorage.getItem(KEY);
       if (!raw) return fresh();
       const p = JSON.parse(raw);
-      if (!p || p.schema !== 1 || typeof p.lessons !== 'object') return fresh();
+      if (!p || p.schema !== 1 || !p.lessons || typeof p.lessons !== 'object' || Array.isArray(p.lessons)) return fresh();
       const f = fresh();
-      return { ...f, ...p, settings: { ...f.settings, ...(p.settings || {}) } };
+      const lessons = {};
+      for (const [n, l] of Object.entries(p.lessons)) {
+        if (l && typeof l === 'object' && !Array.isArray(l)) lessons[n] = { ...l, tasksDone: Array.isArray(l.tasksDone) ? l.tasksDone.filter(Number.isInteger) : [] };
+      }
+      const settings = p.settings && typeof p.settings === 'object' && !Array.isArray(p.settings) ? p.settings : {};
+      return { ...f, ...p, lessons, settings: { ...f.settings, ...settings } };
     } catch { return fresh(); }
   }
   function save() {

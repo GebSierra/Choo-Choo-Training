@@ -12,19 +12,28 @@ export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA 
 // Parent area. Reached only through the hold gate on Home (ctx.gate), and expires after ten minutes.
 export function grownupsScreen(ctx) {
   const { store, router, curriculum, speech } = ctx;
-  if (!ctx.gate || Date.now() - ctx.gate.openedAt > 10 * 60 * 1000) { queueMicrotask(() => router.go('/home')); return h('div'); }
+  if (!ctx.gate || Date.now() - ctx.gate.openedAt > 10 * 60 * 1000) { queueMicrotask(() => router.replace('/home')); return h('div'); }
+  ctx.gate = null; // one visit per hold: Back then history.back() cannot re-enter
 
   // ---- lessons ----
   const lessonsBox = h('div', { class: 'gu-list' });
+  let unlocking = null; // lesson number waiting for the confirm tap
   const paintLessons = () => {
     lessonsBox.replaceChildren(...curriculum.lessons.map((l) => {
+      if (unlocking === l.number) {
+        return h('div', { class: 'gu-confirm', role: 'alertdialog', 'aria-label': 'Confirm unlock' },
+          h('p', {}, `Unlock lesson ${l.number} without finishing the one before it?`),
+          h('div', { class: 'gu-actions' },
+            h('button', { class: 'btn ghost small', type: 'button', onclick: () => { unlocking = null; paintLessons(); } }, 'Cancel'),
+            h('button', { class: 'btn small', type: 'button', onclick: () => { store.unlock(l.number); unlocking = null; paintLessons(); } }, 'Unlock')));
+      }
       const st = store.lesson(l.number);
       const unlocked = store.isUnlocked(l.number);
       const status = st.result === 'got-it' ? `Got it${st.completedAt ? ' on ' + fmt(st.completedAt) : ''}` : st.result === 'practice-again' ? `Practice again${st.completedAt ? ' (' + fmt(st.completedAt) + ')' : ''}` : (unlocked ? 'Open, not finished' : 'Locked');
       return h('div', { class: 'gu-row' },
         h('span', { class: 'gu-glyph' }, glyphSvg(l.sound, { color: accentOf(l.sound), label: 'lesson ' + l.number })),
         h('div', { class: 'gu-row-text' }, h('strong', {}, `Lesson ${l.number}`), h('span', { class: 'gu-sub' }, status)),
-        unlocked ? h('span', { class: 'gu-open' }, st.result === 'got-it' ? icon('check', 20) : '') : h('button', { class: 'btn ghost small', type: 'button', onclick: () => { store.unlock(l.number); paintLessons(); } }, 'Unlock'));
+        unlocked ? h('span', { class: 'gu-open' }, st.result === 'got-it' ? icon('check', 20) : '') : h('button', { class: 'btn ghost small', type: 'button', onclick: () => { unlocking = l.number; paintLessons(); } }, 'Unlock'));
     }));
   };
   paintLessons();

@@ -3,16 +3,17 @@ import { h, icon } from '../dom.js';
 // The hold is a safety gate, not decoration: it keeps its full length even under reduced motion.
 const run = (el, keyframes, opts) => el.animate(keyframes, { fill: 'backwards', ...opts });
 
-const HOLD_MS = 1500;
+const HOLD_MS = 2000;
 const C = 2 * Math.PI * 13; // ring circumference
 
-// Press and hold for 1.5 s. The ring fills linearly; releasing early rewinds it.
-export function holdButton({ label, hint = 'Press and hold', onComplete, className = '', leading, holdMs = HOLD_MS }) {
+// Press and hold for 2 s. The ring fills linearly; releasing early rewinds it.
+// caption: a permanent small line under the label (null for none).
+export function holdButton({ label, caption = 'Hold', hint = 'Press and hold', onComplete, className = '', leading, holdMs = HOLD_MS }) {
   const ring = h('circle', { cx: 16, cy: 16, r: 13, fill: 'none', stroke: 'currentColor', 'stroke-width': 3, 'stroke-linecap': 'round', class: 'hold-ring', 'stroke-dasharray': C, 'stroke-dashoffset': C, transform: 'rotate(-90 16 16)' });
   const track = h('circle', { cx: 16, cy: 16, r: 13, fill: 'none', stroke: 'currentColor', 'stroke-width': 3, opacity: 0.22 });
   const dial = h('span', { class: 'hold-dial' }, h('svg', { viewBox: '0 0 32 32', width: 32, height: 32, 'aria-hidden': 'true' }, track, ring), leading || icon('slider', 16));
   const hintEl = h('span', { class: 'hold-hint', 'aria-live': 'polite' });
-  const btn = h('button', { class: 'hold-btn ' + className, type: 'button', 'aria-label': `${label}. ${hint}.` }, dial, h('span', { class: 'hold-label' }, label));
+  const btn = h('button', { class: 'hold-btn ' + className, type: 'button', 'aria-label': `${label}. ${hint}.` }, dial, h('span', { class: 'hold-text' }, h('span', { class: 'hold-label' }, label), caption ? h('span', { class: 'hold-cap' }, caption) : null));
   const wrap = h('span', { class: 'hold-wrap' }, btn, hintEl);
 
   let anim = null, holding = false, done = false, hintTimer = 0;
@@ -29,8 +30,9 @@ export function holdButton({ label, hint = 'Press and hold', onComplete, classNa
       done = true;
       if (navigator.vibrate) navigator.vibrate(20);
       btn.classList.remove('holding');
-      onComplete();
-      setTimeout(() => { holding = false; ring.style.strokeDashoffset = C; if (anim) anim.cancel(); }, 300);
+      try { onComplete(); } finally {
+        setTimeout(() => { holding = false; ring.style.strokeDashoffset = C; if (anim) anim.cancel(); }, 300);
+      }
     }).catch(() => {});
     startedAt = performance.now();
   }

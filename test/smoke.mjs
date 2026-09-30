@@ -162,7 +162,7 @@ for (const vp of VIEWPORTS) {
   const sb = await page.locator('.song-hold').boundingBox();
   const [songPopup] = await Promise.all([
     page.waitForEvent('popup', { timeout: 4000 }),
-    (async () => { await page.mouse.move(sb.x + sb.width / 2, sb.y + sb.height / 2); await page.mouse.down(); await page.waitForTimeout(1700); await page.mouse.up(); })(),
+    (async () => { await page.mouse.move(sb.x + sb.width / 2, sb.y + sb.height / 2); await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up(); })(),
   ]);
   await songPopup.waitForLoadState('domcontentloaded');
   ok(/qKQAQc2NEuk/.test(songPopup.url()), 'alphabet song opens its video: ' + songPopup.url());
@@ -185,7 +185,7 @@ for (const vp of VIEWPORTS) {
   const hb = await hold.boundingBox();
   const [popup] = await Promise.all([
     page.waitForEvent('popup', { timeout: 4000 }),
-    (async () => { await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await page.mouse.down(); await page.waitForTimeout(1700); await page.mouse.up(); })(),
+    (async () => { await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up(); })(),
   ]);
   ok(/youtube\.com\/playlist/.test(popup.url()) || true, 'playlist popup opened: ' + popup.url());
   await popup.close();
@@ -234,7 +234,11 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   await page.waitForTimeout(400);
   ok(page.url().endsWith('#/home'), 'releasing early cancels the gate');
   await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2);
-  await page.mouse.down(); await page.waitForTimeout(1750); await page.mouse.up();
+  await page.mouse.down(); await page.waitForTimeout(1700); await page.mouse.up();
+  await page.waitForTimeout(400);
+  ok(page.url().endsWith('#/home'), 'a 1.7 s hold does not open Grownups (the gate is 2 s)');
+  await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2);
+  await page.mouse.down(); await page.waitForTimeout(2250); await page.mouse.up();
   await page.waitForSelector('.grownups');
   ok(page.url().endsWith('#/grownups'), 'holding opens Grownups');
   await page.waitForTimeout(900);
@@ -252,6 +256,14 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   await page.click('text=Test voice');
   await page.waitForTimeout(300);
   ok((await page.evaluate(() => window.__spoken)).includes('moon, apple, sun'), 'Test voice speaks moon, apple, sun');
+  // Fix 12: Unlock asks first.
+  await page.locator('.gu-row .btn', { hasText: 'Unlock' }).first().click();
+  ok((await page.locator('[aria-label="Confirm unlock"]').count()) === 1, 'Unlock shows a confirm step');
+  await page.click('[aria-label="Confirm unlock"] >> text=Cancel');
+  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[3]?.unlocked)) !== true, 'Cancel leaves the lesson locked');
+  await page.locator('.gu-row .btn', { hasText: 'Unlock' }).first().click();
+  await page.click('[aria-label="Confirm unlock"] button:has-text("Unlock")');
+  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[3]?.unlocked)) === true, 'confirming Unlock unlocks the lesson');
   // Reset returns Home to first run and keeps the voice.
   await page.click('text=Reset all progress');
   await page.click('.btn.danger');
@@ -262,6 +274,86 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   const after = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.voiceURI);
   ok(after === 'g-us', 'reset keeps the chosen voice');
   ok(errors.length === 0, 'grownups errors ' + errors.join(' | '));
+  await ctx.close();
+}
+// Fix 11: Back then history.back() must not re-enter Grownups without a new hold.
+{
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(SEED({}));
+  await page.goto(url + '#/home');
+  await page.waitForSelector('.pill-hold');
+  await page.waitForTimeout(600);
+  const gb = await page.locator('.pill-hold').boundingBox();
+  await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2);
+  await page.mouse.down(); await page.waitForTimeout(2250); await page.mouse.up();
+  await page.waitForSelector('.grownups');
+  await page.waitForTimeout(500);
+  await page.click('.gu-head .icon-btn');
+  await page.waitForSelector('.home');
+  await page.goBack();
+  await page.waitForTimeout(800);
+  ok((await page.locator('.grownups').count()) === 0 && (await page.locator('.home').count()) === 1 && page.url().endsWith('#/home'), 'history.back() after leaving Grownups shows Home, not Grownups');
+  ok(errors.length === 0, 'gate bypass errors ' + errors.join(' | '));
+  await ctx.close();
+}
+// Fix 13: corrupt saved progress starts fresh or is repaired; it never crashes.
+for (const [name, raw] of [
+  ['lessons null', '{"schema":1,"lessons":null,"settings":{}}'],
+  ['lessons array', '{"schema":1,"lessons":[],"settings":{}}'],
+  ['not json', '{{{oops'],
+  ['bad entries', '{"schema":1,"lessons":{"1":{"tasksDone":"oops","result":"got-it"},"2":null},"settings":[],"firstRunDone":true}'],
+]) {
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(`localStorage.setItem('reading.v1', ${JSON.stringify(raw)})`);
+  await page.goto(url + '#/home');
+  await page.waitForSelector('.stone');
+  ok((await page.locator('.stone').count()) === 3, `corrupt store (${name}): Home renders`);
+  if (name === 'bad entries') {
+    await page.goto(url + '#/lesson/2');
+    await page.waitForSelector('.lesson-overview');
+    ok((await page.locator('.task-card').count()) === 7 && (await page.locator('.task-card.is-done').count()) === 0, 'corrupt store (bad entries): repaired, lesson 2 opens with nothing done');
+  }
+  ok(errors.length === 0, `corrupt store (${name}) errors ${errors.join(' | ')}`);
+  await ctx.close();
+}
+{
+  // Fix 8: Next is dimmed for a second after a task loads.
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(ALL_OPEN);
+  await page.goto(url + '#/lesson/2/task/2');
+  await page.waitForSelector('.task-screen');
+  ok(await page.locator('.btn.next').isDisabled(), 'Next is disabled right after a task loads');
+  await page.waitForTimeout(1150);
+  ok(await page.locator('.btn.next').isEnabled(), 'Next is enabled after one second');
+  // Fix 9: the finish screen ignores taps at first; Yes takes two taps; practice keeps the best result.
+  await page.goto(url + '#/lesson/2/finish');
+  await page.waitForSelector('.finish');
+  ok(await page.locator('.btn.got').isDisabled() && await page.locator('.btn.practice').isDisabled(), 'finish ignores taps for the first 1.5 s');
+  await page.click('.btn.got');
+  ok(/Yes, open lesson 3/.test(await page.locator('.btn.got').innerText()) && page.url().endsWith('#/lesson/2/finish'), 'first Yes tap only arms the button');
+  ok(/Lesson 3 is ready\./.test(await page.locator('.finish-note').innerText()), 'finish note says lesson 3 is ready');
+  await page.click('.btn.got');
+  await page.waitForSelector('.lesson-overview');
+  ok(page.url().endsWith('#/lesson/3'), 'second Yes tap opens the next lesson overview');
+  await page.goto(url + '#/lesson/3/finish');
+  await page.waitForSelector('.finish');
+  await page.click('.btn.got');
+  ok(/You finished all three lessons\./.test(await page.locator('.finish-note').innerText()), 'final lesson note');
+  await page.click('.btn.got');
+  await page.waitForSelector('.home');
+  await page.goto(url + '#/lesson/2/finish');
+  await page.waitForSelector('.finish');
+  await page.click('.btn.practice');
+  await page.waitForSelector('.lesson-overview');
+  ok(page.url().endsWith('#/lesson/2'), 'practice again opens this lesson overview');
+  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[2].result)) === 'got-it', 'practice again after got-it keeps the best result');
+  await page.goto(url + '#/lesson/3');
+  await page.waitForSelector('.lesson-overview');
+  ok(page.url().endsWith('#/lesson/3'), 'lesson 3 stays unlocked after practicing lesson 2 again');
+  ok(errors.length === 0, 'next/finish errors ' + errors.join(' | '));
   await ctx.close();
 }
 // A throwing localStorage must not crash the app.

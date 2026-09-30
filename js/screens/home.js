@@ -92,7 +92,7 @@ export function homeScreen(ctx) {
   });
   stones.forEach((s) => scene.append(s));
 
-  const grown = holdButton({ label: 'Grownups', hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
+  const grown = holdButton({ label: 'Grownups · hold', caption: null, hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
   const top = h('div', { class: 'home-top' }, grown);
   const root = h('div', { class: 'home' }, scene, top);
 

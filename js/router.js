@@ -47,6 +47,8 @@ export function createRouter(root, routes, ctx) {
 
   return {
     start() { addEventListener('hashchange', render); return render(); },
+    // For redirects: replaces the history entry, so Back never returns to the screen that bounced.
+    replace(path) { location.replace('#' + path); },
     go(path) { if (parse() === path) return render(); location.hash = '#' + path; },
     // Back always goes to the parent screen, so it is predictable and animates in reverse.
     back() {

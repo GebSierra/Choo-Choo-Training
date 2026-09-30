@@ -20,7 +20,7 @@ export function taskScreen(ctx, n, idx) {
   const tasks = lesson ? tasksFor(lesson) : [];
   const index = Number(idx);
   const task = tasks.find((t) => t.index === index);
-  if (!lesson || !task || !store.isUnlocked(lesson.number)) { queueMicrotask(() => router.go(lesson && store.isUnlocked(lesson.number) ? `/lesson/${n}` : '/home')); return h('div'); }
+  if (!lesson || !task || !store.isUnlocked(lesson.number)) { queueMicrotask(() => router.replace(lesson && store.isUnlocked(lesson.number) ? `/lesson/${n}` : '/home')); return h('div'); }
   const sound = curriculum.sounds[lesson.sound];
   const soundKeys = Object.keys(curriculum.sounds);
   const pos = tasks.indexOf(task);
@@ -58,7 +58,7 @@ export function taskScreen(ctx, n, idx) {
   const stage = h('main', { class: `task-stage c-${task.color}${light ? ' on-dark' : ''}` }, h('div', { class: 'task-activity' }, current.el), speaker);
 
   const again = h('button', { class: 'btn again', type: 'button', onclick: () => { current.again(); refresh(); } }, icon('redo', 22), 'Again');
-  const next = h('button', { class: 'btn next', type: 'button', onclick: () => { if (current.next && current.next()) { refresh(); return; } advance(); } }, isLast ? 'Finish' : 'Next', icon('arrowRight', 22));
+  const next = h('button', { class: 'btn next', type: 'button', disabled: true, onclick: () => { if (current.next && current.next()) { refresh(); return; } advance(); } }, isLast ? 'Finish' : 'Next', icon('arrowRight', 22));
   const foot = h('footer', { class: 'task-foot' },
     h('section', { class: 'script-card', 'aria-label': 'Parent script' },
       h('span', { class: 'script-ic' }, icon('adult', 22)),
@@ -69,8 +69,10 @@ export function taskScreen(ctx, n, idx) {
 
   const root = h('div', { class: 'task-screen' }, head, stage, foot);
   // Speak the child's line on entry once the screen has settled.
+  // Next stays dimmed for a second so a quick double tap cannot skip the task.
+  const nextTimer = setTimeout(() => { next.disabled = false; }, 1000);
   const timer = setTimeout(() => { if (current.onShow) current.onShow(); speech.autoSay(current.parts()); }, 420);
-  root.cleanup = () => { clearTimeout(timer); if (current.cleanup) current.cleanup(); };
+  root.cleanup = () => { clearTimeout(timer); clearTimeout(nextTimer); if (current.cleanup) current.cleanup(); };
   animate(stage, [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 60 });
   animate(foot, [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 120 });
   return root;

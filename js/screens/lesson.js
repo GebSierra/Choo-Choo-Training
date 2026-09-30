@@ -25,7 +25,7 @@ function illustration(task, lesson, curriculum) {
 
 export function lessonScreen({ store, router, curriculum, speech }, n) {
   const lesson = lessonByNumber(curriculum, n);
-  if (!lesson || !store.isUnlocked(lesson.number)) { queueMicrotask(() => router.go('/home')); return h('div'); }
+  if (!lesson || !store.isUnlocked(lesson.number)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
   const sound = curriculum.sounds[lesson.sound];
   const tasks = tasksFor(lesson);
   const done = store.lesson(lesson.number).tasksDone;
@@ -62,7 +62,7 @@ export function lessonScreen({ store, router, curriculum, speech }, n) {
   const song = h('section', { class: 'song-row', 'aria-label': 'Alphabet song' },
     h('span', { class: 'song-thumb' }, icon('play', 26)),
     h('div', { class: 'song-text' }, h('strong', {}, 'Alphabet song'), h('p', { class: 'parent-note' }, 'Optional: play the alphabet song together, then start the lesson.')),
-    holdButton({ label: 'Play', hint: 'Press and hold', className: 'song-hold', leading: icon('external', 16), onComplete: openSong }));
+    holdButton({ label: 'Play', caption: 'Hold to open', hint: 'Press and hold', className: 'song-hold', leading: icon('external', 16), onComplete: openSong }));
 
   const root = h('div', { class: 'lesson-overview' }, header, song, h('div', { class: 'cards-scroll' }, h('div', { class: 'cards' }, cards)), h('footer', { class: 'lo-foot' }, start));
   cards.forEach((c, i) => animate(c, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 140 + i * 40 }));
