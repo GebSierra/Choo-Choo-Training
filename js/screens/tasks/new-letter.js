@@ -10,6 +10,7 @@ import { soundPhrase } from '../../lessons.js';
 export function build({ lesson, sound, speech, refresh }) {
   const accent = accentOf(sound.glyph);
   const g = glyphSvg(sound.glyph, { color: accent, label: 'new letter' });
+  drawIn(g, { delay: 300 }); // started now, not in onShow: the hidden first frame must be there from the start
   const card = h('button', { class: 'letter-card big tappable', type: 'button', 'aria-label': 'Watch the letter being written', onclick: () => drawIn(g) }, g);
   const tiles = h('div', { class: 'word-strip' }, sound.words.map((w) => {
     const pic = w.image
@@ -25,7 +26,6 @@ export function build({ lesson, sound, speech, refresh }) {
     el,
     parts: () => lesson.intro,
     script: () => `Say ${soundPhrase(sound)}. Now you try. Slide the letter as you say it.`,
-    onShow: () => drawIn(g),
     cleanup: () => track.cleanup(),
     again: () => { drawIn(g); speech.say(lesson.intro); },
   };

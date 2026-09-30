@@ -12,6 +12,12 @@ export async function audit(page, label) {
     // Horizontal overflow (page-level).
     const de = document.documentElement;
     if (de.scrollWidth > de.clientWidth + 1) out.push(`horizontal overflow ${de.scrollWidth} > ${de.clientWidth}`);
+    // Landscape: nothing core may need a scroll (task stage, finish screen).
+    if (innerWidth > innerHeight) {
+      const act = root.querySelector('.task-activity');
+      if (act && act.scrollHeight > act.clientHeight + 1) out.push(`landscape: task content is ${act.scrollHeight} tall in a ${act.clientHeight} stage`);
+      if (root.querySelector('.finish') && de.scrollHeight > innerHeight + 1) out.push(`landscape: finish screen scrolls (${de.scrollHeight} > ${innerHeight})`);
+    }
     // Tap targets.
     for (const el of root.querySelectorAll('button, a, [role=button]')) {
       const r = el.getBoundingClientRect();

@@ -52,7 +52,7 @@ export function lessonScreen({ store, router, curriculum, speech }, n) {
   });
 
   const startLabel = nextIndex === -1 ? 'Do it again' : (done.length ? 'Continue lesson' : 'Start lesson');
-  const start = h('button', { class: 'btn primary big start-btn', type: 'button', style: { background: accent }, onclick: () => {
+  const start = h('button', { class: 'btn primary big start-btn', type: 'button', style: { background: `var(--${sound.glyph}-fill)` }, onclick: () => {
     if (nextIndex === -1) store.resetLessonTasks(lesson.number);
     router.go(`/lesson/${lesson.number}/task/${nextIndex === -1 ? 0 : tasks[nextIndex].index}`);
   } }, startLabel, icon('arrowRight', 24));

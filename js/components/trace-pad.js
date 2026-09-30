@@ -1,12 +1,12 @@
 import { h, reduced } from '../dom.js';
-import { GLYPHS, STROKE_WIDTH, strokePoints } from '../glyphs.js';
+import { GLYPHS, STROKE_WIDTH, XHEIGHT_TOP, BASELINE, strokePoints } from '../glyphs.js';
 import { accentOf } from '../theme.js';
-
-// Box of the glyph (in glyph units) that the pad fits into.
-const BOX = { x: 0, y: 22, w: 100, h: 70 };
 
 export function tracePad({ letter, onStroke }) {
   const accent = accentOf(letter);
+  // Box of the glyph (in glyph units) that the pad fits into: the letter's own width, so it fills the pad.
+  const GL = GLYPHS[letter];
+  const BOX = { x: GL.minX - 10, y: XHEIGHT_TOP - 12, w: GL.maxX - GL.minX + 20, h: BASELINE - XHEIGHT_TOP + 24 };
   const guide = h('canvas', { class: 'tp-guide', 'aria-hidden': 'true' });
   const ink = h('canvas', { class: 'tp-ink', role: 'img', 'aria-label': 'Drawing area. Trace the letter with a finger.' });
   const fx = h('canvas', { class: 'tp-fx', 'aria-hidden': 'true' });
@@ -55,9 +55,16 @@ export function tracePad({ letter, onStroke }) {
       g.moveTo(k, 0); g.lineTo(-k * 0.7, -k * 0.8); g.lineTo(-k * 0.7, k * 0.8); g.closePath(); g.fill(); g.restore();
     });
     // Numbered start dots.
+    const placed = [];
     strokes.forEach((st, i) => {
-      const [x, y] = map(st.start);
+      let [x, y] = map(st.start);
       const r = Math.max(12, s * 3.6);
+      // Keep neighbouring dots 10 px apart (the two starts of "a" are close).
+      for (const q of placed) {
+        const d = Math.hypot(x - q.x, y - q.y), need = 2 * r + 10;
+        if (d < need) { x = q.x + ((x - q.x) / (d || 1)) * need; y = q.y + ((y - q.y) / (d || 1)) * need; }
+      }
+      placed.push({ x, y });
       g.fillStyle = '#1E2140'; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
       g.fillStyle = '#fff'; g.font = `800 ${Math.round(r * 1.15)}px Nunito, system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.fillText(String(i + 1), x, y + 1);

@@ -40,7 +40,7 @@ export function finishScreen({ store, router, curriculum, speech }, n) {
     h('section', { class: 'finish-card' }, h('p', { class: 'finish-q' }, 'Did your child get it?'), h('div', { class: 'finish-choices' }, gotIt, again), note),
     back);
   animate(g, [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 480, easing: 'cubic-bezier(.34,1.56,.64,1)' });
-  animate(ring, [{ transform: 'scale(.8)', opacity: 0 }, { transform: 'scale(.9)', opacity: .7, offset: .2 }, { transform: 'scale(1.5)', opacity: 0 }], { duration: 900, delay: 420, easing: 'cubic-bezier(.2,.8,.2,1)' });
+  animate(ring, [{ transform: 'scale(.8)', opacity: 0 }, { transform: 'scale(.9)', opacity: .7, offset: .2 }, { transform: 'scale(1.5)', opacity: 0 }], { duration: 560, delay: 420, easing: 'cubic-bezier(.2,.8,.2,1)' });
   const t = setTimeout(() => speech.autoSay([{ tts: 'Good job.' }]), 500);
   const ready = setTimeout(() => { for (const b of [gotIt, again, back]) b.disabled = false; }, 1500);
   root.cleanup = () => { clearTimeout(t); clearTimeout(ready); };

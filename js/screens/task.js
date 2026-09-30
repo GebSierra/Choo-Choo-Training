@@ -40,8 +40,9 @@ export function taskScreen(ctx, n, idx) {
 
   // Progress dots: the previous task's dot starts wide and the new one widens.
   const prevPos = tasks.findIndex((t) => t.index === lastIndex[lesson.number]);
-  const dots = tasks.map((t, i) => h('i', { class: 'dot' + (i < pos ? ' past' : '') + (i === (prevPos >= 0 && prevPos !== pos ? prevPos : pos) ? ' active' : '') }));
-  requestAnimationFrame(() => requestAnimationFrame(() => dots.forEach((d, i) => { d.classList.toggle('active', i === pos); d.classList.toggle('past', i < pos); })));
+  const dots = tasks.map((t, i) => h('i', { class: 'dot' + (i < pos ? ' past' : '') }));
+  const pill = h('i', { class: 'dot-pill', style: { '--at': prevPos >= 0 && prevPos !== pos ? prevPos : pos } });
+  requestAnimationFrame(() => requestAnimationFrame(() => { pill.style.setProperty('--at', pos); dots.forEach((d, i) => d.classList.toggle('past', i < pos)); }));
 
   const light = task.color === 'violet' || task.color === 'coral';
   const speaker = speakButton({ speech, getParts: () => current.parts(), label: 'Hear this again' });
@@ -53,7 +54,7 @@ export function taskScreen(ctx, n, idx) {
     h('button', { class: 'icon-btn light', type: 'button', 'aria-label': 'Back to lesson', onclick: () => router.back() }, icon('back', 28)),
     h('h1', {}, task.name),
     h('span', { class: 'head-spacer' }),
-    h('div', { class: 'dots', role: 'progressbar', 'aria-valuemin': 1, 'aria-valuemax': tasks.length, 'aria-valuenow': pos + 1, 'aria-label': `Task ${pos + 1} of ${tasks.length}` }, dots));
+    h('div', { class: 'dots', role: 'progressbar', 'aria-valuemin': 1, 'aria-valuemax': tasks.length, 'aria-valuenow': pos + 1, 'aria-label': `Task ${pos + 1} of ${tasks.length}` }, h('span', { class: 'dots-track' }, dots, pill)));
 
   const stage = h('main', { class: `task-stage c-${task.color}${light ? ' on-dark' : ''}` }, h('div', { class: 'task-activity' }, current.el), speaker);
 
@@ -73,7 +74,8 @@ export function taskScreen(ctx, n, idx) {
   const nextTimer = setTimeout(() => { next.disabled = false; }, 1000);
   const timer = setTimeout(() => { if (current.onShow) current.onShow(); speech.autoSay(current.parts()); }, 420);
   root.cleanup = () => { clearTimeout(timer); clearTimeout(nextTimer); speaker.cleanup(); scriptSpeaker.cleanup(); if (current.cleanup) current.cleanup(); };
-  animate(stage, [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 60 });
-  animate(foot, [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 120 });
+  // Opacity only: the tap targets must not move while a finger may be heading for them.
+  animate(stage, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 60 });
+  animate(foot, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 120 });
   return root;
 }

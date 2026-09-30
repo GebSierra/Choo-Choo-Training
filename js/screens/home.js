@@ -45,7 +45,9 @@ const tree = (cls, top, trunk) => h('svg', { class: 'scene-tree ' + cls, viewBox
   h('rect', { x: 26, y: 50, width: 9, height: 38, rx: 4.5, fill: trunk }),
   cls === 'mushroom'
     ? h('path', { d: 'M4 54 C4 20 18 4 31 4 C44 4 56 20 56 54 Z', fill: top })
-    : h('path', { d: 'M31 4 C48 26 52 44 52 56 C52 66 42 70 31 70 C20 70 10 66 10 56 C10 44 14 26 31 4 Z', fill: top }));
+    : h('path', { d: 'M31 4 C48 26 52 44 52 56 C52 66 42 70 31 70 C20 70 10 66 10 56 C10 44 14 26 31 4 Z', fill: top }),
+  // a simple face: two dots and a smile
+  ...(cls === 'mushroom' ? [[22, 36], [40, 36], 'M25 43 Q31 49 37 43'] : [[23, 46], [39, 46], 'M26 54 Q31 59 36 54']).map((f, i) => (i < 2 ? h('circle', { cx: f[0], cy: f[1], r: 2.6, fill: '#3A2A1A' }) : h('path', { d: f, fill: 'none', stroke: '#3A2A1A', 'stroke-width': 2.2, 'stroke-linecap': 'round' }))));
 
 const daisy = (x, y) => h('svg', { class: 'daisy', viewBox: '0 0 20 20', style: { left: x + '%', top: y + '%' }, 'aria-hidden': 'true' },
   ...[0, 72, 144, 216, 288].map((r) => h('ellipse', { cx: 10, cy: 5, rx: 3.2, ry: 4.4, fill: '#fff', transform: `rotate(${r} 10 10)` })), h('circle', { cx: 10, cy: 10, r: 2.6, fill: '#FFD166' }));
@@ -114,7 +116,12 @@ export function homeScreen(ctx) {
 
   // Stones rise into place one after another.
   if (!reduced()) {
-    stones.forEach((s, i) => animate(s, [{ opacity: 0, transform: 'translateY(28px) scale(.9)' }, { opacity: 1, transform: 'none' }], { duration: 480, delay: 120 + i * 80 }));
+    stones.forEach((s, i) => {
+      // Not tappable until the last stone has landed, so nothing moves under a finger.
+      s.style.pointerEvents = 'none';
+      animate(s, [{ opacity: 0, transform: 'translateY(12px) scale(.9)' }, { opacity: 1, transform: 'none' }], { duration: 480, delay: 120 + i * 80 });
+    });
+    setTimeout(() => stones.forEach((s) => { s.style.pointerEvents = ''; }), 120 + (stones.length - 1) * 80 + 480);
   }
   return root;
 }

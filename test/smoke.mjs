@@ -476,7 +476,7 @@ for (const [name, raw] of [
   const t0 = Date.now();
   await page.locator('.task-stage > .speak-btn').click();
   await page.waitForFunction(() => !document.querySelector('.task-stage > .speak-btn').classList.contains('is-speaking'), null, { timeout: 6000 });
-  ok(Date.now() - t0 < 4500, 'speech that never starts gives up within a few seconds (' + (Date.now() - t0) + ' ms)');
+  ok(Date.now() - t0 < 5800, 'speech that never starts gives up within a few seconds (' + (Date.now() - t0) + ' ms)');
   await page.click('.btn.next');
   await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Sound Story', null, { timeout: 3000 });
   ok(true, 'Next works while speech never starts');

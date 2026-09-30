@@ -22,7 +22,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
     const g = glyphSvg(s.glyph, { color: accentOf(s.glyph), label: 'review letter' });
     track = slideTrack({ letter: s.glyph, speech, sound: s });
     holder.append(h('div', { class: 'letter-card' }, g), track, soundCard(s));
-    dots.replaceChildren(...keys.map((k, j) => h('i', { class: j === i ? 'on' : '' })));
+    dots.replaceChildren(...(keys.length > 1 ? keys.map((k, j) => h('i', { class: j === i ? 'on' : '' })) : []));
     drawIn(g, { per: 380 });
     refresh();
   }

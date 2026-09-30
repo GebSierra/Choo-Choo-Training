@@ -28,7 +28,7 @@ export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matc
 // Web Animations wrapper that respects reduced motion (resolves immediately).
 export function animate(el, keyframes, opts) {
   if (!el || !el.animate) return { finished: Promise.resolve(), cancel() {} };
-  if (reduced()) opts = { ...opts, duration: 0, iterations: 1 };
+  if (reduced()) opts = { ...opts, duration: 0, delay: 0, iterations: 1 };
   const a = el.animate(keyframes, { fill: 'backwards', easing: 'cubic-bezier(.2,.8,.2,1)', ...opts });
   return a;
 }
@@ -51,7 +51,7 @@ export function icon(name, size = 24) {
     tap: 'M9 11V5a2 2 0 014 0v6 M13 10.5a2 2 0 014 0V12 M17 11.5a2 2 0 014 0V15a6 6 0 01-6 6h-2a6 6 0 01-5-3l-3-5a2 2 0 013-2l2 2',
     external: 'M14 4h6v6 M20 4l-9 9 M18 14v5H5V6h5',
   };
-  const svg = h('svg', { viewBox: '0 0 24 24', width: size, height: size, fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true', class: 'icon' });
+  const svg = h('svg', { viewBox: '0 0 24 24', width: size, height: size, fill: 'none', stroke: 'currentColor', 'stroke-width': name === 'back' ? 3 : 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true', class: 'icon' });
   for (const d of paths[name].split(' M').map((s, i) => (i ? 'M' + s : s))) svg.append(h('path', { d }));
   return svg;
 }

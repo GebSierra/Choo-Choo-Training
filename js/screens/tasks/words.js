@@ -23,8 +23,8 @@ export function build({ lesson, speech, refresh }) {
       if (revealed) { speech.say([{ tts: w.word }]); return; }
       revealed = true;
       // Slide the two tiles together, then pop the merged tile in.
-      animate(tileA, [{ transform: 'none', opacity: 1 }, { transform: 'translateX(38px)', opacity: 0 }], { duration: 260, fill: 'forwards' });
-      animate(tileB, [{ transform: 'none', opacity: 1 }, { transform: 'translateX(-38px)', opacity: 0 }], { duration: 260, fill: 'forwards' });
+      animate(tileA, [{ transform: 'none', opacity: 1 }, { transform: 'translateX(88px) scale(.9)', opacity: 0 }], { duration: 260, fill: 'forwards' });
+      animate(tileB, [{ transform: 'none', opacity: 1 }, { transform: 'translateX(-88px) scale(.9)', opacity: 0 }], { duration: 260, fill: 'forwards' });
       animate(plus, [{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' });
       merged.replaceChildren(h('span', { class: 'emoji stack' }, w.emoji[1], h('span', { class: 'mini' }, w.emoji[0])), h('span', { class: 'word big' }, letterText(w.word)));
       merged.classList.add('revealed');
