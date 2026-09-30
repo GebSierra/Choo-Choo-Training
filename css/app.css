@@ -28,7 +28,8 @@
   --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; min-height: 100%; background: var(--cream); color: var(--ink); overflow-x: hidden; }
+html { overflow-x: hidden; }
+html, body { margin: 0; min-height: 100%; background: var(--cream); color: var(--ink); }
 body {
   font-family: 'Nunito', system-ui, Roboto, sans-serif;
   font-size: 18px; line-height: 1.35;
@@ -239,18 +240,19 @@ h1, h2, h3, p { margin: 0; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 .chip { display: inline-flex; align-items: center; min-height: 34px; padding: 0 14px; border-radius: 12px; background: #fff; color: var(--ink); font-weight: 800; font-size: 17px; }
 .chip-glyph { padding: 0 12px; } .chip-glyph .glyph { height: 20px; width: auto; }
-.lo-foot { padding: 8px 20px calc(20px + var(--sab)); display: grid; }
+.lo-foot { position: sticky; bottom: 0; z-index: 5; padding: 12px 20px calc(16px + var(--sab)); display: grid; background: linear-gradient(to top, #fff 70%, rgba(255,255,255,0)); }
 .start-btn { width: 100%; max-width: 520px; margin: 0 auto; }
 @media (orientation: landscape) {
   .lo-head { padding-bottom: 0; }
   .cards-scroll { align-items: flex-start; }
   .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
-  .task-card { width: auto; height: 132px; min-height: 0; flex-direction: row; align-items: center; justify-content: flex-start; }
-  .card-num { font-size: 84px; left: 10px; top: -6px; }
-  .card-art { position: absolute; left: auto; right: 6px; top: 12px; width: 40%; height: 70px; transform: scale(.62); transform-origin: right top; }
+  .task-card { width: auto; height: 150px; min-height: 0; flex-direction: row; align-items: center; justify-content: flex-start; }
+  .card-num { font-size: 70px; left: 10px; top: -2px; }
+  .card-tick { top: auto; bottom: 10px; right: 10px; width: 30px; height: 30px; }
+  .card-art { position: absolute; left: auto; right: 6px; top: 8px; width: 46%; height: 70px; transform: scale(.6); transform-origin: right top; justify-content: flex-end; }
   .card-body { padding: 8px 12px 10px; position: absolute; left: 0; right: 0; bottom: 0; }
   .card-name { font-size: 19px; } .card-label { display: none; }
-  .chips { margin-top: 2px; } .chip { min-height: 30px; font-size: 16px; padding: 0 10px; }
+  .chips { margin-top: 2px; flex-wrap: nowrap; overflow: hidden; } .chip { min-height: 30px; font-size: 16px; padding: 0 10px; }
   .lo-foot { padding-top: 4px; }
   .lo-foot .btn { min-height: 56px; }
 }

@@ -14,7 +14,7 @@ function illustration(task, lesson, curriculum) {
       break;
     case 'newLetter': wrap.append(h('span', { class: 'big-glyph' }, glyphSvg(lesson.sound, { color: '#fff' }))); break;
     case 'story': wrap.append(h('span', { class: 'play' }, icon('play', 44))); break;
-    case 'words': (lesson.sayingWords[0].emoji).forEach((e, i) => wrap.append(h('span', { class: 'emo' }, e), i === 0 ? h('span', { class: 'plus' }, '+') : null)); break;
+    case 'words': lesson.sayingWords[0].emoji.forEach((e, i) => { wrap.append(h('span', { class: 'emo' }, e)); if (i === 0) wrap.append(h('span', { class: 'plus' }, '+')); }); break;
     case 'sounds': wrap.append(h('span', { class: 'wave' }, h('i'), h('i'), h('i'), h('i'), h('i'))); break;
     case 'writing': wrap.append(h('span', { class: 'big-glyph ghost' }, glyphSvg(lesson.sound, { color: 'currentColor' })), h('span', { class: 'pencil' }, '✏️')); break;
     case 'check': wrap.append(h('span', { class: 'qmark' }, '?')); break;

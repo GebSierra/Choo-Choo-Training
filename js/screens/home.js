@@ -3,10 +3,10 @@ import { glyphSvg } from '../glyphs.js';
 import { holdButton } from '../components/hold-button.js';
 
 // Stone positions as percentages of the scene, per orientation (bottom left to top right).
-const PORTRAIT = [[26, 71], [56, 53], [72, 30]];
+const PORTRAIT = [[26, 74], [58, 50], [72, 27]];
 const LANDSCAPE = [[26, 56], [50, 52], [78, 30]];
 // Extra bends so the path winds between the stones.
-const PORTRAIT_PATH = [[26, 71], [48, 68], [58, 60], [56, 53], [44, 45], [58, 38], [72, 30]];
+const PORTRAIT_PATH = [[26, 74], [48, 71], [60, 62], [58, 50], [44, 42], [58, 35], [72, 27]];
 const LANDSCAPE_PATH = [[26, 56], [36, 63], [44, 60], [50, 52], [62, 46], [70, 38], [78, 30]];
 
 // Smooth curve through points (Catmull-Rom to cubic Bezier), in a 0..100 box.
