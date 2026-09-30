@@ -37,6 +37,28 @@
           "image": null,
           "emoji": "🐭"
         }
+      ],
+      "startWords": [
+        {
+          "word": "moon",
+          "emoji": "🌙"
+        },
+        {
+          "word": "map",
+          "emoji": "🗺️"
+        },
+        {
+          "word": "milk",
+          "emoji": "🥛"
+        },
+        {
+          "word": "monkey",
+          "emoji": "🐵"
+        },
+        {
+          "word": "mouse",
+          "emoji": "🐭"
+        }
       ]
     },
     "a": {
@@ -73,6 +95,16 @@
           "image": null,
           "emoji": "🐜"
         }
+      ],
+      "startWords": [
+        {
+          "word": "apple",
+          "emoji": "🍎"
+        },
+        {
+          "word": "ant",
+          "emoji": "🐜"
+        }
       ]
     },
     "s": {
@@ -107,6 +139,28 @@
         {
           "word": "snake",
           "image": null,
+          "emoji": "🐍"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "sun",
+          "emoji": "☀️"
+        },
+        {
+          "word": "sock",
+          "emoji": "🧦"
+        },
+        {
+          "word": "soup",
+          "emoji": "🍲"
+        },
+        {
+          "word": "seal",
+          "emoji": "🦭"
+        },
+        {
+          "word": "snake",
           "emoji": "🐍"
         }
       ]
@@ -521,6 +575,72 @@
           "o"
         ]
       }
+    },
+    "sack": {
+      "say": "Listen to your grown up. Then drag the picture into the bag."
     }
-  }
+  },
+  "checkpoints": [
+    {
+      "id": "c1",
+      "title": "Sound sack",
+      "after": 3,
+      "sounds": [
+        "m",
+        "a",
+        "s"
+      ],
+      "rounds": 6
+    }
+  ],
+  "gameDistractors": [
+    {
+      "word": "dog",
+      "emoji": "🐶"
+    },
+    {
+      "word": "frog",
+      "emoji": "🐸"
+    },
+    {
+      "word": "bear",
+      "emoji": "🐻"
+    },
+    {
+      "word": "bus",
+      "emoji": "🚌"
+    },
+    {
+      "word": "egg",
+      "emoji": "🥚"
+    },
+    {
+      "word": "duck",
+      "emoji": "🦆"
+    },
+    {
+      "word": "banana",
+      "emoji": "🍌"
+    },
+    {
+      "word": "horse",
+      "emoji": "🐴"
+    },
+    {
+      "word": "hen",
+      "emoji": "🐔"
+    },
+    {
+      "word": "door",
+      "emoji": "🚪"
+    },
+    {
+      "word": "tent",
+      "emoji": "⛺"
+    },
+    {
+      "word": "king",
+      "emoji": "🤴"
+    }
+  ]
 }

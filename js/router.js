@@ -3,7 +3,7 @@ import { animate, reduced } from './dom.js';
 
 const depthOf = (path) => {
   if (path === '/home') return 0;
-  if (/^\/lesson\/\d+\/(task\/\d+|finish)$/.test(path)) return 2;
+  if (/^\/(lesson\/\d+\/(task\/\d+|finish)|checkpoint\/[\w-]+\/finish)$/.test(path)) return 2;
   return 1;
 };
 

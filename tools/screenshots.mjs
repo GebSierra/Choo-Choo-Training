@@ -72,6 +72,22 @@ await page.evaluate(() => { const s = document.querySelector('.cards-scroll'); c
 await page.waitForTimeout(700);
 await save(page, '11-lesson-overview-games.png');
 
+// The path with the sound sack after lesson 3, and the sack game with a card on its way to the bag.
+await page.evaluate(() => localStorage.setItem('reading.v1', JSON.stringify({ schema: 1, lessons: { 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' }, 3: { tasksDone: [], result: 'got-it' } }, settings: {}, firstRunDone: true })));
+await page.goto(url + '#/home'); await page.reload(); await page.waitForSelector('.stone'); await page.waitForTimeout(2000);
+await save(page, '15-home-with-sound-sack.png');
+await page.goto(url + '#/checkpoint/c1'); await page.waitForSelector('.sack-card'); await page.waitForTimeout(1200);
+{
+  const card = await page.locator('.sack-card[data-correct="1"]').boundingBox(), sack = await page.locator('.sack').boundingBox();
+  const t = await touchSession(page);
+  const from = { x: card.x + card.width / 2, y: card.y + card.height / 2 };
+  await t.start(from.x, from.y);
+  for (let i = 1; i <= 8; i++) await t.move(from.x + ((sack.x + sack.width / 2 - from.x) * i) / 14, from.y + ((sack.y + sack.height * 0.3 - from.y) * i) / 14);
+  await page.waitForTimeout(200);
+  await save(page, '16-sound-sack.png');
+  await t.end();
+}
+
 // Landscape: the lesson overview and New Letter.
 await ctx.close();
 const land = await browser.newContext({ viewport: { width: 915, height: 412 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true, serviceWorkers: 'block' });

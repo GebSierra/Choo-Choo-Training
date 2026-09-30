@@ -2,16 +2,23 @@ import { h, animate, icon, reduced } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { holdButton } from '../components/hold-button.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
+import { sackSvg } from '../art.js';
 
 // Stone positions as percentages of the scene, per orientation (bottom left to top right).
-const PORTRAIT = [[26, 74], [58, 50], [72, 27]];
-const LANDSCAPE = [[26, 56], [50, 52], [78, 30]];
-// Extra bends so the path winds between the stones.
+const PORTRAIT = [[26, 74], [58, 50], [72, 27], [38, 21]];
+const LANDSCAPE = [[26, 56], [50, 52], [78, 30], [58, 33]];
+// Extra bends so the path winds between the first three stones.
 const PORTRAIT_PATH = [[26, 74], [48, 71], [60, 62], [58, 50], [44, 42], [58, 35], [72, 27]];
 const LANDSCAPE_PATH = [[26, 56], [36, 63], [44, 60], [50, 52], [62, 46], [70, 38], [78, 30]];
 
-// Stone n's position; a fourth lesson and beyond continue up and to the right.
+// Stone n's position (lessons and checkpoints share one numbered path); further stones continue up and to the right.
 const at = (list, n) => list[n - 1] || [Math.min(88, list[list.length - 1][0] + 8 * (n - list.length)), Math.max(10, list[list.length - 1][1] - 14 * (n - list.length))];
+// The path through all the stones: the wound-out base for the first three, then a bend and a stone for each further one.
+function pathPoints(list, base, count) {
+  const pts = base.slice();
+  for (let n = 4; n <= count; n++) { const p = at(list, n), q = pts[pts.length - 1]; pts.push([(p[0] + q[0]) / 2 + (n % 2 ? -6 : 6), (p[1] + q[1]) / 2], p); }
+  return pts;
+}
 
 // Smooth curve through points (Catmull-Rom to cubic Bezier), in a 0..100 box.
 function curve(pts) {
@@ -57,13 +64,18 @@ const butterfly = (cls) => h('svg', { class: 'butterfly ' + cls, viewBox: '0 0 4
   h('path', { class: 'wing', d: 'M20 15 C12 0 2 2 4 12 C5 20 14 20 20 15 Z', fill: '#ffffff', opacity: 0.55 }),
   h('path', { class: 'wing', d: 'M20 15 C28 0 38 2 36 12 C35 20 26 20 20 15 Z', fill: '#ffffff', opacity: 0.55 }));
 
-function stone(n, sound, state, onTap, speech) {
-  const accent = `var(--${sound.glyph})`;
-  const top = h('span', { class: 'stone-top' }, glyphSvg(sound.glyph, { color: accent, label: 'lesson ' + n }), h('span', { class: 'stone-num' }, String(n)));
+// A stone on the path. A lesson shows its letter and number; a checkpoint ({title}) shows a small sack instead.
+function stone(n, what, state, onTap, speech) {
+  const sound = what.sound;
+  const accent = sound ? `var(--${sound.glyph})` : '#C99A5B';
+  const name = sound ? `Lesson ${n}` : what.title;
+  const top = sound
+    ? h('span', { class: 'stone-top' }, glyphSvg(sound.glyph, { color: accent, label: 'lesson ' + n }), h('span', { class: 'stone-num' }, String(n)))
+    : h('span', { class: 'stone-top stone-sack' }, sackSvg());
   const badge = state === 'done'
     ? h('span', { class: 'stone-badge done' }, h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, 'aria-hidden': 'true' }, h('path', { d: 'M5 12.5l4.5 4.5L19 7.5', class: 'tick', fill: 'none', stroke: '#fff', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })))
     : state === 'locked' ? h('span', { class: 'stone-badge lock' }, icon('lock', 16)) : null;
-  const btn = h('button', { class: `stone is-${state}`, type: 'button', style: { '--accent': accent }, 'aria-label': `Lesson ${n}${state === 'locked' ? ', locked' : state === 'done' ? ', done' : ''}`, 'aria-disabled': state === 'locked' ? 'true' : null, onclick: () => onTap(btn, state) },
+  const btn = h('button', { class: `stone is-${state}`, type: 'button', style: { '--accent': accent }, 'aria-label': `${name}${state === 'locked' ? ', locked' : state === 'done' ? ', done' : ''}`, 'aria-disabled': state === 'locked' ? 'true' : null, onclick: () => onTap(btn, state) },
     state === 'current' ? h('span', { class: 'stone-ring' }) : null, h('span', { class: 'stone-base' }), top, badge);
   const wrap = h('div', { class: 'stone-wrap', style: { '--px': at(PORTRAIT, n)[0] + '%', '--py': at(PORTRAIT, n)[1] + '%', '--lx': at(LANDSCAPE, n)[0] + '%', '--ly': at(LANDSCAPE, n)[1] + '%' } });
   if (state === 'current') {
@@ -77,23 +89,28 @@ export function homeScreen(ctx) {
   const { store, router, curriculum, speech } = ctx;
   const total = curriculum.lessons.length;
   const current = store.currentLesson(total);
+  // One numbered path: the lessons in order, each checkpoint right after the lesson it follows.
+  const nodes = curriculum.lessons.flatMap((l) => [{ lesson: l }, ...(curriculum.checkpoints || []).filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   const scene = h('div', { class: 'scene' },
     h('div', { class: 'scene-patch p1' }), h('div', { class: 'scene-patch p2' }), h('div', { class: 'scene-patch p3' }),
     h('div', { class: 'scene-water' }), h('div', { class: 'scene-bush b1' }), h('div', { class: 'scene-bush b2' }),
     tree('mushroom', '#FFB95E', '#FFF1DA'), tree('drop', '#4C63F0', '#FFF1DA'),
     house(),
-    pathSvg(PORTRAIT_PATH, 'portrait'), pathSvg(LANDSCAPE_PATH, 'landscape'),
+    pathSvg(pathPoints(PORTRAIT, PORTRAIT_PATH, nodes.length), 'portrait'), pathSvg(pathPoints(LANDSCAPE, LANDSCAPE_PATH, nodes.length), 'landscape'),
     daisy(10, 24), daisy(84, 62), daisy(60, 82), daisy(36, 44), daisy(90, 40), daisy(48, 92), daisy(70, 14), daisy(6, 52),
     butterfly('b-one'), butterfly('b-two'));
 
-  const stones = curriculum.lessons.map((l) => {
+  const wobble = (btn) => animate(btn, [{ transform: 'rotate(0)' }, { transform: 'rotate(-6deg)', offset: 0.25 }, { transform: 'rotate(6deg)', offset: 0.6 }, { transform: 'rotate(0)' }], { duration: 260 });
+  const stones = nodes.map((node, i) => {
+    if (node.checkpoint) {
+      const c = node.checkpoint;
+      const state = store.isCheckpointDone(c.id) ? 'done' : (!store.isCheckpointUnlocked(c) ? 'locked' : (current === null ? 'current' : 'open'));
+      return stone(i + 1, c, state === 'open' ? 'unlocked' : state, (btn, st) => { if (st === 'locked') wobble(btn); else router.go(`/checkpoint/${c.id}`); }, speech);
+    }
+    const l = node.lesson;
     const state = store.isDone(l.number) ? 'done' : (!store.isUnlocked(l.number) ? 'locked' : (l.number === current ? 'current' : 'open'));
-    return stone(l.number, curriculum.sounds[l.sound], state === 'open' ? 'current' : state, (btn, st) => {
-      if (st === 'locked') {
-        animate(btn, [{ transform: 'rotate(0)' }, { transform: 'rotate(-6deg)', offset: 0.25 }, { transform: 'rotate(6deg)', offset: 0.6 }, { transform: 'rotate(0)' }], { duration: 260 });
-        return;
-      }
-      router.go(`/lesson/${l.number}`);
+    return stone(i + 1, { sound: curriculum.sounds[l.sound] }, state === 'open' ? 'current' : state, (btn, st) => {
+      if (st === 'locked') wobble(btn); else router.go(`/lesson/${l.number}`);
     }, speech);
   });
   stones.forEach((s) => scene.append(s));

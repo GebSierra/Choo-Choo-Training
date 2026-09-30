@@ -586,3 +586,21 @@ button img, .word-tile img { pointer-events: none; -webkit-user-drag: none; -web
   .glyph-letter.current .glyph-pop { transform: none; }
 }
 @media (orientation: landscape) and (max-height: 520px) { .blend-bar { width: 60%; height: 10px; } }
+
+/* ---------- Sound Sack (checkpoint) ---------- */
+.sack-game .farm { touch-action: none; }
+.sack-cards { inset: 0; z-index: 4; pointer-events: none; }
+.sack-card { position: absolute; width: var(--card, 96px); height: var(--card, 96px); padding: 0; border: 2px solid var(--ink); border-radius: 14px; background: #fff; box-shadow: 0 4px 0 rgba(30,33,64,.16), var(--shadow); display: grid; place-items: center; cursor: grab; touch-action: none; pointer-events: auto; will-change: transform; }
+.sack-card .emoji { font-size: calc(var(--card, 96px) * .58); line-height: 1; }
+.sack-card.lifted { cursor: grabbing; z-index: 6; box-shadow: 0 14px 26px rgba(30,33,64,.3); }
+.sack-card:disabled { pointer-events: none; }
+.sack-card[hidden] { display: none; }
+.sack { z-index: 3; transform-origin: 50% 100%; will-change: transform; pointer-events: none; }
+.sack .sack-art { display: block; width: 100%; height: 100%; overflow: visible; }
+.sack-front { position: absolute; left: 28%; top: 52%; width: 44%; }
+.sack-front .glyph { display: block; width: 100%; height: auto; }
+.sack-barn { left: 8px; bottom: 40px; width: 78px; z-index: 1; pointer-events: none; } .sack-barn .barn-art { display: block; width: 100%; height: auto; }
+.stone-top.stone-sack { background: #F7EAD0; } .stone-top.stone-sack .sack-art { width: 62%; height: auto; margin-top: 4px; }
+.stone.is-locked .stone-sack .sack-art { opacity: .45; }
+.finish-glyph .sack-art { width: 62%; height: auto; }
+.gu-glyph .sack-art { width: 60%; height: auto; }

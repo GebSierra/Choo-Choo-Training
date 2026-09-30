@@ -5,7 +5,8 @@ import { lessonScreen } from './screens/lesson.js';
 import { createSpeech } from './speech.js';
 import { grownupsScreen } from './screens/grownups.js';
 import { taskScreen } from './screens/task.js';
-import { finishScreen } from './screens/finish.js';
+import { finishScreen, checkpointFinishScreen } from './screens/finish.js';
+import { checkpointScreen } from './screens/checkpoint.js';
 
 async function boot() {
   const root = document.getElementById('app');
@@ -38,6 +39,8 @@ async function boot() {
     { re: /^\/lesson\/(\d+)$/, screen: lessonScreen },
     { re: /^\/lesson\/(\d+)\/task\/(\d+)$/, screen: taskScreen },
     { re: /^\/lesson\/(\d+)\/finish$/, screen: finishScreen },
+    { re: /^\/checkpoint\/([\w-]+)$/, screen: checkpointScreen },
+    { re: /^\/checkpoint\/([\w-]+)\/finish$/, screen: checkpointFinishScreen },
     { re: /^\/grownups$/, screen: grownupsScreen },
     // Debug routes for development and the smoke test. Loaded on demand and not precached by sw.js.
     { re: /^\/lab$/, screen: (...a) => import('./screens/lab.js').then((m) => m.labScreen(...a)) },

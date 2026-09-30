@@ -4,6 +4,7 @@ const KEY = 'reading.v1';
 const fresh = () => ({
   schema: 1,
   lessons: {},
+  checkpoints: {}, // bonus review games between lessons, by id: {result, completedAt, unlocked}
   settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: false },
   firstRunDone: false,
   lastOpened: null,
@@ -25,7 +26,12 @@ export function createStore() {
         if (l && typeof l === 'object' && !Array.isArray(l)) lessons[n] = { ...l, tasksDone: Array.isArray(l.tasksDone) ? l.tasksDone.filter(Number.isInteger) : [] };
       }
       const settings = p.settings && typeof p.settings === 'object' && !Array.isArray(p.settings) ? p.settings : {};
-      return { ...f, ...p, lessons, settings: { ...f.settings, ...settings } };
+      // Saved data from before checkpoints existed simply has none.
+      const checkpoints = {};
+      if (p.checkpoints && typeof p.checkpoints === 'object' && !Array.isArray(p.checkpoints)) {
+        for (const [id, c] of Object.entries(p.checkpoints)) if (c && typeof c === 'object' && !Array.isArray(c)) checkpoints[id] = c;
+      }
+      return { ...f, ...p, lessons, checkpoints, settings: { ...f.settings, ...settings } };
     } catch { return fresh(); }
   }
   function save() {
@@ -33,6 +39,7 @@ export function createStore() {
     listeners.forEach((fn) => fn(state));
   }
   const lesson = (n) => state.lessons[n] || { tasksDone: [], result: null, completedAt: null };
+  const checkpoint = (id) => state.checkpoints[id] || { result: null, completedAt: null };
 
   return {
     get state() { return state; },
@@ -61,6 +68,12 @@ export function createStore() {
       state.lessons[n] = { ...lesson(n), tasksDone: [] }; save();
     },
     unlock(n) { state.lessons[n] = { ...lesson(n), unlocked: true }; save(); },
+    checkpoint,
+    // A checkpoint opens once the lesson it follows is done, or when the parent unlocks it in Grownups.
+    isCheckpointUnlocked(ck) { return checkpoint(ck.id).unlocked === true || this.isDone(ck.after); },
+    isCheckpointDone: (id) => checkpoint(id).result === 'got-it',
+    setCheckpointResult(id, result) { state.checkpoints[id] = { ...checkpoint(id), result, completedAt: new Date().toISOString() }; save(); },
+    unlockCheckpoint(id) { state.checkpoints[id] = { ...checkpoint(id), unlocked: true }; save(); },
     setSetting(k, v) { state.settings = { ...state.settings, [k]: v }; save(); },
     setFirstRunDone() { state.firstRunDone = true; save(); },
     touch() { state.lastOpened = new Date().toISOString(); save(); },

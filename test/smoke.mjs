@@ -7,6 +7,7 @@ import { spokenStrings, isIsolated } from './check-content.mjs';
 import { tasksFor } from '../js/lessons.js';
 import { huntChecks, barnChecks, reducedChecks } from './games.mjs';
 import { blendChecks, blendReducedChecks } from './blend.mjs';
+import { sackChecks, sackMapChecks, sackGrownupsChecks } from './sack.mjs';
 
 const OUT = path.join(ROOT, '_test');
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
@@ -36,8 +37,8 @@ for (const vp of VIEWPORTS) {
   await page.addInitScript(SEED({ 1: { tasksDone: [0, 1], result: null, completedAt: null } }));
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone');
-  ok((await page.locator('.stone').count()) === 3, `${vp.name}: three stones`);
-  ok((await page.locator('.stone.is-current').count()) === 1 && (await page.locator('.stone.is-locked').count()) === 2, `${vp.name}: one current, two locked`);
+  ok((await page.locator('.stone').count()) === 4, `${vp.name}: four stones (three lessons and the sound sack)`);
+  ok((await page.locator('.stone.is-current').count()) === 1 && (await page.locator('.stone.is-locked').count()) === 3, `${vp.name}: one current, two lessons and the sack locked`);
   await page.waitForTimeout(900);
   await page.screenshot({ path: path.join(OUT, `home-${vp.name}.png`) });
   await page.locator('.stone.is-locked').first().click({ force: true });
@@ -215,6 +216,9 @@ await reducedChecks({ browser, url, ok, CUR });
 // Saying Sounds, slide to blend: real touch drags across am (lesson 2) and sam (lesson 3).
 for (const vp of VIEWPORTS) for (const lessonNo of [2, 3]) await blendChecks({ browser, url, ok, vp, lessonNo, shot: shotTo(OUT) });
 await blendReducedChecks({ browser, url, ok });
+// The Sound Sack checkpoint: its stone on the map, the drag game by real touch, the finish screen, Grownups.
+for (const vp of VIEWPORTS) { await sackMapChecks({ browser, url, ok, vp }); await sackChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) }); }
+await sackGrownupsChecks({ browser, url, ok });
 {
   // Full screen button on Home and in Grownups (the Fullscreen API is stubbed so the call can be counted).
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
@@ -414,7 +418,7 @@ for (const [name, raw] of [
   await page.addInitScript(`localStorage.setItem('reading.v1', ${JSON.stringify(raw)})`);
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone');
-  ok((await page.locator('.stone').count()) === 3, `corrupt store (${name}): Home renders`);
+  ok((await page.locator('.stone').count()) === 4, `corrupt store (${name}): Home renders`);
   if (name === 'bad entries') {
     await page.goto(url + '#/lesson/2');
     await page.waitForSelector('.lesson-overview');
@@ -467,7 +471,7 @@ for (const [name, raw] of [
   await page.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }); });
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone');
-  ok((await page.locator('.stone').count()) === 3, 'app renders when localStorage throws');
+  ok((await page.locator('.stone').count()) === 4, 'app renders when localStorage throws');
   ok(errors.length === 0, 'storage-blocked errors ' + errors.join(' | '));
   await ctx.close();
 }
@@ -522,7 +526,7 @@ for (const [name, raw] of [
   await ctx.setOffline(true);
   await page.reload();
   await page.waitForSelector('.stone', { timeout: 8000 });
-  ok((await page.locator('.stone').count()) === 3, 'offline reload renders Home');
+  ok((await page.locator('.stone').count()) === 4, 'offline reload renders Home');
   await page.goto(url + 'index.html#/lesson/1/task/0');
   await page.reload();
   await page.waitForSelector('.task-screen', { timeout: 8000 });

@@ -96,6 +96,42 @@ export function checkCurriculum(c, root = ROOT) {
     }
   }
 
+  // Sound sack: each sound's start words, the shared pool of words that start with none of the taught sounds, and the checkpoints.
+  const sackSay = ((c.games || {}).sack || {}).say;
+  if (typeof sackSay !== 'string' || !sackSay || isIsolated(sackSay)) err('games.sack.say must be a sentence of words');
+  else if (strayCaps(sackSay)) err('games.sack.say has a capital outside a sentence start');
+  const wordOk = (w, p, letters) => {
+    if (!w || typeof w.word !== 'string' || !/^[a-z]{2,}$/.test(w.word)) return err(`${p}.word must be a lowercase word`);
+    if (!w.emoji && !w.image) err(`${p} needs a picture`);
+    if (w.image && !fs.existsSync(path.join(root, w.image))) err(`${p}.image missing on disk: ${w.image}`);
+    if (letters && !letters.includes(w.word[0])) err(`${p} "${w.word}" must begin with ${letters.join(' or ')}`);
+  };
+  for (const [k, s] of Object.entries(sounds)) (s.startWords || []).forEach((w, i) => { wordOk(w, `sounds.${k}.startWords[${i}]`); if (w.word[0] !== k) err(`sounds.${k}.startWords[${i}] "${w.word}" does not begin with ${k}`); });
+  const pool = c.gameDistractors || [];
+  if (pool.length < 6) err('gameDistractors needs at least six words');
+  pool.forEach((w, i) => {
+    wordOk(w, `gameDistractors[${i}]`);
+    if (w.word && Object.keys(sounds).includes(w.word[0])) err(`gameDistractors[${i}] "${w.word}" begins with a taught sound`);
+  });
+  if (new Set(pool.map((w) => w.word)).size !== pool.length) err('gameDistractors repeats a word');
+  const ids = new Set();
+  (c.checkpoints || []).forEach((k, i) => {
+    const p = `checkpoints[${i}]`;
+    if (!k.id || ids.has(k.id)) err(`${p}.id must be unique`);
+    ids.add(k.id);
+    if (!k.title) err(`${p}.title missing`);
+    if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
+    if (!Number.isInteger(k.rounds) || k.rounds < 1) err(`${p}.rounds must be a positive integer`);
+    if (!Array.isArray(k.sounds) || !k.sounds.length) return err(`${p}.sounds missing`);
+    const need = Math.ceil(k.rounds / k.sounds.length);
+    const taughtBy = new Set((c.lessons || []).slice(0, k.after).map((L) => L.sound));
+    for (const s of k.sounds) {
+      if (!sounds[s]) err(`${p}.sounds "${s}" is not a sound`);
+      else if (!taughtBy.has(s)) err(`${p}.sounds "${s}" is not taught by lesson ${k.after}`);
+      else if ((sounds[s].startWords || []).length < need) err(`${p}: sound "${s}" needs at least ${need} startWords`);
+    }
+  });
+
   const taught = new Set();
   (c.lessons || []).forEach((L, i) => {
     const lp = `lessons[${i}]`;

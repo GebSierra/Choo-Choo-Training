@@ -130,3 +130,20 @@ The plan left these open or made them impossible to follow literally. Each is th
 - The looping sweep stays as a demonstration until the first touch on the word; it comes back on Again or Next word. A tap without a drag still reveals the word.
 - The touch zone is the whole row, which spans the white card, so a finger may start a little left of the first letter. A letter's edges are the glyph's own width (stroke included). Reduced motion keeps the lighting and drops the scale, halo fade and lift.
 - Pictures-only words (moon, map, mom) are unchanged. `test/blend.mjs` drives the slide by real touch at the three viewports.
+
+### Sound Sack (checkpoint after lesson 3)
+
+- A fourth stone appears on the path after lesson 3, with a small sack instead of a letter. It is locked until lesson 3 is marked "Got it" (or unlocked in Grownups). It opens `#/checkpoint/c1`: a burlap sack with a letter on it and three picture cards across the top; the child drags the card whose word starts with that sound into the sack. Six rounds, the same sound never twice in a row, a gold star per round, and the sack overflows with stars at the end. Then the usual two-step finish ("That's the sound sack.").
+- It is data-driven: `checkpoints` in `data/curriculum.json` (`after: N` puts a stone after stone N), `startWords` per sound, one shared `gameDistractors` pool of words that start with none of the taught sounds. Stage 2 can add more checkpoints by adding entries.
+- Pictures are emoji for now, so every card has one consistent style.
+- `test/sack.mjs` drives it by real touch at the three viewports.
+
+### Decisions made for the Sound Sack
+
+- The spoken line lives in `games.sack.say`, next to the other two games, so `check-content.mjs` applies the same rules to it.
+- A card is dropped in the sack when its centre is inside the sack's box grown by 24 px, as specified. A wrong card dropped there glides home with a small shake; any card let go elsewhere (right or wrong) springs home without the shake.
+- Next on the game screen is always available after the one-second dim, like every task; it goes to the finish screen whether or not all rounds were played. Again restarts from round 1 with a fresh shuffle.
+- The game screen shows the round's progress twice: the header dots (one per round) and the row of gold stars under the scene. The sack's letter is drawn from the glyphs, so "a" is single-story.
+- "Not yet, practice again" on the checkpoint finish starts the game again (a lesson's goes to its overview); it keeps a "Got it" result if there already was one.
+- Checkpoint stones take the next number on the path but show a sack instead of a number badge. The path winds to the fourth stone near the top; in landscape it sits left of stone 3. A checkpoint that is unlocked while a lesson is still current does not get the ring or "Tap to start" bubble, so only one stone asks to be tapped.
+- The shared task shell (header with dots, stage, parent script, Again / Next) moved into `js/screens/shell.js`, used by lesson tasks and the checkpoint.

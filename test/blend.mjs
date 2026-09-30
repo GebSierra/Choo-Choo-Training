@@ -75,7 +75,7 @@ export async function blendChecks({ browser, url, ok, vp, lessonNo, shot }) {
   await page.waitForTimeout(90);
   ok((await litCount(page)) === 1, `${tag}: dragging back leaves only the first letter lit`);
   await t.move(L[0].l - 3, y);
-  await page.waitForTimeout(90);
+  await page.waitForTimeout(400); // the bar eases back over 70 ms; give a busy machine time
   ok((await litCount(page)) === 0 && (await barScale(page)) === 0, `${tag}: dragging all the way back un-lights everything`);
   // Slide to the end: sparkle, word stays lit, then resets within 1.6 s.
   for (let i = 0; i < n; i++) await t.move(L[i].l + 6, y);

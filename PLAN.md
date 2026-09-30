@@ -288,6 +288,7 @@ Key `reading.v1`:
   "lessons": {
     "1": {"tasksDone": [0, 1, 2], "result": null, "completedAt": null}
   },
+  "checkpoints": {"c1": {"result": "got-it", "completedAt": "2026-10-03T14:30:00Z", "unlocked": false}},
   "settings": {"voiceURI": null, "rate": 0.9, "autoSpeak": true, "playSounds": false},
   "lastOpened": "2026-10-03T14:12:00Z"
 }
@@ -295,6 +296,7 @@ Key `reading.v1`:
 
 - `result` is `"got-it"`, `"practice-again"` or `null`.
 - A lesson is unlocked if it is lesson 1 or the previous lesson has `result === "got-it"`. The parent can unlock any lesson from Grownups.
+- A checkpoint is unlocked when the lesson it follows is done, or when its `unlocked` flag is set from Grownups. `checkpoints` is optional in saved data (older saves have none).
 - All reads are wrapped in try/catch. If storage is missing or corrupt, start fresh without crashing.
 
 ## 6. Screens
@@ -307,7 +309,7 @@ Every task screen has a round speaker button (7.3). Tapping it speaks the task's
 
 Match `docs/reference/readingcom/01-home-map.png` in spirit: a bright, friendly landscape with numbered stones on a path and a "Grownups" pill top left.
 
-- Three round stones, numbered 1, 2, 3, each carrying its letter glyph in the lesson's accent color, along a curving path from bottom left to top right.
+- Three round stones, numbered 1, 2, 3, each carrying its letter glyph in the lesson's accent color, along a curving path from bottom left to top right. A checkpoint (6.7) adds a further stone after the lesson it follows, with a small sack icon instead of a letter, locked until that lesson is done.
 - States: done (glyph plus a check), current (pulsing ring, larger, a small speech bubble that speaks "Tap to start" when tapped), locked (muted, small padlock; tapping wobbles it, nothing more).
 - "Grownups" pill behind the hold gate.
 - First run: one parent card ("Sit with your child. You say the sounds; the app helps. Tap a stone to start.") with a "Start" button. This tap also unlocks speech for the session.
@@ -361,7 +363,17 @@ Calm, no confetti: large glyph, "Lesson N done", speech: "Lesson done. Well done
 
 ### 6.6 Grownups (`#/grownups`)
 
-Behind the hold gate. Shows: each lesson with result and date; "Unlock" per lesson; "Reset all progress" with confirm; the three sound cards as a reference; voice settings (voice picker from `speechSynthesis.getVoices()` filtered to `en-US`, rate slider 0.7 to 1.1, auto-speak toggle, a "Test voice" button that speaks "moon, apple, sun"); clip status for m, a, s (found or missing) with a link to `README.md` instructions for recording; the playlist link; app version; install hint for Chrome and Edge on Android.
+Behind the hold gate. Shows: each lesson, and each checkpoint after the lesson it follows, with result and date; "Unlock" per lesson and checkpoint; "Reset all progress" with confirm; the three sound cards as a reference; voice settings (voice picker from `speechSynthesis.getVoices()` filtered to `en-US`, rate slider 0.7 to 1.1, auto-speak toggle, a "Test voice" button that speaks "moon, apple, sun"); clip status for m, a, s (found or missing) with a link to `README.md` instructions for recording; the playlist link; app version; install hint for Chrome and Edge on Android.
+
+### 6.7 Checkpoints: the Sound Sack (`#/checkpoint/ID`)
+
+A checkpoint is a bonus review game between lessons, not one of a lesson's tasks. `curriculum.json` lists them: `checkpoints: [{"id": "c1", "title": "Sound sack", "after": 3, "sounds": ["m", "a", "s"], "rounds": 6}]`. The map puts each checkpoint's stone after stone `after`; it is locked until that lesson has `result === "got-it"` (or the parent unlocks it in Grownups). Tapping it opens `#/checkpoint/c1`, which uses the task shell (6.3): progress dots are the rounds, the back arrow returns to the path, the parent script card and Again / Next behave as in a lesson (Next is dimmed for one second; it leads to the finish screen).
+
+The game: on the farm scene a burlap sack (own SVG, stitched, with a rope tie) sits bottom centre with the round's letter glyph on its front in the accent colour. Three white picture cards with a thin dark border sit across the top, staggered, never overlapping each other or the sack. Exactly one card is a word that starts with the sack's sound; the child drags it into the sack. Pointer events, `touch-action: none` on the scene and the cards, so the page never scrolls; the card follows the finger and counts as dropped in the sack when its centre is inside the sack's box grown by 24 px. Right: the card shrinks into the sack, the sack wiggles, a sparkle bursts and a gold star fills in the row; the next round's cards fade in 1.2 s later. A wrong card in the sack glides home with a small shake; a card let go anywhere else springs home; nothing else happens, no red, no sound. Cards are at least 96 px, the sack at least 130 px wide; it all fits in portrait and landscape without scrolling. Six rounds, shuffled over the checkpoint's sounds so the same sound never comes twice in a row. After the sixth round a bigger sparkle plays and the sack overflows with stars.
+
+Data: each sound has `startWords` (`{word, emoji}`, each beginning with the sound's letter); `gameDistractors` is one shared pool of words that begin with none of the taught sounds; `games.sack.say` is the one spoken line ("Listen to your grown up. Then drag the picture into the bag."). Parent script: "Say: 'Which one starts with mmm?' Let them drag it into the bag. There is no right or wrong here." (the current round's sound, "sss" or "a as in apple"). No clip and no sound effect play, with any setting.
+
+Finish (`#/checkpoint/ID/finish`): the same calm two-step finish as a lesson: "That's the sound sack." / "Did your child get it?" / "Yes, go on" (first tap arms it, second returns to the path, where the sack stone now has a tick) / "Not yet, practice again" (starts the game again). Results are stored under `checkpoints` in the store (5.2). Saved data without a `checkpoints` key loads fine.
 
 ## 7. Components
 
@@ -564,4 +576,5 @@ Specified in `docs/ROUND2-games.md`; Geb's example screenshots are in `docs/refe
 - **Quiet sounds.** The app no longer pronounces letter sounds. `playSounds` (Grownups, off by default) brings the recorded clips back. `speech.say` skips clip parts silently when it is off. Quiet variants of the lines that ended in a clip live in `curriculum.json`. Parent scripts read aloud only their framing sentences: any sentence that contains a sound is left out.
 - **Two games per lesson**, Letter Hunt and Barn Doors (6.4), inserted before Quick Check, so Quick Check stays last. Lesson 1 has eight tasks, lessons 2 and 3 have nine. They never score, never say wrong, never play a sound effect and never time the child out. `games.hunt` and `games.barn` in `curriculum.json` hold the spoken line and the distractor letters per taught sound. Art is our own inline SVG in `js/art.js`; the sparkle burst is shared in `js/components/sparkle.js`.
 - **Slide to blend** on Saying Sounds (6.4, task 5): a silent finger slide under the word lights the letters one by one; `test/blend.mjs` covers it by real touch.
+- **Sound Sack checkpoint** (6.7): a bonus review game after lesson 3, reached from its own stone on the map; `test/sack.mjs` covers it by real touch drags.
 - **Tests.** `test/games.mjs` drives both games by real touch at the three viewports (overlap, sizes, wrong and right touches, done state, Again, reduced motion, no clip or speech during play); `test/smoke.mjs` runs it.

@@ -2,6 +2,7 @@ import { h, icon } from '../dom.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
 import { soundCard } from '../components/sound-card.js';
 import { glyphSvg } from '../glyphs.js';
+import { sackSvg } from '../art.js';
 import { accentOf } from '../theme.js';
 import { APP_VERSION } from '../version.js';
 import { richText } from '../letters.js';
@@ -16,25 +17,28 @@ export function grownupsScreen(ctx) {
   if (!ctx.gate || Date.now() - ctx.gate.openedAt > 10 * 60 * 1000) { queueMicrotask(() => router.replace('/home')); return h('div'); }
   ctx.gate = null; // one visit per hold: Back then history.back() cannot re-enter
 
-  // ---- lessons ----
+  // ---- lessons and checkpoints ----
   const lessonsBox = h('div', { class: 'gu-list' });
-  let unlocking = null; // lesson number waiting for the confirm tap
+  let unlocking = null; // what is waiting for the confirm tap: a lesson number or a checkpoint id
   const paintLessons = () => {
-    lessonsBox.replaceChildren(...curriculum.lessons.map((l) => {
-      if (unlocking === l.number) {
+    // One row per lesson, and a checkpoint right after the lesson it follows.
+    const rows = curriculum.lessons.flatMap((l) => [{ key: l.number, lesson: l }, ...(curriculum.checkpoints || []).filter((c) => c.after === l.number).map((c) => ({ key: c.id, checkpoint: c }))]);
+    lessonsBox.replaceChildren(...rows.map((r) => {
+      const name = r.lesson ? `lesson ${r.lesson.number}` : `the ${r.checkpoint.title.toLowerCase()}`;
+      if (unlocking === r.key) {
         return h('div', { class: 'gu-confirm', role: 'alertdialog', 'aria-label': 'Confirm unlock' },
-          h('p', {}, `Unlock lesson ${l.number} without finishing the one before it?`),
+          h('p', {}, r.lesson ? `Unlock lesson ${r.lesson.number} without finishing the one before it?` : `Unlock the ${r.checkpoint.title.toLowerCase()} without finishing lesson ${r.checkpoint.after}?`),
           h('div', { class: 'gu-actions' },
             h('button', { class: 'btn ghost small', type: 'button', onclick: () => { unlocking = null; paintLessons(); } }, 'Cancel'),
-            h('button', { class: 'btn small', type: 'button', onclick: () => { store.unlock(l.number); unlocking = null; paintLessons(); } }, 'Unlock')));
+            h('button', { class: 'btn small', type: 'button', onclick: () => { if (r.lesson) store.unlock(r.lesson.number); else store.unlockCheckpoint(r.checkpoint.id); unlocking = null; paintLessons(); } }, 'Unlock')));
       }
-      const st = store.lesson(l.number);
-      const unlocked = store.isUnlocked(l.number);
+      const st = r.lesson ? store.lesson(r.lesson.number) : store.checkpoint(r.checkpoint.id);
+      const unlocked = r.lesson ? store.isUnlocked(r.lesson.number) : store.isCheckpointUnlocked(r.checkpoint);
       const status = st.result === 'got-it' ? `Got it${st.completedAt ? ' on ' + fmt(st.completedAt) : ''}` : st.result === 'practice-again' ? `Practice again${st.completedAt ? ' (' + fmt(st.completedAt) + ')' : ''}` : (unlocked ? 'Open, not finished' : 'Locked');
       return h('div', { class: 'gu-row' },
-        h('span', { class: 'gu-glyph' }, glyphSvg(l.sound, { color: accentOf(l.sound), label: 'lesson ' + l.number })),
-        h('div', { class: 'gu-row-text' }, h('strong', {}, `Lesson ${l.number}`), h('span', { class: 'gu-sub' }, status)),
-        unlocked ? h('span', { class: 'gu-open' }, st.result === 'got-it' ? icon('check', 20) : '') : h('button', { class: 'btn ghost small', type: 'button', onclick: () => { unlocking = l.number; paintLessons(); } }, 'Unlock'));
+        h('span', { class: 'gu-glyph' }, r.lesson ? glyphSvg(r.lesson.sound, { color: accentOf(r.lesson.sound), label: name }) : sackSvg()),
+        h('div', { class: 'gu-row-text' }, h('strong', {}, r.lesson ? `Lesson ${r.lesson.number}` : r.checkpoint.title), h('span', { class: 'gu-sub' }, status)),
+        unlocked ? h('span', { class: 'gu-open' }, st.result === 'got-it' ? icon('check', 20) : '') : h('button', { class: 'btn ghost small', type: 'button', 'aria-label': `Unlock ${name}`, onclick: () => { unlocking = r.key; paintLessons(); } }, 'Unlock'));
     }));
   };
   paintLessons();
