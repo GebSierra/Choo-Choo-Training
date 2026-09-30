@@ -7,13 +7,8 @@ const PAD = 6;
 
 // Drag the letter along the track while saying its sound. The one interaction where a clip
 // is tied to a child's gesture: it plays once when the drag starts (skipped if no clip exists).
-export function slideTrack({ letter, speech, sound, onComplete }) {
+export function slideTrack({ letter, speech, onComplete }) {
   const accent = accentOf(letter);
-  const wavePath = (() => {
-    let d = 'M0 20';
-    for (let i = 0; i < 8; i++) d += ` q12.5 -14 25 0 t25 0`.replace('t25 0', 't25 0');
-    return d;
-  })();
   const wave = h('span', { class: 'st-wave', 'aria-hidden': 'true' },
     h('svg', { viewBox: '0 0 400 40', preserveAspectRatio: 'none' }, h('path', { d: 'M0 20 Q25 4 50 20 T100 20 T150 20 T200 20 T250 20 T300 20 T350 20 T400 20', fill: 'none', stroke: 'rgba(255,255,255,.55)', 'stroke-width': 5, 'stroke-linecap': 'round' }),
       h('path', { d: 'M0 28 Q25 12 50 28 T100 28 T150 28 T200 28 T250 28 T300 28 T350 28 T400 28', fill: 'none', stroke: 'rgba(255,255,255,.3)', 'stroke-width': 4, 'stroke-linecap': 'round' })));

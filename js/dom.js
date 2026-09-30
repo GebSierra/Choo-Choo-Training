@@ -33,8 +33,6 @@ export function animate(el, keyframes, opts) {
   return a;
 }
 
-export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
 export function icon(name, size = 24) {
   const paths = {
     back: 'M15 5l-7 7 7 7',

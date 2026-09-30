@@ -6,10 +6,22 @@ import { ROOT } from './lib.mjs';
 export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee', 'aitch', 'eye', 'jay', 'kay', 'el', 'em', 'en', 'oh', 'pee', 'cue', 'ar', 'ess', 'tee', 'you', 'vee', 'double', 'ex', 'wye', 'zee'];
 const nameRe = new RegExp(`\\b(${LETTER_NAMES.join('|')})\\b`, 'i');
 // Text to speech must never get a single letter or a run of one letter ("m", "mmm").
-const isIsolated = (t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, ''); return z.length === 1 || (z.length > 1 && /^(.)\1+$/.test(z)); };
+export const isIsolated = (t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, ''); return z.length === 1 || (z.length > 1 && /^(.)\1+$/.test(z)); };
 // A capital is fine at the start of a sentence, nowhere else.
 const strayCaps = (s) => /[A-Z]/.test(s.replace(/(^|[.!?]\s+)[A-Z]/g, '$1'));
 const isYouTube = (u) => { try { return /^(www\.|m\.)?(youtube\.com|youtu\.be)$/.test(new URL(u).hostname); } catch { return false; } };
+
+// Every string in the curriculum that text to speech may receive.
+export function spokenStrings(c) {
+  const out = [];
+  for (const s of Object.values(c.sounds)) s.words.forEach((w) => out.push(w.word));
+  for (const L of c.lessons) {
+    for (const part of [...L.intro, ...L.quickCheck.prompt]) if (part.tts !== undefined) out.push(part.tts);
+    L.sayingWords.forEach((w) => out.push(w.word, ...w.parts));
+    L.sayingSounds.forEach((w) => out.push(w.word));
+  }
+  return out;
+}
 
 export function checkCurriculum(c, root = ROOT) {
   const errors = [];

@@ -4,7 +4,7 @@ import { slideTrack } from '../components/slide-track.js';
 import { tracePad } from '../components/trace-pad.js';
 
 // Debug route #/lab: exercise speech and (later) the slide track and trace pad.
-export function labScreen({ speech, curriculum }) {
+export function labScreen({ speech }) {
   const log = h('pre', { id: 'lab-log', class: 'lab-log' });
   const say = (label, parts) => h('button', { class: 'lab-btn', type: 'button', onclick: async () => {
     log.textContent += `> ${label}\n`;
@@ -25,7 +25,7 @@ export function labScreen({ speech, curriculum }) {
     ),
     h('div', { class: 'lab-row' }, speakButton({ speech, getParts: () => [{ tts: 'moon' }], label: 'Hear moon' })),
     h('div', { id: 'lab-extra', class: 'lab-extra' },
-      slideTrack({ letter: 'm', speech, sound: curriculum.sounds.m }),
+      slideTrack({ letter: 'm', speech }),
       pad,
       h('div', { class: 'lab-row' }, h('button', { class: 'lab-btn', id: 'lab-show', type: 'button', onclick: () => pad.showMe() }, 'show me'), h('button', { class: 'lab-btn', id: 'lab-clear', type: 'button', onclick: () => pad.clear() }, 'clear'))),
     log);

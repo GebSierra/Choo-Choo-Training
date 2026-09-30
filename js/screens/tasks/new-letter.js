@@ -7,7 +7,7 @@ import { accentOf } from '../../theme.js';
 import { soundPhrase } from '../../lessons.js';
 
 // Task 2: the new letter, its sound card, the slide track and the example pictures.
-export function build({ lesson, sound, speech, refresh }) {
+export function build({ lesson, sound, speech }) {
   const accent = accentOf(sound.glyph);
   const g = glyphSvg(sound.glyph, { color: accent, label: 'new letter' });
   drawIn(g, { delay: 300 }); // started now, not in onShow: the hidden first frame must be there from the start
@@ -20,7 +20,7 @@ export function build({ lesson, sound, speech, refresh }) {
       h('span', { class: 'pic' }, pic), h('span', { class: 'word' }, letterText(w.word, { tint: sound.glyph })));
     return t;
   }));
-  const track = slideTrack({ letter: sound.glyph, speech, sound });
+  const track = slideTrack({ letter: sound.glyph, speech });
   const el = h('div', { class: 'new-letter' }, card, soundCard(sound), track, tiles);
   return {
     el,

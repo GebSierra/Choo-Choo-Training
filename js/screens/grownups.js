@@ -82,7 +82,7 @@ export function grownupsScreen(ctx) {
       sec('Voice', h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate),
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Speak automatically'), toggle), test,
         h('p', { class: 'gu-note' }, speech.hasSynth ? 'The voice comes from your phone. If a voice sounds robotic, pick another one here.' : 'This browser has no text to speech.')),
-      sec('Recorded sounds', clipList, h('p', { class: 'gu-note' }, 'Isolated sounds are always played from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('a', { class: 'gu-link', href: 'README.md', target: '_blank', rel: 'noopener' }, icon('external', 20), 'Recording steps (README.md)'), h('p', { class: 'gu-credit' }, CLIP_CREDIT)),
+      sec('Recorded sounds', clipList, h('p', { class: 'gu-note' }, 'Isolated sounds are always played from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT)),
       sec('The three sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
       sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Sound story playlist'),
         h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Alphabet song')),

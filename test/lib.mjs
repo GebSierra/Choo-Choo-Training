@@ -50,7 +50,20 @@ export async function newPage(browser, vp, extra = {}) {
   const page = await ctx.newPage();
   const errors = [];
   // A missing recorded clip is expected until Geb records it; the browser logs its 404 itself.
-  page.on('console', (m) => { if (m.type() === 'error' && !m.location().url.includes('/assets/audio/')) errors.push('console: ' + m.text() + ' ' + m.location().url); });
+  // Only that one known message is ignored: a 404 for a file under /assets/audio/.
+  page.on('console', (m) => { if (m.type() === 'error' && !(m.text().includes('404') && m.location().url.includes('/assets/audio/'))) errors.push('console: ' + m.text() + ' ' + m.location().url); });
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
   return { ctx, page, errors };
+}
+
+// A real touch drag through the browser's input pipeline (Playwright's touchscreen can only tap).
+// during() runs before the finger lifts.
+export async function touchDrag(page, from, to, { steps = 14, during } = {}) {
+  const cdp = await page.context().newCDPSession(page);
+  const send = (type, touchPoints) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints });
+  await send('touchStart', [{ x: from.x, y: from.y }]);
+  for (let i = 1; i <= steps; i++) await send('touchMove', [{ x: from.x + ((to.x - from.x) * i) / steps, y: from.y + ((to.y - from.y) * i) / steps + (i % 2 ? 4 : -4) }]);
+  if (during) await during();
+  await send('touchEnd', []);
+  await cdp.detach();
 }

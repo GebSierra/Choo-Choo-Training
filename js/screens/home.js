@@ -56,7 +56,7 @@ const butterfly = (cls) => h('svg', { class: 'butterfly ' + cls, viewBox: '0 0 4
   h('path', { class: 'wing', d: 'M20 15 C12 0 2 2 4 12 C5 20 14 20 20 15 Z', fill: '#ffffff', opacity: 0.55 }),
   h('path', { class: 'wing', d: 'M20 15 C28 0 38 2 36 12 C35 20 26 20 20 15 Z', fill: '#ffffff', opacity: 0.55 }));
 
-function stone(n, sound, state, curriculum, onTap, speech) {
+function stone(n, sound, state, onTap, speech) {
   const accent = `var(--${sound.glyph})`;
   const top = h('span', { class: 'stone-top' }, glyphSvg(sound.glyph, { color: accent, label: 'lesson ' + n }), h('span', { class: 'stone-num' }, String(n)));
   const badge = state === 'done'
@@ -87,7 +87,7 @@ export function homeScreen(ctx) {
 
   const stones = curriculum.lessons.map((l) => {
     const state = store.isDone(l.number) ? 'done' : (!store.isUnlocked(l.number) ? 'locked' : (l.number === current ? 'current' : 'open'));
-    return stone(l.number, curriculum.sounds[l.sound], state === 'open' ? 'current' : state, curriculum, (btn, st) => {
+    return stone(l.number, curriculum.sounds[l.sound], state === 'open' ? 'current' : state, (btn, st) => {
       if (st === 'locked') {
         animate(btn, [{ transform: 'rotate(0)' }, { transform: 'rotate(-6deg)', offset: 0.25 }, { transform: 'rotate(6deg)', offset: 0.6 }, { transform: 'rotate(0)' }], { duration: 260 });
         return;

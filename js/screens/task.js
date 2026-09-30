@@ -29,7 +29,7 @@ export function taskScreen(ctx, n, idx) {
   const scriptText = h('p', { class: 'script-text' });
   let current = null;
   const refresh = () => { scriptText.replaceChildren(richText(current ? current.script() : '')); };
-  const env = { ...ctx, lesson, sound, task, refresh, say: (parts) => speech.say(parts) };
+  const env = { ...ctx, lesson, sound, refresh };
   current = BUILDERS[task.type](env);
 
   const advance = () => {

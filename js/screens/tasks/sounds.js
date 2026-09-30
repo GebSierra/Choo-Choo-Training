@@ -4,7 +4,7 @@ import { letterText } from '../../letters.js';
 import { stretchWord, stretchLetters } from '../../scripts.js';
 
 // Task 5: stretch the sounds, then say the word.
-export function build({ lesson, sound, curriculum, speech, refresh }) {
+export function build({ lesson, speech, refresh }) {
   const list = lesson.sayingSounds;
   let i = 0, revealed = false, sweepAnim = null;
   const held = new Set([lesson.sound, ...lesson.review]);

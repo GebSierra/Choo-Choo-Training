@@ -73,7 +73,7 @@ export function createSpeech({ store, curriculum }) {
 
   // Resolves 'played', 'missing' (the file failed to load) or 'skipped' (cancelled, blocked by the
   // browser or timed out, which says nothing about the file).
-  function playAudio(url, key, run, el) {
+  function playAudio(url, key, el) {
     return new Promise((resolve) => {
       let settled = false;
       const audio = el || new Audio();
@@ -99,7 +99,7 @@ export function createSpeech({ store, curriculum }) {
     });
   }
 
-  function speakText(text, run) {
+  function speakText(text) {
     return new Promise((resolve) => {
       if (!synth || typeof SpeechSynthesisUtterance === 'undefined') return resolve();
       let settled = false, started = false;
@@ -133,19 +133,19 @@ export function createSpeech({ store, curriculum }) {
         if (run !== runId) return;
         if (part.tts !== undefined) {
           if (isIsolatedSound(part.tts)) { console.warn('speech: refused to speak an isolated sound with text to speech:', part.tts); continue; }
-          await speakText(part.tts, run);
+          await speakText(part.tts);
         } else if (part.clip !== undefined) {
           // Try each candidate file; if none plays, skip the part. Never replaced by text to speech.
           const states = [];
           for (const url of clipUrls(part.clip)) {
             if (run !== runId) return;
-            const st = await playAudio(url, part.clip, run, loaded.get(url));
+            const st = await playAudio(url, part.clip, loaded.get(url));
             states.push(st);
             if (st !== 'missing') break;
           }
           if (states.length && states.every((st) => st === 'missing')) { missing.add(part.clip); clipStatus[part.clip] = false; emit(); }
         } else if (part.src !== undefined) {
-          await playAudio(part.src, null, run);
+          await playAudio(part.src, null);
         } else if (part.pause !== undefined) {
           await wait(part.pause);
         }

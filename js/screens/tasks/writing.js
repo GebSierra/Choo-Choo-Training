@@ -2,7 +2,7 @@ import { h, icon } from '../../dom.js';
 import { tracePad } from '../../components/trace-pad.js';
 
 // Task 6: trace the letter with a finger.
-export function build({ lesson, sound, speech }) {
+export function build({ sound, speech }) {
   const pad = tracePad({ letter: sound.glyph });
   const showBtn = h('button', { class: 'btn ghost small', type: 'button', onclick: async () => { showBtn.disabled = true; await pad.showMe(); showBtn.disabled = false; } }, icon('play', 20), 'Show me');
   const clearBtn = h('button', { class: 'btn ghost small', type: 'button', onclick: () => pad.clear() }, icon('eraser', 20), 'Clear');

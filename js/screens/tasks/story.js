@@ -3,7 +3,7 @@ import { holdButton } from '../../components/hold-button.js';
 import { soundPhrase } from '../../lessons.js';
 
 // Task 3: the only place a child screen leads outside the app, and it sits behind a hold.
-export function build({ lesson, sound, curriculum, speech }) {
+export function build({ sound, curriculum, speech }) {
   const open = () => window.open(curriculum.playlistUrl, '_blank', 'noopener');
   const el = h('div', { class: 'story' },
     h('div', { class: 'story-art' }, h('span', { class: 'play' }, icon('play', 52))),

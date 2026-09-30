@@ -2,9 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { audit } from './audit.mjs';
 import { SPEECH_STUB, silentWav } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag } from './lib.mjs';
+import { spokenStrings, isIsolated } from './check-content.mjs';
 
 const OUT = path.join(ROOT, '_test');
+const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 fs.mkdirSync(OUT, { recursive: true });
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.error('FAIL: ' + msg); } };
@@ -75,15 +77,10 @@ for (const vp of VIEWPORTS) {
   const scrollBefore = await page.evaluate(() => scrollY);
   const tb = await page.locator('.slide-track').boundingBox();
   const hb = await page.locator('.st-handle').boundingBox();
-  await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2);
-  await page.mouse.down();
-  const steps = 12;
-  for (let i = 1; i <= steps; i++) {
-    await page.mouse.move(hb.x + hb.width / 2 + ((tb.width - hb.width) * i) / steps + 4, hb.y + hb.height / 2 + (i % 2 ? 6 : -6), { steps: 2 });
-  }
-  const midScroll = await page.evaluate(() => scrollY);
-  const reached = await page.evaluate(() => document.querySelector('.slide-track').classList.contains('is-end'));
-  await page.mouse.up();
+  let midScroll = null, reached = null;
+  await touchDrag(page, { x: hb.x + hb.width / 2, y: hb.y + hb.height / 2 }, { x: hb.x + hb.width / 2 + tb.width - hb.width + 4, y: hb.y + hb.height / 2 }, {
+    during: async () => { midScroll = await page.evaluate(() => scrollY); reached = await page.evaluate(() => document.querySelector('.slide-track').classList.contains('is-end')); },
+  });
   ok(reached, `${vp.name}: slide track reaches end state`);
   ok(midScroll === scrollBefore && (await page.evaluate(() => scrollY)) === scrollBefore, `${vp.name}: page did not scroll during drag`);
   ok((await page.evaluate(() => document.querySelector('.slide-track').dataset.count)) === '1', `${vp.name}: completion counted once`);
@@ -112,7 +109,9 @@ for (const vp of VIEWPORTS) {
 }
 
 // Every task of every lesson at every viewport (step 8): 20 tasks, audits, screenshots.
-const TASK_COUNTS = { 1: 6, 2: 7, 3: 7 };
+const LESSONS = CUR.lessons.map((l) => l.number);
+const TASK_COUNTS = Object.fromEntries(CUR.lessons.map((l) => [l.number, l.review.length ? 7 : 6]));
+const TOTAL_TASKS = Object.values(TASK_COUNTS).reduce((a, b) => a + b, 0);
 const ALL_OPEN = SEED({ 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' } });
 const allSpoken = [];
 for (const vp of VIEWPORTS) {
@@ -120,7 +119,7 @@ for (const vp of VIEWPORTS) {
   await page.addInitScript(SPEECH_STUB);
   await page.addInitScript(ALL_OPEN);
   let visited = 0;
-  for (const L of [1, 2, 3]) {
+  for (const L of LESSONS) {
     for (let i = 0; i < TASK_COUNTS[L]; i++) {
       await page.goto(url + `#/lesson/${L}/task/${i}`);
       await page.reload();
@@ -130,6 +129,31 @@ for (const vp of VIEWPORTS) {
       const problems = await audit(page, `${vp.name} L${L} T${i}`);
       ok(problems.length === 0, problems.join(' | '));
       if (vp.name !== 'small') await page.screenshot({ path: path.join(OUT, `l${L}-t${i}-${vp.name}.png`) });
+      // Revealed states and the later words, not only the first view.
+      const lesson = CUR.lessons[L - 1];
+      const title = await page.locator('.task-head h1').innerText();
+      const reveal = { 'Saying Words': ['.merged-tile', lesson.sayingWords.length], 'Saying Sounds': ['.sounds-stage', lesson.sayingSounds.length] }[title];
+      if (reveal) {
+        for (let w = 0; w < reveal[1]; w++) {
+          await page.locator(reveal[0]).click();
+          await page.waitForTimeout(550);
+          const rp = await audit(page, `${vp.name} L${L} T${i} ${title} word ${w + 1} revealed`);
+          ok(rp.length === 0, rp.join(' | '));
+          if (w < reveal[1] - 1) { await page.locator('.btn.ghost.small').click(); await page.waitForTimeout(450); }
+        }
+      } else if (title === 'Quick Check') {
+        await page.locator('.opt-card').first().click();
+        await page.waitForTimeout(400);
+        const qp = await audit(page, `${vp.name} L${L} T${i} Quick Check picked`);
+        ok(qp.length === 0, qp.join(' | '));
+      } else if (title === 'Letter Review' && lesson.review.length > 1) {
+        for (let r = 1; r < lesson.review.length; r++) {
+          await page.click('.btn.next');
+          await page.waitForTimeout(600);
+          const rp = await audit(page, `${vp.name} L${L} T${i} review letter ${r + 1}`);
+          ok(rp.length === 0, rp.join(' | '));
+        }
+      }
     }
     await page.goto(url + `#/lesson/${L}`); await page.reload();
     await page.waitForSelector('.lesson-overview'); await page.waitForTimeout(500);
@@ -141,9 +165,41 @@ for (const vp of VIEWPORTS) {
     ok(fp.length === 0, fp.join(' | '));
     if (L === 2 && vp.name !== 'small') await page.screenshot({ path: path.join(OUT, `finish-${vp.name}.png`) });
   }
-  ok(visited === 20, `${vp.name}: visited ${visited} tasks`);
+  ok(visited === TOTAL_TASKS, `${vp.name}: visited ${visited} of ${TOTAL_TASKS} tasks`);
   ok(errors.length === 0, `${vp.name}: task walk errors ${errors.join(' | ')}`);
   await ctx.close();
+}
+
+// Touch drag on the real New Letter screen (not only the lab): the handle reaches the end and the stage does not scroll.
+for (const vp of VIEWPORTS) {
+  const { ctx, page, errors } = await newPage(browser, vp);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(ALL_OPEN);
+  await page.goto(url + '#/lesson/2/task/1');
+  await page.waitForSelector('.new-letter .slide-track');
+  await page.waitForTimeout(900);
+  const tb = await page.locator('.slide-track').boundingBox();
+  const hb = await page.locator('.st-handle').boundingBox();
+  const top = () => page.evaluate(() => document.querySelector('.task-activity').scrollTop);
+  const before = await top();
+  let mid = null, reached = null;
+  await touchDrag(page, { x: hb.x + hb.width / 2, y: hb.y + hb.height / 2 }, { x: hb.x + hb.width / 2 + tb.width - hb.width + 4, y: hb.y + hb.height / 2 }, {
+    during: async () => { mid = await top(); reached = await page.evaluate(() => document.querySelector('.slide-track').classList.contains('is-end')); },
+  });
+  ok(reached, `${vp.name}: New Letter slide track reaches the end by touch`);
+  ok(mid === before && (await top()) === before, `${vp.name}: New Letter stage did not scroll during the touch drag`);
+  ok((await page.evaluate(() => document.querySelector('.slide-track').dataset.count)) === '1', `${vp.name}: New Letter completion counted once`);
+  ok(errors.length === 0, `${vp.name}: touch drag errors ${errors.join(' | ')}`);
+  await ctx.close();
+}
+{
+  // The two version strings move together, and no spoken curriculum string is a lone letter.
+  const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+  const cache = sw.match(/const CACHE_VERSION = 'reading-v([^']+)'/);
+  const app = fs.readFileSync(path.join(ROOT, 'js/version.js'), 'utf8').match(/APP_VERSION = '([^']+)'/);
+  ok(cache && app && cache[1] === app[1], `CACHE_VERSION (${cache && cache[1]}) equals APP_VERSION (${app && app[1]})`);
+  const spokenBad = spokenStrings(CUR).filter(isIsolated);
+  ok(spokenBad.length === 0, 'no spoken curriculum string is a single letter or a run of one: ' + JSON.stringify(spokenBad));
 }
 
 // Full lesson 1 flow with the real buttons: speech on entry, popup, done ticks, got it unlocks lesson 2.
@@ -187,7 +243,7 @@ for (const vp of VIEWPORTS) {
     page.waitForEvent('popup', { timeout: 4000 }),
     (async () => { await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up(); })(),
   ]);
-  ok(/youtube\.com\/playlist/.test(popup.url()) || true, 'playlist popup opened: ' + popup.url());
+  ok(/youtube\.com\/playlist\?list=PL2hNdtrsO2hIINInfmEb55IpwTw0IrQZW/.test(popup.url()), 'playlist popup opened the playlist: ' + popup.url());
   await popup.close();
   // Walk the remaining tasks.
   for (let k = 0; k < 4; k++) { await page.click('.btn.next'); await page.waitForTimeout(450); }
@@ -413,7 +469,7 @@ for (const [name, raw] of [
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
   await page.reload();
   await page.waitForFunction(() => navigator.serviceWorker.controller);
-  ok(true, 'service worker registered and controlling');
+  ok(await page.evaluate(() => !!navigator.serviceWorker.controller), 'service worker registered and controlling');
   await ctx.setOffline(true);
   await page.reload();
   await page.waitForSelector('.stone', { timeout: 8000 });
@@ -421,7 +477,7 @@ for (const [name, raw] of [
   await page.goto(url + 'index.html#/lesson/1/task/0');
   await page.reload();
   await page.waitForSelector('.task-screen', { timeout: 8000 });
-  ok(true, 'offline task renders');
+  ok((await page.locator('.task-screen').count()) === 1, 'offline task renders');
   const fontOk = await page.evaluate(() => document.fonts.load('800 20px Nunito').then((f) => f.length > 0));
   ok(fontOk, 'font renders offline');
   await ctx.setOffline(false);
@@ -443,7 +499,7 @@ for (const [name, raw] of [
   await page.waitForTimeout(1200);
   ok((await page.evaluate(() => window.__spoken.length + window.__events.length)) === 0, 'no speech or clip before the first tap');
   const spokenAll = [];
-  for (const L of [1, 2, 3]) {
+  for (const L of LESSONS) {
     for (let i = 0; i < TASK_COUNTS[L]; i++) {
       await page.evaluate((h) => { location.hash = h; }, `#/lesson/${L}/task/${i}`);
       await page.waitForSelector('.task-screen');
@@ -479,7 +535,7 @@ for (const [name, raw] of [
   ok(Date.now() - t0 < 5800, 'speech that never starts gives up within a few seconds (' + (Date.now() - t0) + ' ms)');
   await page.click('.btn.next');
   await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Sound Story', null, { timeout: 3000 });
-  ok(true, 'Next works while speech never starts');
+  ok((await page.locator('.task-head h1').innerText()) === 'Sound Story', 'Next works while speech never starts');
   ok(errors.length === 0, 'silent-speech errors ' + errors.join(' | '));
   await ctx.close();
 }
