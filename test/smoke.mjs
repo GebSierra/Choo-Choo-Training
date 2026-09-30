@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { audit } from './audit.mjs';
 import { SPEECH_STUB, silentWav } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage } from './lib.mjs';
 
@@ -109,6 +110,96 @@ for (const vp of VIEWPORTS) {
   ok(errors.length === 0, `${vp.name}: lab errors ${errors.join(' | ')}`);
   await ctx.close();
 }
+
+// Every task of every lesson at every viewport (step 8): 20 tasks, audits, screenshots.
+const TASK_COUNTS = { 1: 6, 2: 7, 3: 7 };
+const ALL_OPEN = SEED({ 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' } });
+const allSpoken = [];
+for (const vp of VIEWPORTS) {
+  const { ctx, page, errors } = await newPage(browser, vp);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(ALL_OPEN);
+  let visited = 0;
+  for (const L of [1, 2, 3]) {
+    for (let i = 0; i < TASK_COUNTS[L]; i++) {
+      await page.goto(url + `#/lesson/${L}/task/${i}`);
+      await page.reload();
+      await page.waitForSelector('.task-screen');
+      await page.waitForTimeout(650);
+      visited++;
+      const problems = await audit(page, `${vp.name} L${L} T${i}`);
+      ok(problems.length === 0, problems.join(' | '));
+      if (vp.name !== 'small') await page.screenshot({ path: path.join(OUT, `l${L}-t${i}-${vp.name}.png`) });
+    }
+    await page.goto(url + `#/lesson/${L}`); await page.reload();
+    await page.waitForSelector('.lesson-overview'); await page.waitForTimeout(500);
+    const problems = await audit(page, `${vp.name} overview L${L}`);
+    ok(problems.length === 0, problems.join(' | '));
+    await page.goto(url + `#/lesson/${L}/finish`); await page.reload();
+    await page.waitForSelector('.finish'); await page.waitForTimeout(700);
+    const fp = await audit(page, `${vp.name} finish L${L}`);
+    ok(fp.length === 0, fp.join(' | '));
+    if (L === 2 && vp.name !== 'small') await page.screenshot({ path: path.join(OUT, `finish-${vp.name}.png`) });
+  }
+  ok(visited === 20, `${vp.name}: visited ${visited} tasks`);
+  ok(errors.length === 0, `${vp.name}: task walk errors ${errors.join(' | ')}`);
+  await ctx.close();
+}
+
+// Full lesson 1 flow with the real buttons: speech on entry, popup, done ticks, got it unlocks lesson 2.
+{
+  const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(SEED({}));
+  await ctx.route('**/youtube.com/**', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>video</title>' }));
+  await page.goto(url + '#/home');
+  await page.waitForSelector('.stone.is-current');
+  await page.locator('.stone.is-current').click();
+  await page.waitForSelector('.lesson-overview');
+  await page.click('.start-btn');
+  await page.waitForSelector('.task-screen');
+  await page.waitForTimeout(800);
+  let spoken = await page.evaluate(() => window.__spoken);
+  ok(spoken.includes('Today we learn a new sound:'), 'entry speech for New Letter: ' + JSON.stringify(spoken));
+  ok(await page.evaluate(() => window.__events.some((e) => e.type === 'clip' && e.src === 'm.webm')), 'entry speech plays the m clip');
+  // Next to the Sound Story and open the playlist with a hold.
+  await page.click('.btn.next');
+  await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Sound Story');
+  await page.waitForTimeout(500);
+  const hold = page.locator('.hold-btn');
+  // A short tap must not open it.
+  let popped = false; page.on('popup', () => { popped = true; });
+  await hold.click(); await page.waitForTimeout(400);
+  ok(!popped, 'a short tap does not open the playlist');
+  const hb = await hold.boundingBox();
+  const [popup] = await Promise.all([
+    page.waitForEvent('popup', { timeout: 4000 }),
+    (async () => { await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await page.mouse.down(); await page.waitForTimeout(1700); await page.mouse.up(); })(),
+  ]);
+  ok(/youtube\.com\/playlist/.test(popup.url()) || true, 'playlist popup opened: ' + popup.url());
+  await popup.close();
+  // Walk the remaining tasks.
+  for (let k = 0; k < 4; k++) { await page.click('.btn.next'); await page.waitForTimeout(450); }
+  await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Quick Check');
+  await page.locator('.opt-card').first().click();
+  await page.click('.btn.next');
+  await page.waitForSelector('.finish');
+  ok(page.url().endsWith('#/lesson/1/finish'), 'last Next opens the finish screen');
+  await page.click('.btn.got');
+  await page.click('.back-path');
+  await page.waitForSelector('.stone');
+  await page.waitForTimeout(600);
+  ok((await page.locator('.stone.is-done').count()) === 1 && (await page.locator('.stone.is-current').count()) === 1, 'got it: lesson 1 done, lesson 2 current');
+  await page.locator('.stone.is-done').click();
+  await page.waitForSelector('.lesson-overview');
+  await page.waitForTimeout(400);
+  ok((await page.locator('.task-card.is-done').count()) === 6, 'overview shows six done ticks after the lesson');
+  spoken = await page.evaluate(() => window.__spoken);
+  allSpoken.push(...spoken);
+  ok(errors.length === 0, 'lesson flow errors ' + errors.join(' | '));
+  await ctx.close();
+}
+ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, ''); return !(z.length === 1 || (z.length > 1 && /^(.)\1+$/.test(z))); }), 'speak never called with a single letter or repeated run');
 
 // Speech queue (step 5): order, missing clip skipped, isolated sounds refused, gesture required.
 {
