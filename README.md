@@ -123,3 +123,10 @@ The plan left these open or made them impossible to follow literally. Each is th
 - Barn Doors: a round is one opening of the doors. A distractor round does not fill a star, so the game always ends after five stars, and never shows two distractor rounds in a row. The letter sits on a warm lit tile inside the dark barn so ink-coloured letters stay readable there; the colour-is-not-a-clue rule holds (ink until found).
 - Barn Doors with reduced motion: the door leaves swap by opacity instantly; nothing hops, breathes or drifts. Letter Hunt with reduced motion: no drift, no trot animation (the sheep moves at once), pops and sparkles are skipped.
 - Overview cards for the games use the sheep and the barn as their picture and the target letter chip; Letter Hunt is sky blue and Barn Doors coral. The landscape overview keeps its grid that scrolls vertically (Round 1 fix 23), now with more cards.
+
+### Slide to blend (Saying Sounds)
+
+- For words that show letters (am, ma, sam) the child slides a finger left to right under the word; each letter lights in its own accent colour as the finger passes its left edge, the letter under the finger grows a little with a soft halo, and a thin bar grows to the finger. It is silent: the grown up stretches the sounds in time. Dragging back un-lights letters. At the end the word lifts, a small sparkle bursts, the lit word holds for 700 ms and resets. Lifting early holds the lit letters for 500 ms and fades them.
+- The looping sweep stays as a demonstration until the first touch on the word; it comes back on Again or Next word. A tap without a drag still reveals the word.
+- The touch zone is the whole row, which spans the white card, so a finger may start a little left of the first letter. A letter's edges are the glyph's own width (stroke included). Reduced motion keeps the lighting and drops the scale, halo fade and lift.
+- Pictures-only words (moon, map, mom) are unchanged. `test/blend.mjs` drives the slide by real touch at the three viewports.

@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, startServer, loadPlaywright, launch } from '../test/lib.mjs';
 import { SPEECH_STUB } from '../test/stubs.mjs';
+import { touchSession } from '../test/lib.mjs';
 
 const OUTS = [path.join(ROOT, '_test'), path.join(ROOT, 'docs/screenshots')];
 OUTS.forEach((d) => fs.mkdirSync(d, { recursive: true }));
@@ -49,6 +50,16 @@ await page.goto(url + '#/lesson/2/task/8'); await page.waitForTimeout(1200);
 await page.locator('.opt-card').nth(1).click(); await page.waitForTimeout(400);
 await save(page, '06-quick-check.png');
 
+// Saying Sounds with a finger sliding under "am": the first letter lit, the second lighting up.
+await page.goto(url + '#/lesson/2/task/4'); await page.waitForSelector('.glyph-letter'); await page.waitForTimeout(1200);
+{
+  const r = await page.evaluate(() => { const e = [...document.querySelectorAll('.glyph-letter .glyph-pop')].map((g) => g.getBoundingClientRect()); return { l0: e[0].left, r0: e[0].right, l1: e[1].left, r1: e[1].right, y: e[0].top + e[0].height / 2, row: document.querySelector('.glyph-row').getBoundingClientRect().left }; });
+  const t = await touchSession(page);
+  await t.start(r.row + 4, r.y); await t.move(r.row + 14, r.y); await t.move(r.l0 + 10, r.y); await t.move((r.l1 + r.r1) / 2 - 20, r.y);
+  await page.waitForTimeout(300);
+  await save(page, '14-saying-sounds-slide.png');
+  await t.end();
+}
 // The two games mid-play, and the overview scrolled to their cards.
 await page.goto(url + '#/lesson/1/task/5'); await page.waitForSelector('.sky-letter'); await page.waitForTimeout(1200);
 for (let i = 0; i < 2; i++) { await page.evaluate(() => document.querySelector('.sky-letter[data-target="1"]:not(.popped)').click()); await page.waitForTimeout(i ? 350 : 1600); }

@@ -6,6 +6,7 @@ import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDra
 import { spokenStrings, isIsolated } from './check-content.mjs';
 import { tasksFor } from '../js/lessons.js';
 import { huntChecks, barnChecks, reducedChecks } from './games.mjs';
+import { blendChecks, blendReducedChecks } from './blend.mjs';
 
 const OUT = path.join(ROOT, '_test');
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
@@ -211,6 +212,9 @@ for (const vp of VIEWPORTS) {
 for (const lessonNo of [2, 3]) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
 await barnChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo: 3 });
 await reducedChecks({ browser, url, ok, CUR });
+// Saying Sounds, slide to blend: real touch drags across am (lesson 2) and sam (lesson 3).
+for (const vp of VIEWPORTS) for (const lessonNo of [2, 3]) await blendChecks({ browser, url, ok, vp, lessonNo, shot: shotTo(OUT) });
+await blendReducedChecks({ browser, url, ok });
 {
   // Full screen button on Home and in Grownups (the Fullscreen API is stubbed so the call can be counted).
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);

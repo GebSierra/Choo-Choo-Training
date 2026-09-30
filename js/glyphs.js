@@ -61,8 +61,13 @@ export function wordSvg(word, opts = {}) {
   for (const ch of letters) {
     const g = GLYPHS[ch];
     const grp = h('g', { class: 'glyph-letter', transform: `translate(${x - g.minX} 0)`, dataset: { letter: ch } });
-    g.strokes.forEach((s) => grp.append(strokePath(s.d, opts.color || 'currentColor', { class: 'stroke' })));
+    // A soft halo behind the letter and an inner group for the pop, so Saying Sounds can light a letter by
+    // class alone (the outer group already carries its own translate).
+    const pop = h('g', { class: 'glyph-pop' });
+    g.strokes.forEach((s) => pop.append(strokePath(s.d, opts.color || 'currentColor', { class: 'stroke' })));
+    grp.append(h('ellipse', { class: 'glyph-halo', cx: (g.minX + g.maxX) / 2, cy: 59, rx: (g.maxX - g.minX) / 2 + 6, ry: 31 }), pop);
     groups.push({ grp, x0: x, x1: x + (g.maxX - g.minX) });
+    grp.dataset.x0 = String(x); grp.dataset.x1 = String(x + (g.maxX - g.minX));
     x += g.maxX - g.minX + SPACING;
   }
   const width = Math.max(1, x - SPACING);

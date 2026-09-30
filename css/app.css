@@ -401,7 +401,7 @@ body.night { background: var(--night); }
 .sounds-task { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 .sounds-body { display: grid; gap: 18px; justify-items: center; }
 .sounds-stage { position: relative; width: min(100%, 360px); min-height: 230px; border: 0; border-radius: 26px; background: #fff; box-shadow: var(--shadow); display: grid; place-items: center; align-content: center; gap: 10px; padding: 20px; cursor: pointer; touch-action: manipulation; color: var(--ink); }
-.glyph-row { position: relative; display: block; width: 86%; overflow: hidden; border-radius: 16px; }
+.glyph-row { position: relative; display: block; width: 100%; overflow: hidden; border-radius: 16px; padding: 6px 7%; }
 .glyph-row .glyph { width: 100%; height: auto; display: block; }
 .sweep { position: absolute; top: 0; bottom: 0; left: 0; width: 34%; background: linear-gradient(90deg, transparent, rgba(255,190,60,.95), transparent); mix-blend-mode: screen; will-change: transform, opacity; opacity: 0; pointer-events: none; }
 .emoji.huge { font-size: 110px; line-height: 1; }
@@ -466,7 +466,7 @@ body.night { background: var(--night); }
   .part-tile { padding: 8px; } .part-tile .emoji { font-size: 44px; } .part-tile .word { font-size: 20px; }
   .merged-tile { min-height: 96px; padding: 8px; } .merged-tile .word.big { font-size: 32px; } .merged-tile .emoji.stack { font-size: 44px; }
   .sounds-body { gap: 12px; }
-  .sounds-stage { min-height: 130px; padding: 12px; } .glyph-row { width: 60%; } .reveal-word { font-size: 32px; } .emoji.huge { font-size: 80px; }
+  .sounds-stage { min-height: 130px; padding: 12px; } .glyph-row { padding: 4px 20%; } .reveal-word { font-size: 32px; } .emoji.huge { font-size: 80px; }
   .opt-card { min-height: 110px; }
   .story-art { width: 110px; height: 110px; } .story .play { width: 80px; height: 80px; }
   .check-prompt { font-size: 22px; min-height: 0; }
@@ -567,3 +567,22 @@ button img, .word-tile img { pointer-events: none; -webkit-user-drag: none; -web
 .art-sheep, .art-barn { display: block; width: 150px; }
 .art-sheep svg, .art-barn svg { display: block; width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) { .sheep-wrap { transition: none; } }
+
+/* ---------- Saying Sounds: slide to blend ---------- */
+.glyph-row.slidable { touch-action: none; cursor: grab; -webkit-touch-callout: none; }
+.glyph-row .glyph { overflow: visible; }
+.glyph-letter { --accent: var(--ink); }
+.glyph-letter .stroke { transition: stroke var(--t-fast); }
+.glyph-letter.lit .stroke { stroke: var(--accent); }
+.glyph-pop { transform-box: fill-box; transform-origin: 50% 55%; transition: transform var(--t-fast) var(--ease-spring); }
+.glyph-letter.current .glyph-pop { transform: scale(1.12); }
+.glyph-halo { fill: var(--accent); opacity: 0; transition: opacity var(--t-base); }
+.glyph-letter.current .glyph-halo { opacity: .2; }
+.blend-bar { display: block; width: 86%; height: 12px; border-radius: 999px; background: rgba(30,33,64,.1); overflow: hidden; }
+.blend-bar i { display: block; width: 100%; height: 100%; border-radius: 999px; background: var(--accent, var(--ink)); transform: scaleX(0); transform-origin: 0 50%; will-change: transform; transition: transform 70ms linear; }
+@media (prefers-reduced-motion: reduce) {
+  .glyph-letter .stroke, .glyph-halo, .blend-bar i { transition: none; }
+  .glyph-pop { transition: none; }
+  .glyph-letter.current .glyph-pop { transform: none; }
+}
+@media (orientation: landscape) and (max-height: 520px) { .blend-bar { width: 60%; height: 10px; } }

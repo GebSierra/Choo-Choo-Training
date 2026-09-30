@@ -67,3 +67,14 @@ export async function touchDrag(page, from, to, { steps = 14, during } = {}) {
   await send('touchEnd', []);
   await cdp.detach();
 }
+
+// A touch you can steer step by step (Playwright's touchscreen can only tap): start, move to x/y, end.
+export async function touchSession(page) {
+  const cdp = await page.context().newCDPSession(page);
+  const send = (type, touchPoints) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints });
+  return {
+    start: (x, y) => send('touchStart', [{ x, y }]),
+    move: (x, y) => send('touchMove', [{ x, y }]),
+    end: async () => { await send('touchEnd', []); await cdp.detach(); },
+  };
+}

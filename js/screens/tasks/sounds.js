@@ -2,11 +2,12 @@ import { h, animate, reduced, icon } from '../../dom.js';
 import { wordSvg, hasGlyph } from '../../glyphs.js';
 import { letterText } from '../../letters.js';
 import { stretchWord, stretchLetters } from '../../scripts.js';
+import { slideBlend } from '../../components/slide-blend.js';
 
 // Task 5: stretch the sounds, then say the word.
 export function build({ lesson, speech, refresh }) {
   const list = lesson.sayingSounds;
-  let i = 0, revealed = false, sweepAnim = null;
+  let i = 0, revealed = false, sweepAnim = null, blend = null;
   const held = new Set([lesson.sound, ...lesson.review]);
   const body = h('div', { class: 'sounds-body' });
   const el = h('div', { class: 'sounds-task' }, body);
@@ -20,13 +21,19 @@ export function build({ lesson, speech, refresh }) {
   function show() {
     revealed = false;
     if (sweepAnim) sweepAnim.cancel();
+    if (blend) blend.cleanup();
+    blend = null;
     const w = cur();
     const stage = h('button', { class: 'sounds-stage', type: 'button', 'aria-label': 'Tap to show the word' });
     let sweep = null, art;
     if (w.showLetters) {
       art = wordSvg(w.word, { color: '#1E2140', label: 'the letters' });
       sweep = h('span', { class: 'sweep', 'aria-hidden': 'true' });
-      stage.append(h('span', { class: 'glyph-row' }, art, sweep));
+      const row = h('span', { class: 'glyph-row slidable' }, art, sweep);
+      const bar = h('span', { class: 'blend-bar', 'aria-hidden': 'true' }, h('i'));
+      stage.append(row, bar);
+      // The sweep is only a demonstration: the first touch on the word hands over to the child's finger.
+      blend = slideBlend({ row, svg: art, bar, host: stage, onFirstTouch: () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } sweep.style.opacity = '0'; } });
     } else {
       art = h('span', { class: 'emoji huge' }, w.emoji);
       stage.append(art);
@@ -35,6 +42,7 @@ export function build({ lesson, speech, refresh }) {
     const hint = h('span', { class: 'tap-hint', 'aria-hidden': 'true' }, icon('tap', 40));
     stage.append(hint, label);
     stage.addEventListener('click', () => {
+      if (blend && blend.swallowClick()) return;
       if (revealed) { speech.say(partsFor()); return; }
       revealed = true;
       if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; }
@@ -66,9 +74,9 @@ export function build({ lesson, speech, refresh }) {
       const w = cur();
       const tap = 'Then tap the picture to show the word.';
       if (!w.showLetters) return `Say the word slowly, stretching the first sound: ${stretchWord(w.word, held)}. Then say it fast: ${w.word}. ${tap}`;
-      return `I stretch the sounds. You say the word. ${[...w.word].map((c) => stretchLetters(c)).join('')} ... ${w.word}. ${tap}`;
+      return `Slide your finger under the word as you stretch the sounds: ${[...w.word].map((c) => stretchLetters(c)).join('')}. Then say it fast: ${w.word}. Then tap the word to show it.`;
     },
     again: () => { show(); speech.say(partsFor()); },
-    cleanup: () => { if (sweepAnim) sweepAnim.cancel(); },
+    cleanup: () => { if (sweepAnim) sweepAnim.cancel(); if (blend) blend.cleanup(); },
   };
 }
