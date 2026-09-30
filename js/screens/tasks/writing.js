@@ -11,7 +11,7 @@ export function build({ lesson, sound, speech }) {
   return {
     el,
     parts: () => parts,
-    script: () => 'Start at the dot. Follow the arrow.',
+    script: () => "Say: 'Start at the dot. Follow the arrow.' Move your finger with theirs.",
     again: () => { pad.clear(); speech.say(parts); },
     cleanup: () => pad.cleanup && pad.cleanup(),
   };

@@ -44,7 +44,7 @@
       "sayItLike": "a",
       "hold": true,
       "doNotSay": null,
-      "howTo": "Say a as in apple. Open your mouth wide.",
+      "howTo": "Open your mouth wide, as if about to bite an apple. Say a as in apple.",
       "asIn": "apple",
       "clip": "assets/audio/sounds/a.mp3",
       "words": [
@@ -69,14 +69,9 @@
           "emoji": "🦀"
         },
         {
-          "word": "astronaut",
-          "image": "assets/images/mentava/web/a/astronaut.webp",
-          "emoji": "🧑‍🚀"
-        },
-        {
-          "word": "axe",
-          "image": "assets/images/mentava/web/a/axe.webp",
-          "emoji": "🪓"
+          "word": "ant",
+          "image": null,
+          "emoji": "🐜"
         }
       ]
     },
@@ -100,19 +95,19 @@
           "emoji": "🧦"
         },
         {
-          "word": "snake",
-          "image": null,
-          "emoji": "🐍"
-        },
-        {
           "word": "soup",
           "image": null,
           "emoji": "🍲"
         },
         {
-          "word": "swan",
+          "word": "seal",
           "image": null,
-          "emoji": "🦢"
+          "emoji": "🦭"
+        },
+        {
+          "word": "snake",
+          "image": null,
+          "emoji": "🐍"
         }
       ]
     }
@@ -134,12 +129,12 @@
         {
           "parts": [
             "sun",
-            "set"
+            "hat"
           ],
-          "word": "sunset",
+          "word": "sunhat",
           "emoji": [
             "☀️",
-            "🌇"
+            "👒"
           ]
         },
         {
@@ -149,30 +144,30 @@
           ],
           "word": "cupcake",
           "emoji": [
-            "☕",
+            "🥤",
             "🧁"
           ]
         },
         {
           "parts": [
-            "pop",
-            "corn"
+            "hand",
+            "bag"
           ],
-          "word": "popcorn",
+          "word": "handbag",
           "emoji": [
-            "💥",
-            "🌽"
+            "✋",
+            "👜"
           ]
         },
         {
           "parts": [
-            "rain",
-            "bow"
+            "star",
+            "fish"
           ],
-          "word": "rainbow",
+          "word": "starfish",
           "emoji": [
-            "🌧️",
-            "🌈"
+            "⭐",
+            "🐟"
           ]
         }
       ],
@@ -265,24 +260,24 @@
         },
         {
           "parts": [
-            "hand",
-            "bag"
+            "ice",
+            "cream"
           ],
-          "word": "handbag",
+          "word": "icecream",
           "emoji": [
-            "✋",
-            "👜"
+            "🧊",
+            "🍦"
           ]
         },
         {
           "parts": [
-            "star",
-            "fish"
+            "tooth",
+            "brush"
           ],
-          "word": "starfish",
+          "word": "toothbrush",
           "emoji": [
-            "⭐",
-            "🐟"
+            "🦷",
+            "🪥"
           ]
         }
       ],
@@ -315,7 +310,7 @@
             "tts": "as in apple?"
           }
         ],
-        "promptText": "Which letter says a, as in apple?",
+        "promptText": "Which letter says a as in apple?",
         "kind": "letter",
         "options": [
           {
@@ -364,18 +359,18 @@
           "word": "snowman",
           "emoji": [
             "❄️",
-            "⛄"
+            "🧍"
           ]
         },
         {
           "parts": [
-            "sea",
-            "horse"
+            "hot",
+            "dog"
           ],
-          "word": "seahorse",
+          "word": "hotdog",
           "emoji": [
-            "🌊",
-            "🐴"
+            "🔥",
+            "🐕"
           ]
         },
         {
@@ -386,7 +381,7 @@
           "word": "football",
           "emoji": [
             "🦶",
-            "🏈"
+            "⚽"
           ]
         }
       ],

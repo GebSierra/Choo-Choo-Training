@@ -30,8 +30,10 @@ export function letterText(text, { tint } = {}) {
 }
 
 // Text that may contain the taught letter "a" standing alone, for example "Say a as in apple."
-export function richText(text) {
+// every: true draws every "a" in every word from the glyph (text a child reads).
+export function richText(text, { every } = {}) {
   const frag = document.createDocumentFragment();
+  if (every) { text.split(/(\s+)/).forEach((p) => frag.append(/\S/.test(p) ? letterText(p) : p)); return frag; }
   const parts = text.split(/\b(a)\b(?=\s+as in|,|\.|\?|\s*$)/);
   parts.forEach((p, i) => { if (i % 2 === 1) frag.append(inlineA()); else if (p) frag.append(p); });
   return frag;

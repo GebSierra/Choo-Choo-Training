@@ -30,9 +30,12 @@ export function targetsFor(task, lesson) {
   }
 }
 
+// How a parent says a sound: "mmm", or "a as in apple". Never a bare "a" (a parent would say its name).
+export const soundPhrase = (s) => (s.asIn ? `${s.sayItLike} as in ${s.asIn}` : s.sayItLike);
+
 // Sound cards are built from the sounds table: "This letter says mmm. Hold it. Do not say muh."
 export function soundCardLines(sound) {
-  const lines = [`This letter says ${sound.sayItLike}.`];
+  const lines = [`This letter says ${soundPhrase(sound)}.`];
   if (sound.hold) lines.push('Hold it.');
   if (sound.doNotSay) lines.push(`Do not say ${sound.doNotSay}.`);
   return lines;

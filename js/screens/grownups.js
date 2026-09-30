@@ -3,6 +3,8 @@ import { soundCard } from '../components/sound-card.js';
 import { glyphSvg } from '../glyphs.js';
 import { accentOf } from '../theme.js';
 import { APP_VERSION } from '../version.js';
+import { richText } from '../letters.js';
+import { soundPhrase } from '../lessons.js';
 
 const fmt = (iso) => { try { return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return ''; } };
 export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA vowel and consonant chart recordings, CC BY-SA 3.0, obtained via github.com/joshstephenson/PhoneticFlashCards, trimmed and loudness-normalized.";
@@ -58,7 +60,7 @@ export function grownupsScreen(ctx) {
   const clipList = h('div', { class: 'gu-list' });
   const paintClips = (status) => clipList.replaceChildren(...Object.keys(curriculum.sounds).map((k) => h('div', { class: 'gu-row slim' },
     h('span', { class: 'gu-glyph' }, glyphSvg(k, { color: accentOf(k), label: 'sound clip' })),
-    h('div', { class: 'gu-row-text' }, h('span', { class: 'gu-sub' }, curriculum.sounds[k].sayItLike === 'a' ? 'short sound' : curriculum.sounds[k].sayItLike)),
+    h('div', { class: 'gu-row-text' }, h('span', { class: 'gu-sub' }, richText(soundPhrase(curriculum.sounds[k])))),
     h('span', { class: 'gu-pill ' + (status && status[k] ? 'ok' : 'no') }, status ? (status[k] ? 'found' : 'missing') : 'checking'))));
   paintClips(null);
   speech.checkClips().then(paintClips).catch(() => paintClips({}));

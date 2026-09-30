@@ -3,6 +3,7 @@ import { glyphSvg, drawIn } from '../../glyphs.js';
 import { slideTrack } from '../../components/slide-track.js';
 import { soundCard } from '../../components/sound-card.js';
 import { accentOf } from '../../theme.js';
+import { soundPhrase } from '../../lessons.js';
 
 // Task 1: slide each review letter and say its sound.
 export function build({ lesson, curriculum, speech, refresh }) {
@@ -26,7 +27,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
   return {
     el,
     parts: () => { const s = sound(); return [{ clip: s.glyph }, { tts: s.words[0].word }]; },
-    script: () => `Slide the letter and say its sound: ${sound().sayItLike}.`,
+    script: () => `Slide the letter and say its sound: ${soundPhrase(sound())}.`,
     again: () => { show(); speech.say([{ clip: sound().glyph }, { tts: sound().words[0].word }]); },
     next: () => { if (i < keys.length - 1) { i++; show(); speech.say([{ clip: sound().glyph }, { tts: sound().words[0].word }]); return true; } return false; },
   };

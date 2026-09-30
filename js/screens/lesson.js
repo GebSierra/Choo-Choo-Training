@@ -2,7 +2,8 @@ import { h, animate, icon } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { holdButton } from '../components/hold-button.js';
 import { speakButton } from '../components/speak-button.js';
-import { tasksFor, lessonByNumber, targetsFor } from '../lessons.js';
+import { tasksFor, lessonByNumber, targetsFor, soundPhrase } from '../lessons.js';
+import { richText, letterText } from '../letters.js';
 
 // Little illustrations for the task cards, drawn from our own shapes and emoji.
 function illustration(task, lesson, curriculum) {
@@ -33,7 +34,7 @@ export function lessonScreen({ store, router, curriculum, speech }, n) {
 
   const header = h('header', { class: 'lo-head' },
     h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back', onclick: () => router.back() }, icon('back', 28)),
-    h('div', { class: 'lo-title' }, h('h1', {}, `Lesson ${lesson.number}`), h('p', {}, `Today: the sound ${sound.sayItLike}.`)),
+    h('div', { class: 'lo-title' }, h('h1', {}, `Lesson ${lesson.number}`), h('p', {}, richText(`Today: the sound ${soundPhrase(sound)}.`, { every: true }))),
     speakButton({ speech, getParts: () => lesson.intro, label: 'Hear the lesson intro', accent }));
 
   const cards = tasks.map((t, i) => {
@@ -41,7 +42,7 @@ export function lessonScreen({ store, router, curriculum, speech }, n) {
     const targets = targetsFor(t, lesson);
     const chips = targets.map((c) => c.glyph
       ? h('span', { class: 'chip chip-glyph' }, glyphSvg(c.glyph, { color: `var(--${c.glyph})` }))
-      : h('span', { class: 'chip' }, c.text));
+      : h('span', { class: 'chip' }, letterText(c.text)));
     const card = h('button', { class: `task-card c-${t.color} ${t.dark ? 'dark-ink' : ''} ${isDone ? 'is-done' : ''}`, type: 'button', style: { '--i': i }, onclick: () => router.go(`/lesson/${lesson.number}/task/${t.index}`), 'aria-label': `${t.name}${isDone ? ', done' : ''}` },
       h('span', { class: 'card-num' }, String(i + 1)),
       isDone ? h('span', { class: 'card-tick' }, h('svg', { viewBox: '0 0 24 24', width: 22, height: 22, 'aria-hidden': 'true' }, h('path', { class: 'tick', d: 'M5 12.5l4.5 4.5L19 7.5', fill: 'none', stroke: '#fff', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }))) : null,

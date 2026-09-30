@@ -77,8 +77,8 @@ The plan left these open or made them impossible to follow literally. Each is th
 - Back always goes to the parent screen (task to lesson overview to Home), so it is predictable and animates in reverse.
 - Grownups opens only through the hold gate on Home and expires after ten minutes; typing `#/grownups` bounces to Home. The hold keeps its full 1.5 seconds even with reduced motion on.
 - Reset all progress keeps the voice, speed and auto-speak settings and returns Home to its first-run card.
-- Parent scripts are read aloud by their small speaker: mmm, aaammm and sss become recorded clips, and a stretch we have no clip for (for example "mmmooon") is shown but not spoken. A standalone single letter is never sent to text to speech.
-- For picture-only words in Saying Sounds the script stretches held sounds only (mmmooon, never "ppp"), following the clipped-consonant rule.
+- Parent scripts are read aloud by their small speaker: mmm, aaammm and sss become recorded clips, and a stretch we have no clip for (for example "mmmoon") is shown but not spoken. A standalone single letter is never sent to text to speech.
+- For picture-only words in Saying Sounds the script stretches held sounds only (mmmoon, never "ppp"), following the clipped-consonant rule.
 - Quick Check answer cards are shuffled on each visit. Tapping one lifts it; nothing says right or wrong, and the choice can be changed.
 - The Start lesson button continues at the first unfinished task, and reads "Do it again" once all tasks are done.
 - A missing clip makes the browser log its own 404 in the console; the smoke test ignores that one known message.

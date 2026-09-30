@@ -14,7 +14,7 @@ const APP_FILES = [
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',
   // pictures used by lesson 2
   'assets/images/mentava/web/a/apple.webp', 'assets/images/mentava/web/a/hat.webp', 'assets/images/mentava/web/a/cat.webp',
-  'assets/images/mentava/web/a/crab.webp', 'assets/images/mentava/web/a/astronaut.webp', 'assets/images/mentava/web/a/axe.webp',
+  'assets/images/mentava/web/a/crab.webp',
 ];
 // Recorded sounds are optional: a missing file must not stop the install.
 const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3', 'assets/audio/sounds/s.mp3'];

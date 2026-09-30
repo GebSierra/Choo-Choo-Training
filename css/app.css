@@ -372,7 +372,8 @@ body.night { background: var(--night); }
 .merged-tile { width: min(86%, 300px); min-height: 150px; border: 0; border-radius: 26px; background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 3px rgba(30,33,64,.12); display: grid; place-items: center; gap: 6px; padding: 14px; cursor: pointer; touch-action: manipulation; color: var(--ink); align-content: center; }
 .merged-tile.revealed { background: #fff; box-shadow: var(--shadow); }
 .merged-tile .q { font-size: 64px; font-weight: 800; opacity: .35; line-height: 1; }
-.merged-tile .emoji.pair { font-size: 60px; line-height: 1; display: flex; gap: 6px; }
+.merged-tile .emoji.stack { font-size: 60px; line-height: 1; position: relative; }
+.merged-tile .stack .mini { position: absolute; left: -.45em; top: -.15em; font-size: .5em; }
 .merged-tile .word.big { font-size: 40px; font-weight: 800; }
 
 /* sounds */
@@ -383,7 +384,7 @@ body.night { background: var(--night); }
 .glyph-row .glyph { width: 100%; height: auto; display: block; }
 .sweep { position: absolute; top: 0; bottom: 0; left: 0; width: 34%; background: linear-gradient(90deg, transparent, rgba(255,190,60,.95), transparent); mix-blend-mode: screen; will-change: transform, opacity; opacity: 0; pointer-events: none; }
 .emoji.huge { font-size: 110px; line-height: 1; }
-.tap-hint { font-size: 17px; font-weight: 700; color: var(--muted); }
+.tap-hint { color: var(--muted); display: grid; place-items: center; }
 .reveal-word { font-size: 40px; font-weight: 800; display: none; }
 .sounds-stage.revealed .reveal-word { display: block; } .sounds-stage.revealed .tap-hint { display: none; }
 

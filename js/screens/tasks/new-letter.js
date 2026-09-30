@@ -4,6 +4,7 @@ import { slideTrack } from '../../components/slide-track.js';
 import { soundCard } from '../../components/sound-card.js';
 import { letterText } from '../../letters.js';
 import { accentOf } from '../../theme.js';
+import { soundPhrase } from '../../lessons.js';
 
 // Task 2: the new letter, its sound card, the slide track and the example pictures.
 export function build({ lesson, sound, speech, refresh }) {
@@ -22,7 +23,7 @@ export function build({ lesson, sound, speech, refresh }) {
   return {
     el,
     parts: () => lesson.intro,
-    script: () => `Say ${sound.sayItLike}. Now you try. Slide the letter as you say it.`,
+    script: () => `Say ${soundPhrase(sound)}. Now you try. Slide the letter as you say it.`,
     onShow: () => drawIn(g),
     again: () => { drawIn(g); speech.say(lesson.intro); },
   };

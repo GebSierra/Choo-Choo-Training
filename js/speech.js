@@ -60,10 +60,21 @@ export function createSpeech({ store, curriculum }) {
     return /\.mp3$/.test(c) ? [c, c.replace(/\.mp3$/, '.webm')] : [c];
   };
 
-  function playAudio(url, key, run, quiet) {
+  // The clips of a phrase are created up front, so each one is already loaded when its turn comes
+  // and a blend like sss-aaa-mmm plays with no gap.
+  function preload(list) {
+    const els = new Map();
+    for (const part of list) {
+      const url = part.clip !== undefined && clipUrls(part.clip)[0];
+      if (url && !els.has(url)) { const a = new Audio(); a.preload = 'auto'; a.src = url; els.set(url, a); }
+    }
+    return els;
+  }
+
+  function playAudio(url, key, run, quiet, el) {
     return new Promise((resolve) => {
       let settled = false;
-      const audio = new Audio();
+      const audio = el || new Audio();
       const finish = (ok) => {
         if (settled) return; settled = true;
         clearTimeout(startTimer); clearTimeout(maxTimer);
@@ -78,8 +89,9 @@ export function createSpeech({ store, curriculum }) {
       audio.addEventListener('ended', () => finish(true), { once: true });
       audio.addEventListener('error', () => finish(false), { once: true });
       active = { stop: () => { audio.pause(); finish(true); } };
-      audio.preload = 'auto';
-      audio.src = url;
+      if (!el) { audio.preload = 'auto'; audio.src = url; }
+      else if (audio.error) return finish(false); // the preloaded file already failed to load
+      else audio.currentTime = 0; // the same clip may play twice in one phrase
       const p = audio.play();
       if (p && p.catch) p.catch(() => finish(false));
     });
@@ -115,6 +127,7 @@ export function createSpeech({ store, curriculum }) {
     speaking = true; emit();
     try {
       if (synth) { try { synth.cancel(); } catch {} }
+      const loaded = preload(list);
       for (const part of list) {
         if (run !== runId) return;
         if (part.tts !== undefined) {
@@ -123,7 +136,7 @@ export function createSpeech({ store, curriculum }) {
         } else if (part.clip !== undefined) {
           // Try each candidate file; if none plays, skip the part. Never replaced by text to speech.
           let played = false;
-          for (const url of clipUrls(part.clip)) { if (run !== runId) return; if (await playAudio(url, part.clip, run, true)) { played = true; break; } }
+          for (const url of clipUrls(part.clip)) { if (run !== runId) return; if (await playAudio(url, part.clip, run, true, loaded.get(url))) { played = true; break; } }
           if (!played && clipUrls(part.clip).length) { missing.add(part.clip); clipStatus[part.clip] = false; emit(); }
         } else if (part.src !== undefined) {
           await playAudio(part.src, null, run);

@@ -1,8 +1,7 @@
 // Parent scripts are shown as text. To read one aloud, isolated sounds (mmm, aaammm, sss) become
 // recorded clips and everything else goes to text to speech. Nothing is ever a single letter.
-export const HELD = new Set('aeiouflmnrsvwz');
-
-export const stretchWord = (word) => [...word].map((c) => (HELD.has(c) ? c.repeat(3) : c)).join('');
+// Stretch only the letters the lesson teaches (held: a Set like {'m','a'}), never a doubled letter ("oo" stays "oo").
+export const stretchWord = (word, held) => [...word].map((c, i) => (held.has(c) && word[i - 1] !== c && word[i + 1] !== c ? c.repeat(3) : c)).join('');
 
 export function stretchLetters(word) { return [...word].map((c) => c.repeat(3)).join(''); }
 
@@ -13,7 +12,7 @@ export function scriptToParts(text, soundKeys) {
   for (const tok of text.split(/\s+/)) {
     if (!tok) continue;
     if (tok === '...') { flush(); parts.push({ pause: 450 }); continue; }
-    const m = tok.match(/^([A-Za-z]+)([.,:;!?]*)$/);
+    const m = tok.match(/^['"]*([A-Za-z]+)[.,:;!?'"]*$/); // quotes around a sound ('Which one says mmm?') are not part of it
     const core = m ? m[1].toLowerCase() : '';
     const runs = core ? core.match(/(.)\1*/g) : null;
     const stretched = runs && runs.some((r) => r.length >= 3);

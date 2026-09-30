@@ -1,4 +1,4 @@
-import { h, animate, reduced } from '../../dom.js';
+import { h, animate, reduced, icon } from '../../dom.js';
 import { wordSvg, hasGlyph } from '../../glyphs.js';
 import { letterText } from '../../letters.js';
 import { stretchWord, stretchLetters } from '../../scripts.js';
@@ -7,12 +7,13 @@ import { stretchWord, stretchLetters } from '../../scripts.js';
 export function build({ lesson, sound, curriculum, speech, refresh }) {
   const list = lesson.sayingSounds;
   let i = 0, revealed = false, sweepAnim = null;
+  const held = new Set([lesson.sound, ...lesson.review]);
   const body = h('div', { class: 'sounds-body' });
   const el = h('div', { class: 'sounds-task' }, body);
   const cur = () => list[i];
   const partsFor = () => {
     const w = cur();
-    if (w.showLetters) return [...[...w.word].filter(hasGlyph).map((c) => ({ clip: c })), { tts: w.word }];
+    if (w.showLetters) return [...[...w.word].filter(hasGlyph).map((c) => ({ clip: c })), { pause: 300 }, { tts: w.word }];
     return [{ tts: w.word }];
   };
 
@@ -31,7 +32,7 @@ export function build({ lesson, sound, curriculum, speech, refresh }) {
       stage.append(art);
     }
     const label = h('span', { class: 'reveal-word' }, letterText(w.word));
-    const hint = h('span', { class: 'tap-hint' }, 'Tap to show the word');
+    const hint = h('span', { class: 'tap-hint', 'aria-hidden': 'true' }, icon('tap', 40));
     stage.append(hint, label);
     stage.addEventListener('click', () => {
       if (revealed) { speech.say(partsFor()); return; }
@@ -63,8 +64,9 @@ export function build({ lesson, sound, curriculum, speech, refresh }) {
     parts: () => partsFor(),
     script: () => {
       const w = cur();
-      const stretched = w.showLetters ? [...w.word].map((c) => stretchLetters(c)).join('') : stretchWord(w.word);
-      return `I stretch the sounds. You say the word. ${stretched} ... ${w.word}.`;
+      const tap = 'Then tap the picture to show the word.';
+      if (!w.showLetters) return `Say the word slowly, stretching the first sound: ${stretchWord(w.word, held)}. Then say it fast: ${w.word}. ${tap}`;
+      return `I stretch the sounds. You say the word. ${[...w.word].map((c) => stretchLetters(c)).join('')} ... ${w.word}. ${tap}`;
     },
     again: () => { show(); speech.say(partsFor()); },
     cleanup: () => { if (sweepAnim) sweepAnim.cancel(); },

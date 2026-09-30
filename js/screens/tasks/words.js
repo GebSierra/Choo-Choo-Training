@@ -25,7 +25,7 @@ export function build({ lesson, speech, refresh }) {
       animate(tileA, [{ transform: 'none', opacity: 1 }, { transform: 'translateX(38px)', opacity: 0 }], { duration: 260, fill: 'forwards' });
       animate(tileB, [{ transform: 'none', opacity: 1 }, { transform: 'translateX(-38px)', opacity: 0 }], { duration: 260, fill: 'forwards' });
       animate(plus, [{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' });
-      merged.replaceChildren(h('span', { class: 'emoji pair' }, w.emoji[0], w.emoji[1]), h('span', { class: 'word big' }, letterText(w.word)));
+      merged.replaceChildren(h('span', { class: 'emoji stack' }, w.emoji[1], h('span', { class: 'mini' }, w.emoji[0])), h('span', { class: 'word big' }, letterText(w.word)));
       merged.classList.add('revealed');
       animate(merged, [{ transform: 'scale(.8)', opacity: 0.4 }, { transform: 'scale(1)', opacity: 1 }], { duration: 360, delay: reduced() ? 0 : 200, easing: 'cubic-bezier(.34,1.56,.64,1)' });
       setTimeout(() => speech.say([{ tts: w.word }]), 260);
@@ -40,7 +40,7 @@ export function build({ lesson, speech, refresh }) {
   return {
     el,
     parts: () => (revealed ? [{ tts: cur().word }] : partsFor()),
-    script: () => `I say two parts. You put them together. ${cur().parts[0]} ... ${cur().parts[1]}. What word?`,
+    script: () => `I say two parts. You put them together. ${cur().parts[0]} ... ${cur().parts[1]}. What word? Then tap the picture to show the word.`,
     again: () => { show(); speech.say(partsFor()); },
   };
 }
