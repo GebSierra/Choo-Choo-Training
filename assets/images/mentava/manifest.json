@@ -1,0 +1,210 @@
+[
+ {
+  "letter": "a",
+  "word": "apple",
+  "page": 4,
+  "xref": 819,
+  "size": "512x498",
+  "file": "a/apple.png"
+ },
+ {
+  "letter": "a",
+  "word": "hat",
+  "page": 4,
+  "xref": 817,
+  "size": "999x1024",
+  "file": "a/hat.png"
+ },
+ {
+  "letter": "a",
+  "word": "cat",
+  "page": 4,
+  "xref": 822,
+  "size": "512x512",
+  "file": "a/cat.png"
+ },
+ {
+  "letter": "a",
+  "word": "crab",
+  "page": 4,
+  "xref": 815,
+  "size": "499x498",
+  "file": "a/crab.png"
+ },
+ {
+  "letter": "a",
+  "word": "astronaut",
+  "page": 4,
+  "xref": 818,
+  "size": "1024x999",
+  "file": "a/astronaut.png"
+ },
+ {
+  "letter": "a",
+  "word": "axe",
+  "page": 4,
+  "xref": 820,
+  "size": "998x996",
+  "file": "a/axe.png"
+ },
+ {
+  "letter": "b",
+  "word": "baby",
+  "page": 5,
+  "xref": 830,
+  "size": "512x491",
+  "file": "b/baby.png"
+ },
+ {
+  "letter": "b",
+  "word": "banana",
+  "page": 5,
+  "xref": 832,
+  "size": "512x512",
+  "file": "b/banana.png"
+ },
+ {
+  "letter": "b",
+  "word": "ball",
+  "page": 5,
+  "xref": 826,
+  "size": "998x896",
+  "file": "b/ball.png"
+ },
+ {
+  "letter": "b",
+  "word": "bear",
+  "page": 5,
+  "xref": 827,
+  "size": "512x499",
+  "file": "b/bear.png"
+ },
+ {
+  "letter": "b",
+  "word": "bus",
+  "page": 5,
+  "xref": 828,
+  "size": "478x500",
+  "file": "b/bus.png"
+ },
+ {
+  "letter": "c-k",
+  "word": "cat",
+  "page": 6,
+  "xref": 757,
+  "size": "512x440",
+  "file": "c-k/cat.png"
+ },
+ {
+  "letter": "c-k",
+  "word": "camel",
+  "page": 6,
+  "xref": 751,
+  "size": "497x440",
+  "file": "c-k/camel.png"
+ },
+ {
+  "letter": "c-k",
+  "word": "candy",
+  "page": 6,
+  "xref": 750,
+  "size": "499x500",
+  "file": "c-k/candy.png"
+ },
+ {
+  "letter": "c-k",
+  "word": "king",
+  "page": 6,
+  "xref": 756,
+  "size": "499x448",
+  "file": "c-k/king.png"
+ },
+ {
+  "letter": "c-k",
+  "word": "koala",
+  "page": 6,
+  "xref": 752,
+  "size": "499x435",
+  "file": "c-k/koala.png"
+ },
+ {
+  "letter": "d",
+  "word": "duck",
+  "page": 7,
+  "xref": 763,
+  "size": "500x454",
+  "file": "d/duck.png"
+ },
+ {
+  "letter": "d",
+  "word": "deer",
+  "page": 7,
+  "xref": 765,
+  "size": "512x455",
+  "file": "d/deer.png"
+ },
+ {
+  "letter": "d",
+  "word": "dog",
+  "page": 7,
+  "xref": 767,
+  "size": "1024x1024",
+  "file": "d/dog.png"
+ },
+ {
+  "letter": "d",
+  "word": "door",
+  "page": 7,
+  "xref": 760,
+  "size": "512x499",
+  "file": "d/door.png"
+ },
+ {
+  "letter": "d",
+  "word": "dolphin",
+  "page": 7,
+  "xref": 764,
+  "size": "499x451",
+  "file": "d/dolphin.png"
+ },
+ {
+  "letter": "e",
+  "word": "egg",
+  "page": 8,
+  "xref": 781,
+  "size": "499x455",
+  "file": "e/egg.png"
+ },
+ {
+  "letter": "e",
+  "word": "hen",
+  "page": 8,
+  "xref": 779,
+  "size": "499x448",
+  "file": "e/hen.png"
+ },
+ {
+  "letter": "e",
+  "word": "tent",
+  "page": 8,
+  "xref": 774,
+  "size": "999x1024",
+  "file": "e/tent.png"
+ },
+ {
+  "letter": "e",
+  "word": "red",
+  "page": 8,
+  "xref": 773,
+  "size": "997x999",
+  "file": "e/red.png"
+ },
+ {
+  "letter": "e",
+  "word": "nest",
+  "page": 8,
+  "xref": 780,
+  "size": "1024x879",
+  "file": "e/nest.png"
+ }
+]
