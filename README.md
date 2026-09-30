@@ -251,3 +251,19 @@ Geb's phone: on Saying Sounds the tall "Say this" card squeezed the activity and
 - The sheet has its own copy of the speaker (the bar's is covered by the sheet); both say the same text. Closing by touching the stage uses a capturing listener, so the touch still does its work.
 - New Letter and the three-picture Quick Check were tightened on narrow and short portrait phones so they no longer need scrolling.
 - Version 1.3.4: the script bar changes shipped files, so it gets its own bump.
+
+## Letter Hunt by finger, and the barn ending (step 12, version 1.3.5)
+
+Letters in the Letter Hunt sky can be dragged as well as tapped, and the sheep now walks into the barn at the end. The barn is drawn in two layers (`barnBackSvg` behind, `barnSvg({ hole: true })` in front) with the sheep between them, so it disappears through the open doors. Screenshots: `docs/screenshots/24` to `27` (mid-drag and sheep at the door, portrait and landscape). Tests: `dragChecks` and `dragReducedChecks` in `test/games.mjs`, using real touch through the browser's CDP pipeline at all three viewports.
+
+### Decisions made during build: drag and barn (step 12)
+
+- The letter first touched is the one chosen, on finger lift, wherever it was dragged. A drag starting on empty sky chooses the letter nearest the lift point within 28 px. Under 10 px of travel is a tap.
+- A wrong drag springs back with a 460 ms wobble; a wrong tap keeps the plain shake. Neither makes a sound.
+- Sounds: the pop at the right letter and `win` at the barn hop only. No door or footstep sounds.
+- The fifth star fills at the barn hop, not at the fifth touch, so the row finishes with the celebration.
+- Goal barn widened from 88 to 116 px and the sheep narrowed from 100 to 90 px so the doorway is big enough to show a sheep; the sky grid keeps out of a slightly taller corner (`skyCells` default `goalW` 116).
+- The sheep trot is 700 ms for every step (was 900 ms) so the last one matches the ending.
+- A click with no pointer (keyboard or screen reader) still chooses a letter.
+- The ending's timings are fixed timers, not animation events, so the parts stay in step. Again cancels everything and brings back the sheep.
+- Not verified: how the drag feels under a real child's finger, and real sound (the `win` jingle was only checked as scheduled notes).

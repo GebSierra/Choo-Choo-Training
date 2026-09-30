@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, touchDrag } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
 
 const SEED = (settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'}},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
@@ -85,7 +85,8 @@ export async function huntChecks({ browser, url, ok, CUR, vp, lessonNo = 1, shot
       if (slotsAfter.some((s) => slotsBefore.includes(s))) repeats++;
       if (JSON.stringify(slotsAfter) === JSON.stringify(slotsBefore)) unchanged++;
     }
-    ok((await steps()) === String(i) && (await stars()) === String(i), `${tag}: touch ${i} moves the sheep one step and fills star ${i}`);
+    // The fifth star waits for the barn (filled as the barn hops, about 2.6 s after the touch).
+    ok((await steps()) === String(i) && (await stars()) === String(Math.min(i, 4)), `${tag}: touch ${i} moves the sheep one step and fills star ${Math.min(i, 4)}`);
     const x = await sheepX();
     ok(x > lastX, `${tag}: the sheep is further right after touch ${i} (${Math.round(x)})`);
     lastX = x;
@@ -93,8 +94,8 @@ export async function huntChecks({ browser, url, ok, CUR, vp, lessonNo = 1, shot
   }
   ok(minTargets >= 4, `${tag}: every deal has four or five target letters (${minTargets})`);
   ok(unchanged === 0 && repeats === 0, `${tag}: the sky is dealt again after each right touch and no target slot repeats from the deal before (${repeats} repeats, ${unchanged} unchanged)`);
-  await page.waitForTimeout(1200);
-  ok((await page.evaluate(() => document.querySelector('.hunt').dataset.state)) === 'done', `${tag}: five touches reach the done state`);
+  await page.waitForTimeout(1900);
+  ok((await page.evaluate(() => document.querySelector('.hunt').dataset.state)) === 'done' && (await stars()) === '5', `${tag}: five touches reach the done state and the fifth star`);
   await page.waitForTimeout(700);
   if (shot) await shot(page, 'done');
   ok((await scrollTop()) === 0, `${tag}: the stage never scrolled`);
@@ -105,6 +106,7 @@ export async function huntChecks({ browser, url, ok, CUR, vp, lessonNo = 1, shot
   await page.click('.btn.again');
   await page.waitForTimeout(900);
   ok((await steps()) === '0' && (await stars()) === '0' && (await sheepX()) === 0 && (await page.evaluate(() => document.querySelector('.hunt').dataset.state)) === 'playing', `${tag}: Again puts the sheep back at the start`);
+  ok(await page.evaluate(() => { const d = getComputedStyle(document.querySelector('.door-l')).transform; return getComputedStyle(document.querySelector('.sheep-wrap')).visibility === 'visible' && !document.querySelector('.hunt-goal').classList.contains('done') && (d === 'none' || d.startsWith('matrix(1,')); }), `${tag}: Again brings the sheep back, leaves the doors shut and clears the barn glow`);
   ok((await page.locator('.sky-letter').count()) >= 12, `${tag}: Again refreshes the sky`);
   ok((await targetSlots()).every((s) => !skyBeforeAgain.includes(s)), `${tag}: Again deals a layout whose targets avoid the slots of the sky before it`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
@@ -171,6 +173,174 @@ export async function barnChecks({ browser, url, ok, CUR, vp, lessonNo = 1, full
   await ctx.close();
 }
 
+// Letter Hunt by finger: the letter first touched is the one chosen, however far it was dragged; then the ending in the barn.
+// Uses the browser's real touch pipeline (CDP), so pointer events, capture and touch-action behave as on a phone.
+export async function dragChecks({ browser, url, ok, CUR, vp, shot }) {
+  const { ctx, page, errors } = await open(browser, url, vp);
+  await page.goto(url + `#/lesson/1/task/${taskIndex(CUR, 1, 'hunt')}`);
+  await page.waitForSelector('.sky-letter');
+  await page.waitForTimeout(900);
+  const tag = `${vp.name} Hunt drag`;
+  const steps = () => page.evaluate(() => document.querySelector('.hunt').dataset.steps);
+  const scrolled = () => page.evaluate(() => document.querySelector('.task-activity').scrollTop + scrollY + document.querySelector('.farm').scrollTop);
+  const skyKey = () => page.evaluate(() => [...document.querySelectorAll('.sky-letter:not(.popped)')].map((b) => b.dataset.slot + b.dataset.letter).join(' '));
+  const sceneBox = (await rects(page, '.farm'))[0];
+  const card = (await rects(page, '.find-card'))[0];
+  const letter = (kind, nth = 0) => page.locator(`.sky-letter[data-target="${kind}"]:not(.popped)`).nth(nth);
+  const pick = (kind, nth = 0) => center(letter(kind, nth));
+  const notes = () => page.evaluate(() => window.__audioNotes().length);
+  // A point 60 px (or dx, dy) away that stays inside the scene, and outside the Find this card.
+  const away = (c, dx, dy) => {
+    const p = { x: c.x + dx, y: c.y + dy };
+    if (p.x > sceneBox.x + sceneBox.w - 30 || p.x < sceneBox.x + 30) p.x = c.x - dx;
+    if (p.y > sceneBox.y + sceneBox.h - 100 || p.y < sceneBox.y + 30) p.y = c.y - dy;
+    return p;
+  };
+  const settle = () => page.waitForTimeout(1000);
+  const s0 = await scrolled();
+
+  // 1. A right letter dragged 60 px: same as a tap. Mid-drag it is lifted and sits where the finger is.
+  let c = await pick('1'), to = away(c, 60, 0);
+  let key0 = await skyKey();
+  await touchDrag(page, c, to, { during: async () => {
+    const lifted = await page.evaluate(() => { const b = document.querySelector('.sky-letter.dragging'); if (!b) return null; const r = b.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, z: getComputedStyle(b).zIndex, t: getComputedStyle(b).transform }; });
+    ok(lifted && Math.abs(lifted.x - to.x) < 10 && Math.abs(lifted.y - to.y) < 14, `${tag}: the dragged letter follows the finger (${lifted && Math.round(lifted.x - c.x)} px across)`);
+    ok(lifted && Number(lifted.z) > 1, `${tag}: the dragged letter is lifted above the others`);
+    ok(lifted && /matrix\(1\.1/.test(lifted.t), `${tag}: the dragged letter is a little larger`);
+    if (shot) await shot(page, 'mid-drag');
+  } });
+  await page.waitForTimeout(250);
+  ok((await steps()) === '1' && (await page.evaluate(() => document.querySelector('.star-row').dataset.filled)) === '1', `${tag}: a right letter dragged 60 px moves the sheep one step and fills a star`);
+  await settle();
+  ok((await skyKey()) !== key0 && (await page.locator('.sky-letter').count()) >= 12, `${tag}: a right drag deals the sky again`);
+
+  // 2. A wrong letter dragged: it goes home. Nothing else changes, and no sound is scheduled.
+  c = await pick('0'); to = away(c, 0, 90);
+  key0 = await skyKey();
+  const n0 = await notes(), wrongSlot = await letter('0').getAttribute('data-slot');
+  await touchDrag(page, c, to);
+  await page.waitForTimeout(800);
+  const back = await center(page.locator(`.sky-letter[data-slot="${wrongSlot}"]`));
+  ok((await steps()) === '1' && (await skyKey()) === key0, `${tag}: a wrong drag moves no sheep and leaves the sky as it was`);
+  ok(Math.hypot(back.x - c.x, back.y - c.y) < 12 && (await page.locator('.sky-letter.dragging').count()) === 0, `${tag}: a wrong letter springs back to its place`);
+  ok((await notes()) === n0, `${tag}: a wrong drag makes no sound`);
+  ok((await scrolled()) === s0, `${tag}: a long vertical drag does not scroll the page or the stage`);
+
+  // 3. A sloppy drag: the finger ends over another letter, but the letter first touched is the one chosen.
+  c = await pick('1');
+  const other = await pick('0');
+  await touchDrag(page, c, other);
+  await page.waitForTimeout(250);
+  ok((await steps()) === '2', `${tag}: a drag that ends over another letter still chooses the first one`);
+  // ...and the same the other way round: a wrong letter dragged onto a right one is wrong.
+  await settle();
+  c = await pick('0');
+  const right = await pick('1');
+  key0 = await skyKey();
+  await touchDrag(page, c, right);
+  await page.waitForTimeout(700);
+  ok((await steps()) === '2' && (await skyKey()) === key0, `${tag}: a wrong letter dragged onto a right one is still wrong`);
+
+  // 4. A drag that begins on empty sky and lifts on a letter chooses that letter.
+  const gap = await page.evaluate(({ card }) => {
+    const boxes = [...document.querySelectorAll('.sky-letter')].map((b) => b.getBoundingClientRect());
+    const f = document.querySelector('.farm').getBoundingClientRect();
+    for (let y = f.top + 10; y < f.bottom - 100; y += 4) for (let x = f.left + 10; x < f.right - 10; x += 4) {
+      if (boxes.some((r) => x > r.left - 2 && x < r.right + 2 && y > r.top - 2 && y < r.bottom + 2)) continue;
+      if (x > card.x - 4 && x < card.x + card.w + 4 && y > card.y - 4 && y < card.y + card.h + 4) continue;
+      return { x, y };
+    }
+    return null;
+  }, { card });
+  ok(!!gap, `${tag}: there is empty sky to start a drag from`);
+  if (gap) {
+    const t = await pick('1');
+    await touchDrag(page, gap, t);
+    await page.waitForTimeout(250);
+    ok((await steps()) === '3', `${tag}: a drag from the empty sky that lifts on a right letter chooses it`);
+    await settle();
+    // Lifting on nothing, or on a wrong letter, does nothing.
+    const w = await pick('0');
+    key0 = await skyKey();
+    await touchDrag(page, gap, w);
+    await page.waitForTimeout(500);
+    ok((await steps()) === '3' && (await skyKey()) === key0, `${tag}: a drag from the empty sky that lifts on a wrong letter does nothing`);
+  }
+
+  // 5. A drag that begins on the Find this card does nothing special.
+  await touchDrag(page, { x: card.x + card.w / 2, y: card.y + card.h / 2 }, await pick('1'));
+  await page.waitForTimeout(300);
+  ok((await steps()) === '3', `${tag}: a drag that starts on the Find this card chooses nothing`);
+
+  // 6. While the new sky fades in, drags are ignored; then a plain tap still works (the fourth step).
+  c = await pick('1');
+  await page.touchscreen.tap(c.x, c.y);
+  await page.waitForTimeout(120); // inside the 450 ms swap
+  const during = await page.evaluate(() => [...document.querySelectorAll('.sky-letter[data-target="1"]:not(.popped)')].length);
+  if (during) { const t = await pick('1'); await touchDrag(page, t, away(t, 50, 0)); }
+  await page.waitForTimeout(400);
+  ok((await steps()) === '4', `${tag}: a tap still works, and a drag during the swap is ignored (steps ${await steps()})`);
+  await page.waitForTimeout(700);
+
+  // 7. The fifth right letter: the sheep goes into the barn.
+  c = await pick('1'); to = away(c, 70, 0);
+  await page.evaluate(() => window.__audioClear());
+  await touchDrag(page, c, to);
+  await page.waitForTimeout(250);
+  ok((await steps()) === '5', `${tag}: the fifth right drag reaches the barn`);
+  // Everything is ignored while the ending plays.
+  const t5 = await page.evaluate(() => document.querySelector('.hunt').dataset.state);
+  ok(t5 === 'ending', `${tag}: the ending is under way (${t5})`);
+  await page.waitForTimeout(1000);
+  if (shot) await shot(page, 'sheep-in-doorway');
+  await page.waitForTimeout(800);
+  await page.touchscreen.tap(sceneBox.x + 200, sceneBox.y + 150);
+  await page.waitForTimeout(1200);
+  ok((await steps()) === '5' && (await page.evaluate(() => document.querySelector('.hunt').dataset.state)) === 'done', `${tag}: the ending finishes (steps ${await steps()})`);
+  ok(await page.evaluate(() => getComputedStyle(document.querySelector('.sheep-wrap')).visibility === 'hidden'), `${tag}: the sheep is no longer in sight (it is in the barn)`);
+  ok(await page.evaluate(() => document.querySelector('.hunt-goal').classList.contains('done')), `${tag}: the barn is closed and glowing`);
+  ok(await page.evaluate(() => { const l = getComputedStyle(document.querySelector('.door-l')).transform; return l === 'none' || l.startsWith('matrix(1,'); }), `${tag}: the barn doors are shut`);
+  ok((await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'win' && !n.partial && !n.noise && !n.bloop).length)) === 7, `${tag}: the win jingle was scheduled once`);
+  ok((await page.evaluate(() => document.querySelector('.star-row').dataset.filled)) === '5', `${tag}: the stars fill the row`);
+  ok((await scrolled()) === s0, `${tag}: nothing scrolled, in the whole game`);
+  if (shot) await shot(page, 'done');
+  // Again starts everything over.
+  await page.click('.btn.again');
+  await page.waitForTimeout(900);
+  ok((await steps()) === '0' && (await page.locator('.sky-letter').count()) >= 12 && (await page.evaluate(() => getComputedStyle(document.querySelector('.sheep-wrap')).visibility === 'visible' && !document.querySelector('.hunt-goal').classList.contains('done'))), `${tag}: Again brings back the sheep, the sky and the plain barn`);
+  c = await pick('1');
+  await touchDrag(page, c, away(c, 60, 0));
+  await page.waitForTimeout(300);
+  ok((await steps()) === '1', `${tag}: a drag works again after Again`);
+  ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
+  await ctx.close();
+}
+
+// Reduced motion: the letter follows the finger without lifting, and the sheep simply fades out at the barn.
+export async function dragReducedChecks({ browser, url, ok, CUR }) {
+  const vp = VIEWPORTS[0];
+  const { ctx, page, errors } = await open(browser, url, vp, {}, { reducedMotion: 'reduce' });
+  await page.goto(url + `#/lesson/1/task/${taskIndex(CUR, 1, 'hunt')}`);
+  await page.waitForSelector('.sky-letter');
+  await page.waitForTimeout(500);
+  const steps = () => page.evaluate(() => document.querySelector('.hunt').dataset.steps);
+  const pick = (kind) => center(page.locator(`.sky-letter[data-target="${kind}"]:not(.popped)`).first());
+  const sceneBox = (await rects(page, '.farm'))[0];
+  let c = await pick('1');
+  await touchDrag(page, c, { x: c.x > sceneBox.x + 120 ? c.x - 60 : c.x + 60, y: c.y }, { during: async () => {
+    const t = await page.evaluate(() => { const b = document.querySelector('.sky-letter.dragging'); return b && { tr: getComputedStyle(b).transform, sh: getComputedStyle(b.firstChild).boxShadow }; });
+    ok(t && !/matrix\(1\.1/.test(t.tr) && t.sh === 'none', 'reduced motion: the dragged letter does not scale or cast a shadow');
+  } });
+  await page.waitForTimeout(400);
+  ok((await steps()) === '1', 'reduced motion: a drag still chooses a letter');
+  for (let i = 2; i <= 5; i++) { await page.waitForTimeout(700); await page.touchscreen.tap((await pick('1')).x, (await pick('1')).y); await page.waitForTimeout(150); }
+  await page.waitForTimeout(1000);
+  ok(await page.evaluate(() => document.querySelector('.hunt').dataset.state === 'done' && getComputedStyle(document.querySelector('.sheep-wrap')).visibility === 'hidden' && document.querySelector('.hunt-goal').classList.contains('done')), 'reduced motion: the sheep fades out at the barn, which glows');
+  ok(await page.evaluate(() => document.querySelector('.door-l').getAnimations().length === 0), 'reduced motion: the barn doors do not swing');
+  ok(errors.length === 0, 'reduced motion drag: errors ' + errors.join(' | '));
+  await ctx.close();
+}
+
 // Reduced motion: both games still play, with no hops and doors that swap by opacity.
 export async function reducedChecks({ browser, url, ok, CUR }) {
   const vp = VIEWPORTS[0];
@@ -201,8 +371,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const ok = (c, m) => { checks++; if (!c) { failures++; console.error('FAIL: ' + m); } };
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
-  for (const vp of VIEWPORTS) { await huntChecks({ browser, url, ok, CUR, vp }); await barnChecks({ browser, url, ok, CUR, vp, full: vp.name === 'pixel7' }); }
+  for (const vp of VIEWPORTS) { await huntChecks({ browser, url, ok, CUR, vp }); await dragChecks({ browser, url, ok, CUR, vp }); await barnChecks({ browser, url, ok, CUR, vp, full: vp.name === 'pixel7' }); }
   await reducedChecks({ browser, url, ok, CUR });
+  await dragReducedChecks({ browser, url, ok, CUR });
   await browser.close(); server.close();
   console.log(`games: ${checks - failures}/${checks} checks passed`);
   process.exit(failures ? 1 : 0);

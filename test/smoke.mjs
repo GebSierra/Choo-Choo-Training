@@ -6,7 +6,7 @@ import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDra
 import { spokenStrings, isIsolated } from './check-content.mjs';
 import { tasksFor } from '../js/lessons.js';
 import { usedImages } from '../tools/precache-images.mjs';
-import { huntChecks, barnChecks, reducedChecks } from './games.mjs';
+import { huntChecks, dragChecks, dragReducedChecks, barnChecks, reducedChecks } from './games.mjs';
 import { blendChecks, blendReducedChecks } from './blend.mjs';
 import { sackChecks, sackMapChecks, sackGrownupsChecks } from './sack.mjs';
 import { dealerChecks } from './deal.mjs';
@@ -223,11 +223,13 @@ await sfxGrownupsChecks({ browser, url, ok });
 const shotTo = (dir) => async (page, name) => { await page.screenshot({ path: path.join(dir, `${name}.png`) }); };
 for (const vp of VIEWPORTS) {
   await huntChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) });
+  await dragChecks({ browser, url, ok, CUR, vp, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `drag-${vp.name}-${name}.png`) }) });
   await barnChecks({ browser, url, ok, CUR, vp, full: vp.name === 'pixel7', shot: shotTo(OUT) });
 }
 for (const lessonNo of [2, 3]) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
 await barnChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo: 3 });
 await reducedChecks({ browser, url, ok, CUR });
+await dragReducedChecks({ browser, url, ok, CUR });
 // Saying Sounds, slide to blend: real touch drags across am (lesson 2) and sam (lesson 3).
 for (const vp of VIEWPORTS) for (const lessonNo of [2, 3]) await blendChecks({ browser, url, ok, vp, lessonNo, shot: shotTo(OUT) });
 await blendReducedChecks({ browser, url, ok });

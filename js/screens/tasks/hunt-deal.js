@@ -6,11 +6,11 @@ const BOX = 56; // touch target of a letter
 // Cells of a loose grid in the sky of a scene W by H, clear of the "Find this" card, the speaker button, the sun, the
 // goal barn and the grass. At most `count` of them are returned, spread evenly over the grid; each has the room its
 // letter may be nudged by (jx, jy), which keeps at least 12 px between neighbours.
-export function skyCells(W, H, { goalW = 88, count = 16 } = {}) {
+export function skyCells(W, H, { goalW = 116, count = 16 } = {}) {
   const y0 = 10, yMax = H - 92;
   const cols = Math.max(1, Math.floor((W - 20) / 70)), rows = Math.max(1, Math.floor((yMax - y0) / 68));
   const cw = (W - 20) / cols, ch = (yMax - y0) / rows;
-  const keepOut = [[0, 0, 120, 80], [W - 76, 0, W, 76], [W * 0.56 - 8, 0, W * 0.56 + 64, 72], [W - goalW - 20, H - 140, W, H]];
+  const keepOut = [[0, 0, 120, 80], [W - 76, 0, W, 76], [W * 0.56 - 8, 0, W * 0.56 + 64, 72], [W - goalW - 20, H - 150, W, H]];
   const out = [];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
     const x = 10 + cw * (c + 0.5), y = y0 + ch * (r + 0.5);

@@ -547,14 +547,20 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .star-slot .gold-star { width: 30px; height: 30px; }
 .find-card { left: 10px; top: 10px; z-index: 3; display: grid; justify-items: center; gap: 2px; padding: 6px 14px 6px; border-radius: 18px; background: #fff; box-shadow: var(--shadow); color: var(--muted); font-size: 15px; font-weight: 800; line-height: 1.1; pointer-events: none; }
 .find-card .glyph { height: 34px; width: auto; }
-.sky { inset: 0; z-index: 2; } .sky.done { pointer-events: none; }
-.sky-letter { position: absolute; width: 56px; height: 56px; padding: 0; border: 0; background: none; cursor: pointer; touch-action: manipulation; display: block; will-change: transform; }
+.sky { inset: 0; z-index: 2; touch-action: none; user-select: none; -webkit-user-select: none; } .sky.done { pointer-events: none; }
+.sky-letter { position: absolute; width: 56px; height: 56px; padding: 0; border: 0; background: none; cursor: pointer; touch-action: none; display: block; will-change: transform; }
+.sky-letter.dragging { z-index: 5; cursor: grabbing; }
+@media (prefers-reduced-motion: no-preference) { .sky-letter.dragging .face { background: rgba(255,255,255,.62); box-shadow: 0 10px 18px rgba(30,33,64,.28); } }
 .sky-letter .face { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 50%; background: rgba(255,255,255,.38); }
 .sky-letter .glyph { width: 44px; height: auto; } .sky-letter .glyph path { stroke-width: 13; }
 .font-letter { font: 800 50px/1 'Nunito', system-ui, sans-serif; }
-.sheep-wrap { left: 10px; bottom: 12px; z-index: 3; transition: transform 900ms cubic-bezier(.45,.05,.3,1); will-change: transform; pointer-events: none; }
-.sheep { display: block; width: 100%; height: auto; overflow: visible; }
-.hunt-goal { right: 8px; bottom: 40px; z-index: 1; pointer-events: none; } .hunt-goal .barn-art { display: block; width: 100%; height: auto; }
+.sheep-wrap { left: 10px; bottom: 12px; z-index: 3; transition: transform 700ms cubic-bezier(.45,.05,.3,1); will-change: transform; pointer-events: none; }
+.sheep { display: block; width: 100%; height: auto; overflow: visible; transform-origin: 50% 100%; }
+.hunt-goal { right: 8px; bottom: 40px; pointer-events: none; } /* no z-index: its two layers sit either side of the sheep */
+.hunt-goal .barn-art { position: absolute; left: 0; top: 0; display: block; width: 100%; height: auto; overflow: visible; }
+.hunt-goal .barn-back { z-index: 1; } .hunt-goal .barn-front { z-index: 4; }
+.goal-glow { position: absolute; left: -20%; right: -20%; top: -14%; bottom: -8%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,230,150,.85), rgba(255,230,150,0)); opacity: 0; transition: opacity 500ms ease; }
+.hunt-goal.done .goal-glow { opacity: 1; }
 .barn { left: 50%; bottom: 20px; z-index: 1; margin-left: calc(var(--bw, 300px) / -2); will-change: transform; }
 .barn .barn-art { display: block; width: 100%; height: 100%; overflow: visible; }
 .barn-letter { position: absolute; left: 50%; top: 73%; width: calc(var(--bw, 300px) * .4); height: calc(var(--bw, 300px) * .4); transform: translate(-50%, -50%); padding: 0; border: 0; background: none; cursor: pointer; touch-action: manipulation; }
@@ -565,7 +571,7 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .spark { z-index: 6; }
 .art-sheep, .art-barn { display: block; width: 150px; }
 .art-sheep svg, .art-barn svg { display: block; width: 100%; height: auto; }
-@media (prefers-reduced-motion: reduce) { .sheep-wrap { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .sheep-wrap { transition: none; } .goal-glow { transition: none; } }
 
 /* ---------- Saying Sounds: slide to blend ---------- */
 .task-activity.lock { overflow: hidden; touch-action: none; }

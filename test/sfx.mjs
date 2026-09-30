@@ -100,7 +100,7 @@ export async function sfxChecks({ browser, url, ok }) {
       await page.waitForTimeout(i < 5 ? 900 : 100);
     }
     ok(JSON.stringify(first.map((f) => Number(f.toFixed(2)))) === JSON.stringify([C5, D5, E5, G5, A5]), `Hunt: the pops step up the scale with the sheep (${first.map((f) => f.toFixed(0)).join(', ')})`);
-    await page.waitForTimeout(1300);
+    await page.waitForTimeout(2700); // the sheep trots, walks into the barn and the doors close first
     ok(of(await notes(page), 'win').bells.length === 7, 'Hunt: the sheep reaching the barn plays the win jingle');
     ok(errors.length === 0, 'Hunt sfx: errors ' + errors.join(' | '));
     await ctx.close();
