@@ -329,7 +329,7 @@ body.night { background: var(--night); }
 .task-stage.on-dark .btn.ghost { color: var(--ink); }
 
 /* shared bits inside tasks */
-.letter-card { align-self: center; width: 150px; height: 130px; border-radius: 24px; background: #fff; display: grid; place-items: center; box-shadow: var(--shadow); border: 0; margin: 6px 0 14px; }
+.letter-card { align-self: center; width: 150px; height: 130px; border-radius: 24px; background: #fff; display: grid; place-items: center; box-shadow: var(--shadow); border: 0; margin: 6px auto 14px; }
 .letter-card .glyph { width: 70%; height: auto; }
 .letter-card.big { width: min(72%, 280px); height: 170px; }
 .letter-card.tappable { cursor: pointer; touch-action: manipulation; transition: transform var(--t-fast) var(--ease-out); }
