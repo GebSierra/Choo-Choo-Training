@@ -62,6 +62,54 @@ for (const vp of VIEWPORTS) {
   await ctx.close();
 }
 
+// Slide track and trace pad (step 7), on #/lab.
+for (const vp of VIEWPORTS) {
+  const { ctx, page, errors } = await newPage(browser, vp);
+  await page.addInitScript(SPEECH_STUB);
+  await page.addInitScript(SEED({}));
+  await page.goto(url + '#/lab');
+  await page.waitForSelector('.slide-track');
+  await page.waitForTimeout(400);
+  await page.locator('.slide-track').scrollIntoViewIfNeeded();
+  const scrollBefore = await page.evaluate(() => scrollY);
+  const tb = await page.locator('.slide-track').boundingBox();
+  const hb = await page.locator('.st-handle').boundingBox();
+  await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2);
+  await page.mouse.down();
+  const steps = 12;
+  for (let i = 1; i <= steps; i++) {
+    await page.mouse.move(hb.x + hb.width / 2 + ((tb.width - hb.width) * i) / steps + 4, hb.y + hb.height / 2 + (i % 2 ? 6 : -6), { steps: 2 });
+  }
+  const midScroll = await page.evaluate(() => scrollY);
+  const reached = await page.evaluate(() => document.querySelector('.slide-track').classList.contains('is-end'));
+  await page.mouse.up();
+  ok(reached, `${vp.name}: slide track reaches end state`);
+  ok(midScroll === scrollBefore && (await page.evaluate(() => scrollY)) === scrollBefore, `${vp.name}: page did not scroll during drag`);
+  ok((await page.evaluate(() => document.querySelector('.slide-track').dataset.count)) === '1', `${vp.name}: completion counted once`);
+  await page.waitForTimeout(1500);
+  ok(!(await page.evaluate(() => document.querySelector('.slide-track').classList.contains('is-end'))), `${vp.name}: handle glided home`);
+  // Trace pad: drawing changes pixels; clear wipes them.
+  const inkPixels = () => page.evaluate(() => { const c = document.querySelector('.tp-ink'); const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) n++; return n; });
+  const before = await inkPixels();
+  const pb = await page.locator('.tp-ink').boundingBox();
+  await page.locator('.tp-ink').scrollIntoViewIfNeeded();
+  const pb2 = await page.locator('.tp-ink').boundingBox();
+  await page.mouse.move(pb2.x + pb2.width * 0.6, pb2.y + pb2.height * 0.3);
+  await page.mouse.down();
+  for (let i = 0; i <= 10; i++) await page.mouse.move(pb2.x + pb2.width * 0.6, pb2.y + pb2.height * (0.3 + i * 0.04));
+  await page.mouse.up();
+  const after = await inkPixels();
+  ok(before === 0 && after > 200, `${vp.name}: trace pad pixels changed (${before} -> ${after})`);
+  await page.click('#lab-show');
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: path.join(OUT, `lab-${vp.name}.png`) });
+  await page.waitForTimeout(3500);
+  await page.click('#lab-clear');
+  ok((await inkPixels()) === 0, `${vp.name}: clear wipes the child's ink`);
+  ok(errors.length === 0, `${vp.name}: lab errors ${errors.join(' | ')}`);
+  await ctx.close();
+}
+
 // Speech queue (step 5): order, missing clip skipped, isolated sounds refused, gesture required.
 {
   const vp = VIEWPORTS[0];
