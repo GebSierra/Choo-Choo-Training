@@ -45,7 +45,7 @@ await page.waitForTimeout(300);
 await save(page, '05-trace-pad.png');
 
 // Quick check with a card lifted.
-await page.goto(url + '#/lesson/2/task/6'); await page.waitForTimeout(1200);
+await page.goto(url + '#/lesson/2/task/8'); await page.waitForTimeout(1200);
 await page.locator('.opt-card').nth(1).click(); await page.waitForTimeout(400);
 await save(page, '06-quick-check.png');
 

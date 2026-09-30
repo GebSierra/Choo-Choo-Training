@@ -20,6 +20,7 @@ export function spokenStrings(c) {
     L.sayingWords.forEach((w) => out.push(w.word, ...w.parts));
     L.sayingSounds.forEach((w) => out.push(w.word));
   }
+  for (const g of Object.values(c.games || {})) out.push(g.say);
   return out;
 }
 
@@ -77,6 +78,22 @@ export function checkCurriculum(c, root = ROOT) {
       if (isIsolated(w.word)) err(`sounds.${k}.words[${i}] "${w.word}" is an isolated sound and is spoken by tts`);
       if (w.image && !fs.existsSync(path.join(root, w.image))) err(`sounds.${k}.words[${i}].image missing on disk: ${w.image}`);
     });
+  }
+
+  // The two games: one spoken line each, and distractor letters per taught sound.
+  for (const kind of ['hunt']) {
+    const g = (c.games || {})[kind];
+    const p = `games.${kind}`;
+    if (!g) { err(`${p} missing`); continue; }
+    if (typeof g.say !== 'string' || !g.say || isIsolated(g.say)) err(`${p}.say must be a sentence of words`);
+    else if (strayCaps(g.say)) err(`${p}.say has a capital outside a sentence start`);
+    for (const k of Object.keys(sounds)) {
+      const d = (g.distractors || {})[k];
+      if (!Array.isArray(d) || d.length < 3) { err(`${p}.distractors.${k} needs at least three letters`); continue; }
+      if (new Set(d).size !== d.length) err(`${p}.distractors.${k} repeats a letter`);
+      d.forEach((x) => { if (!/^[a-z]$/.test(x)) err(`${p}.distractors.${k} "${x}" must be one lowercase letter`); });
+      if (d.includes(k)) err(`${p}.distractors.${k} contains its own target`);
+    }
   }
 
   const taught = new Set();

@@ -4,6 +4,8 @@ import { audit } from './audit.mjs';
 import { SPEECH_STUB, silentWav } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag } from './lib.mjs';
 import { spokenStrings, isIsolated } from './check-content.mjs';
+import { tasksFor } from '../js/lessons.js';
+import { huntChecks, reducedChecks } from './games.mjs';
 
 const OUT = path.join(ROOT, '_test');
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
@@ -11,6 +13,7 @@ fs.mkdirSync(OUT, { recursive: true });
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.error('FAIL: ' + msg); } };
 
+const COUNT = (n) => tasksFor(CUR.lessons[n - 1]).length; // task counts come from the data: 8, 9, 9
 const { server, url } = await startServer();
 const pw = await loadPlaywright();
 const browser = await launch(pw);
@@ -42,7 +45,7 @@ for (const vp of VIEWPORTS) {
   await page.locator('.stone.is-current').click();
   await page.waitForSelector('.lesson-overview');
   ok(page.url().endsWith('#/lesson/1'), `${vp.name}: current stone opens lesson 1`);
-  ok((await page.locator('.task-card').count()) === 6, `${vp.name}: lesson 1 has six task cards`);
+  ok((await page.locator('.task-card').count()) === COUNT(1), `${vp.name}: lesson 1 has ${COUNT(1)} task cards`);
   ok((await page.locator('.task-card.is-done').count()) === 2, `${vp.name}: two done ticks from the store`);
   await page.waitForTimeout(700);
   await page.screenshot({ path: path.join(OUT, `lesson1-${vp.name}.png`) });
@@ -55,7 +58,7 @@ for (const vp of VIEWPORTS) {
   await page.addInitScript(SEED({ 1: { tasksDone: [], result: 'got-it', completedAt: 'x' } }));
   await page.goto(url + '#/lesson/2');
   await page.waitForSelector('.lesson-overview');
-  ok((await page.locator('.task-card').count()) === 7, 'lesson 2 has seven task cards');
+  ok((await page.locator('.task-card').count()) === COUNT(2), `lesson 2 has ${COUNT(2)} task cards`);
   const first = await page.locator('.task-card').first().innerText();
   ok(/Letter Review/.test(first), 'lesson 2 starts with Letter Review');
   await page.goto(url + '#/lesson/3');
@@ -110,7 +113,7 @@ for (const vp of VIEWPORTS) {
 
 // Every task of every lesson at every viewport (step 8): 20 tasks, audits, screenshots.
 const LESSONS = CUR.lessons.map((l) => l.number);
-const TASK_COUNTS = Object.fromEntries(CUR.lessons.map((l) => [l.number, l.review.length ? 7 : 6]));
+const TASK_COUNTS = Object.fromEntries(CUR.lessons.map((l) => [l.number, tasksFor(l).length]));
 const TOTAL_TASKS = Object.values(TASK_COUNTS).reduce((a, b) => a + b, 0);
 const ALL_OPEN = SEED({ 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' } });
 const ALL_OPEN_SOUNDS = SEED({ 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' } }, { playSounds: true });
@@ -199,6 +202,13 @@ for (const vp of VIEWPORTS) {
   ok(errors.length === 0, `${vp.name}: touch drag errors ${errors.join(' | ')}`);
   await ctx.close();
 }
+// The games (Letter Hunt): layout and touch behaviour at the three viewports, plus reduced motion.
+const shotTo = (dir) => async (page, name) => { await page.screenshot({ path: path.join(dir, `${name}.png`) }); };
+for (const vp of VIEWPORTS) {
+  await huntChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) });
+}
+for (const lessonNo of [2, 3]) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
+await reducedChecks({ browser, url, ok, CUR });
 {
   // Full screen button on Home and in Grownups (the Fullscreen API is stubbed so the call can be counted).
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
@@ -241,7 +251,7 @@ for (const vp of VIEWPORTS) {
   await page.locator('.stone.is-current').click();
   await page.waitForSelector('.lesson-overview');
   // Optional alphabet song: behind the same hold gate, opens a popup, is not a task.
-  ok((await page.locator('.song-row').count()) === 1 && (await page.locator('.task-card').count()) === 6, 'alphabet song row exists and is not a task card');
+  ok((await page.locator('.song-row').count()) === 1 && (await page.locator('.task-card').count()) === COUNT(1), 'alphabet song row exists and is not a task card');
   await page.locator('.song-hold').scrollIntoViewIfNeeded();
   const sb = await page.locator('.song-hold').boundingBox();
   const [songPopup] = await Promise.all([
@@ -274,7 +284,7 @@ for (const vp of VIEWPORTS) {
   ok(/youtube\.com\/playlist\?list=PL2hNdtrsO2hIINInfmEb55IpwTw0IrQZW/.test(popup.url()), 'playlist popup opened the playlist: ' + popup.url());
   await popup.close();
   // Walk the remaining tasks.
-  for (let k = 0; k < 4; k++) { await page.click('.btn.next'); await page.waitForTimeout(450); }
+  for (let k = 0; k < COUNT(1) - 2; k++) { await page.click('.btn.next'); await page.waitForTimeout(450); }
   await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Quick Check');
   await page.locator('.opt-card').first().click();
   await page.click('.btn.next');
@@ -288,7 +298,7 @@ for (const vp of VIEWPORTS) {
   await page.locator('.stone.is-done').click();
   await page.waitForSelector('.lesson-overview');
   await page.waitForTimeout(400);
-  ok((await page.locator('.task-card.is-done').count()) === 6, 'overview shows six done ticks after the lesson');
+  ok((await page.locator('.task-card.is-done').count()) === COUNT(1), 'overview shows every task done after the lesson');
   spoken = await page.evaluate(() => window.__spoken);
   allSpoken.push(...spoken);
   ok(errors.length === 0, 'lesson flow errors ' + errors.join(' | '));
@@ -402,7 +412,7 @@ for (const [name, raw] of [
   if (name === 'bad entries') {
     await page.goto(url + '#/lesson/2');
     await page.waitForSelector('.lesson-overview');
-    ok((await page.locator('.task-card').count()) === 7 && (await page.locator('.task-card.is-done').count()) === 0, 'corrupt store (bad entries): repaired, lesson 2 opens with nothing done');
+    ok((await page.locator('.task-card').count()) === COUNT(2) && (await page.locator('.task-card.is-done').count()) === 0, 'corrupt store (bad entries): repaired, lesson 2 opens with nothing done');
   }
   ok(errors.length === 0, `corrupt store (${name}) errors ${errors.join(' | ')}`);
   await ctx.close();
@@ -610,7 +620,7 @@ for (const [name, raw] of [
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
   await page.addInitScript(SPEECH_STUB);
   await page.addInitScript(ALL_OPEN_SOUNDS);
-  await page.goto(url + '#/lesson/3/task/6');
+  await page.goto(url + `#/lesson/3/task/${COUNT(3) - 1}`);
   await page.waitForSelector('.opt-card');
   await page.waitForTimeout(500);
   const picked = () => page.locator('.opt-card.picked').count();

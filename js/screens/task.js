@@ -9,9 +9,10 @@ import { build as story } from './tasks/story.js';
 import { build as words } from './tasks/words.js';
 import { build as sounds } from './tasks/sounds.js';
 import { build as writing } from './tasks/writing.js';
+import { build as hunt } from './tasks/hunt.js';
 import { build as check } from './tasks/check.js';
 
-const BUILDERS = { review, newLetter, story, words, sounds, writing, check };
+const BUILDERS = { review, newLetter, story, words, sounds, writing, hunt, check };
 let lastIndex = {}; // remembers the previous task per lesson so the progress pill can glide
 
 export function taskScreen(ctx, n, idx) {
@@ -56,7 +57,7 @@ export function taskScreen(ctx, n, idx) {
     h('span', { class: 'head-spacer' }),
     h('div', { class: 'dots', role: 'progressbar', 'aria-valuemin': 1, 'aria-valuemax': tasks.length, 'aria-valuenow': pos + 1, 'aria-label': `Task ${pos + 1} of ${tasks.length}` }, h('span', { class: 'dots-track' }, dots, pill)));
 
-  const stage = h('main', { class: `task-stage c-${task.color}${light ? ' on-dark' : ''}` }, h('div', { class: 'task-activity' }, current.el), speaker);
+  const stage = h('main', { class: `task-stage c-${task.color}${light ? ' on-dark' : ''}` }, h('div', { class: 'task-activity' + (current.flush ? ' flush' : '') }, current.el), speaker);
 
   const again = h('button', { class: 'btn again', type: 'button', onclick: () => { current.again(); refresh(); } }, icon('redo', 22), 'Again');
   const next = h('button', { class: 'btn next', type: 'button', disabled: true, onclick: () => { if (current.next && current.next()) { refresh(); return; } advance(); } }, isLast ? 'Finish' : 'Next', icon('arrowRight', 22));

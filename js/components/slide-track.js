@@ -1,11 +1,10 @@
 import { h, animate, reduced } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { accentOf } from '../theme.js';
+import { sparkle } from './sparkle.js';
 
 const HANDLE = 76;
 const PAD = 6;
-const STAR = 'M12 0 L14.6 9.4 L24 12 L14.6 14.6 L12 24 L9.4 14.6 L0 12 L9.4 9.4 Z';
-const SPARK_COLORS = ['#FFD166', '#FFFFFF', '#FFE9A8'];
 
 // Drag the letter along the track while saying its sound. The track itself is silent: the child
 // says the sound, and the app only shows the glide and a sparkle when the letter gets to the end.
@@ -54,24 +53,7 @@ export function slideTrack({ letter, onComplete }) {
     a1.finished.then(() => { place(0); stopGlide(); track.classList.remove('is-end'); atEnd = false; homing = false; }).catch(() => {});
   }
 
-  // A burst of small stars where the letter lands. Transform and opacity only; removed when done.
-  function sparkle() {
-    if (reduced()) return;
-    const cx = track.clientWidth - 8 - 36, cy = 44;
-    for (let i = 0; i < 18; i++) {
-      const size = 16 + Math.round(Math.random() * 16);
-      const color = SPARK_COLORS[i % 3];
-      const star = h('svg', { class: 'spark', viewBox: '0 0 24 24', width: size, height: size, 'aria-hidden': 'true', style: { left: cx - size / 2 + 'px', top: cy - size / 2 + 'px' } }, h('path', { d: STAR, fill: color }));
-      track.append(star);
-      const ang = (i / 18) * Math.PI * 2 + Math.random() * 0.4, dist = 64 + Math.random() * 56;
-      const a = animate(star, [
-        { transform: 'translate(0,0) scale(0) rotate(0deg)', opacity: 1 },
-        { transform: `translate(${Math.cos(ang) * dist * 0.7}px,${Math.sin(ang) * dist * 0.7}px) scale(1) rotate(90deg)`, opacity: 1, offset: 0.55 },
-        { transform: `translate(${Math.cos(ang) * dist}px,${Math.sin(ang) * dist}px) scale(0) rotate(180deg)`, opacity: 0 },
-      ], { duration: 720 + Math.random() * 280, delay: Math.random() * 90, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
-      a.finished.then(() => star.remove()).catch(() => star.remove());
-    }
-  }
+  const burst = () => sparkle(track, track.clientWidth - 8 - 36, 44);
 
   function complete() {
     if (atEnd) return; // a drag and a key press cannot both complete
@@ -82,7 +64,7 @@ export function slideTrack({ letter, onComplete }) {
     place(max);
     if (navigator.vibrate) navigator.vibrate(20);
     bloom.classList.remove('go'); void bloom.offsetWidth; bloom.classList.add('go');
-    sparkle();
+    burst();
     if (!reduced()) animate(handle.firstChild, [{ transform: 'scale(1.15)' }, { transform: 'scale(1.3)', offset: 0.4 }, { transform: 'scale(1)' }], { duration: 320, easing: 'cubic-bezier(.34,1.56,.64,1)' });
     if (onComplete) onComplete();
     clearTimeout(homeTimer);

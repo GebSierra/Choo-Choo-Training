@@ -462,5 +462,36 @@
         ]
       }
     }
-  ]
+  ],
+  "games": {
+    "hunt": {
+      "say": "Find this letter. Touch it.",
+      "distractors": {
+        "m": [
+          "a",
+          "s",
+          "o",
+          "t",
+          "l",
+          "i"
+        ],
+        "a": [
+          "m",
+          "s",
+          "t",
+          "l",
+          "i",
+          "n"
+        ],
+        "s": [
+          "m",
+          "a",
+          "t",
+          "l",
+          "i",
+          "o"
+        ]
+      }
+    }
+  }
 }
