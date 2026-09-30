@@ -26,12 +26,12 @@ GitHub Pages serves this repo from `main` at the root. After you enable Pages (S
     python3 -m http.server 8080
     # open http://localhost:8080/
 
-Debug pages (not linked from the app): `#/glyphs` (letter shapes with stroke starts), `#/lab` (speech, slide track and trace pad playground).
+Debug pages (not linked from the app; the smoke test uses them, and the service worker does not precache them): `#/glyphs` (letter shapes with stroke starts), `#/lab` (speech, slide track and trace pad playground).
 
 ## Test
 
     node test/check-content.mjs   # curriculum.json against the teaching rules
-    node test/smoke.mjs           # Playwright walkthrough at three Android viewports (takes about three minutes)
+    node test/smoke.mjs           # Playwright walkthrough at three Android viewports (takes about four minutes)
 
 The smoke test starts its own server, uses the preinstalled Chromium, fails on any console error, and saves screenshots to `_test/` (ignored by git). `tools/screenshots.mjs` refreshes the pictures in `docs/screenshots/`. `npm install` is only needed if Playwright is not already installed globally; the app itself has no dependencies.
 
@@ -48,13 +48,13 @@ To use your own voice instead:
 1. On a laptop with Chrome or Edge, open `tools/record.html` (double-click it, or visit `/tools/record.html` on the Pages address).
 2. For each sound press Record, say it (hold mmm and sss for about a second; say the short a of "apple"), press Stop, listen, then Download. Never say "muh", "suh" or a letter name.
 3. Put the downloaded `m.webm`, `a.webm`, `s.webm` into `assets/audio/sounds/` and delete the matching `.mp3` files so yours are found first.
-4. Commit and push. In `sw.js` bump `CACHE_VERSION` so phones pick up the change, and add the `.webm` names to `OPTIONAL_FILES` if you want them available offline.
+4. Commit and push. Bump `CACHE_VERSION` in `sw.js` and `APP_VERSION` in `js/version.js` together (the smoke test fails if they differ) so phones pick up the change, and add the `.webm` names to `OPTIONAL_FILES` if you want them available offline.
 
-If a clip is missing, the app skips that part and shows a small yellow dot on the speaker button. Grownups shows which clips are found.
+If a clip is missing, the app skips that part. Only Grownups shows which clips are found or missing (no warning dot on the child's buttons).
 
 ## Reset progress
 
-Grownups (press and hold the pill on Home for 1.5 seconds), then "Reset all progress". It keeps your voice settings. Grownups can also unlock any lesson.
+Grownups (press and hold the pill on Home for 2 seconds), then "Reset all progress". It keeps your voice settings. Grownups can also unlock any lesson.
 
 ## What stage 2 adds
 
@@ -72,12 +72,13 @@ The plan left these open or made them impossible to follow literally. Each is th
 
 - Fonts: one variable Nunito file (`nunito-latin.woff2`) covers weights 400, 700 and 800, instead of three files.
 - WebP: the bundled ffmpeg has no WebP encoder, so `tools/make-webp.mjs` converts the 26 tiles with Chromium's canvas encoder (512 px, all under 60 KB). The PNG originals stay and are not precached.
-- Every "a" a child reads is drawn from our own single-story glyph, including inside words such as "apple" or "catfish" (`js/letters.js`), not only the big taught letters.
+- Every "a" a child reads is drawn from our own single-story glyph (`js/letters.js`), including inside words such as "apple" or "catfish". Inside words, m and s may render from the font: "a" is the only letter whose font shape differs, so only "a" always comes from `js/glyphs.js`.
 - Task numbers in the URL are positions in that lesson's task list, so lesson 1 has tasks 0 to 5 (no Letter Review) and lessons 2 and 3 have 0 to 6.
 - Back always goes to the parent screen (task to lesson overview to Home), so it is predictable and animates in reverse.
-- Grownups opens only through the hold gate on Home and expires after ten minutes; typing `#/grownups` bounces to Home. The hold keeps its full 1.5 seconds even with reduced motion on.
+- Grownups opens only through the hold gate on Home and expires after ten minutes; typing `#/grownups` bounces to Home. The gate is used up on entry, so Back then the browser's back button cannot re-enter. Redirects replace the history entry.
+- Hold gates (Grownups, Open playlist, Play for the alphabet song) take 2 seconds, keep that length even with reduced motion on, and each shows a permanent small "Hold" line.
 - Reset all progress keeps the voice, speed and auto-speak settings and returns Home to its first-run card.
-- Parent scripts are read aloud by their small speaker: mmm, aaammm and sss become recorded clips, and a stretch we have no clip for (for example "mmmoon") is shown but not spoken. A standalone single letter is never sent to text to speech.
+- Parent scripts are read aloud by their small speaker: mmm, aaammm and sss become recorded clips, and a stretch we have no clip for (for example "mmmoon", where "oo" is never tripled) is shown but not spoken. A standalone single letter is never sent to text to speech.
 - For picture-only words in Saying Sounds the script stretches held sounds only (mmmoon, never "ppp"), following the clipped-consonant rule.
 - Quick Check answer cards are shuffled on each visit. Tapping one lifts it; nothing says right or wrong, and the choice can be changed.
 - The Start lesson button continues at the first unfinished task, and reads "Do it again" once all tasks are done.
@@ -85,3 +86,10 @@ The plan left these open or made them impossible to follow literally. Each is th
 - Sound clips: `curriculum.json` lists the `.mp3` path. The app tries `.mp3` first, `.webm` second. `sw.js` precaches only the three `.mp3` clips (optional, so a missing file never breaks install) and never `assets/audio/ipa/`.
 - Alphabet song: an optional row above the task cards opens https://youtu.be/qKQAQc2NEuk behind the same hold gate. It is not a task, never counts toward progress or ticks, and the page says nothing about its contents beyond "alphabet song". The video was not viewed; if it says letter names, use it or skip it as you see fit.
 - The smoke test's fixed viewports use Playwright's Chromium, which stands in for Chrome and Edge on Android. Real speech voices and real touch feel cannot be checked there.
+- Short a is always written and said "a as in apple", never a bare "a" followed by punctuation in a parent script, subtitle, prompt or Grownups row, because a parent reading "Say a." would say the letter's name. It is not switched to "aaa".
+- The alphabet song row stays at the top of the lesson overview. It is Geb's deliberate exception to the letters-not-names rule: the video is not viewed or controlled by this app.
+- Compound words in Saying Words are two picturable nouns whose part emoji are not the whole word. The merged tile shows the word plus the second part's emoji with the first overlaid small. Lesson 1: sunhat, cupcake, handbag, starfish. Lesson 2: catfish, pancake, icecream, toothbrush. Lesson 3: sunflower, snowman, hotdog, football. Example words: a has apple, hat, cat, crab, ant (the pictures for axe and astronaut stay in the repo but are not precached); s has sun, sock, soup, seal, snake.
+- Words with untaught letters may appear as picture labels (plan 5.1 allows it).
+- The letter clips come from Wikipedia's IPA recordings (see Attribution); that credit stays in the Attribution section and on Grownups.
+- Next is dimmed for one second after a task opens, and the finish screen ignores taps for 1.5 seconds; "Yes, go on" takes two taps. Practicing a lesson again after "Yes" keeps the best result, so the next lesson is not locked again.
+- `CACHE_VERSION` in `sw.js` and `APP_VERSION` in `js/version.js` carry the same number; the smoke test asserts it.

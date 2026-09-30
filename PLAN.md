@@ -70,32 +70,44 @@ Do not build these. Leave clean seams for them.
 ```
 /
   index.html              app shell, loads js/app.js as a module
-  manifest.webmanifest    name, icons, standalone, portrait-primary
-  sw.js                   service worker: precache app shell and assets, cache-first
+  manifest.webmanifest    name, id, icons, standalone, portrait-primary
+  sw.js                   service worker: precache app shell and assets, cache-first, curriculum.json network-first
+  .nojekyll               tells GitHub Pages to serve the files as they are
+  package.json            npm scripts for the tests; the only dependency is Playwright for development
   css/app.css             tokens and all styles
-  js/app.js               boot, router wiring, store init, first-gesture unlock for speech
-  js/router.js            hash router: #/home, #/lesson/1, #/lesson/1/task/2, #/grownups, #/lab
-  js/store.js             localStorage read/write, versioned schema
+  js/app.js               boot, router wiring, store init, first-tap unlock for speech, update reload on Home
+  js/router.js            hash router: #/home, #/lesson/1, #/lesson/1/task/2, #/lesson/1/finish, #/grownups, #/lab, #/glyphs
+  js/store.js             localStorage read/write, versioned schema, repairs corrupt data
   js/speech.js            say(parts): text to speech plus recorded clips, voice choice, queue, cancel
   js/glyphs.js            SVG path data for lowercase m, a, s; render and trace helpers
+  js/letters.js           child-read text: every "a" drawn from the glyph
+  js/lessons.js           task list per lesson, sound phrases, sound card lines
+  js/scripts.js           parent scripts to speech parts, stretched words
+  js/dom.js, theme.js, version.js   tiny DOM helper and animation wrapper, accent colors, APP_VERSION
   js/components/slide-track.js
   js/components/trace-pad.js
   js/components/hold-button.js
   js/components/speak-button.js   the round speaker button used on every task
+  js/components/sound-card.js
   js/screens/home.js
   js/screens/lesson.js
+  js/screens/task.js              the task shell around the seven tasks
   js/screens/tasks/*.js           one file per task type (seven)
   js/screens/finish.js
   js/screens/grownups.js
+  js/screens/lab.js, glyphs-debug.js   debug routes #/lab and #/glyphs; loaded on demand, not precached
   data/curriculum.json    all content; code never hardcodes lesson content
-  assets/fonts/           Nunito woff2 (400, 700, 800), downloaded once, self-hosted
+  assets/fonts/           Nunito variable woff2 (covers 400, 700, 800), self-hosted
   assets/images/mentava/  Mentava tiles as shipped (PNG) plus web-sized copies (WebP, 512 px)
-  assets/audio/sounds/    recorded clips m, a, s (optional; see 7.5)
-  icons/                  icon-192.png, icon-512.png, maskable-512.png, apple-touch-icon.png
+  assets/audio/sounds/    recorded clips m.mp3, a.mp3, s.mp3 (a .webm next to one is tried second; see 7.5)
+  assets/audio/ipa/       source recordings the clips were cut from (not precached)
+  icons/                  icon-192.png, icon-512.png, maskable-512.png, apple-touch-icon.png, icon.svg
   tools/record.html       stand-alone page for Geb to record sound clips on a laptop (not linked from the app)
+  tools/                  make-icons.mjs, make-webp.mjs, screenshots.mjs
   test/smoke.mjs          Playwright walkthrough at Android viewports, screenshots, assertions
   test/check-content.mjs  validates curriculum.json against the fixed decisions
-  docs/                   reference material and this plan's history
+  test/lib.mjs, stubs.mjs, audit.mjs   shared server and browser helpers, speech stub, per-screen audits
+  docs/                   reference material, screenshots, FIXES-round1.md (the review fix list)
   README.md               how to run, test, deploy, record clips, and the private-use notice
   PLAN.md                 this file
 ```
@@ -116,6 +128,7 @@ Speech is written as parts so that isolated sounds always come from a clip, neve
 {
   "version": 2,
   "playlistUrl": "https://m.youtube.com/playlist?list=PL2hNdtrsO2hIINInfmEb55IpwTw0IrQZW",
+  "alphabetSongUrl": "https://youtu.be/qKQAQc2NEuk",
   "sounds": {
     "m": {
       "glyph": "m",
@@ -124,7 +137,7 @@ Speech is written as parts so that isolated sounds always come from a clip, neve
       "doNotSay": "muh",
       "howTo": "Press your lips together and hum. Hold it: mmm.",
       "asIn": null,
-      "clip": "assets/audio/sounds/m.webm",
+      "clip": "assets/audio/sounds/m.mp3",
       "words": [
         {"word": "moon",   "image": null, "emoji": "🌙"},
         {"word": "map",    "image": null, "emoji": "🗺️"},
@@ -140,7 +153,7 @@ Speech is written as parts so that isolated sounds always come from a clip, neve
       "doNotSay": null,
       "howTo": "Say a as in apple. Open your mouth wide.",
       "asIn": "apple",
-      "clip": "assets/audio/sounds/a.webm",
+      "clip": "assets/audio/sounds/a.mp3",
       "words": [
         {"word": "apple",     "image": "assets/images/mentava/web/a/apple.webp",     "emoji": "🍎"},
         {"word": "hat",       "image": "assets/images/mentava/web/a/hat.webp",       "emoji": "👒"},
@@ -157,7 +170,7 @@ Speech is written as parts so that isolated sounds always come from a clip, neve
       "doNotSay": "suh",
       "howTo": "Teeth close together, push air out like a snake. Hold it: sss.",
       "asIn": null,
-      "clip": "assets/audio/sounds/s.webm",
+      "clip": "assets/audio/sounds/s.mp3",
       "words": [
         {"word": "sun",   "image": null, "emoji": "☀️"},
         {"word": "sock",  "image": null, "emoji": "🧦"},
@@ -252,6 +265,8 @@ Speech is written as parts so that isolated sounds always come from a clip, neve
 }
 ```
 
+The sample shows the shape of the data; the current word lists are in `data/curriculum.json`. `alphabetSongUrl` is Geb's optional alphabet-song row on the lesson overview (not a task, never counts toward progress). Clip paths name the `.mp3` files that ship; a `.webm` with the same name, recorded with `tools/record.html`, is tried second.
+
 Rules enforced by `test/check-content.mjs`:
 
 - Every `showLetters: true` word uses only the lesson's sound and its `review` sounds.
@@ -261,6 +276,7 @@ Rules enforced by `test/check-content.mjs`:
 - No `tts` part is a single letter or a run of one repeated letter ("m", "mmm", "sss"). Isolated sounds are always `clip` parts.
 - Every `image` path that is not `null` exists on disk. Every `clip` path is listed, whether or not the file exists yet.
 - `lessons[i].number === i + 1`.
+- Both URLs are https YouTube links. Spoken fields (`sounds[].words`, `sayingWords`, `sayingSounds`) obey the single-letter rule and never hold "as". `parts` and `emoji` of a saying word have exactly two items; a saying sound without letters has an emoji.
 
 ### 5.2 `localStorage` schema
 
@@ -376,7 +392,7 @@ Accept: a Playwright mouse drag reaches the end state; `scrollY` does not change
 
 Isolated sounds must be exact, and text to speech cannot say "mmm" or "sss" reliably, so they are recorded once and shipped as files.
 
-- Format: `audio/webm` (Opus) as produced by `MediaRecorder` in Chrome or Edge on a laptop. Files: `assets/audio/sounds/m.webm`, `a.webm`, `s.webm`, each about one second, the sound held for the held sounds.
+- Format: the shipped clips are `assets/audio/sounds/m.mp3`, `a.mp3`, `s.mp3`, each about one second, the sound held for the held sounds. A recording made with `tools/record.html` is `audio/webm` (Opus) from `MediaRecorder` and is named `m.webm`, `a.webm`, `s.webm`; the app tries the `.mp3` first and the `.webm` second.
 - `tools/record.html` is a stand-alone page, not linked from the app, that Geb opens on a laptop to record each clip, hear it back, and download it. It asks for the microphone; the app itself never does. Instructions live in `README.md`, including the Mentava wording for each sound.
 - Until the files exist, the app works without them (7.4). The executor commits the app with the three paths declared and the files absent, and tells Geb in the handoff what to record.
 
@@ -386,7 +402,7 @@ Isolated sounds must be exact, and text to speech cannot say "mmm" or "sss" reli
 
 ### 7.7 Hold button
 
-Press and hold 1.5 seconds; a ring fills; release early cancels. Used for Grownups and the playlist button.
+Press and hold 2 seconds; a ring fills; release early cancels. Used for Grownups, the playlist button and the alphabet song. Every hold control carries a permanent small line saying so.
 
 ## 8. Design system
 
@@ -516,3 +532,16 @@ Defaults in this plan, taken as approved unless Geb says otherwise:
 - Isolated letter sounds come from clips Geb records once with `tools/record.html` on a laptop. Until then the app runs without them. Alternative: Geb extracts sound audio from another source and drops it in the same paths.
 - Pictures for m and s are emoji until Geb extracts those tiles from the Mentava PDF, the same way the a to e tiles were extracted (the manifest shows page and xref per image).
 - Nunito is the app font, self-hosted.
+
+## 16. Post-review changes
+
+Five independent reviews produced `docs/FIXES-round1.md` (37 numbered fixes in five groups). All are applied. What changed, in short:
+
+- **Teaching text.** Every "a" a child reads comes from the glyph, inside words too. The short a is always written and said "a as in apple", never a bare "a" (a parent would say its name). Parent scripts give words to say. Compound words are picturable nouns; example words for a and s were replaced. Blends play from preloaded clips with no gap, then a 300 ms pause before the whole word. The content checker also covers spoken parts and structure.
+- **Child safety.** Next is dimmed for one second; the finish screen ignores taps for 1.5 seconds and "Yes, go on" takes two taps; hold gates are 2 seconds and labelled; the Grownups gate is consumed on entry and redirects replace history; Unlock asks first; corrupt saved data is repaired.
+- **Bugs.** Speech treats a refused play() as skipped and cancel as neutral; cleanup plumbing; the service worker precaches fresh files, never caches partial or failed responses, gives content a 2.5 second network timeout and leaves the debug screens out; updates reload only on Home; the trace pad keeps its strokes on resize.
+- **Design and motion.** Landscape layouts for every screen with nothing core below the fold, opacity-only entrances so tap targets never move, darker green for white text, spring release on pressables, reduced motion without delays, one sliding progress pill, faces on the home trees, a larger trace pad, 28 px titles.
+- **Tests and docs.** The smoke test lost its padded assertions, derives task counts from the curriculum, drags by real touch, audits revealed states and later words, and checks that `CACHE_VERSION` equals `APP_VERSION`. README "Decisions made during build" records the choices below.
+
+Decisions fixed by Geb in that round: inside words m and s may render from the font (only "a" always comes from `glyphs.js`); words with untaught letters may appear as picture labels; the alphabet song row stays, as Geb's deliberate exception to the letters-not-names rule; the debug routes stay but are not precached.
+

@@ -445,7 +445,7 @@ body.night { background: var(--night); }
   /* New Letter and Review: glyph and sound card on the left, slide track and words on the right */
   .new-letter, .review-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; align-content: start; }
   .new-letter > .letter-card, .review-body > .letter-card { grid-column: 1; grid-row: 1; margin: 0 0 12px; width: 100%; }
-  .new-letter > .sound-card, .review-body > .sound-card { grid-column: 1; grid-row: 2; margin-bottom: 0; }
+  .new-letter > .sound-card, .review-body > .sound-card { grid-column: 1; grid-row: 2; margin-bottom: 0; align-self: start; }
   .new-letter > .slide-track, .review-body > .slide-track { grid-column: 2; grid-row: 1; margin: 58px 0 12px; }
   .new-letter > .word-strip { grid-column: 2; grid-row: 2; margin: 0; padding-left: 2px; }
   .new-letter .sc-how, .review-body .sc-how { display: none; }

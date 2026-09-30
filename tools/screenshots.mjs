@@ -1,4 +1,4 @@
-// Captures portrait screenshots of the main screens into _test/ and docs/screenshots/.
+// Captures portrait screenshots of the main screens, plus two landscape ones, into _test/ and docs/screenshots/.
 // Run: node tools/screenshots.mjs
 import fs from 'node:fs';
 import path from 'node:path';
@@ -48,5 +48,14 @@ await save(page, '05-trace-pad.png');
 await page.goto(url + '#/lesson/2/task/6'); await page.waitForTimeout(1200);
 await page.locator('.opt-card').nth(1).click(); await page.waitForTimeout(400);
 await save(page, '06-quick-check.png');
+
+// Landscape: the lesson overview and New Letter.
+await ctx.close();
+const land = await browser.newContext({ viewport: { width: 915, height: 412 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
+const lp = await land.newPage();
+await lp.addInitScript(SPEECH_STUB);
+await lp.addInitScript(`if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[0,1,2,3,4,5],result:'got-it',completedAt:'2026-09-30T12:00:00Z'},2:{tasksDone:[0,1],result:null}},settings:{},firstRunDone:true})); }`);
+await lp.goto(url + '#/lesson/2'); await lp.waitForTimeout(1200); await save(lp, '07-lesson-overview-landscape.png');
+await lp.goto(url + '#/lesson/2/task/1'); await lp.waitForTimeout(2200); await save(lp, '08-new-letter-landscape.png');
 
 await browser.close(); server.close();
