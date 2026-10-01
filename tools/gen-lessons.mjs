@@ -42,7 +42,7 @@ const TABLE = [
     tiles: ['p/pig', 'p/panda', 'p/pumpkin', 'o/pot'], words: ['pat', 'tap', 'pig'], pic: 'pig',
     compounds: [['pop', 'corn', '💥', '🌽'], ['paint', 'brush', '🎨', '🖌️'], ['paper', 'clip', '📄', '📎'], ['space', 'ship', '🪐', '🚢']],
     qc: { kind: 'letter', others: ['s', 't'] }, hunt: 'mstoeifn' },
-  { n: 11, k: 'h', say: 'h-', hold: false, not: 'huh', how: 'Breathe out like you are fogging a mirror. Short: h-. Do not add uh.',
+  { n: 11, k: 'h', say: 'h-', hold: false, not: 'huh', how: 'Breathe out as if fogging a mirror. Short: h-. Do not add uh.',
     tiles: ['h/hat', 'h/hand', 'h/hippo', 'e/hen', 'or/horse'], words: ['hat', 'him', 'hip'], pic: 'hippo',
     compounds: [['horse', 'shoe', '🐴', '👟'], ['hat', 'box', '👒', '📦'], ['bird', 'house', '🐦', '🏠'], ['ham', 'burger', '🍖', '🍔']],
     qc: { kind: 'picture', word: 'hand', others: ['robot', 'yarn'] }, hunt: 'astoeifd' },

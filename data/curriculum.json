@@ -322,6 +322,247 @@
           "image": "assets/images/mentava/web/i/igloo.webp"
         }
       ]
+    },
+    "n": {
+      "glyph": "n",
+      "sayItLike": "nnn",
+      "hold": true,
+      "doNotSay": "nuh",
+      "howTo": "Put your tongue behind your top teeth and hum through your nose. Hold it: nnn. Do not add uh.",
+      "asIn": null,
+      "clip": null,
+      "words": [
+        {
+          "word": "nut",
+          "image": "assets/images/mentava/web/n/nut.webp"
+        },
+        {
+          "word": "nose",
+          "image": "assets/images/mentava/web/n/nose.webp"
+        },
+        {
+          "word": "necklace",
+          "image": "assets/images/mentava/web/n/necklace.webp"
+        },
+        {
+          "word": "nest",
+          "image": "assets/images/mentava/web/e/nest.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "nut",
+          "image": "assets/images/mentava/web/n/nut.webp"
+        },
+        {
+          "word": "nose",
+          "image": "assets/images/mentava/web/n/nose.webp"
+        },
+        {
+          "word": "necklace",
+          "image": "assets/images/mentava/web/n/necklace.webp"
+        },
+        {
+          "word": "nest",
+          "image": "assets/images/mentava/web/e/nest.webp"
+        }
+      ]
+    },
+    "p": {
+      "glyph": "p",
+      "sayItLike": "p-",
+      "hold": false,
+      "doNotSay": "puh",
+      "howTo": "Close your lips, then let out a tiny puff of air. Short: p-. Do not add uh.",
+      "asIn": null,
+      "clip": null,
+      "words": [
+        {
+          "word": "pig",
+          "image": "assets/images/mentava/web/p/pig.webp"
+        },
+        {
+          "word": "panda",
+          "image": "assets/images/mentava/web/p/panda.webp"
+        },
+        {
+          "word": "pumpkin",
+          "image": "assets/images/mentava/web/p/pumpkin.webp"
+        },
+        {
+          "word": "pot",
+          "image": "assets/images/mentava/web/o/pot.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "pig",
+          "image": "assets/images/mentava/web/p/pig.webp"
+        },
+        {
+          "word": "panda",
+          "image": "assets/images/mentava/web/p/panda.webp"
+        },
+        {
+          "word": "pumpkin",
+          "image": "assets/images/mentava/web/p/pumpkin.webp"
+        },
+        {
+          "word": "pot",
+          "image": "assets/images/mentava/web/o/pot.webp"
+        }
+      ]
+    },
+    "h": {
+      "glyph": "h",
+      "sayItLike": "h-",
+      "hold": false,
+      "doNotSay": "huh",
+      "howTo": "Breathe out as if fogging a mirror. Short: h-. Do not add uh.",
+      "asIn": null,
+      "clip": null,
+      "words": [
+        {
+          "word": "hat",
+          "image": "assets/images/mentava/web/h/hat.webp"
+        },
+        {
+          "word": "hand",
+          "image": "assets/images/mentava/web/h/hand.webp"
+        },
+        {
+          "word": "hippo",
+          "image": "assets/images/mentava/web/h/hippo.webp"
+        },
+        {
+          "word": "hen",
+          "image": "assets/images/mentava/web/e/hen.webp"
+        },
+        {
+          "word": "horse",
+          "image": "assets/images/mentava/web/or/horse.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "hat",
+          "image": "assets/images/mentava/web/h/hat.webp"
+        },
+        {
+          "word": "hand",
+          "image": "assets/images/mentava/web/h/hand.webp"
+        },
+        {
+          "word": "hippo",
+          "image": "assets/images/mentava/web/h/hippo.webp"
+        },
+        {
+          "word": "hen",
+          "image": "assets/images/mentava/web/e/hen.webp"
+        },
+        {
+          "word": "horse",
+          "image": "assets/images/mentava/web/or/horse.webp"
+        }
+      ]
+    },
+    "b": {
+      "glyph": "b",
+      "sayItLike": "b-",
+      "hold": false,
+      "doNotSay": "buh",
+      "howTo": "Close your lips, then let your voice pop out. Short: b-. Do not add uh.",
+      "asIn": null,
+      "clip": null,
+      "words": [
+        {
+          "word": "baby",
+          "image": "assets/images/mentava/web/b/baby.webp"
+        },
+        {
+          "word": "banana",
+          "image": "assets/images/mentava/web/b/banana.webp"
+        },
+        {
+          "word": "ball",
+          "image": "assets/images/mentava/web/b/ball.webp"
+        },
+        {
+          "word": "bear",
+          "image": "assets/images/mentava/web/b/bear.webp"
+        },
+        {
+          "word": "bus",
+          "image": "assets/images/mentava/web/b/bus.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "baby",
+          "image": "assets/images/mentava/web/b/baby.webp"
+        },
+        {
+          "word": "banana",
+          "image": "assets/images/mentava/web/b/banana.webp"
+        },
+        {
+          "word": "ball",
+          "image": "assets/images/mentava/web/b/ball.webp"
+        },
+        {
+          "word": "bear",
+          "image": "assets/images/mentava/web/b/bear.webp"
+        },
+        {
+          "word": "bus",
+          "image": "assets/images/mentava/web/b/bus.webp"
+        }
+      ]
+    },
+    "l": {
+      "glyph": "l",
+      "sayItLike": "l-",
+      "hold": false,
+      "doNotSay": "ull or luh",
+      "howTo": "Put the tip of your tongue behind your top teeth. Say lion but stop before ion: l-. Do not add uh.",
+      "asIn": null,
+      "clip": null,
+      "words": [
+        {
+          "word": "leaf",
+          "image": "assets/images/mentava/web/l/leaf.webp"
+        },
+        {
+          "word": "leg",
+          "image": "assets/images/mentava/web/l/leg.webp"
+        },
+        {
+          "word": "ladder",
+          "image": "assets/images/mentava/web/l/ladder.webp"
+        },
+        {
+          "word": "light",
+          "image": "assets/images/mentava/web/ie/light.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "leaf",
+          "image": "assets/images/mentava/web/l/leaf.webp"
+        },
+        {
+          "word": "leg",
+          "image": "assets/images/mentava/web/l/leg.webp"
+        },
+        {
+          "word": "ladder",
+          "image": "assets/images/mentava/web/l/ladder.webp"
+        },
+        {
+          "word": "light",
+          "image": "assets/images/mentava/web/ie/light.webp"
+        }
+      ]
     }
   },
   "lessons": [
@@ -1290,6 +1531,620 @@
           }
         ]
       }
+    },
+    {
+      "number": 9,
+      "sound": "n",
+      "review": [
+        "g",
+        "i"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "n"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingWords": [
+        {
+          "parts": [
+            "pea",
+            "nut"
+          ],
+          "word": "peanut",
+          "emoji": [
+            "🫛",
+            "🥜"
+          ]
+        },
+        {
+          "parts": [
+            "note",
+            "book"
+          ],
+          "word": "notebook",
+          "emoji": [
+            "📝",
+            "📖"
+          ]
+        },
+        {
+          "parts": [
+            "moon",
+            "light"
+          ],
+          "word": "moonlight",
+          "emoji": [
+            "🌙",
+            "💡"
+          ]
+        },
+        {
+          "parts": [
+            "ant",
+            "hill"
+          ],
+          "word": "anthill",
+          "emoji": [
+            "🐜",
+            "⛰️"
+          ]
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "man",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "tan",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "tin",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "nut",
+          "image": "assets/images/mentava/web/n/nut.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which picture starts with"
+          },
+          {
+            "clip": "n"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen. Touch the one that starts the same."
+          }
+        ],
+        "promptText": "Which picture starts with nnn?",
+        "promptTextQuiet": "Listen. Touch the one that starts the same.",
+        "kind": "picture",
+        "options": [
+          {
+            "word": "nut",
+            "image": "assets/images/mentava/web/n/nut.webp",
+            "correct": true
+          },
+          {
+            "word": "window",
+            "image": "assets/images/mentava/web/w/window.webp",
+            "correct": false
+          },
+          {
+            "word": "chair",
+            "image": "assets/images/mentava/web/ch/chair.webp",
+            "correct": false
+          }
+        ]
+      }
+    },
+    {
+      "number": 10,
+      "sound": "p",
+      "review": [
+        "i",
+        "n"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "p"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingWords": [
+        {
+          "parts": [
+            "pop",
+            "corn"
+          ],
+          "word": "popcorn",
+          "emoji": [
+            "💥",
+            "🌽"
+          ]
+        },
+        {
+          "parts": [
+            "paint",
+            "brush"
+          ],
+          "word": "paintbrush",
+          "emoji": [
+            "🎨",
+            "🖌️"
+          ]
+        },
+        {
+          "parts": [
+            "paper",
+            "clip"
+          ],
+          "word": "paperclip",
+          "emoji": [
+            "📄",
+            "📎"
+          ]
+        },
+        {
+          "parts": [
+            "space",
+            "ship"
+          ],
+          "word": "spaceship",
+          "emoji": [
+            "🪐",
+            "🚢"
+          ]
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "pat",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "tap",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "pig",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "pig",
+          "image": "assets/images/mentava/web/p/pig.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "p"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says p-?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "p",
+            "correct": true
+          },
+          {
+            "glyph": "s",
+            "correct": false
+          },
+          {
+            "glyph": "t",
+            "correct": false
+          }
+        ]
+      }
+    },
+    {
+      "number": 11,
+      "sound": "h",
+      "review": [
+        "n",
+        "p"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "h"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingWords": [
+        {
+          "parts": [
+            "horse",
+            "shoe"
+          ],
+          "word": "horseshoe",
+          "emoji": [
+            "🐴",
+            "👟"
+          ]
+        },
+        {
+          "parts": [
+            "hat",
+            "box"
+          ],
+          "word": "hatbox",
+          "emoji": [
+            "👒",
+            "📦"
+          ]
+        },
+        {
+          "parts": [
+            "bird",
+            "house"
+          ],
+          "word": "birdhouse",
+          "emoji": [
+            "🐦",
+            "🏠"
+          ]
+        },
+        {
+          "parts": [
+            "ham",
+            "burger"
+          ],
+          "word": "hamburger",
+          "emoji": [
+            "🍖",
+            "🍔"
+          ]
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "hat",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "him",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "hip",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "hippo",
+          "image": "assets/images/mentava/web/h/hippo.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which picture starts with"
+          },
+          {
+            "clip": "h"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen. Touch the one that starts the same."
+          }
+        ],
+        "promptText": "Which picture starts with h-?",
+        "promptTextQuiet": "Listen. Touch the one that starts the same.",
+        "kind": "picture",
+        "options": [
+          {
+            "word": "hand",
+            "image": "assets/images/mentava/web/h/hand.webp",
+            "correct": true
+          },
+          {
+            "word": "robot",
+            "image": "assets/images/mentava/web/r/robot.webp",
+            "correct": false
+          },
+          {
+            "word": "yarn",
+            "image": "assets/images/mentava/web/y/yarn.webp",
+            "correct": false
+          }
+        ]
+      }
+    },
+    {
+      "number": 12,
+      "sound": "b",
+      "review": [
+        "p",
+        "h"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "b"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingWords": [
+        {
+          "parts": [
+            "basket",
+            "ball"
+          ],
+          "word": "basketball",
+          "emoji": [
+            "🧺",
+            "🏀"
+          ]
+        },
+        {
+          "parts": [
+            "butter",
+            "cup"
+          ],
+          "word": "buttercup",
+          "emoji": [
+            "🧈",
+            "☕"
+          ]
+        },
+        {
+          "parts": [
+            "snow",
+            "ball"
+          ],
+          "word": "snowball",
+          "emoji": [
+            "❄️",
+            "⚽"
+          ]
+        },
+        {
+          "parts": [
+            "bean",
+            "bag"
+          ],
+          "word": "beanbag",
+          "emoji": [
+            "🫘",
+            "👜"
+          ]
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "bat",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "bad",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "big",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "ball",
+          "image": "assets/images/mentava/web/b/ball.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "b"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says b-?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "b",
+            "correct": true
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          },
+          {
+            "glyph": "t",
+            "correct": false
+          }
+        ]
+      }
+    },
+    {
+      "number": 13,
+      "sound": "l",
+      "review": [
+        "h",
+        "b"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "l"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingWords": [
+        {
+          "parts": [
+            "lady",
+            "bug"
+          ],
+          "word": "ladybug",
+          "emoji": [
+            "👩",
+            "🐛"
+          ]
+        },
+        {
+          "parts": [
+            "lunch",
+            "box"
+          ],
+          "word": "lunchbox",
+          "emoji": [
+            "🥪",
+            "📦"
+          ]
+        },
+        {
+          "parts": [
+            "flower",
+            "bed"
+          ],
+          "word": "flowerbed",
+          "emoji": [
+            "🌸",
+            "🛏️"
+          ]
+        },
+        {
+          "parts": [
+            "sun",
+            "light"
+          ],
+          "word": "sunlight",
+          "emoji": [
+            "☀️",
+            "💡"
+          ]
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "lap",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "lip",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "lid",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "leaf",
+          "image": "assets/images/mentava/web/l/leaf.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which picture starts with"
+          },
+          {
+            "clip": "l"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen. Touch the one that starts the same."
+          }
+        ],
+        "promptText": "Which picture starts with l-?",
+        "promptTextQuiet": "Listen. Touch the one that starts the same.",
+        "kind": "picture",
+        "options": [
+          {
+            "word": "leaf",
+            "image": "assets/images/mentava/web/l/leaf.webp",
+            "correct": true
+          },
+          {
+            "word": "umbrella",
+            "image": "assets/images/mentava/web/u/umbrella.webp",
+            "correct": false
+          },
+          {
+            "word": "van",
+            "image": "assets/images/mentava/web/v/van.webp",
+            "correct": false
+          }
+        ]
+      }
     }
   ],
   "games": {
@@ -1361,6 +2216,56 @@
           "o",
           "n",
           "e",
+          "d",
+          "p"
+        ],
+        "n": [
+          "a",
+          "s",
+          "t",
+          "o",
+          "e",
+          "i",
+          "f",
+          "d"
+        ],
+        "p": [
+          "m",
+          "s",
+          "t",
+          "o",
+          "e",
+          "i",
+          "f",
+          "n"
+        ],
+        "h": [
+          "a",
+          "s",
+          "t",
+          "o",
+          "e",
+          "i",
+          "f",
+          "d"
+        ],
+        "b": [
+          "m",
+          "s",
+          "t",
+          "o",
+          "e",
+          "i",
+          "f",
+          "n"
+        ],
+        "l": [
+          "m",
+          "a",
+          "s",
+          "o",
+          "e",
+          "n",
           "d",
           "p"
         ]
@@ -1436,6 +2341,56 @@
           "e",
           "d",
           "p"
+        ],
+        "n": [
+          "a",
+          "s",
+          "t",
+          "o",
+          "e",
+          "i",
+          "f",
+          "d"
+        ],
+        "p": [
+          "m",
+          "s",
+          "t",
+          "o",
+          "e",
+          "i",
+          "f",
+          "n"
+        ],
+        "h": [
+          "a",
+          "s",
+          "t",
+          "o",
+          "e",
+          "i",
+          "f",
+          "d"
+        ],
+        "b": [
+          "m",
+          "s",
+          "t",
+          "o",
+          "e",
+          "i",
+          "f",
+          "n"
+        ],
+        "l": [
+          "m",
+          "a",
+          "s",
+          "o",
+          "e",
+          "n",
+          "d",
+          "p"
         ]
       }
     },
@@ -1472,6 +2427,55 @@
         "t",
         "f",
         "d"
+      ]
+    },
+    {
+      "id": "c3",
+      "title": "Sound Sack",
+      "after": 9,
+      "sounds": [
+        "m",
+        "a",
+        "s",
+        "t",
+        "f",
+        "d",
+        "g",
+        "i",
+        "n"
+      ],
+      "rounds": 8,
+      "favour": [
+        "g",
+        "i",
+        "n"
+      ]
+    },
+    {
+      "id": "c4",
+      "title": "Sound Sack",
+      "after": 13,
+      "sounds": [
+        "m",
+        "a",
+        "s",
+        "t",
+        "f",
+        "d",
+        "g",
+        "i",
+        "n",
+        "p",
+        "h",
+        "b",
+        "l"
+      ],
+      "rounds": 10,
+      "favour": [
+        "p",
+        "h",
+        "b",
+        "l"
       ]
     }
   ],
@@ -1646,11 +2650,17 @@
     },
     {
       "word": "rabbit",
-      "image": "assets/images/mentava/web/r/rabbit.webp"
+      "image": "assets/images/mentava/web/r/rabbit.webp",
+      "avoid": [
+        "l"
+      ]
     },
     {
       "word": "rocket",
-      "image": "assets/images/mentava/web/r/rocket.webp"
+      "image": "assets/images/mentava/web/r/rocket.webp",
+      "avoid": [
+        "l"
+      ]
     },
     {
       "word": "tiger",
@@ -1709,7 +2719,10 @@
     },
     {
       "word": "robot",
-      "image": "assets/images/mentava/web/r/robot.webp"
+      "image": "assets/images/mentava/web/r/robot.webp",
+      "avoid": [
+        "l"
+      ]
     },
     {
       "word": "volcano",

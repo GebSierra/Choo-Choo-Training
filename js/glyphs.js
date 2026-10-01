@@ -71,6 +71,45 @@ export const GLYPHS = {
     ],
     minX: 41, maxX: 59, minY: 19, maxY: 80,
   },
+  // Down stroke, then back up and over the arch.
+  n: {
+    strokes: [
+      { d: 'M22 39 L22 80', start: [22, 39] },
+      { d: 'M22 58 C22 45 29 39 39 39 C49 39 56 46 56 56 L56 80', start: [22, 58] },
+    ],
+    minX: 15, maxX: 63, minY: 39, maxY: 80,
+  },
+  // Down stroke below the baseline, then up and the bowl clockwise from the top of the stem.
+  p: {
+    strokes: [
+      { d: 'M24 38 L24 94', start: [24, 38] },
+      { d: 'M24 46 C28 41 34 38 43 38 C56 38 65 47 65 59 C65 71 56 80 43 80 C34 80 27 76 24 71', start: [24, 46] },
+    ],
+    minX: 17, maxX: 72, minY: 38, maxY: 94,
+  },
+  // Tall stem down, then up and over the arch.
+  h: {
+    strokes: [
+      { d: 'M24 14 L24 80', start: [24, 14] },
+      { d: 'M24 58 C24 45 31 39 41 39 C51 39 58 46 58 56 L58 80', start: [24, 58] },
+    ],
+    minX: 17, maxX: 65, minY: 14, maxY: 80,
+  },
+  // Tall stem down, then the bowl from the stem, clockwise. (Mirror of d: the stem is on the left.)
+  b: {
+    strokes: [
+      { d: 'M24 14 L24 80', start: [24, 14] },
+      { d: 'M24 46 C28 41 34 38 43 38 C56 38 65 47 65 59 C65 71 56 80 43 80 C34 80 27 76 24 71', start: [24, 46] },
+    ],
+    minX: 17, maxX: 72, minY: 14, maxY: 80,
+  },
+  // One tall stem, one stroke.
+  l: {
+    strokes: [
+      { d: 'M44 14 L44 80', start: [44, 14] },
+    ],
+    minX: 37, maxX: 51, minY: 14, maxY: 80,
+  },
 };
 
 const SPACING = 4;
