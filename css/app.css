@@ -718,3 +718,4 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .opts.n3 .opt-card { min-width: 0; padding: 6px; }
 .opts.n3 .opt-pic .pic-frame { width: 72px; height: 72px; }
 .opts.n3 .opt-pic .word { font-size: 20px; }
+.gu-reset { margin-bottom: 12px; }

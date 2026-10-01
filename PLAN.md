@@ -98,7 +98,7 @@ Do not build these. Leave clean seams for them.
   assets/audio/ipa/       source recordings the clips were cut from (not precached)
   icons/                  icon-192.png, icon-512.png, maskable-512.png, apple-touch-icon.png, icon.svg
   tools/record.html       stand-alone page for Geb to record sound clips on a laptop (not linked from the app)
-  tools/                  make-icons.mjs, make-webp.mjs, precache-images.mjs, screenshots.mjs
+  tools/                  make-icons.mjs, make-webp.mjs, precache-images.mjs, screenshots.mjs, gen-lessons.mjs (lessons 4 to 13 and the sw.js picture list, from one table)
   test/                   check-content, deal, games, sfx, sack, script, blend, slide, round2 (one suite each, each runnable alone), smoke.mjs
                           (the walkthrough; `--fast` leaves out the suites above), lib.mjs, stubs.mjs, audit.mjs (shared helpers)
   docs/                   reference material, screenshots, the FIXES and ROUND files (review fix lists and specs)
@@ -274,6 +274,8 @@ Rules enforced by `test/check-content.mjs`:
 - `lessons[i].number === i + 1`.
 - Both URLs are https YouTube links. Spoken fields (`sounds[].words`, `sayingWords`, `sayingSounds`) obey the single-letter rule and never hold "as". `parts` and `emoji` of a saying word have exactly two items; a saying sound without letters has an emoji.
 
+**Round 3 (lessons 4 to 13).** `sounds` holds thirteen sounds (m a s t f d g i n p h b l); every one has `hold` (true: held and may be stretched, "fff"; false: clipped, written "t-" and never stretched), `clip` (a path, or `null` when the grown up says the sound: a missing clip is optional) and `startWords`. `lessons` has thirteen entries with nine tasks each (`review` is the previous two lessons' sounds); `tools/gen-lessons.mjs` writes lessons 4 to 13 from one table and the precache list in `sw.js`. `checkpoints` has c1 after lesson 3 (m a s, 6 rounds), c2 after 6 (6 rounds), c3 after 9 (8 rounds) and c4 after 13 (10 rounds); each lists every sound taught so far and a `favour` list of the newest sounds that always get a round. `gameDistractors` is one shared pool; a checkpoint's wrong cards are the words that begin with none of its sounds (`sackPool` in `js/lessons.js`; sh counts with s, th with t and s), at least 12, and a sound never has more rounds than start words. A Quick Check alternates: even lessons ask for a letter, odd lessons for a picture (distractor pictures begin with none of the letters taught so far). Letter words use every letter taught so far. `test/check-content.mjs` validates all of this, the accent contrast (3:1 on white) and that no clipped sound is ever stretched.
+
 ### 5.2 `localStorage` schema
 
 Key `reading.v1`:
@@ -307,7 +309,7 @@ Every task screen has a round speaker button (7.3). Tapping it speaks the task's
 
 Match `docs/reference/readingcom/01-home-map.png` in spirit: a bright, friendly landscape with numbered stones on a path and a "Grownups" pill top left.
 
-- Three round stones, numbered 1, 2, 3, each carrying its letter glyph in the lesson's accent color, along a curving path from bottom left to top right. A checkpoint (6.7) adds a further stone after the lesson it follows, with a small sack icon instead of a letter, locked until that lesson is done.
+- One long winding path that scrolls (round 3): thirteen lesson stones and four checkpoint stones, built from `curriculum.json` (lessons and checkpoints interleaved by `after`). Portrait scrolls vertically with lesson 1 at the bottom and the newest stone at the top; landscape scrolls sideways with lesson 1 at the left. Each stone carries its letter glyph in the lesson's accent color and its lesson number; a checkpoint stone has a small sack icon and is locked until its lesson is done. The map opens at the start and glides to the current stone (a new child stays at the start; with reduced motion it jumps). The scenery repeats along the trail; the Grownups pill, the full screen button and the first-run card are fixed on top. A swipe that starts on a stone only scrolls. A bubble flips below its stone near the top of the path (always below in landscape). Only transform and opacity animate and only the stones on screen are staggered in. Geometry is in `mapGeometry()` (home.js); `test/map.mjs` tests it.
 - States: done (glyph plus a check), current (pulsing ring, larger, a small speech bubble that speaks "Tap to start" when tapped), locked (muted, small padlock; tapping wobbles it, nothing more).
 - "Grownups" pill behind the hold gate.
 - First run: one parent card ("Sit with your child. You say the sounds; the app helps. Tap a stone to start.") with a "Start" button. This tap also unlocks speech for the session.
@@ -416,7 +418,7 @@ Isolated sounds must be exact, and text to speech cannot say "mmm" or "sss" reli
 
 ### 7.6 Glyphs
 
-- `glyphs.js` exports SVG path data for lowercase m, a (single-story: round bowl plus right stem), s, on a 100 by 100 box with a shared baseline and x-height, plus a `strokes` array per glyph in correct handwriting order (m: down stroke, then two humps left to right; a: counter-clockwise bowl from about 2 o'clock, then the stem; s: one stroke from top right). Used for all large taught letters and the trace guide.
+- `glyphs.js` exports SVG path data for thirteen lowercase letters (m a s t f d g i n p h b l; round 3 added ten, each with `minY` and `maxY`, so tall letters and letters with tails get a taller box of the same width and the trace pad fits them whole); m, a (single-story: round bowl plus right stem), s, on a 100 by 100 box with a shared baseline and x-height, plus a `strokes` array per glyph in correct handwriting order (m: down stroke, then two humps left to right; a: counter-clockwise bowl from about 2 o'clock, then the stem; s: one stroke from top right). Used for all large taught letters and the trace guide.
 
 ### 7.7 Hold button
 
@@ -543,6 +545,8 @@ Already decided by Geb:
 - Seven Reading.com tasks per lesson; one playlist link for every Sound Story.
 - Lessons 1 and 2 are m and a.
 - Mentava's pictures and Reading.com's look may be used; private build, not for publication or sale without permission.
+
+Decided for round 3: lessons 4 to 13 are t f d g i n p h b l in Mentava order (`docs/ROUND3-sounds.md`).
 
 Defaults in this plan, taken as approved unless Geb says otherwise:
 

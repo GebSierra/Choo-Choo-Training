@@ -79,11 +79,11 @@ export const GLYPHS = {
     ],
     minX: 15, maxX: 63, minY: 39, maxY: 80,
   },
-  // Down stroke below the baseline, then up and the bowl clockwise from the top of the stem.
+  // Down stroke below the baseline, then back up the stem a little way and round the bowl clockwise.
   p: {
     strokes: [
       { d: 'M24 38 L24 94', start: [24, 38] },
-      { d: 'M24 46 C28 41 34 38 43 38 C56 38 65 47 65 59 C65 71 56 80 43 80 C34 80 27 76 24 71', start: [24, 46] },
+      { d: 'M24 58 C24 46 32 38 44 38 C56 38 65 47 65 59 C65 71 56 80 43 80 C34 80 27 76 24 71', start: [24, 58] },
     ],
     minX: 17, maxX: 72, minY: 38, maxY: 94,
   },
@@ -99,7 +99,7 @@ export const GLYPHS = {
   b: {
     strokes: [
       { d: 'M24 14 L24 80', start: [24, 14] },
-      { d: 'M24 46 C28 41 34 38 43 38 C56 38 65 47 65 59 C65 71 56 80 43 80 C34 80 27 76 24 71', start: [24, 46] },
+      { d: 'M24 58 C24 46 32 38 44 38 C56 38 65 47 65 59 C65 71 56 80 43 80 C34 80 27 76 24 71', start: [24, 58] },
     ],
     minX: 17, maxX: 72, minY: 14, maxY: 80,
   },

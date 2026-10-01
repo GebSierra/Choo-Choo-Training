@@ -107,7 +107,7 @@ export function grownupsScreen(ctx) {
   const root = h('div', { class: 'grownups' },
     h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to the path', onclick: () => router.go('/home') }, icon('back', 28)), h('h1', {}, 'Grownups')),
     h('div', { class: 'gu-body' },
-      sec('Lessons', lessonsBox, resetBox),
+      sec('Lessons', resetBox, lessonsBox), // Reset first: with seventeen rows below it, it would be buried at the bottom
       sec('Voice', h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate), test,
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Speak automatically'), toggle),
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Always show full instructions'), fullSwitch),
