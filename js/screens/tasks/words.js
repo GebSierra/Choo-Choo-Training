@@ -4,6 +4,7 @@ import { wordSvg } from '../../glyphs.js';
 import { slideBlend, placeBand, startSweep, handCue } from '../../components/slide-blend.js';
 import { accentOf } from '../../theme.js';
 import { fit } from '../../lessons.js';
+import { emojiFrame } from '../../components/picture.js';
 
 // Task 4: two parts come together into a word. Once the word is shown, a finger slid across it lights the picture (a
 // colour wash that follows the finger) and the letters of the word one by one.
@@ -23,8 +24,8 @@ export function build({ lesson, speech, refresh }) {
     teardown();
     revealed = false;
     const w = cur();
-    const tileA = h('div', { class: 'part-tile a' }, h('span', { class: 'emoji' }, w.emoji[0]), h('span', { class: 'word' }, letterText(w.parts[0])));
-    const tileB = h('div', { class: 'part-tile b' }, h('span', { class: 'emoji' }, w.emoji[1]), h('span', { class: 'word' }, letterText(w.parts[1])));
+    const tileA = h('div', { class: 'part-tile a' }, emojiFrame(w.emoji[0]), h('span', { class: 'word' }, letterText(w.parts[0])));
+    const tileB = h('div', { class: 'part-tile b' }, emojiFrame(w.emoji[1]), h('span', { class: 'word' }, letterText(w.parts[1])));
     const plus = h('span', { class: 'plus-sign' }, '+');
     const row = h('div', { class: 'parts-row' }, tileA, plus, tileB);
     const merged = h('button', { class: 'merged-tile', type: 'button', 'aria-label': 'Tap to put the parts together' }, h('span', { class: 'q' }, '?'));
@@ -35,7 +36,7 @@ export function build({ lesson, speech, refresh }) {
       animate(tileB, [{ transform: 'none', opacity: 1 }, { transform: 'translateX(-88px) scale(.9)', opacity: 0 }], { duration: 260, fill: 'forwards' });
       animate(plus, [{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' });
       // The picture twice: dimmed underneath, full colour on top and clipped to the finger's progress.
-      const pic = (cls) => h('span', { class: 'emoji stack ' + cls }, w.emoji[1], h('span', { class: 'mini' }, w.emoji[0]));
+      const pic = (cls) => h('span', { class: 'emoji-pair ' + cls }, emojiFrame(w.emoji[0]), emojiFrame(w.emoji[1]));
       const bright = pic('bright');
       bright.style.clipPath = 'inset(0 100% 0 0)';
       const art = wordSvg(w.word, { color: '#1E2140', label: w.word, all: true });

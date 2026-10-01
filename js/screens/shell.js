@@ -44,7 +44,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
     mount(cur, advance) {
       current = cur;
       const full = !!store.settings.fullInstructions;
-      const light = color === 'violet' || color === 'coral';
+      const onDark = color === 'violet' || color === 'coral', light = color === 'violet'; // the speaker is violet with a white icon, white with a violet icon only on a violet stage
       const speaker = speakButton({ speech, getParts: () => current.parts(), label: 'Hear this again' });
       if (light) speaker.classList.add('light');
       const scriptParts = () => scriptToParts(current.script(), soundKeys, { quiet: !store.settings.playSounds });
@@ -56,7 +56,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
         h('h1', {}, title),
         h('span', { class: 'head-spacer' }),
         bar);
-      const stage = h('main', { class: `task-stage c-${color}${light ? ' on-dark' : ''}` }, h('div', { class: 'task-activity' + (current.flush ? ' flush' : '') + (current.lockScroll ? ' lock' : '') }, current.el), speaker);
+      const stage = h('main', { class: `task-stage c-${color}${onDark ? ' on-dark' : ''}` }, h('div', { class: 'task-activity' + (current.flush ? ' flush' : '') + (current.lockScroll ? ' lock' : '') }, current.el), speaker);
 
       // ---- the script: compact bar + sheet, or the full card ----
       let isOpen = false, closeTimer = 0, wrap, toggle = null, sheet = null, closeBtn = null;
@@ -66,6 +66,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
         clearTimeout(closeTimer);
         toggle.setAttribute('aria-expanded', String(open));
         wrap.classList.toggle('is-open', open);
+        stage.classList.toggle('dimmed', open);
         if (open) {
           sheet.hidden = false;
           animate(sheet, [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 260 });

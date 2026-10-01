@@ -6,17 +6,29 @@ const BOX = 56; // touch target of a letter
 // Cells of a loose grid in the sky of a scene W by H, clear of the "Find this" card, the speaker button, the sun, the
 // goal barn and the grass. At most `count` of them are returned, spread evenly over the grid; each has the room its
 // letter may be nudged by (jx, jy), which keeps at least 12 px between neighbours.
-export function skyCells(W, H, { goalW = 116, count = 16 } = {}) {
-  const y0 = 10, yMax = H - 92;
-  const cols = Math.max(1, Math.floor((W - 20) / 70)), rows = Math.max(1, Math.floor((yMax - y0) / 68));
-  const cw = (W - 20) / cols, ch = (yMax - y0) / rows;
-  const keepOut = [[0, 0, 120, 80], [W - 76, 0, W, 76], [W * 0.56 - 8, 0, W * 0.56 + 64, 72], [W - goalW - 20, H - 150, W, H]];
-  const out = [];
-  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-    const x = 10 + cw * (c + 0.5), y = y0 + ch * (r + 0.5);
-    if (keepOut.some(([a, b, c2, d]) => x + BOX / 2 > a && x - BOX / 2 < c2 && y + BOX / 2 > b && y - BOX / 2 < d)) continue;
-    out.push({ x, y, jx: Math.max(0, Math.floor((cw - BOX - 12) / 2)), jy: Math.max(0, Math.floor((ch - BOX - 12) / 2)) });
-  }
+// A short scene (a phone with the browser's bars showing) gives the grass less room; if that still leaves under 8
+// cells, the grid packs tighter (letters exactly 12 px apart, no nudging). The keep-outs are the art's real size.
+export function skyCells(W, H, { goalW = 150, count = 16 } = {}) {
+  const bottom = H < 360 ? 50 : 92, y0 = 10, yMax = H - bottom;
+  const keepOut = [[0, 0, 120, 80], [W - 76, 0, W, 76], [W * 0.56 - 8, 0, W * 0.56 + 64, 72], [W - goalW - 20, H - (goalW * 0.84 + 50), W, H]];
+  const clear = (x, y) => !keepOut.some(([a, b, c2, d]) => x + BOX / 2 > a && x - BOX / 2 < c2 && y + BOX / 2 > b && y - BOX / 2 < d);
+  const loose = () => {
+    const cols = Math.max(1, Math.floor((W - 20) / 70)), rows = Math.max(1, Math.floor((yMax - y0) / 68));
+    const cw = (W - 20) / cols, ch = (yMax - y0) / rows, out = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const x = 10 + cw * (c + 0.5), y = y0 + ch * (r + 0.5);
+      if (clear(x, y)) out.push({ x, y, jx: Math.max(0, Math.floor((cw - BOX - 12) / 2)), jy: Math.max(0, Math.floor((ch - BOX - 12) / 2)) });
+    }
+    return out;
+  };
+  const tight = () => {
+    const pitch = BOX + 12, cols = Math.max(1, Math.floor((W - 20 + 12) / pitch)), rows = Math.max(1, Math.floor((yMax - y0 + 12) / pitch));
+    const x0 = 10 + (W - 20 - (cols * pitch - 12)) / 2 + BOX / 2, yTop = y0 + (yMax - y0 - (rows * pitch - 12)) / 2 + BOX / 2, out = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (clear(x0 + c * pitch, yTop + r * pitch)) out.push({ x: x0 + c * pitch, y: yTop + r * pitch, jx: 0, jy: 0 });
+    return out;
+  };
+  let out = loose();
+  if (out.length < 8) { const t = tight(); if (t.length > out.length) out = t; }
   const n = Math.min(count, out.length);
   return Array.from({ length: n }, (_, i) => out[Math.floor(((i + 0.5) * out.length) / n)]);
 }
@@ -45,7 +57,7 @@ export function deal({ positions, history = [], rng = Math.random, target, distr
   const last = history[history.length - 1] || [];
   const recent = history.slice(-3);
   const hits = (i) => recent.filter((d) => d.includes(i)).length;
-  const k = counts[Math.floor(rng() * counts.length)];
+  const k = Math.min(counts[Math.floor(rng() * counts.length)], Math.max(1, n - 2)); // a very small sky keeps a couple of distractors
   const all = Array.from({ length: n }, (_, i) => i);
 
   const spread = (pick) => halves.every((inHalf) => pick.some(inHalf));
@@ -80,6 +92,7 @@ export function deal({ positions, history = [], rng = Math.random, target, distr
   if (!chosen) chosen = shuffle(all, rng).slice(0, k);
   const targets = [...chosen].sort((a, b) => a - b);
 
+  if (!distractors.length) throw new Error('Letter Hunt needs at least one distractor letter');
   let bag = shuffle(distractors.flatMap((l) => [l, l]), rng);
   while (bag.length < n - k) bag = bag.concat(shuffle(distractors, rng));
   const letters = all.map((i) => (targets.includes(i) ? target : bag.pop()));

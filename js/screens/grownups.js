@@ -13,6 +13,8 @@ const fmt = (iso) => { try { return new Date(iso).toLocaleDateString(undefined, 
 export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA vowel and consonant chart recordings, CC BY-SA 3.0, obtained via github.com/joshstephenson/PhoneticFlashCards, trimmed and loudness-normalized.";
 
 // Parent area. Reached only through the hold gate on Home (ctx.gate), and expires after ten minutes.
+const folds = {}; // which reference cards are open, for this page session only
+
 export function grownupsScreen(ctx) {
   const { store, router, curriculum, speech } = ctx;
   if (!ctx.gate || Date.now() - ctx.gate.openedAt > 10 * 60 * 1000) { queueMicrotask(() => router.replace('/home')); return h('div'); }
@@ -75,7 +77,7 @@ export function grownupsScreen(ctx) {
 
   // ---- sound effects ----
   const sfxOn = () => store.settings.sfx !== false;
-  const sfxSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(sfxOn()), 'aria-label': 'Sound effects', onclick: () => { store.setSetting('sfx', !sfxOn()); sfxSwitch.setAttribute('aria-checked', String(sfxOn())); sfxTest.disabled = !sfxOn(); } }, h('i'));
+  const sfxSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(sfxOn()), 'aria-label': 'Play sounds', onclick: () => { store.setSetting('sfx', !sfxOn()); sfxSwitch.setAttribute('aria-checked', String(sfxOn())); sfxTest.disabled = !sfxOn(); } }, h('i'));
   const sfxOut = h('output', {}, `${Math.round((store.settings.sfxVolume ?? 0.6) * 100)}%`);
   const sfxRange = h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: store.settings.sfxVolume ?? 0.6, 'aria-label': 'Sound effects volume', class: 'gu-range', oninput: () => { store.setSetting('sfxVolume', Number(sfxRange.value)); sfxOut.textContent = `${Math.round(Number(sfxRange.value) * 100)}%`; } });
   const sfxTest = h('button', { class: 'btn small', type: 'button', disabled: !sfxOn(), onclick: () => sfx.play('lesson') }, icon('speaker', 20), 'Test sound');
@@ -91,19 +93,30 @@ export function grownupsScreen(ctx) {
 
   const fsBtn = fullscreenButton({ label: true, className: 'btn small fs-row' });
   const sec = (title, ...kids) => h('section', { class: 'gu-card' }, h('h2', {}, title), ...kids);
+  // The two long reference cards start closed, so Reset is within reach; each stays as the grown-up left it until the page closes.
+  const fold = (title, ...kids) => {
+    const id = 'gu-fold-' + title.toLowerCase().replace(/\W+/g, '-');
+    const body = h('div', { class: 'gu-fold-body', id, hidden: !folds[title] }, ...kids);
+    const head = h('button', { class: 'gu-fold', type: 'button', 'aria-expanded': String(!!folds[title]), 'aria-controls': id, onclick: () => {
+      folds[title] = !folds[title];
+      head.setAttribute('aria-expanded', String(folds[title]));
+      body.hidden = !folds[title];
+    } }, h('span', {}, title), icon('chevronDown', 24));
+    return h('section', { class: 'gu-card' }, h('h2', {}, head), body);
+  };
   const root = h('div', { class: 'grownups' },
     h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to the path', onclick: () => router.go('/home') }, icon('back', 28)), h('h1', {}, 'Grownups')),
     h('div', { class: 'gu-body' },
       sec('Lessons', lessonsBox, resetBox),
-      sec('Voice', h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate),
-        h('div', { class: 'gu-field inline' }, h('span', {}, 'Speak automatically'), toggle), test,
+      sec('Voice', h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate), test,
+        h('div', { class: 'gu-field inline' }, h('span', {}, 'Speak automatically'), toggle),
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Always show full instructions'), fullSwitch),
         h('p', { class: 'gu-note' }, 'Off: the "Say this" line is one tidy bar that opens when you tap it. On: the full words are always shown, which leaves the activity less room.'),
         h('p', { class: 'gu-note' }, speech.hasSynth ? 'The voice comes from your phone. If a voice sounds robotic, pick another one here.' : 'This browser has no text to speech.')),
-      sec('Sound effects', h('div', { class: 'gu-field inline' }, h('span', {}, 'Sound effects'), sfxSwitch), h('label', { class: 'gu-field' }, h('span', {}, 'Volume ', sfxOut), sfxRange), sfxTest,
+      sec('Sound effects', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play sounds'), sfxSwitch), h('label', { class: 'gu-field' }, h('span', {}, 'Volume ', sfxOut), sfxRange), sfxTest,
         h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a sheep home, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),
-      sec('Recorded sounds', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play recorded letter sounds'), soundsSwitch), h('p', { class: 'gu-note' }, 'Off: your grown up says the sounds.'), clipList, h('p', { class: 'gu-note' }, 'When the switch is on, isolated sounds play from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT)),
-      sec('The three sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
+      fold('Recorded sounds', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play recorded letter sounds'), soundsSwitch), h('p', { class: 'gu-note' }, 'Off: your grown up says the sounds.'), clipList, h('p', { class: 'gu-note' }, 'When the switch is on, isolated sounds play from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT)),
+      fold('The three sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
       sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Sound story playlist'),
         h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Alphabet song')),
       ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),

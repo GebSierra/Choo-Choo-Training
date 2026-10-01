@@ -65,7 +65,7 @@ export async function roomChecks({ browser, url, ok }) {
           if (full) continue;
           const bad = await controlsFit(page, PRIMARY[t.type], vp);
           ok(bad.length === 0, `${tag}: every primary control is fully visible (${bad.join('; ')})`);
-          ok((await page.locator('.script-bar').count()) === 1 && (await page.locator('.script-bar').boundingBox()).height <= 57, `${tag}: the script is one bar of 56 px`);
+          ok((await page.locator('.script-bar').count()) === 1 && (await page.locator('.script-bar').boundingBox()).height <= (vp.width > vp.height ? 96 : 57), `${tag}: the script is one compact bar (56 px; in landscape the gist may wrap to three lines)`);
         }
       }
       ok(errors.length === 0, `${vp.name} room (${full ? 'full' : 'compact'}): errors ${errors.join(' | ')}`);
@@ -151,7 +151,7 @@ export async function barChecks({ browser, url, ok, vp, shot }) {
   ok((await expanded(page)) === 'false' && !(await sheetShown(page)), `${tag}: it starts compact`);
   ok((await page.getAttribute('.script-toggle', 'aria-controls')) === (await page.getAttribute('.script-sheet', 'id')), `${tag}: the bar controls the sheet (aria-controls)`);
   const peek = await page.locator('.script-first').innerText();
-  ok(/^Stretch: mmmoon, then moon\.$/.test(peek) && (await page.evaluate(() => { const e = document.querySelector('.script-first'); return getComputedStyle(e).whiteSpace === 'nowrap' && getComputedStyle(e).textOverflow === 'ellipsis'; })), `${tag}: it shows the gist on one line, with an ellipsis as a safety ("${peek.slice(0, 30)}")`);
+  ok(/^Stretch: mmmoon, then moon\.$/.test(peek) && (await page.evaluate(() => { const e = document.querySelector('.script-first'); return innerWidth > innerHeight ? e.scrollHeight <= e.clientHeight + 1 : getComputedStyle(e).whiteSpace === 'nowrap' && getComputedStyle(e).textOverflow === 'ellipsis'; })), `${tag}: it shows the gist on one line, with an ellipsis as a safety ("${peek.slice(0, 30)}")`);
   if (shot) await shot(page, 'compact');
   const before = await stageBox(page);
   // Tapping the bar opens the sheet without touching the stage; focus goes to the close button.

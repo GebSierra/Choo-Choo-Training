@@ -270,7 +270,7 @@ export async function sfxGrownupsChecks({ browser, url, ok }) {
   await page.waitForSelector('.grownups');
   await page.waitForTimeout(500);
   const settings = () => page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings);
-  ok((await page.getAttribute('[aria-label="Sound effects"]', 'aria-checked')) === 'true', 'Grownups: Sound effects is on by default');
+  ok((await page.getAttribute('[aria-label="Play sounds"]', 'aria-checked')) === 'true', 'Grownups: Play sounds is on by default');
   ok((await settings()).sfxVolume === undefined || (await settings()).sfxVolume === 0.6, 'Grownups: the volume starts at 0.6');
   await clear(page);
   await page.click('text=Test sound');
@@ -278,13 +278,13 @@ export async function sfxGrownupsChecks({ browser, url, ok }) {
   ok(of(await notes(page), 'lesson').bells.length === 9, 'Grownups: Test sound plays the lesson jingle once');
   await page.locator('[aria-label="Sound effects volume"]').evaluate((el) => { el.value = 0.25; el.dispatchEvent(new Event('input', { bubbles: true })); });
   ok((await settings()).sfxVolume === 0.25, 'Grownups: the volume slider is saved');
-  await page.click('[aria-label="Sound effects"]');
+  await page.click('[aria-label="Play sounds"]');
   ok((await settings()).sfx === false && (await page.locator('text=Test sound').isDisabled()), 'Grownups: the switch turns sound effects off and disables Test sound');
-  await page.click('[aria-label="Sound effects"]');
+  await page.click('[aria-label="Play sounds"]');
   ok((await settings()).sfx === true && (await page.locator('text=Test sound').isEnabled()), 'Grownups: the switch turns them on again');
   // Both settings survive a reset, like the voice settings.
   await page.locator('[aria-label="Sound effects volume"]').evaluate((el) => { el.value = 0.8; el.dispatchEvent(new Event('input', { bubbles: true })); });
-  await page.click('[aria-label="Sound effects"]');
+  await page.click('[aria-label="Play sounds"]');
   await page.click('text=Reset all progress');
   await page.click('.btn.danger');
   await page.waitForSelector('.home');

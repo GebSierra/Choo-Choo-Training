@@ -114,7 +114,7 @@ export function slideBlend({ band, svg, host, lift, bar, accent, onTouch, onTap,
   };
 }
 
-// Puts a band over the focus element: the host's full width, at least 140 px tall (as far as the host allows), centred on
+// Puts a band over the focus element: the host's full width (kept 24 px from the screen's edges), at least 140 px tall (as far as the host allows), centred on
 // the focus. Kept in place when the host or the focus changes size.
 export function placeBand(band, host, focus, minH = 140) {
   const place = () => {
@@ -122,7 +122,9 @@ export function placeBand(band, host, focus, minH = 140) {
     if (!hr.height || !fr.height) return;
     const tall = Math.min(hr.height, Math.max(minH, fr.height + 80));
     const top = Math.max(0, Math.min(hr.height - tall, fr.top - hr.top + fr.height / 2 - tall / 2));
-    Object.assign(band.style, { left: '0px', right: '0px', top: top + 'px', height: tall + 'px' });
+    // Never closer than 24 px to the screen's edges, so a swipe from the very edge is Android's Back gesture, not ours.
+    const left = Math.max(0, 24 - hr.left), right = Math.max(0, 24 - (innerWidth - hr.right));
+    Object.assign(band.style, { left: left + 'px', right: right + 'px', top: top + 'px', height: tall + 'px' });
   };
   const ro = new ResizeObserver(place);
   ro.observe(host); ro.observe(focus);

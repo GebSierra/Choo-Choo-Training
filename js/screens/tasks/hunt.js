@@ -11,7 +11,7 @@ import { sfx } from '../../sfx.js';
 const STEPS = 5;     // correct touches to cross the field
 const BOX = 56;      // touch target
 const INK = '#1E2140';
-const SHEEP_W = 90, GOAL_W = 116;
+const SHEEP_W = 130, GOAL_W = 150;
 const DRAG = 10;     // px a finger must travel before a touch counts as a drag
 const TROT = 700, OPEN = 400, WALK = 600, SHUT = 350, HOP = 500; // the ending: about 2.6 s
 const FADE_OUT = 180, FADE_IN = 260, SWAP = 450; // a new sky: the old one fades out, a fresh one fades in, taps wait
@@ -26,7 +26,7 @@ let memory = { slots: 0, deals: [] };
 export function build({ lesson, sound, speech, curriculum, setDone }) {
   const target = lesson.sound, accent = accentOf(target);
   const cfg = curriculum.games.hunt;
-  const others = cfg.distractors[target];
+  const others = cfg.distractors[target] || [];
   const T = timers();
   let steps = 0, done = false, locked = false, W = 0, H = 0, grid = [], letters = [], gesture = null, endAnims = [];
 

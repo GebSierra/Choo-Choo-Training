@@ -26,9 +26,9 @@ function finishView({ speech, router, heading, badge, accent, armedLabel, armedN
   const back = h('button', { class: 'btn secondary back-path', type: 'button', disabled: true, onclick: () => router.go('/home') }, 'Back to path');
   const ring = h('span', { class: 'finish-ring', style: { '--accent': accent } });
   const root = h('div', { class: 'finish' },
-    h('div', { class: 'finish-glyph' }, ring, badge),
+    h('div', { class: 'finish-glyph', style: { '--accent': accent } }, ring, badge),
     h('h1', {}, heading),
-    h('section', { class: 'finish-card' }, h('p', { class: 'finish-q' }, 'Did your child get it?'), h('div', { class: 'finish-choices' }, gotIt, again), note),
+    h('section', { class: 'finish-card' }, h('p', { class: 'finish-for' }, 'For the grown-up'), h('p', { class: 'finish-q' }, 'Did your child get it?'), h('div', { class: 'finish-choices' }, gotIt, again), note),
     back);
   animate(badge, [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 480, easing: 'cubic-bezier(.34,1.56,.64,1)' });
   animate(ring, [{ transform: 'scale(.8)', opacity: 0 }, { transform: 'scale(.9)', opacity: .7, offset: .2 }, { transform: 'scale(1.5)', opacity: 0 }], { duration: 560, delay: 420, easing: 'cubic-bezier(.2,.8,.2,1)' });

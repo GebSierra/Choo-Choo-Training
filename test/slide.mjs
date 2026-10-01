@@ -13,7 +13,7 @@ const plain = (page) => page.evaluate(() => ({ clips: window.__events.filter((e)
 const lit = (page) => page.evaluate(() => document.querySelectorAll('.glyph-letter.lit').length);
 const scrolled = (page) => page.evaluate(() => document.querySelector('.task-activity').scrollTop + scrollY);
 // The wash over a picture: how far the full-colour layer is uncovered (0 to 1), or null when there is no wash.
-const wash = (page) => page.evaluate(() => { const b = document.querySelector('.emoji.bright'); if (!b) return null; const m = b.style.clipPath.match(/inset\(0(?:px)? ([\d.]+)%/); return m ? 1 - Number(m[1]) / 100 : 1; });
+const wash = (page) => page.evaluate(() => { const b = document.querySelector('.emoji-pair.bright'); if (!b) return null; const m = b.style.clipPath.match(/inset\(0(?:px)? ([\d.]+)%/); return m ? 1 - Number(m[1]) / 100 : 1; });
 const sparks = (page) => page.evaluate(() => document.querySelectorAll('.spark').length);
 
 // Letter edges in screen pixels and the word's vertical centre, from the word's own svg.

@@ -6,7 +6,7 @@ import { deal, skyCells } from '../js/screens/tasks/hunt-deal.js';
 export const mulberry32 = (seed) => () => { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 
 // The scenes of the three test viewports (the sky's width and height), as the game measures them.
-export const SCENES = [[388, 576, 'portrait'], [560, 316, 'landscape'], [336, 446, 'small phone']];
+export const SCENES = [[388, 633, 'portrait'], [639, 364, 'landscape'], [336, 498, 'small phone']];
 const DISTRACTORS = { m: ['a', 's', 'o', 't', 'l', 'i'], a: ['m', 's', 't', 'l', 'i', 'n'], s: ['m', 'a', 't', 'l', 'i', 'o'] };
 
 export function dealerChecks(ok) {
@@ -57,6 +57,15 @@ export function dealerChecks(ok) {
       ok(independent < 5 || clash / 300 < 0.1, `${tag}: targets side by side are rare when that is avoidable (${Math.round((clash / 300) * 100)}% of deals; ${independent} slots can be kept apart)`);
     }
   }
+  // Short scenes (the browser's bars showing): still a full sky of at least 12 letters with at least 6 distractors, no overlap.
+  for (const [W, H] of [[780, 360], [640, 360]]) {
+    const positions = skyCells(W, H), r = deal({ positions, rng: mulberry32(W + H), target: 'm', distractors: DISTRACTORS.m });
+    const touching = positions.some((p, i) => positions.slice(i + 1).some((q) => Math.abs(p.x - q.x) < 56 + 12 - 2 * (p.jx) && Math.abs(p.y - q.y) < 56 + 12 - 2 * (p.jy)));
+    ok(positions.length >= 12 && positions.length - r.targets.length >= 6 && !touching, `short scene ${W}x${H}: ${positions.length} slots, ${positions.length - r.targets.length} distractors, none touching`);
+  }
+  let threw = '';
+  try { deal({ positions: skyCells(388, 633), rng: mulberry32(1), target: 'm', distractors: [] }); } catch (e) { threw = e.message; }
+  ok(/distractor/.test(threw), `an empty distractor list is a clear error, not an endless loop (${threw})`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {

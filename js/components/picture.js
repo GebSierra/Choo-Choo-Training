@@ -4,5 +4,8 @@ import { h } from '../dom.js';
 // different shapes never make a layout jump. A word without a tile falls back to its emoji. The alt text is the word.
 export function picture(item, cls = '') {
   if (item.image) return h('span', { class: 'pic-frame ' + cls }, h('img', { src: item.image, alt: item.word, decoding: 'async', draggable: 'false' }));
-  return h('span', { class: 'emoji ' + cls, 'aria-hidden': 'true' }, item.emoji);
+  return emojiFrame(item.emoji, cls);
 }
+
+// Where no tile exists, the emoji sits in the same rounded frame (its size follows the frame's).
+export const emojiFrame = (emoji, cls = '') => h('span', { class: 'pic-frame emoji-frame ' + cls, 'aria-hidden': 'true' }, h('span', { class: 'em' }, emoji));

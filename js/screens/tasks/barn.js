@@ -16,7 +16,7 @@ const OPEN_MS = 400;
 export function build({ lesson, sound, speech, curriculum, setDone }) {
   const target = lesson.sound, accent = accentOf(target);
   const cfg = curriculum.games.barn;
-  const others = cfg.distractors[target];
+  const others = cfg.distractors[target] || [];
   const T = timers();
   let stars = 0, rounds = 0, found = false, kind = 'target', lastKind = 'target', lastLetter = '', running = false;
 
@@ -33,7 +33,7 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
 
   // The barn is as large as the scene allows, centred on the grass.
   const stopWatching = watchSize(scene, (w, hgt) => {
-    const bw = Math.max(200, Math.min(w * 0.94, (hgt - 76) * 1.2));
+    const bw = Math.max(160, Math.min(innerWidth * 0.86, 360, (hgt - 76) * 1.2)); // min(86vw, 360px), and never taller than the scene
     barn.style.width = bw + 'px';
     barn.style.height = (bw * 200) / 240 + 'px';
     barn.style.setProperty('--bw', bw + 'px');
@@ -67,7 +67,7 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
   function startRound() {
     if (!running) return;
     found = false;
-    kind = rounds >= 2 && lastKind === 'target' && Math.random() < 1 / 3 ? 'distractor' : 'target'; // about one round in three, never two in a row
+    kind = others.length && rounds >= 2 && lastKind === 'target' && Math.random() < 1 / 3 ? 'distractor' : 'target'; // about one round in three, never two in a row
     lastKind = kind; rounds++;
     el.dataset.kind = kind;
     let ch = target;
