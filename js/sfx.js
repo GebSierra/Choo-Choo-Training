@@ -105,6 +105,7 @@ function createSfx() {
   }
 
   function schedule(name, opts) {
+    if (document.hidden) return; // nothing sounds while the page is out of sight
     const c = context();
     if (!c) return;
     if (c.state === 'suspended' && c.resume) c.resume().catch(() => {});
@@ -121,7 +122,7 @@ function createSfx() {
 
   function play(name, opts = {}) {
     try {
-      if (!enabled() || !unlocked) return;
+      if (!enabled() || !unlocked || document.hidden) return;
       const speaking = speech && speech.speaking;
       if (speaking && !PATIENT.has(name)) return; // never talk over the voice
       if (speaking && PATIENT.has(name) && performance.now() - speechStartedAt < 1000) {
@@ -147,6 +148,7 @@ function createSfx() {
         wasSpeaking = speaking;
       });
       document.addEventListener('visibilitychange', () => {
+        if (document.hidden) waiting = []; // a jingle that was waiting for the voice is dropped, not played later
         if (!ctx) return;
         try { if (document.hidden) { cutShort(ctx); ctx.suspend && ctx.suspend().catch(() => {}); } else ctx.resume && ctx.resume().catch(() => {}); } catch { /* fine */ }
       });

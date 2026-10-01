@@ -43,6 +43,7 @@ for (const vp of VIEWPORTS) {
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone');
   ok((await page.locator('.stone').count()) === 4, `${vp.name}: four stones (three lessons and the sound sack)`);
+  ok((await page.evaluate(() => getComputedStyle(document.documentElement).overscrollBehaviorY)) === 'none', `${vp.name}: html refuses overscroll, so pull-to-refresh is off`);
   ok((await page.locator('.stone.is-current').count()) === 1 && (await page.locator('.stone.is-locked').count()) === 3, `${vp.name}: one current, two lessons and the sack locked`);
   await page.waitForTimeout(900);
   await page.screenshot({ path: path.join(OUT, `home-${vp.name}.png`) });

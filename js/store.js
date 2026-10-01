@@ -10,6 +10,16 @@ const fresh = () => ({
   lastOpened: null,
 });
 
+// A saved setting of the wrong type (a rate that is "fast", say) falls back to its default; numbers are clamped.
+export function cleanSettings(s, d) {
+  const num = (v, lo, hi, dflt) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : dflt);
+  const out = { ...s, rate: num(s.rate, 0.7, 1.1, d.rate), sfxVolume: num(s.sfxVolume, 0, 1, d.sfxVolume) };
+  for (const k of ['autoSpeak', 'playSounds', 'sfx', 'fullInstructions']) if (typeof s[k] !== 'boolean') out[k] = d[k];
+  if (s.voiceURI !== null && typeof s.voiceURI !== 'string') out.voiceURI = d.voiceURI;
+  if (!s.seenScripts || typeof s.seenScripts !== 'object' || Array.isArray(s.seenScripts)) out.seenScripts = {};
+  return out;
+}
+
 export function createStore() {
   let state = load();
   const listeners = new Set();
@@ -31,7 +41,7 @@ export function createStore() {
       if (p.checkpoints && typeof p.checkpoints === 'object' && !Array.isArray(p.checkpoints)) {
         for (const [id, c] of Object.entries(p.checkpoints)) if (c && typeof c === 'object' && !Array.isArray(c)) checkpoints[id] = c;
       }
-      return { ...f, ...p, lessons, checkpoints, settings: { ...f.settings, ...settings } };
+      return { ...f, ...p, lessons, checkpoints, settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
     } catch { return fresh(); }
   }
   function save() {

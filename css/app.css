@@ -30,7 +30,7 @@
   --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html { overflow-x: hidden; }
+html { overflow-x: hidden; overscroll-behavior: none; } /* body's own value does not reach the page while html has overflow-x hidden */
 html, body { margin: 0; min-height: 100%; background: var(--cream); color: var(--ink); }
 body {
   font-family: 'Nunito', system-ui, Roboto, sans-serif;

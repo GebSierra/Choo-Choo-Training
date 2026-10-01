@@ -4,7 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, touchDrag } from './lib.mjs';
+import vm from 'node:vm';
 import { tasksFor } from '../js/lessons.js';
+import { createStore } from '../js/store.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const SEED = (settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'},3:{tasksDone:[],result:'got-it'}},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
@@ -428,6 +430,106 @@ export async function shortHuntChecks({ browser, url, ok }) {
   }
 }
 
+// Group 5: pull-to-refresh, the service worker's cache rules, sound while hidden, saved settings.
+export async function platformChecks({ browser, url, ok }) {
+  const vp = VIEWPORTS[0];
+  // 29: html (not only body) refuses overscroll, so pulling down does not refresh the page; the task stage contains its own.
+  {
+    const { ctx, page } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'newLetter')}`);
+    await page.waitForSelector('.task-activity');
+    ok((await page.evaluate(() => getComputedStyle(document.documentElement).overscrollBehaviorY)) === 'none', 'pull-to-refresh: html has overscroll-behavior none');
+    ok((await page.evaluate(() => getComputedStyle(document.querySelector('.task-activity')).overscrollBehaviorY)) === 'contain', 'pull-to-refresh: the task activity keeps overscroll-behavior contain');
+    await ctx.close();
+  }
+  // 30: the service worker, run against fakes: only this app's old caches go; curriculum.json needs a good JSON answer.
+  {
+    const src = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+    const listeners = {}, deleted = [], store = new Map();
+    const cacheObj = { match: async (r) => store.get(r.url || r), put: async (r, res) => { store.set(r.url, res); }, add: async () => {}, addAll: async () => {} };
+    let answer = null; const fetched = [];
+    const sandbox = {
+      self: { addEventListener: (t, f) => { listeners[t] = f; }, skipWaiting: async () => {}, clients: { claim: async () => {} }, origin: 'https://x.test' },
+      location: { origin: 'https://x.test' }, URL, Request: class { constructor(u, o) { this.url = u; this.opts = o; } },
+      caches: { keys: async () => ['reading-v1.3.0', 'reading-v1.3.6', 'someone-elses-cache', 'other-site-v2'], delete: async (k) => { deleted.push(k); }, open: async () => cacheObj },
+      fetch: async (req, init) => { fetched.push(init); if (answer instanceof Error) throw answer; return answer; },
+      setTimeout, clearTimeout, AbortController, console,
+    };
+    vm.createContext(sandbox);
+    vm.runInContext(src, sandbox);
+    const version = src.match(/CACHE_VERSION = '([^']+)'/)[1];
+    sandbox.caches.keys = async () => ['reading-v0.9', version, 'other-site-v2', 'reading-vNEXT', 'plain'];
+    let waited; await new Promise((r) => { listeners.activate({ waitUntil: (p) => { waited = p; } }); waited.then(r); });
+    ok(JSON.stringify(deleted.sort()) === JSON.stringify(['reading-v0.9', 'reading-vNEXT']), `sw activate: deletes only older reading-v caches, never ${version} or another site's (${deleted})`);
+    const run = async (res) => {
+      answer = res; const puts = []; cacheObj.put = async (r) => { puts.push(r.url); };
+      cacheObj.match = async () => ({ cached: true });
+      let out; const ev = { request: { method: 'GET', url: 'https://x.test/kddash/data/curriculum.json', mode: 'cors' }, respondWith: (p) => { out = p; }, waitUntil: () => {} };
+      listeners.fetch(ev); const got = await out.catch((e) => ({ error: e.message }));
+      return { got, puts };
+    };
+    const mk = (status, type) => ({ ok: status >= 200 && status < 300, status, headers: { get: () => type }, clone() { return this; } });
+    let r = await run(mk(200, 'application/json; charset=utf-8'));
+    ok(!r.got.cached && r.puts.length === 1, 'sw curriculum: a 200 JSON answer is used and cached');
+    ok(fetched.every((i) => i && i.cache === 'no-cache'), 'sw curriculum: fetched with cache: no-cache');
+    r = await run(mk(200, 'text/html')); ok(r.got.cached && r.puts.length === 0, 'sw curriculum: an HTML page (captive portal) falls back to the cached copy');
+    r = await run(mk(404, 'application/json')); ok(r.got.cached && r.puts.length === 0, 'sw curriculum: a 404 falls back to the cached copy');
+    r = await run(mk(500, 'application/json')); ok(r.got.cached && r.puts.length === 0, 'sw curriculum: a 500 falls back to the cached copy');
+    r = await run(new Error('offline')); ok(r.got.cached, 'sw curriculum: offline falls back to the cached copy');
+    // install: a failing tile does not stop the install; a failing core file does.
+    const installWith = async (failing) => {
+      cacheObj.add = async (r) => { if (failing(r.url)) throw new Error('boom'); };
+      cacheObj.addAll = async (list) => { if (list.some((r) => failing(r.url))) throw new Error('core failed'); };
+      let p; listeners.install({ waitUntil: (x) => { p = x; } });
+      try { await p; return 'installed'; } catch (e) { return e.message; }
+    };
+    ok((await installWith((u) => u.endsWith('.webp'))) === 'installed', 'sw install: a picture tile that fails does not stop the install');
+    ok((await installWith((u) => u.endsWith('app.js'))) === 'core failed', 'sw install: a core file that fails does stop it');
+  }
+  // 31: nothing sounds while the page is hidden, and a jingle waiting for the voice is dropped when the page hides.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'hunt')}`);
+    await page.waitForSelector('.task-stage > .speak-btn');
+    await page.mouse.click(6, 6);
+    await page.waitForTimeout(700);
+    const hide = (h) => page.evaluate((v) => { Object.defineProperty(document, 'hidden', { get: () => v, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); }, h);
+    await page.evaluate(() => window.__audioClear());
+    await hide(true);
+    await page.evaluate(async () => { const { sfx } = await import('/js/sfx.js'); sfx.play('sparkle'); sfx.play('win'); });
+    ok((await page.evaluate(() => window.__audioNotes().length)) === 0, 'sfx: play() does nothing while the page is hidden');
+    await hide(false);
+    await page.evaluate(() => { window.__ttsMs = 900; });
+    await page.locator('.task-stage > .speak-btn').click();
+    await page.waitForTimeout(150);
+    await page.evaluate(async () => { const { sfx } = await import('/js/sfx.js'); sfx.play('win'); }); // waits for the voice
+    await hide(true);
+    await page.waitForTimeout(1200); // the voice ends while the page is hidden
+    await hide(false);
+    await page.waitForTimeout(300);
+    ok((await page.evaluate(() => window.__audioNotes().length)) === 0, 'sfx: a jingle that was waiting for the voice is dropped when the page hides');
+    ok(errors.length === 0, 'sfx hidden: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // 32: saved settings of the wrong type are repaired (unit-style, then in the browser).
+  {
+    const fakeStorage = (value) => { globalThis.localStorage = { getItem: () => value, setItem() {} }; };
+    const load = (settings) => { fakeStorage(JSON.stringify({ schema: 1, lessons: {}, settings })); return createStore().settings; };
+    let st = load({ rate: 'fast', sfxVolume: 'loud', autoSpeak: 'yes', playSounds: 1, sfx: null, fullInstructions: [], voiceURI: 5, seenScripts: [] });
+    ok(st.rate === 0.9 && st.sfxVolume === 0.6 && st.autoSpeak === true && st.playSounds === false && st.sfx === true && st.fullInstructions === false && st.voiceURI === null && JSON.stringify(st.seenScripts) === '{}', `settings: wrong types fall back to the defaults (${JSON.stringify(st)})`);
+    st = load({ rate: 7, sfxVolume: -3 }); ok(st.rate === 1.1 && st.sfxVolume === 0, `settings: numbers are clamped (${st.rate}, ${st.sfxVolume})`);
+    st = load({ rate: 0.1, sfxVolume: 9 }); ok(st.rate === 0.7 && st.sfxVolume === 1, `settings: numbers are clamped at the other end (${st.rate}, ${st.sfxVolume})`);
+    st = load({ rate: NaN, sfxVolume: Infinity }); ok(st.rate === 0.9 && st.sfxVolume === 0.6, 'settings: NaN and Infinity fall back to the defaults');
+    st = load({ rate: 0.95, sfxVolume: 0.3, autoSpeak: false, voiceURI: 'g-us', seenScripts: { hunt: true } }); ok(st.rate === 0.95 && st.sfxVolume === 0.3 && st.autoSpeak === false && st.voiceURI === 'g-us' && st.seenScripts.hunt === true, 'settings: good values are kept');
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'sounds')}`, { settings: { rate: 'fast', sfxVolume: 'x', seenScripts: 'oops' } });
+    await page.waitForSelector('.task-stage > .speak-btn');
+    await page.waitForTimeout(900);
+    await page.locator('.task-stage > .speak-btn').click();
+    await page.waitForTimeout(400);
+    const rates = await page.evaluate(() => window.__events.filter((e) => e.type === 'tts').map((e) => e.rate));
+    ok(rates.length > 0 && rates.every((r) => typeof r === 'number' && r >= 0.7 && r <= 1.1) && errors.length === 0, `settings: a saved rate "fast" no longer throws and speaks at ${rates[0]} (${errors.join(' | ')})`);
+    await ctx.close();
+  }
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
   fs.mkdirSync(path.join(ROOT, '_test'), { recursive: true });
   let failures = 0, checks = 0;
@@ -441,6 +543,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   for (const vp of VIEWPORTS) await layoutChecks({ browser, url, ok, vp });
   await landscapeChecks({ browser, url, ok });
   await shortHuntChecks({ browser, url, ok });
+  await platformChecks({ browser, url, ok });
   await browser.close(); server.close();
   console.log(`round2: ${checks - failures}/${checks} checks passed`);
   process.exit(failures ? 1 : 0);

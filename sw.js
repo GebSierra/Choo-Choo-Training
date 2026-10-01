@@ -41,7 +41,9 @@ self.addEventListener('install', (event) => {
     const cache = await caches.open(CACHE_VERSION);
     // cache: 'reload' skips the browser's HTTP cache, so a new version never precaches stale files.
     const fresh = (f) => new Request(f, { cache: 'reload' });
-    await cache.addAll(APP_FILES.map(fresh));
+    // The app's own files are all or nothing; a picture tile that fails is fetched later, when it is first needed.
+    await cache.addAll(APP_FILES.filter((f) => !f.endsWith('.webp')).map(fresh));
+    await Promise.allSettled(APP_FILES.filter((f) => f.endsWith('.webp')).map((f) => cache.add(fresh(f))));
     await Promise.all(OPTIONAL_FILES.map((f) => cache.add(fresh(f)).catch(() => {})));
     await self.skipWaiting();
   })());
@@ -49,7 +51,8 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
-    for (const key of await caches.keys()) if (key !== CACHE_VERSION) await caches.delete(key);
+    // This origin also serves Geb's other Pages sites: only this app's own old caches go.
+    for (const key of await caches.keys()) if (key.startsWith('reading-v') && key !== CACHE_VERSION) await caches.delete(key);
     await self.clients.claim();
   })());
 });
@@ -66,9 +69,11 @@ self.addEventListener('fetch', (event) => {
       const stop = new AbortController();
       const timer = setTimeout(() => stop.abort(), 2500);
       try {
-        const res = await fetch(req, { signal: stop.signal });
+        const res = await fetch(req, { signal: stop.signal, cache: 'no-cache' });
         clearTimeout(timer);
-        if (res.status === 200) event.waitUntil(cache.put(req, res.clone()));
+        // Only a good JSON answer replaces the cached copy (not a hosting error page or a captive portal).
+        if (!res.ok || !/json/i.test(res.headers.get('content-type') || '')) throw new Error('not the curriculum');
+        event.waitUntil(cache.put(req, res.clone()));
         return res;
       } catch { clearTimeout(timer); const hit = await cache.match(req); if (hit) return hit; throw new Error('offline'); }
     }
