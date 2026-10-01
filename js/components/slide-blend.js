@@ -19,6 +19,7 @@ import { sparkle } from './sparkle.js';
 //   onTouch() every touch that lands on the band (stop any demonstration)
 //   onTap()   a touch that lands and lifts with under 8 px of movement
 //   onProgress(p) 0 to 1 across the word as the finger moves (a wash over a picture)
+let lastChime = -Infinity; // the completion sparkle is heard at most once every 4 s, however fast the child repeats it
 export function slideBlend({ band, svg, host, lift, bar, accent, onTouch, onTap, onProgress }) {
   const letters = [...svg.querySelectorAll('.glyph-letter')];
   const fill = bar && bar.firstChild;
@@ -55,7 +56,9 @@ export function slideBlend({ band, svg, host, lift, bar, accent, onTouch, onTap,
     paint(letters.length, letters.length - 1, 1);
     if (!reduced()) animate(lift || svg, [{ transform: 'translateY(0)' }, { transform: 'translateY(-6px)', offset: 0.4 }, { transform: 'translateY(0)' }], { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
     const h0 = host.getBoundingClientRect(), r0 = svg.getBoundingClientRect();
-    sparkle(host, r0.left - h0.left + r0.width / 2, r0.top - h0.top + r0.height / 2, { count: 12, size: [12, 24], reach: [44, 92], sound: 'sparkle' });
+    const chime = performance.now() - lastChime > 4000;
+    if (chime) lastChime = performance.now();
+    sparkle(host, r0.left - h0.left + r0.width / 2, r0.top - h0.top + r0.height / 2, { count: 12, size: [12, 24], reach: [44, 92], sound: chime ? 'sparkle' : null });
     doneTimer = setTimeout(() => { busy = false; blocked = pointer !== null; clear(); }, 700);
   }
 

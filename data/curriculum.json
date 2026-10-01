@@ -21,10 +21,6 @@
           "image": "assets/images/mentava/web/m/milk.webp"
         },
         {
-          "word": "mop",
-          "image": "assets/images/mentava/web/m/mop.webp"
-        },
-        {
           "word": "moon",
           "image": "assets/images/mentava/web/oo-moon/moon.webp"
         }
@@ -37,10 +33,6 @@
         {
           "word": "milk",
           "image": "assets/images/mentava/web/m/milk.webp"
-        },
-        {
-          "word": "mop",
-          "image": "assets/images/mentava/web/m/mop.webp"
         },
         {
           "word": "moon",
@@ -207,8 +199,8 @@
           "showLetters": false
         },
         {
-          "word": "mop",
-          "image": "assets/images/mentava/web/m/mop.webp",
+          "word": "milk",
+          "image": "assets/images/mentava/web/m/milk.webp",
           "showLetters": false
         }
       ],
@@ -223,11 +215,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the picture that starts the same."
+            "tts": "Listen. Touch the one that starts the same."
           }
         ],
         "promptText": "Which picture starts with mmm?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the picture that starts the same.",
+        "promptTextQuiet": "Listen. Touch the one that starts the same.",
         "kind": "picture",
         "options": [
           {
@@ -295,13 +287,13 @@
         },
         {
           "parts": [
-            "ice",
-            "cream"
+            "rain",
+            "coat"
           ],
-          "word": "icecream",
+          "word": "raincoat",
           "emoji": [
-            "🧊",
-            "🍦"
+            "🌧️",
+            "🧥"
           ]
         },
         {
@@ -542,13 +534,13 @@
       }
     },
     "sack": {
-      "say": "Listen to your grown up. Then drag the picture into the bag."
+      "say": "Listen to your grown up. Then drag the picture into the sack."
     }
   },
   "checkpoints": [
     {
       "id": "c1",
-      "title": "Sound sack",
+      "title": "Sound Sack",
       "after": 3,
       "sounds": [
         "m",
@@ -617,7 +609,10 @@
     },
     {
       "word": "egg",
-      "image": "assets/images/mentava/web/e/egg.webp"
+      "image": "assets/images/mentava/web/e/egg.webp",
+      "avoid": [
+        "a"
+      ]
     },
     {
       "word": "hen",
@@ -628,12 +623,11 @@
       "image": "assets/images/mentava/web/e/tent.webp"
     },
     {
-      "word": "red",
-      "image": "assets/images/mentava/web/e/red.webp"
-    },
-    {
       "word": "nest",
-      "image": "assets/images/mentava/web/e/nest.webp"
+      "image": "assets/images/mentava/web/e/nest.webp",
+      "avoid": [
+        "m"
+      ]
     },
     {
       "word": "fan",
@@ -656,20 +650,12 @@
       "image": "assets/images/mentava/web/g/gate.webp"
     },
     {
-      "word": "goose",
-      "image": "assets/images/mentava/web/g/goose.webp"
-    },
-    {
       "word": "hand",
       "image": "assets/images/mentava/web/h/hand.webp"
     },
     {
       "word": "hippo",
       "image": "assets/images/mentava/web/h/hippo.webp"
-    },
-    {
-      "word": "jam",
-      "image": "assets/images/mentava/web/j/jam.webp"
     },
     {
       "word": "jet",
@@ -689,11 +675,17 @@
     },
     {
       "word": "nut",
-      "image": "assets/images/mentava/web/n/nut.webp"
+      "image": "assets/images/mentava/web/n/nut.webp",
+      "avoid": [
+        "m"
+      ]
     },
     {
       "word": "nose",
-      "image": "assets/images/mentava/web/n/nose.webp"
+      "image": "assets/images/mentava/web/n/nose.webp",
+      "avoid": [
+        "m"
+      ]
     },
     {
       "word": "pig",

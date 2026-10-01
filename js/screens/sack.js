@@ -68,7 +68,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
     const key = order[round];
     el.dataset.round = String(round + 1); el.dataset.sound = key;
     const right = pickWord(key);
-    const wrong = ease(curriculum.gameDistractors).slice(0, 2);
+    const wrong = ease(curriculum.gameDistractors.filter((w) => !(w.avoid || []).includes(key))).slice(0, 2); // avoid: a look-alike for this sound
     const choices = ease([{ ...right, correct: true }, ...wrong.map((w) => ({ ...w, correct: false }))]);
     front.replaceChildren(glyphSvg(key, { color: accentOf(key), label: 'the sound on the sack' }));
     cards = choices.map((c, i) => {
@@ -183,7 +183,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
   return {
     el, flush: true,
     parts: () => say,
-    script: () => `Say: 'Which one starts with ${soundPhrase(sound())}?' Let them drag it into the bag. There is no right or wrong here.`,
+    script: () => `Say: 'Which one starts with ${soundPhrase(sound())}?' Let them drag it into the sack. There is no right or wrong here.`,
     again: () => { again(); speech.say(say); },
     cleanup: () => { T.clear(); stopWatching(); },
   };

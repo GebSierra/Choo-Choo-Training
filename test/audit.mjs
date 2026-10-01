@@ -48,6 +48,8 @@ export async function audit(page, label) {
       if (el.closest(skip)) continue;
       for (const a of ['aria-label', 'alt', 'title']) { const v = el.getAttribute(a); if (v && re.test(v)) out.push(`letter name in ${a}: "${v}"`); }
     }
+    // An aria-label is never a single letter: a screen reader would say the letter's name.
+    for (const el of document.querySelectorAll('[aria-label]')) if (/^[a-z]$/i.test(el.getAttribute('aria-label').trim())) out.push(`single-letter aria-label "${el.getAttribute('aria-label')}"`);
     return out;
   }, NAMES);
   return problems.map((p) => `${label}: ${p}`);

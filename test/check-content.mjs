@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT } from './lib.mjs';
+import { scriptToParts } from '../js/scripts.js';
 
 export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee', 'aitch', 'eye', 'jay', 'kay', 'el', 'em', 'en', 'oh', 'pee', 'cue', 'ar', 'ess', 'tee', 'you', 'vee', 'double', 'ex', 'wye', 'zee'];
 const nameRe = new RegExp(`\\b(${LETTER_NAMES.join('|')})\\b`, 'i');
@@ -120,8 +121,19 @@ export function checkCurriculum(c, root = ROOT) {
   pool.forEach((w, i) => {
     wordOk(w, `gameDistractors[${i}]`);
     if (w.word && Object.keys(sounds).includes(w.word[0])) err(`gameDistractors[${i}] "${w.word}" begins with a taught sound`);
+    for (const a of w.avoid || []) if (!sounds[a]) err(`gameDistractors[${i}].avoid "${a}" is not a sound`);
   });
+  // Every sound's round still has at least two wrong cards after the per-sound exclusions.
+  for (const k of Object.keys(sounds)) if (pool.filter((w) => !(w.avoid || []).includes(k)).length < 2) err(`gameDistractors leaves fewer than two wrong cards for sound "${k}"`);
   if (new Set(pool.map((w) => w.word)).size !== pool.length) err('gameDistractors repeats a word');
+  // Pictures that read as something else are not used anywhere: a paint can (red), a knife in the jam picture, a broom (mop), a duck (goose).
+  const everyWord = [...Object.values(sounds).flatMap((s) => [...s.words, ...(s.startWords || [])]), ...pool, ...(c.lessons || []).flatMap((L) => [...L.sayingSounds, ...(L.quickCheck ? L.quickCheck.options : [])])].map((w) => w.word);
+  for (const bad of ['red', 'jam', 'mop', 'goose']) if (everyWord.includes(bad)) err(`"${bad}" has a misleading picture and must not be used`);
+  // Look-alikes: n-words never show in an m round, egg never in an a round.
+  for (const w of pool) {
+    if (w.word[0] === 'n' && !(w.avoid || []).includes('m')) err(`gameDistractors "${w.word}" looks like an m word and must avoid "m"`);
+    if (w.word === 'egg' && !(w.avoid || []).includes('a')) err('gameDistractors "egg" must avoid "a"');
+  }
   const ids = new Set();
   (c.checkpoints || []).forEach((k, i) => {
     const p = `checkpoints[${i}]`;
@@ -173,7 +185,7 @@ export function checkCurriculum(c, root = ROOT) {
     if (q) {
       checkParts(q.prompt, `${lp}.quickCheck.prompt`);
       checkQuiet(q.promptQuiet, `${lp}.quickCheck.promptQuiet`);
-      const wantQuiet = q.kind === 'letter' ? 'Listen to your grown up. Then touch the letter.' : 'Listen to your grown up. Then touch the picture that starts the same.';
+      const wantQuiet = q.kind === 'letter' ? 'Listen to your grown up. Then touch the letter.' : 'Listen. Touch the one that starts the same.';
       if (JSON.stringify(q.promptQuiet) !== JSON.stringify([{ tts: wantQuiet }]) || q.promptTextQuiet !== wantQuiet) err(`${lp}.quickCheck.promptQuiet and promptTextQuiet must be "${wantQuiet}"`);
       if (q.promptText !== q.promptText.toLowerCase().replace(/^./, (x) => x.toUpperCase()) && /[A-Z]/.test(q.promptText.slice(1))) err(`${lp}.quickCheck.promptText has stray capitals`);
       (q.options || []).forEach((o, j) => {
@@ -194,10 +206,20 @@ export function checkCurriculum(c, root = ROOT) {
   return errors;
 }
 
+// Reading a script aloud with sounds off drops a quotation that holds a sound whole: no "Touch it.'" fragments.
+export function checkQuietScripts() {
+  const errors = [];
+  const quiet = (t) => scriptToParts(t, ['m', 'a', 's'], { quiet: true }).map((p) => p.tts || '').join(' ');
+  if (quiet("Say: 'Find the letter that says mmm. Touch it.' Then say mmm together.") !== '') errors.push('quiet read-aloud: a quotation with a sound must be dropped whole');
+  if (quiet("Say: 'Start at the dot. Follow the arrow.' Move your finger with theirs.") !== "Say: 'Start at the dot. Follow the arrow.' Move your finger with theirs.") errors.push('quiet read-aloud: a quotation without a sound must be kept whole');
+  if (quiet("Say: 'Let's watch the mmm story.' Then press and hold. Come back.") !== 'Then press and hold. Come back.') errors.push('quiet read-aloud: only the framing sentences remain, no stray quote');
+  return errors;
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
   const file = process.argv[2] || path.join(ROOT, 'data/curriculum.json');
   const c = JSON.parse(fs.readFileSync(file, 'utf8'));
-  const errors = checkCurriculum(c);
+  const errors = [...checkCurriculum(c), ...checkQuietScripts()];
   if (errors.length) { console.error(errors.map((e) => 'FAIL: ' + e).join('\n')); console.error(`check-content: ${errors.length} problem(s)`); process.exit(1); }
   console.log(`check-content: OK (${Object.keys(c.sounds).length} sounds, ${c.lessons.length} lessons, all rules pass)`);
 }

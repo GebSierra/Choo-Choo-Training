@@ -113,8 +113,8 @@ export function build({ lesson, sound, speech, curriculum }) {
       setState('done');
       return;
     }
-    sparkle(scene, c.x, c.y, { count: 12, size: [12, 26], reach: [44, 90], sound: 'sparkle' });
-    sfx.play('star', { delay: 0.4 }); // the chime lands as the star fills
+    sparkle(scene, c.x, c.y, { count: 12, size: [12, 26], reach: [44, 90] });
+    sfx.play('star'); // the chime lands as the star fills
     T.later(() => { closeDoors(); T.later(startRound, OPEN_MS + 900); }, 600);
   });
 

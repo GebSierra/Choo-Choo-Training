@@ -51,6 +51,17 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot }) {
   ok((await page.locator('.sack-front .glyph').count()) === 1, `${tag}: the sack shows a letter glyph`);
   const audited = await audit(page, tag);
   ok(audited.length === 0, audited.join(' | '));
+  // Per-sound exclusion: a look-alike in the pool's `avoid` list never shows as a wrong card in that sound's round.
+  // Again deals round 1 afresh each time; the sound changes with every shuffle, so many deals cover every sound.
+  const avoid = Object.fromEntries(CUR.gameDistractors.filter((w) => w.avoid).map((w) => [w.word, w.avoid]));
+  const dealt = await page.evaluate(() => {
+    const out = [];
+    for (let i = 0; i < 90; i++) { document.querySelector('.btn.again').click(); out.push({ sound: document.querySelector('.sack-game').dataset.sound, wrong: [...document.querySelectorAll('.sack-card[data-correct="0"]')].map((c) => c.dataset.word) }); }
+    return out;
+  });
+  const bad = dealt.filter((d) => d.wrong.some((w) => (avoid[w] || []).includes(d.sound)));
+  ok(Object.keys(avoid).length >= 4 && new Set(dealt.map((d) => d.sound)).size === 3 && bad.length === 0, `${tag}: 90 deals never show a look-alike (avoid) as a wrong card (${bad.map((d) => d.sound + ':' + d.wrong).join(' ')})`);
+  await page.waitForTimeout(600);
   const before = await plain(page);
 
   // A wrong card put in the sack glides home; a card let go anywhere else springs home; neither fills a star.
@@ -128,8 +139,8 @@ export async function sackMapChecks({ browser, url, ok, vp }) {
   await page.waitForTimeout(900);
   const tag = `${vp.name} map`;
   ok((await page.locator('.stone').count()) === 4, `${tag}: four stones (three lessons and the sack)`);
-  const sackStone = page.locator('.stone[aria-label^="Sound sack"]');
-  ok((await sackStone.getAttribute('aria-label')) === 'Sound sack, locked' && (await sackStone.evaluate((e) => e.classList.contains('is-locked'))), `${tag}: the sack stone is locked before lesson 3 is done`);
+  const sackStone = page.locator('.stone[aria-label^="Sound Sack"]');
+  ok((await sackStone.getAttribute('aria-label')) === 'Sound Sack, locked' && (await sackStone.evaluate((e) => e.classList.contains('is-locked'))), `${tag}: the sack stone is locked before lesson 3 is done`);
   await sackStone.click({ force: true });
   await page.waitForTimeout(400);
   ok(page.url().endsWith('#/home'), `${tag}: a locked sack does not open`);
@@ -145,11 +156,11 @@ export async function sackMapChecks({ browser, url, ok, vp }) {
   page = made.page; errors = made.errors;
   await page.waitForSelector('.stone');
   await page.waitForTimeout(900);
-  ok((await page.locator('.stone.is-current[aria-label^="Sound sack"]').count()) === 1, `${tag}: the sack stone is the current one once lesson 3 is done`);
-  await page.locator('.stone[aria-label^="Sound sack"]').click();
+  ok((await page.locator('.stone.is-current[aria-label^="Sound Sack"]').count()) === 1, `${tag}: the sack stone is the current one once lesson 3 is done`);
+  await page.locator('.stone[aria-label^="Sound Sack"]').click();
   await page.waitForSelector('.sack-game');
   ok(page.url().endsWith('#/checkpoint/c1'), `${tag}: tapping the sack opens the checkpoint`);
-  ok((await page.locator('.task-head h1').innerText()) === 'Sound sack', `${tag}: the screen is titled Sound sack`);
+  ok((await page.locator('.task-head h1').innerText()) === 'Sound Sack', `${tag}: the screen is titled Sound Sack`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
   await made.ctx.close();
 }
@@ -164,7 +175,7 @@ export async function sackGrownupsChecks({ browser, url, ok }) {
   await page.waitForSelector('.grownups');
   const rows = page.locator('.gu-card').first().locator('.gu-row');
   ok((await rows.count()) === 4, 'Grownups lists three lessons and the sound sack');
-  ok(/Practice again/.test(await rows.nth(3).innerText()) && /Sound sack/.test(await rows.nth(3).innerText()), 'Grownups shows the sack result');
+  ok(/Practice again/.test(await rows.nth(3).innerText()) && /Sound Sack/.test(await rows.nth(3).innerText()), 'Grownups shows the sack result');
   await page.click('[aria-label="Unlock the sound sack"]');
   ok((await page.locator('[aria-label="Confirm unlock"]').count()) === 1, 'Grownups: unlocking the sack asks first');
   await page.click('[aria-label="Confirm unlock"] button:has-text("Unlock")');

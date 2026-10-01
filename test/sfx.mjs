@@ -39,7 +39,7 @@ export async function sfxChecks({ browser, url, ok }) {
   // 1. Every sound, played directly: how many notes, how long, how high.
   {
     const { ctx, page, errors } = await open(browser, url, vp, { route: '#/home' });
-    const EXPECT = { sparkle: [4, 0.9, 1.6], pop: [1, 0.4, 0.9], star: [2, 0.6, 1.2], win: [7, 1.0, 1.9], lesson: [9, 1.5, 2.2], unlock: [6, 1.0, 1.8], checkpoint: [13, 1.9, 2.5] };
+    const EXPECT = { sparkle: [4, 0.9, 1.6], pop: [1, 0.4, 0.9], star: [2, 0.6, 1.2], doors: [2, 0.15, 0.299], win: [7, 1.0, 1.9], lesson: [9, 1.5, 2.2], unlock: [6, 1.0, 1.8], checkpoint: [13, 1.9, 2.5] };
     for (const [name, [count, min, max]] of Object.entries(EXPECT)) {
       await page.waitForTimeout(2600); // let the last one ring out
       await clear(page);
@@ -58,7 +58,7 @@ export async function sfxChecks({ browser, url, ok }) {
     await clear(page);
     await page.evaluate(async () => { (await import('/js/sfx.js')).sfx.play('doors'); });
     const doors = of(await notes(page), 'doors');
-    ok(doors.noise.length === 1 && doors.all.length === 1 && span(doors.all) <= 0.4 && doors.noise[0].freqs.every((f) => f <= 2100), `sfx doors: one short filtered-noise whoosh (${doors.noise.length})`);
+    ok(doors.noise.length === 0 && pitches(doors.bells).join() === [G5, 1046.5].join(), `sfx doors: a bell glide G5 to C6, no noise (${pitches(doors.bells).map((f) => f.toFixed(0))})`);
     // Only the pentatonic notes are ever used.
     await page.waitForTimeout(2600);
     await clear(page);
@@ -106,22 +106,20 @@ export async function sfxChecks({ browser, url, ok }) {
     await ctx.close();
   }
 
-  // 3. Barn Doors: a whoosh as the doors open, sparkle and star for a right letter, the win jingle at five stars.
+  // 3. Barn Doors: a bell glide as the doors open, only the star chime for a right letter, the win jingle at five stars.
   {
     const { ctx, page, errors } = await open(browser, url, vp, { route: `#/lesson/1/task/${taskIdx(1, 'barn')}`, init: ['Math.random = () => 0.99;'] });
     await page.waitForSelector('.barn-letter');
     await page.click('.btn.again'); // the doors open again, now that the page has had its first tap
     await page.waitForFunction(() => document.querySelector('.barn-game').dataset.state === 'open', null, { timeout: 4000 });
     await page.waitForTimeout(500);
-    ok(of(await notes(page), 'doors').noise.length >= 1, 'Barn: the doors opening make a soft whoosh');
+    ok(of(await notes(page), 'doors').bells.length >= 2, 'Barn: the doors opening play the soft bell glide');
     ok(of(await notes(page), 'sparkle').bells.length === 0, 'Barn: nothing sparkles before a right touch');
     await clear(page);
     await tap(page, page.locator('.barn-letter'));
     await page.waitForTimeout(900);
     const got = await notes(page);
-    ok(of(got, 'sparkle').bells.length === 4 && of(got, 'star').bells.length === 2, 'Barn: a right letter plays a sparkle and a star chime');
-    const s = of(got, 'star').bells, sp = of(got, 'sparkle').bells;
-    ok(s[0].t > sp[0].t + 0.3, 'Barn: the star chime comes just after the sparkle, as the star fills');
+    ok(of(got, 'sparkle').bells.length === 0 && of(got, 'star').bells.length === 2, 'Barn: a right letter plays only the star chime, no sparkle');
     await page.waitForFunction(() => document.querySelector('.barn-game').dataset.state !== 'open', null, { timeout: 3000 });
     for (let r = 2; r <= 5; r++) {
       await page.waitForFunction(() => document.querySelector('.barn-game').dataset.state === 'open', null, { timeout: 6000 });
@@ -133,7 +131,7 @@ export async function sfxChecks({ browser, url, ok }) {
     }
     await page.waitForTimeout(400);
     const last = await notes(page);
-    ok(of(last, 'win').bells.length === 7 && of(last, 'sparkle').bells.length === 0, `Barn: five stars play the win jingle (and not the small sparkle) (win ${of(last, 'win').bells.length}, sparkle ${of(last, 'sparkle').bells.length}, star ${of(last, 'star').bells.length}, doors ${of(last, 'doors').noise.length})`);
+    ok(of(last, 'win').bells.length === 7 && of(last, 'sparkle').bells.length === 0, `Barn: five stars play the win jingle (and not the small sparkle) (win ${of(last, 'win').bells.length}, sparkle ${of(last, 'sparkle').bells.length}, star ${of(last, 'star').bells.length}, doors ${of(last, 'doors').bells.length})`);
     ok(errors.length === 0, 'Barn sfx: errors ' + errors.join(' | '));
     await ctx.close();
   }
@@ -182,6 +180,12 @@ export async function sfxChecks({ browser, url, ok }) {
     await touchDrag(page, { x: g.first + 4, y: g.y }, { x: g.last + 14, y: g.y }, { steps: 12 });
     await page.waitForTimeout(200);
     ok(of(await notes(page), 'sparkle').bells.length === 4, 'Slide-to-blend: completing the word plays the sparkle');
+    // A second completion within 4 s stays silent (the sparkle itself still shows).
+    await page.waitForTimeout(900);
+    await clear(page);
+    await touchDrag(page, { x: g.first + 4, y: g.y }, { x: g.last + 14, y: g.y }, { steps: 12 });
+    await page.waitForTimeout(200);
+    ok(of(await notes(page), 'sparkle').bells.length === 0, 'Slide-to-blend: a second completion within 4 s plays no sparkle');
     await page.evaluate(() => { location.hash = '#/lesson/2/finish'; });
     await page.waitForSelector('.finish');
     await clear(page);

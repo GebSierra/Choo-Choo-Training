@@ -15,7 +15,15 @@ export function scriptToParts(text, soundKeys, { quiet = false } = {}) {
       const runs = core ? core.match(/(.)\1*/g) : null;
       return (runs && runs.some((r) => r.length >= 3)) || (core.length === 1 && soundKeys.includes(core));
     };
-    text = text.replaceAll('...', '\u2026').split(/(?<=[.?!]['"]?)\s+/).filter((s) => !s.split(/\s+/).some(hasSound)).join(' ').replaceAll('\u2026', '...');
+    // A quotation that runs over several sentences is one unit: a sound inside it drops all of it, never a fragment.
+    const units = [];
+    let inQuote = false;
+    for (const s of text.replaceAll('...', '\u2026').split(/(?<=[.?!]['"]?)\s+/)) {
+      if (inQuote) units[units.length - 1] += ' ' + s; else units.push(s);
+      const opens = /(^|\s)['"]/.test(s), closes = /['"]$/.test(s);
+      inQuote = inQuote ? !closes : opens && !closes;
+    }
+    text = units.filter((u) => !u.split(/\s+/).some(hasSound)).join(' ').replaceAll('\u2026', '...');
   }
   const parts = [];
   let buf = [];

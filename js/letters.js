@@ -13,10 +13,13 @@ function inlineA(color) {
   return svg;
 }
 
+// A label is never a single letter: a screen reader would say its name.
+const labelOf = (text) => (text.length > 1 ? text : 'this letter');
+
 // letterText("catfish", {tint: "a"}) -> <span aria-label="catfish">c<svg a>tfish</span>
-// tint: a taught letter whose occurrences get the accent color.
-export function letterText(text, { tint } = {}) {
-  const span = h('span', { class: 'ltext', 'aria-label': text, role: 'text' });
+// tint: a taught letter whose occurrences get the accent color. label: false when a wrapper labels the whole sentence.
+export function letterText(text, { tint, label = true } = {}) {
+  const span = h('span', { class: 'ltext', 'aria-label': label ? labelOf(text) : null, role: label ? 'text' : null });
   let run = '';
   const flush = () => { if (run) { span.append(h('span', { 'aria-hidden': 'true' }, run)); run = ''; } };
   for (const ch of text) {
@@ -33,7 +36,12 @@ export function letterText(text, { tint } = {}) {
 // every: true draws every "a" in every word from the glyph (text a child reads).
 export function richText(text, { every } = {}) {
   const frag = document.createDocumentFragment();
-  if (every) { text.split(/(\s+)/).forEach((p) => frag.append(/\S/.test(p) ? letterText(p) : p)); return frag; }
+  if (every) {
+    const sentence = h('span', { 'aria-label': labelOf(text), role: 'text' });
+    text.split(/(\s+)/).forEach((p) => sentence.append(/\S/.test(p) ? letterText(p, { label: false }) : p));
+    frag.append(sentence);
+    return frag;
+  }
   const parts = text.split(/\b(a)\b(?=\s+as in|,|\.|\?|\s*$)/);
   parts.forEach((p, i) => { if (i % 2 === 1) frag.append(inlineA()); else if (p) frag.append(p); });
   return frag;

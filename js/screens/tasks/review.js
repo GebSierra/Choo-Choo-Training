@@ -30,7 +30,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
   return {
     el,
     parts: () => { const s = sound(); return [{ clip: s.glyph }, { tts: s.words[0].word }]; },
-    script: () => `Slide the letter and say its sound: ${soundPhrase(sound())}.`,
+    script: () => `Say ${soundPhrase(sound())}. Now you try. Slide the letter.`,
     again: () => { show(); speech.say([{ clip: sound().glyph }, { tts: sound().words[0].word }]); },
     cleanup: () => track.cleanup(),
     next: () => { if (i < keys.length - 1) { i++; show(); speech.say([{ clip: sound().glyph }, { tts: sound().words[0].word }]); return true; } return false; },
