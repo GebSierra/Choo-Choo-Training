@@ -316,3 +316,6 @@ Lessons 4 to 13 are t f d g i n p h b l in Mentava's order, built exactly as `do
 - Grownups: Reset all progress now sits above the list of seventeen rows; the sound cards fold is "All the sounds" and the clip list shows only sounds that have a clip.
 - The slow tests walk all nine tasks of lessons 1 to 4, 8 and 13 (every viewport), Letter Hunt of every lesson, Barn Doors and slides for a sample, and c1 to c4.
 - Not verifiable here: real touch on a phone, real voices and recorded sounds, the hosted service worker, and how the glyphs feel under a three year old's finger.
+
+## Version 1.4.1: New Letter fits tall letters
+Tall letters (t, f, d, g, i, p, h, b, l) are drawn taller than m, a and s. On phones under 820 px tall the white letter card shrank to 72 px and the drawing spilled out of its top. The drawing is now sized from the card's height, and on short portrait screens the letter card sits beside the sound card (112 px tall), with smaller picture tiles under 740 px. `test/newletter.mjs` checks every letter in its card at six phone sizes (it fails on the old CSS).
