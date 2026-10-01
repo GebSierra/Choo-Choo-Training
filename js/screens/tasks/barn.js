@@ -2,7 +2,7 @@ import { h, animate, reduced } from '../../dom.js';
 import { barnSvg } from '../../art.js';
 import { letterFace, tintLetter } from '../../components/letter-face.js';
 import { sparkle } from '../../components/sparkle.js';
-import { timers, farm, watchSize, findCard, starRow, shake } from '../../components/game-kit.js';
+import { timers, farm, watchSize, findCard, starRow, shake, idleHints, pulseCard } from '../../components/game-kit.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
@@ -13,7 +13,7 @@ const OPEN_MS = 400;
 
 // Task 8: Barn Doors. The doors swing open on one big letter. A matching letter waits to be touched;
 // now and then a different one shows, shakes if touched, and the doors close on their own.
-export function build({ lesson, sound, speech, curriculum }) {
+export function build({ lesson, sound, speech, curriculum, setDone }) {
   const target = lesson.sound, accent = accentOf(target);
   const cfg = curriculum.games.barn;
   const others = cfg.distractors[target];
@@ -26,7 +26,9 @@ export function build({ lesson, sound, speech, curriculum }) {
   const barn = h('div', { class: 'barn' }, art, letterBtn);
   const row = starRow(STARS);
   const scene = farm();
-  scene.append(barn, findCard(target));
+  const card = findCard(target);
+  scene.append(barn, card);
+  const hints = idleHints(scene, () => { if (running) pulseCard(card); }); // eight quiet seconds: the Find this card swells twice
   const el = h('div', { class: 'game barn-game', dataset: { stars: '0', state: 'closed', kind: 'target' } }, scene, row.el);
 
   // The barn is as large as the scene allows, centred on the grass.
@@ -110,7 +112,9 @@ export function build({ lesson, sound, speech, curriculum }) {
       sfx.play('win');
       T.later(() => hop(2), 500);
       running = false;
+      hints.stop();
       setState('done');
+      setDone(true);
       return;
     }
     sparkle(scene, c.x, c.y, { count: 12, size: [12, 26], reach: [44, 90] });
@@ -121,6 +125,7 @@ export function build({ lesson, sound, speech, curriculum }) {
   function again() {
     T.clear(); faceAnims = cancel(faceAnims); doorAnims = cancel(doorAnims);
     stars = 0; rounds = 0; found = false; running = true; lastKind = 'target';
+    hints.arm();
     row.reset();
     el.dataset.stars = '0';
     letterBtn.replaceChildren(); letterBtn.disabled = true;
@@ -137,6 +142,6 @@ export function build({ lesson, sound, speech, curriculum }) {
     script: () => `Say: 'Watch the doors. When you see the letter that says ${soundPhrase(sound)}, touch it.' Then say ${soundPhrase(sound)} together.`,
     gist: () => fit(`Doors open. Touch ${soundPhrase(sound)}.`, `Touch ${soundPhrase(sound)}.`),
     again: () => { again(); speech.say(say); },
-    cleanup: () => { T.clear(); faceAnims = cancel(faceAnims); doorAnims = cancel(doorAnims); stopWatching(); },
+    cleanup: () => { T.clear(); hints.stop(); faceAnims = cancel(faceAnims); doorAnims = cancel(doorAnims); stopWatching(); },
   };
 }

@@ -1,4 +1,4 @@
-import { h, animate, reduced } from '../dom.js';
+import { h, animate, reduced, icon } from '../dom.js';
 import { sackSvg, barnSvg, starSvg } from '../art.js';
 import { glyphSvg } from '../glyphs.js';
 import { sparkle } from '../components/sparkle.js';
@@ -23,10 +23,10 @@ export function roundSounds(sounds, rounds) {
 
 // The Sound Sack: a burlap sack with a letter on it and three picture cards. The child drags the card whose word
 // starts with that sound into the sack. A wrong card glides home with a small shake; nothing else changes.
-export function build({ checkpoint, curriculum, speech, refresh, setProgress }) {
+export function build({ checkpoint, curriculum, speech, refresh, setProgress, setDone }) {
   const T = timers();
   const rounds = checkpoint.rounds;
-  let order = roundSounds(checkpoint.sounds, rounds), round = 0, locked = false, drag = null, W = 0, H = 0, sackRect = null, bases = [], size = 96, cards = [], lastWords = new Set();
+  let order = roundSounds(checkpoint.sounds, rounds), round = 0, locked = false, drag = null, demoTimer = 0, demoShown = false, demoHand = null, W = 0, H = 0, sackRect = null, bases = [], size = 96, cards = [], lastWords = new Set();
   const used = {}; // start words already shown, per sound
 
   const front = h('div', { class: 'sack-front' });
@@ -80,7 +80,27 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
     });
     table.replaceChildren(...cards);
     locked = false;
+    demoShown = false;
+    armDemo();
     refresh();
+  }
+
+  // After 8 quiet seconds in a round a small hand glides once from the right card to the sack, silently. A touch
+  // starts the wait again; the demo plays at most once a round, and not at all with reduced motion.
+  function stopDemo() { clearTimeout(demoTimer); if (demoHand) { demoHand.remove(); demoHand = null; } }
+  function armDemo() {
+    stopDemo();
+    if (!demoShown && !locked && !reduced()) demoTimer = setTimeout(demo, 8000);
+  }
+  function demo() {
+    const i = cards.findIndex((c) => c.dataset.correct === '1');
+    if (i < 0 || locked || drag) return;
+    demoShown = true;
+    const from = centerOf(i, 0, 0), m = mouth(), to = `translate(${m.x - from.x}px,${m.y - from.y}px)`;
+    demoHand = h('span', { class: 'demo-hand', 'aria-hidden': 'true', style: { left: from.x - 22 + 'px', top: from.y - 6 + 'px' } }, icon('tap', 48));
+    scene.append(demoHand);
+    const hand = demoHand;
+    hand.animate([{ transform: 'translate(0,0)', opacity: 0 }, { transform: 'translate(0,0)', opacity: 1, offset: 0.15 }, { transform: to, opacity: 1, offset: 0.85 }, { transform: to, opacity: 0 }], { duration: 1800, easing: 'ease-in-out' }).finished.then(() => { if (demoHand === hand) stopDemo(); }).catch(() => {});
   }
 
   const centerOf = (i, dx, dy) => ({ x: bases[i].x + size / 2 + dx, y: bases[i].y + size / 2 + dy });
@@ -99,26 +119,28 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
       dx = e.clientX - sx; dy = e.clientY - sy;
       card.style.transform = `translate(${dx}px,${dy}px) scale(1.06)`;
     });
-    const release = () => {
+    const release = (cancelled) => {
       if (drag !== card) return;
       drag = null;
       card.classList.remove('lifted');
+      // A tap (under 8 px) does what a drag into the sack does: the right card flies in, a wrong one shakes, silently.
+      if (!cancelled && !moved(dx, dy)) { card.style.transform = ''; return fly(card, i); }
       const c = centerOf(i, dx, dy), r = sackRect, m = 24;
       const inside = c.x > r.x - m && c.x < r.x + r.w + m && c.y > r.y - m && c.y < r.y + r.h + m;
       if (!inside || !moved(dx, dy)) return glide(card, false);
       if (card.dataset.correct === '1') drop(card, i, dx, dy); else glide(card, true);
     };
-    card.addEventListener('pointerup', release);
-    card.addEventListener('pointercancel', release);
-    // Keyboard: Enter or Space puts the card in the sack, so the game can be played without dragging.
+    card.addEventListener('pointerup', () => release(false));
+    card.addEventListener('pointercancel', () => release(true));
+    // Keyboard: Enter or Space does the same as a tap, so the game can be played without dragging.
     card.addEventListener('keydown', (e) => {
       if ((e.key !== 'Enter' && e.key !== ' ') || locked || drag) return;
       e.preventDefault();
-      const m = mouth();
-      if (card.dataset.correct === '1') drop(card, i, m.x - (bases[i].x + size / 2), m.y - (bases[i].y + size / 2) + 30); else shake(card);
+      fly(card, i);
     });
   }
   const moved = (dx, dy) => Math.hypot(dx, dy) > 8;
+  const fly = (card, i) => { if (card.dataset.correct === '1') drop(card, i, 0, 0); else shake(card); };
 
   // Back to its place: a spring when it was let go anywhere else, a glide and a small shake when it was a wrong card in the sack.
   function glide(card, wrongInSack) {
@@ -136,6 +158,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
 
   function drop(card, i, dx, dy) {
     locked = true;
+    stopDemo();
     const c = centerOf(i, dx, dy), m = mouth();
     animate(card, [{ transform: `translate(${dx}px,${dy}px) scale(1.06)`, opacity: 1 }, { transform: `translate(${dx + m.x - c.x}px,${dy + m.y - c.y}px) scale(.2)`, opacity: 0 }], { duration: 380, easing: 'cubic-bezier(.5,0,.75,0)', fill: 'forwards' });
     cards.filter((o) => o !== card).forEach((o) => { o.disabled = true; animate(o, [{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }); });
@@ -155,6 +178,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
   // After the last round the sack overflows with gold stars.
   function finish() {
     el.dataset.state = 'done';
+    setDone(true);
     const m = mouth();
     sparkle(scene, m.x, m.y, { count: 30, size: [16, 34], reach: [90, 180] });
     sfx.play('checkpoint');
@@ -175,9 +199,11 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
     for (const k of Object.keys(used)) delete used[k];
     row.reset(); setProgress(0);
     el.dataset.stars = '0'; el.dataset.state = 'playing';
+    setDone(false);
     renderRound();
   }
 
+  scene.addEventListener('pointerdown', armDemo, true);
   const stopWatching = watchSize(scene, layout);
   const say = [{ tts: curriculum.games.sack.say }];
   return {
@@ -186,6 +212,6 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
     script: () => `Say: 'Which one starts with ${soundPhrase(sound())}?' Let them drag it into the sack. There is no right or wrong here.`,
     gist: () => fit(`Ask: which starts with ${soundPhrase(sound())}?`, `Ask: ${soundPhrase(sound())}?`),
     again: () => { again(); speech.say(say); },
-    cleanup: () => { T.clear(); stopWatching(); },
+    cleanup: () => { T.clear(); stopDemo(); stopWatching(); },
   };
 }

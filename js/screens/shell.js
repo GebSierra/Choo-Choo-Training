@@ -1,4 +1,4 @@
-import { h, animate, icon } from '../dom.js';
+import { h, animate, icon, reduced } from '../dom.js';
 import { speakButton } from '../components/speak-button.js';
 import { scriptToParts } from '../scripts.js';
 import { richText } from '../letters.js';
@@ -9,13 +9,15 @@ import { richText } from '../letters.js';
 // Two steps, because a task builds itself before the shell can show it (its own refresh() runs while it is built):
 //   const shell = makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel, stepNoun, seenKeys, autoOpen });
 // autoOpen: false for the games, where the gist in the bar is enough and the sheet must not open over the play.
+// skipUntilDone: the last button reads "Skip" until the game says it is done (setDone(true)), then "Finish".
+// setDone(true) also pulses the button once, so a parent sees that the game is finished.
 //   const current = build({ ...env, refresh: shell.refresh, setProgress: shell.setPos });
 //   return shell.mount(current, advance);
 // current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?, lockScroll?}.
 // lockScroll: the activity never scrolls and ignores pan gestures (tasks where a finger slides across the screen).
-export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true }) {
+export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false }) {
   const { router, speech, store } = ctx;
-  let current = null;
+  let current = null, doneHook = () => {};
   const scriptText = h('p', { class: 'script-text' });
   const refresh = () => { scriptText.replaceChildren(richText(current ? current.script() : '')); };
 
@@ -38,7 +40,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
   const refreshAll = () => { refresh(); firstLine.replaceChildren(richText(current ? (current.gist ? current.gist() : current.script()) : '')); };
 
   return {
-    refresh: () => refreshAll(), setPos,
+    refresh: () => refreshAll(), setPos, setDone: (done) => doneHook(done),
     mount(cur, advance) {
       current = cur;
       const full = !!store.settings.fullInstructions;
@@ -98,7 +100,12 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
       }
 
       const again = h('button', { class: 'btn again', type: 'button', onclick: () => { closeScript(); current.again(); refreshAll(); } }, icon('redo', 22), 'Again');
-      const next = h('button', { class: 'btn next', type: 'button', disabled: true, onclick: () => { closeScript(); if (current.next && current.next()) { refreshAll(); return; } advance(); } }, isLast ? 'Finish' : 'Next', icon('arrowRight', 22));
+      const nextText = h('span', {}, skipUntilDone ? 'Skip' : isLast ? 'Finish' : 'Next');
+      const next = h('button', { class: 'btn next', type: 'button', disabled: true, onclick: () => { closeScript(); if (current.next && current.next()) { refreshAll(); return; } advance(); } }, nextText, icon('arrowRight', 22));
+      doneHook = (done) => {
+        if (skipUntilDone) nextText.textContent = done ? 'Finish' : 'Skip';
+        if (done && !reduced()) next.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.04)', offset: 0.5 }, { transform: 'scale(1)' }], { duration: 420, easing: 'ease-in-out' });
+      };
       const foot = h('footer', { class: 'task-foot' }, wrap, h('div', { class: 'task-buttons' }, again, next));
       refreshAll();
 

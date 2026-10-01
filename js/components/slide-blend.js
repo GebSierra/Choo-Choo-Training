@@ -1,4 +1,4 @@
-import { animate, reduced } from '../dom.js';
+import { h, animate, reduced, icon } from '../dom.js';
 import { accentOf } from '../theme.js';
 import { sparkle } from './sparkle.js';
 
@@ -128,4 +128,42 @@ export function placeBand(band, host, focus, minH = 140) {
   ro.observe(host); ro.observe(focus);
   place();
   return { place, stop: () => ro.disconnect() };
+}
+
+// The demonstration the child's first touch ends: a soft highlight glides left to right over 2 s, pauses, repeats. The
+// same timing drives the hand cue below, so the two stay in step. period: the whole loop in ms (2600 on Saying Sounds).
+const SWEEP_MS = 2000;
+const sweepFrames = (to, period) => [
+  { transform: 'translateX(-110%)', opacity: 0, offset: 0 },
+  { opacity: 1, offset: 156 / period },
+  { opacity: 1, offset: 1820 / period },
+  { transform: to, opacity: 0, offset: SWEEP_MS / period },
+  { transform: to, opacity: 0, offset: 1 },
+];
+export const startSweep = (sweep, period = 2600) => (reduced() ? null : sweep.animate(sweepFrames('translateX(310%)', period), { duration: period, iterations: Infinity, easing: 'linear', delay: 300 }));
+
+// A hand that slides along the progress bar, left to right, in step with the sweep. stop() removes it (first touch).
+export function handCue(host, bar, period = 2600) {
+  if (reduced()) return { stop() {} };
+  const hand = h('span', { class: 'slide-hand', 'aria-hidden': 'true' }, icon('tap', 36));
+  host.append(hand);
+  let anim = null;
+  const place = () => {
+    const hr = host.getBoundingClientRect(), br = bar.getBoundingClientRect();
+    if (!br.width) return;
+    Object.assign(hand.style, { left: br.left - hr.left - 16 + 'px', top: br.top - hr.top + br.height / 2 - 3 + 'px' });
+    if (anim) anim.cancel();
+    const at = `translateX(${br.width}px)`;
+    anim = hand.animate([
+      { transform: 'translateX(0)', opacity: 0, offset: 0 },
+      { opacity: 1, offset: 156 / period },
+      { opacity: 1, offset: 1820 / period },
+      { transform: at, opacity: 0, offset: SWEEP_MS / period },
+      { transform: at, opacity: 0, offset: 1 },
+    ], { duration: period, iterations: Infinity, easing: 'linear', delay: 300 });
+  };
+  const ro = new ResizeObserver(place);
+  ro.observe(host); ro.observe(bar);
+  place();
+  return { stop() { ro.disconnect(); hand.remove(); } };
 }

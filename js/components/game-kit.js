@@ -1,4 +1,4 @@
-import { h, animate } from '../dom.js';
+import { h, animate, reduced } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { accentOf } from '../theme.js';
 import { starSvg, farmBackdrop } from '../art.js';
@@ -28,6 +28,20 @@ export function findCard(letter) {
 
 // A small sideways wobble: the only answer to a wrong touch. No colour, no sound.
 export const shake = (el) => animate(el, [{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)', offset: 0.2 }, { transform: 'translateX(5px)', offset: 0.45 }, { transform: 'translateX(-3px)', offset: 0.7 }, { transform: 'translateX(0)' }], { duration: 320 });
+
+// A quiet nudge: when `ms` pass with no touch on the scene, hint() runs once; the next one comes after another quiet `ms`.
+// Any touch starts the wait again. Nothing moves with reduced motion. arm() starts it over, stop() ends it (done, or leaving).
+export function idleHints(scene, hint, ms = 8000) {
+  let id = 0;
+  const wait = () => { clearTimeout(id); id = setTimeout(() => { if (!reduced()) hint(); wait(); }, ms); };
+  const stop = () => { clearTimeout(id); scene.removeEventListener('pointerdown', wait, true); };
+  const arm = () => { stop(); scene.addEventListener('pointerdown', wait, true); wait(); };
+  arm();
+  return { arm, stop };
+}
+
+// The Find this card swells twice (scale 1.06, 500 ms each).
+export const pulseCard = (card) => card.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06)', offset: 0.5 }, { transform: 'scale(1)' }], { duration: 500, iterations: 2, easing: 'ease-in-out' });
 
 // Five (or n) empty rings that fill with gold stars. fill(i) pops star i in with a small spring.
 export function starRow(n) {

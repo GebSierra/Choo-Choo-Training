@@ -1,7 +1,7 @@
 import { h, animate, reduced } from '../../dom.js';
 import { letterText } from '../../letters.js';
 import { wordSvg } from '../../glyphs.js';
-import { slideBlend, placeBand } from '../../components/slide-blend.js';
+import { slideBlend, placeBand, startSweep, handCue } from '../../components/slide-blend.js';
 import { accentOf } from '../../theme.js';
 import { fit } from '../../lessons.js';
 
@@ -9,13 +9,15 @@ import { fit } from '../../lessons.js';
 // colour wash that follows the finger) and the letters of the word one by one.
 export function build({ lesson, speech, refresh }) {
   const list = lesson.sayingWords;
-  let i = 0, revealed = false, sayTimer = 0, blend = null, bandWatch = null, bandEl = null;
+  let i = 0, revealed = false, sayTimer = 0, sweepAnim = null, cue = null, blend = null, bandWatch = null, bandEl = null;
   const body = h('div', { class: 'merge' });
   const el = h('div', { class: 'words-task' }, body);
   const cur = () => list[i];
   const partsFor = () => [{ tts: cur().parts[0] }, { pause: 350 }, { tts: cur().parts[1] }];
 
-  const teardown = () => { clearTimeout(sayTimer); if (blend) blend.cleanup(); if (bandWatch) bandWatch.stop(); if (bandEl) bandEl.remove(); blend = null; bandWatch = null; bandEl = null; };
+  // After the reveal a wash sweeps over the picture and letters every 4 s, with a hand along the bar, until the first touch.
+  const stopDemo = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } if (cue) { cue.stop(); cue = null; } };
+  const teardown = () => { stopDemo(); clearTimeout(sayTimer); if (blend) blend.cleanup(); if (bandWatch) bandWatch.stop(); if (bandEl) bandEl.remove(); blend = null; bandWatch = null; bandEl = null; };
 
   function show() {
     teardown();
@@ -41,11 +43,14 @@ export function build({ lesson, speech, refresh }) {
       const letters = h('span', { class: 'word-letters' }, art);
       const bar = h('span', { class: 'blend-bar', 'aria-hidden': 'true' }, h('i'));
       const band = h('span', { class: 'slide-band', 'aria-hidden': 'true' });
-      merged.replaceChildren(h('span', { class: 'wash' }, pic('dim'), bright), letters, bar);
+      const sweep = h('span', { class: 'sweep', 'aria-hidden': 'true' });
+      merged.replaceChildren(h('span', { class: 'wash' }, pic('dim'), bright), letters, bar, sweep);
       merged.classList.add('revealed');
       el.append(band); bandEl = band;
-      blend = slideBlend({ band, svg: art, host: el, lift: merged, bar, accent: accentOf(lesson.sound), onProgress: (p) => { bright.style.clipPath = `inset(0 ${100 - p * 100}% 0 0)`; }, onTap: tapped });
-      bandWatch = placeBand(band, el, letters);
+      blend = slideBlend({ band, svg: art, host: el, lift: merged, bar, accent: accentOf(lesson.sound), onTouch: stopDemo, onProgress: (p) => { bright.style.clipPath = `inset(0 ${100 - p * 100}% 0 0)`; }, onTap: tapped });
+      bandWatch = placeBand(band, el, merged); // the band covers the whole tile, top edge to bottom edge
+      sweepAnim = startSweep(sweep, 4000);
+      if (sweepAnim) cue = handCue(el, bar, 4000);
       animate(merged, [{ transform: 'scale(.8)', opacity: 0.4 }, { transform: 'scale(1)', opacity: 1 }], { duration: 360, delay: reduced() ? 0 : 200, easing: 'cubic-bezier(.34,1.56,.64,1)' });
       sayTimer = setTimeout(() => speech.say([{ tts: w.word }]), 260);
     };

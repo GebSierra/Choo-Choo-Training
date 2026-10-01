@@ -108,7 +108,7 @@ const gistOf = (page) => page.evaluate(() => [...document.querySelector('.screen
 // Every task's gist: not empty, at most 28 characters, holds the current sound or word (Letter Writing has neither),
 // follows the word when it changes, and the games do not open the sheet by themselves.
 export async function gistChecks({ browser, url, ok }) {
-  const vp = VIEWPORTS[0];
+  const vp = VIEWPORTS[2]; // the narrowest phone: every gist must show whole there
   const { ctx, page, errors } = await open(browser, url, vp, '#/home');
   let seenGists = 0;
   for (const L of CUR.lessons) {
@@ -119,6 +119,8 @@ export async function gistChecks({ browser, url, ok }) {
       await page.waitForTimeout(150);
       const gist = await gistOf(page);
       const want = { review: soundPhrase(CUR.sounds[L.review[0]] || CUR.sounds.m), words: L.sayingWords[0].parts[0], sounds: L.sayingSounds[0].word, writing: '' }[t.type] ?? P;
+      const fits = await page.evaluate(() => { const e = document.querySelector('.screen:not(.leaving) .script-first'); return e.scrollWidth <= e.clientWidth; });
+      ok(fits, `lesson ${L.number} ${t.type}: the gist "${gist}" fits the bar at 360 px without an ellipsis`);
       ok(gist.length > 0 && gist.length <= 28 && gist.includes(want), `lesson ${L.number} ${t.type}: gist "${gist}" is 1 to 28 characters and holds "${want}"`);
       seenGists++;
       if (t.type === 'words' || t.type === 'sounds') {

@@ -2,7 +2,7 @@ import { h, animate, reduced } from '../../dom.js';
 import { sheepSvg, barnSvg, barnBackSvg } from '../../art.js';
 import { letterFace, tintLetter } from '../../components/letter-face.js';
 import { sparkle } from '../../components/sparkle.js';
-import { timers, farm, watchSize, findCard, starRow, shake } from '../../components/game-kit.js';
+import { timers, farm, watchSize, findCard, starRow, shake, idleHints, pulseCard } from '../../components/game-kit.js';
 import { skyCells, deal } from './hunt-deal.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase, fit } from '../../lessons.js';
@@ -23,7 +23,7 @@ let memory = { slots: 0, deals: [] };
 // After every right touch the whole sky is dealt again (see hunt-deal.js), so the target never sits in a place the child
 // could learn. The letter a finger lands on is the one chosen, whether it was tapped or dragged. Nothing scores, nothing
 // says wrong, nothing is timed. The fifth right letter sends the sheep into the barn.
-export function build({ lesson, sound, speech, curriculum }) {
+export function build({ lesson, sound, speech, curriculum, setDone }) {
   const target = lesson.sound, accent = accentOf(target);
   const cfg = curriculum.games.hunt;
   const others = cfg.distractors[target];
@@ -86,6 +86,12 @@ export function build({ lesson, sound, speech, curriculum }) {
     if (first || steps < STEPS) dealSky();
   }
   const stopWatching = watchSize(scene, layout);
+  // Eight quiet seconds: the Find this card swells twice and the target letters in view swell once.
+  const hints = idleHints(scene, () => {
+    if (locked || done || gesture) return;
+    pulseCard(card);
+    letters.filter((l) => l.isTarget && l.btn.isConnected && !l.btn.classList.contains('popped')).forEach((l) => l.face.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.15)', offset: 0.5 }, { transform: 'scale(1)' }], { duration: 500, easing: 'ease-in-out' }));
+  });
 
   function trot() {
     const travel = parseFloat(sheep.style.getPropertyValue('--travel'));
@@ -198,9 +204,12 @@ export function build({ lesson, sound, speech, curriculum }) {
   const door = (open, ms) => doors.forEach((d) => keep(d.animate([{ transform: `scaleX(${open ? 1 : 0.1})` }, { transform: `scaleX(${open ? 0.1 : 1})` }], { duration: ms, fill: 'forwards', easing: 'cubic-bezier(.2,.8,.2,1)' })));
   function ending() {
     el.dataset.state = 'ending';
+    hints.stop();
     sky.classList.add('done');
+    // The last frame is the barn, the stars and the glow: the letters left in the sky fade away as the ending starts.
+    letters.filter((l) => !l.btn.classList.contains('popped')).forEach((l) => { l.btn.style.pointerEvents = 'none'; animate(l.face, [{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: 'forwards' }); });
     if (reduced()) {
-      T.later(() => { sheep.style.visibility = 'hidden'; goal.classList.add('done'); stars.fill(STEPS - 1); sfx.play('win'); done = true; el.dataset.state = 'done'; }, 400);
+      T.later(() => { sheep.style.visibility = 'hidden'; goal.classList.add('done'); stars.fill(STEPS - 1); sfx.play('win'); done = true; el.dataset.state = 'done'; setDone(true); }, 400);
       return;
     }
     T.later(() => door(true, OPEN), TROT);
@@ -221,6 +230,7 @@ export function build({ lesson, sound, speech, curriculum }) {
       stars.fill(STEPS - 1);
       done = true;
       el.dataset.state = 'done';
+      setDone(true);
     }, TROT + OPEN + WALK + SHUT);
   }
 
@@ -228,6 +238,7 @@ export function build({ lesson, sound, speech, curriculum }) {
     T.clear();
     endAnims.forEach((a) => a.cancel()); endAnims = [];
     gesture = null;
+    hints.arm();
     steps = 0; done = false; locked = false;
     el.dataset.steps = '0'; el.dataset.state = 'playing';
     sky.classList.remove('done');
@@ -250,6 +261,6 @@ export function build({ lesson, sound, speech, curriculum }) {
     gist: () => fit(`Find ${soundPhrase(sound)}. Touch it.`, `Find ${soundPhrase(sound)}.`),
     script: () => `Say: 'Find the letter that says ${soundPhrase(sound)}. Touch it.' Then say ${soundPhrase(sound)} together.`,
     again: () => { again(); speech.say(say); },
-    cleanup: () => { T.clear(); stopWatching(); },
+    cleanup: () => { T.clear(); hints.stop(); stopWatching(); },
   };
 }

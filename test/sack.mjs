@@ -123,8 +123,11 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot }) {
   await page.waitForTimeout(1700);
   await page.click('.btn.got');
   ok(/Yes, back to path/.test(await page.locator('.btn.got').innerText()) && page.url().endsWith('/finish'), `${tag}: the first Yes only arms the button`);
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).checkpoints.c1.result)) === 'got-it', `${tag}: the result is stored under checkpoints`);
+  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).checkpoints.c1?.result ?? null)) === null && /Tap again to go back to the path\./.test(await page.locator('.finish-note').innerText()), `${tag}: the arming tap stores nothing and says "Tap again to go back to the path."`);
+  await page.waitForTimeout(1700);
   await page.click('.btn.got');
+  await page.waitForSelector('.stone');
+  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).checkpoints.c1.result)) === 'got-it', `${tag}: the second tap stores the result under checkpoints`);
   await page.waitForSelector('.stone');
   await page.waitForTimeout(800);
   ok((await page.locator('.stone.is-done').count()) === 4, `${tag}: the path shows a tick on the sack stone`);

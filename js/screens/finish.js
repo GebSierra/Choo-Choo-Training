@@ -7,18 +7,19 @@ import { sfx } from '../sfx.js';
 
 // Calm finish: no confetti. The parent decides whether the child got it.
 // Taps are ignored for the first 1.5 s, and "Yes" takes two taps, so a child cannot move on by accident.
-// The first Yes tap only records the result and arms the button; the second goes on (onContinue).
-function finishView({ speech, router, heading, badge, accent, armedLabel, armedNote, onArm, onContinue, onPractice }) {
+// The first Yes tap only arms the button (and dims it for 1.5 s); the second records "got it" and goes on (onContinue).
+function finishView({ speech, router, heading, badge, accent, armedLabel, armedNote, onContinue, onPractice }) {
   const note = h('p', { class: 'finish-note', 'aria-live': 'polite' });
-  let armed = false; // the first "Yes" tap has been made
+  let armed = false, armTimer = 0; // the first "Yes" tap has been made
   const label = h('span', {}, 'Yes, go on');
   const gotIt = h('button', { class: 'btn big got', type: 'button', disabled: true, onclick: () => {
     if (armed) { sfx.play('unlock'); onContinue(); return; }
     armed = true;
-    onArm();
     note.textContent = armedNote;
     gotIt.classList.add('chosen');
     label.textContent = armedLabel;
+    gotIt.disabled = true;
+    armTimer = setTimeout(() => { gotIt.disabled = false; }, 1500);
   } });
   gotIt.append(icon('check', 24), label);
   const again = h('button', { class: 'btn big ghost practice', type: 'button', disabled: true, onclick: onPractice }, icon('redo', 22), 'Not yet, practice again');
@@ -34,7 +35,7 @@ function finishView({ speech, router, heading, badge, accent, armedLabel, armedN
   // The voice says "Good job." first; the jingle waits for it to finish (see sfx.js).
   const t = setTimeout(() => { speech.autoSay([{ tts: 'Good job.' }]); sfx.play('lesson'); }, 500);
   const ready = setTimeout(() => { for (const b of [gotIt, again, back]) b.disabled = false; }, 1500);
-  root.cleanup = () => { clearTimeout(t); clearTimeout(ready); };
+  root.cleanup = () => { clearTimeout(t); clearTimeout(ready); clearTimeout(armTimer); };
   return root;
 }
 
@@ -49,9 +50,8 @@ export function finishScreen({ store, router, curriculum, speech }, n) {
     badge: glyphSvg(lesson.sound, { color: accentOf(lesson.sound), label: 'lesson letter' }),
     accent: accentOf(lesson.sound),
     armedLabel: last ? 'Yes, back to path' : `Yes, open lesson ${num + 1}`,
-    armedNote: last ? 'You finished all three lessons.' : `Lesson ${num + 1} is ready.`,
-    onArm: () => store.setResult(num, 'got-it'),
-    onContinue: () => router.go(last ? '/home' : `/lesson/${num + 1}`),
+    armedNote: last ? 'Tap again to go back to the path.' : `Tap again to open lesson ${num + 1}.`,
+    onContinue: () => { store.setResult(num, 'got-it'); router.go(last ? '/home' : `/lesson/${num + 1}`); },
     onPractice: () => {
       if (store.lesson(num).result !== 'got-it') store.setResult(num, 'practice-again'); // keep the best result
       store.resetLessonTasks(num);
@@ -70,9 +70,8 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
     badge: sackSvg(),
     accent: '#C99A5B',
     armedLabel: 'Yes, back to path',
-    armedNote: 'The path has a tick on the sack.',
-    onArm: () => store.setCheckpointResult(ck.id, 'got-it'),
-    onContinue: () => router.go('/home'),
+    armedNote: 'Tap again to go back to the path.',
+    onContinue: () => { store.setCheckpointResult(ck.id, 'got-it'); router.go('/home'); },
     onPractice: () => {
       if (store.checkpoint(ck.id).result !== 'got-it') store.setCheckpointResult(ck.id, 'practice-again'); // keep the best result
       router.go(`/checkpoint/${ck.id}`);

@@ -196,6 +196,7 @@ export async function sfxChecks({ browser, url, ok }) {
     await page.click('.btn.got');
     await page.waitForTimeout(300);
     ok((await notes(page)).length === 0, 'Finish screen: the first Yes tap makes no sound');
+    await page.waitForTimeout(1700);
     await page.click('.btn.got');
     await page.waitForTimeout(300);
     ok(of(await notes(page), 'unlock').bells.length === 6, 'Finish screen: the second Yes plays the unlock flourish');

@@ -2,26 +2,16 @@ import { h, animate, reduced, icon } from '../../dom.js';
 import { wordSvg, hasGlyph } from '../../glyphs.js';
 import { letterText } from '../../letters.js';
 import { stretchWord, stretchLetters } from '../../scripts.js';
-import { slideBlend, placeBand } from '../../components/slide-blend.js';
+import { slideBlend, placeBand, startSweep, handCue } from '../../components/slide-blend.js';
 import { picture } from '../../components/picture.js';
 import { accentOf } from '../../theme.js';
 import { fit } from '../../lessons.js';
-
-// A soft highlight glides left to right over 2 s, pauses 600 ms, repeats (2.6 s loop, last 23% idle). It shows the pace
-// until the child's first touch takes over.
-const startSweep = (sweep) => (reduced() ? null : sweep.animate([
-  { transform: 'translateX(-110%)', opacity: 0, offset: 0 },
-  { opacity: 1, offset: 0.06 },
-  { opacity: 1, offset: 0.7 },
-  { transform: 'translateX(310%)', opacity: 0, offset: 0.77 },
-  { transform: 'translateX(310%)', opacity: 0, offset: 1 },
-], { duration: 2600, iterations: Infinity, easing: 'linear', delay: 300 }));
 
 // Task 5: stretch the sounds, then say the word. Words that show letters can be slid under with a finger; a picture word
 // shows its letters, slidable in the same way, once the picture is tapped.
 export function build({ lesson, speech, refresh }) {
   const list = lesson.sayingSounds;
-  let i = 0, revealed = false, sweepAnim = null, blend = null, bandWatch = null, bandEl = null;
+  let i = 0, revealed = false, sweepAnim = null, cue = null, cueStage = null, blend = null, bandWatch = null, bandEl = null;
   const held = new Set([lesson.sound, ...lesson.review]);
   const body = h('div', { class: 'sounds-body' });
   const el = h('div', { class: 'sounds-task' }, body);
@@ -31,7 +21,7 @@ export function build({ lesson, speech, refresh }) {
     if (w.showLetters) return [...[...w.word].filter(hasGlyph).map((c) => ({ clip: c })), { pause: 300 }, { tts: w.word }];
     return [{ tts: w.word }];
   };
-  const stopSweep = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } };
+  const stopSweep = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } if (cue) { cue.stop(); cue = null; cueStage.classList.remove('cueing'); } };
   const teardown = () => { stopSweep(); if (blend) blend.cleanup(); if (bandWatch) bandWatch.stop(); if (bandEl) bandEl.remove(); blend = null; bandWatch = null; bandEl = null; };
 
   // The word as a slidable row of letters on the stage: the row, a progress bar, and a generous band to slide on.
@@ -48,6 +38,7 @@ export function build({ lesson, speech, refresh }) {
     blend = slideBlend({ band, svg: art, host: stage, lift: row, bar, accent: perLetter ? null : accentOf(lesson.sound), onTouch: stopSweep, onTap: () => tapStage(stage) });
     bandWatch = placeBand(band, stage, row);
     sweepAnim = startSweep(sweep);
+    if (sweepAnim) { cue = handCue(stage, bar); cueStage = stage; stage.classList.add('cueing'); } // the slide cue; the static hand only means tap
     return row;
   }
 
@@ -92,7 +83,7 @@ export function build({ lesson, speech, refresh }) {
     },
     gist: () => {
       const w = cur(), stretched = w.showLetters ? [...w.word].map((c) => stretchLetters(c)).join('') : stretchWord(w.word, held);
-      return fit(`Stretch: ${stretched}, then ${w.word}.`, `Stretch ${stretched}, then ${w.word}.`, `${stretched}, then ${w.word}.`);
+      return fit(`Stretch: ${stretched}, then ${w.word}.`, `${stretched}, then ${w.word}.`);
     },
     again: () => { show(); speech.say(partsFor()); },
     cleanup: teardown,
