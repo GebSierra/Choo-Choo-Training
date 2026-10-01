@@ -35,12 +35,12 @@ async function dragCard(page, which, to, during) {
   return { start, word: await loc.getAttribute('data-word') };
 }
 
-export async function sackChecks({ browser, url, ok, CUR, vp, shot }) {
-  const ck = CUR.checkpoints[0];
-  const { ctx, page, errors } = await open(browser, url, vp, seed(DONE(3)), '#/checkpoint/c1');
+export async function sackChecks({ browser, url, ok, CUR, vp, shot, id = 'c1' }) {
+  const ck = CUR.checkpoints.find((k) => k.id === id);
+  const { ctx, page, errors } = await open(browser, url, vp, seed(DONE(ck.after)), `#/checkpoint/${id}`);
   await page.waitForSelector('.sack-card');
   await page.waitForTimeout(800);
-  const tag = `${vp.name} Sound Sack`;
+  const tag = `${vp.name} Sound Sack ${id}`;
   const sackBox = () => rect(page, '.sack');
   const cardBoxes = () => rects(page, '.sack-card');
   const sceneBox = await rect(page, '.farm');
@@ -58,11 +58,11 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot }) {
   const avoid = Object.fromEntries(CUR.gameDistractors.filter((w) => w.avoid).map((w) => [w.word, w.avoid]));
   const dealt = await page.evaluate(() => {
     const out = [];
-    for (let i = 0; i < 90; i++) { document.querySelector('.btn.again').click(); out.push({ sound: document.querySelector('.sack-game').dataset.sound, wrong: [...document.querySelectorAll('.sack-card[data-correct="0"]')].map((c) => c.dataset.word) }); }
+    for (let i = 0; i < 300; i++) { document.querySelector('.btn.again').click(); out.push({ sound: document.querySelector('.sack-game').dataset.sound, wrong: [...document.querySelectorAll('.sack-card[data-correct="0"]')].map((c) => c.dataset.word) }); }
     return out;
   });
   const bad = dealt.filter((d) => d.wrong.some((w) => (avoid[w] || []).includes(d.sound)));
-  ok(Object.keys(avoid).length >= 4 && new Set(dealt.map((d) => d.sound)).size === 3 && bad.length === 0, `${tag}: 90 deals never show a look-alike (avoid) as a wrong card (${bad.map((d) => d.sound + ':' + d.wrong).join(' ')})`);
+  ok(Object.keys(avoid).length >= 4 && new Set(dealt.map((d) => d.sound)).size === ck.sounds.length && bad.length === 0, `${tag}: 300 deals cover every sound of the checkpoint and never show a look-alike (avoid) as a wrong card (${bad.map((d) => d.sound + ':' + d.wrong).join(' ')})`);
   await page.waitForTimeout(600);
   const before = await plain(page);
 
@@ -92,8 +92,8 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot }) {
     const choices = await page.evaluate(() => [...document.querySelectorAll('.sack-card')].map((c) => ({ word: c.dataset.word, correct: c.dataset.correct })));
     ok(choices.filter((c) => c.correct === '1').length === 1 && choices.every((c) => /^[a-z]+$/.test(c.word)), `${tag}: round ${r} has exactly one right card`);
     const sound = seen[r - 1];
-    const startWords = CUR.sounds[sound].startWords.map((w) => w.word), pool = CUR.gameDistractors.map((w) => w.word);
-    ok(choices.every((c) => (c.correct === '1' ? startWords.includes(c.word) : pool.includes(c.word))), `${tag}: round ${r} cards come from the data (${sound})`);
+    const startWords = CUR.sounds[sound].startWords.map((w) => w.word), pool = CUR.gameDistractors.filter((w) => !ck.sounds.includes(w.word[0])).map((w) => w.word);
+    ok(choices.every((c) => (c.correct === '1' ? startWords.includes(c.word) : pool.includes(c.word))), `${tag}: round ${r} cards come from the data, and no wrong card begins with a taught sound (${sound})`);
     if (r === 3 && shot) await shot(page, 'mid');
     sack = await sackBox();
     await dragCard(page, '1', () => mid(sack));
@@ -101,7 +101,8 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot }) {
     ok(filled && (await page.locator('.star-row .gold-star').count()) === r, `${tag}: round ${r} star filled`);
   }
   ok(seen.every((s, i) => !i || s !== seen[i - 1]), `${tag}: the same sound never comes twice in a row (${seen.join('')})`);
-  ok(ck.sounds.every((s) => seen.filter((x) => x === s).length === ck.rounds / ck.sounds.length), `${tag}: the sounds are balanced over the rounds`);
+  const count = (k) => seen.filter((x) => x === k).length;
+  ok(seen.length === ck.rounds && ck.sounds.every((k) => count(k) <= CUR.sounds[k].startWords.length) && (ck.favour || []).every((k) => count(k) >= 1) && (ck.favour ? true : ck.sounds.every((k) => count(k) === ck.rounds / ck.sounds.length)), `${tag}: every favoured sound comes up, none more often than it has start words, c1 is balanced (${seen.join('')})`);
   await page.waitForTimeout(1500);
   ok((await game(page, 'state')) === 'done' && (await page.locator('.gold-star.overflow').count()) > 0, `${tag}: six rounds reach the done state and the sack overflows with stars`);
   ok((await page.locator('.dots .dot.past').count()) === ck.rounds, `${tag}: the progress dots are all past`);
@@ -125,14 +126,14 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot }) {
   await page.waitForTimeout(1700);
   await page.click('.btn.got');
   ok(/Yes, back to path/.test(await page.locator('.btn.got').innerText()) && page.url().endsWith('/finish'), `${tag}: the first Yes only arms the button`);
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).checkpoints.c1?.result ?? null)) === null && /Tap again to go back to the path\./.test(await page.locator('.finish-note').innerText()), `${tag}: the arming tap stores nothing and says "Tap again to go back to the path."`);
+  ok((await page.evaluate((k) => JSON.parse(localStorage.getItem('reading.v1')).checkpoints[k]?.result ?? null, id)) === null && /Tap again to go back to the path\./.test(await page.locator('.finish-note').innerText()), `${tag}: the arming tap stores nothing and says "Tap again to go back to the path."`);
   await page.waitForTimeout(1700);
   await page.click('.btn.got');
   await page.waitForSelector('.stone');
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).checkpoints.c1.result)) === 'got-it', `${tag}: the second tap stores the result under checkpoints`);
+  ok((await page.evaluate((k) => JSON.parse(localStorage.getItem('reading.v1')).checkpoints[k].result, id)) === 'got-it', `${tag}: the second tap stores the result under checkpoints`);
   await page.waitForSelector('.stone');
   await page.waitForTimeout(800);
-  ok((await page.locator('.stone.is-done').count()) === 4, `${tag}: the path shows a tick on the sack stone`);
+  ok((await page.locator('.stone.is-done').count()) === ck.after + 1, `${tag}: the path shows a tick on the sack stone and on the lessons before it (${ck.after + 1})`);
   await ctx.close();
 }
 
@@ -201,6 +202,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
   for (const vp of VIEWPORTS) { await sackMapChecks({ browser, url, ok, vp }); await sackChecks({ browser, url, ok, CUR, vp }); }
+  for (const k of CUR.checkpoints.slice(1)) await sackChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], id: k.id }); // c2 to c4 are played too
   await sackGrownupsChecks({ browser, url, ok });
   await browser.close(); server.close();
   console.log(`sack: ${checks - failures}/${checks} checks passed`);

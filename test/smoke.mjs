@@ -252,6 +252,7 @@ for (const vp of VIEWPORTS) {
 await slideReducedChecks({ browser, url, ok });
 // The Sound Sack checkpoint: its stone on the map, the drag game by real touch, the finish screen, Grownups.
 for (const vp of VIEWPORTS) { await sackMapChecks({ browser, url, ok, vp }); await sackChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) }); }
+for (const k of CUR.checkpoints.slice(1)) await sackChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], id: k.id }); // c2 to c4 are played too
 await sackGrownupsChecks({ browser, url, ok });
   await round2Checks({ browser, url, ok });
   await round3Checks({ browser, url, ok });
