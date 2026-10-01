@@ -14,6 +14,7 @@ import { sfxChecks, sfxGrownupsChecks } from './sfx.mjs';
 import { roomChecks, barChecks, timerAndFirstVisitChecks, grownupsScriptChecks } from './script.mjs';
 import { round2Checks } from './round2.mjs';
 import { round3Checks } from './round3.mjs';
+import { mapAllChecks } from './map.mjs';
 import { lettersSlideChecks, pictureWordSlideChecks, wordsSlideChecks, slideReducedChecks } from './slide.mjs';
 
 const FAST = process.argv.includes('--fast');
@@ -256,6 +257,7 @@ for (const k of CUR.checkpoints.slice(1)) await sackChecks({ browser, url, ok, C
 await sackGrownupsChecks({ browser, url, ok });
   await round2Checks({ browser, url, ok });
   await round3Checks({ browser, url, ok });
+  await mapAllChecks({ browser, url, ok, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `map-${name}.png`) }) });
 }
 {
   // Full screen button on Home and in Grownups (the Fullscreen API is stubbed so the call can be counted).

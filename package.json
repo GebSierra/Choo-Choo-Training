@@ -7,7 +7,7 @@
   "scripts": {
     "serve": "python3 -m http.server 8080",
     "check": "node test/check-content.mjs",
-    "test": "node test/check-content.mjs && node test/deal.mjs && node test/games.mjs && node test/sfx.mjs && node test/sack.mjs && node test/script.mjs && node test/blend.mjs && node test/slide.mjs && node test/round2.mjs && node test/round3.mjs && node test/smoke.mjs --fast",
+    "test": "node test/check-content.mjs && node test/deal.mjs && node test/games.mjs && node test/sfx.mjs && node test/sack.mjs && node test/script.mjs && node test/blend.mjs && node test/slide.mjs && node test/round2.mjs && node test/round3.mjs && node test/map.mjs && node test/smoke.mjs --fast",
     "test:full": "node test/check-content.mjs && node test/smoke.mjs"
   },
   "devDependencies": {

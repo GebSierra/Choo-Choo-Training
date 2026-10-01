@@ -129,30 +129,28 @@ h1, h2, h3, p { margin: 0; }
 .hold-btn.big .hold-dial { color: #fff; }
 
 /* ---------- home map ---------- */
+/* A long scrolling trail: the scroller is the screen, the scene inside it is as long as the path needs (--H px high in portrait,
+   --W px wide in landscape). Everything on the scene is placed by custom properties set from the data (home.js). */
 .home { position: fixed; inset: 0; overflow: hidden; background: var(--grass); }
-.scene { position: absolute; inset: 0; background:
-  radial-gradient(120% 60% at 30% 40%, rgba(0,0,0,.05), transparent 60%), var(--grass); overflow: hidden; }
-.scene-water { position: absolute; background: var(--water); border-radius: 50%; box-shadow: 0 0 0 14px rgba(255,255,255,.22); top: -14%; right: -34%; width: 82%; height: 34%; }
-.scene-bush { position: absolute; background: #4DA3FF; border-radius: 50%; }
-.scene-bush.b1 { right: -16%; bottom: -8%; width: 56%; height: 22%; }
-.scene-bush.b2 { right: 14%; bottom: -12%; width: 40%; height: 18%; background: #3B86F0; }
-.scene-house { position: absolute; left: -6%; bottom: -2%; width: 60%; height: auto; overflow: visible; }
-.scene-tree { position: absolute; }
-.scene-tree.mushroom { left: 6%; top: 14%; width: 22%; max-width: 92px; }
-.scene-tree.drop { left: 8%; top: 42%; width: 12%; max-width: 50px; opacity: .95; }
-.scene-patch { position: absolute; border-radius: 50%; background: rgba(0,110,70,.11); }
-.scene-patch.p1 { left: -20%; top: 30%; width: 70%; height: 22%; }
-.scene-patch.p2 { right: -18%; top: 44%; width: 60%; height: 18%; }
-.scene-patch.p3 { left: 20%; top: 84%; width: 70%; height: 20%; background: rgba(0,110,70,.09); }
-.daisy { position: absolute; width: 18px; height: 18px; opacity: .9; }
-.map-path { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-scroll { position: absolute; inset: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; touch-action: pan-y; -webkit-overflow-scrolling: touch; outline: none; }
+.map-scroll::-webkit-scrollbar { display: none; }
+.scene { position: relative; width: 100%; height: calc(var(--H) * 1px); background: var(--grass); overflow: hidden; }
+.pl { position: absolute; left: var(--px); top: var(--py); }
+.scene-water { background: var(--water); border-radius: 50%; box-shadow: 0 0 0 14px rgba(255,255,255,.22); }
+.scene-bush { background: #4DA3FF; border-radius: 50%; }
+.scene-bush:nth-of-type(3n) { background: #3B86F0; }
+.scene-house { overflow: visible; }
+.scene-patch { border-radius: 50%; background: rgba(0,110,70,.11); }
+.scene-patch:nth-of-type(2n) { background: rgba(0,110,70,.08); }
+.daisy { opacity: .9; }
+.map-path { position: absolute; left: 0; top: 0; width: 100%; height: calc(var(--H) * 1px); }
 .map-path.landscape { display: none; }
 .map-path path { stroke-linecap: round; stroke-linejoin: round; }
 .path-line { stroke: #fff; stroke-width: 26px; }
 .path-shadow { stroke: rgba(0,80,60,.18); stroke-width: 34px; transform: translateY(5px); }
-.butterfly { position: absolute; width: 34px; height: 26px; opacity: .65; }
-.butterfly.b-one { left: 62%; top: 80%; animation: drift1 26s ease-in-out infinite alternate; }
-.butterfly.b-two { left: 18%; top: 38%; width: 26px; animation: drift2 32s ease-in-out infinite alternate; }
+.butterfly { opacity: .65; }
+.butterfly.b-one { animation: drift1 26s ease-in-out infinite alternate; }
+.butterfly.b-two { animation: drift2 32s ease-in-out infinite alternate; }
 .butterfly .wing { transform-origin: 20px 15px; animation: flap 900ms ease-in-out infinite alternate; }
 @keyframes flap { from { transform: scaleX(1); } to { transform: scaleX(.55); } }
 @keyframes drift1 { 0% { transform: translate(0,0); } 50% { transform: translate(-50px,-26px); } 100% { transform: translate(24px,-70px); } }
@@ -187,6 +185,8 @@ h1, h2, h3, p { margin: 0; }
   background: #fff; color: var(--ink); font-weight: 800; font-size: 17px; box-shadow: var(--shadow); touch-action: manipulation; z-index: 3;
 }
 .bubble::after { content: ''; position: absolute; left: 50%; bottom: -7px; width: 16px; height: 16px; background: #fff; transform: translateX(-50%) rotate(45deg); border-radius: 3px; }
+.bubble.below { bottom: auto; top: 70px; }
+.bubble.below::after { bottom: auto; top: -7px; }
 .bubble .icon { color: var(--violet); }
 .home-top { position: absolute; left: calc(16px + var(--sal)); top: calc(16px + var(--sat)); z-index: 10; }
 .home-fs { position: absolute; right: calc(16px + var(--sar)); top: calc(16px + var(--sat)); z-index: 10; width: 56px; height: 56px; border-radius: 50%; border: 0; background: #fff; color: var(--violet); box-shadow: var(--shadow); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; transition: transform var(--t-base) var(--ease-spring); }
@@ -199,17 +199,15 @@ h1, h2, h3, p { margin: 0; }
 .adult-ic { width: 52px; height: 52px; border-radius: 50%; background: var(--lilac); color: var(--violet); display: grid; place-items: center; }
 @media (orientation: landscape) {
   .first-run { align-items: end; padding-bottom: 14px; } /* the card sits low, clear of the current stone */
+  .map-scroll { overflow-x: auto; overflow-y: hidden; touch-action: pan-x; }
+  .scene { width: calc(var(--W) * 1px); height: 100%; }
+  .pl { left: var(--lx); top: var(--ly); }
   .map-path.portrait { display: none; }
-  .map-path.landscape { display: block; }
+  .map-path.landscape { display: block; width: calc(var(--W) * 1px); height: 100%; }
   .stone-wrap { left: var(--lx); top: var(--ly); }
   .stone { --size: 76px; } .stone.is-current { --size: 92px; }
-  .bubble { bottom: 66px; }
-  .scene-water { top: -30%; right: -10%; width: 38%; height: 70%; }
-  .scene-house { width: 24%; left: -5%; bottom: -4%; }
-  .scene-tree.mushroom { left: 40%; top: 4%; width: 9%; }
-  .scene-tree.drop { left: 60%; top: 60%; width: 5%; }
-  .scene-bush.b1 { right: -6%; bottom: -16%; width: 28%; height: 34%; }
-  .scene-bush.b2 { right: 18%; bottom: -24%; width: 22%; height: 32%; }
+  .bubble, .bubble.below { bottom: auto; top: 58px; } /* below its stone: the Grownups pill and the full screen button sit along the top */
+  .bubble::after, .bubble.below::after { bottom: auto; top: -7px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .butterfly { animation: none; } .stone-ring { animation: none; opacity: .4; }
