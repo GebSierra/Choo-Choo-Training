@@ -3,13 +3,12 @@ import { sheepSvg, barnSvg, barnBackSvg } from '../../art.js';
 import { letterFace, tintLetter } from '../../components/letter-face.js';
 import { sparkle } from '../../components/sparkle.js';
 import { timers, farm, watchSize, findCard, starRow, shake, idleHints, pulseCard } from '../../components/game-kit.js';
-import { skyCells, deal } from './hunt-deal.js';
+import { skyCells, deal, BOX } from './hunt-deal.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 
 const STEPS = 5;     // correct touches to cross the field
-const BOX = 56;      // touch target
 const INK = '#1E2140';
 const SHEEP_W = 130, GOAL_W = 150;
 const DRAG = 10;     // px a finger must travel before a touch counts as a drag
@@ -19,7 +18,7 @@ const FADE_OUT = 180, FADE_IN = 260, SWAP = 450; // a new sky: the old one fades
 // Where the targets sat in the last few skies, kept between visits so even a new visit never starts with the last layout.
 let memory = { slots: 0, deals: [] };
 
-// Task 7: Letter Hunt. The sky is full of small letters; each one that matches the card pops and the sheep trots on.
+// Letter Hunt. The sky is full of small letters; each one that matches the card pops and the sheep trots on.
 // After every right touch the whole sky is dealt again (see hunt-deal.js), so the target never sits in a place the child
 // could learn. The letter a finger lands on is the one chosen, whether it was tapped or dragged. Nothing scores, nothing
 // says wrong, nothing is timed. The fifth right letter sends the sheep into the barn.
@@ -249,7 +248,8 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
     sheep.style.transform = 'translateX(0)';
     void sheep.offsetWidth;
     sheep.style.transition = '';
-    letters.forEach((l) => { if (l.drift) l.drift.cancel(); l.btn.remove(); });
+    letters.forEach((l) => { if (l.drift) l.drift.cancel(); });
+    sky.replaceChildren(); // every button, including one still popping when Again was pressed
     letters = [];
     dealSky(); // a fresh random layout, never the one before
   }
@@ -261,6 +261,6 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
     gist: () => fit(`Find ${soundPhrase(sound)}. Touch it.`, `Find ${soundPhrase(sound)}.`),
     script: () => `Say: 'Find the letter that says ${soundPhrase(sound)}. Touch it.' Then say ${soundPhrase(sound)} together.`,
     again: () => { again(); speech.say(say); },
-    cleanup: () => { T.clear(); hints.stop(); stopWatching(); },
+    cleanup: () => { T.clear(); hints.stop(); sky.replaceChildren(); stopWatching(); },
   };
 }

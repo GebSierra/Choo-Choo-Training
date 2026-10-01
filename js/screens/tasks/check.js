@@ -4,12 +4,13 @@ import { letterText, richText } from '../../letters.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase, checkPrompt, fit } from '../../lessons.js';
 import { picture } from '../../components/picture.js';
+import { shuffle } from '../../components/game-kit.js';
 
-// Task 7: one question, big cards. Nothing tells the child right or wrong.
+// Quick Check: one question, big cards. Nothing tells the child right or wrong.
 export function build({ lesson, sound, speech, store }) {
   const q = lesson.quickCheck;
   const prompted = checkPrompt(q, store);
-  const order = [...q.options].sort(() => Math.random() - 0.5);
+  const order = shuffle(q.options);
   const prompt = h('h2', { class: 'check-prompt' });
   prompt.append(h('span', {}, richText(prompted.text, { every: true })));
   const cards = order.map((o) => {

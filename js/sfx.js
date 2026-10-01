@@ -156,7 +156,6 @@ function createSfx() {
     // The first tap of the page session: only now may sound start.
     unlock() { unlocked = true; if (enabled()) { const c = context(); if (c && c.state === 'suspended' && c.resume) c.resume().catch(() => {}); } },
     play,
-    get ready() { return unlocked && !broken; },
   };
 }
 

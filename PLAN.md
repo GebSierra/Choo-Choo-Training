@@ -75,27 +75,22 @@ Do not build these. Leave clean seams for them.
   .nojekyll               tells GitHub Pages to serve the files as they are
   package.json            npm scripts for the tests; the only dependency is Playwright for development
   css/app.css             tokens and all styles
-  js/app.js               boot, router wiring, store init, first-tap unlock for speech, update reload on Home
-  js/router.js            hash router: #/home, #/lesson/1, #/lesson/1/task/2, #/lesson/1/finish, #/grownups, #/lab, #/glyphs
-  js/store.js             localStorage read/write, versioned schema, repairs corrupt data
+  js/app.js               boot, router wiring, store init, first-tap unlock for speech and sound, update reload on Home
+  js/router.js            hash router: #/home, #/lesson/1, #/lesson/1/task/2, #/lesson/1/finish, #/checkpoint/c1, #/checkpoint/c1/finish, #/grownups, #/lab, #/glyphs
+  js/store.js             localStorage read/write, versioned schema, repairs corrupt data and wrong-typed settings
   js/speech.js            say(parts): text to speech plus recorded clips, voice choice, queue, cancel
+  js/sfx.js               synthesized sound effects (Web Audio): bells and jingles, section 18
   js/glyphs.js            SVG path data for lowercase m, a, s; render and trace helpers
-  js/letters.js           child-read text: every "a" drawn from the glyph
-  js/lessons.js           task list per lesson, sound phrases, sound card lines
+  js/letters.js           child-read text: every "a" drawn from the glyph, one aria-label per sentence
+  js/lessons.js           task list per lesson, sound phrases, sound card lines, the 28-character gist helper
   js/scripts.js           parent scripts to speech parts, stretched words
+  js/art.js               own inline SVG art: farm, sheep, barn, sack, stars
   js/dom.js, theme.js, version.js   tiny DOM helper and animation wrapper, accent colors, APP_VERSION
-  js/components/slide-track.js
-  js/components/trace-pad.js
-  js/components/hold-button.js
-  js/components/speak-button.js   the round speaker button used on every task
-  js/components/sound-card.js
-  js/screens/home.js
-  js/screens/lesson.js
-  js/screens/task.js              the task shell around the seven tasks
-  js/screens/tasks/*.js           one file per task type (seven)
-  js/screens/finish.js
-  js/screens/grownups.js
-  js/screens/lab.js, glyphs-debug.js   debug routes #/lab and #/glyphs; loaded on demand, not precached
+  js/components/          slide-track, slide-blend (slide across a word, sweep and hand cue), trace-pad, hold-button, speak-button,
+                          sound-card, sparkle, letter-face, picture (tiles and emoji frames), game-kit (timers, farm, shuffle, hints), fullscreen-button
+  js/screens/             home, lesson, task (the task shell's lesson wiring), shell (header, stage, script bar and sheet, Again / Next),
+                          sack, checkpoint, finish, grownups; lab and glyphs-debug (debug routes, loaded on demand, not precached)
+  js/screens/tasks/       one file per task type: review, new-letter, story, words, sounds, writing, hunt (and hunt-deal), barn, check
   data/curriculum.json    all content; code never hardcodes lesson content
   assets/fonts/           Nunito variable woff2 (covers 400, 700, 800), self-hosted
   assets/images/mentava/  Mentava tiles as shipped (PNG) plus web-sized copies (WebP, 512 px)
@@ -103,11 +98,10 @@ Do not build these. Leave clean seams for them.
   assets/audio/ipa/       source recordings the clips were cut from (not precached)
   icons/                  icon-192.png, icon-512.png, maskable-512.png, apple-touch-icon.png, icon.svg
   tools/record.html       stand-alone page for Geb to record sound clips on a laptop (not linked from the app)
-  tools/                  make-icons.mjs, make-webp.mjs, screenshots.mjs
-  test/smoke.mjs          Playwright walkthrough at Android viewports, screenshots, assertions
-  test/check-content.mjs  validates curriculum.json against the fixed decisions
-  test/lib.mjs, stubs.mjs, audit.mjs   shared server and browser helpers, speech stub, per-screen audits
-  docs/                   reference material, screenshots, FIXES-round1.md (the review fix list)
+  tools/                  make-icons.mjs, make-webp.mjs, precache-images.mjs, screenshots.mjs
+  test/                   check-content, deal, games, sfx, sack, script, blend, slide, round2 (one suite each, each runnable alone), smoke.mjs
+                          (the walkthrough; `--fast` leaves out the suites above), lib.mjs, stubs.mjs, audit.mjs (shared helpers)
+  docs/                   reference material, screenshots, the FIXES and ROUND files (review fix lists and specs)
   README.md               how to run, test, deploy, record clips, and the private-use notice
   PLAN.md                 this file
 ```
@@ -291,7 +285,8 @@ Key `reading.v1`:
     "1": {"tasksDone": [0, 1, 2], "result": null, "completedAt": null}
   },
   "checkpoints": {"c1": {"result": "got-it", "completedAt": "2026-10-03T14:30:00Z", "unlocked": false}},
-  "settings": {"voiceURI": null, "rate": 0.9, "autoSpeak": true, "playSounds": false},
+  "settings": {"voiceURI": null, "rate": 0.9, "autoSpeak": true, "playSounds": false, "sfx": true, "sfxVolume": 0.6, "fullInstructions": false, "seenScripts": {"newLetter": true, "lesson:1": true}},
+  "firstRunDone": true,
   "lastOpened": "2026-10-03T14:12:00Z"
 }
 ```
@@ -299,6 +294,7 @@ Key `reading.v1`:
 - `result` is `"got-it"`, `"practice-again"` or `null`.
 - A lesson is unlocked if it is lesson 1 or the previous lesson has `result === "got-it"`. The parent can unlock any lesson from Grownups.
 - A checkpoint is unlocked when the lesson it follows is done, or when its `unlocked` flag is set from Grownups. `checkpoints` is optional in saved data (older saves have none).
+- `firstRunDone` hides the first-run card once it was dismissed. `sfx` and `sfxVolume` are the sound-effect switch and volume; `fullInstructions` is the always-open script card; `seenScripts` remembers which task kinds and lessons have shown their first-visit script. A setting of the wrong type is repaired on load (a bad rate falls back to 0.9, numbers are clamped).
 - All reads are wrapped in try/catch. If storage is missing or corrupt, start fresh without crashing.
 
 ## 6. Screens
@@ -355,7 +351,7 @@ Every lesson runs these in order (Letter Review only when there is something to 
 
 **Task 6: Letter Writing.** Trace pad (7.2) with the lesson's glyph. Numbered start dots and arrows. Finger draws in the accent color. Buttons: "Clear", "Show me" (animates stroke order). Speech on entry: "Start at the dot. Follow the arrow." Parent script says the same.
 
-**Task 7: Letter Hunt.** A storybook farm scene: sunny sky, rolling hills, a white picket fence, all own SVG. Fourteen to sixteen small lowercase letters float in the sky (a grid of slots), four or five of them the target; the rest come from `games.hunt.distractors` for the lesson's sound, none more than twice in a sky. A "Find this" card at the top left shows the target glyph in its accent colour (the child matches shapes; the parent says the sound). Letters are ink-coloured until touched, so colour is never a clue. m, a and s are drawn from `glyphs.js`, every other letter from the font at the same size. Touch targets are 56 px, at least 12 px apart, and bob slowly (vertical only, 4 px, paused while a finger is on that letter). A right touch pops the letter in its accent colour with a small sparkle and the sheep trots one step toward the barn. The whole sky is then dealt again, so the target never sits where the child could learn it: the other letters fade out over 180 ms and a fresh random layout fades in over 260 ms (opacity and a 6 px rise only), and touches are ignored for the 450 ms the swap takes, so a finger never lands on a letter that is moving. Each deal is a pure function of the earlier deals and a random number generator (`hunt-deal.js`): no slot that held a target in the previous deal holds one now; no slot holds a target in three deals out of any four in a row; the targets are spread (one in each of the left, right, upper and lower halves); no two targets are side by side when that can be avoided; and each letter is nudged by up to 6 px so identical slots never look identical. The first sky and the sky after Again are dealt the same way, never the layout before. The letter a finger first lands on is the letter chosen, tapped or dragged: a drag moves the letter with the finger (offset by where it was grabbed, lifted to 1.12 with a soft shadow, above the others) and the choice is made when the finger lifts, however far it went and whatever it is over; a drag that starts on empty sky chooses the letter it lifts on; a finger moving less than 10 px is a tap. A right letter chosen by drag does exactly what a tap does. A wrong letter dragged springs back to its place with a small shake, nothing else changes and nothing sounds. The sky takes touch-action none, so nothing scrolls. Touches are ignored during the swap and the ending, and a gesture that begins on the Find this card does nothing. The fifth right letter ends the game in the barn (about 2.6 s): the sheep trots to the barn door (700 ms), the doors swing open (400 ms), the sheep walks in and shrinks to 0.7 while fading (600 ms walk, 500 ms fade), the doors close (350 ms), the barn hops once with a sparkle burst and the win jingle (500 ms) and the fifth star fills. The last frame stays, barn closed with a soft glow, until Again. With reduced motion the sheep simply fades out at the door and the barn glows; no walking, no doors. A wrong tap gives the letter a small shake and nothing else. Five small rings under the scene fill with gold stars. No score, no sound effects, no timer. At the start of the ending the letters left in the sky fade out over 250 ms, so the last frame is the barn, the stars and the glow. After 8 quiet seconds the Find this card pulses twice and the target letters once (not with reduced motion). The sheep is 130 px wide and the goal barn 150 px; in a short window (browser bars showing) the grass reserve shrinks and the grid packs tighter so at least 6 letters fit down to 740 by 300. Spoken line (text to speech): `games.hunt.say`. Parent script: "Say: 'Find the letter that says mmm. Touch it.' Then say mmm together." Again resets the sheep and refreshes the sky.
+**Task 7: Letter Hunt.** A storybook farm scene: sunny sky, rolling hills, a white picket fence, all own SVG. Fourteen to sixteen small lowercase letters float in the sky (a grid of slots), four or five of them the target; the rest come from `games.hunt.distractors` for the lesson's sound, none more than twice in a sky. A "Find this" card at the top left shows the target glyph in its accent colour (the child matches shapes; the parent says the sound). Letters are ink-coloured until touched, so colour is never a clue. m, a and s are drawn from `glyphs.js`, every other letter from the font at the same size. Touch targets are 56 px, at least 12 px apart, and bob slowly (vertical only, 4 px, paused while a finger is on that letter). A right touch pops the letter in its accent colour with a small sparkle and the sheep trots one step toward the barn. The whole sky is then dealt again, so the target never sits where the child could learn it: the other letters fade out over 180 ms and a fresh random layout fades in over 260 ms (opacity and a 6 px rise only), and touches are ignored for the 450 ms the swap takes, so a finger never lands on a letter that is moving. Each deal is a pure function of the earlier deals and a random number generator (`hunt-deal.js`): no slot that held a target in the previous deal holds one now; no slot holds a target in three deals out of any four in a row; the targets are spread (one in each of the left, right, upper and lower halves); no two targets are side by side when that can be avoided; and each letter is nudged by up to 6 px so identical slots never look identical. The first sky and the sky after Again are dealt the same way, never the layout before. The letter a finger first lands on is the letter chosen, tapped or dragged: a drag moves the letter with the finger (offset by where it was grabbed, lifted to 1.12 with a soft shadow, above the others) and the choice is made when the finger lifts, however far it went and whatever it is over; a drag that starts on empty sky chooses the letter it lifts on; a finger moving less than 10 px is a tap. A right letter chosen by drag does exactly what a tap does. A wrong letter dragged springs back to its place with a small shake, nothing else changes and nothing sounds. The sky takes touch-action none, so nothing scrolls. Touches are ignored during the swap and the ending, and a gesture that begins on the Find this card does nothing. The fifth right letter ends the game in the barn (about 2.6 s): the sheep trots to the barn door (700 ms), the doors swing open (400 ms), the sheep walks in and shrinks to 0.7 while fading (600 ms walk, 500 ms fade), the doors close (350 ms), the barn hops once with a sparkle burst and the win jingle (500 ms) and the fifth star fills. The last frame stays, barn closed with a soft glow, until Again. With reduced motion the sheep simply fades out at the door and the barn glows; no walking, no doors. A wrong tap gives the letter a small shake and nothing else. Five small rings under the scene fill with gold stars. No score, no timer, and no sound for a wrong touch (completions have the sound effects of section 18). At the start of the ending the letters left in the sky fade out over 250 ms, so the last frame is the barn, the stars and the glow. After 8 quiet seconds the Find this card pulses twice and the target letters once (not with reduced motion). The sheep is 130 px wide and the goal barn 150 px; in a short window (browser bars showing) the grass reserve shrinks and the grid packs tighter so at least 6 letters fit down to 740 by 300. Spoken line (text to speech): `games.hunt.say`. Parent script: "Say: 'Find the letter that says mmm. Touch it.' Then say mmm together." Again resets the sheep and refreshes the sky.
 
 **Task 8: Barn Doors.** The same farm with a big red barn and white X doors. The doors swing open from their outer edges (400 ms) on a dark interior with one big letter on a warm lit tile (about 40% of the barn width). Rounds 1 and 2 always show the target. After that about one round in three shows a distractor (never two in a row). On a target round the doors stay open and the letter breathes until it is touched: it turns to its accent colour and pops with a sparkle, the barn hops, a star fills, the doors close 600 ms later and the next round opens 900 ms after that. On a distractor round the letter shakes if touched and the doors close on their own after 2.5 s. Five stars end the game: a bigger sparkle, the barn hops twice and the doors stay open. With reduced motion the doors swap by opacity and nothing hops. Spoken line: `games.barn.say`. Parent script: "Say: 'Watch the doors. When you see the letter that says mmm, touch it.' Then say mmm together."
 
@@ -484,7 +480,7 @@ Run from the repo root.
   - run at Pixel 7 (412 by 915, DPR 2.6) portrait and landscape, and a small Android (360 by 780, DPR 3);
   - start a local static server on a free port;
   - fail on any console error or unhandled rejection;
-  - visit Home, each Lesson, every Task of every lesson (20 in all), the Finish screen and Grownups;
+  - visit Home, each Lesson, every Task of every lesson (26 in all: 8 + 9 + 9), the Finish screen and Grownups;
   - drag the slide track to the end and assert the end state class, and that `scrollY` did not change;
   - draw a stroke on the trace pad and assert pixels changed;
   - stub `speechSynthesis.speak` and assert it is called with the expected text for one task, and never with a single letter;
@@ -506,7 +502,7 @@ Each step ends with a verify gate. Do not start the next step until it passes. C
 5. **Speech.** `speech.js`, speak button, gesture unlock, voice picker logic, missing-clip handling; debug route `#/lab` with buttons to speak a word, play a clip, and run a mixed sequence. Gate: in Playwright with a stubbed `speechSynthesis`, the queue runs parts in order and skips a missing clip without error.
 6. **Home and Lesson overview.** With real state. Gate: smoke covers both; locked stone does not navigate.
 7. **Slide track and trace pad** on `#/lab`. Gate: drag reaches end; canvas pixels change; no page scroll.
-8. **Seven tasks and finish screen.** Gate: smoke walks all 20 tasks; done ticks and unlocking behave; popup asserted; `speak` never called with a single letter.
+8. **Seven tasks and finish screen.** Gate: smoke walks all 26 tasks; done ticks and unlocking behave; popup asserted; `speak` never called with a single letter.
 9. **Grownups, hold gate, voice settings.** Gate: gate blocks a short tap and opens on hold; reset returns Home to first run; voice choice persists.
 10. **Recorder tool.** `tools/record.html` records, plays back and downloads a `.webm` clip. Gate: manual check in headed Chromium is not possible here, so verify the page loads without console errors in Playwright and that `MediaRecorder` code paths are guarded when unsupported.
 11. **PWA.** Manifest, icons, service worker, meta tags. Gate: offline reload passes; manifest validates (no console warnings about it).
@@ -578,7 +574,7 @@ Decisions fixed by Geb in that round: inside words m and s may render from the f
 Specified in `docs/ROUND2-games.md`; Geb's example screenshots are in `docs/reference/`.
 
 - **Quiet sounds.** The app no longer pronounces letter sounds. `playSounds` (Grownups, off by default) brings the recorded clips back. `speech.say` skips clip parts silently when it is off. Quiet variants of the lines that ended in a clip live in `curriculum.json`. Parent scripts read aloud only their framing sentences: any sentence that contains a sound is left out.
-- **Two games per lesson**, Letter Hunt and Barn Doors (6.4), inserted before Quick Check, so Quick Check stays last. Lesson 1 has eight tasks, lessons 2 and 3 have nine. They never score, never say wrong, never play a sound effect and never time the child out. `games.hunt` and `games.barn` in `curriculum.json` hold the spoken line and the distractor letters per taught sound. Art is our own inline SVG in `js/art.js`; the sparkle burst is shared in `js/components/sparkle.js`.
+- **Two games per lesson**, Letter Hunt and Barn Doors (6.4), inserted before Quick Check, so Quick Check stays last. Lesson 1 has eight tasks, lessons 2 and 3 have nine. They never score, never say wrong, never sound for a wrong touch and never time the child out. `games.hunt` and `games.barn` in `curriculum.json` hold the spoken line and the distractor letters per taught sound. Art is our own inline SVG in `js/art.js`; the sparkle burst is shared in `js/components/sparkle.js`.
 - **Slide to blend** on Saying Sounds (6.4, task 5), then made solid and extended (step 8): a silent finger slide across the word lights the letters one by one, for letters words, for picture words once revealed and for the revealed word in Saying Words (with a picture wash); one component with a generous band so it works every time. `test/blend.mjs` and `test/slide.mjs` cover it by real touch.
 - **Sound Sack checkpoint** (6.7): a bonus review game after lesson 3, reached from its own stone on the map; `test/sack.mjs` covers it by real touch drags.
 - **Letter Hunt re-deals the whole sky** after every right touch under fairness rules (step 9); `test/deal.mjs` tests the dealer with a seeded generator over 300 deals.

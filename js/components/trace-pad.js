@@ -108,7 +108,8 @@ export function tracePad({ letter, onStroke }) {
       const last = pts[pts.length - 1];
       if (Math.hypot(p[0] - last[0], p[1] - last[1]) < 1.2) continue;
       pts.push(p);
-      inked[inked.length - 1].push([p[0] / w, p[1] / hgt]);
+      const stroke = inked[inked.length - 1];
+      if (stroke) stroke.push([p[0] / w, p[1] / hgt]);
       const grow = reduced() ? 1 : Math.min(1, 0.25 + (performance.now() - t0) / 80 * 0.75);
       c.lineWidth = width() * grow;
       const n = pts.length;
@@ -123,7 +124,8 @@ export function tracePad({ letter, onStroke }) {
   ink.addEventListener('pointerup', end);
   ink.addEventListener('pointercancel', end);
 
-  pad.clear = () => { inked.length = 0; const c = ink.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, ink.width, ink.height); };
+  pad.clear = () => { drawing = false; pts = []; inked.length = 0; // a stroke in progress ends here, so its next move has nothing to draw into
+    const c = ink.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, ink.width, ink.height); };
 
   // "Show me": a glowing dot walks each stroke in order, leaving a fading trail.
   pad.showMe = () => new Promise((resolve) => {

@@ -3,10 +3,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, touchDrag } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, touchDrag, touchSession } from './lib.mjs';
 import vm from 'node:vm';
 import { tasksFor } from '../js/lessons.js';
 import { createStore } from '../js/store.js';
+import { shuffle } from '../js/components/game-kit.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const SEED = (settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'},3:{tasksDone:[],result:'got-it'}},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
@@ -530,20 +531,195 @@ export async function platformChecks({ browser, url, ok }) {
   }
 }
 
+// Group 7: bugs found by reading and reproducing, and the coverage gaps the review found.
+export async function reliabilityChecks({ browser, url, ok }) {
+  const vp = VIEWPORTS[0];
+  // 35: the script sheet opens again after it was closed (a held close animation used to leave it at opacity 0).
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'sounds')}`);
+    await page.waitForSelector('.script-toggle');
+    await page.waitForTimeout(700);
+    const op = () => page.evaluate(() => getComputedStyle(document.querySelector('.script-sheet')).opacity);
+    await page.click('.script-toggle'); await page.waitForTimeout(450);
+    ok((await op()) === '1', 'sheet: opens at full opacity');
+    await page.click('.sheet-close'); await page.waitForTimeout(450);
+    await page.click('.script-toggle'); await page.waitForTimeout(450);
+    ok((await op()) === '1' && (await page.getAttribute('.script-toggle', 'aria-expanded')) === 'true', `sheet: open, close, open shows it again at full opacity (${await op()})`);
+    await page.click('.sheet-close'); await page.waitForTimeout(100); await page.click('.script-toggle'); await page.waitForTimeout(450); // reopened while it was still closing
+    ok((await op()) === '1', 'sheet: reopened mid-close is at full opacity too');
+    ok((await page.getAttribute('.script-toggle', 'aria-label')) === 'Show what to say' && (await page.locator('#app[aria-live]').count()) === 0, 'a11y: the script bar is named "Show what to say" and #app is not a live region');
+    ok(errors.length === 0, 'sheet: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // 36: a double tap on Next in Letter Review does not skip the second review letter.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/3/task/0`);
+    await page.waitForSelector('.review-count i');
+    await page.waitForTimeout(1300);
+    const on = () => page.evaluate(() => [...document.querySelectorAll('.review-count i')].findIndex((i) => i.classList.contains('on')));
+    const b = await page.locator('.btn.next').boundingBox();
+    await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2);
+    await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2);
+    await page.waitForTimeout(300);
+    ok((await on()) === 1 && page.url().endsWith('/task/0') && (await page.locator('.btn.next').isDisabled()), 'Review: a double tap on Next moves to the second letter only, and Next dims again');
+    await page.waitForTimeout(1100);
+    ok(await page.locator('.btn.next').isEnabled(), 'Review: Next wakes again after a second');
+    ok(errors.length === 0, 'Review double tap: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // 37: a hold that outlives its screen opens nothing and navigates nowhere.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'story')}`);
+    await page.waitForSelector('.hold-btn');
+    await page.waitForTimeout(700);
+    let popups = 0; ctx.on('page', () => { popups++; });
+    const b = await page.locator('.hold-btn').boundingBox();
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+    await page.mouse.down();
+    await page.waitForTimeout(900);
+    await page.evaluate(() => { location.hash = '#/home'; });
+    await page.waitForSelector('.home');
+    await page.waitForTimeout(1800); // well past the 2 s hold
+    await page.mouse.up();
+    await page.waitForTimeout(400);
+    ok(popups === 0 && page.url().endsWith('#/home'), `hold: leaving mid-hold and keeping the finger down opens no popup (${popups}) and does not navigate (${page.url().split('#')[1]})`);
+    ok(errors.length === 0, 'hold: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // 38: Clear pressed with a second finger mid-stroke does not throw.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'writing')}`);
+    await page.waitForSelector('.tp-ink');
+    await page.waitForTimeout(700);
+    const pb = await page.locator('.tp-ink').boundingBox();
+    const t = await touchSession(page);
+    await t.start(pb.x + 60, pb.y + 60); await t.move(pb.x + 90, pb.y + 90); await t.move(pb.x + 120, pb.y + 100);
+    await page.locator('.writing-buttons .btn').first().evaluate((e) => e.click()); // Clear, while the stroke is still going
+    await t.move(pb.x + 150, pb.y + 120); await t.move(pb.x + 180, pb.y + 130);
+    await t.end();
+    await page.waitForTimeout(200);
+    ok(errors.length === 0, 'trace pad: Clear mid-stroke throws nothing (' + errors.join(' | ') + ')');
+    await ctx.close();
+  }
+  // 40: Again 250 ms after a pop leaves no invisible button behind; 44: Again and Next pressed during the swap and the ending.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'hunt')}`);
+    await page.waitForSelector('.sky-letter');
+    await page.waitForTimeout(1300);
+    await tap(page, page.locator('.sky-letter[data-target="1"]').first());
+    await page.waitForTimeout(250);
+    await page.click('.btn.again');
+    await page.waitForTimeout(450);
+    const rest = await page.evaluate(() => ({ popped: document.querySelectorAll('.sky-letter.popped').length, all: document.querySelectorAll('.sky-letter').length, steps: document.querySelector('.hunt').dataset.steps }));
+    ok(rest.popped === 0 && rest.steps === '0' && rest.all >= 12, `Hunt: Again 250 ms after a pop leaves no popped button behind (${JSON.stringify(rest)})`);
+    for (let i = 0; i < 5; i++) { await page.waitForTimeout(i ? 1000 : 300); await tap(page, page.locator('.sky-letter[data-target="1"]:not(.popped)').first()); }
+    await page.waitForTimeout(900); // mid-ending: the sheep is walking in
+    await page.click('.btn.again');
+    await page.waitForTimeout(500);
+    const again = await page.evaluate(() => ({ state: document.querySelector('.hunt').dataset.state, steps: document.querySelector('.hunt').dataset.steps, letters: document.querySelectorAll('.sky-letter:not(.popped)').length, sheep: getComputedStyle(document.querySelector('.sheep-wrap')).visibility }));
+    ok(again.state === 'playing' && again.steps === '0' && again.letters >= 12 && again.sheep === 'visible', `Hunt: Again mid-ending starts a clean game (${JSON.stringify(again)})`);
+    // Rotation mid-game: the sky is dealt again on the new grid and the game goes on.
+    await tap(page, page.locator('.sky-letter[data-target="1"]').first());
+    await page.waitForTimeout(700);
+    await page.setViewportSize({ width: 915, height: 412 });
+    await page.waitForTimeout(900);
+    const rot = await page.evaluate(() => { const sc = document.querySelector('.farm').getBoundingClientRect(); const rs = [...document.querySelectorAll('.sky-letter:not(.popped)')].map((e) => e.getBoundingClientRect()); return { n: rs.length, steps: document.querySelector('.hunt').dataset.steps, inside: rs.every((r) => r.left >= sc.left && r.right <= sc.right && r.top >= sc.top && r.bottom <= sc.bottom) }; });
+    ok(rot.n >= 12 && rot.steps === '1' && rot.inside, `Hunt: rotating mid-game deals the sky again on the new grid and keeps the sheep's step (${JSON.stringify(rot)})`);
+    await page.setViewportSize({ width: vp.width, height: vp.height });
+    await page.waitForTimeout(700);
+    // Next pressed mid-swap goes on to the next task without errors.
+    await tap(page, page.locator('.sky-letter[data-target="1"]').first());
+    await page.waitForTimeout(100);
+    await page.click('.btn.next');
+    await page.waitForFunction(() => location.hash.includes('/task/'), null, { timeout: 3000 });
+    await page.waitForTimeout(500);
+    ok(errors.length === 0, 'Hunt again, rotation and Next mid-swap: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // 41: the shuffle is fair: every order of three items turns up about equally often.
+  {
+    const counts = {};
+    for (let i = 0; i < 12000; i++) { const k = shuffle([0, 1, 2]).join(''); counts[k] = (counts[k] || 0) + 1; }
+    const v = Object.values(counts);
+    ok(v.length === 6 && v.every((c) => c > 1700 && c < 2300), `shuffle: all six orders appear about 2000 times (${JSON.stringify(counts)})`);
+    ok(shuffle([1, 2, 3, 4]).sort().join('') === '1234', 'shuffle: keeps every item, never changes the list it is given');
+  }
+  // 42: the first-visit help is marked as seen only when it really opens.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'newLetter')}`, { clock: true, settings: { seenScripts: {} } });
+    await page.waitForSelector('.script-toggle');
+    await page.clock.runFor(300);
+    await page.evaluate(() => { location.hash = '#/home'; });
+    await page.clock.runFor(900);
+    const seen = () => page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.seenScripts);
+    ok(!(await seen()).newLetter, 'first visit: leaving within 500 ms does not burn the help');
+    await page.evaluate(() => { location.hash = '#/lesson/1/task/0'; });
+    await page.waitForSelector('.screen:not(.leaving) .script-toggle');
+    await page.clock.runFor(900);
+    ok((await seen()).newLetter === true && (await page.getAttribute('.screen:not(.leaving) .script-toggle', 'aria-expanded')) === 'true', 'first visit: it is marked once it opens');
+    ok(errors.length === 0, 'first visit: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // 43: a screen that throws gets a way out.
+  {
+    const made = await newPage(browser, vp);
+    const { page } = made;
+    await page.addInitScript(SPEECH_STUB); await page.addInitScript(SEED());
+    await page.route('**/data/curriculum.json', async (route) => { const r = await route.fetch(); const j = await r.json(); delete j.lessons[0].sayingWords; await route.fulfill({ response: r, json: j }); });
+    await page.goto(url + `#/lesson/1/task/${idx(1, 'words')}`);
+    await page.waitForSelector('.retry-card');
+    ok((await page.locator('.retry-card button').innerText()) === 'Back to the path', 'a screen that throws shows "Something went wrong." with a Back to the path button');
+    await page.click('.retry-card button');
+    await page.waitForSelector('.home');
+    ok(page.url().endsWith('#/home'), 'the button leads back to the path');
+    await made.ctx.close();
+  }
+  // 44: corrupt seenScripts, one AudioContext, speech cancelled when hidden, clips and the service worker agree, no microphone anywhere.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'hunt')}`, { settings: { seenScripts: 'corrupt' } });
+    await page.waitForSelector('.sky-letter');
+    await page.waitForTimeout(900);
+    ok(typeof (await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.seenScripts)) === 'object', 'a corrupt seenScripts is repaired to an object and the game still loads');
+    await page.mouse.click(6, 6); // the first tap lets sound start
+    await page.evaluate(async () => { const { sfx } = await import('/js/sfx.js'); for (const n of ['sparkle', 'win', 'star']) sfx.play(n); });
+    ok((await page.evaluate(() => window.__audio.contexts)) === 1, 'sfx: one shared AudioContext however many sounds play');
+    await page.evaluate(() => { window.__cancelled = 0; });
+    await page.evaluate(() => { const synth = speechSynthesis, c = synth.cancel.bind(synth); synth.cancel = () => { window.__cancelled++; c(); }; Object.defineProperty(document, 'hidden', { get: () => true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
+    ok((await page.evaluate(() => window.__cancelled)) >= 1, 'speech: hiding the page cancels the voice');
+    ok(errors.length === 0, 'corrupt seenScripts: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  {
+    const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+    const optional = [...sw.match(/OPTIONAL_FILES = \[([^\]]*)\]/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]).sort();
+    const clips = Object.values(CUR.sounds).map((s) => s.clip).sort();
+    ok(JSON.stringify(optional) === JSON.stringify(clips), `sw OPTIONAL_FILES are exactly the curriculum's clips (${optional.join(', ')})`);
+    const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
+    const files = [path.join(ROOT, 'index.html'), ...walk(path.join(ROOT, 'js'))].filter((f) => /\.(js|html)$/.test(f));
+    const bad = files.filter((f) => /record\.html|getUserMedia|MediaRecorder/.test(fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, ''))); // code only: a comment may name the recorder
+    ok(files.length > 30 && bad.length === 0, `no file under js/ (${files.length} checked) links the recorder or asks for the microphone ${bad.join(', ')}`);
+  }
+}
+
+export async function round2Checks(env) {
+  await gameFlowChecks(env);
+  await sackFlowChecks(env);
+  await storyChecks(env);
+  for (const vp of VIEWPORTS) await cueChecks({ ...env, vp });
+  for (const vp of VIEWPORTS) await layoutChecks({ ...env, vp });
+  await landscapeChecks(env);
+  await shortHuntChecks(env);
+  await platformChecks(env);
+  await reliabilityChecks(env);
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
   fs.mkdirSync(path.join(ROOT, '_test'), { recursive: true });
   let failures = 0, checks = 0;
   const ok = (c, m) => { checks++; if (!c) { failures++; console.error('FAIL: ' + m); } };
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
-  await gameFlowChecks({ browser, url, ok });
-  await sackFlowChecks({ browser, url, ok });
-  await storyChecks({ browser, url, ok });
-  for (const vp of VIEWPORTS) await cueChecks({ browser, url, ok, vp });
-  for (const vp of VIEWPORTS) await layoutChecks({ browser, url, ok, vp });
-  await landscapeChecks({ browser, url, ok });
-  await shortHuntChecks({ browser, url, ok });
-  await platformChecks({ browser, url, ok });
+  await round2Checks({ browser, url, ok });
   await browser.close(); server.close();
   console.log(`round2: ${checks - failures}/${checks} checks passed`);
   process.exit(failures ? 1 : 0);

@@ -5,6 +5,13 @@ import { starSvg, farmBackdrop } from '../art.js';
 
 // Small pieces the games share: timers that clean up, the farm, the "Find this" card and the row of gold stars.
 
+// A fair shuffle (Fisher-Yates); a sort with a random comparator is biased.
+export function shuffle(list, rng = Math.random) {
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
 export function timers() {
   const ids = new Set();
   return {

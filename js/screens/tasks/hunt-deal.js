@@ -1,7 +1,9 @@
 // Letter Hunt's sky: where the letters sit (skyCells) and which of them are targets (deal). Both are pure, so the
 // dealer can be tested with a seeded random number generator.
 
-const BOX = 56; // touch target of a letter
+import { shuffle } from '../../components/game-kit.js';
+
+export const BOX = 56; // touch target of a letter
 
 // Cells of a loose grid in the sky of a scene W by H, clear of the "Find this" card, the speaker button, the sun, the
 // goal barn and the grass. At most `count` of them are returned, spread evenly over the grid; each has the room its
@@ -33,7 +35,6 @@ export function skyCells(W, H, { goalW = 150, count = 16 } = {}) {
   return Array.from({ length: n }, (_, i) => out[Math.floor(((i + 0.5) * out.length) / n)]);
 }
 
-const shuffle = (list, rng) => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 // Deals one sky. positions: the slots ({x, y}); history: the target slots of earlier deals, oldest first; rng: () in [0, 1).
 // Four or five slots get the target letter and the rest a distractor, so where the target sits cannot be learned:

@@ -12,8 +12,10 @@ import { sackChecks, sackMapChecks, sackGrownupsChecks } from './sack.mjs';
 import { dealerChecks } from './deal.mjs';
 import { sfxChecks, sfxGrownupsChecks } from './sfx.mjs';
 import { roomChecks, barChecks, timerAndFirstVisitChecks, grownupsScriptChecks } from './script.mjs';
+import { round2Checks } from './round2.mjs';
 import { lettersSlideChecks, pictureWordSlideChecks, wordsSlideChecks, slideReducedChecks } from './slide.mjs';
 
+const FAST = process.argv.includes('--fast');
 const OUT = path.join(ROOT, '_test');
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 fs.mkdirSync(OUT, { recursive: true });
@@ -137,13 +139,13 @@ for (const vp of VIEWPORTS) {
       await page.reload();
       await page.waitForSelector('.task-screen');
       await page.waitForTimeout(650);
-      visited++;
       const problems = await audit(page, `${vp.name} L${L} T${i}`);
       ok(problems.length === 0, problems.join(' | '));
       if (vp.name !== 'small') await page.screenshot({ path: path.join(OUT, `l${L}-t${i}-${vp.name}.png`) });
       // Revealed states and the later words, not only the first view.
       const lesson = CUR.lessons[L - 1];
       const title = await page.locator('.task-head h1').innerText();
+      if (title === tasksFor(CUR.lessons[L - 1])[i].name) visited++; // counted only when the screen is the task the data lists
       const reveal = { 'Saying Words': ['.merged-tile', lesson.sayingWords.length], 'Saying Sounds': ['.sounds-stage', lesson.sayingSounds.length] }[title];
       if (reveal) {
         for (let w = 0; w < reveal[1]; w++) {
@@ -210,6 +212,8 @@ for (const vp of VIEWPORTS) {
   ok(errors.length === 0, `${vp.name}: touch drag errors ${errors.join(' | ')}`);
   await ctx.close();
 }
+// The suites below also run on their own (npm test); `node test/smoke.mjs --fast` leaves them out, no flag runs everything.
+if (!FAST) {
 // Letter Hunt's dealer on its own, with a seeded generator.
 dealerChecks(ok);
 // The parent script: one compact bar that opens as a sheet, and the room it gives every task.
@@ -245,6 +249,8 @@ await slideReducedChecks({ browser, url, ok });
 // The Sound Sack checkpoint: its stone on the map, the drag game by real touch, the finish screen, Grownups.
 for (const vp of VIEWPORTS) { await sackMapChecks({ browser, url, ok, vp }); await sackChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) }); }
 await sackGrownupsChecks({ browser, url, ok });
+  await round2Checks({ browser, url, ok });
+}
 {
   // Full screen button on Home and in Grownups (the Fullscreen API is stubbed so the call can be counted).
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
@@ -541,8 +547,9 @@ for (const [name, raw] of [
   await p2.waitForSelector('.card');
   ok(e2.length === 0, 'recorder (supported) errors ' + e2.join(' | '));
   await c2.close();
-  const appSrc = ['index.html', 'js/app.js', 'js/screens/home.js', 'js/screens/grownups.js', 'js/screens/lesson.js'].map((f) => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n');
-  ok(!/record\.html|getUserMedia/.test(appSrc), 'the app never links the recorder or requests the microphone');
+  const walkJs = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walkJs(path.join(d, e.name)) : [path.join(d, e.name)]));
+  const appSrc = [path.join(ROOT, 'index.html'), ...walkJs(path.join(ROOT, 'js'))].map((f) => fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, '')).join('\n'); // code only: a comment may name the recorder
+  ok(!/record\.html|getUserMedia/.test(appSrc), 'the app (index.html and every file under js/) never links the recorder or requests the microphone');
 }
 
 // PWA (step 11): manifest is valid, sw precache list is complete, offline reload renders Home.

@@ -16,7 +16,7 @@ export function holdButton({ label, caption = 'Hold', hint = 'Press and hold', o
   const btn = h('button', { class: 'hold-btn ' + className, type: 'button', 'aria-label': `${label}. ${hint}.` }, dial, h('span', { class: 'hold-text' }, h('span', { class: 'hold-label' }, label), caption ? h('span', { class: 'hold-cap' }, caption) : null));
   const wrap = h('span', { class: 'hold-wrap' }, btn, hintEl);
 
-  let anim = null, holding = false, done = false, hintTimer = 0;
+  let anim = null, holding = false, done = false, hintTimer = 0, keyTimer = 0, dead = false; // dead: the screen has been left
   const showHint = (msg) => { hintEl.textContent = msg; hintEl.classList.add('show'); clearTimeout(hintTimer); hintTimer = setTimeout(() => hintEl.classList.remove('show'), 1600); };
 
   function start(e) {
@@ -26,7 +26,7 @@ export function holdButton({ label, caption = 'Hold', hint = 'Press and hold', o
     try { btn.setPointerCapture(e.pointerId); } catch {}
     anim = run(ring, [{ strokeDashoffset: C }, { strokeDashoffset: 0 }], { duration: holdMs, easing: 'linear' });
     anim.finished.then(() => {
-      if (!holding || done) return;
+      if (dead || !btn.isConnected || !holding || done) return; // a hold that outlives its screen does nothing
       done = true;
       if (navigator.vibrate) navigator.vibrate(20);
       btn.classList.remove('holding');
@@ -56,9 +56,9 @@ export function holdButton({ label, caption = 'Hold', hint = 'Press and hold', o
   btn.addEventListener('lostpointercapture', end);
   btn.addEventListener('contextmenu', (e) => e.preventDefault());
   // Keyboard users: Enter or Space held down for the same time.
-  let keyTimer = 0;
-  btn.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { keyTimer = setTimeout(onComplete, holdMs); } });
+  btn.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { keyTimer = setTimeout(() => { if (!dead && btn.isConnected) onComplete(); }, holdMs); } });
   btn.addEventListener('keyup', () => clearTimeout(keyTimer));
   wrap.button = btn;
+  wrap.cleanup = () => { dead = true; clearTimeout(keyTimer); clearTimeout(hintTimer); if (anim) anim.cancel(); };
   return wrap;
 }

@@ -25,6 +25,17 @@ export function spokenStrings(c) {
   return out;
 }
 
+// Width and height of a WebP file from its header (lossy, lossless or extended), or null if it is not a WebP.
+export function webpSize(file) {
+  const b = fs.readFileSync(file);
+  if (b.length < 30 || b.toString('ascii', 0, 4) !== 'RIFF' || b.toString('ascii', 8, 12) !== 'WEBP') return null;
+  const kind = b.toString('ascii', 12, 16);
+  if (kind === 'VP8 ') return { w: b.readUInt16LE(26) & 0x3fff, h: b.readUInt16LE(28) & 0x3fff };
+  if (kind === 'VP8L') return { w: 1 + (((b[22] & 0x3f) << 8) | b[21]), h: 1 + (((b[24] & 0xf) << 10) | (b[23] << 2) | ((b[22] & 0xc0) >> 6)) };
+  if (kind === 'VP8X') return { w: 1 + (b[24] | (b[25] << 8) | (b[26] << 16)), h: 1 + (b[27] | (b[28] << 8) | (b[29] << 16)) };
+  return null;
+}
+
 export function checkCurriculum(c, root = ROOT) {
   const errors = [];
   const err = (m) => errors.push(m);
@@ -49,7 +60,11 @@ export function checkCurriculum(c, root = ROOT) {
     if (!/(^|\.)image$/.test(p)) continue;
     const f = path.join(root, s);
     if (!fs.existsSync(f)) err(`${p}: picture missing on disk: ${s}`);
-    else if (fs.statSync(f).size > 70 * 1024) err(`${p}: picture is over 70 KB: ${s}`);
+    else {
+      if (fs.statSync(f).size > 70 * 1024) err(`${p}: picture is over 70 KB: ${s}`);
+      if (!s.endsWith('.webp')) err(`${p}: picture must be a .webp: ${s}`);
+      else { const d = webpSize(f); if (!d || d.w < 64 || d.h < 64 || d.w > 512 || d.h > 512) err(`${p}: picture size ${d ? d.w + 'x' + d.h : 'unreadable'} is outside 64 to 512 px: ${s}`); }
+    }
   }
 
   // No tts part is a single letter or a run of one repeated letter.
@@ -138,6 +153,7 @@ export function checkCurriculum(c, root = ROOT) {
   (c.checkpoints || []).forEach((k, i) => {
     const p = `checkpoints[${i}]`;
     if (!k.id || ids.has(k.id)) err(`${p}.id must be unique`);
+    if (!/^[\w-]+$/.test(k.id || '')) err(`${p}.id "${k.id}" must match the route pattern [\\w-]+`);
     ids.add(k.id);
     if (!k.title) err(`${p}.title missing`);
     if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
@@ -167,6 +183,7 @@ export function checkCurriculum(c, root = ROOT) {
       const p = `${lp}.sayingWords[${j}]`;
       if (!Array.isArray(w.parts) || w.parts.length !== 2) err(`${p}.parts needs exactly two parts`);
       if (!Array.isArray(w.emoji) || w.emoji.length !== 2) err(`${p}.emoji needs exactly two emoji`);
+      if (Array.isArray(w.parts) && w.parts.join('') !== w.word) err(`${p}: the parts (${(w.parts || []).join(' + ')}) do not make "${w.word}"`);
       [w.word, ...(w.parts || [])].forEach((t) => {
         if (t !== t.toLowerCase()) err(`${p} not lowercase: ${t}`);
         if (t === 'as') err(`${p} is "as"`);
@@ -193,6 +210,7 @@ export function checkCurriculum(c, root = ROOT) {
         if (o.word === 'as') err(`${lp}.quickCheck.options[${j}] is "as"`);
         if (o.word && isIsolated(o.word)) err(`${lp}.quickCheck.options[${j}] "${o.word}" is an isolated sound`);
         if (o.glyph && !sounds[o.glyph]) err(`${lp}.quickCheck.options[${j}].glyph "${o.glyph}" unknown`);
+        else if (o.glyph && !allowed.has(o.glyph)) err(`${lp}.quickCheck.options[${j}].glyph "${o.glyph}" has not been taught by lesson ${L.number}`);
         if (q.kind === 'picture') {
           if (!o.image && !o.emoji) err(`${lp}.quickCheck.options[${j}] needs a picture`);
           if (o.word && (o.word[0] === L.sound) !== !!o.correct) err(`${lp}.quickCheck.options[${j}] "${o.word}": only the right answer may start with ${L.sound}`);

@@ -22,7 +22,6 @@ export function cleanSettings(s, d) {
 
 export function createStore() {
   let state = load();
-  const listeners = new Set();
 
   function load() {
     try {
@@ -46,7 +45,6 @@ export function createStore() {
   }
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage unavailable: stay in memory */ }
-    listeners.forEach((fn) => fn(state));
   }
   const lesson = (n) => state.lessons[n] || { tasksDone: [], result: null, completedAt: null };
   const checkpoint = (id) => state.checkpoints[id] || { result: null, completedAt: null };
@@ -54,7 +52,6 @@ export function createStore() {
   return {
     get state() { return state; },
     get settings() { return state.settings; },
-    onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
     lesson,
     isUnlocked(n) {
       if (n === 1) return true;

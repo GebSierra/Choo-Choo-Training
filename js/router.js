@@ -1,5 +1,5 @@
 // Hash router with directional screen transitions.
-import { animate, reduced } from './dom.js';
+import { h, animate, reduced } from './dom.js';
 
 const depthOf = (path) => {
   if (path === '/home') return 0;
@@ -26,7 +26,7 @@ export function createRouter(root, routes, ctx) {
     const next = document.createElement('div');
     next.className = 'screen';
     let el;
-    try { el = await match.r.screen(ctx, ...match.params); } catch (e) { console.error(e); el = document.createTextNode('Something went wrong.'); }
+    try { el = await match.r.screen(ctx, ...match.params); } catch (e) { console.error(e); el = h('div', { class: 'retry-card' }, h('p', {}, 'Something went wrong.'), h('button', { class: 'btn', type: 'button', onclick: () => { location.hash = '#/home'; } }, 'Back to the path')); }
     if (my !== token) { if (el && el.cleanup) el.cleanup(); return; }
     next.append(el);
     const back = current ? depthOf(path) < depthOf(current.path) : false;

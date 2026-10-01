@@ -95,8 +95,8 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot }) {
     if (r === 3 && shot) await shot(page, 'mid');
     sack = await sackBox();
     await dragCard(page, '1', () => mid(sack));
-    await page.waitForFunction((k) => document.querySelector('.sack-game').dataset.stars === String(k), r, { timeout: 4000 });
-    ok(true, `${tag}: round ${r} star filled`);
+    const filled = await page.waitForFunction((k) => document.querySelector('.sack-game').dataset.stars === String(k), r, { timeout: 4000 }).then(() => true, () => false);
+    ok(filled && (await page.locator('.star-row .gold-star').count()) === r, `${tag}: round ${r} star filled`);
   }
   ok(seen.every((s, i) => !i || s !== seen[i - 1]), `${tag}: the same sound never comes twice in a row (${seen.join('')})`);
   ok(ck.sounds.every((s) => seen.filter((x) => x === s).length === ck.rounds / ck.sounds.length), `${tag}: the sounds are balanced over the rounds`);

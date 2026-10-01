@@ -17,5 +17,6 @@ export function build({ sound, curriculum, speech }) {
     script: () => `Say: 'Let's watch the ${soundPhrase(sound)} story.' Then press and hold Open playlist and find the video for ${soundPhrase(sound)}. Come back when it ends.`,
     gist: () => fit(`Say: ${soundPhrase(sound)} story. Hold button.`, `Say: ${soundPhrase(sound)} story.`),
     again: () => speech.say(parts),
+    cleanup: hold.cleanup,
   };
 }

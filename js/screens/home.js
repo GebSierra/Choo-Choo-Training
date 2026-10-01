@@ -119,6 +119,7 @@ export function homeScreen(ctx) {
   const top = h('div', { class: 'home-top' }, grown);
   const fs = fullscreenButton({ className: 'home-fs' });
   const root = h('div', { class: 'home' }, scene, top, ...(fs ? [fs] : []));
+  root.cleanup = grown.cleanup;
 
   if (!store.state.firstRunDone) {
     const card = h('div', { class: 'first-run', role: 'dialog', 'aria-label': 'Welcome' },

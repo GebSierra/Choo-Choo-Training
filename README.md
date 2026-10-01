@@ -31,9 +31,10 @@ Debug pages (not linked from the app; the smoke test uses them, and the service 
 ## Test
 
     node test/check-content.mjs   # curriculum.json against the teaching rules
-    node test/smoke.mjs           # Playwright walkthrough at three Android viewports (takes about twenty minutes)
-    node test/games.mjs           # only the two games (part of the smoke test; takes about two minutes)
-    node test/blend.mjs && node test/slide.mjs   # only the sliding tasks (also part of the smoke test)
+    npm test                      # everything, quickly: check-content, deal, games, sfx, sack, script, blend, slide, round2, then smoke --fast
+    node test/smoke.mjs --fast    # the Playwright walkthrough at three Android viewports without the suites above (a few minutes)
+    node test/smoke.mjs           # the same plus every suite again, one complete run (about twenty minutes, mostly fixed waits)
+    node test/games.mjs           # any one suite on its own: games, sfx, sack, script, blend, slide, round2, deal
 
 The smoke test starts its own server, uses the preinstalled Chromium, fails on any console error, and saves screenshots to `_test/` (ignored by git). `tools/screenshots.mjs` refreshes the pictures in `docs/screenshots/`. `npm install` is only needed if Playwright is not already installed globally; the app itself has no dependencies.
 

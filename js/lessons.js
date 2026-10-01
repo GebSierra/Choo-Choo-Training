@@ -1,14 +1,14 @@
 // Turns a lesson in curriculum.json into its ordered task list. Nothing here hardcodes lesson content.
 export const TASK_TYPES = {
-  review:  { name: 'Letter Review', color: 'sky',    dark: true,  blurb: 'Slide each letter you already know and say its sound.', label: "Today we'll review" },
-  newLetter: { name: 'New Letter',  color: 'violet', dark: false, blurb: 'Meet the new letter and the sound it makes.', label: "Today we'll learn" },
-  story:   { name: 'Sound Story',   color: 'coral',  dark: false, blurb: 'Watch the video for this sound together.', label: "Today we'll hear" },
-  words:   { name: 'Saying Words',  color: 'sun',    dark: true,  blurb: 'Put two parts together to make a word.', label: "Today we'll say" },
-  sounds:  { name: 'Saying Sounds', color: 'mint',   dark: true,  blurb: 'Stretch the sounds, then say the word.', label: "Today we'll stretch" },
-  writing: { name: 'Letter Writing', color: 'lilac', dark: true,  blurb: 'Trace the letter with a finger.', label: "Today we'll write" },
-  hunt:    { name: 'Letter Hunt',   color: 'sky',    dark: true,  blurb: 'Find the letter in the sky and help the sheep home.', label: "Today we'll practice" },
-  barn:    { name: 'Barn Doors',    color: 'coral',  dark: false, blurb: 'Open the barn doors and touch the letter.', label: "Today we'll practice" },
-  check:   { name: 'Quick Check',   color: 'blue',   dark: true,  blurb: 'A quick look at what stuck.', label: "Today we'll check" },
+  review:  { name: 'Letter Review', color: 'sky',    dark: true,  label: "Today we'll review" },
+  newLetter: { name: 'New Letter',  color: 'violet', dark: false, label: "Today we'll learn" },
+  story:   { name: 'Sound Story',   color: 'coral',  dark: false, label: "Today we'll hear" },
+  words:   { name: 'Saying Words',  color: 'sun',    dark: true,  label: "Today we'll say" },
+  sounds:  { name: 'Saying Sounds', color: 'mint',   dark: true,  label: "Today we'll stretch" },
+  writing: { name: 'Letter Writing', color: 'lilac', dark: true,  label: "Today we'll write" },
+  hunt:    { name: 'Letter Hunt',   color: 'sky',    dark: true,  label: "Today we'll practice" },
+  barn:    { name: 'Barn Doors',    color: 'coral',  dark: false, label: "Today we'll practice" },
+  check:   { name: 'Quick Check',   color: 'blue',   dark: true,  label: "Today we'll check" },
 };
 
 export function tasksFor(lesson) {

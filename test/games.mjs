@@ -145,8 +145,8 @@ export async function barnChecks({ browser, url, ok, CUR, vp, lessonNo = 1, full
       await page.waitForTimeout(500);
       ok((await g('stars')) === starsBefore, `${tag}: touching a distractor does nothing`);
       // The doors close on their own, and the next round opens after them.
-      await page.waitForFunction(() => ['closing', 'closed'].includes(document.querySelector('.barn-game').dataset.state), null, { timeout: 4000 });
-      ok(true, `${tag}: the doors close by themselves after a distractor`);
+      const closed = await page.waitForFunction(() => ['closing', 'closed'].includes(document.querySelector('.barn-game').dataset.state), null, { timeout: 4000 }).then(() => true, () => false);
+      ok(closed, `${tag}: the doors close by themselves after a distractor`);
       continue;
     }
     if (shot && round === 1) await shot(page, 'open');
@@ -277,7 +277,7 @@ export async function dragChecks({ browser, url, ok, CUR, vp, shot }) {
   await page.touchscreen.tap(c.x, c.y);
   await page.waitForTimeout(120); // inside the 450 ms swap
   const during = await page.evaluate(() => [...document.querySelectorAll('.sky-letter[data-target="1"]:not(.popped)')].length);
-  if (during) { const t = await pick('1'); await touchDrag(page, t, away(t, 50, 0)); }
+  if (during) { try { const t = await pick('1'); await touchDrag(page, t, away(t, 50, 0)); } catch { /* the swap ended first: nothing left to ignore */ } }
   await page.waitForTimeout(400);
   ok((await steps()) === '4', `${tag}: a tap still works, and a drag during the swap is ignored (steps ${await steps()})`);
   await page.waitForTimeout(700);
