@@ -139,4 +139,37 @@ await lp.goto(url + '#/lesson/2/task/7'); await lp.waitForSelector('.barn-letter
 await lp.click('.barn-letter'); await lp.waitForTimeout(330);
 await save(lp, '13-barn-doors-landscape.png');
 
+// Round 2 (layout fixes): the screens that changed, at 360x780, 412x915 and 915x412.
+await land.close();
+const seed = `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'},3:{tasksDone:[],result:'got-it'}},settings:{seenScripts:${JSON.stringify(SEEN)}},firstRunDone:true}))`;
+for (const [vn, w, h] of [['360', 360, 780], ['412', 412, 915], ['land', 915, 412]]) {
+  const c = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
+  const p = await c.newPage();
+  await p.addInitScript(SPEECH_STUB);
+  await p.addInitScript(seed);
+  const shot = async (route, name, act) => { await p.goto(url + route); await p.waitForTimeout(1500); if (act) await act(); await save(p, `r2-${name}-${vn}.png`); };
+  await shot('#/lesson/2/task/1', 'new-letter');
+  await shot('#/lesson/1/task/4', 'writing');
+  await shot('#/lesson/2/finish', 'finish', () => p.waitForTimeout(1000));
+  await shot('#/lesson/2', 'overview');
+  await shot('#/lesson/1/task/2', 'saying-words-revealed', async () => { await p.click('.merged-tile'); await p.waitForTimeout(1300); });
+  await shot('#/lesson/1/task/5', 'letter-hunt');
+  await shot('#/lesson/1/task/6', 'barn-doors');
+  await shot('#/lesson/1/task/7', 'quick-check');
+  await shot('#/checkpoint/c1', 'sound-sack');
+  await shot('#/lesson/1/task/1', 'sound-story');
+  await c.close();
+}
+// The end of Letter Hunt: only the barn, the stars and the glow are left.
+{
+  const c = await browser.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
+  const p = await c.newPage();
+  await p.addInitScript(SPEECH_STUB);
+  await p.addInitScript(seed);
+  await p.goto(url + '#/lesson/1/task/5'); await p.waitForSelector('.sky-letter'); await p.waitForTimeout(1200);
+  for (let i = 0; i < 5; i++) { const b = await p.locator('.sky-letter[data-target="1"]:not(.popped)').first().boundingBox(); await p.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2); await p.waitForTimeout(i < 4 ? 1000 : 3500); }
+  await save(p, 'r2-hunt-end-412.png');
+  await c.close();
+}
+
 await browser.close(); server.close();

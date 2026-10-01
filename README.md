@@ -92,7 +92,7 @@ The plan left these open or made them impossible to follow literally. Each is th
 - The smoke test's fixed viewports use Playwright's Chromium, which stands in for Chrome and Edge on Android. Real speech voices and real touch feel cannot be checked there.
 - Short a is always written and said "a as in apple", never a bare "a" followed by punctuation in a parent script, subtitle, prompt or Grownups row, because a parent reading "Say a." would say the letter's name. It is not switched to "aaa".
 - The alphabet song row stays at the top of the lesson overview. It is Geb's deliberate exception to the letters-not-names rule: the video is not viewed or controlled by this app.
-- Compound words in Saying Words are two picturable nouns whose part emoji are not the whole word. The merged tile shows the word plus the second part's emoji with the first overlaid small. Lesson 1: sunhat, cupcake, handbag, starfish. Lesson 2: catfish, pancake, icecream, toothbrush. Lesson 3: sunflower, snowman, hotdog, football. Example words: a has apple, hat, cat, crab, ant (the pictures for axe and astronaut stay in the repo but are not precached); s has sun, sock, soup, seal, snake.
+- Compound words in Saying Words are two picturable nouns whose part emoji are not the whole word. The merged tile shows the word plus the second part's emoji with the first overlaid small. Lesson 1: sunhat, cupcake, handbag, starfish. Lesson 2: catfish, pancake, raincoat, toothbrush. Lesson 3: sunflower, snowman, hotdog, football. Example words: a has apple, hat, cat, crab, ant (the pictures for axe and astronaut stay in the repo but are not precached); s has sun, sock, soup, seal, snake.
 - Words with untaught letters may appear as picture labels (plan 5.1 allows it).
 - The letter clips come from Wikipedia's IPA recordings (see Attribution); that credit stays in the Attribution section and on Grownups.
 - Next is dimmed for one second after a task opens, and the finish screen ignores taps for 1.5 seconds; "Yes, go on" takes two taps. Practicing a lesson again after "Yes" keeps the best result, so the next lesson is not locked again.
@@ -155,10 +155,10 @@ Everywhere a child sees a picture of a word, the app now shows Mentava's tile in
 
 Tiles in use now (paths are `assets/images/mentava/web/<slug>/<word>.webp`):
 
-- m (New Letter and Sound Sack): map, milk, mop, and moon (from `oo-moon`).
+- m (New Letter and Sound Sack): map, milk, and moon (from `oo-moon`); mop was dropped because its picture looks like a broom.
 - a: apple, hat, cat, crab (New Letter); apple and astronaut start the Sound Sack.
 - s: sock, snake, snail, and sun (from `u`).
-- Saying Sounds picture words: lesson 1 moon, map, mop (mom had no tile); lesson 2 map.
+- Saying Sounds picture words: lesson 1 moon, map, milk; lesson 2 map.
 - Quick Check (lesson 1): moon, dog, banana.
 - Sound Sack distractors: 49 tiles for words that start with none of m, a or s (baby, ball, banana, bear, bus, camel, candy, king, koala, duck, deer, dog, door, dolphin, egg, hen, tent, red, nest, fan, fish, fork, goat, gate, goose, hand, hippo, jam, jet, leaf, leg, ladder, nut, nose, pig, panda, pumpkin, queen, rabbit, rocket, tiger, table, tree, van, vest, wagon, window).
 
@@ -166,7 +166,7 @@ For later lessons the tiles for every sound are already in `assets/images/mentav
 
 ### Decisions made during build: the picture tiles
 
-- The shipped lesson 1 picture words are moon, map, mop; "mom" was replaced because it has no tile, and the stretched script reads "mmmop".
+- The shipped lesson 1 picture words are moon, map, milk; "mom" has no tile and "mop" looks like a broom, so the stretched scripts read "mmmoon", "mmmap", "mmmilk".
 - Quick Check lesson 1 offers moon (right), dog and banana, two distinct-looking words that do not start with m.
 - Word labels under tiles are kept (lowercase, the taught letter tinted, every "a" from the glyph); the tile's alt text is the word alone. The tiles themselves contain no text.
 - `moon` and `sun` come from the `oo-moon` and `u` folders because the m and s folders have no such tile; when a word exists in two folders (door, fork) the first folder in `index.json` is used.
@@ -177,7 +177,7 @@ For later lessons the tiles for every sound are already in `assets/images/mentav
 Geb's first phone test: "the sliding only seems to happen occasionally", and there was nothing to slide on a picture word such as map. Fixed and extended:
 
 - One shared component, `js/components/slide-blend.js`, now drives every slide. The slide surface is a transparent band as wide as the stage and at least 140 px tall, centred on the letters, with `touch-action: none`; the activity that holds it is locked (no scrolling, no panning) for these two tasks. The pointer is captured on pointerdown, a non-passive touchmove refuses panning, and only horizontal movement counts, so a finger that wobbles up or down by 40 px or more still works. A finger may start left of the word (it counts from zero), on it, above it or below it, or in the middle of it (everything to its left lights at once). A pointercancel or a lost capture does not end the slide; it waits 350 ms for the next move. Nothing drawn over the word takes pointer events. A move of under 8 px is a tap.
-- Saying Sounds, picture words (moon, map, mop): the picture stays as it was until it is tapped; then the word's letters appear as a row (glyphs for m, a, s; the font in ink for the other letters, same size and weight) with the same sweep as a demonstration until the first touch, and the row slides exactly like the letters words. Every letter lights in the lesson's colour.
+- Saying Sounds, picture words (moon, map, milk): the picture stays as it was until it is tapped; then the word's letters appear as a row (glyphs for m, a, s; the font in ink for the other letters, same size and weight) with the same sweep as a demonstration until the first touch, and the row slides exactly like the letters words. Every letter lights in the lesson's colour.
 - Saying Words: once the merged tile is tapped, the revealed word is a slide surface. The picture starts dimmed (opacity .35, desaturated) and a full-colour copy is uncovered from left to right by a clip that follows the finger; the word's letters light in step; at the right end a sparkle and a lift, then everything dims again after 700 ms. Dragging back dims it again. The parent script has the new line "Then slide your finger across the picture as you say the whole word slowly."
 - `test/slide.mjs` runs ten slides per task at each of the three viewports (letters words in lessons 2 and 3, the three picture words, the revealed word in Saying Words for lessons 1 and 2) with five different starting points and a 40 px wobble; all ten must light monotonically to the end, sparkle, leave the stage unscrolled and never receive a pointercancel. It also checks the letter-by-letter lighting, dragging back, the wash, taps, Again, reduced motion and that dragging makes no sound or speech.
 
@@ -267,3 +267,27 @@ Letters in the Letter Hunt sky can be dragged as well as tapped, and the sheep n
 - A click with no pointer (keyboard or screen reader) still chooses a letter.
 - The ending's timings are fixed timers, not animation events, so the parts stay in step. Again cancels everything and brings back the sheep.
 - Not verified: how the drag feels under a real child's finger, and real sound (the `win` jingle was only checked as scheduled notes).
+
+
+## Round 2 fixes (version 1.3.6)
+
+Five independent reviews of 1.3.5 produced `docs/FIXES-round2.md` (45 numbered fixes in seven groups); all are applied, one commit per group. Tests for them are in `test/round2.mjs` and the suites they touch. In short:
+
+- **Teaching and content.** Aria-labels are never a single letter; the Sound Sack never deals a look-alike (`avoid` on a `gameDistractors` entry: n-words in an m round, egg in an a round); the pictures that read as something else (red, jam, mop, goose) are out; Barn Doors' doors play a soft G5 to C6 bell glide instead of a whoosh, a right Barn letter plays only the star chime, and the blend sparkle is heard at most once every 4 s; reading a script aloud with sounds off drops a whole quotation that holds a sound; "bag" is "sack" everywhere a child or parent reads it.
+- **Parent script bar.** It shows a gist of at most 28 characters (sound first) instead of a cut sentence; the full script stays in the sheet. The games no longer open the sheet by themselves.
+- **Play-through.** Finish records "got it" on the second tap; Letter Hunt's ending fades the leftover letters; Next pulses once when a game is done; the Sound Sack takes a tap and shows a silent demo after 8 quiet seconds; Hunt and Barn nudge the Find this card after 8 quiet seconds; the Sound Story circle is a small greyed decoration that wiggles the real button; Saying Words and Saying Sounds show a hand sliding along the bar until the first touch, and the Saying Words slide band covers the whole tile.
+- **Layout.** Landscape task screens give the stage the full height with a 264 px column on the right; New Letter shows the whole howTo; the finish screen has two columns in landscape and a "For the grown-up" label; the overview has five landscape columns; compound words are two 56 px picture frames; the Letter Hunt art is bigger and the grid copes with short windows; Grownups folds its two long reference cards.
+- **Platform.** `html` refuses overscroll (no pull-to-refresh); the service worker keeps other Pages sites' caches, only trusts a JSON answer for the curriculum and installs tiles without failing the whole install; nothing sounds while the page is hidden; saved settings of the wrong type are repaired.
+
+### Decisions made during build: round 2
+
+- Story gist: "Say: mmm story. Hold button." (the list said "Hold Play." but no button says Play; for a: "Say: a as in apple story.").
+- The gist helper `fit()` (in `js/lessons.js`) takes the first option of at most 28 characters, so long cases shorten ("Say a as in apple." keeps out "Child slides."; "sssaaammm, then sam." drops "Stretch:"). A test checks every gist whole at 360 px.
+- At 360 px the bar hides its adult icon so the gist shows whole; in landscape (264 px column) it also drops the "Say this" tag and lets the gist wrap to two or three lines.
+- The stage scrim (20%) shows for every open sheet in portrait, not only the first visit. Landscape opens the sheet beside the stage, so no scrim there.
+- The idle demo and hints are skipped with reduced motion; the Sound Sack demo plays once a round and a touch only restarts the 8 s wait.
+- Short Letter Hunt windows: the keep-outs keep the art's real size (shrinking them let letters sit on the card), the grass reserve drops from 92 to 50 px under 360 px of scene height, and under 8 free cells the grid packs tighter (letters exactly 12 px apart). That gives 7 letters at 740 by 300. The fix list's "12 letters at 780x360 and 640x360" is tested as scene sizes (780 by 360 and 640 by 360 of sky), not as window sizes.
+- Compound word replacing icecream in lesson 2: raincoat.
+- The merged tile reserves 172 px (130 px in landscape), the height of the largest revealed word, so Next word stays put.
+- The slide band keeps 24 px from the screen's edges (it already did on phones, because of the stage's margins; the rule matters for wide windows).
+- Not verifiable here: how the sounds, the real voices and the hands feel, real touch on a phone, and the hosted service worker.
