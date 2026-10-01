@@ -5,6 +5,7 @@ import { stretchWord, stretchLetters } from '../../scripts.js';
 import { slideBlend, placeBand } from '../../components/slide-blend.js';
 import { picture } from '../../components/picture.js';
 import { accentOf } from '../../theme.js';
+import { fit } from '../../lessons.js';
 
 // A soft highlight glides left to right over 2 s, pauses 600 ms, repeats (2.6 s loop, last 23% idle). It shows the pace
 // until the child's first touch takes over.
@@ -88,6 +89,10 @@ export function build({ lesson, speech, refresh }) {
       const w = cur();
       if (!w.showLetters) return `Say the word slowly, stretching the first sound: ${stretchWord(w.word, held)}. Then say it fast: ${w.word}. Then tap the picture to show the word, and slide your finger across the word as you say it slowly.`;
       return `Slide your finger under the word as you stretch the sounds: ${[...w.word].map((c) => stretchLetters(c)).join('')}. Then say it fast: ${w.word}. Then tap the word to show it.`;
+    },
+    gist: () => {
+      const w = cur(), stretched = w.showLetters ? [...w.word].map((c) => stretchLetters(c)).join('') : stretchWord(w.word, held);
+      return fit(`Stretch: ${stretched}, then ${w.word}.`, `Stretch ${stretched}, then ${w.word}.`, `${stretched}, then ${w.word}.`);
     },
     again: () => { show(); speech.say(partsFor()); },
     cleanup: teardown,

@@ -3,6 +3,7 @@ import { letterText } from '../../letters.js';
 import { wordSvg } from '../../glyphs.js';
 import { slideBlend, placeBand } from '../../components/slide-blend.js';
 import { accentOf } from '../../theme.js';
+import { fit } from '../../lessons.js';
 
 // Task 4: two parts come together into a word. Once the word is shown, a finger slid across it lights the picture (a
 // colour wash that follows the finger) and the letters of the word one by one.
@@ -59,7 +60,8 @@ export function build({ lesson, speech, refresh }) {
   return {
     el, lockScroll: true,
     parts: () => (revealed ? [{ tts: cur().word }] : partsFor()),
-    script: () => `I say two parts. You put them together. ${cur().parts[0]} ... ${cur().parts[1]}. What word? Then tap the picture to show the word. Then slide your finger across the picture as you say the whole word slowly.`,
+    script: () => `Say the two parts slowly: '${cur().parts[0]} ... ${cur().parts[1]}.' Ask: 'What word?' Tap the ? to show it. Then slide your finger across the picture as you say ${cur().word} slowly.`,
+    gist: () => { const p = `${cur().parts[0]} ... ${cur().parts[1]}`; return fit(`Say: ${p}. What word?`, `${p}. What word?`, `${p}?`); },
     again: () => { show(); speech.say(partsFor()); },
     cleanup: teardown,
   };

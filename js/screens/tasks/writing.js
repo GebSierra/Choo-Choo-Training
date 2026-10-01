@@ -12,6 +12,7 @@ export function build({ sound, speech }) {
     el,
     parts: () => parts,
     script: () => "Say: 'Start at the dot. Follow the arrow.' Move your finger with theirs.",
+    gist: () => 'Start at the dot.',
     again: () => { pad.clear(); speech.say(parts); },
     cleanup: () => pad.cleanup && pad.cleanup(),
   };

@@ -39,6 +39,10 @@ export function targetsFor(task, lesson) {
 // How a parent says a sound: "mmm", or "a as in apple". Never a bare "a" (a parent would say its name).
 export const soundPhrase = (s) => (s.asIn ? `${s.sayItLike} as in ${s.asIn}` : s.sayItLike);
 
+// The compact script bar shows a gist of at most 28 characters: the first option that fits, else the last (the shortest).
+export const GIST_MAX = 28;
+export const fit = (...options) => options.find((o) => o.length <= GIST_MAX) || options[options.length - 1];
+
 // Sound cards are built from the sounds table: "This letter says mmm. Hold it. Do not say muh."
 export function soundCardLines(sound) {
   const lines = [`This letter says ${soundPhrase(sound)}.`];

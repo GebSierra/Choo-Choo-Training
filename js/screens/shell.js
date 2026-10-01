@@ -7,12 +7,13 @@ import { richText } from '../letters.js';
 // stage with its speaker, the parent script card and Again / Next.
 //
 // Two steps, because a task builds itself before the shell can show it (its own refresh() runs while it is built):
-//   const shell = makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel, stepNoun, seenKeys });
+//   const shell = makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel, stepNoun, seenKeys, autoOpen });
+// autoOpen: false for the games, where the gist in the bar is enough and the sheet must not open over the play.
 //   const current = build({ ...env, refresh: shell.refresh, setProgress: shell.setPos });
 //   return shell.mount(current, advance);
 // current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?, lockScroll?}.
 // lockScroll: the activity never scrolls and ignores pan gestures (tasks where a finger slides across the screen).
-export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [] }) {
+export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true }) {
   const { router, speech, store } = ctx;
   let current = null;
   const scriptText = h('p', { class: 'script-text' });
@@ -34,7 +35,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
   // With the Grownups switch "Always show full instructions" on, it is the old card, always open.
   const sheetId = 'script-sheet-' + Math.random().toString(36).slice(2, 7);
   const firstLine = h('span', { class: 'script-first' });
-  const refreshAll = () => { refresh(); firstLine.replaceChildren(richText(current ? current.script() : '')); };
+  const refreshAll = () => { refresh(); firstLine.replaceChildren(richText(current ? (current.gist ? current.gist() : current.script()) : '')); };
 
   return {
     refresh: () => refreshAll(), setPos,
@@ -110,7 +111,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
       // the script opens by itself for 6 seconds and then tucks itself away.
       let introTimer = 0;
       const saved = store.settings.seenScripts, seen = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
-      if (!full && seenKeys.some((k) => !seen[k])) {
+      if (!full && autoOpen && seenKeys.some((k) => !seen[k])) {
         store.setSetting('seenScripts', { ...seen, ...Object.fromEntries(seenKeys.map((k) => [k, true])) });
         introTimer = setTimeout(() => setOpen(true, { hold: 6000 }), 500);
       }

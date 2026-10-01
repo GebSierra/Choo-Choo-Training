@@ -5,7 +5,7 @@ import { soundCard } from '../../components/sound-card.js';
 import { letterText } from '../../letters.js';
 import { picture } from '../../components/picture.js';
 import { accentOf } from '../../theme.js';
-import { soundPhrase, introParts } from '../../lessons.js';
+import { soundPhrase, introParts, fit } from '../../lessons.js';
 
 // Task 2: the new letter, its sound card, the slide track and the example pictures.
 export function build({ lesson, sound, speech, store }) {
@@ -24,6 +24,7 @@ export function build({ lesson, sound, speech, store }) {
     el,
     parts: () => introParts(lesson, store),
     script: () => `Say ${soundPhrase(sound)}. Now you try. Slide the letter as you say it.`,
+    gist: () => fit(`Say ${soundPhrase(sound)}. Child slides.`, `Say ${soundPhrase(sound)}.`),
     cleanup: () => track.cleanup(),
     again: () => { drawIn(g); speech.say(introParts(lesson, store)); },
   };

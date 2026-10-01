@@ -8,7 +8,7 @@ export function checkpointScreen(ctx, id) {
   const { store, router, curriculum } = ctx;
   const ck = (curriculum.checkpoints || []).find((c) => c.id === id);
   if (!ck || !store.isCheckpointUnlocked(ck)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
-  const shell = makeShell({ ctx, title: ck.title, color: 'mint', steps: ck.rounds, pos: 0, from: -1, isLast: true, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to the path', stepNoun: 'Round', seenKeys: ['checkpoint'] });
+  const shell = makeShell({ ctx, title: ck.title, color: 'mint', steps: ck.rounds, pos: 0, from: -1, isLast: true, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to the path', stepNoun: 'Round', seenKeys: ['checkpoint'], autoOpen: false });
   const current = sack({ ...ctx, checkpoint: ck, refresh: shell.refresh, setProgress: shell.setPos });
   return shell.mount(current, () => router.go(`/checkpoint/${ck.id}/finish`));
 }

@@ -5,7 +5,7 @@ import { sparkle } from '../components/sparkle.js';
 import { picture } from '../components/picture.js';
 import { timers, farm, watchSize, starRow, shake } from '../components/game-kit.js';
 import { accentOf } from '../theme.js';
-import { soundPhrase } from '../lessons.js';
+import { soundPhrase, fit } from '../lessons.js';
 import { sfx } from '../sfx.js';
 
 const SPRING = 'cubic-bezier(.34,1.56,.64,1)';
@@ -184,6 +184,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress }) 
     el, flush: true,
     parts: () => say,
     script: () => `Say: 'Which one starts with ${soundPhrase(sound())}?' Let them drag it into the sack. There is no right or wrong here.`,
+    gist: () => fit(`Ask: which starts with ${soundPhrase(sound())}?`, `Ask: ${soundPhrase(sound())}?`),
     again: () => { again(); speech.say(say); },
     cleanup: () => { T.clear(); stopWatching(); },
   };

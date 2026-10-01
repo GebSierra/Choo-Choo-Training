@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN } from './lib.mjs';
-import { tasksFor } from '../js/lessons.js';
+import { tasksFor, soundPhrase } from '../js/lessons.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const seed = (settings) => `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'},3:{tasksDone:[],result:'got-it'}},settings:${JSON.stringify(settings)},firstRunDone:true})); }`; // once per tab, so a reload keeps what the page saved
@@ -102,6 +102,46 @@ export async function roomChecks({ browser, url, ok }) {
   }
 }
 
+// The text of the bar's gist, with the drawn single-story "a" read back as the letter.
+const gistOf = (page) => page.evaluate(() => [...document.querySelector('.screen:not(.leaving) .script-first').childNodes].map((n) => (n.classList && n.classList.contains('inline-a') ? 'a' : n.textContent)).join(''));
+
+// Every task's gist: not empty, at most 28 characters, holds the current sound or word (Letter Writing has neither),
+// follows the word when it changes, and the games do not open the sheet by themselves.
+export async function gistChecks({ browser, url, ok }) {
+  const vp = VIEWPORTS[0];
+  const { ctx, page, errors } = await open(browser, url, vp, '#/home');
+  let seenGists = 0;
+  for (const L of CUR.lessons) {
+    const P = soundPhrase(CUR.sounds[L.sound]);
+    for (const t of tasksFor(L)) {
+      await page.evaluate((r) => { location.hash = r; }, `#/lesson/${L.number}/task/${t.index}`);
+      await page.waitForFunction((r) => location.hash === r && document.querySelector('.screen:not(.leaving) .script-first') && !document.querySelector('.screen.leaving'), `#/lesson/${L.number}/task/${t.index}`);
+      await page.waitForTimeout(150);
+      const gist = await gistOf(page);
+      const want = { review: soundPhrase(CUR.sounds[L.review[0]] || CUR.sounds.m), words: L.sayingWords[0].parts[0], sounds: L.sayingSounds[0].word, writing: '' }[t.type] ?? P;
+      ok(gist.length > 0 && gist.length <= 28 && gist.includes(want), `lesson ${L.number} ${t.type}: gist "${gist}" is 1 to 28 characters and holds "${want}"`);
+      seenGists++;
+      if (t.type === 'words' || t.type === 'sounds') {
+        const list = t.type === 'words' ? L.sayingWords : L.sayingSounds;
+        for (let k = 1; k < list.length; k++) {
+          await page.click('.btn.ghost.small');
+          await page.waitForTimeout(200);
+          const g = await gistOf(page);
+          ok(g.length <= 28 && g.includes(t.type === 'words' ? list[k].parts[0] : list[k].word), `lesson ${L.number} ${t.type}: the gist follows the next word ("${g}")`);
+        }
+      }
+    }
+  }
+  ok(seenGists === CUR.lessons.reduce((n, L) => n + tasksFor(L).length, 0), 'every task of every lesson was checked for a gist');
+  await page.evaluate(() => { location.hash = '#/checkpoint/c1'; });
+  await page.waitForSelector('.sack-card');
+  await page.waitForTimeout(200);
+  const sg = await gistOf(page);
+  ok(sg.length > 0 && sg.length <= 28 && /^Ask: /.test(sg), `Sound Sack: gist "${sg}"`);
+  ok(errors.length === 0, 'gists: errors ' + errors.join(' | '));
+  await ctx.close();
+}
+
 export async function barChecks({ browser, url, ok, vp, shot }) {
   const tag = `${vp.name} script bar`;
   const { ctx, page, errors } = await open(browser, url, vp, route(1, 'sounds'));
@@ -109,7 +149,7 @@ export async function barChecks({ browser, url, ok, vp, shot }) {
   ok((await expanded(page)) === 'false' && !(await sheetShown(page)), `${tag}: it starts compact`);
   ok((await page.getAttribute('.script-toggle', 'aria-controls')) === (await page.getAttribute('.script-sheet', 'id')), `${tag}: the bar controls the sheet (aria-controls)`);
   const peek = await page.locator('.script-first').innerText();
-  ok(/^Say the word slowly/.test(peek) && (await page.evaluate(() => { const e = document.querySelector('.script-first'); return getComputedStyle(e).whiteSpace === 'nowrap' && getComputedStyle(e).textOverflow === 'ellipsis'; })), `${tag}: it shows one line of the script, cut with an ellipsis ("${peek.slice(0, 30)}")`);
+  ok(/^Stretch: mmmoon, then moon\.$/.test(peek) && (await page.evaluate(() => { const e = document.querySelector('.script-first'); return getComputedStyle(e).whiteSpace === 'nowrap' && getComputedStyle(e).textOverflow === 'ellipsis'; })), `${tag}: it shows the gist on one line, with an ellipsis as a safety ("${peek.slice(0, 30)}")`);
   if (shot) await shot(page, 'compact');
   const before = await stageBox(page);
   // Tapping the bar opens the sheet without touching the stage; focus goes to the close button.
@@ -214,6 +254,19 @@ export async function timerAndFirstVisitChecks({ browser, url, ok }) {
     ok(errors.length === 0, 'first visit: errors ' + errors.join(' | '));
     await ctx.close();
   }
+  // The games never open the sheet over the play, even on a first visit.
+  for (const r of [route(1, 'hunt'), route(1, 'barn'), '#/checkpoint/c1']) {
+    const { ctx, page, errors } = await newPage(browser, vp);
+    await page.clock.install();
+    await page.addInitScript(SPEECH_STUB);
+    await page.addInitScript(seed({}));
+    await page.goto(url + r);
+    await page.waitForSelector('.script-toggle');
+    await page.clock.runFor(2000);
+    ok((await expanded(page)) === 'false' && !(await sheetShown(page)), `first visit of ${r.split('/').slice(-2).join('/')}: a game does not open the script over the play`);
+    ok(errors.length === 0, 'first visit game: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
 }
 
 export async function grownupsScriptChecks({ browser, url, ok }) {
@@ -251,6 +304,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
   await roomChecks({ browser, url, ok });
+  await gistChecks({ browser, url, ok });
   for (const vp of VIEWPORTS) await barChecks({ browser, url, ok, vp });
   await timerAndFirstVisitChecks({ browser, url, ok });
   await grownupsScriptChecks({ browser, url, ok });

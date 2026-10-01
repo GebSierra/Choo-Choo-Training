@@ -4,7 +4,7 @@ import { letterFace, tintLetter } from '../../components/letter-face.js';
 import { sparkle } from '../../components/sparkle.js';
 import { timers, farm, watchSize, findCard, starRow, shake } from '../../components/game-kit.js';
 import { accentOf } from '../../theme.js';
-import { soundPhrase } from '../../lessons.js';
+import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 
 const STARS = 5;
@@ -135,6 +135,7 @@ export function build({ lesson, sound, speech, curriculum }) {
     el, flush: true,
     parts: () => say,
     script: () => `Say: 'Watch the doors. When you see the letter that says ${soundPhrase(sound)}, touch it.' Then say ${soundPhrase(sound)} together.`,
+    gist: () => fit(`Doors open. Touch ${soundPhrase(sound)}.`, `Touch ${soundPhrase(sound)}.`),
     again: () => { again(); speech.say(say); },
     cleanup: () => { T.clear(); faceAnims = cancel(faceAnims); doorAnims = cancel(doorAnims); stopWatching(); },
   };

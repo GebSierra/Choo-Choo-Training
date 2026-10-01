@@ -2,7 +2,7 @@ import { h } from '../../dom.js';
 import { glyphSvg } from '../../glyphs.js';
 import { letterText, richText } from '../../letters.js';
 import { accentOf } from '../../theme.js';
-import { soundPhrase, checkPrompt } from '../../lessons.js';
+import { soundPhrase, checkPrompt, fit } from '../../lessons.js';
 import { picture } from '../../components/picture.js';
 
 // Task 7: one question, big cards. Nothing tells the child right or wrong.
@@ -26,6 +26,7 @@ export function build({ lesson, sound, speech, store }) {
     el,
     parts: () => prompted.parts,
     script: () => `Say: 'Which one ${q.kind === 'picture' ? 'starts with' : 'says'} ${soundPhrase(sound)}?' Let them touch one. There is no right or wrong here.`,
+    gist: () => { const verb = q.kind === 'picture' ? 'starts with' : 'says'; return fit(`Ask: which ${verb} ${soundPhrase(sound)}?`, `Ask: ${soundPhrase(sound)}?`); },
     again: () => { cards.forEach((c) => { c.classList.remove('picked'); c.setAttribute('aria-pressed', 'false'); }); speech.say(prompted.parts); },
   };
 }

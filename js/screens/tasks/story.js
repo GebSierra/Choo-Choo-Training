@@ -1,6 +1,6 @@
 import { h, icon } from '../../dom.js';
 import { holdButton } from '../../components/hold-button.js';
-import { soundPhrase } from '../../lessons.js';
+import { soundPhrase, fit } from '../../lessons.js';
 
 // Task 3: the only place a child screen leads outside the app, and it sits behind a hold.
 export function build({ sound, curriculum, speech }) {
@@ -14,6 +14,7 @@ export function build({ sound, curriculum, speech }) {
     el,
     parts: () => parts,
     script: () => `Say: 'Let's watch the ${soundPhrase(sound)} story.' Then press and hold Open playlist and find the video for ${soundPhrase(sound)}. Come back when it ends.`,
+    gist: () => fit(`Say: ${soundPhrase(sound)} story. Hold button.`, `Say: ${soundPhrase(sound)} story.`),
     again: () => speech.say(parts),
   };
 }

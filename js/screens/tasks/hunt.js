@@ -5,7 +5,7 @@ import { sparkle } from '../../components/sparkle.js';
 import { timers, farm, watchSize, findCard, starRow, shake } from '../../components/game-kit.js';
 import { skyCells, deal } from './hunt-deal.js';
 import { accentOf } from '../../theme.js';
-import { soundPhrase } from '../../lessons.js';
+import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 
 const STEPS = 5;     // correct touches to cross the field
@@ -247,6 +247,7 @@ export function build({ lesson, sound, speech, curriculum }) {
   return {
     el, flush: true,
     parts: () => say,
+    gist: () => fit(`Find ${soundPhrase(sound)}. Touch it.`, `Find ${soundPhrase(sound)}.`),
     script: () => `Say: 'Find the letter that says ${soundPhrase(sound)}. Touch it.' Then say ${soundPhrase(sound)} together.`,
     again: () => { again(); speech.say(say); },
     cleanup: () => { T.clear(); stopWatching(); },
