@@ -50,3 +50,14 @@ export function soundCardLines(sound) {
   if (sound.doNotSay) lines.push(`Do not say ${sound.doNotSay}.`);
   return lines;
 }
+
+// ---- Sound Sack data ----
+// The wrong cards of a checkpoint: words that begin with none of the sounds taught so far. A "sh" word counts as an s word
+// and a "th" word as a t or s word, so neither is used once s (or t) is taught.
+export function sackPool(curriculum, ck) {
+  const taught = ck.sounds;
+  return (curriculum.gameDistractors || []).filter((w) => !taught.includes(w.word[0])
+    && !(taught.includes('s') && w.word.startsWith('sh')) && !((taught.includes('t') || taught.includes('s')) && w.word.startsWith('th')));
+}
+// The sounds a checkpoint's rounds may be about, and how many rounds each can take: no more than its start words.
+export const roundCaps = (curriculum, ck) => Object.fromEntries(ck.sounds.map((k) => [k, (curriculum.sounds[k].startWords || []).length]));

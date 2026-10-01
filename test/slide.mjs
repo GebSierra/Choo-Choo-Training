@@ -5,10 +5,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { audit } from './audit.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchSession, SEEN } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchSession, SEEN, DONE_JSON } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
 
-const SEED = `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'}},settings:{seenScripts:${JSON.stringify(SEEN)}},firstRunDone:true}))`;
+const SEED = `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${DONE_JSON},settings:{seenScripts:${JSON.stringify(SEEN)}},firstRunDone:true}))`;
 const plain = (page) => page.evaluate(() => ({ clips: window.__events.filter((e) => e.type === 'clip').length, tts: window.__events.filter((e) => e.type === 'tts').length }));
 const lit = (page) => page.evaluate(() => document.querySelectorAll('.glyph-letter.lit').length);
 const scrolled = (page) => page.evaluate(() => document.querySelector('.task-activity').scrollTop + scrollY);
@@ -107,8 +107,8 @@ async function letterByLetter({ page, ok, tag }) {
   await t.end();
 }
 
-export async function pictureWordSlideChecks({ browser, url, ok, vp, shot }) {
-  const { ctx, page, errors, lesson } = await open(browser, url, vp, 1, 'sounds');
+export async function pictureWordSlideChecks({ browser, url, ok, vp, shot, lessonNo = 1 }) {
+  const { ctx, page, errors, lesson } = await open(browser, url, vp, lessonNo, 'sounds');
   const pics = lesson.sayingSounds.filter((w) => !w.showLetters);
   const first = lesson.sayingSounds.findIndex((w) => !w.showLetters);
   for (let i = 0; i < first; i++) await page.click('.btn.ghost.small');
@@ -225,7 +225,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const browser = await launch(await loadPlaywright());
   const only = process.argv[2];
   for (const vp of VIEWPORTS) {
-    if (!only || only === 'letters') for (const lessonNo of [2, 3]) await lettersSlideChecks({ browser, url, ok, vp, lessonNo });
+    if (!only || only === 'letters') for (const lessonNo of [2, 3, 4, 8]) await lettersSlideChecks({ browser, url, ok, vp, lessonNo });
     if (!only || only === 'picture') await pictureWordSlideChecks({ browser, url, ok, vp });
     if (!only || only === 'words') for (const lessonNo of [1, 2]) await wordsSlideChecks({ browser, url, ok, vp, lessonNo });
   }

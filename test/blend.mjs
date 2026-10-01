@@ -4,10 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { audit } from './audit.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchSession, SEEN } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchSession, SEEN, DONE_JSON } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
 
-const SEED = `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'}},settings:{seenScripts:${JSON.stringify(SEEN)}},firstRunDone:true}))`;
+const SEED = `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${DONE_JSON},settings:{seenScripts:${JSON.stringify(SEEN)}},firstRunDone:true}))`;
 const plain = (page) => page.evaluate(() => ({ clips: window.__events.filter((e) => e.type === 'clip').length, tts: window.__events.filter((e) => e.type === 'tts').length }));
 const litCount = (page) => page.evaluate(() => document.querySelectorAll('.glyph-letter.lit').length);
 const sparks = (page) => page.evaluate(() => document.querySelectorAll('.sounds-stage .spark').length);
@@ -42,13 +42,15 @@ export async function blendChecks({ browser, url, ok, vp, lessonNo, shot }) {
   const L = await edges(page);
   ok(L.length === n && L.every((e) => e.r > e.l), `${tag}: every letter is a glyph with edges (${n})`);
   ok((await page.evaluate(() => document.querySelector('.glyph-row').getAnimations().length + document.querySelector('.sweep').getAnimations().length)) > 0, `${tag}: the sweep demonstration runs before a touch`);
+  // The component's left edge sits up to 1.5 glyph units left of the drawn stroke (the glyph box has a little air); on a short word that is a few pixels.
+  const slack = await page.evaluate(() => { const svg = document.querySelector('.word-glyphs'); return 1.5 * svg.getBoundingClientRect().width / Number(svg.dataset.width); });
   const y = L[0].y, stage = page.locator('.sounds-stage');
   const before = await plain(page);
   const x0 = (await rowLeft(page)) + 4;
   const t = await touchSession(page);
   await t.start(x0, y);
   await t.move(x0 + 8, y);
-  await t.move(L[0].l - 3, y);
+  await t.move(L[0].l - 3 - slack, y);
   await page.waitForTimeout(80);
   ok((await litCount(page)) === 0, `${tag}: nothing is lit before the finger reaches the first letter`);
   ok((await page.evaluate(() => getComputedStyle(document.querySelector('.sweep')).opacity)) === '0' && (await page.evaluate(() => document.querySelector('.sweep').getAnimations().length)) === 0, `${tag}: the first touch stops the sweep`);
@@ -74,7 +76,7 @@ export async function blendChecks({ browser, url, ok, vp, lessonNo, shot }) {
   await t.move(L[0].l + 6, y);
   await page.waitForTimeout(90);
   ok((await litCount(page)) === 1, `${tag}: dragging back leaves only the first letter lit`);
-  await t.move(L[0].l - 3, y);
+  await t.move(L[0].l - 3 - slack, y);
   await page.waitForTimeout(400); // the bar eases back over 70 ms; give a busy machine time
   ok((await litCount(page)) === 0 && (await barScale(page)) === 0, `${tag}: dragging all the way back un-lights everything`);
   // Slide to the end: sparkle, word stays lit, then resets within 1.6 s.
@@ -141,7 +143,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const ok = (c, m) => { checks++; if (!c) { failures++; console.error('FAIL: ' + m); } };
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
-  for (const vp of VIEWPORTS) for (const lessonNo of [2, 3]) await blendChecks({ browser, url, ok, vp, lessonNo });
+  for (const vp of VIEWPORTS) for (const lessonNo of [2, 3, 4]) await blendChecks({ browser, url, ok, vp, lessonNo });
   await blendReducedChecks({ browser, url, ok });
   await browser.close(); server.close();
   console.log(`blend: ${checks - failures}/${checks} checks passed`);

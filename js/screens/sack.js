@@ -5,14 +5,34 @@ import { sparkle } from '../components/sparkle.js';
 import { picture } from '../components/picture.js';
 import { timers, farm, watchSize, starRow, shake, shuffle } from '../components/game-kit.js';
 import { accentOf } from '../theme.js';
-import { soundPhrase, fit } from '../lessons.js';
+import { soundPhrase, fit, sackPool, roundCaps } from '../lessons.js';
 import { sfx } from '../sfx.js';
 
 const SPRING = 'cubic-bezier(.34,1.56,.64,1)';
 
-// Which sound each round is about: balanced over the checkpoint's sounds, shuffled, never the same sound twice running.
-export function roundSounds(sounds, rounds) {
-  const pool = Array.from({ length: rounds }, (_, i) => sounds[i % sounds.length]);
+// Which sound each round is about: the favoured sounds first (each at least once), the rest filled from the other sounds,
+// shuffled, never the same sound twice running. A sound takes at most as many rounds as it has start words (caps).
+// With no favour list and few sounds (checkpoint c1) the rounds are balanced over the sounds as before.
+export function roundSounds(sounds, rounds, { favour = [], caps = {} } = {}) {
+  const cap = (k) => (caps[k] === undefined ? Infinity : caps[k]);
+  const pool = [];
+  const left = (k) => cap(k) - pool.filter((x) => x === k).length;
+  const fav = favour.filter((k) => sounds.includes(k));
+  if (fav.length) {
+    // Favoured sounds first, then the others in a shuffled order, cycling until the rounds are full.
+    const rest = () => shuffle(sounds.filter((k) => !fav.includes(k)));
+    const turn = [...fav];
+    let others = rest();
+    while (pool.length < rounds) {
+      if (turn.length) { const k = turn.shift(); if (left(k) > 0) pool.push(k); continue; }
+      if (!others.length) others = shuffle(sounds);
+      const k = others.shift();
+      if (left(k) > 0) pool.push(k);
+      if (others.length === 0 && sounds.every((x) => left(x) <= 0)) break;
+    }
+  } else {
+    for (let i = 0; pool.length < rounds && i < rounds * sounds.length + sounds.length; i++) { const k = sounds[i % sounds.length]; if (left(k) > 0) pool.push(k); }
+  }
   for (let tries = 0; tries < 60; tries++) {
     const p = shuffle(pool);
     if (p.every((s, i) => !i || s !== p[i - 1])) return p;
@@ -25,7 +45,8 @@ export function roundSounds(sounds, rounds) {
 export function build({ checkpoint, curriculum, speech, refresh, setProgress, setDone }) {
   const T = timers();
   const rounds = checkpoint.rounds;
-  let order = roundSounds(checkpoint.sounds, rounds), round = 0, locked = false, drag = null, demoTimer = 0, demoShown = false, demoHand = null, W = 0, H = 0, sackRect = null, bases = [], size = 96, cards = [];
+  const pickOrder = () => roundSounds(checkpoint.sounds, rounds, { favour: checkpoint.favour, caps: roundCaps(curriculum, checkpoint) });
+  let order = pickOrder(), round = 0, locked = false, drag = null, demoTimer = 0, demoShown = false, demoHand = null, W = 0, H = 0, sackRect = null, bases = [], size = 96, cards = [];
   const used = {}; // start words already shown, per sound
 
   const front = h('div', { class: 'sack-front' });
@@ -67,7 +88,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
     const key = order[round];
     el.dataset.round = String(round + 1); el.dataset.sound = key;
     const right = pickWord(key);
-    const wrong = shuffle(curriculum.gameDistractors.filter((w) => !(w.avoid || []).includes(key))).slice(0, 2); // avoid: a look-alike for this sound
+    const wrong = shuffle(sackPool(curriculum, checkpoint).filter((w) => !(w.avoid || []).includes(key))).slice(0, 2); // avoid: a look-alike for this sound
     const choices = shuffle([{ ...right, correct: true }, ...wrong.map((w) => ({ ...w, correct: false }))]);
     front.replaceChildren(glyphSvg(key, { color: accentOf(key), label: 'the sound on the sack' }));
     cards = choices.map((c, i) => {
@@ -194,7 +215,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
   function again() {
     T.clear();
     scene.querySelectorAll('.gold-star.overflow').forEach((s) => s.remove());
-    order = roundSounds(checkpoint.sounds, rounds); round = 0; drag = null;
+    order = pickOrder(); round = 0; drag = null;
     for (const k of Object.keys(used)) delete used[k];
     row.reset(); setProgress(0);
     el.dataset.stars = '0'; el.dataset.state = 'playing';

@@ -84,7 +84,7 @@ export function grownupsScreen(ctx) {
 
   // ---- clips ----
   const clipList = h('div', { class: 'gu-list' });
-  const paintClips = (status) => clipList.replaceChildren(...Object.keys(curriculum.sounds).map((k) => h('div', { class: 'gu-row slim' },
+  const paintClips = (status) => clipList.replaceChildren(...Object.keys(curriculum.sounds).filter((k) => curriculum.sounds[k].clip).map((k) => h('div', { class: 'gu-row slim' },
     h('span', { class: 'gu-glyph' }, glyphSvg(k, { color: accentOf(k), label: 'sound clip' })),
     h('div', { class: 'gu-row-text' }, h('span', { class: 'gu-sub' }, richText(soundPhrase(curriculum.sounds[k])))),
     h('span', { class: 'gu-pill ' + (status && status[k] ? 'ok' : 'no') }, status ? (status[k] ? 'found' : status[k] === false ? 'missing' : 'unknown') : 'checking'))));
@@ -116,7 +116,7 @@ export function grownupsScreen(ctx) {
       sec('Sound effects', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play sounds'), sfxSwitch), h('label', { class: 'gu-field' }, h('span', {}, 'Volume ', sfxOut), sfxRange), sfxTest,
         h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a sheep home, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),
       fold('Recorded sounds', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play recorded letter sounds'), soundsSwitch), h('p', { class: 'gu-note' }, 'Off: your grown up says the sounds.'), clipList, h('p', { class: 'gu-note' }, 'When the switch is on, isolated sounds play from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT)),
-      fold('The three sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
+      fold('All the sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
       sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Sound story playlist'),
         h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Alphabet song')),
       ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),

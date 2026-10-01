@@ -68,9 +68,9 @@ const butterfly = (cls) => h('svg', { class: 'butterfly ' + cls, viewBox: '0 0 4
 function stone(n, what, state, onTap, speech) {
   const sound = what.sound;
   const accent = sound ? `var(--${sound.glyph})` : '#C99A5B';
-  const name = sound ? `Lesson ${n}` : what.title;
+  const name = sound ? `Lesson ${what.number}` : what.title;
   const top = sound
-    ? h('span', { class: 'stone-top' }, glyphSvg(sound.glyph, { color: accent, label: 'lesson ' + n }), h('span', { class: 'stone-num' }, String(n)))
+    ? h('span', { class: 'stone-top' }, glyphSvg(sound.glyph, { color: accent, label: 'lesson ' + what.number }), h('span', { class: 'stone-num' }, String(what.number)))
     : h('span', { class: 'stone-top stone-sack' }, sackSvg());
   const badge = state === 'done'
     ? h('span', { class: 'stone-badge done' }, h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, 'aria-hidden': 'true' }, h('path', { d: 'M5 12.5l4.5 4.5L19 7.5', class: 'tick', fill: 'none', stroke: '#fff', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })))
@@ -109,7 +109,7 @@ export function homeScreen(ctx) {
     }
     const l = node.lesson;
     const state = store.isDone(l.number) ? 'done' : (!store.isUnlocked(l.number) ? 'locked' : (l.number === current ? 'current' : 'open'));
-    return stone(i + 1, { sound: curriculum.sounds[l.sound] }, state === 'open' ? 'current' : state, (btn, st) => {
+    return stone(i + 1, { sound: curriculum.sounds[l.sound], number: l.number }, state === 'open' ? 'current' : state, (btn, st) => {
       if (st === 'locked') wobble(btn); else router.go(`/lesson/${l.number}`);
     }, speech);
   });

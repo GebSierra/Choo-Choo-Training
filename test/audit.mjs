@@ -40,7 +40,7 @@ export async function audit(page, label) {
     let n;
     while ((n = walker.nextNode())) {
       const t = n.textContent.trim();
-      if (!t || (n.parentElement && n.parentElement.closest(skip))) continue;
+      if (!t || (n.parentElement && (n.parentElement.closest(skip) || n.parentElement.closest('[aria-hidden="true"]')))) continue; // pieces of a word drawn letter by letter are hidden from readers; the word's own label is checked below
       if (re.test(t)) out.push(`letter name in text: "${t}"`);
       // Text and labels must not contain a capital except for sentence case headings; flag lone capital letters used as letters.
     }

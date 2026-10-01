@@ -3,10 +3,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, touchDrag } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, DONE_JSON, touchDrag } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
 
-const SEED = (settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'}},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
+const SEED = (settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${DONE_JSON},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
 const OUT = path.join(ROOT, '_test');
 
 const center = async (loc) => { const b = await loc.boundingBox(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };
@@ -372,6 +372,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
   for (const vp of VIEWPORTS) { await huntChecks({ browser, url, ok, CUR, vp }); await dragChecks({ browser, url, ok, CUR, vp }); await barnChecks({ browser, url, ok, CUR, vp, full: vp.name === 'pixel7' }); }
+  for (const l of CUR.lessons.filter((x) => x.number >= 2)) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo: l.number }); // every letter's Hunt
   await reducedChecks({ browser, url, ok, CUR });
   await dragReducedChecks({ browser, url, ok, CUR });
   await browser.close(); server.close();

@@ -6,7 +6,9 @@ export function tracePad({ letter, onStroke }) {
   const accent = accentOf(letter);
   // Box of the glyph (in glyph units) that the pad fits into: the letter's own width, so it fills the pad.
   const GL = GLYPHS[letter];
-  const BOX = { x: GL.minX - 10, y: XHEIGHT_TOP - 12, w: GL.maxX - GL.minX + 20, h: BASELINE - XHEIGHT_TOP + 24 };
+  // A tall letter (d, t, f ...) or one with a tail (g, p) makes the box taller, so the whole letter always fits the pad.
+  const top = Math.min(XHEIGHT_TOP, GL.minY), bottom = Math.max(BASELINE, GL.maxY);
+  const BOX = { x: GL.minX - 10, y: top - 12, w: GL.maxX - GL.minX + 20, h: bottom - top + 24 };
   const guide = h('canvas', { class: 'tp-guide', 'aria-hidden': 'true' });
   const ink = h('canvas', { class: 'tp-ink', role: 'img', 'aria-label': 'Drawing area. Trace the letter with a finger.' });
   const fx = h('canvas', { class: 'tp-fx', 'aria-hidden': 'true' });
@@ -46,6 +48,7 @@ export function tracePad({ letter, onStroke }) {
     g.setLineDash([]);
     // Arrowheads along each stroke.
     strokes.forEach((st) => {
+      if (st.len < 10) return; // the dot on i is too short for an arrow
       const i = Math.floor(st.pts.length * 0.4);
       const a = map(st.pts[i - 2]), b = map(st.pts[i + 2]);
       const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);

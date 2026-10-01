@@ -18,8 +18,19 @@
   --m: #3B7DD8; --m-tint: rgba(59,125,216,.12);
   --a: #E5484D; --a-tint: rgba(229,72,77,.12);
   --s: #2FB37A; --s-tint: rgba(47,179,122,.12);
+  --t: #D57C1C; --t-tint: rgba(213,124,28,.12);
+  --f: #14A3A8; --f-tint: rgba(20,163,168,.12);
+  --d: #8A5CF0; --d-tint: rgba(138,92,240,.12);
+  --g: #E0559C; --g-tint: rgba(224,85,156,.12);
+  --i: #B9770E; --i-tint: rgba(185,119,14,.12);
+  --n: #2B6CB0; --n-tint: rgba(43,108,176,.12);
+  --p: #C2417A; --p-tint: rgba(194,65,122,.12);
+  --h: #7A5C3E; --h-tint: rgba(122,92,62,.12);
+  --b: #5B6CFF; --b-tint: rgba(91,108,255,.12);
+  --l: #6B8E23; --l-tint: rgba(107,142,35,.12);
   /* fills that carry white text: green darkened for contrast */
   --m-fill: var(--m); --a-fill: var(--a); --s-fill: #1E8E5E;
+  --t-fill: #AD6417; --f-fill: #108286; --d-fill: #8659E9; --g-fill: #C34A88; --i-fill: #A3690C; --n-fill: #2B6CB0; --p-fill: #C2417A; --h-fill: #7A5C3E; --b-fill: #5667F2; --l-fill: #60801F;
   --sky: #5DE0F0; --violet: #5A4BD6; --coral: #F0556A; --sun: #FFD166; --mint: #5FE3B0; --lilac: #CDC4F8; --blue: #7DB8F5;
   --radius: 24px;
   --shadow: 0 6px 20px rgba(60,40,20,.12);
@@ -48,7 +59,7 @@ h1, h2, h3, p { margin: 0; }
 .debug { padding: 16px; }
 .debug-glyph { width: 100%; max-width: 380px; display: block; background: #fff; border-radius: 16px; margin: 12px 0; }
 .debug-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
-.debug-row .glyph { height: 70px; width: auto; }
+.debug-row .glyph { height: calc(70px * var(--vh, 1)); width: auto; }
 
 /* speak button */
 .speak-btn {
@@ -248,7 +259,7 @@ h1, h2, h3, p { margin: 0; }
 .card-label { font-size: 16px; font-weight: 700; opacity: .85; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 .chip { display: inline-flex; align-items: center; min-height: 34px; padding: 0 14px; border-radius: 12px; background: #fff; color: var(--ink); font-weight: 800; font-size: 17px; }
-.chip-glyph { padding: 0 12px; } .chip-glyph .glyph { height: 20px; width: auto; }
+.chip-glyph { padding: 0 12px; } .chip-glyph .glyph { height: calc(20px * var(--vh, 1)); width: auto; }
 .lo-foot { position: sticky; bottom: 0; z-index: 5; padding: 12px 20px calc(16px + var(--sab)); display: grid; background: linear-gradient(to top, #fff 70%, rgba(255,255,255,0)); }
 .start-btn { width: 100%; max-width: 520px; margin: 0 auto; }
 @media (orientation: landscape) {
@@ -372,9 +383,9 @@ body.night { background: var(--night); }
 .word-tile .emoji { font-size: 56px; line-height: 1; }
 .word-tile .word { font-size: 20px; font-weight: 800; min-height: 28px; }
 .ltext { white-space: nowrap; }
-.inline-a path { stroke-width: var(--aw, 10); }
-.lo-title p .inline-a, .sc-how .inline-a, .gu-sub .inline-a { --aw: 7.5; }
-.inline-a { display: inline-block; height: .56em; width: auto; vertical-align: -0.03em; margin: 0 .02em; }
+.inline-glyph path { stroke-width: var(--aw, 10); }
+.lo-title p .inline-glyph, .sc-how .inline-glyph, .gu-sub .inline-glyph { --aw: 7.5; }
+.inline-glyph { display: inline-block; width: auto; margin: 0 .02em; } /* height and vertical-align come from the glyph's own extent (letters.js) */
 
 /* story */
 .story { flex: 1; display: grid; gap: 20px; align-content: center; justify-items: center; text-align: center; padding: 10px 0; }
@@ -554,7 +565,7 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .star-slot { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.4); display: grid; place-items: center; }
 .star-slot .gold-star { width: 30px; height: 30px; }
 .find-card { left: 10px; top: 10px; z-index: 3; display: grid; justify-items: center; gap: 2px; padding: 6px 14px 6px; border-radius: 18px; background: #fff; box-shadow: var(--shadow); color: var(--muted); font-size: 16px; font-weight: 800; line-height: 1.1; pointer-events: none; }
-.find-card .glyph { height: 34px; width: auto; }
+.find-card .glyph { height: calc(34px * var(--vh, 1)); width: auto; }
 .sky { inset: 0; z-index: 2; touch-action: none; user-select: none; -webkit-user-select: none; } .sky.done { pointer-events: none; }
 .sky-letter { position: absolute; width: 56px; height: 56px; padding: 0; border: 0; background: none; cursor: pointer; touch-action: none; display: block; will-change: transform; }
 .sky-letter.dragging { z-index: 5; cursor: grabbing; }

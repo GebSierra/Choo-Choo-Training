@@ -6,6 +6,8 @@ import { SPEECH_STUB } from './stubs.mjs';
 import { audit } from './audit.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN } from './lib.mjs';
 
+const CURR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
+const NODES = CURR.lessons.length + CURR.checkpoints.length; // stones on the map, rows in Grownups
 const seed = (lessons, extra = {}) => `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons, settings: { seenScripts: SEEN }, firstRunDone: true, ...extra })}))`;
 const DONE = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it' }]));
 const rect = (page, sel, i = 0) => page.evaluate(([s, k]) => { const e = document.querySelectorAll(s)[k]; if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }, [sel, i]);
@@ -141,8 +143,8 @@ export async function sackMapChecks({ browser, url, ok, vp }) {
   await page.waitForSelector('.stone');
   await page.waitForTimeout(900);
   const tag = `${vp.name} map`;
-  ok((await page.locator('.stone').count()) === 4, `${tag}: four stones (three lessons and the sack)`);
-  const sackStone = page.locator('.stone[aria-label^="Sound Sack"]');
+  ok((await page.locator('.stone').count()) === NODES, `${tag}: ${NODES} stones (${CURR.lessons.length} lessons and ${CURR.checkpoints.length} sacks)`);
+  const sackStone = page.locator('.stone[aria-label^="Sound Sack"]').first(); // the first sack, after lesson 3
   ok((await sackStone.getAttribute('aria-label')) === 'Sound Sack, locked' && (await sackStone.evaluate((e) => e.classList.contains('is-locked'))), `${tag}: the sack stone is locked before lesson 3 is done`);
   await sackStone.click({ force: true });
   await page.waitForTimeout(400);
@@ -159,8 +161,8 @@ export async function sackMapChecks({ browser, url, ok, vp }) {
   page = made.page; errors = made.errors;
   await page.waitForSelector('.stone');
   await page.waitForTimeout(900);
-  ok((await page.locator('.stone.is-current[aria-label^="Sound Sack"]').count()) === 1, `${tag}: the sack stone is the current one once lesson 3 is done`);
-  await page.locator('.stone[aria-label^="Sound Sack"]').click();
+  ok((await page.locator('.stone[aria-label^="Sound Sack"]').first().evaluate((e) => !e.classList.contains('is-locked'))) && (await page.locator('.stone.is-current').getAttribute('aria-label')) === 'Lesson 4', `${tag}: once lesson 3 is done the sack is open and lesson 4 is the current stone`);
+  await page.locator('.stone[aria-label^="Sound Sack"]').first().click();
   await page.waitForSelector('.sack-game');
   ok(page.url().endsWith('#/checkpoint/c1'), `${tag}: tapping the sack opens the checkpoint`);
   ok((await page.locator('.task-head h1').innerText()) === 'Sound Sack', `${tag}: the screen is titled Sound Sack`);
@@ -177,9 +179,9 @@ export async function sackGrownupsChecks({ browser, url, ok }) {
   await hold();
   await page.waitForSelector('.grownups');
   const rows = page.locator('.gu-card').first().locator('.gu-row');
-  ok((await rows.count()) === 4, 'Grownups lists three lessons and the sound sack');
+  ok((await rows.count()) === NODES, `Grownups lists every lesson and sound sack (${NODES})`);
   ok(/Practice again/.test(await rows.nth(3).innerText()) && /Sound Sack/.test(await rows.nth(3).innerText()), 'Grownups shows the sack result');
-  await page.click('[aria-label="Unlock the sound sack"]');
+  await page.locator('[aria-label="Unlock the sound sack"]').first().click();
   ok((await page.locator('[aria-label="Confirm unlock"]').count()) === 1, 'Grownups: unlocking the sack asks first');
   await page.click('[aria-label="Confirm unlock"] button:has-text("Unlock")');
   ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).checkpoints.c1.unlocked)) === true, 'Grownups: confirming unlocks the sack');

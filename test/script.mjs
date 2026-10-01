@@ -3,11 +3,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, DONE_JSON, SAMPLE_LESSONS } from './lib.mjs';
 import { tasksFor, soundPhrase } from '../js/lessons.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
-const seed = (settings) => `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'},3:{tasksDone:[],result:'got-it'}},settings:${JSON.stringify(settings)},firstRunDone:true})); }`; // once per tab, so a reload keeps what the page saved
+const seed = (settings) => `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${DONE_JSON},settings:${JSON.stringify(settings)},firstRunDone:true})); }`; // once per tab, so a reload keeps what the page saved
 const stageBox = (page) => page.evaluate(() => { const r = document.querySelector('.task-stage').getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; });
 const expanded = (page) => page.getAttribute('.screen:not(.leaving) .script-toggle', 'aria-expanded'); // not the screen that is leaving
 const sheetShown = (page) => page.evaluate(() => { const s = document.querySelector('.screen:not(.leaving) .script-sheet'); return !!s && !s.hidden && getComputedStyle(s).display !== 'none'; });
@@ -54,7 +54,7 @@ export async function roomChecks({ browser, url, ok }) {
     const gains = [];
     for (const full of [false, true]) {
       const { ctx, page, errors } = await open(browser, url, vp, '#/home', { seenScripts: SEEN, fullInstructions: full });
-      for (const L of [1, 2, 3]) {
+      for (const L of SAMPLE_LESSONS) {
         for (const t of tasksFor(CUR.lessons[L - 1])) {
           await page.goto(url + `#/lesson/${L}/task/${t.index}`); await page.reload();
           await page.waitForSelector('.task-screen'); await page.waitForTimeout(650);
@@ -103,7 +103,7 @@ export async function roomChecks({ browser, url, ok }) {
 }
 
 // The text of the bar's gist, with the drawn single-story "a" read back as the letter.
-const gistOf = (page) => page.evaluate(() => [...document.querySelector('.screen:not(.leaving) .script-first').childNodes].map((n) => (n.classList && n.classList.contains('inline-a') ? 'a' : n.textContent)).join(''));
+const gistOf = (page) => page.evaluate(() => [...document.querySelector('.screen:not(.leaving) .script-first').childNodes].map((n) => (n.classList && n.classList.contains('inline-glyph') ? n.dataset.letter : n.textContent)).join(''));
 
 // Every task's gist: not empty, at most 28 characters, holds the current sound or word (Letter Writing has neither),
 // follows the word when it changes, and the games do not open the sheet by themselves.

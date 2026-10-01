@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { audit } from './audit.mjs';
 import { SPEECH_STUB, silentWav } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN, DONE_JSON, SAMPLE_LESSONS, doneThrough } from './lib.mjs';
 import { spokenStrings, isIsolated } from './check-content.mjs';
 import { tasksFor } from '../js/lessons.js';
 import { usedImages } from '../tools/precache-images.mjs';
@@ -13,6 +13,7 @@ import { dealerChecks } from './deal.mjs';
 import { sfxChecks, sfxGrownupsChecks } from './sfx.mjs';
 import { roomChecks, barChecks, timerAndFirstVisitChecks, grownupsScriptChecks } from './script.mjs';
 import { round2Checks } from './round2.mjs';
+import { round3Checks } from './round3.mjs';
 import { lettersSlideChecks, pictureWordSlideChecks, wordsSlideChecks, slideReducedChecks } from './slide.mjs';
 
 const FAST = process.argv.includes('--fast');
@@ -44,9 +45,10 @@ for (const vp of VIEWPORTS) {
   await page.addInitScript(SEED({ 1: { tasksDone: [0, 1], result: null, completedAt: null } }));
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone');
-  ok((await page.locator('.stone').count()) === 4, `${vp.name}: four stones (three lessons and the sound sack)`);
+  const STONES = CUR.lessons.length + CUR.checkpoints.length;
+  ok((await page.locator('.stone').count()) === STONES, `${vp.name}: ${STONES} stones (${CUR.lessons.length} lessons and ${CUR.checkpoints.length} sound sacks)`);
   ok((await page.evaluate(() => getComputedStyle(document.documentElement).overscrollBehaviorY)) === 'none', `${vp.name}: html refuses overscroll, so pull-to-refresh is off`);
-  ok((await page.locator('.stone.is-current').count()) === 1 && (await page.locator('.stone.is-locked').count()) === 3, `${vp.name}: one current, two lessons and the sack locked`);
+  ok((await page.locator('.stone.is-current').count()) === 1 && (await page.locator('.stone.is-locked').count()) === STONES - 1, `${vp.name}: one current, every other stone locked`);
   await page.waitForTimeout(900);
   await page.screenshot({ path: path.join(OUT, `home-${vp.name}.png`) });
   await page.locator('.stone.is-locked').first().click({ force: true });
@@ -122,11 +124,11 @@ for (const vp of VIEWPORTS) {
 }
 
 // Every task of every lesson at every viewport (step 8): 20 tasks, audits, screenshots.
-const LESSONS = CUR.lessons.map((l) => l.number);
-const TASK_COUNTS = Object.fromEntries(CUR.lessons.map((l) => [l.number, tasksFor(l).length]));
+const LESSONS = SAMPLE_LESSONS; // lessons 1 to 3, the first new one, a middle one and the last: all their tasks are walked
+const TASK_COUNTS = Object.fromEntries(LESSONS.map((n) => [n, tasksFor(CUR.lessons[n - 1]).length]));
 const TOTAL_TASKS = Object.values(TASK_COUNTS).reduce((a, b) => a + b, 0);
-const ALL_OPEN = SEED({ 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' } });
-const ALL_OPEN_SOUNDS = SEED({ 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' } }, { playSounds: true });
+const ALL_OPEN = SEED(JSON.parse(DONE_JSON));
+const ALL_OPEN_SOUNDS = SEED(JSON.parse(DONE_JSON), { playSounds: true });
 const allSpoken = [];
 for (const vp of VIEWPORTS) {
   const { ctx, page, errors } = await newPage(browser, vp);
@@ -231,17 +233,19 @@ for (const vp of VIEWPORTS) {
   await dragChecks({ browser, url, ok, CUR, vp, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `drag-${vp.name}-${name}.png`) }) });
   await barnChecks({ browser, url, ok, CUR, vp, full: vp.name === 'pixel7', shot: shotTo(OUT) });
 }
-for (const lessonNo of [2, 3]) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
-await barnChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo: 3 });
+// Letter Hunt for every lesson from the second on (every new letter and its distractors), Barn Doors for a sample.
+for (const lessonNo of CUR.lessons.map((l) => l.number).filter((n) => n >= 2)) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
+for (const lessonNo of SAMPLE_LESSONS.filter((n) => n >= 3)) await barnChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
 await reducedChecks({ browser, url, ok, CUR });
 await dragReducedChecks({ browser, url, ok, CUR });
 // Saying Sounds, slide to blend: real touch drags across am (lesson 2) and sam (lesson 3).
-for (const vp of VIEWPORTS) for (const lessonNo of [2, 3]) await blendChecks({ browser, url, ok, vp, lessonNo, shot: shotTo(OUT) });
+for (const vp of VIEWPORTS) for (const lessonNo of [2, 3, 4]) await blendChecks({ browser, url, ok, vp, lessonNo, shot: shotTo(OUT) });
 await blendReducedChecks({ browser, url, ok });
 // Ten awkward slides per task (starting left of, on, above, below and in the middle of the word, with vertical drift) must all work:
 // letters, a picture word after its tap, and the revealed word in Saying Words with its picture wash.
 for (const vp of VIEWPORTS) {
-  for (const lessonNo of [2, 3]) await lettersSlideChecks({ browser, url, ok, vp, lessonNo });
+  for (const lessonNo of [2, 3, 4, 8]) await lettersSlideChecks({ browser, url, ok, vp, lessonNo });
+  await pictureWordSlideChecks({ browser, url, ok, vp, lessonNo: 4 });
   await pictureWordSlideChecks({ browser, url, ok, vp, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `slide-picture-${vp.name}-${name}.png`) }) });
   for (const lessonNo of [1, 2]) await wordsSlideChecks({ browser, url, ok, vp, lessonNo, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `slide-words-${vp.name}-L${lessonNo}-${name}.png`) }) });
 }
@@ -250,6 +254,7 @@ await slideReducedChecks({ browser, url, ok });
 for (const vp of VIEWPORTS) { await sackMapChecks({ browser, url, ok, vp }); await sackChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) }); }
 await sackGrownupsChecks({ browser, url, ok });
   await round2Checks({ browser, url, ok });
+  await round3Checks({ browser, url, ok });
 }
 {
   // Full screen button on Home and in Grownups (the Fullscreen API is stubbed so the call can be counted).
@@ -387,14 +392,14 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   const gp = await audit(page, 'grownups');
   ok(gp.length === 0, gp.join(' | '));
   await page.screenshot({ path: path.join(OUT, 'grownups-pixel7.png'), fullPage: true });
-  ok((await page.locator('.gu-pill').count()) === 3, 'clip status lists three sounds');
+  ok((await page.locator('.gu-pill').count()) === Object.values(CUR.sounds).filter((s) => s.clip).length, 'clip status lists only the sounds that have a clip');
   // Voice choice persists.
   await page.selectOption('.gu-select', 'g-us');
   await page.locator('[aria-label="Speaking speed"]').evaluate((el) => { el.value = 1.05; el.dispatchEvent(new Event('input', { bubbles: true })); });
   await page.click('.gu-switch');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings);
   ok(saved.voiceURI === 'g-us' && saved.rate === 1.05 && saved.autoSpeak === false, 'voice, rate and auto-speak persist ' + JSON.stringify(saved));
-  // "Recorded sounds" and "The three sounds" start closed (so Reset is within reach); a tap opens one, and "Test voice" sits right under Speed.
+  // "Recorded sounds" and "All the sounds" start closed (so Reset is within reach); a tap opens one, and "Test voice" sits right under Speed.
   const folds = page.locator('.gu-fold');
   ok((await folds.count()) === 2 && (await folds.evaluateAll((l) => l.every((b) => b.getAttribute('aria-expanded') === 'false' && document.getElementById(b.getAttribute('aria-controls')).hidden))), 'Grownups: the two reference cards start closed');
   ok(await page.evaluate(() => { const r = document.querySelector('[aria-label="Speaking speed"]').closest('label'); return r.nextElementSibling && r.nextElementSibling.textContent.includes('Test voice'); }), 'Grownups: Test voice sits directly under Speed');
@@ -463,7 +468,7 @@ for (const [name, raw] of [
   await page.addInitScript(`localStorage.setItem('reading.v1', ${JSON.stringify(raw)})`);
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone');
-  ok((await page.locator('.stone').count()) === 4, `corrupt store (${name}): Home renders`);
+  ok((await page.locator('.stone').count()) === CUR.lessons.length + CUR.checkpoints.length, `corrupt store (${name}): Home renders`);
   if (name === 'bad entries') {
     await page.goto(url + '#/lesson/2');
     await page.waitForSelector('.lesson-overview');
@@ -497,17 +502,25 @@ for (const [name, raw] of [
   await page.click('.btn.got');
   await page.waitForSelector('.lesson-overview');
   ok(page.url().endsWith('#/lesson/3'), 'second Yes tap opens the next lesson overview');
-  await page.goto(url + '#/lesson/3/finish');
-  await page.waitForSelector('.finish');
-  await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
-  await page.click('.btn.got');
-  ok(/Tap again to go back to the path\./.test(await page.locator('.finish-note').innerText()), 'final lesson note');
-  ok((await stored(3)) === null, 'the arming tap on lesson 3 does not store got-it');
-  await page.waitForTimeout(1700);
-  await page.click('.btn.got');
-  await page.waitForSelector('.home');
-  ok((await stored(3)) === 'got-it', 'the second tap on lesson 3 stores got-it');
-  await page.waitForSelector('.home');
+  {
+    // The final lesson: Yes goes back to the path. A fresh page, with every lesson before it done and itself not yet.
+    const LAST = CUR.lessons.length;
+    const fin = await newPage(browser, VIEWPORTS[0]);
+    await fin.page.addInitScript(SPEECH_STUB);
+    await fin.page.addInitScript(SEED(doneThrough(LAST - 1)));
+    await fin.page.goto(url + `#/lesson/${LAST}/finish`);
+    await fin.page.waitForSelector('.finish');
+    await fin.page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
+    await fin.page.click('.btn.got');
+    ok(/Tap again to go back to the path\./.test(await fin.page.locator('.finish-note').innerText()), 'final lesson note');
+    const lastStored = () => fin.page.evaluate((k) => JSON.parse(localStorage.getItem('reading.v1')).lessons[k]?.result ?? null, LAST);
+    ok((await lastStored()) === null, `the arming tap on lesson ${LAST} does not store got-it`);
+    await fin.page.waitForTimeout(1700);
+    await fin.page.click('.btn.got');
+    await fin.page.waitForSelector('.home');
+    ok((await lastStored()) === 'got-it', `the second tap on lesson ${LAST} stores got-it`);
+    await fin.ctx.close();
+  }
   await page.goto(url + '#/lesson/2/finish');
   await page.waitForSelector('.finish');
   await page.click('.btn.practice');
@@ -526,7 +539,7 @@ for (const [name, raw] of [
   await page.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }); });
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone');
-  ok((await page.locator('.stone').count()) === 4, 'app renders when localStorage throws');
+  ok((await page.locator('.stone').count()) === CUR.lessons.length + CUR.checkpoints.length, 'app renders when localStorage throws');
   ok(errors.length === 0, 'storage-blocked errors ' + errors.join(' | '));
   await ctx.close();
 }
@@ -586,7 +599,7 @@ for (const [name, raw] of [
   await ctx.setOffline(true);
   await page.reload();
   await page.waitForSelector('.stone', { timeout: 8000 });
-  ok((await page.locator('.stone').count()) === 4, 'offline reload renders Home');
+  ok((await page.locator('.stone').count()) === CUR.lessons.length + CUR.checkpoints.length, 'offline reload renders Home');
   await page.goto(url + 'index.html#/lesson/1/task/0');
   await page.reload();
   await page.waitForSelector('.task-screen', { timeout: 8000 });

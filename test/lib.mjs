@@ -8,6 +8,13 @@ import { AUDIO_STUB } from './stubs.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+// Saved progress with every lesson done (so every lesson and checkpoint is open), built from the data.
+const LESSON_COUNT = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')).lessons.length;
+export const doneThrough = (n = LESSON_COUNT) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it' }]));
+export const DONE_JSON = JSON.stringify(doneThrough());
+// The lessons whose nine tasks are all walked in the slow suites: the first new one, a middle one and the last (plus 1 to 3).
+export const SAMPLE_LESSONS = [1, 2, 3, 4, 8, 13].filter((n) => n <= LESSON_COUNT);
+
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.webp': 'image/webp', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.webm': 'audio/webm' };
 
 export function startServer() {
@@ -83,4 +90,4 @@ export async function touchSession(page) {
 
 // Every kind of task and lesson already seen on this device, so the parent script does not open by itself over the
 // controls a test is about to tap. (The first-visit behaviour is tested with an empty list.)
-export const SEEN = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, barn: true, check: true, checkpoint: true, 'lesson:1': true, 'lesson:2': true, 'lesson:3': true };
+export const SEEN = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, barn: true, check: true, checkpoint: true, ...Object.fromEntries(Array.from({ length: LESSON_COUNT }, (_, i) => [`lesson:${i + 1}`, true])) };

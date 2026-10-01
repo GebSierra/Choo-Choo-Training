@@ -3,14 +3,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, touchDrag, touchSession } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, touchDrag, touchSession, DONE_JSON } from './lib.mjs';
 import vm from 'node:vm';
 import { tasksFor } from '../js/lessons.js';
 import { createStore } from '../js/store.js';
 import { shuffle } from '../js/components/game-kit.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
-const SEED = (settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{1:{tasksDone:[],result:'got-it'},2:{tasksDone:[],result:'got-it'},3:{tasksDone:[],result:'got-it'}},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
+const SEED = (settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${DONE_JSON},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
 const idx = (n, type) => tasksFor(CUR.lessons[n - 1]).find((t) => t.type === type).index;
 const center = async (loc) => { const b = await loc.boundingBox(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };
 const tap = async (page, loc) => { const c = await center(loc); await page.touchscreen.tap(c.x, c.y); };
@@ -404,7 +404,7 @@ export async function landscapeChecks({ browser, url, ok }) {
   await page.waitForSelector('.home');
   const routes = [];
   for (const L of CUR.lessons) for (const t of tasksFor(L)) routes.push([`#/lesson/${L.number}/task/${t.index}`, `L${L.number} ${t.type}`]);
-  routes.push(['#/checkpoint/c1', 'Sound Sack']);
+  for (const k of CUR.checkpoints) routes.push([`#/checkpoint/${k.id}`, `Sound Sack ${k.id}`]);
   for (const [r, name] of routes) {
     await page.evaluate((h) => { location.hash = h; }, r);
     await page.waitForFunction((h) => location.hash === h && document.querySelector('.screen:not(.leaving) .task-stage') && !document.querySelector('.screen.leaving'), r);
@@ -692,7 +692,7 @@ export async function reliabilityChecks({ browser, url, ok }) {
   {
     const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
     const optional = [...sw.match(/OPTIONAL_FILES = \[([^\]]*)\]/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]).sort();
-    const clips = Object.values(CUR.sounds).map((s) => s.clip).sort();
+    const clips = Object.values(CUR.sounds).map((s) => s.clip).filter(Boolean).sort(); // a sound without a recording has clip: null
     ok(JSON.stringify(optional) === JSON.stringify(clips), `sw OPTIONAL_FILES are exactly the curriculum's clips (${optional.join(', ')})`);
     const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
     const files = [path.join(ROOT, 'index.html'), ...walk(path.join(ROOT, 'js'))].filter((f) => /\.(js|html)$/.test(f));

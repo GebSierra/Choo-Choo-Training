@@ -2,9 +2,22 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT } from './lib.mjs';
-import { scriptToParts } from '../js/scripts.js';
+import { scriptToParts, slowSounds, firstSoundOut } from '../js/scripts.js';
+import { GLYPHS } from '../js/glyphs.js';
+import { ACCENT } from '../js/theme.js';
+import { sackPool, roundCaps } from '../js/lessons.js';
 
 export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee', 'aitch', 'eye', 'jay', 'kay', 'el', 'em', 'en', 'oh', 'pee', 'cue', 'ar', 'ess', 'tee', 'you', 'vee', 'double', 'ex', 'wye', 'zee'];
+// Words where s says z, which a child must not learn as an s word.
+export const S_SAYS_Z = ['as', 'is', 'his', 'has', 'was', 'does', 'goes', 'hers', 'ours', 'yours'];
+// Letters that look like each other, so they never stand together in a game or a Quick Check (mirror and look-alike pairs).
+const LOOKALIKE_PAIRS = ['da', 'db', 'dp', 'dq', 'dg', 'bp', 'bq', 'bh', 'pq', 'pg', 'nm', 'nh', 'nr', 'nu', 'hb', 'hk', 'hl', 'li', 'lt', 'lj', 'lf', 'tf', 'fi'];
+export const lookAlike = (x, y) => LOOKALIKE_PAIRS.some((p) => (p[0] === x && p[1] === y) || (p[0] === y && p[1] === x));
+// Contrast of a colour on white (WCAG), so a glyph in its accent stays visible.
+export const contrastOnWhite = (hex) => {
+  const ch = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 1.05 / (0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2] + 0.05);
+};
 const nameRe = new RegExp(`\\b(${LETTER_NAMES.join('|')})\\b`, 'i');
 // Text to speech must never get a single letter or a run of one letter ("m", "mmm").
 export const isIsolated = (t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, ''); return z.length === 1 || (z.length > 1 && /^(.)\1+$/.test(z)); };
@@ -55,6 +68,21 @@ export function checkCurriculum(c, root = ROOT) {
     if (m) err(`${p}: contains letter name "${m[0]}" in "${s}"`);
   }
 
+  // A clipped sound (t d g p h b l ...) is short: never written stretched ("ttt") anywhere in the data.
+  const clippedLetters = Object.values(c.sounds || {}).filter((x) => x.hold === false).map((x) => x.glyph);
+  for (const [p, s] of strings) {
+    if (/(^|\.)(image|clip|playlistUrl|alphabetSongUrl)$/.test(p)) continue;
+    for (const k of clippedLetters) if (new RegExp(`${k}{3,}`, 'i').test(s)) err(`${p}: "${s}" stretches the clipped sound ${k}-`);
+  }
+  // The parent's words for the sound: "a as in apple", "i as in igloo", never a bare letter.
+  for (const [k, sd] of Object.entries(c.sounds || {})) {
+    if (sd.asIn && !new RegExp(`\\b${k} as in ${sd.asIn}`).test(`${sd.sayItLike} as in ${sd.asIn}`)) err(`sounds.${k}: sayItLike and asIn must read "${k} as in ${sd.asIn}"`);
+    if ('ai'.includes(k) && !new RegExp(`\\b${k} as in ${sd.asIn}`).test(sd.howTo)) err(`sounds.${k}.howTo must say "${k} as in ${sd.asIn}", never a bare letter`);
+    if (sd.hold === false && sd.sayItLike !== `${k}-`) err(`sounds.${k}: a clipped sound is written "${k}-"`);
+    if (sd.hold === true && !/^(.)\1\1$/.test(sd.sayItLike) && !sd.asIn) err(`sounds.${k}: a held sound is written as a run like "fff"`);
+    for (const w of [...(sd.words || []), ...(sd.startWords || [])]) if (S_SAYS_Z.includes(w.word)) err(`sounds.${k}: "${w.word}" is a word where s says z`);
+  }
+
   // Every picture tile exists and stays small enough to precache (under 70 KB).
   for (const [p, s] of strings) {
     if (!/(^|\.)image$/.test(p)) continue;
@@ -88,8 +116,10 @@ export function checkCurriculum(c, root = ROOT) {
   for (const k of ['playlistUrl', 'alphabetSongUrl']) if (!isYouTube(c[k] || '') || !/^https:\/\//.test(c[k])) err(`${k} must be an https YouTube URL`);
   const sounds = c.sounds || {};
   for (const [k, s] of Object.entries(sounds)) {
-    if (!s.clip) err(`sounds.${k}.clip missing`);
-    else if (!/\.(mp3|webm)$/.test(s.clip)) err(`sounds.${k}.clip must be .mp3 (a .webm next to it is tried second)`);
+    // A recorded clip is optional (the grown up says the sounds); a sound without one has clip: null.
+    if (s.clip !== null && !/\.(mp3|webm)$/.test(s.clip || '')) err(`sounds.${k}.clip must be .mp3 (a .webm next to it is tried second) or null`);
+    if (typeof s.hold !== 'boolean') err(`sounds.${k}.hold must be true or false`);
+    if (!GLYPHS[k]) err(`sounds.${k}: no glyph of ours for this taught letter`);
     if (s.glyph !== k) err(`sounds.${k}.glyph must equal its key`);
     if (s.glyph !== s.glyph.toLowerCase()) err(`sounds.${k}.glyph not lowercase`);
     if (s.sayItLike !== s.sayItLike.toLowerCase()) err(`sounds.${k}.sayItLike not lowercase`);
@@ -114,6 +144,8 @@ export function checkCurriculum(c, root = ROOT) {
     for (const k of Object.keys(sounds)) {
       const d = (g.distractors || {})[k];
       if (!Array.isArray(d) || d.length < 3) { err(`${p}.distractors.${k} needs at least three letters`); continue; }
+      if (d.length < 6) err(`${p}.distractors.${k} needs at least six letters (Letter Hunt re-deals with six distractors even in a short landscape)`);
+      d.forEach((x) => { if (lookAlike(x, k)) err(`${p}.distractors.${k} "${x}" looks like the target`); });
       if (new Set(d).size !== d.length) err(`${p}.distractors.${k} repeats a letter`);
       d.forEach((x) => { if (!/^[a-z]$/.test(x)) err(`${p}.distractors.${k} "${x}" must be one lowercase letter`); });
       if (d.includes(k)) err(`${p}.distractors.${k} contains its own target`);
@@ -135,11 +167,8 @@ export function checkCurriculum(c, root = ROOT) {
   if (pool.length < 6) err('gameDistractors needs at least six words');
   pool.forEach((w, i) => {
     wordOk(w, `gameDistractors[${i}]`);
-    if (w.word && Object.keys(sounds).includes(w.word[0])) err(`gameDistractors[${i}] "${w.word}" begins with a taught sound`);
     for (const a of w.avoid || []) if (!sounds[a]) err(`gameDistractors[${i}].avoid "${a}" is not a sound`);
   });
-  // Every sound's round still has at least two wrong cards after the per-sound exclusions.
-  for (const k of Object.keys(sounds)) if (pool.filter((w) => !(w.avoid || []).includes(k)).length < 2) err(`gameDistractors leaves fewer than two wrong cards for sound "${k}"`);
   if (new Set(pool.map((w) => w.word)).size !== pool.length) err('gameDistractors repeats a word');
   // Pictures that read as something else are not used anywhere: a paint can (red), a knife in the jam picture, a broom (mop), a duck (goose).
   const everyWord = [...Object.values(sounds).flatMap((s) => [...s.words, ...(s.startWords || [])]), ...pool, ...(c.lessons || []).flatMap((L) => [...L.sayingSounds, ...(L.quickCheck ? L.quickCheck.options : [])])].map((w) => w.word);
@@ -159,21 +188,39 @@ export function checkCurriculum(c, root = ROOT) {
     if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
     if (!Number.isInteger(k.rounds) || k.rounds < 1) err(`${p}.rounds must be a positive integer`);
     if (!Array.isArray(k.sounds) || !k.sounds.length) return err(`${p}.sounds missing`);
-    const need = Math.ceil(k.rounds / k.sounds.length);
     const taughtBy = new Set((c.lessons || []).slice(0, k.after).map((L) => L.sound));
     for (const s of k.sounds) {
       if (!sounds[s]) err(`${p}.sounds "${s}" is not a sound`);
       else if (!taughtBy.has(s)) err(`${p}.sounds "${s}" is not taught by lesson ${k.after}`);
-      else if ((sounds[s].startWords || []).length < need) err(`${p}: sound "${s}" needs at least ${need} startWords`);
     }
+    // After lesson k.after every taught sound is in the checkpoint (a checkpoint reviews them all), and no round repeats a start word.
+    if (k.sounds.length !== taughtBy.size) err(`${p}.sounds must list every sound taught by lesson ${k.after}`);
+    for (const f of k.favour || []) if (!k.sounds.includes(f)) err(`${p}.favour "${f}" is not one of its sounds`);
+    const caps = roundCaps(c, k);
+    const room = Object.values(caps).reduce((x, y) => x + y, 0);
+    if (room < k.rounds) err(`${p}: ${k.rounds} rounds but only ${room} start words in all`);
+    for (const s of k.sounds) if (sounds[s] && !(sounds[s].startWords || []).length) err(`${p}: sound "${s}" has no startWords`);
+    // The wrong cards: words that begin with none of the checkpoint's sounds; at least 12, and at least two for every sound's round.
+    const wrong = sackPool(c, k);
+    if (wrong.length < 12) err(`${p}: only ${wrong.length} wrong cards for the sack, needs at least 12`);
+    for (const s of k.sounds) if (wrong.filter((w) => !(w.avoid || []).includes(s)).length < 2) err(`${p}: fewer than two wrong cards for sound "${s}"`);
+    for (const w of wrong) { if (k.sounds.includes(w.word[0])) err(`${p}: wrong card "${w.word}" begins with a taught sound`); if (k.sounds.includes('s') && w.word.startsWith('sh')) err(`${p}: wrong card "${w.word}" is an sh word`); if ((k.sounds.includes('t') || k.sounds.includes('s')) && w.word.startsWith('th')) err(`${p}: wrong card "${w.word}" is a th word`); }
   });
+  // Every lesson from the fourth on is followed by a checkpoint only where the data says so: c1 after 3, then c2 after 6, c3 after 9, c4 after the last.
+  const wantAfter = [3, 6, 9, 13].filter((n) => n <= (c.lessons || []).length);
+  if (JSON.stringify((c.checkpoints || []).map((k) => k.after)) !== JSON.stringify(wantAfter) && (c.lessons || []).length >= 13) err(`checkpoints should come after lessons ${wantAfter.join(', ')}`);
 
   const taught = new Set();
+  const seenCompounds = new Set();
+  const clipped = Object.values(sounds).filter((x) => x.hold === false).map((x) => x.glyph);
+  const taughtLetters = (L) => (c.lessons || []).slice(0, L.number).map((x) => x.sound);
+  let css = '';
+  try { css = fs.readFileSync(path.join(root, 'css/app.css'), 'utf8'); } catch { /* no stylesheet next to a test copy */ }
   (c.lessons || []).forEach((L, i) => {
     const lp = `lessons[${i}]`;
     if (L.number !== i + 1) err(`${lp}.number should be ${i + 1}`);
     if (!sounds[L.sound]) err(`${lp}.sound "${L.sound}" not in sounds`);
-    const allowed = new Set([L.sound, ...(L.review || [])]);
+    const allowed = new Set([...taught, L.sound]); // every letter taught so far, this lesson's included
     for (const r of L.review || []) if (!taught.has(r)) err(`${lp}.review "${r}" was not taught earlier`);
     for (const f of ['review', 'intro', 'sayingWords', 'sayingSounds']) if (!Array.isArray(L[f])) err(`${lp}.${f} missing`);
     checkParts(L.intro, `${lp}.intro`);
@@ -184,8 +231,12 @@ export function checkCurriculum(c, root = ROOT) {
       if (!Array.isArray(w.parts) || w.parts.length !== 2) err(`${p}.parts needs exactly two parts`);
       if (!Array.isArray(w.emoji) || w.emoji.length !== 2) err(`${p}.emoji needs exactly two emoji`);
       if (Array.isArray(w.parts) && w.parts.join('') !== w.word) err(`${p}: the parts (${(w.parts || []).join(' + ')}) do not make "${w.word}"`);
+      if (Array.isArray(w.emoji) && w.emoji[0] === w.emoji[1]) err(`${p}: both parts have the same emoji`);
+      if (seenCompounds.has(w.word)) err(`${p}: "${w.word}" is already a Saying Words word in another lesson`);
+      seenCompounds.add(w.word);
       [w.word, ...(w.parts || [])].forEach((t) => {
         if (t !== t.toLowerCase()) err(`${p} not lowercase: ${t}`);
+        if (S_SAYS_Z.includes(t)) err(`${p} "${t}" is a word where s says z`);
         if (t === 'as') err(`${p} is "as"`);
         if (isIsolated(t)) err(`${p} "${t}" is an isolated sound and is spoken by tts`);
       });
@@ -193,11 +244,29 @@ export function checkCurriculum(c, root = ROOT) {
     (L.sayingSounds || []).forEach((w, j) => {
       const p = `${lp}.sayingSounds[${j}]`;
       if (w.word !== w.word.toLowerCase()) err(`${p}.word not lowercase`);
-      if (w.word === 'as') err(`${p} is "as"`);
+      if (w.word === 'as' || S_SAYS_Z.includes(w.word)) err(`${p} "${w.word}" is a word where s says z`);
       if (isIsolated(w.word)) err(`${p} "${w.word}" is an isolated sound and is spoken by tts`);
       if (!w.showLetters && !w.emoji && !w.image) err(`${p} needs a picture when it does not show letters`);
       if (w.showLetters) for (const ch of w.word) if (!allowed.has(ch)) err(`${p} "${w.word}" uses untaught letter "${ch}"`);
     });
+    if (L.number >= 4) {
+      const letterWords = (L.sayingSounds || []).filter((w) => w.showLetters), pictureWords = (L.sayingSounds || []).filter((w) => !w.showLetters);
+      if (letterWords.length !== 3) err(`${lp}.sayingSounds needs three words that show letters`);
+      if (!letterWords.some((w) => w.word.includes(L.sound))) err(`${lp}.sayingSounds: at least one letter word must contain "${L.sound}"`);
+      if (pictureWords.length < 1) err(`${lp}.sayingSounds needs a picture word from the sound's tiles`);
+      for (const w of pictureWords) if (!(sounds[L.sound] ? sounds[L.sound].words : []).some((x) => x.word === w.word && x.image === w.image)) err(`${lp}.sayingSounds picture word "${w.word}" is not one of the sound's tiles`);
+      if ((L.sayingWords || []).length !== 4) err(`${lp}.sayingWords needs four compound words`);
+      for (const w of sounds[L.sound] ? sounds[L.sound].words : []) if ('aeiou'.includes(L.sound) ? !w.word.includes(L.sound) : w.word[0] !== L.sound) err(`sounds.${L.sound}.words "${w.word}" must ${'aeiou'.includes(L.sound) ? 'contain' : 'begin with'} the sound`);
+      for (const w of L.sayingSounds || []) { // held sounds may be stretched, clipped ones never
+        const lines = [slowSounds(w.word, sounds), firstSoundOut(w.word, sounds)];
+        for (const t of lines) for (const k of clipped) if (t.includes(k.repeat(3))) err(`${lp}.sayingSounds "${w.word}": the parent script would stretch the clipped sound ${k}- ("${t}")`);
+      }
+      if (!ACCENT[L.sound]) err(`theme.js has no accent for "${L.sound}"`);
+      else if (contrastOnWhite(ACCENT[L.sound]) < 3) err(`accent ${ACCENT[L.sound]} of "${L.sound}" is only ${contrastOnWhite(ACCENT[L.sound]).toFixed(2)}:1 on white (needs 3:1)`);
+      if (css && !new RegExp(`--${L.sound}:\\s*${(ACCENT[L.sound] || '').toLowerCase()}\\b`, 'i').test(css)) err(`css/app.css --${L.sound} does not match the accent in theme.js`);
+      if (L.quickCheck && L.quickCheck.kind !== (L.number % 2 === 0 ? 'letter' : 'picture')) err(`${lp}.quickCheck.kind should be ${L.number % 2 === 0 ? 'letter' : 'picture'} (even lessons letter, odd lessons picture)`);
+      if (L.quickCheck && L.quickCheck.options.length < 3) err(`${lp}.quickCheck needs three options`);
+    }
     const q = L.quickCheck;
     if (q) {
       checkParts(q.prompt, `${lp}.quickCheck.prompt`);
@@ -207,7 +276,9 @@ export function checkCurriculum(c, root = ROOT) {
       if (q.promptText !== q.promptText.toLowerCase().replace(/^./, (x) => x.toUpperCase()) && /[A-Z]/.test(q.promptText.slice(1))) err(`${lp}.quickCheck.promptText has stray capitals`);
       (q.options || []).forEach((o, j) => {
         for (const f of ['glyph', 'word']) if (o[f] && o[f] !== o[f].toLowerCase()) err(`${lp}.quickCheck.options[${j}].${f} not lowercase`);
-        if (o.word === 'as') err(`${lp}.quickCheck.options[${j}] is "as"`);
+        if (o.word === 'as' || S_SAYS_Z.includes(o.word)) err(`${lp}.quickCheck.options[${j}] is a word where s says z`);
+        if (o.glyph && !o.correct && lookAlike(o.glyph, L.sound)) err(`${lp}.quickCheck.options[${j}] "${o.glyph}" looks like the target "${L.sound}"`);
+        if (q.kind === 'picture' && !o.correct && o.word && taughtLetters(L).includes(o.word[0])) err(`${lp}.quickCheck.options[${j}] "${o.word}" begins with a letter taught by lesson ${L.number}`);
         if (o.word && isIsolated(o.word)) err(`${lp}.quickCheck.options[${j}] "${o.word}" is an isolated sound`);
         if (o.glyph && !sounds[o.glyph]) err(`${lp}.quickCheck.options[${j}].glyph "${o.glyph}" unknown`);
         else if (o.glyph && !allowed.has(o.glyph)) err(`${lp}.quickCheck.options[${j}].glyph "${o.glyph}" has not been taught by lesson ${L.number}`);

@@ -40,7 +40,7 @@ export function build({ lesson, speech, refresh }) {
       const bright = pic('bright');
       bright.style.clipPath = 'inset(0 100% 0 0)';
       const art = wordSvg(w.word, { color: '#1E2140', label: w.word, all: true });
-      art.style.maxWidth = `calc(var(--cap, 56px) * ${Number(art.dataset.width) / 66})`; // the word never grows taller than --cap
+      art.style.maxWidth = `calc(var(--cap, 56px) * ${Number(art.dataset.width) / Number(art.dataset.height)})`; // the word never grows taller than --cap
       const letters = h('span', { class: 'word-letters' }, art);
       const bar = h('span', { class: 'blend-bar', 'aria-hidden': 'true' }, h('i'));
       const band = h('span', { class: 'slide-band', 'aria-hidden': 'true' });
