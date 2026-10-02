@@ -220,13 +220,14 @@ export async function timerAndFirstVisitChecks({ browser, url, ok }) {
     await ctx.close();
   }
   // The first time a kind of task, or a lesson, is opened on the device: open for 6 s, then tuck away; afterwards compact.
+  // (Tasks with no grown-up tip here: a tip keeps the script open for 11 s, tested below.)
   {
     const made = await newPage(browser, vp);
     const { ctx, page, errors } = made;
     await page.clock.install();
     await page.addInitScript(SPEECH_STUB);
     await page.addInitScript(seed({}));
-    await page.goto(url + route(1, 'newLetter'));
+    await page.goto(url + route(3, 'review'));
     await page.waitForSelector('.script-toggle');
     await page.clock.runFor(300);
     ok((await expanded(page)) === 'false', 'first visit: compact for the first half second');
@@ -238,22 +239,46 @@ export async function timerAndFirstVisitChecks({ browser, url, ok }) {
     await page.waitForTimeout(400);
     ok((await expanded(page)) === 'false' && !(await sheetShown(page)), 'first visit: tucks itself away after 6 s');
     const seen = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.seenScripts);
-    ok(seen.newLetter === true && seen['lesson:1'] === true, `first visit: remembered per task kind and lesson (${Object.keys(seen).join(', ')})`);
+    ok(seen.review === true && seen['lesson:3'] === true, `first visit: remembered per task kind and lesson (${Object.keys(seen).join(', ')})`);
     await page.reload();
     await page.waitForSelector('.script-toggle');
     await page.clock.runFor(2000);
     ok((await expanded(page)) === 'false', 'afterwards: it stays compact until tapped');
     // A new lesson's first task opens it again; a later task of that lesson, whose kind was seen, does not.
-    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, barn: true, check: true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
+    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, barn: true, check: true, 'tip:2:newLetter': true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
     await page.goto(url + route(2, 'review'));
     await page.waitForSelector('.script-toggle');
     await page.clock.runFor(1200);
     ok((await expanded(page)) === 'true', 'a lesson seen for the first time opens its first task with the script');
+    // The app keeps its settings in memory, so write the "all seen" state and reload before checking the later task.
+    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, barn: true, check: true, 'lesson:2': true, 'tip:2:newLetter': true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
+    await page.reload();
+    await page.waitForSelector('.script-toggle');
     await page.goto(url + route(2, 'newLetter'));
     await page.waitForSelector('.script-toggle');
     await page.clock.runFor(1500);
     ok((await expanded(page)) === 'false', 'a later task of that lesson stays compact');
     ok(errors.length === 0, 'first visit: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // A task with a grown-up tip (lesson 1 New Letter) opens the script by itself for 11 s, so the tip gets read.
+  {
+    const { ctx, page, errors } = await newPage(browser, vp);
+    await page.clock.install();
+    await page.addInitScript(SPEECH_STUB);
+    await page.addInitScript(seed({}));
+    await page.goto(url + route(1, 'newLetter'));
+    await page.waitForSelector('.script-toggle');
+    await page.clock.runFor(1000);
+    ok((await expanded(page)) === 'true' && (await sheetShown(page)), 'tip: the script opens by itself on the first visit');
+    await page.clock.runFor(8500);
+    ok((await expanded(page)) === 'true', 'tip: still open after 9.5 s (it stays longer than the usual 6 s)');
+    await page.clock.runFor(2500);
+    await page.waitForTimeout(400);
+    ok((await expanded(page)) === 'false' && !(await sheetShown(page)), 'tip: tucks itself away after about 11 s');
+    const seen = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.seenScripts);
+    ok(seen['tip:1:newLetter'] === true, `tip: remembered (${Object.keys(seen).join(', ')})`);
+    ok(errors.length === 0, 'tip: errors ' + errors.join(' | '));
     await ctx.close();
   }
   // The games never open the sheet over the play, even on a first visit.

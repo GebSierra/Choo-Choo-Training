@@ -9,16 +9,18 @@ import { richText } from '../letters.js';
 // Two steps, because a task builds itself before the shell can show it (its own refresh() runs while it is built):
 //   const shell = makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel, stepNoun, seenKeys, autoOpen });
 // autoOpen: false for the games, where the gist in the bar is enough and the sheet must not open over the play.
+// tip: one short grown-up reminder (js/guide.js) shown under the script, with tipKey in seenScripts: the first time, the script opens by itself for longer so it is read.
 // skipUntilDone: the last button reads "Skip" until the game says it is done (setDone(true)), then "Finish".
 // setDone(true) also pulses the button once, so a parent sees that the game is finished.
 //   const current = build({ ...env, refresh: shell.refresh, setProgress: shell.setPos });
 //   return shell.mount(current, advance);
 // current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?, lockScroll?}.
 // lockScroll: the activity never scrolls and ignores pan gestures (tasks where a finger slides across the screen).
-export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false }) {
+export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false, tip = null, tipKey = '' }) {
   const { router, speech, store } = ctx;
   let current = null, doneHook = () => {};
   const scriptText = h('p', { class: 'script-text' });
+  const tipEl = () => (tip ? h('p', { class: 'grown-tip' }, h('strong', {}, 'Grown-up tip: '), tip) : null);
   const refresh = () => { scriptText.replaceChildren(richText(current ? current.script() : '')); };
 
   // Progress dots: the previous step's dot starts wide and the new one widens.
@@ -84,7 +86,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
       if (full) {
         const fullCard = h('section', { class: 'script-card full', 'aria-label': 'Parent script' },
           h('span', { class: 'script-ic' }, icon('adult', 22)),
-          h('div', { class: 'script-body' }, h('span', { class: 'script-tag' }, 'Say this'), scriptText),
+          h('div', { class: 'script-body' }, h('span', { class: 'script-tag' }, 'Say this'), scriptText, tipEl()),
           speakers[0]);
         wrap = h('div', { class: 'script-wrap always' }, fullCard);
       } else {
@@ -96,7 +98,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
         closeBtn = h('button', { class: 'icon-btn sheet-close', type: 'button', 'aria-label': 'Close the script', onclick: closeScript }, icon('chevronDown', 26));
         sheet = h('section', { class: 'script-sheet', id: sheetId, 'aria-label': 'Parent script', hidden: true },
           h('div', { class: 'sheet-head' }, h('span', { class: 'script-ic' }, icon('adult', 22)), h('span', { class: 'script-tag' }, 'Say this'), speakers[1], closeBtn),
-          h('div', { class: 'sheet-body' }, scriptText));
+          h('div', { class: 'sheet-body' }, scriptText, tipEl()));
         wrap = h('div', { class: 'script-wrap' }, h('div', { class: 'script-bar' }, toggle, speakers[0]), sheet);
         // Touching the stage, Next or Again puts the sheet away (the touch itself still does its work).
         stage.addEventListener('pointerdown', () => { if (isOpen) closeScript(); }, true);
@@ -123,11 +125,13 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
       // the script opens by itself for 6 seconds and then tucks itself away.
       let introTimer = 0;
       const saved = store.settings.seenScripts, seen = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
-      if (!full && autoOpen && seenKeys.some((k) => !seen[k])) {
+      const keys = tip ? [...seenKeys, tipKey] : seenKeys;
+      if (!full && autoOpen && keys.some((k) => !seen[k])) {
         // Marked as seen only when it really opens, so leaving within half a second does not burn the first-visit help.
+        const longer = tip && !seen[tipKey]; // a tip is worth reading: it stays open longer
         introTimer = setTimeout(() => {
-          store.setSetting('seenScripts', { ...seen, ...Object.fromEntries(seenKeys.map((k) => [k, true])) });
-          setOpen(true, { hold: 6000 });
+          store.setSetting('seenScripts', { ...seen, ...Object.fromEntries(keys.map((k) => [k, true])) });
+          setOpen(true, { hold: longer ? 11000 : 6000 });
         }, 500);
       }
       root.cleanup = () => { clearTimeout(timer); clearTimeout(nextTimer); clearTimeout(closeTimer); clearTimeout(introTimer); speaker.cleanup(); speakers.forEach((s) => s.cleanup()); if (current.cleanup) current.cleanup(); };

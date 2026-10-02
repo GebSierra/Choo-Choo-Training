@@ -734,3 +734,31 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .opts.n3 .opt-pic .pic-frame { width: 72px; height: 72px; }
 .opts.n3 .opt-pic .word { font-size: 20px; }
 .gu-reset { margin-bottom: 12px; }
+
+/* ---------- welcome card (first run) and grown-up tips ---------- */
+.first-card.welcome { max-width: min(560px, 100%); width: 100%; max-height: calc(100dvh - 40px); overflow-y: auto; text-align: left; gap: 12px; padding: 22px 22px 16px; justify-items: stretch; }
+.first-card.welcome .adult-ic { justify-self: center; }
+.wc-pages { display: grid; }
+.wc-page { grid-area: 1 / 1; visibility: hidden; opacity: 0; transition: opacity var(--t-base) var(--ease-out), visibility 0s linear var(--t-base); }
+.wc-page.on { visibility: visible; opacity: 1; transition-delay: 0s; }
+.wc-page h2 { font-size: 24px; line-height: 1.2; margin-bottom: 8px; text-align: center; }
+.first-card.welcome .wc-page p { font-size: 18px; font-weight: 600; line-height: 1.4; margin-top: 8px; }
+.wc-dots { display: flex; gap: 8px; justify-content: center; }
+.wc-dot { width: 10px; height: 10px; border-radius: 50%; background: #D9DCEA; transition: transform var(--t-base) var(--ease-spring), background var(--t-base); }
+.wc-dot.on { background: var(--violet); transform: scale(1.3); }
+.wc-actions { display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px; align-items: center; }
+.wc-next { min-height: 56px; }
+.wc-back, .wc-skip { min-height: 48px; border: 0; background: none; font: inherit; font-size: 17px; font-weight: 800; color: var(--violet); cursor: pointer; touch-action: manipulation; border-radius: 14px; }
+.wc-skip { justify-self: center; color: var(--muted); }
+.script-sheet .grown-tip, .script-card .grown-tip { margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: #FFF3CF; color: var(--ink); font-size: 16px; line-height: 1.35; font-weight: 600; }
+.grown-tip strong { font-weight: 800; }
+.gu-h3 { font-size: 18px; font-weight: 800; } .gu-para { font-size: 17px; line-height: 1.4; }
+@media (max-height: 700px) {
+  /* Short screens (a small phone, or a phone turned sideways): drop the icon, tighten up, and park Skip in the corner so the card never scrolls */
+  .first-card.welcome { position: relative; padding: 14px 20px 12px; gap: 8px; }
+  .first-card.welcome .adult-ic { display: none; }
+  .wc-page h2 { font-size: 22px; margin-bottom: 4px; padding: 0 56px; }
+  .first-card.welcome .wc-page p { font-size: 17px; line-height: 1.35; margin-top: 6px; }
+  .wc-skip { position: absolute; top: 10px; right: 12px; z-index: 2; padding: 0 10px; }
+  .wc-next { min-height: 52px; }
+}

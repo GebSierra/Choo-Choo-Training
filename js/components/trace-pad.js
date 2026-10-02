@@ -140,12 +140,12 @@ export function tracePad({ letter, onStroke }) {
     let si = 0, dist = 0, last = performance.now();
     const trail = [];
     const frame = (now) => {
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now; // a frame's timestamp can be a hair earlier than the moment it was asked for
       c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, hgt);
       const st = path[si];
       if (st) {
         dist += speed * dt * (reduced() ? 6 : 1);
-        const f = Math.min(1, dist / st.len);
+        const f = st.len > 0 ? Math.max(0, Math.min(1, dist / st.len)) : 1;
         const idx = f * (st.pts.length - 1), i0 = Math.floor(idx), i1 = Math.min(i0 + 1, st.pts.length - 1), t = idx - i0;
         const p = [st.pts[i0][0] + (st.pts[i1][0] - st.pts[i0][0]) * t, st.pts[i0][1] + (st.pts[i1][1] - st.pts[i0][1]) * t];
         trail.push({ p, born: now, brk: f === 0 });

@@ -1,5 +1,6 @@
 import { h, icon } from '../dom.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
+import { WELCOME } from '../guide.js';
 import { soundCard } from '../components/sound-card.js';
 import { glyphSvg } from '../glyphs.js';
 import { sackSvg } from '../art.js';
@@ -115,6 +116,7 @@ export function grownupsScreen(ctx) {
         h('p', { class: 'gu-note' }, speech.hasSynth ? 'The voice comes from your phone. If a voice sounds robotic, pick another one here.' : 'This browser has no text to speech.')),
       sec('Sound effects', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play sounds'), sfxSwitch), h('label', { class: 'gu-field' }, h('span', {}, 'Volume ', sfxOut), sfxRange), sfxTest,
         h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a sheep home, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),
+      fold('The thinking behind this app', ...WELCOME.slice(1).flatMap((pg) => [h('h3', { class: 'gu-h3' }, pg.title), ...pg.body.map((t) => h('p', { class: 'gu-para' }, t))])),
       fold('Recorded sounds', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play recorded letter sounds'), soundsSwitch), h('p', { class: 'gu-note' }, 'Off: your grown up says the sounds.'), clipList, h('p', { class: 'gu-note' }, 'When the switch is on, isolated sounds play from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT)),
       fold('All the sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
       sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Sound story playlist'),

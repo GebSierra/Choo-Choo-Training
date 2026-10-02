@@ -2,6 +2,8 @@ import { h, animate, icon, reduced } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { holdButton } from '../components/hold-button.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
+import { welcomeCard } from '../components/welcome-card.js';
+import { WELCOME } from '../guide.js';
 import { sackSvg } from '../art.js';
 
 // The path is a long winding trail that scrolls: up the screen in portrait (lesson 1 at the bottom, the newest stone at the top),
@@ -182,14 +184,11 @@ export function homeScreen(ctx) {
   root.cleanup = grown.cleanup;
 
   if (!store.state.firstRunDone) {
-    const card = h('div', { class: 'first-run', role: 'dialog', 'aria-label': 'Welcome' },
-      h('div', { class: 'first-card' },
-        h('div', { class: 'adult-ic' }, icon('adult', 28)),
-        h('p', {}, 'Sit with your child. You say the sounds; the app helps. Tap a stone to start.'),
-        h('button', { class: 'btn primary', type: 'button', onclick: () => {
-          store.setFirstRunDone();
-          animate(card, [{ opacity: 1 }, { opacity: 0 }], { duration: 200 }).finished.then(() => card.remove());
-        } }, 'Start')));
+    const done = () => {
+      store.setFirstRunDone();
+      animate(card, [{ opacity: 1 }, { opacity: 0 }], { duration: 200 }).finished.then(() => card.remove());
+    };
+    const card = h('div', { class: 'first-run', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Welcome' }, welcomeCard({ pages: WELCOME, onDone: done }));
     root.append(card);
     animate(card.firstChild, [{ opacity: 0, transform: 'translateY(16px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 500, easing: 'cubic-bezier(.34,1.56,.64,1)' });
   }

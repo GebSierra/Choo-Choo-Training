@@ -319,3 +319,10 @@ Lessons 4 to 13 are t f d g i n p h b l in Mentava's order, built exactly as `do
 
 ## Version 1.4.1: New Letter fits tall letters
 Tall letters (t, f, d, g, i, p, h, b, l) are drawn taller than m, a and s. On phones under 820 px tall the white letter card shrank to 72 px and the drawing spilled out of its top. The drawing is now sized from the card's height, and on short portrait screens the letter card sits beside the sound card (112 px tall), with smaller picture tiles under 740 px. `test/newletter.mjs` checks every letter in its card at six phone sizes (it fails on the old CSS).
+
+## Version 1.5.0: a note for first-time grown-ups
+- A three-page welcome card on first run explains why the app teaches sounds, not letter names or capitals: call m "mmm" (not "em"), a "aaa, as in apple" (not "ay"); ma is "maaa", not "em-ay". It can be skipped. The wording is in `js/guide.js` and is framed as the idea behind this app, not as settled science: studies of preschool letter teaching are mixed on whether names help or hurt, so the text says what the approach is for, without a promise.
+- Four short "Grown-up tip" notes sit in the script sheet of lessons 1 and 2 (New Letter, Letter Writing, Saying Sounds). They open the script by themselves the first time, then wait to be asked. They are never spoken.
+- Grownups has a closed fold, "The thinking behind this app", with the same explanation.
+- Because the text names letter names, it lives in `js/guide.js`, not `curriculum.json`, and the audits skip the welcome card, the script sheet and Grownups (parent-only places). `test/guide.mjs` checks the pages, the sizes, that nothing is spoken, that the stage the child sees never contains "em" or "ay", and that the tips appear where intended.
+- The optional alphabet song row still sings letter names. That is a choice made by the owner; the welcome text does not mention it.
