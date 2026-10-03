@@ -4,6 +4,7 @@ import { sackSvg } from '../art.js';
 import { lessonByNumber } from '../lessons.js';
 import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
+import { pipSvg } from '../art/pip.js';
 
 // Calm finish: no confetti. The parent decides whether the child got it.
 // Taps are ignored for the first 1.5 s, and "Yes" takes two taps, so a child cannot move on by accident.
@@ -26,7 +27,7 @@ function finishView({ speech, router, heading, badge, accent, armedLabel, armedN
   const back = h('button', { class: 'btn secondary back-path', type: 'button', disabled: true, onclick: () => router.go('/home') }, 'Back to path');
   const ring = h('span', { class: 'finish-ring', style: { '--accent': accent } });
   const root = h('div', { class: 'finish' },
-    h('div', { class: 'finish-glyph', style: { '--accent': accent } }, ring, badge),
+    h('div', { class: 'finish-glyph', style: { '--accent': accent } }, ring, badge, h('span', { class: 'finish-pip' }, pipSvg({ pose: 'cheer' }))),
     h('h1', {}, heading),
     h('section', { class: 'finish-card' }, h('p', { class: 'finish-for' }, 'For the grown-up'), h('p', { class: 'finish-q' }, 'Did your child get it?'), h('div', { class: 'finish-choices' }, gotIt, again), note),
     back);

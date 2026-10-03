@@ -59,6 +59,16 @@ export async function sfxChecks({ browser, url, ok }) {
     await page.evaluate(async () => { (await import('/js/sfx.js')).sfx.play('doors'); });
     const doors = of(await notes(page), 'doors');
     ok(doors.noise.length === 0 && pitches(doors.bells).join() === [G5, 1046.5].join(), `sfx doors: a bell glide G5 to C6, no noise (${pitches(doors.bells).map((f) => f.toFixed(0))})`);
+    // The train's toot: two soft whistle notes, G5 then E5, each sliding up into its pitch, under a second, never shrill.
+    await page.waitForTimeout(2600);
+    await clear(page);
+    await page.evaluate(async () => { (await import('/js/sfx.js')).sfx.play('toot'); });
+    const toot = of(await notes(page), 'toot');
+    const lastF = (n) => n.freqs[n.freqs.length - 1];
+    ok(toot.bells.length === 2 && Math.abs(lastF(toot.bells[0]) - G5) < 0.01 && Math.abs(lastF(toot.bells[1]) - E5) < 0.01 && toot.bells[1].t > toot.bells[0].t, `sfx toot: two whistle notes, G5 then E5 (${toot.bells.map((n) => lastF(n).toFixed(0)).join(', ')})`);
+    ok(toot.bells.every((n) => n.freqs[1] < lastF(n)), 'sfx toot: each note slides up into its pitch');
+    ok(toot.all.every((n) => n.freqs.every((f) => f <= 2100)) && span(toot.all) >= 0.6 && span(toot.all) <= 1.1, `sfx toot: under 2.1 kHz and about a second long (${span(toot.all).toFixed(2)} s)`);
+    ok(toot.noise.length === 0 && toot.bloops.length === 0, 'sfx toot: no noise, no bloop');
     // Only the pentatonic notes are ever used.
     await page.waitForTimeout(2600);
     await clear(page);

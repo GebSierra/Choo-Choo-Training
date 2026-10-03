@@ -762,3 +762,30 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
   .wc-skip { position: absolute; top: 10px; right: 12px; z-index: 2; padding: 0 10px; }
   .wc-next { min-height: 52px; }
 }
+
+/* ---------- Pip, the baby conductor (js/art/pip.js) ---------- */
+.pip { display: block; overflow: visible; }
+.pip .pip-fig { transform-origin: 60px 146px; animation: pip-breathe 2.6s ease-in-out infinite alternate; }
+.pip .pip-eyes { transform-origin: 60px 63px; animation: pip-blink 4.7s ease-in-out infinite; }
+.pip .pip-look { animation: pip-look 9s ease-in-out infinite; }
+.pip.pose-wave .pip-arm-r { transform-origin: 78px 97px; animation: pip-wave 3.2s ease-in-out infinite; }
+.pip.pose-cheer .pip-hop { animation: pip-hop 760ms cubic-bezier(.3,.7,.4,1) 300ms backwards; }
+.pip.pose-cheer .pip-cap { transform-origin: 30px 44px; animation: pip-tip 760ms ease-in-out 300ms backwards; }
+@keyframes pip-breathe { from { transform: scale(1, 1); } to { transform: scale(1.012, 1.022); } }
+@keyframes pip-blink { 0%, 90%, 96%, 100% { transform: scaleY(1); } 93% { transform: scaleY(.12); } }
+@keyframes pip-look { 0%, 40%, 100% { transform: translateX(0); } 48%, 58% { transform: translateX(-1.6px); } 66%, 76% { transform: translateX(1.6px); } 84% { transform: translateX(0); } }
+@keyframes pip-wave { 0%, 46%, 100% { transform: rotate(0deg); } 8% { transform: rotate(16deg); } 17% { transform: rotate(-8deg); } 26% { transform: rotate(16deg); } 35% { transform: rotate(-6deg); } }
+@keyframes pip-hop { 0% { transform: translateY(0); } 35% { transform: translateY(-9px); } 62% { transform: translateY(0); } 76% { transform: translateY(-2px); } 100% { transform: translateY(0); } }
+@keyframes pip-tip { 0%, 100% { transform: rotate(0deg); } 35% { transform: rotate(-12deg) translateY(-2px); } 70% { transform: rotate(3deg); } }
+/* the welcome card: Pip waves at the top (in the corner on short screens) */
+.wc-pip { justify-self: center; width: 76px; height: 95px; margin: -4px 0 -6px; }
+.wc-pip .pip { width: 100%; height: 100%; }
+/* the finish screen: Pip cheers beside the glyph */
+.finish-pip { position: absolute; right: -70px; bottom: -18px; width: 84px; height: 105px; pointer-events: none; }
+.finish-pip .pip { width: 100%; height: 100%; }
+@media (max-height: 700px) {
+  .wc-pip { position: absolute; left: 16px; top: 6px; width: 29px; height: 37px; margin: 0; z-index: 2; }
+}
+@media (orientation: landscape) {
+  .finish-pip { right: auto; left: -66px; bottom: -14px; width: 62px; height: 78px; }
+}

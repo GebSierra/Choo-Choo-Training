@@ -6,7 +6,10 @@
 // bell notes from the C major pentatonic scale, so anything heard together is pleasant. Every call is wrapped: a missing
 // or blocked AudioContext never throws and never blocks the screen.
 //
-//   sfx.play('sparkle' | 'pop' | 'star' | 'doors' | 'win' | 'lesson' | 'unlock' | 'checkpoint', { step, delay, bloop })
+//   sfx.play('sparkle' | 'pop' | 'star' | 'doors' | 'win' | 'lesson' | 'unlock' | 'checkpoint' | 'toot', { step, delay, bloop })
+//
+// 'toot' is the little train's whistle: two soft pentatonic notes (G5 then E5), each a breathy sine that slides up into
+// its pitch. It is a short sound, so callers play it when no jingle is ringing (before a jingle, or once it has ended).
 //
 // There is no sound for ordinary taps, Next, Again, navigation or a wrong touch.
 
@@ -76,6 +79,32 @@ function createSfx() {
     active.push({ end: at + decay + 0.05, jingle, gains: [gain], oscs });
   }
 
+  // One whistle note: a slower, breathy attack, a little scoop up into the pitch, a held tone and a soft release.
+  function whistle(c, f, at, hold, loud, event) {
+    const peak = 0.42 * loud;
+    const gain = c.createGain();
+    gain.gain.setValueAtTime(0.0001, at);
+    gain.gain.linearRampToValueAtTime(peak, at + 0.04);
+    gain.gain.setValueAtTime(peak * 0.85, at + hold);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + hold + 0.16);
+    gain.connect(master);
+    const oscs = [];
+    for (const [mult, rel, partial] of [[1, 1, false], [2, 0.12, true]]) {
+      if (f * mult > 2100) continue;
+      const osc = c.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f * mult * 0.96, at);
+      osc.frequency.exponentialRampToValueAtTime(f * mult, at + 0.06);
+      osc.eventName = event; osc.partial = partial; osc.whistle = true;
+      const g = c.createGain();
+      g.gain.value = rel;
+      osc.connect(g); g.connect(gain);
+      osc.start(at); osc.stop(at + hold + 0.2);
+      oscs.push(osc);
+    }
+    active.push({ end: at + hold + 0.2, jingle: false, gains: [gain], oscs });
+  }
+
   // A tiny downward bloop under the Sound Sack drop.
   function bloop(c, at, event) {
     const gain = c.createGain();
@@ -115,6 +144,7 @@ function createSfx() {
     else if (live.some((v) => v.jingle)) return;
     master.gain.setValueAtTime(LEVEL * (volume() / DEFAULT_VOLUME), now);
     const at = now + 0.02 + (opts.delay || 0);
+    if (name === 'toot') { whistle(c, G5, at, 0.2, 1, name); whistle(c, E5, at + 0.3, 0.38, 0.9, name); return; }
     if (name === 'pop') { bell(c, POP_STEPS[Math.max(0, Math.min(POP_STEPS.length - 1, opts.step || 0))], at, 0.6, 1, name, false); return; }
     for (const [f, start, decay, loud] of SOUNDS[name] || []) bell(c, f, at + start, decay, loud, name, jingle);
     if (opts.bloop) bloop(c, at, name);
