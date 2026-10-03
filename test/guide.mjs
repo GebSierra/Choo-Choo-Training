@@ -49,7 +49,7 @@ async function welcomeChecks(ok, browser, url) {
     ok((await page.locator('.first-run').count()) === 0, `${tag}: Start closes the card`);
     ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).firstRunDone)) === true, `${tag}: it is remembered`);
     ok((await page.evaluate(() => window.__events.length)) === 0, `${tag}: nothing was spoken or played`);
-    await page.reload(); await page.waitForSelector('.stone'); await page.waitForTimeout(500);
+    await page.reload(); await page.waitForSelector('.stone', { state: 'attached' }); await page.waitForTimeout(500);
     ok((await page.locator('.first-run').count()) === 0, `${tag}: the card does not come back`);
     ok(errors.length === 0, `${tag}: no errors ${errors.join(' | ')}`);
     await ctx.close();

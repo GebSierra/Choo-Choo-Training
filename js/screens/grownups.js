@@ -3,7 +3,7 @@ import { fullscreenButton } from '../components/fullscreen-button.js';
 import { WELCOME } from '../guide.js';
 import { soundCard } from '../components/sound-card.js';
 import { glyphSvg } from '../glyphs.js';
-import { sackSvg } from '../art.js';
+import { crateSvg } from '../art/train2d.js';
 import { sfx } from '../sfx.js';
 import { accentOf } from '../theme.js';
 import { APP_VERSION } from '../version.js';
@@ -40,7 +40,7 @@ export function grownupsScreen(ctx) {
       const unlocked = r.lesson ? store.isUnlocked(r.lesson.number) : store.isCheckpointUnlocked(r.checkpoint);
       const status = st.result === 'got-it' ? `Got it${st.completedAt ? ' on ' + fmt(st.completedAt) : ''}` : st.result === 'practice-again' ? `Practice again${st.completedAt ? ' (' + fmt(st.completedAt) + ')' : ''}` : (unlocked ? 'Open, not finished' : 'Locked');
       return h('div', { class: 'gu-row' },
-        h('span', { class: 'gu-glyph' }, r.lesson ? glyphSvg(r.lesson.sound, { color: accentOf(r.lesson.sound), label: name }) : sackSvg()),
+        h('span', { class: 'gu-glyph' }, r.lesson ? glyphSvg(r.lesson.sound, { color: accentOf(r.lesson.sound), label: name }) : crateSvg()),
         h('div', { class: 'gu-row-text' }, h('strong', {}, r.lesson ? `Lesson ${r.lesson.number}` : r.checkpoint.title), h('span', { class: 'gu-sub' }, status)),
         unlocked ? h('span', { class: 'gu-open' }, st.result === 'got-it' ? icon('check', 20) : '') : h('button', { class: 'btn ghost small', type: 'button', 'aria-label': `Unlock ${name}`, onclick: () => { unlocking = r.key; paintLessons(); } }, 'Unlock'));
     }));
@@ -83,6 +83,10 @@ export function grownupsScreen(ctx) {
   const sfxRange = h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: store.settings.sfxVolume ?? 0.6, 'aria-label': 'Sound effects volume', class: 'gu-range', oninput: () => { store.setSetting('sfxVolume', Number(sfxRange.value)); sfxOut.textContent = `${Math.round(Number(sfxRange.value) * 100)}%`; } });
   const sfxTest = h('button', { class: 'btn small', type: 'button', disabled: !sfxOn(), onclick: () => sfx.play('lesson') }, icon('speaker', 20), 'Test sound');
 
+  // ---- the train world ----
+  const trainOn = () => store.settings.trainWorld !== false;
+  const trainSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(trainOn()), 'aria-label': 'Train world', onclick: () => { store.setSetting('trainWorld', !trainOn()); trainSwitch.setAttribute('aria-checked', String(trainOn())); } }, h('i'));
+
   // ---- clips ----
   const clipList = h('div', { class: 'gu-list' });
   const paintClips = (status) => clipList.replaceChildren(...Object.keys(curriculum.sounds).filter((k) => curriculum.sounds[k].clip).map((k) => h('div', { class: 'gu-row slim' },
@@ -115,7 +119,9 @@ export function grownupsScreen(ctx) {
         h('p', { class: 'gu-note' }, 'Off: the "Say this" line is one tidy bar that opens when you tap it. On: the full words are always shown, which leaves the activity less room.'),
         h('p', { class: 'gu-note' }, speech.hasSynth ? 'The voice comes from your phone. If a voice sounds robotic, pick another one here.' : 'This browser has no text to speech.')),
       sec('Sound effects', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play sounds'), sfxSwitch), h('label', { class: 'gu-field' }, h('span', {}, 'Volume ', sfxOut), sfxRange), sfxTest,
-        h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a sheep home, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),
+        h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a train at its station, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),
+      sec('Home screen', h('div', { class: 'gu-field inline' }, h('span', {}, 'Train world'), trainSwitch),
+        h('p', { class: 'gu-note' }, 'On: the lessons are stations on a little 3D railway, and the train grows one wagon for each lesson done. Off: the simple flat path. Turn it off if the railway looks wrong or runs slowly on this phone.')),
       fold('The thinking behind this app', ...WELCOME.slice(1).flatMap((pg) => [h('h3', { class: 'gu-h3' }, pg.title), ...pg.body.map((t) => h('p', { class: 'gu-para' }, t))])),
       fold('Recorded sounds', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play recorded letter sounds'), soundsSwitch), h('p', { class: 'gu-note' }, 'Off: your grown up says the sounds.'), clipList, h('p', { class: 'gu-note' }, 'When the switch is on, isolated sounds play from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT)),
       fold('All the sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),

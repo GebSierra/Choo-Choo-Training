@@ -1,4 +1,4 @@
-// The scrolling home map: 13 lessons and 4 checkpoint stones on one long winding path, scrolling up in portrait and along in landscape.
+// The 2D home map (the Train world switch off, or no WebGL): 13 lessons and 4 checkpoint stones on one long winding path, scrolling up in portrait and along in landscape.
 // Run alone with `node test/map.mjs`, or as part of test/smoke.mjs.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,7 +10,7 @@ import { mapGeometry, BUBBLE_FLIP_Y } from '../js/screens/home.js';
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const NODES = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
 const label = (n) => (n.lesson ? `Lesson ${n.lesson.number}` : n.checkpoint.title);
-const seed = (done, extra = {}) => `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: doneThrough(done), settings: { seenScripts: SEEN }, firstRunDone: true, ...extra })}))`;
+const seed = (done, extra = {}) => `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: doneThrough(done), settings: { seenScripts: SEEN, trainWorld: false }, firstRunDone: true, ...extra })}))`;
 const overlaps = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 const rectOf = (page, sel, i = 0) => page.evaluate(([s, k]) => { const e = document.querySelectorAll(s)[k]; if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }, [sel, i]);
 const rectsOf = (page, sel) => page.evaluate((s) => [...document.querySelectorAll(s)].map((e) => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, label: e.getAttribute('aria-label') }; }), sel);
@@ -141,7 +141,7 @@ export async function mapReachChecks({ browser, url, ok, vp }) {
 
 // The first-run card, the Grownups pill and the full screen button stay put while the map scrolls under them.
 export async function mapFixedChecks({ browser, url, ok, vp }) {
-  const { ctx, page, errors } = await open(browser, url, vp, `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: {}, settings: { seenScripts: SEEN } })}))`);
+  const { ctx, page, errors } = await open(browser, url, vp, `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: {}, settings: { seenScripts: SEEN, trainWorld: false } })}))`);
   await page.waitForTimeout(1500);
   const tag = `${vp.name} map fixed`;
   const get = async () => ({ card: await rectOf(page, '.first-card'), pill: await rectOf(page, '.pill-hold'), fs: await rectOf(page, '.home-fs') });
@@ -170,7 +170,7 @@ export async function mapUpgradeChecks({ browser, url, ok }) {
     await ctx.close();
   }
   // A new child starts at the start of the path.
-  const { ctx, page } = await open(browser, url, VIEWPORTS[0], `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{},settings:{seenScripts:${JSON.stringify(SEEN)}},firstRunDone:true}))`);
+  const { ctx, page } = await open(browser, url, VIEWPORTS[0], `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{},settings:{seenScripts:${JSON.stringify(SEEN)},trainWorld:false},firstRunDone:true}))`);
   await page.waitForTimeout(1800);
   const at = await page.evaluate(() => { const s = document.querySelector('.map-scroll'); return s.scrollHeight - s.clientHeight - s.scrollTop; });
   ok(at <= 2, `a new child starts at the start of the path (${Math.round(at)} px from the bottom)`);

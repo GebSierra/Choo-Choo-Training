@@ -9,6 +9,9 @@ const APP_FILES = [
   'js/components/slide-track.js', 'js/components/trace-pad.js', 'js/components/hold-button.js', 'js/components/fullscreen-button.js', 'js/components/speak-button.js', 'js/components/sound-card.js', 'js/components/sparkle.js', 'js/components/letter-face.js', 'js/components/game-kit.js', 'js/components/picture.js', 'js/components/slide-blend.js', 'js/components/welcome-card.js', 'js/art/pip.js',
   'js/screens/home.js', 'js/screens/lesson.js', 'js/screens/task.js', 'js/screens/shell.js', 'js/screens/sack.js', 'js/screens/checkpoint.js', 'js/screens/finish.js', 'js/screens/grownups.js',
   'js/screens/tasks/review.js', 'js/screens/tasks/new-letter.js', 'js/screens/tasks/story.js', 'js/screens/tasks/words.js', 'js/screens/tasks/sounds.js', 'js/screens/tasks/writing.js', 'js/screens/tasks/hunt.js', 'js/screens/tasks/hunt-deal.js', 'js/screens/tasks/barn.js', 'js/screens/tasks/check.js',
+  // the train world: the 3D Home and three.js (MIT, vendor/three/LICENSE)
+  'js/screens/home3d.js', 'js/train/world.js', 'js/train/scene.js', 'js/train/track.js', 'js/train/scenery.js', 'js/train/stations.js', 'js/train/train.js', 'js/train/pip3d.js', 'js/train/camera.js', 'js/train/overlay.js',
+  'vendor/three/three.module.min.js', 'vendor/three/RoundedBoxGeometry.js',
   'data/curriculum.json',
   'assets/fonts/nunito-latin.woff2',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',

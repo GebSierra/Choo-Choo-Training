@@ -1,11 +1,13 @@
-// The train world: Pip in 2D (js/art/pip.js) on the welcome card and the finish screen, and (step 2) the 3D railway Home.
+// The train world: Pip in 2D (js/art/pip.js) on the welcome card and the finish screen, and the 3D railway Home
+// (js/screens/home3d.js): its WebGL context, the overlay buttons that are its real tap targets, the drag, the arrival,
+// disposal, the hidden-page pause, reduced motion, and the 2D fallback (no WebGL, or the Grownups switch off).
 // Run alone with `node test/train.mjs`.
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { audit } from './audit.mjs';
 
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, doneThrough, touchDrag } from './lib.mjs';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const seedState = (state) => `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); localStorage.setItem('reading.v1', ${JSON.stringify(JSON.stringify(state))}); }`;
@@ -89,12 +91,240 @@ export async function pipChecks({ browser, url, ok }) {
   }
 }
 
+
+const NODES = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
+const nameOf = (n) => (n.lesson ? `Lesson ${n.lesson.number}` : n.checkpoint.title);
+const state = (done, settings = {}, extra = {}) => ({ schema: 1, lessons: doneThrough(done), settings: { seenScripts: SEEN, trainIntroDone: true, ...settings }, firstRunDone: true, ...extra });
+// Counts the WebGL contexts the page makes, and how many are still alive.
+const GL_COUNTER = () => {
+  window.__gls = [];
+  const orig = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (type, ...rest) { const c = orig.call(this, type, ...rest); if (c && /webgl/.test(type) && !window.__gls.includes(c)) window.__gls.push(c); return c; };
+  window.__liveGL = () => window.__gls.filter((g) => !g.isContextLost()).length;
+};
+const NO_WEBGL = () => { const orig = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (type, ...rest) { return /webgl/.test(type) ? null : orig.call(this, type, ...rest); }; };
+const train = (page) => page.evaluate(() => { const t = window.__train; return t ? { ...t, stopS: undefined, stops: t.stopS } : null; });
+const shown = (page) => page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => { const r = b.getBoundingClientRect(); return { label: b.getAttribute('aria-label'), cls: [...b.classList].filter((c) => c.startsWith('is-')).join(' '), shown: b.dataset.shown === '1', vis: getComputedStyle(b).visibility, x: r.x, y: r.y, w: r.width, h: r.height }; }));
+const until = async (page, fn, arg, timeout = 15000) => page.waitForFunction(fn, arg, { timeout }).then(() => true).catch(() => false);
+
+async function openHome(browser, url, vp, st, { init = [], extra, route = '#/home' } = {}) {
+  const made = await newPage(browser, vp, extra);
+  await made.page.addInitScript(SPEECH_STUB);
+  await made.page.addInitScript(GL_COUNTER);
+  for (const i of init) await made.page.addInitScript(i);
+  if (st) await made.page.addInitScript(seedState(st));
+  await made.page.goto(url + route);
+  return made;
+}
+
+// The 3D Home in each viewport and progress state: the overlay buttons are the stops, in order, with the right states.
+export async function homeChecks({ browser, url, ok, vp, shot }) {
+  for (const done of [0, 3, 8, CUR.lessons.length]) {
+    const { ctx, page, errors } = await openHome(browser, url, vp, state(done));
+    const tag = `${vp.name} train home (${done} done)`;
+    ok(await until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running, null, 20000), `${tag}: the 3D railway renders and settles`);
+    const info = await page.evaluate(() => { const c = document.querySelector('.home3d canvas'); const gl = c && (c.getContext('webgl2')); const ext = gl && gl.getExtension('WEBGL_debug_renderer_info'); return { renderer: document.querySelector('.home3d') && document.querySelector('.home3d').dataset.renderer, gl: !!gl, name: gl && ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null, map: !!document.querySelector('.map-scroll') }; });
+    ok(info.renderer === 'webgl' && info.gl && !info.map, `${tag}: a WebGL context drew the railway, not the 2D map (${info.name})`);
+    const b = await shown(page);
+    ok(b.length === NODES.length && b.every((x, i) => x.label.startsWith(nameOf(NODES[i]))), `${tag}: one button per stop, in lesson order (${b.length})`);
+    const want = (n) => (n.lesson ? (n.lesson.number <= done ? 'is-done' : n.lesson.number === done + 1 ? 'is-current' : 'is-locked') : (n.checkpoint.after <= done ? (done === CUR.lessons.length && n === NODES.find((m) => m.checkpoint && m.checkpoint.after <= done) ? 'is-current' : 'is-unlocked') : 'is-locked'));
+    const bad = b.filter((x, i) => x.cls !== want(NODES[i]));
+    ok(bad.length === 0, `${tag}: done, current, open and locked as the progress says (${bad.map((x) => x.label + ':' + x.cls).join('; ')})`);
+    ok(b.every((x, i) => (x.label.endsWith(', done') === (want(NODES[i]) === 'is-done')) && (x.label.endsWith(', locked') === (want(NODES[i]) === 'is-locked'))), `${tag}: labels say done and locked ("${b[0].label}", "${b[b.length - 1].label}")`);
+    const vis = b.filter((x) => x.shown);
+    ok(vis.length >= 2 && vis.every((x) => x.vis === 'visible' && x.w >= 64 && x.h >= 64 && x.x >= 0 && x.y >= 0 && x.x + x.w <= vp.width + 0.5 && x.y + x.h <= vp.height + 0.5), `${tag}: ${vis.length} stops on screen, each a button of at least 64 px inside the screen`);
+    ok(b.filter((x) => !x.shown).every((x) => x.vis === 'hidden'), `${tag}: the stops off screen are hidden`);
+    const t = await train(page);
+    const cur = t.currentIndex;
+    ok(Math.abs(t.focus - t.stops[cur]) < 0.05 && Math.abs(t.trainS - (t.stops[cur] + t.engineAt)) < 0.01, `${tag}: the camera opens on the current stop and the train waits there (${t.focus.toFixed(2)} vs ${t.stops[cur]})`);
+    const curBtn = b[cur];
+    ok(curBtn.shown, `${tag}: the current stop's button is on screen (${curBtn.label})`);
+    const bub = await page.evaluate(() => { const e = document.querySelector('.bubble'); if (!e) return null; const r = e.getBoundingClientRect(); return { n: document.querySelectorAll('.bubble').length, vis: getComputedStyle(e).visibility, x: r.x, y: r.y, w: r.width, h: r.height }; });
+    if (done < CUR.lessons.length) ok(bub && bub.n === 1 && bub.vis === 'visible' && bub.x >= 0 && bub.x + bub.w <= vp.width && bub.y >= 70, `${tag}: one "Tap to start" bubble, in view, clear of the top buttons (${JSON.stringify(bub)})`);
+    const pill = await page.evaluate(() => { const r = document.querySelector('.pill-hold').getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; });
+    ok(vis.every((x) => !(x.x < pill.x + pill.w && pill.x < x.x + x.w && x.y < pill.y + pill.h && pill.y < x.y + x.h)), `${tag}: no stop button sits under the Grownups pill`);
+    const p = await audit(page, tag);
+    ok(p.length === 0, p.join(' | '));
+    if (shot && (done === 3 || done === 0)) await shot(page, `${vp.name}-${done}`);
+    ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+}
+
+// Taps go through the buttons: the current stop opens its lesson, a locked one only wobbles, a drag pans and opens nothing.
+export async function tapChecks({ browser, url, ok }) {
+  const vp = VIEWPORTS[0];
+  let { ctx, page, errors } = await openHome(browser, url, vp, state(3));
+  await until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running);
+  const btn = page.locator('.station-btn.is-locked[data-shown="1"]').first();
+  ok((await btn.count()) === 1, 'train taps: a locked stop is on screen');
+  const before = await train(page);
+  const r = await btn.boundingBox();
+  await page.touchscreen.tap(r.x + r.width / 2, r.y + r.height / 2);
+  await page.waitForTimeout(500);
+  ok(page.url().endsWith('#/home'), 'train taps: tapping a locked stop does not open it');
+  ok((await train(page)).frames > before.frames, 'train taps: the locked sign wobbles (frames are drawn for it)');
+  // a drag that starts on the current stop pans and opens nothing
+  const cur = await page.locator('.station-btn.is-current').first().boundingBox();
+  const from = { x: cur.x + cur.width / 2, y: cur.y + cur.height / 2 };
+  const f0 = (await train(page)).focus;
+  await touchDrag(page, from, { x: from.x + 6, y: from.y + 240 }, { steps: 12 });
+  await page.waitForTimeout(900);
+  const f1 = (await train(page)).focus;
+  ok(page.url().endsWith('#/home'), 'train drag: a drag that starts on a stop does not open it');
+  ok(f1 - f0 > 2, `train drag: dragging down moves the camera along the line (${f0.toFixed(2)} to ${f1.toFixed(2)})`);
+  await touchDrag(page, { x: from.x, y: 700 }, { x: from.x, y: 120 }, { steps: 12 });
+  await until(page, () => !window.__train.running, null, 8000);
+  const f2 = (await train(page)).focus;
+  ok(f2 < f1 && f2 >= (await train(page)).stops[0] - 2.01, `train drag: dragging up goes back, and the ends hold (${f2.toFixed(2)})`);
+  // far past the far end: it springs back inside the line
+  for (let k = 0; k < 6; k++) await touchDrag(page, { x: from.x, y: 150 }, { x: from.x, y: 800 }, { steps: 8 });
+  await until(page, () => !window.__train.running, null, 12000);
+  const t = await train(page);
+  ok(t.focus <= t.stops[t.stops.length - 1] + 1.01, `train drag: past the last stop the camera springs back (${t.focus.toFixed(2)})`);
+  ok(errors.length === 0, `train taps: errors ${errors.join(' | ')}`);
+  await ctx.close();
+  // a tap on the current stop opens its lesson
+  ({ ctx, page, errors } = await openHome(browser, url, vp, state(3)));
+  await until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running);
+  const c = await page.locator('.station-btn.is-current').first().boundingBox();
+  await page.touchscreen.tap(c.x + c.width / 2, c.y + c.height / 2);
+  await page.waitForSelector('.lesson-overview', { timeout: 8000 }).catch(() => {});
+  ok(page.url().endsWith('#/lesson/4'), `train taps: tapping the current stop opens lesson 4 (${page.url().split('#')[1]})`);
+  ok(errors.length === 0, `train taps 2: errors ${errors.join(' | ')}`);
+  await ctx.close();
+}
+
+// The first visit glides from the start of the line; a just-finished lesson brings the train in with a toot.
+export async function arrivalChecks({ browser, url, ok, shot }) {
+  const vp = VIEWPORTS[0];
+  {
+    const { ctx, page, errors } = await openHome(browser, url, vp, { ...state(3), settings: { seenScripts: SEEN } });
+    await until(page, () => window.__train && window.__train.frames > 0);
+    const a = await train(page);
+    ok(a.glideIn && a.focus < a.stops[1], `first visit: the camera starts at the start of the line (${a.focus.toFixed(2)})`);
+    await until(page, () => !window.__train.running && window.__train.frames > 3, null, 15000);
+    const b = await train(page);
+    ok(Math.abs(b.focus - b.stops[b.currentIndex]) < 0.05, `first visit: and glides to the current stop (${b.focus.toFixed(2)} of ${b.stops[b.currentIndex]})`);
+    ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainIntroDone)) === true, 'first visit: remembered, so the glide happens once');
+    ok(errors.length === 0, `first visit: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  {
+    // lesson 4 was just finished: the train was at lesson 4's stop (index 4) and lesson 5 is now current
+    const { ctx, page, errors } = await openHome(browser, url, vp, state(4, { trainAt: 4 }));
+    await until(page, () => window.__train && window.__train.frames > 0);
+    await page.mouse.click(3, 300); // the first tap of the page lets sound play
+    const a = await train(page);
+    ok(a.arriving && Math.abs(a.trainS - (a.stops[4] + a.engineAt)) < 0.01, `arrival: the train starts at the stop before (${a.trainS.toFixed(2)})`);
+    const mid = await until(page, () => window.__train.trainS > window.__train.stopS[4] + 1 && window.__train.trainS < window.__train.stopS[5], null, 8000);
+    ok(mid, 'arrival: the train chugs along the line between the two stops');
+    if (shot) await shot(page, 'arrival');
+    ok(await until(page, () => window.__train.tootAt !== null, null, 10000), 'arrival: a toot is played on arrival');
+    const b = await train(page);
+    ok(Math.abs(b.trainS - (b.stops[5] + b.engineAt)) < 0.01, `arrival: the train stands at the new current stop (${b.trainS.toFixed(2)})`);
+    const toots = await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'toot' && !n.partial).length);
+    ok(toots === 2, `arrival: the toot's two whistle notes were scheduled (${toots})`);
+    ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainAt)) === 5, 'arrival: the new stop is remembered, so it plays once');
+    ok(errors.length === 0, `arrival: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  {
+    // reduced motion: no chug and no glide, the camera jumps, the train fades in at the new stop, no idle frames
+    const { ctx, page, errors } = await openHome(browser, url, vp, { ...state(4, { trainAt: 4 }), settings: { seenScripts: SEEN, trainAt: 4 } }, { extra: { reducedMotion: 'reduce' } });
+    await until(page, () => window.__train && window.__train.frames > 0);
+    const a = await train(page);
+    ok(a.reduced && Math.abs(a.trainS - (a.stops[5] + a.engineAt)) < 0.01 && Math.abs(a.focus - a.stops[5]) < 0.05, `reduced motion: the train is at the new stop and the camera there at once (${a.trainS.toFixed(2)}, ${a.focus.toFixed(2)})`);
+    await page.waitForTimeout(1500);
+    const f1 = await train(page);
+    await page.waitForTimeout(1200);
+    const f2 = await train(page);
+    ok(f2.frames === f1.frames && f2.idleFrames === 0, `reduced motion: nothing is drawn while nothing moves (${f1.frames} then ${f2.frames} frames)`);
+    ok(f2.tootAt !== null, 'reduced motion: the arrival still toots');
+    ok(errors.length === 0, `reduced motion: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+}
+
+// Hidden page, leaving and coming back, and the 2D fallback.
+export async function lifeChecks({ browser, url, ok }) {
+  const vp = VIEWPORTS[2];
+  {
+    const { ctx, page, errors } = await openHome(browser, url, vp, state(2));
+    await until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running);
+    await page.waitForTimeout(800);
+    const a = await train(page);
+    ok(a.idleFrames > 0, `idle: a few frames a second for Pip and the clouds (${a.idleFrames})`);
+    await page.evaluate(() => { Object.defineProperty(document, 'hidden', { value: true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
+    await page.waitForTimeout(300);
+    const b = await train(page);
+    await page.waitForTimeout(1500);
+    const c = await train(page);
+    ok(c.frames === b.frames, `hidden: the render loop stops while the page is hidden (${b.frames} then ${c.frames})`);
+    await page.evaluate(() => { Object.defineProperty(document, 'hidden', { value: false, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
+    await page.waitForTimeout(1200);
+    ok((await train(page)).frames > c.frames, 'hidden: and starts again when the page is back');
+    // leave Home and come back ten times: the WebGL contexts do not pile up
+    const counts = [];
+    for (let k = 0; k < 10; k++) {
+      await page.evaluate(() => { location.hash = '#/lesson/1'; });
+      await page.waitForSelector('.lesson-overview');
+      await page.evaluate(() => { location.hash = '#/home'; });
+      await page.waitForFunction(() => document.querySelectorAll('.home3d').length === 1 && !document.querySelector('.screen.leaving') && window.__train && !window.__train.disposed && window.__train.frames > 0, null, { timeout: 15000 });
+      counts.push(await page.evaluate(() => window.__liveGL()));
+    }
+    ok(counts.every((n) => n <= 1), `leaving Home disposes the renderer: live WebGL contexts after each return ${counts.join(',')}`);
+    ok(await page.evaluate(() => window.__gls.length >= 10), 'leaving Home: each visit made its own context (and lost the last one)');
+    ok(errors.length === 0, `life: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  // No WebGL: the 2D map, with its stones, and no error.
+  for (const [why, opts] of [['no WebGL', { init: [NO_WEBGL] }], ['Train world off', {}]]) {
+    const st = why === 'Train world off' ? state(3, { trainWorld: false }) : state(3);
+    const { ctx, page, errors } = await openHome(browser, url, vp, st, opts);
+    await page.waitForSelector('.stone', { timeout: 10000 });
+    await page.waitForTimeout(600);
+    const m = await page.evaluate(() => ({ map: !!document.querySelector('.map-scroll'), three: !!document.querySelector('.home3d'), stones: document.querySelectorAll('.stone').length, live: window.__liveGL() }));
+    ok(m.map && !m.three && m.stones === NODES.length && m.live === 0, `${why}: the 2D path renders instead, with all ${NODES.length} stones and no WebGL context (${JSON.stringify(m)})`);
+    await page.locator('.stone.is-current').click();
+    await page.waitForSelector('.lesson-overview');
+    ok(page.url().endsWith('#/lesson/4'), `${why}: its current stone opens lesson 4`);
+    ok(errors.length === 0, `${why}: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  // The Grownups switch is there and turns the train world off and on.
+  {
+    const { ctx, page, errors } = await openHome(browser, url, VIEWPORTS[0], state(3));
+    await page.waitForSelector('.pill-hold');
+    await page.evaluate(() => { location.hash = '#/home'; });
+    const hold = await page.locator('.pill-hold').boundingBox();
+    await page.mouse.move(hold.x + 20, hold.y + 20); await page.mouse.down(); await page.waitForTimeout(2300); await page.mouse.up();
+    await page.waitForSelector('.grownups');
+    const sw = page.locator('[role="switch"][aria-label="Train world"]');
+    ok((await sw.count()) === 1 && (await sw.getAttribute('aria-checked')) === 'true', 'Grownups: a "Train world" switch, on by default');
+    await sw.click();
+    ok((await sw.getAttribute('aria-checked')) === 'false' && (await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainWorld)) === false, 'Grownups: the switch turns it off and is saved');
+    await page.locator('.gu-head .icon-btn').click();
+    await page.waitForSelector('.map-scroll');
+    ok((await page.locator('.home3d').count()) === 0, 'Grownups: with the switch off, Home is the 2D path');
+    ok(errors.length === 0, `Grownups switch: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
   let failures = 0, checks = 0;
   const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.error('FAIL: ' + msg); } };
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
+  const OUT = path.join(ROOT, '_test');
+  fs.mkdirSync(OUT, { recursive: true });
+  const shot = async (page, name) => page.screenshot({ path: path.join(OUT, `train-${name}.png`) });
   await pipChecks({ browser, url, ok });
+  for (const vp of VIEWPORTS) await homeChecks({ browser, url, ok, vp, shot });
+  await tapChecks({ browser, url, ok });
+  await arrivalChecks({ browser, url, ok, shot });
+  await lifeChecks({ browser, url, ok });
   await browser.close(); server.close();
   console.log(`train: ${checks - failures}/${checks} checks passed`);
   process.exit(failures ? 1 : 0);

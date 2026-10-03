@@ -4,7 +4,7 @@ import { holdButton } from '../components/hold-button.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
 import { welcomeCard } from '../components/welcome-card.js';
 import { WELCOME } from '../guide.js';
-import { sackSvg } from '../art.js';
+import { crateSvg } from '../art/train2d.js';
 
 // The path is a long winding trail that scrolls: up the screen in portrait (lesson 1 at the bottom, the newest stone at the top),
 // along it in landscape (lesson 1 at the left). Every stone, the trail and the scenery are placed from the data and the sizes
@@ -115,14 +115,14 @@ function scenery(g) {
   return out;
 }
 
-// A stone on the path. A lesson shows its letter and number; a checkpoint ({title}) shows a small sack instead.
+// A stone on the path. A lesson shows its letter and number; a checkpoint ({title}) shows a small crate instead.
 function stone(g, i, what, state, onTap, speech) {
   const sound = what.sound;
   const accent = sound ? `var(--${sound.glyph})` : '#C99A5B';
   const name = sound ? `Lesson ${what.number}` : what.title;
   const top = sound
     ? h('span', { class: 'stone-top' }, glyphSvg(sound.glyph, { color: accent, label: 'lesson ' + what.number }), h('span', { class: 'stone-num' }, String(what.number)))
-    : h('span', { class: 'stone-top stone-sack' }, sackSvg());
+    : h('span', { class: 'stone-top stone-sack' }, crateSvg());
   const badge = state === 'done'
     ? h('span', { class: 'stone-badge done' }, h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, 'aria-hidden': 'true' }, h('path', { d: 'M5 12.5l4.5 4.5L19 7.5', class: 'tick', fill: 'none', stroke: '#fff', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })))
     : state === 'locked' ? h('span', { class: 'stone-badge lock' }, icon('lock', 16)) : null;
@@ -138,7 +138,48 @@ function stone(g, i, what, state, onTap, speech) {
   return wrap;
 }
 
-export function homeScreen(ctx) {
+// Home: the 3D railway when the Grownups switch "Train world" is on (the default) and WebGL works, else this 2D path.
+// The probe's context is handed to the renderer, so Home never holds two. Any failure on the way falls back quietly.
+export async function homeScreen(ctx) {
+  if (ctx.store.settings.trainWorld !== false && !ctx.noTrain) {
+    let canvas = null, gl = null, soft = false;
+    const opts = (antialias) => ({ antialias, alpha: true, powerPreference: 'default' });
+    try {
+      canvas = document.createElement('canvas');
+      gl = canvas.getContext('webgl2', opts(true));
+      // A software renderer (a test machine, or a phone with no usable GPU) draws without multisampling, shadows or
+      // high-density pixels, so it stays responsive. ?hq=1 in the address keeps full quality (for screenshots).
+      if (gl && isSoftware(gl) && !/[?&]hq=1/.test(location.search)) {
+        loseContext(gl);
+        canvas = document.createElement('canvas');
+        gl = canvas.getContext('webgl2', opts(false));
+        soft = true;
+      }
+    } catch { gl = null; }
+    if (gl) {
+      try {
+        const m = await import('./home3d.js');
+        return m.home3dScreen(ctx, { canvas, gl, soft });
+      } catch (e) {
+        console.warn('train world unavailable, using the 2D path:', e && e.message);
+        loseContext(gl);
+        ctx.noTrain = true; // do not try again in this page session
+      }
+    }
+  }
+  return mapScreen(ctx);
+}
+
+function loseContext(gl) { try { const lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext(); } catch { /* fine */ } }
+export function isSoftware(gl) {
+  try {
+    const ext = gl.getExtension('WEBGL_debug_renderer_info');
+    return /swiftshader|llvmpipe|software/i.test(String(ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)));
+  } catch { return false; }
+}
+
+// The 2D path (round 3): a long winding trail of stones that scrolls.
+export function mapScreen(ctx) {
   const { store, router, curriculum, speech } = ctx;
   const total = curriculum.lessons.length;
   const current = store.currentLesson(total);

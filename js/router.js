@@ -23,6 +23,8 @@ export function createRouter(root, routes, ctx) {
     }
     if (!match) { location.replace('#/home'); return; }
     if (ctx && ctx.speech) ctx.speech.cancel();
+    // The screen being left stops its timers now, not once the next screen is built (Home may take a moment to load).
+    if (current && current.cleanup) { const c = current.cleanup; current.cleanup = null; c(); }
     const next = document.createElement('div');
     next.className = 'screen';
     let el;

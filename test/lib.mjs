@@ -94,3 +94,13 @@ export const SEEN_BASE = { review: true, newLetter: true, story: true, words: tr
 // Everything the first-visit help shows, tips included: tests that are not about the help start from here.
 import { TIPS } from '../js/guide.js';
 export const SEEN = { ...SEEN_BASE, ...Object.fromEntries(Object.keys(TIPS).map((k) => { const [lesson, type] = k.split(':'); return [`tip:${lesson}:${type}`, true]; })) };
+
+// On the 3D railway Home only some stops are on screen: this moves the camera to the stop a selector names (first match)
+// and waits until its button is shown. On the 2D path it does nothing (the stones scroll into view by themselves).
+export async function showStop(page, selector) {
+  const i = await page.evaluate((s) => { const b = document.querySelector(s); return b && b.dataset.index !== undefined && window.__train ? Number(b.dataset.index) : -1; }, selector);
+  if (i < 0) return;
+  await page.evaluate((k) => window.__train.show(k), i);
+  await page.waitForFunction((s) => { const b = document.querySelector(s); return b && b.dataset.shown === '1'; }, selector, { timeout: 8000 }).catch(() => {});
+  await page.waitForTimeout(150);
+}

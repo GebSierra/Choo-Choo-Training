@@ -1,6 +1,6 @@
 import { h, animate, icon } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
-import { sackSvg } from '../art.js';
+import { crateSvg } from '../art/train2d.js';
 import { lessonByNumber } from '../lessons.js';
 import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
@@ -68,8 +68,8 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
   return finishView({
     speech, router,
     heading: `That's the ${ck.title.toLowerCase()}.`,
-    badge: sackSvg(),
-    accent: '#C99A5B',
+    badge: crateSvg(),
+    accent: '#C99A5B', // wood, the crate's colour
     armedLabel: 'Yes, back to path',
     armedNote: 'Tap again to go back to the path.',
     onContinue: () => { store.setCheckpointResult(ck.id, 'got-it'); router.go('/home'); },
