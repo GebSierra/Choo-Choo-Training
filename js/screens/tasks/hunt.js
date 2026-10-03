@@ -13,7 +13,9 @@ const STEPS = 5;     // correct touches to reach the station
 const INK = '#1E2140';
 const TRAIN_W = 116, GOAL_W = 152;
 const DRAG = 10;     // px a finger must travel before a touch counts as a drag
-const ARRIVE = 700, HOP = 500, WIN_AT = 2050; // the ending: the train pulls in (0.7 s), Pip waves and it toots, the jingle at 2.05 s
+const ARRIVE = 700, DEPART = 1100, LEAVE_MS = 1500, HOP = 500, WIN_AT = 2050;
+// The ending (about 2.6 s): the train pulls in (0.7 s), Pip waves and the bunting drops; at 1.1 s smoke billows, it toots
+// and chugs off to the right, out of the scene; the win jingle at 2.05 s (after the toot has ended).
 const BALLOONS = ['#FFC9C9', '#FFE3A3', '#C4E8FF', '#CDEFD6', '#E2D8FF', '#FFD8BE']; // never tied to which letter is the target
 const FADE_OUT = 180, FADE_IN = 260, SWAP = 450; // a new sky: the old one fades out, a fresh one fades in, taps wait
 
@@ -24,7 +26,8 @@ let memory = { slots: 0, deals: [] };
 // the cab) chugs one step along the track. After every right touch the whole sky is dealt again (see hunt-deal.js), so
 // the target never sits in a place the child could learn. The letter a finger lands on is the one chosen, whether it was
 // tapped or dragged. Nothing scores, nothing says wrong, nothing is timed. The fifth right letter brings the train into
-// the station: Pip waves, the bunting drops, a toot and the win jingle, and the balloons left over float away.
+// the station: Pip waves and the bunting drops, then smoke billows and the train toots and chugs off to the right, out of
+// the scene; the win jingle plays and the balloons left over float away. Reduced motion: it simply stands at the station.
 export function build({ lesson, sound, speech, curriculum, setDone }) {
   const target = lesson.sound, accent = accentOf(target);
   const cfg = curriculum.games.hunt;
@@ -49,7 +52,7 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
   const owner = new WeakMap();
   const startDrift = (l) => {
     if (reduced() || !l.btn.isConnected || l.drift) return;
-    l.drift = l.btn.animate([{ transform: 'translateY(-4px)' }, { transform: 'translateY(4px)' }], { duration: 3200 + Math.random() * 2200, direction: 'alternate', iterations: Infinity, easing: 'ease-in-out', delay: -Math.random() * 3000 });
+    l.drift = l.btn.animate([{ transform: 'translateY(-4px)' }, { transform: 'translateY(4px)' }], { duration: 3200 + Math.random() * 2200, direction: 'alternate', iterations: 8, easing: 'ease-in-out', delay: -Math.random() * 3000 }); // about 20 s, then still
   };
   const jitter = (room) => Math.round((Math.random() * 2 - 1) * Math.min(6, room)); // a few pixels, so equal slots never look equal
 
@@ -103,14 +106,14 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
     train.querySelector('.engine-body').animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-2px)' }], { duration: 117, iterations: 6, direction: 'alternate', easing: 'ease-in-out' });
     for (let k = 0; k < 2; k++) T.later(() => puff(), k * 300);
   }
-  function puff() {
+  function puff(big = 1) {
     if (!train.isConnected) return;
-    const r = train.getBoundingClientRect(), o = scene.getBoundingClientRect();
+    const r = trainHop.getBoundingClientRect(), o = scene.getBoundingClientRect();
     const p = puffEl();
     const x = r.left - o.left + r.width * FUNNEL_TOP.x, y = r.top - o.top + r.height * FUNNEL_TOP.y;
     Object.assign(p.style, { left: x - 12 + 'px', top: y - 14 + 'px' });
     scene.append(p);
-    const a = p.animate([{ transform: 'translate(0,0) scale(.5)', opacity: 0.9 }, { transform: 'translate(-14px,-34px) scale(1.4)', opacity: 0 }], { duration: 1100, easing: 'ease-out', fill: 'forwards' });
+    const a = p.animate([{ transform: 'translate(0,0) scale(.5)', opacity: 0.95 }, { transform: `translate(${-8 - big * 6}px,${-20 - big * 10}px) scale(${big})`, opacity: 0.9, offset: 0.4 }, { transform: `translate(${-14 - big * 12}px,${-34 - big * 18}px) scale(${1.4 * big})`, opacity: 0 }], { duration: 1100 + big * 300, easing: 'ease-out', fill: 'forwards' });
     a.finished.then(() => p.remove()).catch(() => p.remove());
   }
 
@@ -243,8 +246,17 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
       setPip('wave');
       keep(seat().animate([{ transform: 'translate(0,0) rotate(0deg)' }, { transform: 'translate(6px,-3px) rotate(8deg)' }], { duration: 300, fill: 'forwards', easing: 'ease-out' }));
       puff();
-      sfx.play('toot');
     }, ARRIVE);
+    // smoke billows from the funnel and the train chugs off to the right, out of the scene, with a toot
+    T.later(() => {
+      sfx.play('toot');
+      for (let k = 0; k < 6; k++) T.later(() => puff(1.6 + (k % 3) * 0.3), k * 170);
+      const away = W + 30 - train.getBoundingClientRect().left + scene.getBoundingClientRect().left;
+      keep(trainHop.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${away}px)` }], { duration: LEAVE_MS, easing: 'cubic-bezier(.55,0,.75,.55)', fill: 'forwards' }));
+      train.querySelectorAll('.wheel').forEach((w) => keep(w.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(900deg)' }], { duration: LEAVE_MS, easing: 'cubic-bezier(.55,0,.75,.55)' })));
+      keep(train.querySelector('.engine-body').animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-2px)' }], { duration: 110, iterations: 12, direction: 'alternate' }));
+      el.dataset.train = 'leaving';
+    }, DEPART);
     T.later(() => {
       keep(goal.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-8px)' }, { transform: 'translateY(0)' }], { duration: HOP, easing: 'cubic-bezier(.34,1.56,.64,1)' }));
       sparkle(scene, W - 8 - GOAL_W / 2, H - 40 - GOAL_W * 0.45, { count: 28, size: [16, 34], reach: [80, 170] });
@@ -259,7 +271,7 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
     gesture = null;
     hints.arm();
     steps = 0; done = false; locked = false;
-    el.dataset.steps = '0'; el.dataset.state = 'playing';
+    el.dataset.steps = '0'; el.dataset.state = 'playing'; el.dataset.train = '';
     sky.classList.remove('done');
     goal.classList.remove('done', 'arrived');
     setPip('idle');

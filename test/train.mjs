@@ -253,8 +253,10 @@ export async function lifeChecks({ browser, url, ok }) {
     const { ctx, page, errors } = await openHome(browser, url, vp, state(2));
     await until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running);
     await page.waitForTimeout(800);
+    const a0 = await train(page);
+    await page.waitForTimeout(1500);
     const a = await train(page);
-    ok(a.idleFrames > 0, `idle: a few frames a second for Pip and the clouds (${a.idleFrames})`);
+    ok(a.idleFrames === 0 && a.frames === a0.frames && !a.running, `idle: nothing is drawn while nothing moves (${a0.frames} then ${a.frames} frames)`);
     await page.evaluate(() => { Object.defineProperty(document, 'hidden', { value: true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
     await page.waitForTimeout(300);
     const b = await train(page);
@@ -312,6 +314,44 @@ export async function lifeChecks({ browser, url, ok }) {
   }
 }
 
+// Heat: count requestAnimationFrame callbacks (and endless animations) while idle, on Home after the arrival, after a
+// lesson and back, on Letter Hunt and on the Sound Station. Each should be about zero. The AudioContext sleeps when silent.
+const RAF_COUNTER = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
+export async function heatChecks({ browser, url, ok, log = () => {} }) {
+  const { ctx, page, errors } = await openHome(browser, url, VIEWPORTS[0], state(4, { trainAt: 4 }), { init: [RAF_COUNTER] });
+  const idle = async (label) => {
+    const r0 = await page.evaluate(() => window.__raf);
+    await page.waitForTimeout(3000);
+    const m = await page.evaluate((r) => ({ raf: window.__raf - r, endless: document.getAnimations().filter((a) => a.playState === 'running' && a.effect && a.effect.getComputedTiming().endTime === Infinity).length }), r0);
+    log(`${label}: ${m.raf} animation frames in 3 s idle, ${m.endless} endless animations`);
+    ok(m.raf <= 2 && m.endless === 0, `heat, ${label}: about zero frames in 3 s of idle (${m.raf}) and no endless animation (${m.endless})`);
+  };
+  await until(page, () => window.__train && window.__train.frames > 0);
+  await page.mouse.click(3, 400); // the first tap lets sound play
+  ok(await until(page, () => window.__train.tootAt !== null && !window.__train.running, null, 20000), 'heat: the arrival plays and ends');
+  await page.waitForTimeout(800);
+  await idle('Home after the arrival');
+  await page.waitForTimeout(1500);
+  ok((await page.evaluate(async () => (await import('/js/sfx.js')).sfx.state())) === 'suspended', 'heat: the AudioContext is suspended once the toot has rung out');
+  await page.evaluate(() => { location.hash = '#/lesson/5'; });
+  await page.waitForSelector('.lesson-overview');
+  await page.waitForTimeout(1200);
+  await page.evaluate(() => { location.hash = '#/home'; });
+  await until(page, () => window.__train && !window.__train.disposed && window.__train.frames > 0 && !window.__train.running, null, 15000);
+  await page.waitForTimeout(2600); // Pip's hello wave
+  await idle('Home after a lesson and back');
+  await page.evaluate(() => { location.hash = '#/lesson/2/task/6'; });
+  await page.waitForSelector('.screen:not(.leaving) .sky-letter');
+  await page.waitForTimeout(1500);
+  await idle('Letter Hunt');
+  await page.evaluate(() => { location.hash = '#/checkpoint/c1'; });
+  await page.waitForSelector('.screen:not(.leaving) .sack-card');
+  await page.waitForTimeout(1500);
+  await idle('Sound Station');
+  ok(errors.length === 0, `heat: errors ${errors.join(' | ')}`);
+  await ctx.close();
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
   let failures = 0, checks = 0;
   const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.error('FAIL: ' + msg); } };
@@ -325,6 +365,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   await tapChecks({ browser, url, ok });
   await arrivalChecks({ browser, url, ok, shot });
   await lifeChecks({ browser, url, ok });
+  await heatChecks({ browser, url, ok, log: console.log });
   await browser.close(); server.close();
   console.log(`train: ${checks - failures}/${checks} checks passed`);
   process.exit(failures ? 1 : 0);

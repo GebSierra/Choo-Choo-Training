@@ -65,6 +65,8 @@ for (const [tag, w, h] of SIZES) {
       if (i === 2) await save(p, `hunt-steps-${tag}`);
     }
     await save(p, `hunt-arrival-${tag}`);
+    await p.waitForTimeout(650);
+    await save(p, `hunt-departure-${tag}`);
     await ctx.close();
   }
   // Sound Station (the Loading Dock): the crates, a crate on its way, and the train taking the wagon

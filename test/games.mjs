@@ -101,6 +101,9 @@ export async function huntChecks({ browser, url, ok, CUR, vp, lessonNo = 1, shot
   ok(minTargets >= 4, `${tag}: every deal has four or five target letters (${minTargets})`);
   const arrive = await page.evaluate(() => ({ state: document.querySelector('.hunt').dataset.state, pose: document.querySelector('.train-wrap .pip').dataset.pose, arrived: document.querySelector('.hunt-goal').classList.contains('arrived'), trainRight: document.querySelector('.train-wrap').getBoundingClientRect().right, goal: document.querySelector('.hunt-goal').getBoundingClientRect() }));
   ok(arrive.arrived && arrive.pose === 'wave' && arrive.trainRight > arrive.goal.left + arrive.goal.width / 2, `${tag}: the fifth letter brings the train into the station and Pip waves (${JSON.stringify({ ...arrive, goal: undefined })})`);
+  await page.waitForTimeout(450);
+  const off = await page.evaluate(() => ({ puffs: document.querySelectorAll('.steam-puff').length, moved: new DOMMatrix(getComputedStyle(document.querySelector('.train-hop')).transform).m41 }));
+  ok(off.puffs >= 2 && off.moved > 5, `${tag}: then smoke billows and the train chugs off to the right (${JSON.stringify(off)})`);
   ok(unchanged === 0 && repeats === 0, `${tag}: the sky is dealt again after each right touch and no target slot repeats from the deal before (${repeats} repeats, ${unchanged} unchanged)`);
   await page.waitForTimeout(1900);
   ok((await page.evaluate(() => document.querySelector('.hunt').dataset.state)) === 'done' && (await stars()) === '5', `${tag}: five touches reach the done state and the fifth star`);
@@ -305,7 +308,7 @@ export async function dragChecks({ browser, url, ok, CUR, vp, shot }) {
   await page.touchscreen.tap(sceneBox.x + 200, sceneBox.y + 150);
   await page.waitForTimeout(1200);
   ok((await steps()) === '5' && (await page.evaluate(() => document.querySelector('.hunt').dataset.state)) === 'done', `${tag}: the ending finishes (steps ${await steps()})`);
-  ok(await page.evaluate(() => document.querySelector('.train-wrap .pip').dataset.pose === 'wave'), `${tag}: the train stands at the station and Pip waves`);
+  ok(await page.evaluate(() => { const t = document.querySelector('.train-hop').getBoundingClientRect(), sc = document.querySelector('.farm').getBoundingClientRect(); return document.querySelector('.train-wrap .pip').dataset.pose === 'wave' && t.left >= sc.right - 1 && document.querySelector('.hunt').dataset.train === 'leaving'; }), `${tag}: after Pip waved at the station, the train chugged off to the right, out of the scene`);
   ok(await page.evaluate(() => document.querySelector('.hunt-goal').classList.contains('done') && getComputedStyle(document.querySelector('.hunt-goal .bunting')).opacity === '1'), `${tag}: the station glows and its bunting is up`);
   ok(await page.evaluate(() => { const sky = document.querySelector('.farm').getBoundingClientRect(); return [...document.querySelectorAll('.sky-letter:not(.popped)')].every((b) => b.getBoundingClientRect().bottom < sky.top + 30 || Number(getComputedStyle(b).opacity) < 0.3); }), `${tag}: the balloons left over floated away upward`);
   ok((await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'toot' && !n.partial).length)) === 2, `${tag}: the train tooted as it pulled in`);
@@ -357,7 +360,7 @@ export async function reducedChecks({ browser, url, ok, CUR }) {
   await page.goto(url + `#/lesson/1/task/${taskIndex(CUR, 1, 'hunt')}`);
   await page.waitForSelector('.sky-letter');
   await page.waitForTimeout(500);
-  ok((await page.evaluate(() => document.getAnimations().filter((a) => a.effect && a.effect.getTiming().iterations === Infinity).length)) === 0, 'reduced motion: the sky letters do not drift');
+  ok((await page.evaluate(() => [...document.querySelectorAll('.sky-letter')].reduce((n, b) => n + b.getAnimations().length, 0))) === 0, 'reduced motion: the sky letters do not drift');
   await tap(page, page.locator('.sky-letter[data-target="1"]').first());
   await page.waitForTimeout(400);
   ok((await page.evaluate(() => document.querySelector('.hunt').dataset.steps)) === '1', 'reduced motion: Hunt still counts a correct touch');

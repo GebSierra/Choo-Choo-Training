@@ -143,10 +143,11 @@ function stone(g, i, what, state, onTap, speech) {
 export async function homeScreen(ctx) {
   if (ctx.store.settings.trainWorld !== false && !ctx.noTrain) {
     let canvas = null, gl = null, soft = false;
-    const opts = (antialias) => ({ antialias, alpha: true, powerPreference: 'default' });
+    const opts = (antialias) => ({ antialias, alpha: true, powerPreference: 'low-power' });
     try {
       canvas = document.createElement('canvas');
-      gl = canvas.getContext('webgl2', opts(true));
+      // Multisampling only on a low-density screen: on a 2x or denser phone the pixels are small enough without it.
+      gl = canvas.getContext('webgl2', opts((window.devicePixelRatio || 1) < 2));
       // A software renderer (a test machine, or a phone with no usable GPU) draws without multisampling, shadows or
       // high-density pixels, so it stays responsive. ?hq=1 in the address keeps full quality (for screenshots).
       if (gl && isSoftware(gl) && !/[?&]hq=1/.test(location.search)) {

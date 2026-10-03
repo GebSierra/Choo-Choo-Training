@@ -19,6 +19,8 @@ import { sparkle } from './sparkle.js';
 //   onTouch() every touch that lands on the band (stop any demonstration)
 //   onTap()   a touch that lands and lifts with under 8 px of movement
 //   onProgress(p) 0 to 1 across the word as the finger moves (a wash over a picture)
+// The demonstration sweep loops this many times, then stops (a word left on screen must not keep the phone busy).
+export const SWEEP_LOOPS = 6;
 let lastChime = -Infinity; // the completion sparkle is heard at most once every 4 s, however fast the child repeats it
 export function slideBlend({ band, svg, host, lift, bar, accent, onTouch, onTap, onProgress }) {
   const letters = [...svg.querySelectorAll('.glyph-letter')];
@@ -142,7 +144,7 @@ const sweepFrames = (to, period) => [
   { transform: to, opacity: 0, offset: SWEEP_MS / period },
   { transform: to, opacity: 0, offset: 1 },
 ];
-export const startSweep = (sweep, period = 2600) => (reduced() ? null : sweep.animate(sweepFrames('translateX(310%)', period), { duration: period, iterations: Infinity, easing: 'linear', delay: 300 }));
+export const startSweep = (sweep, period = 2600) => (reduced() ? null : sweep.animate(sweepFrames('translateX(310%)', period), { duration: period, iterations: SWEEP_LOOPS, easing: 'linear', delay: 300 }));
 
 // A hand that slides along the progress bar, left to right, in step with the sweep. stop() removes it (first touch).
 export function handCue(host, bar, period = 2600) {
@@ -162,7 +164,7 @@ export function handCue(host, bar, period = 2600) {
       { opacity: 1, offset: 1820 / period },
       { transform: at, opacity: 0, offset: SWEEP_MS / period },
       { transform: at, opacity: 0, offset: 1 },
-    ], { duration: period, iterations: Infinity, easing: 'linear', delay: 300 });
+    ], { duration: period, iterations: SWEEP_LOOPS, easing: 'linear', delay: 300 });
   };
   const ro = new ResizeObserver(place);
   ro.observe(host); ro.observe(bar);

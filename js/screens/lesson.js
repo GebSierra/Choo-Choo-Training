@@ -20,7 +20,7 @@ function illustration(task, lesson, curriculum) {
     case 'words': lesson.sayingWords[0].emoji.forEach((e, i) => { wrap.append(h('span', { class: 'emo' }, e)); if (i === 0) wrap.append(h('span', { class: 'plus' }, '+')); }); break;
     case 'sounds': wrap.append(h('span', { class: 'wave' }, h('i'), h('i'), h('i'), h('i'), h('i'))); break;
     case 'writing': wrap.append(h('span', { class: 'big-glyph ghost' }, glyphSvg(lesson.sound, { color: 'currentColor' })), h('span', { class: 'pencil' }, '✏️')); break;
-    case 'hunt': wrap.append(h('span', { class: 'art-train' }, engineSvg())); break;
+    case 'hunt': wrap.append(h('span', { class: 'art-train' }, engineSvg({ still: true }))); break;
     case 'barn': wrap.append(h('span', { class: 'art-barn' }, barnSvg({ interior: true }))); break;
     case 'check': wrap.append(h('span', { class: 'qmark' }, '?')); break;
   }

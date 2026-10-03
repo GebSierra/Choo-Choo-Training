@@ -216,7 +216,7 @@ export async function cueChecks({ browser, url, ok, vp = VIEWPORTS[0] }) {
     await page.waitForTimeout(700);
     ok((await page.locator('.slide-hand').count()) === 1 && (await page.locator('.tap-hint:visible').count()) === 0, `${vp.name} cue: a letters word has one gliding hand and no static hand`);
     const d = await page.evaluate(() => { const a = document.querySelector('.slide-hand').getAnimations()[0], s = document.querySelector('.sweep').getAnimations()[0]; return { hand: a.effect.getTiming(), sweep: s.effect.getTiming() }; });
-    ok(d.hand.duration === d.sweep.duration && d.hand.delay === d.sweep.delay && d.hand.iterations === Infinity, `${vp.name} cue: the hand runs the sweep's own ${d.sweep.duration} ms loop`);
+    ok(d.hand.duration === d.sweep.duration && d.hand.delay === d.sweep.delay && d.hand.iterations === d.sweep.iterations && d.sweep.iterations < Infinity, `${vp.name} cue: the hand runs the sweep's own ${d.sweep.duration} ms loop, the same few times, then both stop`);
     const bar = await page.locator('.blend-bar').boundingBox();
     const xs = [];
     for (let i = 0; i < 4; i++) { await page.waitForTimeout(450); xs.push(await page.evaluate(() => document.querySelector('.slide-hand').getBoundingClientRect().left)); }

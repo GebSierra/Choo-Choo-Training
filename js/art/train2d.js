@@ -14,8 +14,8 @@ const wheel = (cx, cy, r, color = C.red) => h('g', { class: 'wheel', style: { 't
 
 // The engine, facing right, with Pip in the cab. .pip-seat holds Pip (swapped for a waving Pip at a station); .funnel-top
 // marks where steam comes out (in the 150 by 110 box).
-export function engineSvg({ pose = 'idle' } = {}) {
-  const pip = pipSvg({ pose });
+export function engineSvg({ pose = 'idle', still = false } = {}) {
+  const pip = pipSvg({ pose, still });
   for (const [k, v] of Object.entries({ x: 14, y: 4, width: 42, height: 52.5 })) pip.setAttribute(k, v);
   return h('svg', { class: 'engine-art', viewBox: '0 0 150 110', 'aria-hidden': 'true' },
     h('ellipse', { cx: 76, cy: 104, rx: 64, ry: 4.5, fill: 'rgba(60,40,20,.18)' }),

@@ -2,7 +2,7 @@
 // badge showing a tiny train), a red neckerchief, navy overalls with two gold buttons over a cream shirt, and little
 // brown boots. The same colours and proportions as the 3D Pip on the Home railway (js/train/pip3d.js reads PIP below).
 //
-//   pipSvg({ pose: 'wave' | 'cheer' | 'idle' | 'point' })
+//   pipSvg({ pose: 'wave' | 'cheer' | 'idle' | 'point', still })   (still: no animation at all, for small or hidden copies)
 //
 // Pip never says anything and never shows a letter: he only reacts. Idle: a gentle breathing bob, a blink every few
 // seconds and a glance around (css .pip). 'wave' waves hello, 'cheer' hops once with both arms up and tips his cap,
@@ -33,7 +33,7 @@ const ARMS = {
   point: [['M43 97 Q36 106 35 117', 35, 119], ['M77 97 Q92 99 103 95', 106, 94]],
 };
 
-export function pipSvg({ pose = 'idle' } = {}) {
+export function pipSvg({ pose = 'idle', still = false } = {}) {
   if (!ARMS[pose]) pose = 'idle';
   const id = `pip${++uid}`;
   const C = PIP;
@@ -49,7 +49,7 @@ export function pipSvg({ pose = 'idle' } = {}) {
     ? [h('path', { d: 'M51.5 77 Q60 90 68.5 77 Q60 80.5 51.5 77 Z', fill: '#8A2F2A' }), h('ellipse', { cx: 60, cy: 84, rx: 3.6, ry: 2, fill: '#F08080' })]
     : [h('path', { d: 'M53 78 Q60 84.5 67 78', fill: 'none', stroke: C.mouth, 'stroke-width': 2.4, 'stroke-linecap': 'round' })];
 
-  return h('svg', { class: `pip pose-${pose}`, viewBox: '0 0 120 150', 'aria-hidden': 'true', dataset: { pose } },
+  return h('svg', { class: `pip pose-${pose}${still ? ' still' : ''}`, viewBox: '0 0 120 150', 'aria-hidden': 'true', dataset: { pose } },
     h('defs', {},
       h('radialGradient', { id: `${id}-skin`, cx: '40%', cy: '34%', r: '72%' }, h('stop', { offset: '0', 'stop-color': C.skinLight }), h('stop', { offset: '0.6', 'stop-color': C.skin }), h('stop', { offset: '1', 'stop-color': C.skinShade })),
       h('linearGradient', { id: `${id}-cap`, x1: 0, y1: 0, x2: 0.3, y2: 1 }, h('stop', { offset: '0', 'stop-color': C.capLight }), h('stop', { offset: '1', 'stop-color': C.cap })),

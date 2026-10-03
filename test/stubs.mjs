@@ -72,8 +72,8 @@ export const AUDIO_STUB = () => {
   class FakeAudioContext {
     constructor() { log.contexts++; this.state = 'running'; this.sampleRate = 44100; this.destination = new Node(); }
     get currentTime() { return (performance.now() - t0) / 1000; }
-    resume() { return Promise.resolve(); }
-    suspend() { return Promise.resolve(); }
+    resume() { this.state = 'running'; return Promise.resolve(); }
+    suspend() { this.state = 'suspended'; log.suspends = (log.suspends || 0) + 1; return Promise.resolve(); }
     createGain() { const n = new Node(); n.gain = new Param(1); return n; }
     createDynamicsCompressor() { const n = new Node(); for (const k of ['threshold', 'knee', 'ratio', 'attack', 'release']) n[k] = new Param(0); return n; }
     createBiquadFilter() { const n = new Node(); n.frequency = new Param(350); n.Q = new Param(1); return n; }

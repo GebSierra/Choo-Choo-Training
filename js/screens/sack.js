@@ -59,14 +59,14 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
   const sack = h('div', { class: 'sack wagon' }, wagonArt, front); // .sack: the drop target, as before
   const table = h('div', { class: 'sack-cards' });
   const platform = h('div', { class: 'dock-platform-top', 'aria-hidden': 'true' });
-  const engine = h('div', { class: 'dock-train', 'aria-hidden': 'true' }, engineSvg());
+  const engine = h('div', { class: 'dock-train', 'aria-hidden': 'true' }, engineSvg({ still: true })); // hidden until the end, so Pip holds still
   const scene = h('div', { class: 'farm dock-scene' }, dockBackdrop());
   scene.append(platform, sack, engine, table);
   const row = starRow(rounds);
   const el = h('div', { class: 'game sack-game', dataset: { round: '1', stars: '0', state: 'playing', sound: order[0], train: 'away' } }, scene, row.el);
   let endAnims = [];
   const keep = (a) => { endAnims.push(a); return a; };
-  const setPip = (pose) => { const seat = engine.querySelector('.pip-seat'), old = seat.firstChild, p = pipSvg({ pose }); for (const k of ['x', 'y', 'width', 'height']) p.setAttribute(k, old.getAttribute(k)); seat.replaceChildren(p); };
+  const setPip = (pose) => { const seat = engine.querySelector('.pip-seat'), old = seat.firstChild, p = pipSvg({ pose, still: pose === 'idle' }); for (const k of ['x', 'y', 'width', 'height']) p.setAttribute(k, old.getAttribute(k)); seat.replaceChildren(p); };
 
   const sound = () => curriculum.sounds[order[Math.min(round, rounds - 1)]];
 

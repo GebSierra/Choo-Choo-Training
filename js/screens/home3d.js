@@ -1,8 +1,9 @@
 // The 3D railway Home (round 4, docs/TRAIN-WORLD.md section 4). The line is built from curriculum.json: a station for each
 // lesson and a goods depot for each checkpoint, in the same order as the 2D path. The child's train waits at the
 // current stop with one wagon per completed lesson; after a lesson is completed it chugs there from the stop before.
-// Rendering happens on demand: only while the camera or the train moves, or (at most 24 times a second, and never with
-// reduced motion) for Pip's idle life, the clouds and the current sign's glow. Leaving Home disposes everything.
+// Rendering happens on demand: only while the camera or the train moves, a sign wobbles, or Pip waves (hello, about
+// 2 s, and on arrival). When nothing moves no frame is drawn at all, so a phone left on Home stays cool. Leaving Home
+// disposes everything; a hidden page draws nothing.
 //
 //   home3dScreen(ctx, { canvas, gl, soft }) -> element, or throws (the caller falls back to the 2D map).
 import { makeBag, makeLine } from '../train/world.js';
@@ -21,7 +22,7 @@ import { WELCOME } from '../guide.js';
 import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
 
-const ARRIVE_MS = 2400, TAP_SLOP = 8, IDLE_FPS = 24;
+const ARRIVE_MS = 2400, TAP_SLOP = 8;
 const ENGINE_AT = 0.7; // the engine's middle stands this far past its stop's middle, so Pip's cab is by the platform
 
 // The stops in order and which one the train is at, by the same rules as the 2D path (js/screens/home.js).
@@ -56,12 +57,13 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   const stopS = stops.map((_, i) => line.stop(i));
   const renderer = createRenderer(canvas, gl, soft);
   const { scene, camera, aimLight } = createScene(soft);
-  const idleFps = soft ? 8 : IDLE_FPS;
   scene.add(buildTrack(bag, line));
   const scenery = buildScenery(bag, line, stopS);
   scene.add(scenery.group, scenery.clouds);
   const built = stops.map((s, i) => { const b = buildStop(bag, line, s, stopS[i], s.state); scene.add(b.group); return b; });
   const doneLessons = curriculum.lessons.filter((l) => store.isDone(l.number));
+  const cur0 = built[currentIndex];
+  if (cur0 && stops[currentIndex].state === 'current') cur0.faceMat.emissiveIntensity = 0.22; // a steady soft glow (no idle animation)
   const train = buildTrain(bag, line, doneLessons.map((l) => ({ glyph: l.sound, accent: accentOf(l.sound) })));
   scene.add(train.group);
 
@@ -125,7 +127,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   window.__train = debug;
 
   // ---- the loop ----
-  let raf = 0, idleTimer = 0, last = 0, disposed = false, W = 0, H = 0, blockers = [];
+  let raf = 0, last = 0, disposed = false, W = 0, H = 0, blockers = [];
   // The Grownups pill and the full screen button, with a margin: no stop button or bubble goes under them.
   const measureBlockers = () => { const o = root.getBoundingClientRect(); blockers = [...root.querySelectorAll('.home-top .hold-btn, .home-fs')].map((e) => { const r = e.getBoundingClientRect(); return { x: r.x - o.x - 6, y: r.y - o.y - 6, w: r.width + 12, h: r.height + 12 }; }); };
   const t0 = performance.now();
@@ -163,12 +165,9 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
     }
     if (train.steam(t)) busy = true;
     if (waveUntil && t > waveUntil) { waveUntil = 0; train.pip.wave(false); train.pip.lean(0); }
-    // the idle life: Pip, the clouds, the current sign (never with reduced motion)
+    // Pip's life (breathing, blinking, waving) is drawn only while something else already moves or he waves
     if (!still) {
       train.pip.tick(t);
-      scenery.clouds.children.forEach((c) => { c.position.x = c.userData.base + Math.sin(t * 0.07 + c.userData.phase) * 1.6; });
-      const cur = built[currentIndex];
-      if (cur && stops[currentIndex].state === 'current') { cur.faceMat.emissiveIntensity = 0.16 + 0.12 * Math.sin(t * 2.2); cur.sign.position.y = 2.75 + Math.sin(t * 1.8) * 0.045; }
       if (waveUntil) busy = true;
     } else train.pip.tick(t, true);
     for (const [i, start] of wobbles) {
@@ -187,23 +186,16 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
     const busy = step(dt, now);
     render();
     debug.running = busy;
-    if (busy) wake(); else idle();
+    if (busy) wake(); // otherwise nothing more is drawn until something moves
   }
   function wake() {
     if (disposed || document.hidden || raf) return;
-    clearTimeout(idleTimer); idleTimer = 0;
     if (!debug.running) last = performance.now();
     raf = requestAnimationFrame(frame);
   }
-  // Between movements: one frame every 1/24 s for the idle life, or nothing at all with reduced motion.
-  function idle() {
-    clearTimeout(idleTimer);
-    if (still || disposed || document.hidden) return;
-    idleTimer = setTimeout(() => { idleTimer = 0; debug.idleFrames++; if (!raf) { raf = requestAnimationFrame(frame); } }, 1000 / idleFps);
-  }
 
   const onVisibility = () => {
-    if (document.hidden) { cancelAnimationFrame(raf); raf = 0; clearTimeout(idleTimer); idleTimer = 0; debug.running = false; }
+    if (document.hidden) { cancelAnimationFrame(raf); raf = 0; debug.running = false; }
     else { last = performance.now(); wake(); }
   };
   document.addEventListener('visibilitychange', onVisibility);
@@ -284,7 +276,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   root.cleanup = () => {
     disposed = true;
     debug.disposed = true;
-    cancelAnimationFrame(raf); clearTimeout(idleTimer);
+    cancelAnimationFrame(raf);
     grown.cleanup && grown.cleanup();
     ro.disconnect();
     document.removeEventListener('visibilitychange', onVisibility);

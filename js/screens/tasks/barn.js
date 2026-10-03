@@ -61,7 +61,7 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
     const face = letterBtn.firstChild;
     if (reduced()) return;
     animate(face, [{ opacity: 0, transform: 'scale(.9)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 320, delay: 240 });
-    if (isTarget) faceAnims = [face.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }], { duration: 2400, direction: 'alternate', iterations: Infinity, easing: 'ease-in-out', delay: 700 })];
+    if (isTarget) faceAnims = [face.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.05)' }], { duration: 2400, direction: 'alternate', iterations: 8, easing: 'ease-in-out', delay: 700 })];
   }
 
   function startRound() {

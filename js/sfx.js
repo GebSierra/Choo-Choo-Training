@@ -35,7 +35,7 @@ const SOUNDS = {
 function createSfx() {
   let store = null, speech = null, ctx = null, master = null, unlocked = false, broken = false;
   let active = [];           // voices still ringing: { end, jingle, gains, oscs }
-  let speechStartedAt = 0, wasSpeaking = false, waiting = [];
+  let speechStartedAt = 0, wasSpeaking = false, waiting = [], sleepTimer = 0;
 
   const enabled = () => !broken && store && store.settings.sfx !== false;
   const volume = () => { const v = store && Number(store.settings.sfxVolume); return Math.max(0, Math.min(1, Number.isFinite(v) ? v : DEFAULT_VOLUME)); };
@@ -133,6 +133,18 @@ function createSfx() {
     active = [];
   }
 
+  // A running AudioContext keeps the phone's audio hardware awake even in silence, so it is suspended half a second
+  // after the last sound has rung out, and resumed (in schedule) when the next one is due.
+  function sleepLater() {
+    clearTimeout(sleepTimer);
+    const c = ctx;
+    if (!c) return;
+    const left = Math.max(0, ...active.map((v) => v.end - c.currentTime));
+    sleepTimer = setTimeout(() => {
+      try { if (ringing(c.currentTime).length === 0 && c.state === 'running' && c.suspend) c.suspend().catch(() => {}); } catch { /* fine */ }
+    }, (left + 0.5) * 1000);
+  }
+
   function schedule(name, opts) {
     if (document.hidden) return; // nothing sounds while the page is out of sight
     const c = context();
@@ -144,10 +156,13 @@ function createSfx() {
     else if (live.some((v) => v.jingle)) return;
     master.gain.setValueAtTime(LEVEL * (volume() / DEFAULT_VOLUME), now);
     const at = now + 0.02 + (opts.delay || 0);
-    if (name === 'toot') { whistle(c, G5, at, 0.2, 1, name); whistle(c, E5, at + 0.3, 0.38, 0.9, name); return; }
-    if (name === 'pop') { bell(c, POP_STEPS[Math.max(0, Math.min(POP_STEPS.length - 1, opts.step || 0))], at, 0.6, 1, name, false); return; }
-    for (const [f, start, decay, loud] of SOUNDS[name] || []) bell(c, f, at + start, decay, loud, name, jingle);
-    if (opts.bloop) bloop(c, at, name);
+    if (name === 'toot') { whistle(c, G5, at, 0.2, 1, name); whistle(c, E5, at + 0.3, 0.38, 0.9, name); }
+    else if (name === 'pop') bell(c, POP_STEPS[Math.max(0, Math.min(POP_STEPS.length - 1, opts.step || 0))], at, 0.6, 1, name, false);
+    else {
+      for (const [f, start, decay, loud] of SOUNDS[name] || []) bell(c, f, at + start, decay, loud, name, jingle);
+      if (opts.bloop) bloop(c, at, name);
+    }
+    sleepLater();
   }
 
   function play(name, opts = {}) {
@@ -180,11 +195,13 @@ function createSfx() {
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) waiting = []; // a jingle that was waiting for the voice is dropped, not played later
         if (!ctx) return;
-        try { if (document.hidden) { cutShort(ctx); ctx.suspend && ctx.suspend().catch(() => {}); } else ctx.resume && ctx.resume().catch(() => {}); } catch { /* fine */ }
+        try { if (document.hidden) { clearTimeout(sleepTimer); cutShort(ctx); ctx.suspend && ctx.suspend().catch(() => {}); } else sleepLater(); } catch { /* fine */ } // it wakes when the next sound is due
       });
     },
     // The first tap of the page session: only now may sound start.
-    unlock() { unlocked = true; if (enabled()) { const c = context(); if (c && c.state === 'suspended' && c.resume) c.resume().catch(() => {}); } },
+    unlock() { unlocked = true; if (enabled()) { const c = context(); if (c && c.state === 'suspended' && c.resume) c.resume().catch(() => {}); sleepLater(); } },
+    // 'none' before the first sound, then the AudioContext's state (tests and the frame check read it).
+    state() { return ctx ? ctx.state : 'none'; },
     play,
   };
 }

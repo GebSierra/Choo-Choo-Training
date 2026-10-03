@@ -149,9 +149,9 @@ h1, h2, h3, p { margin: 0; }
 .path-line { stroke: #fff; stroke-width: 26px; }
 .path-shadow { stroke: rgba(0,80,60,.18); stroke-width: 34px; transform: translateY(5px); }
 .butterfly { opacity: .65; }
-.butterfly.b-one { animation: drift1 26s ease-in-out infinite alternate; }
-.butterfly.b-two { animation: drift2 32s ease-in-out infinite alternate; }
-.butterfly .wing { transform-origin: 20px 15px; animation: flap 900ms ease-in-out infinite alternate; }
+.butterfly.b-one { animation: drift1 26s ease-in-out 2 alternate; }
+.butterfly.b-two { animation: drift2 32s ease-in-out 2 alternate; }
+.butterfly .wing { transform-origin: 20px 15px; animation: flap 900ms ease-in-out 40 alternate; }
 @keyframes flap { from { transform: scaleX(1); } to { transform: scaleX(.55); } }
 @keyframes drift1 { 0% { transform: translate(0,0); } 50% { transform: translate(-50px,-26px); } 100% { transform: translate(24px,-70px); } }
 @keyframes drift2 { 0% { transform: translate(0,0); } 50% { transform: translate(40px,30px); } 100% { transform: translate(-16px,64px); } }
@@ -177,7 +177,7 @@ h1, h2, h3, p { margin: 0; }
 .stone.is-locked .stone-base { background: #C9CDE8; box-shadow: 0 8px 0 #A9AED6, 0 14px 18px rgba(0,60,40,.2); }
 .stone.is-locked .glyph { opacity: .45; }
 .stone.is-current { --size: 112px; }
-.stone-ring { position: absolute; left: 6%; right: 6%; top: -2%; height: 84%; border-radius: 50%; border: 5px solid var(--accent); opacity: 0; animation: breathe 2.2s ease-out infinite; pointer-events: none; }
+.stone-ring { position: absolute; left: 6%; right: 6%; top: -2%; height: 84%; border-radius: 50%; border: 5px solid var(--accent); opacity: 0; animation: breathe 2.2s ease-out 6; pointer-events: none; }
 @keyframes breathe { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.12); opacity: 0; } }
 .bubble {
   position: absolute; left: 0; bottom: 78px; transform: translateX(-50%); white-space: nowrap;
@@ -763,10 +763,12 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 
 /* ---------- Pip, the baby conductor (js/art/pip.js) ---------- */
 .pip { display: block; overflow: visible; }
-.pip .pip-fig { transform-origin: 60px 146px; animation: pip-breathe 2.6s ease-in-out infinite alternate; }
-.pip .pip-eyes { transform-origin: 60px 63px; animation: pip-blink 4.7s ease-in-out infinite; }
-.pip .pip-look { animation: pip-look 9s ease-in-out infinite; }
-.pip.pose-wave .pip-arm-r { transform-origin: 78px 97px; animation: pip-wave 3.2s ease-in-out infinite; }
+/* Every idle animation ends after a few seconds (a screen left open must not keep the phone busy): about 15 s of
+   breathing, three blinks, one glance around, two waves. Then Pip holds still. */
+.pip .pip-fig { transform-origin: 60px 146px; animation: pip-breathe 2.6s ease-in-out 6 alternate; }
+.pip .pip-eyes { transform-origin: 60px 63px; animation: pip-blink 4.7s ease-in-out 3; }
+.pip .pip-look { animation: pip-look 9s ease-in-out 1; }
+.pip.pose-wave .pip-arm-r { transform-origin: 78px 97px; animation: pip-wave 3.2s ease-in-out 2; }
 .pip.pose-cheer .pip-hop { animation: pip-hop 760ms cubic-bezier(.3,.7,.4,1) 300ms backwards; }
 .pip.pose-cheer .pip-cap { transform-origin: 30px 44px; animation: pip-tip 760ms ease-in-out 300ms backwards; }
 @keyframes pip-breathe { from { transform: scale(1, 1); } to { transform: scale(1.012, 1.022); } }
@@ -854,3 +856,4 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .sack-card.crate .pic-frame { width: 72%; height: 72%; }
 .hunt-scene .sky { z-index: 4; } /* balloons stay above the train, so every letter can always be touched */
 @media (max-height: 700px) and (orientation: portrait) { .wc-pip { width: 42px; height: 53px; left: 14px; top: 8px; } }
+.pip.still, .pip.still * { animation: none !important; }
