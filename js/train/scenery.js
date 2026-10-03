@@ -155,9 +155,9 @@ export function buildScenery(bag, line, stops) {
   mill.position.copy(landmark(9, -6));
   group.add(mill);
 
-  // the tunnel: a long low hill over the line between two stops further on, with a stone arch at each end
-  const tunnelS = stops.length > 13 ? (stops[12] + stops[13]) / 2 : null;
-  if (tunnelS !== null) {
+  // the tunnel: a long low hill over the line beyond the last stop, with a stone arch at each end (the line runs on into it)
+  const tunnelS = stops[stops.length - 1] + 13;
+  {
     line.at(tunnelS, p);
     const hill = new THREE.Mesh(hillGeo, bag.paint('#53C27F', { roughness: 0.9 }));
     hill.scale.set(4.2, 2.3, 3.2);

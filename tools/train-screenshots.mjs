@@ -18,7 +18,7 @@ const pw = await loadPlaywright();
 const browser = await pw.chromium.launch({ headless: true, args: ['--enable-unsafe-swiftshader'] });
 
 async function page(w, h, state) {
-  const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
+  const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
   const p = await ctx.newPage();
   await p.addInitScript(SPEECH_STUB); await p.addInitScript(AUDIO_STUB);
   await p.addInitScript(`if (!sessionStorage.getItem('s')) { sessionStorage.setItem('s','1'); localStorage.setItem('reading.v1', ${JSON.stringify(JSON.stringify(state))}); }`);

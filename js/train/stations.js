@@ -160,8 +160,8 @@ export function buildStop(bag, line, node, s, state) {
     // the goods shed with its big door, stacked crates and a sack loader
     g.add(at(block(bag, 1.9, 1.35, 3.0, '#E7B97C', { r: 0.12 }), o * 2.3, 0.68, 0));
     for (const side of [-1, 1]) {
-      const r = at(block(bag, 1.25, 0.14, 3.3, '#C2553F', { r: 0.06 }), o * 2.3 + side * 0.5, 1.62, 0);
-      r.rotation.z = side * 0.6;
+      const r = at(block(bag, 1.25, 0.14, 3.3, '#C2553F', { r: 0.06 }), o * 2.3 + side * 0.5, 1.68, 0);
+      r.rotation.z = -side * 0.6; // the two halves meet in a ridge
       g.add(r);
     }
     g.add(at(block(bag, 0.06, 0.95, 1.3, '#8A5A35', { r: 0.03 }), o * 1.33, 0.52, 0));
