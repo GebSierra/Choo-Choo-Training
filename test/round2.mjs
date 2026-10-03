@@ -81,8 +81,8 @@ export async function gameFlowChecks({ browser, url, ok }) {
       await page.waitForTimeout(i < 5 ? 1000 : 120);
     }
     await page.waitForTimeout(450);
-    const faded = await page.evaluate(() => [...document.querySelectorAll('.sky-letter:not(.popped)')].map((b) => ({ o: getComputedStyle(b.firstChild).opacity, pe: getComputedStyle(b).pointerEvents })));
-    ok(faded.length > 0 && faded.every((f) => f.o === '0' && f.pe === 'none'), `Hunt ending: every remaining sky letter is at opacity 0 and takes no touch (${faded.length} letters)`);
+    const leaving = await page.evaluate(() => [...document.querySelectorAll('.sky-letter:not(.popped)')].map((b) => ({ pe: getComputedStyle(b).pointerEvents, moving: b.getAnimations().length > 0 })));
+    ok(leaving.length > 0 && leaving.every((f) => f.pe === 'none' && f.moving), `Hunt ending: every balloon left takes no touch and floats away (${leaving.length} letters)`);
     await page.waitForFunction(() => document.querySelector('.hunt').dataset.state === 'done', null, { timeout: 5000 });
     ok((await running(page, '.btn.next', 1)) === 1, 'Hunt: Next pulses once when the game is done');
     const t = await page.evaluate(() => document.querySelector('.btn.next').getAnimations()[0].effect.getTiming());
@@ -345,10 +345,10 @@ export async function layoutChecks({ browser, url, ok, vp }) {
     const { ctx, page } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'hunt')}`);
     await page.waitForSelector('.sky-letter');
     await page.waitForTimeout(900);
-    const a = await page.evaluate(() => ({ sheep: document.querySelector('.sheep-wrap').getBoundingClientRect().width, goal: document.querySelector('.hunt-goal').getBoundingClientRect().width, fs: getComputedStyle(document.querySelector('.find-card span')).fontSize }));
-    ok(Math.abs(a.sheep - 130) < 1 && Math.abs(a.goal - 150) < 1 && a.fs === '16px', `${tag} Hunt: the sheep is 130 px, the barn 150 px and "Find this" 16 px (${JSON.stringify(a)})`);
+    const a = await page.evaluate(() => ({ train: document.querySelector('.train-wrap').getBoundingClientRect().width, goal: document.querySelector('.hunt-goal').getBoundingClientRect().width, fs: getComputedStyle(document.querySelector('.find-card span')).fontSize }));
+    ok(Math.abs(a.train - 116) < 1 && Math.abs(a.goal - 152) < 1 && a.fs === '16px', `${tag} Hunt: the train is 116 px, the station 152 px and "Find this" 16 px (${JSON.stringify(a)})`);
     const letters = await page.evaluate(() => { const sc = document.querySelector('.farm').getBoundingClientRect(), g = document.querySelector('.hunt-goal').getBoundingClientRect(); return [...document.querySelectorAll('.sky-letter')].map((e) => e.getBoundingClientRect()).map((r) => ({ in: r.left >= sc.left && r.right <= sc.right && r.top >= sc.top && r.bottom <= sc.bottom, onGoal: r.right > g.left && r.left < g.right && r.bottom > g.top + 20 && r.top < g.bottom })); });
-    ok(letters.length >= 12 && letters.every((l) => l.in && !l.onGoal), `${tag} Hunt: ${letters.length} letters, all inside the sky and none on the barn`);
+    ok(letters.length >= 12 && letters.every((l) => l.in && !l.onGoal), `${tag} Hunt: ${letters.length} letters, all inside the sky and none on the station`);
     await ctx.close();
   }
   {
@@ -613,18 +613,18 @@ export async function reliabilityChecks({ browser, url, ok }) {
     const rest = await page.evaluate(() => ({ popped: document.querySelectorAll('.sky-letter.popped').length, all: document.querySelectorAll('.sky-letter').length, steps: document.querySelector('.hunt').dataset.steps }));
     ok(rest.popped === 0 && rest.steps === '0' && rest.all >= 12, `Hunt: Again 250 ms after a pop leaves no popped button behind (${JSON.stringify(rest)})`);
     for (let i = 0; i < 5; i++) { await page.waitForTimeout(i ? 1000 : 300); await tap(page, page.locator('.sky-letter[data-target="1"]:not(.popped)').first()); }
-    await page.waitForTimeout(900); // mid-ending: the sheep is walking in
+    await page.waitForTimeout(900); // mid-ending: the train is pulling in
     await page.click('.btn.again');
     await page.waitForTimeout(500);
-    const again = await page.evaluate(() => ({ state: document.querySelector('.hunt').dataset.state, steps: document.querySelector('.hunt').dataset.steps, letters: document.querySelectorAll('.sky-letter:not(.popped)').length, sheep: getComputedStyle(document.querySelector('.sheep-wrap')).visibility }));
-    ok(again.state === 'playing' && again.steps === '0' && again.letters >= 12 && again.sheep === 'visible', `Hunt: Again mid-ending starts a clean game (${JSON.stringify(again)})`);
+    const again = await page.evaluate(() => ({ state: document.querySelector('.hunt').dataset.state, steps: document.querySelector('.hunt').dataset.steps, letters: document.querySelectorAll('.sky-letter:not(.popped)').length, train: new DOMMatrix(getComputedStyle(document.querySelector('.train-wrap')).transform).m41, pose: document.querySelector('.train-wrap .pip').dataset.pose }));
+    ok(again.state === 'playing' && again.steps === '0' && again.letters >= 12 && again.train === 0 && again.pose === 'idle', `Hunt: Again mid-ending starts a clean game (${JSON.stringify(again)})`);
     // Rotation mid-game: the sky is dealt again on the new grid and the game goes on.
     await tap(page, page.locator('.sky-letter[data-target="1"]').first());
     await page.waitForTimeout(700);
     await page.setViewportSize({ width: 915, height: 412 });
     await page.waitForTimeout(900);
     const rot = await page.evaluate(() => { const sc = document.querySelector('.farm').getBoundingClientRect(); const rs = [...document.querySelectorAll('.sky-letter:not(.popped)')].map((e) => e.getBoundingClientRect()); return { n: rs.length, steps: document.querySelector('.hunt').dataset.steps, inside: rs.every((r) => r.left >= sc.left && r.right <= sc.right && r.top >= sc.top && r.bottom <= sc.bottom) }; });
-    ok(rot.n >= 12 && rot.steps === '1' && rot.inside, `Hunt: rotating mid-game deals the sky again on the new grid and keeps the sheep's step (${JSON.stringify(rot)})`);
+    ok(rot.n >= 12 && rot.steps === '1' && rot.inside, `Hunt: rotating mid-game deals the sky again on the new grid and keeps the train's step (${JSON.stringify(rot)})`);
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.waitForTimeout(700);
     // Next pressed mid-swap goes on to the next task without errors.

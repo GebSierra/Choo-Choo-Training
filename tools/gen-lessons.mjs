@@ -120,7 +120,7 @@ for (const e of TABLE.filter((t) => t.n <= lastLesson)) {
 
 for (const w of c.gameDistractors) if (w.avoid) { w.avoid = w.avoid.filter((k) => k in c.sounds); if (!w.avoid.length) delete w.avoid; }
 for (const ck of CHECKPOINTS.filter((k) => k.after <= lastLesson)) {
-  c.checkpoints.push({ id: ck.id, title: 'Sound Sack', after: ck.after, sounds: c.lessons.slice(0, ck.after).map((L) => L.sound), rounds: ck.rounds, favour: ck.favour });
+  c.checkpoints.push({ id: ck.id, title: 'Sound Station', after: ck.after, sounds: c.lessons.slice(0, ck.after).map((L) => L.sound), rounds: ck.rounds, favour: ck.favour });
 }
 
 fs.writeFileSync(FILE, JSON.stringify(c, null, 2) + '\n');

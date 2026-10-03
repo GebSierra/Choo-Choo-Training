@@ -15,7 +15,7 @@
 
 // C major pentatonic: C5 D5 E5 G5 A5 C6. Nothing is ever sounded above C6 (2 kHz at most with its one partial).
 const C5 = 523.25, D5 = 587.33, E5 = 659.25, G5 = 783.99, A5 = 880, C6 = 1046.5;
-const POP_STEPS = [C5, D5, E5, G5, A5]; // the sheep's progress, one step up per right touch
+const POP_STEPS = [C5, D5, E5, G5, A5]; // the train's progress in Letter Hunt, one step up per right touch
 const LEVEL = 0.22;                     // master gain at the default volume setting
 const DEFAULT_VOLUME = 0.6;
 const JINGLES = new Set(['win', 'lesson', 'unlock', 'checkpoint']); // the long ones: they cancel the short ones ringing

@@ -1,10 +1,10 @@
-// The Sound Sack checkpoint: its stone on the map, the drag game, the finish screen, Grownups and old saved data.
+// The Sound Station checkpoint (the Loading Dock game; the sound sack before round 4): its stop on the map, the drag game, the finish screen, Grownups and old saved data.
 // Run alone with `node test/sack.mjs`, or as part of test/smoke.mjs.
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { audit } from './audit.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN, showStop } from './lib.mjs';
 
 const CURR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const NODES = CURR.lessons.length + CURR.checkpoints.length; // stones on the map, rows in Grownups
@@ -40,17 +40,17 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot, id = 'c1' })
   const { ctx, page, errors } = await open(browser, url, vp, seed(DONE(ck.after)), `#/checkpoint/${id}`);
   await page.waitForSelector('.sack-card');
   await page.waitForTimeout(800);
-  const tag = `${vp.name} Sound Sack ${id}`;
+  const tag = `${vp.name} Sound Station ${id}`;
   const sackBox = () => rect(page, '.sack');
   const cardBoxes = () => rects(page, '.sack-card');
   const sceneBox = await rect(page, '.farm');
   let sack = await sackBox(), cards = await cardBoxes();
   ok(cards.length === 3 && cards.every((c) => c.w >= 95.5 && c.h >= 95.5), `${tag}: three cards, each at least 96 px (${cards.map((c) => Math.round(c.w)).join(', ')})`);
-  ok(sack.w >= 129.5, `${tag}: the sack is at least 130 px wide (${Math.round(sack.w)})`);
-  ok(!cards.some((c, i) => cards.slice(i + 1).some((d) => overlaps(c, d))) && !cards.some((c) => overlaps(c, sack)), `${tag}: the cards never overlap each other or the sack`);
+  ok(sack.w >= 129.5, `${tag}: the wagon is at least 130 px wide (${Math.round(sack.w)})`);
+  ok(!cards.some((c, i) => cards.slice(i + 1).some((d) => overlaps(c, d))) && !cards.some((c) => overlaps(c, sack)), `${tag}: the crates never overlap each other or the wagon`);
   ok(cards.every((c) => c.x >= sceneBox.x && c.x + c.w <= sceneBox.x + sceneBox.w && c.y >= sceneBox.y && c.y + c.h <= sceneBox.y + sceneBox.h) && sack.y + sack.h <= sceneBox.y + sceneBox.h, `${tag}: everything fits in the scene`);
-  ok(new Set(cards.map((c) => Math.round(c.y))).size === 3, `${tag}: the cards are staggered`);
-  ok((await page.locator('.sack-front .glyph').count()) === 1, `${tag}: the sack shows a letter glyph`);
+  ok(new Set(cards.map((c) => Math.round(c.y))).size === 1 && cards.every((c) => c.y + c.h <= sack.y + 1), `${tag}: the crates stand in a row on the dock, above the wagon`);
+  ok((await page.locator('.sack-front .glyph').count()) === 1, `${tag}: the wagon shows a letter glyph`);
   const audited = await audit(page, tag);
   ok(audited.length === 0, audited.join(' | '));
   // Per-sound exclusion: a look-alike in the pool's `avoid` list never shows as a wrong card in that sound's round.
@@ -104,7 +104,9 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot, id = 'c1' })
   const count = (k) => seen.filter((x) => x === k).length;
   ok(seen.length === ck.rounds && ck.sounds.every((k) => count(k) <= CUR.sounds[k].startWords.length) && (ck.favour || []).every((k) => count(k) >= 1) && (ck.favour ? true : ck.sounds.every((k) => count(k) === ck.rounds / ck.sounds.length)), `${tag}: every favoured sound comes up, none more often than it has start words, c1 is balanced (${seen.join('')})`);
   await page.waitForTimeout(1500);
-  ok((await game(page, 'state')) === 'done' && (await page.locator('.gold-star.overflow').count()) > 0, `${tag}: six rounds reach the done state and the sack overflows with stars`);
+  ok((await game(page, 'state')) === 'done' && (await page.locator('.dock-train.here').count()) === 1 && (await page.evaluate(() => document.querySelector('.dock-train .pip').dataset.pose)) === 'wave', `${tag}: ${ck.rounds} rounds reach the done state; the train comes for the wagon with Pip waving`);
+  await page.waitForFunction(() => document.querySelector('.sack-game').dataset.train === 'gone', null, { timeout: 4000 }).catch(() => {});
+  ok((await game(page, 'train')) === 'gone', `${tag}: the train couples the wagon and steams away`);
   ok((await page.locator('.dots .dot.past').count()) === ck.rounds, `${tag}: the progress dots are all past`);
   if (shot) await shot(page, 'done');
   const audited2 = await audit(page, `${tag} done`);
@@ -116,12 +118,12 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot, id = 'c1' })
   // Again starts over.
   await page.click('.btn.again');
   await page.waitForTimeout(600);
-  ok((await game(page, 'state')) === 'playing' && (await game(page, 'stars')) === '0' && (await game(page, 'round')) === '1' && (await page.locator('.gold-star.overflow').count()) === 0 && (await page.locator('.sack-card').count()) === 3, `${tag}: Again starts from round 1 with no stars`);
+  ok((await game(page, 'state')) === 'playing' && (await game(page, 'stars')) === '0' && (await game(page, 'round')) === '1' && (await game(page, 'train')) === 'away' && (await page.locator('.dock-train.here').count()) === 0 && (await page.locator('.sack-card').count()) === 3, `${tag}: Again starts from round 1 with no stars and the wagon back at the dock`);
   // Next leads to the finish screen: two taps on Yes, then the path with a tick on the sack.
   await page.waitForTimeout(700);
   await page.click('.btn.next');
   await page.waitForSelector('.finish');
-  ok(/That's the sound sack\./.test(await page.locator('.finish h1').innerText()), `${tag}: the finish screen says "That's the sound sack."`);
+  ok(/That's the sound station\./.test(await page.locator('.finish h1').innerText()), `${tag}: the finish screen says "That's the sound station."`);
   ok(await page.locator('.btn.got').isDisabled(), `${tag}: the finish screen ignores taps at first`);
   await page.waitForTimeout(1700);
   await page.click('.btn.got');
@@ -129,9 +131,9 @@ export async function sackChecks({ browser, url, ok, CUR, vp, shot, id = 'c1' })
   ok((await page.evaluate((k) => JSON.parse(localStorage.getItem('reading.v1')).checkpoints[k]?.result ?? null, id)) === null && /Tap again to go back to the path\./.test(await page.locator('.finish-note').innerText()), `${tag}: the arming tap stores nothing and says "Tap again to go back to the path."`);
   await page.waitForTimeout(1700);
   await page.click('.btn.got');
-  await page.waitForSelector('.stone');
+  await page.waitForSelector('.stone', { state: 'attached' });
   ok((await page.evaluate((k) => JSON.parse(localStorage.getItem('reading.v1')).checkpoints[k].result, id)) === 'got-it', `${tag}: the second tap stores the result under checkpoints`);
-  await page.waitForSelector('.stone');
+  await page.waitForSelector('.stone', { state: 'attached' });
   await page.waitForTimeout(800);
   ok((await page.locator('.stone.is-done').count()) === ck.after + 1, `${tag}: the path shows a tick on the sack stone and on the lessons before it (${ck.after + 1})`);
   await ctx.close();
@@ -141,18 +143,21 @@ export async function sackMapChecks({ browser, url, ok, vp }) {
   // Locked until lesson 3 is done, then it opens. Old saved data (no checkpoints key) loads fine.
   let made = await open(browser, url, vp, seed(DONE(2)), '#/home');
   let { page, errors } = made;
-  await page.waitForSelector('.stone');
+  await page.waitForSelector('.stone', { state: 'attached' });
   await page.waitForTimeout(900);
   const tag = `${vp.name} map`;
   ok((await page.locator('.stone').count()) === NODES, `${tag}: ${NODES} stones (${CURR.lessons.length} lessons and ${CURR.checkpoints.length} sacks)`);
-  const sackStone = page.locator('.stone[aria-label^="Sound Sack"]').first(); // the first sack, after lesson 3
-  ok((await sackStone.getAttribute('aria-label')) === 'Sound Sack, locked' && (await sackStone.evaluate((e) => e.classList.contains('is-locked'))), `${tag}: the sack stone is locked before lesson 3 is done`);
+  const sackStone = page.locator('.stone[aria-label^="Sound Station"]').first(); // the first sack, after lesson 3
+  ok((await sackStone.getAttribute('aria-label')) === 'Sound Station, locked' && (await sackStone.evaluate((e) => e.classList.contains('is-locked'))), `${tag}: the sack stone is locked before lesson 3 is done`);
+  await showStop(page, '.stone[aria-label^="Sound Station"]'); // the 3D railway: bring the stop into view first
   await sackStone.click({ force: true });
   await page.waitForTimeout(400);
   ok(page.url().endsWith('#/home'), `${tag}: a locked sack does not open`);
   await page.evaluate(() => { location.hash = '#/checkpoint/c1'; });
   await page.waitForTimeout(600);
   ok(page.url().endsWith('#/home'), `${tag}: the sack cannot be opened by address while locked`);
+  await page.waitForTimeout(600);
+  await showStop(page, '.stone[aria-label^="Sound Station"]');
   const b = await sackStone.boundingBox(), pill = await page.locator('.pill-hold').boundingBox();
   ok(b.width >= 48 && b.height >= 48 && !(b.x < pill.x + pill.width && pill.x < b.x + b.width && b.y < pill.y + pill.height && pill.y < b.y + b.height), `${tag}: the sack stone is a big target clear of the Grownups pill`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
@@ -160,13 +165,14 @@ export async function sackMapChecks({ browser, url, ok, vp }) {
 
   made = await open(browser, url, vp, seed(DONE(3)), '#/home'); // no "checkpoints" key at all
   page = made.page; errors = made.errors;
-  await page.waitForSelector('.stone');
+  await page.waitForSelector('.stone', { state: 'attached' });
   await page.waitForTimeout(900);
-  ok((await page.locator('.stone[aria-label^="Sound Sack"]').first().evaluate((e) => !e.classList.contains('is-locked'))) && (await page.locator('.stone.is-current').getAttribute('aria-label')) === 'Lesson 4', `${tag}: once lesson 3 is done the sack is open and lesson 4 is the current stone`);
-  await page.locator('.stone[aria-label^="Sound Sack"]').first().click();
+  ok((await page.locator('.stone[aria-label^="Sound Station"]').first().evaluate((e) => !e.classList.contains('is-locked'))) && (await page.locator('.stone.is-current').getAttribute('aria-label')) === 'Lesson 4', `${tag}: once lesson 3 is done the sack is open and lesson 4 is the current stone`);
+  await showStop(page, '.stone[aria-label^="Sound Station"]');
+  await page.locator('.stone[aria-label^="Sound Station"]').first().click();
   await page.waitForSelector('.sack-game');
   ok(page.url().endsWith('#/checkpoint/c1'), `${tag}: tapping the sack opens the checkpoint`);
-  ok((await page.locator('.task-head h1').innerText()) === 'Sound Sack', `${tag}: the screen is titled Sound Sack`);
+  ok((await page.locator('.task-head h1').innerText()) === 'Sound Station', `${tag}: the screen is titled Sound Station`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
   await made.ctx.close();
 }
@@ -180,9 +186,9 @@ export async function sackGrownupsChecks({ browser, url, ok }) {
   await hold();
   await page.waitForSelector('.grownups');
   const rows = page.locator('.gu-card').first().locator('.gu-row');
-  ok((await rows.count()) === NODES, `Grownups lists every lesson and sound sack (${NODES})`);
-  ok(/Practice again/.test(await rows.nth(3).innerText()) && /Sound Sack/.test(await rows.nth(3).innerText()), 'Grownups shows the sack result');
-  await page.locator('[aria-label="Unlock the sound sack"]').first().click();
+  ok((await rows.count()) === NODES, `Grownups lists every lesson and sound station (${NODES})`);
+  ok(/Practice again/.test(await rows.nth(3).innerText()) && /Sound Station/.test(await rows.nth(3).innerText()), 'Grownups shows the sack result');
+  await page.locator('[aria-label="Unlock the sound station"]').first().click();
   ok((await page.locator('[aria-label="Confirm unlock"]').count()) === 1, 'Grownups: unlocking the sack asks first');
   await page.click('[aria-label="Confirm unlock"] button:has-text("Unlock")');
   ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).checkpoints.c1.unlocked)) === true, 'Grownups: confirming unlocks the sack');

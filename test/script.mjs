@@ -26,7 +26,7 @@ const route = (n, type) => `#/lesson/${n}/task/${tasksFor(CUR.lessons[n - 1]).fi
 // The controls each kind of task is for: all of them must sit inside the stage and the screen, unclipped.
 const PRIMARY = {
   review: ['.slide-track'], newLetter: ['.slide-track', '.word-tile:first-child'], story: ['.hold-btn'], words: ['.parts-row', '.merged-tile', '.btn.ghost.small'],
-  sounds: ['.sounds-stage', '.btn.ghost.small'], writing: ['.tp-ink', '.writing-buttons .btn'], hunt: ['.sky-letter', '.sheep-wrap', '.star-row'],
+  sounds: ['.sounds-stage', '.btn.ghost.small'], writing: ['.tp-ink', '.writing-buttons .btn'], hunt: ['.sky-letter', '.train-wrap', '.star-row'],
   barn: ['.barn', '.star-row'], check: ['.opt-card'],
 };
 async function controlsFit(page, selectors, vp) {

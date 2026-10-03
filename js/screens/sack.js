@@ -1,9 +1,10 @@
 import { h, animate, reduced, icon } from '../dom.js';
-import { sackSvg, barnSvg, starSvg } from '../art.js';
+import { wagonSvg, engineSvg, dockBackdrop, puffEl, FUNNEL_TOP } from '../art/train2d.js';
+import { pipSvg } from '../art/pip.js';
 import { glyphSvg } from '../glyphs.js';
 import { sparkle } from '../components/sparkle.js';
 import { picture } from '../components/picture.js';
-import { timers, farm, watchSize, starRow, shake, shuffle } from '../components/game-kit.js';
+import { timers, watchSize, starRow, shake, shuffle } from '../components/game-kit.js';
 import { accentOf } from '../theme.js';
 import { soundPhrase, fit, sackPool, roundCaps } from '../lessons.js';
 import { sfx } from '../sfx.js';
@@ -40,8 +41,11 @@ export function roundSounds(sounds, rounds, { favour = [], caps = {} } = {}) {
   return pool;
 }
 
-// The Sound Sack: a burlap sack with a letter on it and three picture cards. The child drags the card whose word
-// starts with that sound into the sack. A wrong card glides home with a small shake; nothing else changes.
+// The Sound Station (the Loading Dock): an open goods wagon with a letter painted on its side stands on the track by a
+// wooden platform, with three picture crates on the platform. The child drags (or taps) the crate whose word starts
+// with that sound into the wagon: it drops in, the lid closes with a soft bounce and a star fills. A wrong crate glides
+// home with a small shake; nothing else changes. After the last round the train backs up, couples the wagon and steams
+// away with Pip waving, to the checkpoint jingle and a toot. (Mechanics, timing and sounds are the sound sack's.)
 export function build({ checkpoint, curriculum, speech, refresh, setProgress, setDone }) {
   const T = timers();
   const rounds = checkpoint.rounds;
@@ -50,13 +54,19 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
   const used = {}; // start words already shown, per sound
 
   const front = h('div', { class: 'sack-front' });
-  const sack = h('div', { class: 'sack' }, sackSvg(), front);
+  const wagonArt = wagonSvg();
+  const lid = wagonArt.querySelector('.wagon-lid');
+  const sack = h('div', { class: 'sack wagon' }, wagonArt, front); // .sack: the drop target, as before
   const table = h('div', { class: 'sack-cards' });
-  const decor = h('div', { class: 'sack-barn', 'aria-hidden': 'true' }, barnSvg());
-  const scene = farm();
-  scene.append(decor, sack, table);
+  const platform = h('div', { class: 'dock-platform-top', 'aria-hidden': 'true' });
+  const engine = h('div', { class: 'dock-train', 'aria-hidden': 'true' }, engineSvg());
+  const scene = h('div', { class: 'farm dock-scene' }, dockBackdrop());
+  scene.append(platform, sack, engine, table);
   const row = starRow(rounds);
-  const el = h('div', { class: 'game sack-game', dataset: { round: '1', stars: '0', state: 'playing', sound: order[0] } }, scene, row.el);
+  const el = h('div', { class: 'game sack-game', dataset: { round: '1', stars: '0', state: 'playing', sound: order[0], train: 'away' } }, scene, row.el);
+  let endAnims = [];
+  const keep = (a) => { endAnims.push(a); return a; };
+  const setPip = (pose) => { const seat = engine.querySelector('.pip-seat'), old = seat.firstChild, p = pipSvg({ pose }); for (const k of ['x', 'y', 'width', 'height']) p.setAttribute(k, old.getAttribute(k)); seat.replaceChildren(p); };
 
   const sound = () => curriculum.sounds[order[Math.min(round, rounds - 1)]];
 
@@ -68,16 +78,22 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
     return w;
   }
 
-  // Sack at the bottom centre, three cards across the top, staggered; nothing overlaps.
+  // The wagon on the track at the bottom centre, the crates in a row on the platform above it; nothing overlaps.
+  let engineW = 0, engineTop = 0;
   function layout(w, hgt) {
     W = w; H = hgt;
-    const landscape = W > H * 1.2, gap = 12, dy = landscape ? 14 : 34, top = landscape ? 8 : 12;
-    const sw = Math.max(130, Math.min(210, landscape ? H * 0.42 : W * 0.5)), sh = (sw * 184) / 160;
-    sackRect = { x: (W - sw) / 2, y: H - 10 - sh, w: sw, h: sh };
-    size = Math.max(96, Math.min(120, Math.floor((W - 24 - 2 * gap) / 3), Math.floor(sackRect.y - 10 - top - 2 * dy)));
+    const landscape = W > H * 1.2, gap = 12, minTop = landscape ? 10 : 18;
+    const sw = Math.max(150, Math.min(240, landscape ? H * 0.5 : W * 0.58)), sh = (sw * 150) / 200;
+    sackRect = { x: (W - sw) / 2, y: H - 22 - sh * (140 / 150), w: sw, h: sh };
+    size = Math.max(96, Math.min(120, Math.floor((W - 24 - 2 * gap) / 3), Math.floor(sackRect.y - 16 - minTop)));
+    // the crates stand on the dock just above the wagon (a short way to drag); the dock runs down to the track behind it
+    const top = Math.max(minTop, Math.round(sackRect.y - 16 - size));
     const x0 = (W - (3 * size + 2 * gap)) / 2;
-    bases = [0, 1, 2].map((i) => ({ x: x0 + i * (size + gap), y: top + i * dy }));
+    bases = [0, 1, 2].map((i) => ({ x: x0 + i * (size + gap), y: top }));
     Object.assign(sack.style, { left: sackRect.x + 'px', top: sackRect.y + 'px', width: sw + 'px', height: sh + 'px' });
+    Object.assign(platform.style, { top: top + size - 10 + 'px', bottom: '30px', height: 'auto' });
+    engineW = (sw * 150) / 200; engineTop = H - 22 - engineW * (110 / 150) * (101 / 110);
+    Object.assign(engine.style, { width: engineW + 'px', top: engineTop + 'px', left: sackRect.x + sw - 4 + 'px' });
     table.style.setProperty('--card', size + 'px');
     cards.forEach((c, i) => placeCard(c, i));
     if (!cards.length) renderRound();
@@ -90,9 +106,10 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
     const right = pickWord(key);
     const wrong = shuffle(sackPool(curriculum, checkpoint).filter((w) => !(w.avoid || []).includes(key))).slice(0, 2); // avoid: a look-alike for this sound
     const choices = shuffle([{ ...right, correct: true }, ...wrong.map((w) => ({ ...w, correct: false }))]);
-    front.replaceChildren(glyphSvg(key, { color: accentOf(key), label: 'the sound on the sack' }));
+    front.replaceChildren(glyphSvg(key, { color: accentOf(key), label: 'the sound on the wagon' }));
+    openLid();
     cards = choices.map((c, i) => {
-      const card = h('button', { class: 'sack-card', type: 'button', 'aria-label': c.word, dataset: { correct: c.correct ? '1' : '0', word: c.word } }, picture(c));
+      const card = h('button', { class: 'sack-card crate', type: 'button', 'aria-label': c.word, dataset: { correct: c.correct ? '1' : '0', word: c.word } }, picture(c));
       placeCard(card, i);
       hookDrag(card, i);
       animate(card, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 60 * i });
@@ -124,7 +141,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
   }
 
   const centerOf = (i, dx, dy) => ({ x: bases[i].x + size / 2 + dx, y: bases[i].y + size / 2 + dy });
-  const mouth = () => ({ x: sackRect.x + sackRect.w / 2, y: sackRect.y + sackRect.h * 0.24 });
+  const mouth = () => ({ x: sackRect.x + sackRect.w / 2, y: sackRect.y + sackRect.h * 0.3 });
 
   function hookDrag(card, i) {
     let sx = 0, sy = 0, dx = 0, dy = 0;
@@ -171,9 +188,20 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
     a.finished.then(() => { card.returning = false; if (wrongInSack) shake(card); }).catch(() => { card.returning = false; });
   }
 
-  function wiggle(n = 1) {
+  // The wagon takes the crate with a little bounce, and its lid drops shut (soft clunk); the next round opens it again.
+  function bounce() {
     if (reduced()) return;
-    sack.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(-4deg)', offset: 0.25 }, { transform: 'rotate(3deg)', offset: 0.55 }, { transform: 'rotate(-2deg)', offset: 0.8 }, { transform: 'rotate(0deg)' }], { duration: 520, iterations: n, easing: 'ease-in-out' });
+    sack.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(5px) scaleY(.97)', offset: 0.3 }, { transform: 'translateY(-2px)', offset: 0.65 }, { transform: 'translateY(0)' }], { duration: 460, easing: 'ease-out' });
+  }
+  let lidOpen = true;
+  function closeLid() {
+    lidOpen = false; lid.classList.add('shut');
+    if (!reduced()) lid.animate([{ transform: 'translateY(-26px)', opacity: 0 }, { transform: 'translateY(2px)', opacity: 1, offset: 0.65 }, { transform: 'translateY(-1px)', offset: 0.82 }, { transform: 'translateY(0)', opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.5,0,.75,0)' });
+  }
+  function openLid() {
+    if (lidOpen) return;
+    lidOpen = true; lid.classList.remove('shut');
+    if (!reduced()) lid.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-22px)', opacity: 0 }], { duration: 260, easing: 'ease-out' });
   }
 
   function drop(card, i, dx, dy) {
@@ -184,7 +212,8 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
     cards.filter((o) => o !== card).forEach((o) => { o.disabled = true; animate(o, [{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }); });
     T.later(() => cards.forEach((o) => { o.hidden = true; }), 420); // gone for good: no invisible buttons left behind
     T.later(() => {
-      wiggle();
+      bounce();
+      closeLid();
       sparkle(scene, m.x, m.y, { count: 14, size: [12, 26], reach: [50, 100] });
       sfx.play('star', { bloop: true });
       row.fill(round);
@@ -195,26 +224,51 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
     }, 360);
   }
 
-  // After the last round the sack overflows with gold stars.
+  // After the last round: the jingle, the train backs up to the wagon and couples it (a little bump), then both steam
+  // away to the right with Pip waving, and the train toots once the jingle has finished.
+  function puff() {
+    const r = engine.getBoundingClientRect(), o = scene.getBoundingClientRect();
+    const p = puffEl();
+    Object.assign(p.style, { left: r.left - o.left + r.width * FUNNEL_TOP.x - 12 + 'px', top: r.top - o.top + r.height * FUNNEL_TOP.y - 14 + 'px' });
+    scene.append(p);
+    const a = p.animate([{ transform: 'translate(0,0) scale(.5)', opacity: 0.9 }, { transform: 'translate(-18px,-36px) scale(1.5)', opacity: 0 }], { duration: 1100, easing: 'ease-out', fill: 'forwards' });
+    a.finished.then(() => p.remove()).catch(() => p.remove());
+  }
   function finish() {
     el.dataset.state = 'done';
     setDone(true);
     const m = mouth();
     sparkle(scene, m.x, m.y, { count: 30, size: [16, 34], reach: [90, 180] });
     sfx.play('checkpoint');
-    wiggle(2);
-    for (let i = 0; i < 7; i++) {
-      const ang = (-70 + i * (140 / 6)) * (Math.PI / 180), r = sackRect.w * (0.26 + (i % 2) * 0.1), s = 26 + (i % 3) * 6;
-      const star = starSvg('overflow');
-      Object.assign(star.style, { position: 'absolute', width: s + 'px', height: s + 'px', left: m.x + Math.sin(ang) * r - s / 2 + 'px', top: m.y - Math.cos(ang) * r * 0.9 - s / 2 - 8 + 'px', zIndex: 5 });
-      scene.append(star);
-      animate(star, [{ transform: `translate(${-Math.sin(ang) * r}px,${r * 0.9}px) scale(0) rotate(0deg)`, opacity: 0 }, { transform: `rotate(${(i % 2 ? 1 : -1) * 14}deg) scale(1)`, opacity: 1 }], { duration: 520, delay: 80 * i, easing: SPRING, fill: 'backwards' });
+    setPip('wave');
+    engine.classList.add('here');
+    const back = W - (sackRect.x + sackRect.w - 4) + 10; // the engine starts just off the right edge
+    if (reduced()) {
+      el.dataset.train = 'coupled';
+      T.later(() => sfx.play('toot'), 2500);
+      return;
     }
+    keep(engine.animate([{ transform: `translateX(${back}px)` }, { transform: 'translateX(0)' }], { duration: 900, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'both' }));
+    T.later(() => { el.dataset.train = 'coupled'; keep(sack.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-5px)' }, { transform: 'translateX(0)' }], { duration: 260, easing: 'ease-out' })); }, 900);
+    T.later(() => {
+      el.dataset.train = 'leaving';
+      const away = W - sackRect.x + 40;
+      const opts = { duration: 1700, easing: 'cubic-bezier(.5,0,.8,.6)', fill: 'forwards' };
+      keep(engine.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${away}px)` }], opts));
+      keep(sack.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${away}px)` }], opts));
+      [sack, engine].forEach((x) => x.querySelectorAll('.wheel').forEach((w) => keep(w.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(720deg)' }], { duration: 1700, easing: 'cubic-bezier(.5,0,.8,.6)' }))));
+      for (let k = 0; k < 4; k++) T.later(puff, k * 320);
+    }, 1350);
+    T.later(() => { el.dataset.train = 'gone'; sfx.play('toot'); }, 2500);
   }
 
   function again() {
     T.clear();
-    scene.querySelectorAll('.gold-star.overflow').forEach((s) => s.remove());
+    endAnims.forEach((a) => a.cancel()); endAnims = [];
+    scene.querySelectorAll('.steam-puff').forEach((p) => p.remove());
+    engine.classList.remove('here');
+    setPip('idle');
+    el.dataset.train = 'away';
     order = pickOrder(); round = 0; drag = null;
     for (const k of Object.keys(used)) delete used[k];
     row.reset(); setProgress(0);
@@ -229,9 +283,9 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
   return {
     el, flush: true,
     parts: () => say,
-    script: () => `Say: 'Which one starts with ${soundPhrase(sound())}?' Let them drag it into the sack. There is no right or wrong here.`,
+    script: () => `Say: 'Which one starts with ${soundPhrase(sound())}?' Let them drag it into the wagon. There is no right or wrong here.`,
     gist: () => fit(`Ask: which starts with ${soundPhrase(sound())}?`, `Ask: ${soundPhrase(sound())}?`),
     again: () => { again(); speech.say(say); },
-    cleanup: () => { T.clear(); stopDemo(); stopWatching(); },
+    cleanup: () => { T.clear(); stopDemo(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
   };
 }

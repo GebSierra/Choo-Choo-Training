@@ -109,9 +109,11 @@ export async function sfxChecks({ browser, url, ok }) {
       first.push(pops[0] && pops[0].freqs[1]);
       await page.waitForTimeout(i < 5 ? 900 : 100);
     }
-    ok(JSON.stringify(first.map((f) => Number(f.toFixed(2)))) === JSON.stringify([C5, D5, E5, G5, A5]), `Hunt: the pops step up the scale with the sheep (${first.map((f) => f.toFixed(0)).join(', ')})`);
-    await page.waitForTimeout(2700); // the sheep trots, walks into the barn and the doors close first
-    ok(of(await notes(page), 'win').bells.length === 7, 'Hunt: the sheep reaching the barn plays the win jingle');
+    ok(JSON.stringify(first.map((f) => Number(f.toFixed(2)))) === JSON.stringify([C5, D5, E5, G5, A5]), `Hunt: the pops step up the scale with the train (${first.map((f) => f.toFixed(0)).join(', ')})`);
+    await page.waitForTimeout(2700); // the train pulls into the station and toots first
+    ok(of(await notes(page), 'win').bells.length === 7, 'Hunt: the train reaching the station plays the win jingle');
+    const tootT = of(await notes(page), 'toot').bells, winT = of(await notes(page), 'win').bells;
+    ok(tootT.length === 2 && winT.length && Math.max(...tootT.flatMap((n) => n.stops)) <= Math.min(...winT.map((n) => n.t)) + 0.01, 'Hunt: the toot plays as the train pulls in, and ends before the jingle starts');
     ok(errors.length === 0, 'Hunt sfx: errors ' + errors.join(' | '));
     await ctx.close();
   }
