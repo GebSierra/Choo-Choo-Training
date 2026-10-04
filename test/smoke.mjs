@@ -585,6 +585,7 @@ for (const [name, raw] of [
   const missingFromSw = need.filter((f) => !listed.has(f));
   ok(missingFromSw.length === 0, 'sw precache lists every js/css/data file; missing: ' + missingFromSw.join(', '));
   ok(DEBUG.every((f) => !listed.has(f)), 'sw does not precache the lab and glyphs debug screens');
+  ok(['vendor/three/three.module.min.js', 'vendor/three/RoundedBoxGeometry.js'].every((f) => sw.includes(`'${f}'`) && fs.existsSync(path.join(ROOT, f))), 'sw precaches three.js and RoundedBoxGeometry for the 3D Home');
   const cur = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
   const images = usedImages(cur);
   ok(images.length > 0 && images.every((f) => listed.has(f)), 'every image in curriculum.json is precached; missing: ' + images.filter((f) => !listed.has(f)).join(', '));
@@ -607,6 +608,7 @@ for (const [name, raw] of [
   await page.reload();
   await page.waitForSelector('.stone', { state: 'attached', timeout: 8000 });
   ok((await page.locator('.stone').count()) === CUR.lessons.length + CUR.checkpoints.length, 'offline reload renders Home');
+  ok((await page.locator('.home3d').count()) === 1, 'offline reload renders the 3D railway (three.js comes from the cache)');
   await page.goto(url + 'index.html#/lesson/1/task/0');
   await page.reload();
   await page.waitForSelector('.task-screen', { timeout: 8000 });

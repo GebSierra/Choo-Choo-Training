@@ -38,7 +38,7 @@ export function createRig(camera, line, { min, max }) {
     get look() { return look; },
     get dragging() { return dragging; },
     get busy() { return dragging || glide !== null || follow !== null || Math.abs(vel) > 0.01 || focus < min - 0.01 || focus > max + 0.01; },
-    jump(s) { focus = s; vel = 0; glide = null; apply(); },
+    jump(s) { focus = s; vel = 0; glide = null; follow = null; apply(); },
     glideTo(s, ms = 1400, t) { glide = { from: focus, to: s, t0: t, ms }; vel = 0; },
     // While the train moves the camera keeps it framed (until a finger takes over).
     follow(fn) { follow = fn; },
