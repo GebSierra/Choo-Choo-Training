@@ -21,6 +21,7 @@ export function buildPip(bag) {
   torso.position.y = 0.26;
   body.add(torso);
   const shirt = cylm(0.17, 0.2, 0.14, PIP.shirt);
+  shirt.name = 'pip-shirt';
   shirt.position.y = 0.5;
   body.add(shirt);
   for (const x of [-0.09, 0.09]) { const b = sph(0.028, PIP.button, 10); b.position.set(x, 0.38, 0.2); body.add(b); }
@@ -49,6 +50,7 @@ export function buildPip(bag) {
   head.rotation.x = -0.55; // looking up, so the camera above sees his face
   body.add(head);
   const skull = sph(0.33, PIP.skin, 28);
+  skull.name = 'pip-skull';
   head.add(skull);
   for (const x of [-0.32, 0.32]) { const e = sph(0.08, PIP.skinShade, 12); e.position.set(x, -0.02, 0); head.add(e); }
   const eyes = new THREE.Group();
@@ -72,7 +74,12 @@ export function buildPip(bag) {
   const badge = cylm(0.07, 0.07, 0.02, PIP.badge, 16); badge.rotation.x = Math.PI / 2 - 0.5; badge.position.set(0, 0.14, 0.31);
   badge.material = bag.paint(PIP.badge, { emissive: '#B07A10', emissiveIntensity: 0.2, roughness: 0.4 });
   cap.add(crown, band, brim, badge);
-  const tuft = sph(0.06, PIP.hair, 10); tuft.scale.set(1.4, 0.8, 0.8); tuft.position.set(-0.16, 0.12, 0.26); head.add(tuft);
+  // two eyebrows and a tuft of hair at each temple, mirrored (as on the 2D Pip)
+  for (const side of [-1, 1]) {
+    const brow = new THREE.Mesh(bag.geo('brow', () => new THREE.CapsuleGeometry(0.016, 0.07, 3, 8)), mat(PIP.hair));
+    brow.name = 'pip-brow'; brow.rotation.z = Math.PI / 2 - side * 0.12; brow.position.set(side * 0.12, 0.1, 0.295); head.add(brow);
+    const tuft = sph(0.06, PIP.hair, 10); tuft.name = 'pip-hair'; tuft.scale.set(0.8, 1.2, 0.8); tuft.position.set(side * 0.28, 0.06, 0.14); head.add(tuft);
+  }
   shadowy(group);
 
   let waving = false, leanK = 0, waveStart = 0, lastLookSwitch = 0, lookTo = 0;

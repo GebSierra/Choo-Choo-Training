@@ -35,7 +35,7 @@ export function createScene(soft = false) {
   sun.shadow.radius = 2;
   sun.shadow.intensity = 0.72; // soft, never black
   scene.add(sun, sun.target);
-  const camera = new THREE.PerspectiveCamera(35, 1, 0.5, 140);
+  const camera = new THREE.PerspectiveCamera(35, 1, 2, 140);
   return {
     scene, camera, sun,
     // The key light and its tight shadow box follow the point the camera looks at.

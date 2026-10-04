@@ -31,6 +31,7 @@ function glyphTexture(bag, glyph, accent) {
 
 function buildEngine(bag) {
   const g = new THREE.Group();
+  g.name = 'engine';
   const wheels = [];
   const add = (m, x, y, z) => { m.position.set(x, y, z); g.add(m); return m; };
   add(block(bag, 1.1, 0.28, 2.6, PAL.navy), 0, 0.5, 0.05);
@@ -50,16 +51,16 @@ function buildEngine(bag) {
   // the cab: open at the top so Pip can be seen, a front wall with two round windows and a sun-yellow rim
   add(block(bag, 1.36, 0.6, 1.05, PAL.red, { r: 0.1 }), 0, 1.08, -0.82);
   add(block(bag, 1.36, 0.62, 0.16, PAL.red, { r: 0.06 }), 0, 1.66, -0.33);
-  for (const x of [-0.32, 0.32]) { const win = add(new THREE.Mesh(bag.geo('cabwin', () => new THREE.CircleGeometry(0.13, 16)), bag.paint('#FFF6D6', { emissive: '#FFE3A0', emissiveIntensity: 0.3 })), x, 1.72, -0.415); win.rotation.y = Math.PI; }
-  for (const [w, d, x, z] of [[1.44, 0.1, 0, -1.33], [0.1, 1.0, -0.7, -0.84], [0.1, 1.0, 0.7, -0.84]]) add(block(bag, w, 0.08, d, PAL.sun, { r: 0.03 }), x, 1.4, z);
-  add(block(bag, 1.44, 0.08, 0.22, PAL.sun, { r: 0.03 }), 0, 2.0, -0.33);
+  for (const x of [-0.32, 0.32]) { const win = add(new THREE.Mesh(bag.geo('cabwin', () => new THREE.CircleGeometry(0.13, 16)), bag.paint('#FFF6D6', { emissive: '#FFE3A0', emissiveIntensity: 0.3 })), x, 1.72, -0.425); win.rotation.y = Math.PI; }
+  for (const [w, d, x, z] of [[1.44, 0.1, 0, -1.33], [0.1, 1.0, -0.7, -0.84], [0.1, 1.0, 0.7, -0.84]]) add(block(bag, w, 0.08, d, PAL.sun, { r: 0.03 }), x, 1.4, z).name = 'cab-rim';
+  add(block(bag, 1.44, 0.08, 0.22, PAL.sun, { r: 0.03 }), 0, 2.0, -0.33).name = 'cab-rim-top';
   for (const z of [0.85, 0.1, -0.7]) for (const x of [-0.7, 0.7]) { const w = wheel(bag, WHEEL_R, PAL.red); w.position.set(x, WHEEL_R + 0.05, z); g.add(w); wheels.push(w); }
   add(new THREE.Mesh(bag.geo('coupler', () => new THREE.CylinderGeometry(0.07, 0.07, 0.4, 8)), bag.paint(PAL.navy)), 0, 0.55, -1.45).rotation.x = Math.PI / 2;
   const funnelTop = new THREE.Object3D();
   funnelTop.position.set(0, 2.35, 0.95);
   g.add(funnelTop);
   const pip = buildPip(bag);
-  pip.group.position.set(0, 0.78, -0.86);
+  pip.group.position.set(0, 1.12, -0.86);
   pip.group.rotation.y = -2.55; // looks back toward the camera, a little to the right (the station side)
   pip.group.scale.setScalar(1.22);
   g.add(pip.group);
@@ -68,16 +69,16 @@ function buildEngine(bag) {
 
 function buildCar(bag, glyph, accent) {
   const g = new THREE.Group();
+  g.name = 'wagon';
   const wheels = [];
   const add = (m, x, y, z) => { m.position.set(x, y, z); g.add(m); return m; };
   add(block(bag, 0.95, 0.2, 1.75, PAL.navy), 0, 0.46, 0);
   add(block(bag, 1.26, 0.66, 1.8, accent, { r: 0.12 }), 0, 0.9, 0);
   for (const [w, d, x, z] of [[1.3, 0.1, 0, 0.86], [1.3, 0.1, 0, -0.86], [0.1, 1.8, 0.61, 0], [0.1, 1.8, -0.61, 0]]) add(block(bag, w, 0.08, d, PAL.sun, { r: 0.03 }), x, 1.25, z);
-  add(block(bag, 1.05, 0.06, 1.6, '#7A5C45', { r: 0.02, shadow: false }), 0, 1.2, 0);
   const tex = glyphTexture(bag, glyph, accent);
   // its cargo: a cream toy block with the letter on top, readable from the camera above and behind
   add(block(bag, 0.86, 0.5, 0.86, '#FFF3DD', { r: 0.1 }), 0, 1.36, 0.1);
-  const top = add(new THREE.Mesh(bag.geo('cargotop', () => new THREE.PlaneGeometry(0.74, 0.74)), bag.add(new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6, transparent: true }))), 0, 1.615, 0.1);
+  const top = add(new THREE.Mesh(bag.geo('cargotop', () => new THREE.PlaneGeometry(0.74, 0.74)), bag.add(new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6, transparent: true }))), 0, 1.625, 0.1);
   top.rotation.set(-Math.PI / 2, 0, Math.PI);
   const panelMat = bag.add(new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6, transparent: true }));
   for (const side of [-1, 1]) {
