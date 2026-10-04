@@ -6,7 +6,7 @@ import { soundPhrase, checkPrompt, fit } from '../../lessons.js';
 import { picture } from '../../components/picture.js';
 import { shuffle } from '../../components/game-kit.js';
 
-// Quick Check: one question, big cards. Nothing tells the child right or wrong.
+// Ticket Check: one question, big cards. Nothing tells the child right or wrong.
 export function build({ lesson, sound, speech, store }) {
   const q = lesson.quickCheck;
   const prompted = checkPrompt(q, store);

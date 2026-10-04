@@ -1,4 +1,4 @@
-# Reading (KDDash)
+# Pip's Reading Train (KDDash)
 
 A personal reading app for one child. Stage 1 teaches three letter sounds (m, a, s) the Mentava way, in Reading.com's lesson shape. Static files, no build step, no runtime dependencies, installable on an Android phone (Chrome or Edge) and usable offline.
 
@@ -78,7 +78,7 @@ The plan left these open or made them impossible to follow literally. Each is th
 - Fonts: one variable Nunito file (`nunito-latin.woff2`) covers weights 400, 700 and 800, instead of three files.
 - WebP: the bundled ffmpeg has no WebP encoder, so `tools/make-webp.mjs` converts the 26 tiles with Chromium's canvas encoder (512 px, all under 60 KB). The PNG originals stay and are not precached.
 - Every "a" a child reads is drawn from our own single-story glyph (`js/letters.js`), including inside words such as "apple" or "catfish". Inside words, m and s may render from the font: "a" is the only letter whose font shape differs, so only "a" always comes from `js/glyphs.js`.
-- Task numbers in the URL are positions in that lesson's task list, so lesson 1 has tasks 0 to 7 (no Letter Review) and lessons 2 and 3 have 0 to 8 (Letter Hunt and Barn Doors sit just before Quick Check).
+- Task numbers in the URL are positions in that lesson's task list, so lesson 1 has tasks 0 to 8 (no Letter Review) and lessons 2 and later have 0 to 9 (Practicing Words and Ticket Check come last; as of 1.7.0, formerly Quick Check).
 - Back always goes to the parent screen (task to lesson overview to Home), so it is predictable and animates in reverse.
 - Grownups opens only through the hold gate on Home and expires after ten minutes; typing `#/grownups` bounces to Home. The gate is used up on entry, so Back then the browser's back button cannot re-enter. Redirects replace the history entry.
 - Hold gates (Grownups, Open playlist, Play for the alphabet song) take 2 seconds, keep that length even with reduced motion on, and each shows a permanent small "Hold" line.
@@ -349,3 +349,8 @@ The design is in `docs/TRAIN-WORLD.md`; screenshots at four phone sizes are in `
 ### Decisions made during build: version 1.6.1 (train flicker and 3D Pip)
 
 - The flicker was a brown floor plank sharing a plane with the wagon body top; the plank is removed, two decals are moved 0.01 off their faces, and the camera near plane is 2. `test/depth.mjs` proves it geometrically (no two differently coloured faces share a plane), because a headless render cannot flicker. Pip has two brows and a mirrored tuft at each temple, and stands above the cab rim.
+
+### Decisions made during build: version 1.7.0 (renames and Practicing Words)
+
+- Renamed to Pip's Reading Train (short name "Pip's Train"); task display names are New Sound, Word Cars (mapped to Saying Words, owner question 1), Track Tracing, Letter Hunt, Practicing Words and Ticket Check. Task ids, routes, the `reading-v` cache prefix and the `reading.v1` key are unchanged.
+- Practicing Words is the Loading Dock game as task 9 of every lesson: three fixed rounds (this sound's words first, then earlier sounds, newest first) from each sound's `practice` list. The Sound Station checkpoint stops are gone from the line; old saved `checkpoints.c1` data still loads.

@@ -585,8 +585,8 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .barn-letter .font-letter { font-size: calc(var(--bw, 300px) * .4); }
 .barn-game .farm-sun { top: 64px; } .barn-game .farm-cloud.c1 { top: 32%; } .barn-game .farm-cloud.c2 { top: 48%; }
 .spark { z-index: 6; }
-.art-train, .art-barn { display: block; width: 150px; }
-.art-train svg.engine-art, .art-barn svg { display: block; width: 100%; height: auto; }
+.art-train, .art-barn, .art-crate { display: block; width: 150px; }
+.art-train svg.engine-art, .art-barn svg, .art-crate svg { display: block; width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) { .goal-glow { transition: none; } }
 
 /* ---------- Saying Sounds: slide to blend ---------- */

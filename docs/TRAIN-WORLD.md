@@ -33,13 +33,14 @@ Reading goes left to right, and blending is joining sounds with no gap. A train 
 ## 5. Games re-themed to the train world (2D SVG, matching the toy look and Pip)
 Mechanics, dealing rules, drag rules, timing, sounds and tests stay exactly as they are; only the scene and the characters change. Draw everything in js/art.js style: soft gradients, rounded shapes, the palette above, Pip in 2D.
 - Letter Hunt (was the sheep): letters float on balloons tied with strings above rolling hills, sky gradient; along the bottom a short track runs from the left to a little station on the right. The train (engine with Pip in the cab, no cars) starts at the left. A correct letter: its balloon pops into the sparkle, the train chugs one step right with a puff of steam. Five correct: the train pulls into the station, Pip leans out and waves, bunting drops, the win jingle and the `toot`. The leftover balloons float away upward (instead of fading). Again resets.
-- Sound Sack (checkpoint) becomes "Loading Dock": an open goods wagon with the letter painted on its side stands at a wooden platform; three picture crates (the picture on the crate's face, same picture data as now) sit on the platform. Drag or tap the right crate into the wagon: it drops in with a little bounce, the wagon's lid closes with a soft clunk animation, the star fills. Wrong: the crate slides back with the small shake, nothing else. After all rounds the train backs up, couples the wagon and steams away with Pip waving; the checkpoint jingle and `toot`. Keep the title text as "Sound Sack" until Geb picks the new names (section 7).
+- Sound Sack (checkpoint) becomes "Loading Dock": an open goods wagon with the letter painted on its side stands at a wooden platform; three picture crates (the picture on the crate's face, same picture data as now) sit on the platform. Drag or tap the right crate into the wagon: it drops in with a little bounce, the wagon's lid closes with a soft clunk animation, the star fills. Wrong: the crate slides back with the small shake, nothing else. After all rounds the train backs up, couples the wagon and steams away with Pip waving; the checkpoint jingle and `toot`. (Superseded in v1.7.0: it is now the in-lesson task Practicing Words.)
 - Barn Doors stays for now (a Tunnel version is planned: the letter appears in the tunnel mouth as the train comes through).
 
 ## 6. Welcome card and finish screen
 - Put the 2D Pip (waving) at the top of the first-run welcome card instead of the adult icon, and on the lesson finish screen beside the glyph (cheering). No other changes.
 
 ## 7. Proposals awaiting Geb's decision (do not build these in round 4)
+- Decided in v1.7.0: the app is "Pip's Reading Train", and the tasks are New Sound, Word Cars, Track Tracing, Letter Hunt, Practicing Words (the old Sound Station) and Ticket Check. The Sound Station stops leave the line.
 - App names (five), mascot alternatives, task names, the new sound order and the books plan are in the chat summary and below. Nothing in the curriculum changes in round 4.
 
 ## 8. Build order, tests and quality bar (for the builder)

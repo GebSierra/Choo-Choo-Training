@@ -6,6 +6,7 @@ import { SPEECH_STUB } from './stubs.mjs';
 import { audit } from './audit.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN, doneThrough } from './lib.mjs';
 import { mapGeometry, BUBBLE_FLIP_Y } from '../js/screens/home.js';
+import { tasksFor } from '../js/lessons.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const NODES = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
@@ -58,9 +59,11 @@ export async function mapChecks({ browser, url, ok, vp, shot }) {
     const bad = NODES.map((n, i) => [n, classes[i], i]).filter(([n, c]) => { const w = state(n); return w === 'locked' ? c !== 'is-locked' : w === 'done' ? c !== 'is-done' : w === 'current' ? c !== 'is-current' : !/is-(unlocked|current)/.test(c); });
     ok(bad.length === 0, `${tag}: locked, open, current and done stones are as the progress says (${bad.map(([n, c]) => label(n) + ':' + c).join('; ')})`);
     const current = await page.locator('.stone.is-current').count();
-    ok(current === 1, `${tag}: exactly one current stone, so exactly one bubble (${current} stones, ${await page.locator('.bubble').count()} bubbles)`);
-    ok((await page.locator('.bubble').count()) === 1, `${tag}: one bubble`);
+    const finished = done === CUR.lessons.length && !CUR.checkpoints.length; // nothing left to do: no current stone, no bubble
+    ok(current === (finished ? 0 : 1), `${tag}: exactly one current stone, so exactly one bubble (${current} stones, ${await page.locator('.bubble').count()} bubbles)`);
+    ok((await page.locator('.bubble').count()) === (finished ? 0 : 1), `${tag}: one bubble`);
     // Opens on the current stone, with its bubble, clear of the pill and the full screen button.
+    if (!finished) {
     const cur = await rectOf(page, '.stone.is-current');
     const pill = await rectOf(page, '.pill-hold'), fsb = await rectOf(page, '.home-fs');
     ok(cur && inside(cur, vp) && !overlaps(cur, pill) && (!fsb || !overlaps(cur, fsb)), `${tag}: the map opens with the current stone fully in view and clear of the Grownups pill and the full screen button`);
@@ -69,6 +72,7 @@ export async function mapChecks({ browser, url, ok, vp, shot }) {
     ok(bubble && (portrait ? true : bubble.y > cur.y + cur.h / 2), `${tag}: ${portrait ? 'the bubble sits by its stone' : 'in landscape the bubble sits below its stone'}`);
     const flipped = await page.evaluate(() => document.querySelector('.bubble').classList.contains('below'));
     if (portrait && withCks.length) ok(flipped && bubble.y > cur.y + cur.h / 2 - 4, `${tag}: the stone near the top of the path has its bubble below it (flipped)`);
+    }
     // The path scrolls along its own axis only, and the page does not.
     const m = await page.evaluate(() => { const s = document.querySelector('.map-scroll'); const de = document.documentElement; return { sh: s.scrollHeight, ch: s.clientHeight, sw: s.scrollWidth, cw: s.clientWidth, over: getComputedStyle(s).overscrollBehaviorY, html: getComputedStyle(de).overscrollBehaviorY, doc: de.scrollHeight - de.clientHeight, docw: de.scrollWidth - de.clientWidth }; });
     ok(portrait ? m.sh > m.ch * 2 && m.sw <= m.cw : m.sw > m.cw * 2 && m.sh <= m.ch + 1, `${tag}: the path scrolls ${portrait ? 'up and down' : 'sideways'} and not the other way (${m.sh}/${m.ch}, ${m.sw}/${m.cw})`);
@@ -162,10 +166,10 @@ export async function mapUpgradeChecks({ browser, url, ok }) {
     await page.waitForTimeout(2000);
     const tag = `old saved progress (${Object.keys(extra).length ? 'sack done' : 'sack not done'})`;
     ok((await page.locator('.stone.is-current').getAttribute('aria-label')) === 'Lesson 4', `${tag}: lesson 4 is the current stone`);
-    ok((await page.locator('.stone.is-done').count()) === 3 + (Object.keys(extra).length ? 1 : 0), `${tag}: the stones for lessons 1 to 3 (and the sack) are done`);
+    ok((await page.locator('.stone.is-done').count()) === 3 + (CUR.checkpoints.some((k) => k.id === 'c1') && Object.keys(extra).length ? 1 : 0), `${tag}: the stones for lessons 1 to 3 (and the sack, if the path still has one) are done`);
     await page.locator('.stone.is-current').click();
     await page.waitForSelector('.lesson-overview');
-    ok(page.url().endsWith('#/lesson/4') && (await page.locator('.task-card').count()) === 9, `${tag}: lesson 4 opens with nine tasks`);
+    ok(page.url().endsWith('#/lesson/4') && (await page.locator('.task-card').count()) === tasksFor(CUR.lessons[3]).length, `${tag}: lesson 4 opens with all ${tasksFor(CUR.lessons[3]).length} tasks`);
     ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
     await ctx.close();
   }

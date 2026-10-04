@@ -7,6 +7,7 @@ import { picture } from '../components/picture.js';
 import { timers, watchSize, starRow, shake, shuffle } from '../components/game-kit.js';
 import { accentOf } from '../theme.js';
 import { soundPhrase, fit, sackPool, roundCaps } from '../lessons.js';
+import { firstSoundOut } from '../scripts.js';
 import { sfx } from '../sfx.js';
 
 const SPRING = 'cubic-bezier(.34,1.56,.64,1)';
@@ -41,7 +42,8 @@ export function roundSounds(sounds, rounds, { favour = [], caps = {} } = {}) {
   return pool;
 }
 
-// The Sound Station (the Loading Dock): an open goods wagon with a letter painted on its side stands on the track by a
+// The Loading Dock game: the Sound Station stop (checkpoint) and, with a fixed `plan` of {key, word} rounds, Practicing Words inside a lesson.
+// An open goods wagon with a letter painted on its side stands on the track by a
 // wooden platform, with three picture crates on the platform. The child drags (or taps) the crate whose word starts
 // with that sound into the wagon: it drops in, the lid closes with a soft bounce and a star fills. A wrong crate glides
 // home with a small shake; nothing else changes. After the last round the train backs up, couples the wagon and steams
@@ -49,9 +51,10 @@ export function roundSounds(sounds, rounds, { favour = [], caps = {} } = {}) {
 export function build({ checkpoint, curriculum, speech, refresh, setProgress, setDone }) {
   const T = timers();
   const rounds = checkpoint.rounds;
-  const pickOrder = () => roundSounds(checkpoint.sounds, rounds, { favour: checkpoint.favour, caps: roundCaps(curriculum, checkpoint) });
+  const pickOrder = () => checkpoint.plan ? checkpoint.plan.map((r) => r.key) : roundSounds(checkpoint.sounds, rounds, { favour: checkpoint.favour, caps: roundCaps(curriculum, checkpoint) });
   let order = pickOrder(), round = 0, locked = false, drag = null, demoTimer = 0, demoShown = false, demoHand = null, W = 0, H = 0, sackRect = null, bases = [], size = 96, cards = [];
   const used = {}; // start words already shown, per sound
+  let rightWord = null; // the word of the round on screen
 
   const front = h('div', { class: 'sack-front' });
   const wagonArt = wagonSvg();
@@ -68,9 +71,11 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
   const keep = (a) => { endAnims.push(a); return a; };
   const setPip = (pose) => { const seat = engine.querySelector('.pip-seat'), old = seat.firstChild, p = pipSvg({ pose, still: pose === 'idle' }); for (const k of ['x', 'y', 'width', 'height']) p.setAttribute(k, old.getAttribute(k)); seat.replaceChildren(p); };
 
+  const curWord = () => (rightWord || checkpoint.plan[0]).word;
   const sound = () => curriculum.sounds[order[Math.min(round, rounds - 1)]];
 
   function pickWord(key) {
+    if (checkpoint.plan) return curriculum.sounds[key].startWords.find((w) => w.word === checkpoint.plan[round].word); // Practicing Words: a fixed plan
     const list = curriculum.sounds[key].startWords;
     const fresh = list.filter((w) => !(used[key] || new Set()).has(w.word));
     const w = (fresh.length ? fresh : list)[Math.floor(Math.random() * (fresh.length ? fresh.length : list.length))];
@@ -104,6 +109,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
     const key = order[round];
     el.dataset.round = String(round + 1); el.dataset.sound = key;
     const right = pickWord(key);
+    rightWord = right;
     const wrong = shuffle(sackPool(curriculum, checkpoint).filter((w) => !(w.avoid || []).includes(key))).slice(0, 2); // avoid: a look-alike for this sound
     const choices = shuffle([{ ...right, correct: true }, ...wrong.map((w) => ({ ...w, correct: false }))]);
     front.replaceChildren(glyphSvg(key, { color: accentOf(key), label: 'the sound on the wagon' }));
@@ -283,8 +289,12 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
   return {
     el, flush: true,
     parts: () => say,
-    script: () => `Say: 'Which one starts with ${soundPhrase(sound())}?' Let them drag it into the wagon. There is no right or wrong here.`,
-    gist: () => fit(`Ask: which starts with ${soundPhrase(sound())}?`, `Ask: ${soundPhrase(sound())}?`),
+    script: () => checkpoint.plan
+      ? `Say: 'Find the ${firstSoundOut(curWord(), curriculum.sounds)}.' Let them drag it into the wagon. There is no right or wrong here.`
+      : `Say: 'Which one starts with ${soundPhrase(sound())}?' Let them drag it into the wagon. There is no right or wrong here.`,
+    gist: () => checkpoint.plan
+      ? fit(`Say: Find the ${firstSoundOut(curWord(), curriculum.sounds)}`, `Find the ${firstSoundOut(curWord(), curriculum.sounds)}`)
+      : fit(`Ask: which starts with ${soundPhrase(sound())}?`, `Ask: ${soundPhrase(sound())}?`),
     again: () => { again(); speech.say(say); },
     cleanup: () => { T.clear(); stopDemo(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
   };

@@ -4,7 +4,7 @@ import { accentOf } from '../theme.js';
 import { soundCardLines } from '../lessons.js';
 
 // "This letter says mmm. Hold it. Do not say muh." plus how to make the sound.
-// lead: the parent carries the sound, so on New Letter this card is the main instruction and is drawn larger.
+// lead: the parent carries the sound, so on New Sound this card is the main instruction and is drawn larger.
 export function soundCard(sound, { lead = false } = {}) {
   const accent = accentOf(sound.glyph);
   const lines = soundCardLines(sound);

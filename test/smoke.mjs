@@ -8,7 +8,7 @@ import { tasksFor } from '../js/lessons.js';
 import { usedImages } from '../tools/precache-images.mjs';
 import { huntChecks, dragChecks, dragReducedChecks, barnChecks, reducedChecks } from './games.mjs';
 import { blendChecks, blendReducedChecks } from './blend.mjs';
-import { sackChecks, sackMapChecks, sackGrownupsChecks } from './sack.mjs';
+import { practiceChecks, renameChecks, sackMapChecks, sackGrownupsChecks } from './sack.mjs';
 import { dealerChecks } from './deal.mjs';
 import { sfxChecks, sfxGrownupsChecks } from './sfx.mjs';
 import { roomChecks, barChecks, timerAndFirstVisitChecks, grownupsScriptChecks } from './script.mjs';
@@ -24,7 +24,7 @@ fs.mkdirSync(OUT, { recursive: true });
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.error('FAIL: ' + msg); } };
 
-const COUNT = (n) => tasksFor(CUR.lessons[n - 1]).length; // task counts come from the data: 8, 9, 9
+const COUNT = (n) => tasksFor(CUR.lessons[n - 1]).length; // task counts come from the data: 9, 10, 10
 const { server, url } = await startServer();
 const pw = await loadPlaywright();
 const browser = await launch(pw);
@@ -151,7 +151,7 @@ for (const vp of VIEWPORTS) {
       const lesson = CUR.lessons[L - 1];
       const title = await page.locator('.task-head h1').innerText();
       if (title === tasksFor(CUR.lessons[L - 1])[i].name) visited++; // counted only when the screen is the task the data lists
-      const reveal = { 'Saying Words': ['.merged-tile', lesson.sayingWords.length], 'Saying Sounds': ['.sounds-stage', lesson.sayingSounds.length] }[title];
+      const reveal = { 'Word Cars': ['.merged-tile', lesson.sayingWords.length], 'Saying Sounds': ['.sounds-stage', lesson.sayingSounds.length] }[title];
       if (reveal) {
         for (let w = 0; w < reveal[1]; w++) {
           await page.locator(reveal[0]).click();
@@ -160,10 +160,10 @@ for (const vp of VIEWPORTS) {
           ok(rp.length === 0, rp.join(' | '));
           if (w < reveal[1] - 1) { await page.locator('.btn.ghost.small').click(); await page.waitForTimeout(450); }
         }
-      } else if (title === 'Quick Check') {
+      } else if (title === 'Ticket Check') {
         await page.locator('.opt-card').first().click();
         await page.waitForTimeout(400);
-        const qp = await audit(page, `${vp.name} L${L} T${i} Quick Check picked`);
+        const qp = await audit(page, `${vp.name} L${L} T${i} Ticket Check picked`);
         ok(qp.length === 0, qp.join(' | '));
       } else if (title === 'Letter Review' && lesson.review.length > 1) {
         for (let r = 1; r < lesson.review.length; r++) {
@@ -253,9 +253,10 @@ for (const vp of VIEWPORTS) {
   for (const lessonNo of [1, 2]) await wordsSlideChecks({ browser, url, ok, vp, lessonNo, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `slide-words-${vp.name}-L${lessonNo}-${name}.png`) }) });
 }
 await slideReducedChecks({ browser, url, ok });
-// The Sound Sack checkpoint: its stone on the map, the drag game by real touch, the finish screen, Grownups.
-for (const vp of VIEWPORTS) { await sackMapChecks({ browser, url, ok, vp }); await sackChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) }); }
-for (const k of CUR.checkpoints.slice(1)) await sackChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], id: k.id }); // c2 to c4 are played too
+// Practicing Words (the Loading Dock inside a lesson) and the renames; the sack stop checks run only while the line has a checkpoint.
+await sackMapChecks({ browser, url, ok, vp: VIEWPORTS[0] });
+await practiceChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], shot: shotTo(OUT) });
+await renameChecks({ browser, url, ok, CUR });
 await sackGrownupsChecks({ browser, url, ok });
   await round2Checks({ browser, url, ok });
   await round3Checks({ browser, url, ok });
@@ -337,7 +338,7 @@ await sackGrownupsChecks({ browser, url, ok });
   await popup.close();
   // Walk the remaining tasks.
   for (let k = 0; k < COUNT(1) - 2; k++) { await page.click('.btn.next'); await page.waitForTimeout(450); }
-  await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Quick Check');
+  await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Ticket Check');
   await page.locator('.opt-card').first().click();
   await page.click('.btn.next');
   await page.waitForSelector('.finish');
@@ -575,7 +576,7 @@ for (const [name, raw] of [
 // PWA (step 11): manifest is valid, sw precache list is complete, offline reload renders Home.
 {
   const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8'));
-  ok(man.display === 'standalone' && man.orientation === 'portrait-primary' && man.scope === './' && man.start_url === './index.html#/home' && man.name === 'Reading', 'manifest fields');
+  ok(man.display === 'standalone' && man.orientation === 'portrait-primary' && man.scope === './' && man.start_url === './index.html#/home' && man.name === "Pip's Reading Train", 'manifest fields');
   ok(man.icons.some((i) => i.purpose === 'maskable') && man.icons.every((i) => fs.existsSync(path.join(ROOT, i.src))), 'manifest icons exist, including maskable');
   const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
   const listed = new Set([...sw.matchAll(/'((?:js|css|data|icons|assets)\/[^']+)'/g)].map((m) => m[1]));

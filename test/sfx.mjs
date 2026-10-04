@@ -148,9 +148,9 @@ export async function sfxChecks({ browser, url, ok }) {
     await ctx.close();
   }
 
-  // 4. Sound Sack: nothing for a wrong drop; a chime and bloop for a right one; the checkpoint jingle at the end.
+  // 4. Practicing Words (the Loading Dock): nothing for a wrong drop; a chime and bloop for a right one; the checkpoint jingle at the end.
   {
-    const { ctx, page, errors } = await open(browser, url, vp, { route: '#/checkpoint/c1' });
+    const { ctx, page, errors } = await open(browser, url, vp, { route: `#/lesson/3/task/${taskIdx(3, 'practice')}` });
     await page.waitForSelector('.sack-card');
     await page.waitForTimeout(800);
     const sackBox = async () => { const b = await page.locator('.sack').boundingBox(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };
@@ -159,7 +159,7 @@ export async function sfxChecks({ browser, url, ok }) {
     await drag('0');
     await page.waitForTimeout(900);
     ok((await notes(page)).length === 0, 'Sack: a wrong card dropped in the sack schedules no sound');
-    for (let r = 1; r <= 6; r++) {
+    for (let r = 1; r <= 3; r++) {
       await page.waitForFunction((k) => document.querySelector('.sack-game').dataset.round === String(k), r, { timeout: 4000 });
       await page.waitForTimeout(450);
       await clear(page);
@@ -169,7 +169,7 @@ export async function sfxChecks({ browser, url, ok }) {
       ok(of(got, 'star').bells.length === 2 && of(got, 'star').bloops.length === 1, `Sack: round ${r} drop plays the star chime with a bloop`);
     }
     await page.waitForTimeout(900);
-    ok(of(await notes(page), 'checkpoint').bells.length === 13, 'Sack: six rounds play the checkpoint jingle');
+    ok(of(await notes(page), 'checkpoint').bells.length === 13, 'Sack: three rounds of Practicing Words play the checkpoint jingle');
     ok(errors.length === 0, 'Sack sfx: errors ' + errors.join(' | '));
     await ctx.close();
   }

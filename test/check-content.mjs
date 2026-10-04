@@ -5,7 +5,7 @@ import { ROOT } from './lib.mjs';
 import { scriptToParts, slowSounds, firstSoundOut } from '../js/scripts.js';
 import { GLYPHS } from '../js/glyphs.js';
 import { ACCENT } from '../js/theme.js';
-import { sackPool, roundCaps } from '../js/lessons.js';
+import { sackPool, roundCaps, practiceRounds } from '../js/lessons.js';
 
 export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee', 'aitch', 'eye', 'jay', 'kay', 'el', 'em', 'en', 'oh', 'pee', 'cue', 'ar', 'ess', 'tee', 'you', 'vee', 'double', 'ex', 'wye', 'zee'];
 // Words where s says z, which a child must not learn as an s word.
@@ -163,6 +163,15 @@ export function checkCurriculum(c, root = ROOT) {
     if (letters && !letters.includes(w.word[0])) err(`${p} "${w.word}" must begin with ${letters.join(' or ')}`);
   };
   for (const [k, s] of Object.entries(sounds)) (s.startWords || []).forEach((w, i) => { wordOk(w, `sounds.${k}.startWords[${i}]`); if (w.word[0] !== k) err(`sounds.${k}.startWords[${i}] "${w.word}" does not begin with ${k}`); });
+  // Practicing Words: every sound has a non-empty list of its own start words, and every lesson gets three different rounds.
+  for (const [k, s] of Object.entries(sounds)) {
+    if (!Array.isArray(s.practice) || !s.practice.length) { err(`sounds.${k}.practice must be a non-empty list`); continue; }
+    s.practice.forEach((w) => { if (!(s.startWords || []).some((x) => x.word === w)) err(`sounds.${k}.practice "${w}" is not one of its startWords`); if (w[0] !== k) err(`sounds.${k}.practice "${w}" does not begin with ${k}`); });
+  }
+  for (const L of c.lessons || []) {
+    const r = practiceRounds(c, L);
+    if (r.length !== 3 || new Set(r.map((x) => x.word)).size !== 3) err(`lesson ${L.number}: Practicing Words needs three different rounds (${r.map((x) => x.word).join(', ')})`);
+  }
   const pool = c.gameDistractors || [];
   if (pool.length < 6) err('gameDistractors needs at least six words');
   pool.forEach((w, i) => {
@@ -184,6 +193,7 @@ export function checkCurriculum(c, root = ROOT) {
     if (!k.id || ids.has(k.id)) err(`${p}.id must be unique`);
     if (!/^[\w-]+$/.test(k.id || '')) err(`${p}.id "${k.id}" must match the route pattern [\\w-]+`);
     ids.add(k.id);
+    if (k.kind) return; // book and ride stops have their own checks
     if (!k.title) err(`${p}.title missing`);
     if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
     if (!Number.isInteger(k.rounds) || k.rounds < 1) err(`${p}.rounds must be a positive integer`);
@@ -206,9 +216,6 @@ export function checkCurriculum(c, root = ROOT) {
     for (const s of k.sounds) if (wrong.filter((w) => !(w.avoid || []).includes(s)).length < 2) err(`${p}: fewer than two wrong cards for sound "${s}"`);
     for (const w of wrong) { if (k.sounds.includes(w.word[0])) err(`${p}: wrong card "${w.word}" begins with a taught sound`); if (k.sounds.includes('s') && w.word.startsWith('sh')) err(`${p}: wrong card "${w.word}" is an sh word`); if ((k.sounds.includes('t') || k.sounds.includes('s')) && w.word.startsWith('th')) err(`${p}: wrong card "${w.word}" is a th word`); }
   });
-  // Every lesson from the fourth on is followed by a checkpoint only where the data says so: c1 after 3, then c2 after 6, c3 after 9, c4 after the last.
-  const wantAfter = [3, 6, 9, 13].filter((n) => n <= (c.lessons || []).length);
-  if (JSON.stringify((c.checkpoints || []).map((k) => k.after)) !== JSON.stringify(wantAfter) && (c.lessons || []).length >= 13) err(`checkpoints should come after lessons ${wantAfter.join(', ')}`);
 
   const taught = new Set();
   const seenCompounds = new Set();

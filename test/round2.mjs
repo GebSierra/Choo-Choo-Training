@@ -113,11 +113,11 @@ export async function gameFlowChecks({ browser, url, ok }) {
 export async function sackFlowChecks({ browser, url, ok }) {
   const vp = VIEWPORTS[0];
   {
-    const { ctx, page, errors } = await open(browser, url, vp, '#/checkpoint/c1');
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/3/task/${idx(3, 'practice')}`);
     await page.waitForSelector('.sack-card');
     await page.waitForTimeout(1200);
     const game = (k) => page.evaluate((key) => document.querySelector('.sack-game').dataset[key], k);
-    ok((await page.locator('.btn.next').innerText()).trim() === 'Skip', 'Sack: the footer button reads "Skip" while the game is on');
+    ok((await page.locator('.btn.next').innerText()).trim() === 'Next', 'Sack: the footer button reads "Next" (Practicing Words is a lesson task)');
     // A tap on a wrong card shakes it silently and puts nothing in the sack.
     const wrong = page.locator('.sack-card[data-correct="0"]').first();
     await tap(page, wrong);
@@ -134,25 +134,24 @@ export async function sackFlowChecks({ browser, url, ok }) {
     ok((await game('stars')) === '1' && (await page.locator('.star-row .gold-star').count()) === 1 && (await page.locator('.sack-barn ~ .spark, .farm .spark').count()) >= 0, 'Sack tap: a gold star fills');
     await page.waitForFunction(() => document.querySelector('.sack-game').dataset.round === '2', null, { timeout: 3000 });
     // Play the remaining rounds by tap: the label changes to Finish and Next pulses once at the end.
-    for (let r = 2; r <= 6; r++) {
+    for (let r = 2; r <= 3; r++) {
       await page.waitForFunction((k) => document.querySelector('.sack-game').dataset.round === String(k), r, { timeout: 4000 });
       await page.waitForTimeout(500);
-      if (r === 6) ok((await anims(page, '.btn.next')) === 0, 'Sack: Next does not pulse before the game is done');
+      if (r === 3) ok((await anims(page, '.btn.next')) === 0, 'Sack: Next does not pulse before the game is done');
       await tap(page, page.locator('.sack-card[data-correct="1"]:not([disabled])'));
       await page.waitForTimeout(500);
     }
     await page.waitForFunction(() => document.querySelector('.sack-game').dataset.state === 'done', null, { timeout: 5000 });
-    ok((await page.locator('.btn.next').innerText()).trim() === 'Finish', 'Sack: the footer button reads "Finish" once the game is done');
+    ok((await page.locator('.btn.next').innerText()).trim() === 'Next' && !(await page.locator('.btn.next').isDisabled()), 'Sack: Next is ready once the game is done');
     ok((await running(page, '.btn.next', 1)) === 1, 'Sack: Next pulses once when the game is done');
     await page.click('.btn.again');
     await page.waitForTimeout(300);
-    ok((await page.locator('.btn.next').innerText()).trim() === 'Skip', 'Sack: Again brings back "Skip"');
     ok(errors.length === 0, 'Sack tap: errors ' + errors.join(' | '));
     await ctx.close();
   }
   // The idle demo: after 8 quiet seconds one small hand glides from the right card to the sack, once per round, silently.
   {
-    const { ctx, page, errors } = await open(browser, url, vp, '#/checkpoint/c1', { clock: true });
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/3/task/${idx(3, 'practice')}`, { clock: true });
     await page.waitForSelector('.sack-card');
     await page.clock.runFor(7000);
     ok((await page.locator('.demo-hand').count()) === 0, 'Sack demo: no hand before 8 quiet seconds');
@@ -178,7 +177,7 @@ export async function sackFlowChecks({ browser, url, ok }) {
   }
   // Reduced motion: no demo.
   {
-    const { ctx, page } = await open(browser, url, vp, '#/checkpoint/c1', { clock: true, extra: { reducedMotion: 'reduce' } });
+    const { ctx, page } = await open(browser, url, vp, `#/lesson/3/task/${idx(3, 'practice')}`, { clock: true, extra: { reducedMotion: 'reduce' } });
     await page.waitForSelector('.sack-card');
     await page.clock.runFor(9000);
     ok((await page.locator('.demo-hand').count()) === 0, 'Sack demo: none with reduced motion');

@@ -27,7 +27,7 @@ const route = (n, type) => `#/lesson/${n}/task/${tasksFor(CUR.lessons[n - 1]).fi
 const PRIMARY = {
   review: ['.slide-track'], newLetter: ['.slide-track', '.word-tile:first-child'], story: ['.hold-btn'], words: ['.parts-row', '.merged-tile', '.btn.ghost.small'],
   sounds: ['.sounds-stage', '.btn.ghost.small'], writing: ['.tp-ink', '.writing-buttons .btn'], hunt: ['.sky-letter', '.train-wrap', '.star-row'],
-  barn: ['.barn', '.star-row'], check: ['.opt-card'],
+  barn: ['.barn', '.star-row'], practice: ['.sack', '.sack-card'], check: ['.opt-card'],
 };
 async function controlsFit(page, selectors, vp) {
   return page.evaluate(([sels, w, h]) => {
@@ -118,7 +118,7 @@ export async function gistChecks({ browser, url, ok }) {
       await page.waitForFunction((r) => location.hash === r && document.querySelector('.screen:not(.leaving) .script-first') && !document.querySelector('.screen.leaving'), `#/lesson/${L.number}/task/${t.index}`);
       await page.waitForTimeout(150);
       const gist = await gistOf(page);
-      const want = { review: soundPhrase(CUR.sounds[L.review[0]] || CUR.sounds.m), words: L.sayingWords[0].parts[0], sounds: L.sayingSounds[0].word, writing: '' }[t.type] ?? P;
+      const want = { review: soundPhrase(CUR.sounds[L.review[0]] || CUR.sounds.m), words: L.sayingWords[0].parts[0], sounds: L.sayingSounds[0].word, writing: '', practice: 'Find the' }[t.type] ?? P;
       const fits = await page.evaluate(() => { const e = document.querySelector('.screen:not(.leaving) .script-first'); return e.scrollWidth <= e.clientWidth; });
       ok(fits, `lesson ${L.number} ${t.type}: the gist "${gist}" fits the bar at 360 px without an ellipsis`);
       ok(gist.length > 0 && gist.length <= 28 && gist.includes(want), `lesson ${L.number} ${t.type}: gist "${gist}" is 1 to 28 characters and holds "${want}"`);
@@ -135,11 +135,11 @@ export async function gistChecks({ browser, url, ok }) {
     }
   }
   ok(seenGists === CUR.lessons.reduce((n, L) => n + tasksFor(L).length, 0), 'every task of every lesson was checked for a gist');
-  await page.evaluate(() => { location.hash = '#/checkpoint/c1'; });
+  await page.evaluate((r) => { location.hash = r; }, route(3, 'practice'));
   await page.waitForSelector('.sack-card');
   await page.waitForTimeout(200);
   const sg = await gistOf(page);
-  ok(sg.length > 0 && sg.length <= 28 && /^Ask: /.test(sg), `Sound Sack: gist "${sg}"`);
+  ok(sg.length > 0 && sg.length <= 28 && /Find the /.test(sg), `Practicing Words: gist "${sg}"`);
   ok(errors.length === 0, 'gists: errors ' + errors.join(' | '));
   await ctx.close();
 }
@@ -282,7 +282,7 @@ export async function timerAndFirstVisitChecks({ browser, url, ok }) {
     await ctx.close();
   }
   // The games never open the sheet over the play, even on a first visit.
-  for (const r of [route(1, 'hunt'), route(1, 'barn'), '#/checkpoint/c1']) {
+  for (const r of [route(1, 'hunt'), route(1, 'barn'), route(3, 'practice')]) {
     const { ctx, page, errors } = await newPage(browser, vp);
     await page.clock.install();
     await page.addInitScript(SPEECH_STUB);

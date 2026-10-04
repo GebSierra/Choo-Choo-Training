@@ -1,20 +1,21 @@
 // Turns a lesson in curriculum.json into its ordered task list. Nothing here hardcodes lesson content.
 export const TASK_TYPES = {
   review:  { name: 'Letter Review', color: 'sky',    dark: true,  label: "Today we'll review" },
-  newLetter: { name: 'New Letter',  color: 'violet', dark: false, label: "Today we'll learn" },
+  newLetter: { name: 'New Sound',   color: 'violet', dark: false, label: "Today we'll learn" },
   story:   { name: 'Sound Story',   color: 'coral',  dark: false, label: "Today we'll hear" },
-  words:   { name: 'Saying Words',  color: 'sun',    dark: true,  label: "Today we'll say" },
+  words:   { name: 'Word Cars',  color: 'sun',    dark: true,  label: "Today we'll say" },
   sounds:  { name: 'Saying Sounds', color: 'mint',   dark: true,  label: "Today we'll stretch" },
-  writing: { name: 'Letter Writing', color: 'lilac', dark: true,  label: "Today we'll write" },
+  writing: { name: 'Track Tracing', color: 'lilac', dark: true,  label: "Today we'll write" },
   hunt:    { name: 'Letter Hunt',   color: 'sky',    dark: true,  label: "Today we'll practice" },
   barn:    { name: 'Barn Doors',    color: 'coral',  dark: false, label: "Today we'll practice" },
-  check:   { name: 'Quick Check',   color: 'blue',   dark: true,  label: "Today we'll check" },
+  practice: { name: 'Practicing Words', color: 'mint', dark: true, label: "Today we'll find" },
+  check:   { name: 'Ticket Check',   color: 'blue',   dark: true,  label: "Today we'll check" },
 };
 
 export function tasksFor(lesson) {
   const list = [];
   if (lesson.review && lesson.review.length) list.push('review');
-  list.push('newLetter', 'story', 'words', 'sounds', 'writing', 'hunt', 'barn', 'check');
+  list.push('newLetter', 'story', 'words', 'sounds', 'writing', 'hunt', 'barn', 'practice', 'check');
   return list.map((type, index) => ({ type, index, ...TASK_TYPES[type] }));
 }
 
@@ -28,7 +29,7 @@ export const lessonByNumber = (curriculum, n) => curriculum.lessons.find((l) => 
 export function targetsFor(task, lesson) {
   switch (task.type) {
     case 'review': return lesson.review.map((g) => ({ glyph: g }));
-    case 'newLetter': case 'writing': case 'hunt': case 'barn': case 'check': return [{ glyph: lesson.sound }];
+    case 'newLetter': case 'writing': case 'hunt': case 'barn': case 'practice': case 'check': return [{ glyph: lesson.sound }];
     case 'story': return [{ glyph: lesson.sound }];
     case 'words': return lesson.sayingWords.slice(0, 2).map((w) => ({ text: w.word }));
     case 'sounds': return lesson.sayingSounds.slice(0, 3).map((w) => ({ text: w.word }));
@@ -49,6 +50,20 @@ export function soundCardLines(sound) {
   if (sound.hold) lines.push('Hold it.');
   if (sound.doNotSay) lines.push(`Do not say ${sound.doNotSay}.`);
   return lines;
+}
+
+export const taughtBy = (curriculum, n) => curriculum.lessons.slice(0, n).map((L) => L.sound);
+// Practicing Words: three rounds, this lesson's sound first, then earlier sounds, newest first. [{ key, word }]
+export function practiceRounds(curriculum, lesson, n = 3) {
+  const own = curriculum.sounds[lesson.sound].practice || [];
+  const out = own.slice(0, lesson.number === 1 ? n : 2).map((word) => ({ key: lesson.sound, word }));
+  const earlier = taughtBy(curriculum, lesson.number - 1).reverse();
+  const next = Object.fromEntries(earlier.map((k) => [k, 0]));
+  for (let guard = 0; out.length < n && guard < 50 && earlier.length; guard++) {
+    const k = earlier[guard % earlier.length], list = curriculum.sounds[k].practice || [];
+    if (next[k] < list.length) out.push({ key: k, word: list[next[k]++] });
+  }
+  return out;
 }
 
 // ---- Sound Sack data ----

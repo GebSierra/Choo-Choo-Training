@@ -129,7 +129,7 @@ export function grownupsScreen(ctx) {
         h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Alphabet song')),
       ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),
       sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),
-      h('p', { class: 'gu-version' }, `Reading version ${APP_VERSION}`)));
+      h('p', { class: 'gu-version' }, `Pip's Reading Train version ${APP_VERSION}`)));
   root.cleanup = () => clearTimeout(voiceTimer);
   return root;
 }

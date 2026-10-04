@@ -38,6 +38,11 @@
           "word": "moon",
           "image": "assets/images/mentava/web/oo-moon/moon.webp"
         }
+      ],
+      "practice": [
+        "milk",
+        "map",
+        "moon"
       ]
     },
     "a": {
@@ -75,6 +80,9 @@
           "word": "astronaut",
           "image": "assets/images/mentava/web/a/astronaut.webp"
         }
+      ],
+      "practice": [
+        "apple"
       ]
     },
     "s": {
@@ -120,6 +128,11 @@
           "word": "sun",
           "image": "assets/images/mentava/web/u/sun.webp"
         }
+      ],
+      "practice": [
+        "snake",
+        "sun",
+        "sock"
       ]
     },
     "t": {
@@ -165,6 +178,11 @@
           "word": "tent",
           "image": "assets/images/mentava/web/e/tent.webp"
         }
+      ],
+      "practice": [
+        "tiger",
+        "table",
+        "tent"
       ]
     },
     "f": {
@@ -210,6 +228,11 @@
           "word": "fox",
           "image": "assets/images/mentava/web/x/fox.webp"
         }
+      ],
+      "practice": [
+        "fish",
+        "fan",
+        "fox"
       ]
     },
     "d": {
@@ -263,6 +286,11 @@
           "word": "dolphin",
           "image": "assets/images/mentava/web/d/dolphin.webp"
         }
+      ],
+      "practice": [
+        "duck",
+        "dog",
+        "door"
       ]
     },
     "g": {
@@ -292,6 +320,10 @@
           "word": "gate",
           "image": "assets/images/mentava/web/g/gate.webp"
         }
+      ],
+      "practice": [
+        "goat",
+        "gate"
       ]
     },
     "i": {
@@ -321,6 +353,9 @@
           "word": "igloo",
           "image": "assets/images/mentava/web/i/igloo.webp"
         }
+      ],
+      "practice": [
+        "igloo"
       ]
     },
     "n": {
@@ -366,6 +401,11 @@
           "word": "nest",
           "image": "assets/images/mentava/web/e/nest.webp"
         }
+      ],
+      "practice": [
+        "nose",
+        "nut",
+        "nest"
       ]
     },
     "p": {
@@ -411,6 +451,11 @@
           "word": "pot",
           "image": "assets/images/mentava/web/o/pot.webp"
         }
+      ],
+      "practice": [
+        "pig",
+        "pot",
+        "panda"
       ]
     },
     "h": {
@@ -464,6 +509,11 @@
           "word": "horse",
           "image": "assets/images/mentava/web/or/horse.webp"
         }
+      ],
+      "practice": [
+        "hat",
+        "hand",
+        "horse"
       ]
     },
     "b": {
@@ -517,6 +567,11 @@
           "word": "bus",
           "image": "assets/images/mentava/web/b/bus.webp"
         }
+      ],
+      "practice": [
+        "ball",
+        "bus",
+        "banana"
       ]
     },
     "l": {
@@ -562,6 +617,11 @@
           "word": "light",
           "image": "assets/images/mentava/web/ie/light.webp"
         }
+      ],
+      "practice": [
+        "leaf",
+        "leg",
+        "ladder"
       ]
     }
   },
@@ -2398,87 +2458,7 @@
       "say": "Listen to your grown up. Then drag the picture into the wagon."
     }
   },
-  "checkpoints": [
-    {
-      "id": "c1",
-      "title": "Sound Station",
-      "after": 3,
-      "sounds": [
-        "m",
-        "a",
-        "s"
-      ],
-      "rounds": 6
-    },
-    {
-      "id": "c2",
-      "title": "Sound Station",
-      "after": 6,
-      "sounds": [
-        "m",
-        "a",
-        "s",
-        "t",
-        "f",
-        "d"
-      ],
-      "rounds": 6,
-      "favour": [
-        "t",
-        "f",
-        "d"
-      ]
-    },
-    {
-      "id": "c3",
-      "title": "Sound Station",
-      "after": 9,
-      "sounds": [
-        "m",
-        "a",
-        "s",
-        "t",
-        "f",
-        "d",
-        "g",
-        "i",
-        "n"
-      ],
-      "rounds": 8,
-      "favour": [
-        "g",
-        "i",
-        "n"
-      ]
-    },
-    {
-      "id": "c4",
-      "title": "Sound Station",
-      "after": 13,
-      "sounds": [
-        "m",
-        "a",
-        "s",
-        "t",
-        "f",
-        "d",
-        "g",
-        "i",
-        "n",
-        "p",
-        "h",
-        "b",
-        "l"
-      ],
-      "rounds": 10,
-      "favour": [
-        "p",
-        "h",
-        "b",
-        "l"
-      ]
-    }
-  ],
+  "checkpoints": [],
   "gameDistractors": [
     {
       "word": "baby",

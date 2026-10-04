@@ -70,7 +70,7 @@ export async function pipChecks({ browser, url, ok }) {
     ok(w.errors.length === 0, `${vp.name} welcome: errors ${w.errors.join(' | ')}`);
     await w.ctx.close();
 
-    for (const route of ['#/lesson/1/finish', '#/checkpoint/c1/finish']) {
+    for (const route of ['#/lesson/1/finish', ...(CUR.checkpoints.some((k) => k.id === 'c1') ? ['#/checkpoint/c1/finish'] : [])]) {
       const lessons = { 1: { tasksDone: [], result: 'got-it' }, 2: { tasksDone: [], result: 'got-it' }, 3: { tasksDone: [], result: 'got-it' } };
       const f = await open(browser, url, vp, { schema: 1, lessons, settings: { seenScripts: SEEN }, firstRunDone: true }, route);
       await f.page.waitForSelector('.finish');
@@ -132,7 +132,7 @@ export async function homeChecks({ browser, url, ok, vp, shot }) {
     ok(bad.length === 0, `${tag}: done, current, open and locked as the progress says (${bad.map((x) => x.label + ':' + x.cls).join('; ')})`);
     ok(b.every((x, i) => (x.label.endsWith(', done') === (want(NODES[i]) === 'is-done')) && (x.label.endsWith(', locked') === (want(NODES[i]) === 'is-locked'))), `${tag}: labels say done and locked ("${b[0].label}", "${b[b.length - 1].label}")`);
     const vis = b.filter((x) => x.shown);
-    ok(vis.length >= 2 && vis.every((x) => x.vis === 'visible' && x.w >= 64 && x.h >= 64 && x.x >= 0 && x.y >= 0 && x.x + x.w <= vp.width + 0.5 && x.y + x.h <= vp.height + 0.5), `${tag}: ${vis.length} stops on screen, each a button of at least 64 px inside the screen`);
+    ok(vis.length >= (done === CUR.lessons.length && !CUR.checkpoints.length ? 1 : 2) && vis.every((x) => x.vis === 'visible' && x.w >= 64 && x.h >= 64 && x.x >= 0 && x.y >= 0 && x.x + x.w <= vp.width + 0.5 && x.y + x.h <= vp.height + 0.5), `${tag}: ${vis.length} stops on screen, each a button of at least 64 px inside the screen`);
     ok(b.filter((x) => !x.shown).every((x) => x.vis === 'hidden'), `${tag}: the stops off screen are hidden`);
     const t = await train(page);
     const cur = t.currentIndex;
@@ -196,6 +196,8 @@ export async function tapChecks({ browser, url, ok }) {
 }
 
 // The first visit glides from the start of the line; a just-finished lesson brings the train in with a toot.
+// The index of a lesson's stop on the line (the line has no Sound Station stops since 1.7.0).
+const iL = (n) => NODES.findIndex((x) => x.lesson && x.lesson.number === n);
 export async function arrivalChecks({ browser, url, ok, shot }) {
   const vp = VIEWPORTS[0];
   {
@@ -212,29 +214,29 @@ export async function arrivalChecks({ browser, url, ok, shot }) {
   }
   {
     // lesson 4 was just finished: the train was at lesson 4's stop (index 4) and lesson 5 is now current
-    const { ctx, page, errors } = await openHome(browser, url, vp, state(4, { trainAt: 4 }));
+    const { ctx, page, errors } = await openHome(browser, url, vp, state(4, { trainAt: iL(4) }));
     await until(page, () => window.__train && window.__train.frames > 0);
     await page.mouse.click(3, 300); // the first tap of the page lets sound play
     const a = await train(page);
-    ok(a.arriving && Math.abs(a.trainS - (a.stops[4] + a.engineAt)) < 0.01, `arrival: the train starts at the stop before (${a.trainS.toFixed(2)})`);
-    const mid = await until(page, () => window.__train.trainS > window.__train.stopS[4] + 1 && window.__train.trainS < window.__train.stopS[5], null, 8000);
+    ok(a.arriving && Math.abs(a.trainS - (a.stops[iL(4)] + a.engineAt)) < 0.01, `arrival: the train starts at the stop before (${a.trainS.toFixed(2)})`);
+    const mid = await until(page, ([i4, i5]) => window.__train.trainS > window.__train.stopS[i4] + 1 && window.__train.trainS < window.__train.stopS[i5], [iL(4), iL(5)], 8000);
     ok(mid, 'arrival: the train chugs along the line between the two stops');
     if (shot) await shot(page, 'arrival');
     ok(await until(page, () => window.__train.tootAt !== null, null, 10000), 'arrival: a toot is played on arrival');
     const b = await train(page);
-    ok(Math.abs(b.trainS - (b.stops[5] + b.engineAt)) < 0.01, `arrival: the train stands at the new current stop (${b.trainS.toFixed(2)})`);
+    ok(Math.abs(b.trainS - (b.stops[iL(5)] + b.engineAt)) < 0.01, `arrival: the train stands at the new current stop (${b.trainS.toFixed(2)})`);
     const toots = await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'toot' && !n.partial).length);
     ok(toots === 2, `arrival: the toot's two whistle notes were scheduled (${toots})`);
-    ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainAt)) === 5, 'arrival: the new stop is remembered, so it plays once');
+    ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainAt)) === iL(5), 'arrival: the new stop is remembered, so it plays once');
     ok(errors.length === 0, `arrival: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
   {
     // reduced motion: no chug and no glide, the camera jumps, the train fades in at the new stop, no idle frames
-    const { ctx, page, errors } = await openHome(browser, url, vp, { ...state(4, { trainAt: 4 }), settings: { seenScripts: SEEN, trainAt: 4 } }, { extra: { reducedMotion: 'reduce' } });
+    const { ctx, page, errors } = await openHome(browser, url, vp, { ...state(4, { trainAt: iL(4) }), settings: { seenScripts: SEEN, trainAt: iL(4) } }, { extra: { reducedMotion: 'reduce' } });
     await until(page, () => window.__train && window.__train.frames > 0);
     const a = await train(page);
-    ok(a.reduced && Math.abs(a.trainS - (a.stops[5] + a.engineAt)) < 0.01 && Math.abs(a.focus - a.stops[5]) < 0.05, `reduced motion: the train is at the new stop and the camera there at once (${a.trainS.toFixed(2)}, ${a.focus.toFixed(2)})`);
+    ok(a.reduced && Math.abs(a.trainS - (a.stops[iL(5)] + a.engineAt)) < 0.01 && Math.abs(a.focus - a.stops[iL(5)]) < 0.05, `reduced motion: the train is at the new stop and the camera there at once (${a.trainS.toFixed(2)}, ${a.focus.toFixed(2)})`);
     await page.waitForTimeout(1500);
     const f1 = await train(page);
     await page.waitForTimeout(1200);
@@ -315,10 +317,10 @@ export async function lifeChecks({ browser, url, ok }) {
 }
 
 // Heat: count requestAnimationFrame callbacks (and endless animations) while idle, on Home after the arrival, after a
-// lesson and back, on Letter Hunt and on the Sound Station. Each should be about zero. The AudioContext sleeps when silent.
+// lesson and back, on Letter Hunt and on Practicing Words. Each should be about zero. The AudioContext sleeps when silent.
 const RAF_COUNTER = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
 export async function heatChecks({ browser, url, ok, log = () => {} }) {
-  const { ctx, page, errors } = await openHome(browser, url, VIEWPORTS[0], state(4, { trainAt: 4 }), { init: [RAF_COUNTER] });
+  const { ctx, page, errors } = await openHome(browser, url, VIEWPORTS[0], state(4, { trainAt: iL(4) }), { init: [RAF_COUNTER] });
   const idle = async (label) => {
     const r0 = await page.evaluate(() => window.__raf);
     await page.waitForTimeout(3000);
@@ -344,10 +346,10 @@ export async function heatChecks({ browser, url, ok, log = () => {} }) {
   await page.waitForSelector('.screen:not(.leaving) .sky-letter');
   await page.waitForTimeout(1500);
   await idle('Letter Hunt');
-  await page.evaluate(() => { location.hash = '#/checkpoint/c1'; });
+  await page.evaluate(() => { location.hash = '#/lesson/3/task/8'; });
   await page.waitForSelector('.screen:not(.leaving) .sack-card');
   await page.waitForTimeout(1500);
-  await idle('Sound Station');
+  await idle('Practicing Words');
   ok(errors.length === 0, `heat: errors ${errors.join(' | ')}`);
   await ctx.close();
 }
