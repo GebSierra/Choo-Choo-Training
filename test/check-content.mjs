@@ -187,13 +187,50 @@ export function checkCurriculum(c, root = ROOT) {
     if (w.word[0] === 'n' && !(w.avoid || []).includes('m')) err(`gameDistractors "${w.word}" looks like an m word and must avoid "m"`);
     if (w.word === 'egg' && !(w.avoid || []).includes('a')) err('gameDistractors "egg" must avoid "a"');
   }
+  // A book stop: data/books/<book>.json. Every word the child reads uses only letters taught by then (or a listed sight word).
+  const bookChecks = (k, p) => {
+    let book;
+    try { book = JSON.parse(fs.readFileSync(path.join(root, 'data/books', `${k.book}.json`), 'utf8')); } catch (e) { return err(`${p}: data/books/${k.book}.json unreadable (${e.message})`); }
+    if (book.id !== k.book) err(`${p}: book id "${book.id}" must be "${k.book}"`);
+    if (!k.title) err(`${p}.title missing`);
+    if (!Array.isArray(k.needs) || !k.needs.length) return err(`${p}.needs missing`);
+    const first = (c.lessons || []).findIndex((_, n) => k.needs.every((s) => (c.lessons || []).slice(0, n + 1).some((L) => L.sound === s)));
+    if (k.after !== first + 1) err(`${p}.after is ${k.after} but every needed sound is taught by lesson ${first + 1}`);
+    if (JSON.stringify(book.needs) !== JSON.stringify(k.needs)) err(`${p}: the book's needs differ from the stop's`);
+    const sight = (book.sight || []).map((w) => w.toLowerCase());
+    const readable = (text, where) => {
+      for (const tok of text.split(' ').map((t) => t.replace(/[^\p{L}]/gu, '').toLowerCase()).filter(Boolean)) {
+        if (!sight.includes(tok) && ![...tok].every((ch) => k.needs.includes(ch))) err(`${p} ${where}: "${tok}" uses a letter that is not taught yet and is not a sight word`);
+      }
+    };
+    const pages = book.pages || [];
+    pages.forEach((pg, n) => {
+      const w = `page ${n + 1}`;
+      const kind = pg.kind || 'page';
+      if (!['page', 'drag', 'review'].includes(kind)) err(`${p} ${w}: kind "${kind}" must be page, drag or review`);
+      for (const f of ['child', 'slider']) if (pg[f] !== undefined) { if (/\{name\}/.test(pg[f])) err(`${p} ${w}.${f} must not contain {name}`); readable(pg[f], `${w}.${f}`); }
+      if (pg.slider !== undefined && !String(pg.child || '').split(' ').includes(pg.slider)) err(`${p} ${w}: slider "${pg.slider}" is not in child`);
+      for (const word of pg.words || []) { if (/\{name\}/.test(word)) err(`${p} ${w}.words must not contain {name}`); readable(word, `${w}.words`); }
+      if (pg.sound !== undefined) {
+        const m = /^([a-z])\1{2,}$/.exec(pg.sound);
+        if (!m) err(`${p} ${w}.sound "${pg.sound}" must be one letter repeated three or more times`);
+        else if (!k.needs.includes(m[1]) || !(sounds[m[1]] && sounds[m[1]].hold === true)) err(`${p} ${w}.sound "${pg.sound}" must be a held sound the book needs`);
+      }
+      if (pg.tap && !['toot', 'wave', 'giggle', 'bounce', 'walk'].includes(pg.tap.anim)) err(`${p} ${w}.tap.anim "${pg.tap.anim}" is not one of the five`);
+      if (pg.tap && !['train', 'friend', 'emoji', 'pip'].includes(pg.tap.on)) err(`${p} ${w}.tap.on "${pg.tap.on}" is not train, friend, emoji or pip`);
+      if (kind === 'review' && !(pg.words || []).length) err(`${p} ${w}: a review page needs words`);
+    });
+    if (!pages.length || (pages[pages.length - 1].kind || 'page') !== 'review') err(`${p}: the last page must be a review`);
+  };
+
   const ids = new Set();
   (c.checkpoints || []).forEach((k, i) => {
     const p = `checkpoints[${i}]`;
     if (!k.id || ids.has(k.id)) err(`${p}.id must be unique`);
     if (!/^[\w-]+$/.test(k.id || '')) err(`${p}.id "${k.id}" must match the route pattern [\\w-]+`);
     ids.add(k.id);
-    if (k.kind) return; // book and ride stops have their own checks
+    if (k.kind === 'book') return bookChecks(k, p);
+    if (k.kind) return; // ride stops have their own checks
     if (!k.title) err(`${p}.title missing`);
     if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
     if (!Number.isInteger(k.rounds) || k.rounds < 1) err(`${p}.rounds must be a positive integer`);

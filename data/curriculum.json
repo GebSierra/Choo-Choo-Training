@@ -2458,7 +2458,21 @@
       "say": "Listen to your grown up. Then drag the picture into the wagon."
     }
   },
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "id": "b1",
+      "kind": "book",
+      "title": "Story 1",
+      "book": "book-1",
+      "needs": [
+        "m",
+        "a",
+        "s",
+        "i"
+      ],
+      "after": 8
+    }
+  ],
   "gameDistractors": [
     {
       "word": "baby",

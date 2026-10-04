@@ -6,9 +6,12 @@ const fresh = () => ({
   lessons: {},
   checkpoints: {}, // bonus review games between lessons, by id: {result, completedAt, unlocked}
   settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: false, sfx: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {} },
+  character: { name: '' }, // the child's name, for the stories (js/screens/book.js)
   firstRunDone: false,
   lastOpened: null,
 });
+
+const cleanCharacter = (c) => ({ name: typeof c?.name === 'string' ? c.name.replace(/[^\p{L} '\-]/gu, '').trim().slice(0, 16) : '' });
 
 // A saved setting of the wrong type (a rate that is "fast", say) falls back to its default; numbers are clamped.
 export function cleanSettings(s, d) {
@@ -40,7 +43,7 @@ export function createStore() {
       if (p.checkpoints && typeof p.checkpoints === 'object' && !Array.isArray(p.checkpoints)) {
         for (const [id, c] of Object.entries(p.checkpoints)) if (c && typeof c === 'object' && !Array.isArray(c)) checkpoints[id] = c;
       }
-      return { ...f, ...p, lessons, checkpoints, settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
+      return { ...f, ...p, lessons, checkpoints, character: cleanCharacter(p.character), settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
     } catch { return fresh(); }
   }
   function save() {
@@ -81,10 +84,12 @@ export function createStore() {
     isCheckpointDone: (id) => checkpoint(id).result === 'got-it',
     setCheckpointResult(id, result) { state.checkpoints[id] = { ...checkpoint(id), result, completedAt: new Date().toISOString() }; save(); },
     unlockCheckpoint(id) { state.checkpoints[id] = { ...checkpoint(id), unlocked: true }; save(); },
+    character: () => state.character,
+    setCharacter(patch) { state.character = cleanCharacter({ ...state.character, ...patch }); save(); },
     setSetting(k, v) { state.settings = { ...state.settings, [k]: v }; save(); },
     setFirstRunDone() { state.firstRunDone = true; save(); },
     touch() { state.lastOpened = new Date().toISOString(); save(); },
-    // Progress only: the parent's voice settings are kept.
-    resetAll() { const settings = state.settings; state = { ...fresh(), settings }; save(); },
+    // Progress only: the parent's voice settings and the child's name are kept.
+    resetAll() { const { settings, character } = state; state = { ...fresh(), settings, character }; save(); },
   };
 }

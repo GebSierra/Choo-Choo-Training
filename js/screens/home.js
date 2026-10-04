@@ -4,7 +4,7 @@ import { holdButton } from '../components/hold-button.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
 import { welcomeCard } from '../components/welcome-card.js';
 import { WELCOME } from '../guide.js';
-import { crateSvg } from '../art/train2d.js';
+import { stopIcon } from '../art/train2d.js';
 
 // The path is a long winding trail that scrolls: up the screen in portrait (lesson 1 at the bottom, the newest stone at the top),
 // along it in landscape (lesson 1 at the left). Every stone, the trail and the scenery are placed from the data and the sizes
@@ -122,7 +122,7 @@ function stone(g, i, what, state, onTap, speech) {
   const name = sound ? `Lesson ${what.number}` : what.title;
   const top = sound
     ? h('span', { class: 'stone-top' }, glyphSvg(sound.glyph, { color: accent, label: 'lesson ' + what.number }), h('span', { class: 'stone-num' }, String(what.number)))
-    : h('span', { class: 'stone-top stone-sack' }, crateSvg());
+    : h('span', { class: 'stone-top stone-sack' }, stopIcon(what));
   const badge = state === 'done'
     ? h('span', { class: 'stone-badge done' }, h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, 'aria-hidden': 'true' }, h('path', { d: 'M5 12.5l4.5 4.5L19 7.5', class: 'tick', fill: 'none', stroke: '#fff', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })))
     : state === 'locked' ? h('span', { class: 'stone-badge lock' }, icon('lock', 16)) : null;

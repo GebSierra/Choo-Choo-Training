@@ -114,71 +114,79 @@ export async function renameChecks({ browser, url, ok, CUR }) {
   const m = await open(browser, url, VIEWPORTS[0], `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{},settings:{seenScripts:${JSON.stringify(SEEN)},trainWorld:false},firstRunDone:true}))`, '#/home');
   await m.page.waitForSelector('.stone', { state: 'attached' });
   await m.page.waitForTimeout(800);
-  ok((await m.page.locator('.stone').count()) === CUR.lessons.length && (await m.page.locator('.stone-sack').count()) === 0, `the 2D Home has ${CUR.lessons.length} stones and no sound station stone`);
+  ok((await m.page.locator('.stone').count()) === CUR.lessons.length + CUR.checkpoints.length && (await m.page.locator('.stone-sack .crate-art').count()) === 0, `the 2D Home has ${CUR.lessons.length + CUR.checkpoints.length} stones (lessons and story stops) and no sound station crate`);
   ok(m.errors.length === 0, `rename home: errors ${m.errors.join(' | ')}`);
   await m.ctx.close();
 }
 
+// The stops on the line (a book, later the Smooth Ride): locked until the lesson they follow is done, labelled with their title, and opened from Home.
+// Each stop kind shows its own screen.
+const SCREEN = { book: '.book-stage', ride: '.ride-game' };
+const screenOf = (k) => SCREEN[k.kind] || '.sack-game';
+const ROWS = CURR.lessons.flatMap((l) => [{ lesson: l }, ...CURR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
+
 export async function sackMapChecks({ browser, url, ok, vp }) {
-  if (!CURR.checkpoints.length) return; // no Sound Station stop on the line since 1.7.0; Phase C points this at the book stop
-  // Locked until lesson 3 is done, then it opens. Old saved data (no checkpoints key) loads fine.
-  let made = await open(browser, url, vp, seed(DONE(2)), '#/home');
+  if (!CURR.checkpoints.length) return; // no stop on the line
+  const K = CURR.checkpoints[0], sel = `.stone[aria-label^="${K.title}"]`, near = [...CURR.checkpoints].filter((k) => k.after === K.after).length;
+  // Locked until the lesson it follows is done, then it opens. Old saved data (no checkpoints key) loads fine.
+  let made = await open(browser, url, vp, seed(DONE(K.after - 1)), '#/home');
   let { page, errors } = made;
   await page.waitForSelector('.stone', { state: 'attached' });
   await page.waitForTimeout(900);
   const tag = `${vp.name} map`;
-  ok((await page.locator('.stone').count()) === NODES, `${tag}: ${NODES} stones (${CURR.lessons.length} lessons and ${CURR.checkpoints.length} sacks)`);
-  const sackStone = page.locator('.stone[aria-label^="Sound Station"]').first(); // the first sack, after lesson 3
-  ok((await sackStone.getAttribute('aria-label')) === 'Sound Station, locked' && (await sackStone.evaluate((e) => e.classList.contains('is-locked'))), `${tag}: the sack stone is locked before lesson 3 is done`);
-  await showStop(page, '.stone[aria-label^="Sound Station"]'); // the 3D railway: bring the stop into view first
-  await sackStone.click({ force: true });
+  ok((await page.locator('.stone').count()) === NODES, `${tag}: ${NODES} stones (${CURR.lessons.length} lessons and ${CURR.checkpoints.length} stops)`);
+  const stop = page.locator(sel).first();
+  ok((await stop.getAttribute('aria-label')) === `${K.title}, locked` && (await stop.evaluate((e) => e.classList.contains('is-locked'))), `${tag}: the ${K.title} stone is locked before lesson ${K.after} is done`);
+  await showStop(page, sel); // the 3D railway: bring the stop into view first
+  await stop.click({ force: true });
   await page.waitForTimeout(400);
-  ok(page.url().endsWith('#/home'), `${tag}: a locked sack does not open`);
-  await page.evaluate(() => { location.hash = '#/checkpoint/c1'; });
+  ok(page.url().endsWith('#/home'), `${tag}: a locked stop does not open`);
+  await page.evaluate((id) => { location.hash = `#/checkpoint/${id}`; }, K.id);
   await page.waitForTimeout(600);
-  ok(page.url().endsWith('#/home'), `${tag}: the sack cannot be opened by address while locked`);
+  ok(page.url().endsWith('#/home'), `${tag}: the stop cannot be opened by address while locked`);
   await page.waitForTimeout(600);
-  await showStop(page, '.stone[aria-label^="Sound Station"]');
-  const b = await sackStone.boundingBox(), pill = await page.locator('.pill-hold').boundingBox();
-  ok(b.width >= 48 && b.height >= 48 && !(b.x < pill.x + pill.width && pill.x < b.x + b.width && b.y < pill.y + pill.height && pill.y < b.y + b.height), `${tag}: the sack stone is a big target clear of the Grownups pill`);
+  await showStop(page, sel);
+  const b = await stop.boundingBox(), pill = await page.locator('.pill-hold').boundingBox();
+  ok(b.width >= 48 && b.height >= 48 && !(b.x < pill.x + pill.width && pill.x < b.x + b.width && b.y < pill.y + pill.height && pill.y < b.y + b.height), `${tag}: the ${K.title} stone is a big target clear of the Grownups pill`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
   await made.ctx.close();
 
-  made = await open(browser, url, vp, seed(DONE(3)), '#/home'); // no "checkpoints" key at all
+  made = await open(browser, url, vp, seed(DONE(K.after)), '#/home'); // no "checkpoints" key at all
   page = made.page; errors = made.errors;
   await page.waitForSelector('.stone', { state: 'attached' });
   await page.waitForTimeout(900);
-  ok((await page.locator('.stone[aria-label^="Sound Station"]').first().evaluate((e) => !e.classList.contains('is-locked'))) && (await page.locator('.stone.is-current').getAttribute('aria-label')) === 'Lesson 4', `${tag}: once lesson 3 is done the sack is open and lesson 4 is the current stone`);
-  await showStop(page, '.stone[aria-label^="Sound Station"]');
-  await page.locator('.stone[aria-label^="Sound Station"]').first().click();
-  await page.waitForSelector('.sack-game');
-  ok(page.url().endsWith('#/checkpoint/c1'), `${tag}: tapping the sack opens the checkpoint`);
-  ok((await page.locator('.task-head h1').innerText()) === 'Sound Station', `${tag}: the screen is titled Sound Station`);
+  ok((await page.locator(sel).first().evaluate((e) => !e.classList.contains('is-locked'))) && (await page.locator('.stone.is-current').getAttribute('aria-label')) === `Lesson ${K.after + 1}`, `${tag}: once lesson ${K.after} is done ${K.title} is open and lesson ${K.after + 1} is the current stone`);
+  await showStop(page, sel);
+  await page.locator(sel).first().click();
+  await page.waitForSelector(screenOf(K));
+  ok(page.url().endsWith(`#/checkpoint/${K.id}`), `${tag}: tapping the stop opens the checkpoint`);
+  ok((await page.locator('.task-head h1').innerText()) === K.title, `${tag}: the screen is titled ${K.title}`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
   await made.ctx.close();
 }
 
 export async function sackGrownupsChecks({ browser, url, ok }) {
   if (!CURR.checkpoints.length) return;
+  const K = CURR.checkpoints[0], at = ROWS.findIndex((r) => r.checkpoint && r.checkpoint.id === K.id), name = `the ${K.title.toLowerCase()}`;
   const vp = VIEWPORTS[0];
-  const { ctx, page, errors } = await open(browser, url, vp, `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); ${seed({ 1: { tasksDone: [], result: 'got-it' } }, { checkpoints: { c1: { result: 'practice-again', completedAt: '2026-09-30T12:00:00Z' } } })} }`, '#/home');
+  const { ctx, page, errors } = await open(browser, url, vp, `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); ${seed({ 1: { tasksDone: [], result: 'got-it' } }, { checkpoints: { [K.id]: { result: 'practice-again', completedAt: '2026-09-30T12:00:00Z' } } })} }`, '#/home');
   await page.waitForSelector('.pill-hold');
   await page.waitForTimeout(700);
   const hold = async () => { const gb = await page.locator('.pill-hold').boundingBox(); await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await page.mouse.down(); await page.waitForTimeout(2250); await page.mouse.up(); };
   await hold();
   await page.waitForSelector('.grownups');
   const rows = page.locator('.gu-card').first().locator('.gu-row');
-  ok((await rows.count()) === NODES, `Grownups lists every lesson and sound station (${NODES})`);
-  ok(/Practice again/.test(await rows.nth(3).innerText()) && /Sound Station/.test(await rows.nth(3).innerText()), 'Grownups shows the sack result');
-  await page.locator('[aria-label="Unlock the sound station"]').first().click();
-  ok((await page.locator('[aria-label="Confirm unlock"]').count()) === 1, 'Grownups: unlocking the sack asks first');
+  ok((await rows.count()) === NODES, `Grownups lists every lesson and stop (${NODES})`);
+  ok(/Practice again/.test(await rows.nth(at).innerText()) && (await rows.nth(at).innerText()).includes(K.title), `Grownups shows the ${K.title} result`);
+  await page.locator(`[aria-label="Unlock ${name}"]`).first().click();
+  ok((await page.locator('[aria-label="Confirm unlock"]').count()) === 1, `Grownups: unlocking ${K.title} asks first`);
   await page.click('[aria-label="Confirm unlock"] button:has-text("Unlock")');
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).checkpoints.c1.unlocked)) === true, 'Grownups: confirming unlocks the sack');
+  ok((await page.evaluate((id) => JSON.parse(localStorage.getItem('reading.v1')).checkpoints[id].unlocked, K.id)) === true, `Grownups: confirming unlocks ${K.title}`);
   await page.click('text=Reset all progress');
   await page.click('.btn.danger');
   await page.waitForSelector('.home');
-  ok((await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('reading.v1')).checkpoints).length)) === 0, 'reset clears the sack result too');
-  ok(errors.length === 0, 'Grownups sack: errors ' + errors.join(' | '));
+  ok((await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('reading.v1')).checkpoints).length)) === 0, 'reset clears the stop results too');
+  ok(errors.length === 0, 'Grownups stop: errors ' + errors.join(' | '));
   await ctx.close();
 }
 

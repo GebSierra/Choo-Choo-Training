@@ -3,7 +3,7 @@ import { fullscreenButton } from '../components/fullscreen-button.js';
 import { WELCOME } from '../guide.js';
 import { soundCard } from '../components/sound-card.js';
 import { glyphSvg } from '../glyphs.js';
-import { crateSvg } from '../art/train2d.js';
+import { stopIcon } from '../art/train2d.js';
 import { sfx } from '../sfx.js';
 import { accentOf } from '../theme.js';
 import { APP_VERSION } from '../version.js';
@@ -40,7 +40,7 @@ export function grownupsScreen(ctx) {
       const unlocked = r.lesson ? store.isUnlocked(r.lesson.number) : store.isCheckpointUnlocked(r.checkpoint);
       const status = st.result === 'got-it' ? `Got it${st.completedAt ? ' on ' + fmt(st.completedAt) : ''}` : st.result === 'practice-again' ? `Practice again${st.completedAt ? ' (' + fmt(st.completedAt) + ')' : ''}` : (unlocked ? 'Open, not finished' : 'Locked');
       return h('div', { class: 'gu-row' },
-        h('span', { class: 'gu-glyph' }, r.lesson ? glyphSvg(r.lesson.sound, { color: accentOf(r.lesson.sound), label: name }) : crateSvg()),
+        h('span', { class: 'gu-glyph' }, r.lesson ? glyphSvg(r.lesson.sound, { color: accentOf(r.lesson.sound), label: name }) : stopIcon(r.checkpoint)),
         h('div', { class: 'gu-row-text' }, h('strong', {}, r.lesson ? `Lesson ${r.lesson.number}` : r.checkpoint.title), h('span', { class: 'gu-sub' }, status)),
         unlocked ? h('span', { class: 'gu-open' }, st.result === 'got-it' ? icon('check', 20) : '') : h('button', { class: 'btn ghost small', type: 'button', 'aria-label': `Unlock ${name}`, onclick: () => { unlocking = r.key; paintLessons(); } }, 'Unlock'));
     }));
@@ -59,6 +59,11 @@ export function grownupsScreen(ctx) {
       : h('button', { class: 'btn ghost small', type: 'button', onclick: () => paintReset(true) }, 'Reset all progress'));
   };
   paintReset(false);
+
+  // ---- the child's name, for the stories ----
+  const nameIn = h('input', { class: 'gu-name', type: 'text', maxlength: 16, autocomplete: 'off', autocapitalize: 'words', spellcheck: 'false', 'aria-label': "Your child's name, for the stories", value: store.character().name, placeholder: 'Name' });
+  const nameNote = h('span', { class: 'gu-sub', 'aria-live': 'polite' });
+  const nameSave = h('button', { class: 'btn small', type: 'button', onclick: () => { store.setCharacter({ name: nameIn.value }); nameIn.value = store.character().name; nameNote.textContent = 'Saved'; } }, 'Save');
 
   // ---- voice ----
   const select = h('select', { class: 'gu-select', 'aria-label': 'Voice', onchange: () => { store.setSetting('voiceURI', select.value); } });
@@ -113,6 +118,8 @@ export function grownupsScreen(ctx) {
     h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to the path', onclick: () => router.go('/home') }, icon('back', 28)), h('h1', {}, 'Grownups')),
     h('div', { class: 'gu-body' },
       sec('Lessons', resetBox, lessonsBox), // Reset first: with seventeen rows below it, it would be buried at the bottom
+      sec('Your child', h('label', { class: 'gu-field' }, h('span', {}, "Your child's name, for the stories"), nameIn), h('div', { class: 'gu-actions' }, nameSave, nameNote),
+        h('p', { class: 'gu-note' }, "Used only inside the stories on this device. It is never sent anywhere and never spoken by the phone's voice.")),
       sec('Voice', h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate), test,
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Speak automatically'), toggle),
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Always show full instructions'), fullSwitch),

@@ -1,6 +1,6 @@
 import { h, animate, icon } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
-import { crateSvg } from '../art/train2d.js';
+import { stopIcon } from '../art/train2d.js';
 import { lessonByNumber } from '../lessons.js';
 import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
@@ -67,9 +67,9 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
   if (!ck || !store.isCheckpointUnlocked(ck)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
   return finishView({
     speech, router,
-    heading: `That's the ${ck.title.toLowerCase()}.`,
-    badge: crateSvg(),
-    accent: '#C99A5B', // wood, the crate's colour
+    heading: ck.kind === 'book' ? "That's the end of the story." : `That's the ${ck.title.toLowerCase()}.`,
+    badge: stopIcon(ck),
+    accent: ck.kind === 'book' ? '#E5484D' : '#C99A5B', // a book's red cover, a crate's wood
     armedLabel: 'Yes, back to path',
     armedNote: 'Tap again to go back to the path.',
     onContinue: () => { store.setCheckpointResult(ck.id, 'got-it'); router.go('/home'); },

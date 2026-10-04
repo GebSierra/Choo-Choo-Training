@@ -8,8 +8,9 @@ const PAD = 6;
 
 // Drag the letter along the track while saying its sound. The track itself is silent: the child
 // says the sound, and the app only shows the glide and a sparkle when the letter gets to the end.
-export function slideTrack({ letter, onComplete }) {
-  const accent = accentOf(letter);
+// handle: an element (the book's little engine) shown on the knob in place of the letter; the accent is then red unless a colour is given.
+export function slideTrack({ letter, handle: art, color, onComplete }) {
+  const accent = color || (letter ? accentOf(letter) : '#E5484D');
   const wave = h('span', { class: 'st-wave', 'aria-hidden': 'true' },
     h('svg', { viewBox: '0 0 400 40', preserveAspectRatio: 'none' }, h('path', { d: 'M0 20 Q25 4 50 20 T100 20 T150 20 T200 20 T250 20 T300 20 T350 20 T400 20', fill: 'none', stroke: 'rgba(255,255,255,.55)', 'stroke-width': 5, 'stroke-linecap': 'round' }),
       h('path', { d: 'M0 28 Q25 12 50 28 T100 28 T150 28 T200 28 T250 28 T300 28 T350 28 T400 28', fill: 'none', stroke: 'rgba(255,255,255,.3)', 'stroke-width': 4, 'stroke-linecap': 'round' })));
@@ -17,8 +18,8 @@ export function slideTrack({ letter, onComplete }) {
   const hint = h('span', { class: 'st-hint', 'aria-hidden': 'true' }, h('i'), h('i'), h('i'));
   const goal = h('span', { class: 'st-goal', 'aria-hidden': 'true' });
   const bloom = h('span', { class: 'st-bloom', style: { '--accent': accent }, 'aria-hidden': 'true' });
-  const glyph = h('span', { class: 'st-glyph' }, glyphSvg(letter, { color: accent, label: 'slide this letter' }));
-  const handle = h('button', { class: 'st-handle', type: 'button', 'aria-label': 'Slide the letter and say its sound', style: { '--accent': accent } }, glyph);
+  const glyph = h('span', { class: 'st-glyph' + (art ? ' has-art' : '') }, art || glyphSvg(letter, { color: accent, label: 'slide this letter' }));
+  const handle = h('button', { class: 'st-handle', type: 'button', 'aria-label': art ? 'Drag the train along the track' : 'Slide the letter and say its sound', style: { '--accent': accent } }, glyph);
   const clip = h('span', { class: 'st-clip', 'aria-hidden': 'true' }, fill, bloom);
   const track = h('div', { class: 'slide-track', style: { '--accent': accent }, dataset: { count: '0' } }, clip, hint, goal, handle);
   track.classList.add('hold');

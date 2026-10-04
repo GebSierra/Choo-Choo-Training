@@ -354,3 +354,7 @@ The design is in `docs/TRAIN-WORLD.md`; screenshots at four phone sizes are in `
 
 - Renamed to Pip's Reading Train (short name "Pip's Train"); task display names are New Sound, Word Cars (mapped to Saying Words, owner question 1), Track Tracing, Letter Hunt, Practicing Words and Ticket Check. Task ids, routes, the `reading-v` cache prefix and the `reading.v1` key are unchanged.
 - Practicing Words is the Loading Dock game as task 9 of every lesson: three fixed rounds (this sound's words first, then earlier sounds, newest first) from each sound's `practice` list. The Sound Station checkpoint stops are gone from the line; old saved `checkpoints.c1` data still loads.
+
+### Decisions made during build: version 1.7.1 (book reader and Story 1)
+
+- A book is a checkpoint with `kind: "book"` (`data/books/<id>.json`), so unlocking, the path stop, Grownups unlock and the two-tap finish are reused. Story 1 (`b1`, "Pip Meets {name}") sits after lesson 8 in the current sound order; its `after` is checked against its `needs`, so Phase E moves it with one gen run. Books are silent: page text never goes to text-to-speech and no sound is played, so the child's name (Grownups, "Your child") stays on the device and is never spoken. `bookBuild` takes the fetched book from `loadBook` (the screen needs the page count before the shell exists).

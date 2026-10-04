@@ -38,7 +38,7 @@ export function stopsOf(curriculum, store) {
       const c = n.checkpoint;
       const state = store.isCheckpointDone(c.id) ? 'done' : !store.isCheckpointUnlocked(c) ? 'locked' : current === null && pending && pending.id === c.id ? 'current' : 'open';
       if (state === 'current') currentIndex = i;
-      return { kind: 'depot', checkpoint: c, state, title: c.title };
+      return { kind: 'depot', checkpoint: c, state, title: c.title, icon: c.kind === 'book' ? 'book' : 'crate' };
     }
     const l = n.lesson;
     const state = store.isDone(l.number) ? 'done' : !store.isUnlocked(l.number) ? 'locked' : l.number === current ? 'current' : 'open';

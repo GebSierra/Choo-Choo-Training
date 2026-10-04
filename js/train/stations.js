@@ -46,13 +46,26 @@ export function drawCrate(g, cx, cy, size, color = '#B9874C') {
   g.restore();
 }
 
-function signTexture(bag, { glyph, accent, locked, crate }) {
+// An open book seen from the front, for a story's depot sign: a red cover with two cream pages.
+export function drawBook(g, cx, cy, size, color = '#E5484D') {
+  const s = size, x = cx - s / 2, y = cy - s * 0.36, w = s, hgt = s * 0.72;
+  g.save();
+  g.fillStyle = color; g.beginPath(); g.roundRect(x, y, w, hgt, s * 0.1); g.fill();
+  g.fillStyle = '#F3E6CF'; g.beginPath(); g.moveTo(x + w * 0.07, y + hgt * 0.1); g.quadraticCurveTo(x + w * 0.27, y + hgt * 0.02, cx - s * 0.02, y + hgt * 0.16); g.lineTo(cx - s * 0.02, y + hgt * 0.92); g.quadraticCurveTo(x + w * 0.27, y + hgt * 0.82, x + w * 0.07, y + hgt * 0.9); g.closePath(); g.fill();
+  g.fillStyle = '#FFF8EC'; g.beginPath(); g.moveTo(x + w * 0.93, y + hgt * 0.1); g.quadraticCurveTo(x + w * 0.73, y + hgt * 0.02, cx + s * 0.02, y + hgt * 0.16); g.lineTo(cx + s * 0.02, y + hgt * 0.92); g.quadraticCurveTo(x + w * 0.73, y + hgt * 0.82, x + w * 0.93, y + hgt * 0.9); g.closePath(); g.fill();
+  g.strokeStyle = 'rgba(80,50,20,.4)'; g.lineWidth = s * 0.03; g.lineCap = 'round';
+  for (const f of [0.34, 0.5, 0.66]) for (const d of [-1, 1]) { g.beginPath(); g.moveTo(cx + d * s * 0.1, y + hgt * f); g.lineTo(cx + d * s * 0.36, y + hgt * (f - 0.04)); g.stroke(); }
+  g.restore();
+}
+
+function signTexture(bag, { glyph, accent, locked, icon }) {
   return canvasTexture(bag, 256, 256, (g, w) => {
     g.fillStyle = locked ? '#ECE7DE' : '#FFF8EC';
     g.fillRect(0, 0, w, w);
     g.lineWidth = 16; g.strokeStyle = locked ? '#C9C2B6' : accent;
     g.beginPath(); g.arc(128, 128, 118, 0, Math.PI * 2); g.stroke();
-    if (crate) drawCrate(g, 128, 132, 118, locked ? '#C4BBAE' : '#B9874C');
+    if (icon === 'book') drawBook(g, 128, 130, 138, locked ? '#C4BBAE' : '#E5484D');
+    else if (icon === 'crate') drawCrate(g, 128, 132, 118, locked ? '#C4BBAE' : '#B9874C');
     else drawGlyph(g, glyph, 128, 128, 170, locked ? '#B3ACA1' : accent);
   });
 }
@@ -179,7 +192,7 @@ export function buildStop(bag, line, node, s, state) {
       for (const y of [0.3, 0.56]) g.add(at(block(bag, 1.4, 0.09, 0.07, PAL.woodLight, { r: 0.03 }), o * 1.6, y, -2.5));
     }
   }
-  const tex = signTexture(bag, { glyph: node.glyph, accent: node.accent || '#B9874C', locked, crate: node.kind !== 'lesson' });
+  const tex = signTexture(bag, { glyph: node.glyph, accent: node.accent || '#B9874C', locked, icon: node.kind === 'lesson' ? null : node.icon || 'crate' });
   const plate = node.kind === 'lesson' ? plateTexture(bag, String(node.number)) : null;
   const sp = signPost(bag, { tex, plate, state, rim: locked ? '#DDD6CA' : '#FFFFFF' });
   sp.post.position.set(o * 3.05, 0, 1.25);

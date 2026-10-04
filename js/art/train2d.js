@@ -115,3 +115,16 @@ export function crateSvg() {
     h('path', { d: 'M24 26 L76 76 M76 26 L24 76', stroke: C.woodDark, 'stroke-width': 7, 'stroke-linecap': 'round' }),
     h('rect', { x: 10, y: 12, width: 80, height: 8, rx: 4, fill: '#fff', opacity: 0.18 }));
 }
+
+// An open book (two cream pages on a red cover): Story 1's icon on the 2D path, the finish screen and in Grownups.
+export function bookSvg() {
+  return h('svg', { class: 'book-art', viewBox: '0 0 100 100', 'aria-hidden': 'true' },
+    h('ellipse', { cx: 50, cy: 90, rx: 42, ry: 4, fill: 'rgba(60,40,20,.16)' }),
+    h('rect', { x: 6, y: 20, width: 88, height: 66, rx: 9, fill: C.red }),
+    h('path', { d: 'M12 26 Q32 20 49 30 L49 80 Q32 72 12 78 Z', fill: C.cream }),
+    h('path', { d: 'M88 26 Q68 20 51 30 L51 80 Q68 72 88 78 Z', fill: '#FFF8EC' }),
+    h('path', { d: 'M18 38 Q31 34 42 40 M18 50 Q31 46 42 52 M18 62 Q31 58 42 64 M58 40 Q69 34 82 38 M58 52 Q69 46 82 50 M58 64 Q69 58 82 62', fill: 'none', stroke: C.woodDark, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: 0.45 }),
+    h('rect', { x: 48, y: 28, width: 4, height: 54, rx: 2, fill: C.redDark }));
+}
+// The icon for a stop on the path (a book for a story, a crate otherwise).
+export const stopIcon = (ck) => (ck.kind === 'book' ? bookSvg() : crateSvg());
