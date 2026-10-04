@@ -905,3 +905,35 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
   .book-title { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .book-stage * { transition: none; } }
+
+/* ---------- Smooth Ride (js/screens/ride.js): no transitions on the engine, the puffs or the needle ---------- */
+.stone-top.stone-sack .gauge-art { width: 60%; height: auto; } .stone.is-locked .stone-sack .gauge-art { opacity: .45; }
+.finish-glyph .gauge-art { width: 62%; height: auto; } .gu-glyph .gauge-art { width: 68%; height: auto; }
+.gauge-needle { transform: rotate(var(--needle, -62deg)); }
+.ride-scene { touch-action: none; }
+.ride-train { position: absolute; left: 6px; bottom: 12px; z-index: 3; pointer-events: none; will-change: transform; }
+.ride-train .engine-art { display: block; width: 100%; height: auto; overflow: visible; }
+.ride-lamp { position: absolute; left: calc(137 / 150 * 100%); top: calc(50 / 110 * 100% * .93); width: 54px; height: 54px; margin: -27px 0 0 -4px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,226,140,.95), rgba(255,226,140,0)); opacity: 0; pointer-events: none; }
+.ride-train.listening .ride-lamp { opacity: 1; }
+.ride-puffs { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.ride-puffs .steam-puff { z-index: auto; }
+.ride-goal { z-index: 1; }
+.ride-gauge { left: 10px; top: 10px; width: 96px; height: 96px; z-index: 5; pointer-events: none; }
+.ride-gauge .gauge-art { display: block; width: 100%; height: 100%; }
+.ride-word { left: 0; right: 0; top: 118px; z-index: 2; display: grid; justify-items: center; gap: 8px; pointer-events: none; }
+.ride-word .glyph-row { width: auto; padding: 4px 8px; }
+.ride-word .blend-bar { width: min(70%, 260px); }
+.ride-controls { left: 0; right: 0; bottom: 124px; z-index: 5; display: grid; justify-items: center; gap: 8px; pointer-events: none; }
+.ride-status { min-height: 24px; margin: 0; font-size: 20px; font-weight: 800; color: var(--ink); text-shadow: 0 1px 0 rgba(255,255,255,.7); }
+.ride-buttons { display: flex; gap: 14px; align-items: center; justify-content: center; pointer-events: auto; }
+.ride-go { width: 92px; height: 92px; border: 0; border-radius: 50%; background: #FFD166; color: var(--ink); font-family: inherit; font-weight: 800; font-size: 28px; line-height: 1; box-shadow: inset 0 -6px 0 rgba(0,0,0,.12), 0 6px 0 #C99A3A, 0 10px 16px rgba(60,40,20,.22); touch-action: manipulation; cursor: pointer; }
+.ride-go:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 -6px 0 rgba(0,0,0,.12), 0 3px 0 #C99A3A; }
+.ride-go:disabled { opacity: .55; cursor: default; }
+.ride-smooth { min-height: 64px; padding: 0 22px; border: 0; border-radius: 999px; background: #fff; color: var(--ink); font-family: inherit; font-weight: 800; font-size: 20px; line-height: 1; box-shadow: 0 5px 0 rgba(30,33,64,.18), 0 8px 14px rgba(60,40,20,.2); touch-action: manipulation; cursor: pointer; }
+.ride-smooth:disabled { opacity: .55; cursor: default; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .ride-word { top: 12px; }
+  .ride-gauge { width: 80px; height: 80px; }
+  .ride-controls { bottom: 112px; gap: 4px; } .ride-go { width: 80px; height: 80px; font-size: 24px; }
+}
+@media (orientation: landscape) and (max-height: 380px) { .ride-controls { bottom: 104px; } .ride-go { width: 72px; height: 72px; } .ride-gauge { width: 64px; height: 64px; } .ride-status { font-size: 17px; min-height: 20px; } }

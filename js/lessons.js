@@ -76,3 +76,13 @@ export function sackPool(curriculum, ck) {
 }
 // The sounds a checkpoint's rounds may be about, and how many rounds each can take: no more than its start words.
 export const roundCaps = (curriculum, ck) => Object.fromEntries(ck.sounds.map((k) => [k, (curriculum.sounds[k].startWords || []).length]));
+
+// ---- Smooth Ride data ----
+// The words of a ride stop: those spelt only with sounds taught by `after`, where every letter but the last is a held sound
+// (the voice can stay on up to a clipped last sound). Two-letter words first, then three, then longer; cut to `rounds`.
+export function rideWords(curriculum, ck) {
+  const taught = new Set(taughtBy(curriculum, ck.after));
+  const fits = (w) => [...w].every((ch) => taught.has(ch)) && [...w].slice(0, -1).every((ch) => curriculum.sounds[ch].hold === true);
+  const words = (ck.words || []).filter(fits);
+  return [...words.filter((w) => w.length === 2), ...words.filter((w) => w.length === 3), ...words.filter((w) => w.length > 3)].slice(0, ck.rounds);
+}

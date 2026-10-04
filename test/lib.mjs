@@ -37,8 +37,8 @@ export async function loadPlaywright() {
   return req('playwright');
 }
 
-export async function launch(pw) {
-  const opts = { headless: true };
+export async function launch(pw, args = []) {
+  const opts = { headless: true, args };
   try { return await pw.chromium.launch(opts); } catch (e) {
     for (const p of ['/opt/pw-browsers/chromium/chrome', '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', '/opt/pw-browsers/chromium']) {
       try { if (fs.statSync(p).isFile()) return await pw.chromium.launch({ ...opts, executablePath: p }); } catch { /* next */ }

@@ -67,9 +67,9 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
   if (!ck || !store.isCheckpointUnlocked(ck)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
   return finishView({
     speech, router,
-    heading: ck.kind === 'book' ? "That's the end of the story." : `That's the ${ck.title.toLowerCase()}.`,
+    heading: ck.kind === 'book' ? "That's the end of the story." : ck.kind === 'ride' ? 'Smooth ride!' : `That's the ${ck.title.toLowerCase()}.`,
     badge: stopIcon(ck),
-    accent: ck.kind === 'book' ? '#E5484D' : '#C99A5B', // a book's red cover, a crate's wood
+    accent: ck.kind === 'book' ? '#E5484D' : ck.kind === 'ride' ? '#E5A73A' : '#C99A5B', // a book's red cover, a gauge's brass, a crate's wood
     armedLabel: 'Yes, back to path',
     armedNote: 'Tap again to go back to the path.',
     onContinue: () => { store.setCheckpointResult(ck.id, 'got-it'); router.go('/home'); },

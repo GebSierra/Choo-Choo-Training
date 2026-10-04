@@ -71,7 +71,8 @@ export async function mapChecks({ browser, url, ok, vp, shot }) {
     ok(bubble && inside(bubble, vp) && !overlaps(bubble, pill) && (!fsb || !overlaps(bubble, fsb)), `${tag}: the "Tap to start" bubble is in view and never touches the pill or the button`);
     ok(bubble && (portrait ? true : bubble.y > cur.y + cur.h / 2), `${tag}: ${portrait ? 'the bubble sits by its stone' : 'in landscape the bubble sits below its stone'}`);
     const flipped = await page.evaluate(() => document.querySelector('.bubble').classList.contains('below'));
-    if (portrait && withCks.length) ok(flipped && bubble.y > cur.y + cur.h / 2 - 4, `${tag}: the stone near the top of the path has its bubble below it (flipped)`);
+    // Only when the stop left to do sits at the far end of the path (a book after lesson 8 is mid-path, where the bubble stays above).
+    if (portrait && withCks.length && CUR.checkpoints[CUR.checkpoints.length - 1].after >= CUR.lessons.length - 1) ok(flipped && bubble.y > cur.y + cur.h / 2 - 4, `${tag}: the stone near the top of the path has its bubble below it (flipped)`);
     }
     // The path scrolls along its own axis only, and the page does not.
     const m = await page.evaluate(() => { const s = document.querySelector('.map-scroll'); const de = document.documentElement; return { sh: s.scrollHeight, ch: s.clientHeight, sw: s.scrollWidth, cw: s.clientWidth, over: getComputedStyle(s).overscrollBehaviorY, html: getComputedStyle(de).overscrollBehaviorY, doc: de.scrollHeight - de.clientHeight, docw: de.scrollWidth - de.clientWidth }; });

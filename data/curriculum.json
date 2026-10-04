@@ -2456,9 +2456,35 @@
     },
     "sack": {
       "say": "Listen to your grown up. Then drag the picture into the wagon."
+    },
+    "ride": {
+      "say": "Tap the whistle. Then say the word with your grown-up in one long sound."
     }
   },
   "checkpoints": [
+    {
+      "id": "r1",
+      "kind": "ride",
+      "title": "Smooth Ride",
+      "after": 4,
+      "rounds": 5,
+      "offHoldMs": 40,
+      "onHoldMs": 30,
+      "gapMs": 100,
+      "minRunMs": 500,
+      "endMs": 600,
+      "words": [
+        "am",
+        "ma",
+        "at",
+        "sam",
+        "sat",
+        "mat",
+        "sis",
+        "miss",
+        "sit"
+      ]
+    },
     {
       "id": "b1",
       "kind": "book",

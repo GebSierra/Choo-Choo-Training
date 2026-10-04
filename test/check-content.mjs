@@ -5,7 +5,7 @@ import { ROOT } from './lib.mjs';
 import { scriptToParts, slowSounds, firstSoundOut } from '../js/scripts.js';
 import { GLYPHS } from '../js/glyphs.js';
 import { ACCENT } from '../js/theme.js';
-import { sackPool, roundCaps, practiceRounds } from '../js/lessons.js';
+import { sackPool, roundCaps, practiceRounds, rideWords } from '../js/lessons.js';
 
 export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee', 'aitch', 'eye', 'jay', 'kay', 'el', 'em', 'en', 'oh', 'pee', 'cue', 'ar', 'ess', 'tee', 'you', 'vee', 'double', 'ex', 'wye', 'zee'];
 // Words where s says z, which a child must not learn as an s word.
@@ -223,6 +223,25 @@ export function checkCurriculum(c, root = ROOT) {
     if (!pages.length || (pages[pages.length - 1].kind || 'page') !== 'review') err(`${p}: the last page must be a review`);
   };
 
+  // A ride stop (Smooth Ride): its words are spelt with taught sounds only, held except the last, and none says z; the timings sit in sensible ranges.
+  const rideChecks = (k, p) => {
+    if (!k.title) err(`${p}.title missing`);
+    if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
+    if (!Number.isInteger(k.rounds) || k.rounds < 1) err(`${p}.rounds must be a positive integer`);
+    const chosen = rideWords(c, k);
+    if (chosen.length !== k.rounds) err(`${p}: ${chosen.length} usable words for ${k.rounds} rounds (rideWords)`);
+    const taught = (c.lessons || []).slice(0, k.after).map((L) => L.sound);
+    for (const w of chosen) {
+      if (![...w].every((ch) => taught.includes(ch))) err(`${p}: "${w}" uses a sound not taught by lesson ${k.after}`);
+      if (![...w].slice(0, -1).every((ch) => sounds[ch] && sounds[ch].hold === true)) err(`${p}: "${w}" has a clipped sound before its last letter`);
+      if (S_SAYS_Z.includes(w)) err(`${p}: "${w}" is an s-says-z word`);
+    }
+    if (!(k.offHoldMs >= 20 && k.offHoldMs <= 80)) err(`${p}.offHoldMs must be between 20 and 80`);
+    if (!(k.gapMs >= 60 && k.gapMs <= 200)) err(`${p}.gapMs must be between 60 and 200`);
+    for (const f of ['onHoldMs', 'minRunMs', 'endMs']) if (!(k[f] > 0)) err(`${p}.${f} must be a positive number`);
+    if (!c.games || !c.games.ride || !c.games.ride.say) err('games.ride.say missing');
+  };
+
   const ids = new Set();
   (c.checkpoints || []).forEach((k, i) => {
     const p = `checkpoints[${i}]`;
@@ -230,7 +249,8 @@ export function checkCurriculum(c, root = ROOT) {
     if (!/^[\w-]+$/.test(k.id || '')) err(`${p}.id "${k.id}" must match the route pattern [\\w-]+`);
     ids.add(k.id);
     if (k.kind === 'book') return bookChecks(k, p);
-    if (k.kind) return; // ride stops have their own checks
+    if (k.kind === 'ride') return rideChecks(k, p);
+    if (k.kind) return;
     if (!k.title) err(`${p}.title missing`);
     if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
     if (!Number.isInteger(k.rounds) || k.rounds < 1) err(`${p}.rounds must be a positive integer`);

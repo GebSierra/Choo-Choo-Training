@@ -58,13 +58,27 @@ export function drawBook(g, cx, cy, size, color = '#E5484D') {
   g.restore();
 }
 
+// A round steam gauge seen from the front, for a ride's depot sign: brass ring, cream face, red needle.
+export function drawGauge(g, cx, cy, size, locked = false) {
+  const r = size / 2;
+  g.save();
+  g.fillStyle = locked ? '#C4BBAE' : '#E5A73A'; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = locked ? '#D8D1C6' : '#FFD166'; g.lineWidth = r * 0.12; g.beginPath(); g.arc(cx, cy, r * 0.94, 0, Math.PI * 2); g.stroke();
+  g.fillStyle = '#FFF8EC'; g.beginPath(); g.arc(cx, cy, r * 0.78, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = locked ? '#C4BBAE' : '#E5484D'; g.lineWidth = r * 0.1; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(cx, cy + r * 0.14); g.lineTo(cx + r * 0.3, cy - r * 0.55); g.stroke();
+  g.fillStyle = locked ? '#B3ACA1' : '#2B2D5C'; g.beginPath(); g.arc(cx, cy + r * 0.14, r * 0.12, 0, Math.PI * 2); g.fill();
+  g.restore();
+}
+
 function signTexture(bag, { glyph, accent, locked, icon }) {
   return canvasTexture(bag, 256, 256, (g, w) => {
     g.fillStyle = locked ? '#ECE7DE' : '#FFF8EC';
     g.fillRect(0, 0, w, w);
     g.lineWidth = 16; g.strokeStyle = locked ? '#C9C2B6' : accent;
     g.beginPath(); g.arc(128, 128, 118, 0, Math.PI * 2); g.stroke();
-    if (icon === 'book') drawBook(g, 128, 130, 138, locked ? '#C4BBAE' : '#E5484D');
+    if (icon === 'gauge') drawGauge(g, 128, 128, 140, locked);
+    else if (icon === 'book') drawBook(g, 128, 130, 138, locked ? '#C4BBAE' : '#E5484D');
     else if (icon === 'crate') drawCrate(g, 128, 132, 118, locked ? '#C4BBAE' : '#B9874C');
     else drawGlyph(g, glyph, 128, 128, 170, locked ? '#B3ACA1' : accent);
   });

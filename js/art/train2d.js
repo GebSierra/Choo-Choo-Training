@@ -126,5 +126,18 @@ export function bookSvg() {
     h('path', { d: 'M18 38 Q31 34 42 40 M18 50 Q31 46 42 52 M18 62 Q31 58 42 64 M58 40 Q69 34 82 38 M58 52 Q69 46 82 50 M58 64 Q69 58 82 62', fill: 'none', stroke: C.woodDark, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: 0.45 }),
     h('rect', { x: 48, y: 28, width: 4, height: 54, rx: 2, fill: C.redDark }));
 }
-// The icon for a stop on the path (a book for a story, a crate otherwise).
-export const stopIcon = (ck) => (ck.kind === 'book' ? bookSvg() : crateSvg());
+// A steam gauge: a round brass dial with a cream face and a red needle (.gauge-needle, turned by the CSS variable --needle, no
+// transition). No numbers and no zones. Smooth Ride's icon, and its live voice dial.
+export function gaugeSvg() {
+  return h('svg', { class: 'gauge-art', viewBox: '0 0 100 100', 'aria-hidden': 'true' },
+    h('ellipse', { cx: 50, cy: 94, rx: 34, ry: 4, fill: 'rgba(60,40,20,.16)' }),
+    h('circle', { cx: 50, cy: 50, r: 44, fill: C.sunDark }),
+    h('circle', { cx: 50, cy: 50, r: 44, fill: 'none', stroke: C.sun, 'stroke-width': 5 }),
+    h('circle', { cx: 50, cy: 50, r: 35, fill: '#FFF8EC' }),
+    h('path', { d: 'M24 62 A28 28 0 0 1 76 62', fill: 'none', stroke: C.woodDark, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: 0.28 }),
+    h('g', { class: 'gauge-needle', style: { 'transform-box': 'view-box', 'transform-origin': '50px 58px' } },
+      h('path', { d: 'M47.5 58 L50 24 L52.5 58 Z', fill: C.red })),
+    h('circle', { cx: 50, cy: 58, r: 5.5, fill: C.navy }));
+}
+// The icon for a stop on the path (a book for a story, a gauge for a ride, a crate otherwise).
+export const stopIcon = (ck) => (ck.kind === 'book' ? bookSvg() : ck.kind === 'ride' ? gaugeSvg() : crateSvg());
