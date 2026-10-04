@@ -695,8 +695,9 @@ export async function reliabilityChecks({ browser, url, ok }) {
     ok(JSON.stringify(optional) === JSON.stringify(clips), `sw OPTIONAL_FILES are exactly the curriculum's clips (${optional.join(', ')})`);
     const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
     const files = [path.join(ROOT, 'index.html'), ...walk(path.join(ROOT, 'js'))].filter((f) => /\.(js|html)$/.test(f));
-    const bad = files.filter((f) => /record\.html|getUserMedia|MediaRecorder/.test(fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, ''))); // code only: a comment may name the recorder
-    ok(files.length > 30 && bad.length === 0, `no file under js/ (${files.length} checked) links the recorder or asks for the microphone ${bad.join(', ')}`);
+    // Smooth Ride (1.7.2) asks for the microphone, but only from js/mic.js; no file may use a recorder (test/ride.mjs checks the rest of the privacy rules).
+    const bad = files.filter((f) => (path.basename(f) === 'mic.js' ? /record\.html|MediaRecorder/ : /record\.html|getUserMedia|MediaRecorder/).test(fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, ''))); // code only: a comment may name the recorder
+    ok(files.length > 30 && bad.length === 0, `no file under js/ (${files.length} checked) links the recorder or asks for the microphone outside js/mic.js ${bad.join(', ')}`);
   }
 }
 

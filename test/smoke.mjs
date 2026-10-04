@@ -569,8 +569,9 @@ for (const [name, raw] of [
   ok(e2.length === 0, 'recorder (supported) errors ' + e2.join(' | '));
   await c2.close();
   const walkJs = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walkJs(path.join(d, e.name)) : [path.join(d, e.name)]));
-  const appSrc = [path.join(ROOT, 'index.html'), ...walkJs(path.join(ROOT, 'js'))].map((f) => fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, '')).join('\n'); // code only: a comment may name the recorder
-  ok(!/record\.html|getUserMedia/.test(appSrc), 'the app (index.html and every file under js/) never links the recorder or requests the microphone');
+  // Smooth Ride (1.7.2) asks for the microphone, but only from js/mic.js (test/ride.mjs holds the rest of the privacy rules).
+  const appSrc = [path.join(ROOT, 'index.html'), ...walkJs(path.join(ROOT, 'js')).filter((f) => path.basename(f) !== 'mic.js')].map((f) => fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, '')).join('\n'); // code only: a comment may name the recorder
+  ok(!/record\.html|getUserMedia/.test(appSrc), 'the app (index.html and every file but js/mic.js) never links the recorder or requests the microphone');
 }
 
 // PWA (step 11): manifest is valid, sw precache list is complete, offline reload renders Home.
