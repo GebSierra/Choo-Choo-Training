@@ -577,7 +577,7 @@ for (const [name, raw] of [
 // PWA (step 11): manifest is valid, sw precache list is complete, offline reload renders Home.
 {
   const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8'));
-  ok(man.display === 'standalone' && man.orientation === 'portrait-primary' && man.scope === './' && man.start_url === './index.html#/home' && man.name === "Pip's Reading Train", 'manifest fields');
+  ok(man.display === 'standalone' && man.orientation === 'portrait-primary' && man.scope === './' && man.start_url === './index.html#/home' && man.name === "Choo Choo Training", 'manifest fields');
   ok(man.icons.some((i) => i.purpose === 'maskable') && man.icons.every((i) => fs.existsSync(path.join(ROOT, i.src))), 'manifest icons exist, including maskable');
   const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
   const listed = new Set([...sw.matchAll(/'((?:js|css|data|icons|assets)\/[^']+)'/g)].map((m) => m[1]));

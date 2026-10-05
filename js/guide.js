@@ -2,7 +2,7 @@
 // Parent-facing only: it is never spoken and never shown to the child. It names letter names on purpose
 // (“em”, “ay”) to explain what to avoid, which is why it lives here and not in curriculum.json.
 export const WELCOME = [
-  { title: 'Welcome, grown-up', body: ['Sit with your child. You say the sounds; the app shows the way and plays the games.', 'Tap the glowing lesson to start.'] },
+  { title: 'Welcome to Choo Choo Training', body: ['Sit with your child. You say the sounds; the app shows the way and plays the games.', 'Tap the glowing lesson to start.'] },
   { title: 'Say the sound, not the name', body: [
     'Many reading programs begin with the names of the letters, and with capital letters too. When a child is first learning to read, it helps to strip away everything that is confusing or not needed, and keep it as simple as you can.',
     'So here, call a letter by its sound: mmm for m, not “em”, and aaa (as in apple) for a, not “ay”.',

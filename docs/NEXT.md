@@ -2,11 +2,11 @@
 
 Recorded while the usage limit was hit. Plan with Opus, build with Sonnet.
 
-1. Smooth Ride: keep as it is. No sound-form matching for now.
-2. Storybook look: tapping a story stop opens a real-looking book (cover opens, paper pages,
+1. Smooth Ride: keep as it is. No sound-form matching for now. (kept as is)
+2. Storybook look (planned in PLAN-v1.8 Phase C): tapping a story stop opens a real-looking book (cover opens, paper pages,
    page-curl turns by swipe or tap, gutter shadow). Keep every interactive part of the reader.
    Nothing animates while idle (heat). Reduced motion: cross-fade.
-3. App name: "Choo Choo Training" (replaces "Pip's Reading Train" everywhere: manifest, title,
+3. (done in v1.8.0) App name: "Choo Choo Training" (replaces "Pip's Reading Train" everywhere: manifest, title,
    welcome card, docs, tests).
 4. Music:
    - Plays on app open (after the first tap, because browsers block audio before a tap),

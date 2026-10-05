@@ -94,9 +94,9 @@ export async function practiceChecks({ browser, url, ok, CUR, vp, shot }) {
 export async function renameChecks({ browser, url, ok, CUR }) {
   const { ctx, page, errors } = await open(browser, url, VIEWPORTS[0], seed(DONE(2)), '#/lesson/3');
   await page.waitForSelector('.task-card');
-  ok((await page.title()) === "Pip's Reading Train", `the page title is Pip's Reading Train (${await page.title()})`);
+  ok((await page.title()) === "Choo Choo Training", `the page title is Choo Choo Training (${await page.title()})`);
   const man = await page.evaluate(async () => (await (await fetch('manifest.webmanifest')).json()));
-  ok(man.name === "Pip's Reading Train" && man.short_name === "Pip's Train", `the manifest name is Pip's Reading Train, short name Pip's Train (${man.name} / ${man.short_name})`);
+  ok(man.name === "Choo Choo Training" && man.short_name === "Choo Choo", `the manifest name is Choo Choo Training, short name Choo Choo (${man.name} / ${man.short_name})`);
   const names = await page.locator('.task-card .card-name').allInnerTexts();
   const want = ['Letter Review', 'New Sound', 'Sound Story', 'Word Cars', 'Saying Sounds', 'Track Tracing', 'Letter Hunt', 'Barn Doors', 'Practicing Words', 'Ticket Check'];
   ok(JSON.stringify(names) === JSON.stringify(want), `lesson 3's task cards are named ${want.join(', ')} (${names.join(', ')})`);
@@ -108,7 +108,7 @@ export async function renameChecks({ browser, url, ok, CUR }) {
   const gb = await g.page.locator('.pill-hold').boundingBox();
   await g.page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await g.page.mouse.down(); await g.page.waitForTimeout(2250); await g.page.mouse.up();
   await g.page.waitForSelector('.grownups');
-  ok(/Pip's Reading Train version/.test(await g.page.locator('.gu-version').innerText()), 'Grownups shows "Pip\'s Reading Train version"');
+  ok(/Choo Choo Training version/.test(await g.page.locator('.gu-version').innerText()), 'Grownups shows "Choo Choo Training version"');
   ok(g.errors.length === 0, `rename grownups: errors ${g.errors.join(' | ')}`);
   await g.ctx.close();
   const m = await open(browser, url, VIEWPORTS[0], `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{},settings:{seenScripts:${JSON.stringify(SEEN)},trainWorld:false},firstRunDone:true}))`, '#/home');

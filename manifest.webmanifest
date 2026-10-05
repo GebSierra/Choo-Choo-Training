@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "Pip's Reading Train",
-  "short_name": "Pip's Train",
+  "name": "Choo Choo Training",
+  "short_name": "Choo Choo",
   "description": "A private reading app: letter sounds m, a and s.",
   "start_url": "./index.html#/home",
   "scope": "./",

@@ -40,7 +40,7 @@ Mechanics, dealing rules, drag rules, timing, sounds and tests stay exactly as t
 - Put the 2D Pip (waving) at the top of the first-run welcome card instead of the adult icon, and on the lesson finish screen beside the glyph (cheering). No other changes.
 
 ## 7. Proposals awaiting Geb's decision (do not build these in round 4)
-- Decided in v1.7.0: the app is "Pip's Reading Train", and the tasks are New Sound, Word Cars, Track Tracing, Letter Hunt, Practicing Words (the old Sound Station) and Ticket Check. The Sound Station stops leave the line.
+- Decided in v1.7.0: the app is "Pip's Reading Train", and the tasks are New Sound, Word Cars, Track Tracing, Letter Hunt, Practicing Words (the old Sound Station) and Ticket Check. The Sound Station stops leave the line. Renamed to Choo Choo Training in v1.8.0.
 - App names (five), mascot alternatives, task names, the new sound order and the books plan are in the chat summary and below. Nothing in the curriculum changes in round 4.
 
 ## 8. Build order, tests and quality bar (for the builder)

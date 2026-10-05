@@ -22,7 +22,7 @@ async function welcomeChecks(ok, browser, url) {
     const body = () => page.evaluate(() => document.querySelector('.wc-page.on').textContent);
     const targets = () => page.evaluate(() => [...document.querySelectorAll('.welcome button')].filter((b) => getComputedStyle(b).visibility !== 'hidden').map((b) => { const r = b.getBoundingClientRect(); return [b.textContent.trim(), Math.round(r.width), Math.round(r.height)]; }));
 
-    ok((await title()) === 'Welcome, grown-up', `${tag}: page 1 is the welcome`);
+    ok((await title()) === 'Welcome to Choo Choo Training', `${tag}: page 1 is the welcome`);
     let f = await fit();
     ok(f.fits && f.scroll <= 1, `${tag}: page 1 fits the screen with no scrolling (${JSON.stringify(f)})`);
     ok((await targets()).every(([, w, h]) => w >= 48 && h >= 48), `${tag}: every button is at least 48 px (${JSON.stringify(await targets())})`);
