@@ -187,7 +187,7 @@ export async function rideChecks({ url, ok, log = console.log }) {
     const tag = `ride ${name}`;
     await page.waitForFunction(() => document.querySelector('.ride-game').dataset.mode === 'tap', null, { timeout: 8000 });
     ok((await page.locator('.ride-go').count()) === 0 && (await page.locator('.ride-gauge').count()) === 0, `${tag}: no Go button and no gauge`);
-    ok((await page.locator('.ride-smooth').count()) === 1 && (await page.locator('.ride-smooth').innerText()) === 'That was smooth', `${tag}: the "That was smooth" button`);
+    ok((await page.locator('.ride-smooth').count()) === 1 && (await page.locator('.ride-smooth').innerText()) === 'Next word', `${tag}: the "Next word" button`);
     ok((await page.locator('.slide-band').count()) === 1, `${tag}: the slider is under the word`);
     for (let i = 0; i < ck.rounds; i++) {
       await page.waitForSelector('.ride-smooth:not([disabled])', { timeout: 6000 });

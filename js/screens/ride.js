@@ -23,7 +23,7 @@ const REST = -62, FULL = 62; // the needle's two ends, in degrees
 // Smooth Ride, the blending station. The child says the word in one long sound with the grown-up; while the voice stays on the
 // engine rolls and puffs steam, and the moment the voice stops the engine and every puff stop dead, on the same frame (no
 // braking, no fading). The microphone is read only for loudness, only during a try (at most about 5 s), and is closed
-// after each one. Without a microphone, or when the browser's permission is refused, a "That was smooth" button does the same job.
+// after each one. Without a microphone, or when the browser's permission is refused, a "Next word" button does the same job.
 // The slide-to-blend slider is under the word in both modes. Timings come from the stop's data (js/blend-detect.js).
 export function rideBuild({ checkpoint, curriculum, speech, refresh, setProgress, setDone }) {
   const T = timers();
@@ -114,7 +114,7 @@ export function rideBuild({ checkpoint, curriculum, speech, refresh, setProgress
       kids.push(goBtn);
     }
     if (smoothVisible()) {
-      if (!smoothBtn) smoothBtn = h('button', { class: 'ride-smooth', type: 'button', onclick: onSmooth }, 'That was smooth');
+      if (!smoothBtn) smoothBtn = h('button', { class: 'ride-smooth', type: 'button', onclick: onSmooth }, 'Next word');
       kids.push(smoothBtn);
     }
     controls.replaceChildren(status, h('div', { class: 'ride-buttons' }, ...kids));
@@ -258,7 +258,7 @@ export function rideBuild({ checkpoint, curriculum, speech, refresh, setProgress
     paintControls();
   }
 
-  // ---- without the microphone: "That was smooth" ----
+  // ---- without the microphone: "Next word" ----
   function onSmooth() {
     if (phase !== 'idle') return;
     phase = 'result'; el.dataset.result = 'smooth'; fails = 0; quietStreak = 0; msg = '';
@@ -291,11 +291,11 @@ export function rideBuild({ checkpoint, curriculum, speech, refresh, setProgress
     el, flush: true, lockScroll: true,
     parts: () => say,
     script: () => (mode === 'tap'
-      ? 'Say the word together in one long sound. When it is smooth, tap That was smooth.'
+      ? 'Say the word together in one long sound. When it is smooth, tap Next word.'
       : msg === 'gap'
         ? "There was a gap. Say: 'Keep your voice on.' Then try again together."
         : `Say it together, slowly, with no gaps: '${slowSounds(curWord, sounds)}'. Then say '${curWord}'. Tell your child: keep your voice on. Say the sounds, not the letter names.`),
-    gist: () => (mode === 'tap' ? fit('Say it, then tap smooth', 'Then tap smooth') : msg === 'gap' ? fit("Say 'Keep your voice on.'", 'Keep your voice on') : fit('Say it together, no gaps', 'No gaps')),
+    gist: () => (mode === 'tap' ? fit('Say it, then tap Next word', 'Then tap Next word') : msg === 'gap' ? fit("Say 'Keep your voice on.'", 'Keep your voice on') : fit('Say it together, no gaps', 'No gaps')),
     again: () => { again(); speech.say(say); },
     cleanup: () => {
       disposed = true;
