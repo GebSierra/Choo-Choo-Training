@@ -137,6 +137,8 @@ export async function characterChecks({ browser, url, ok }) {
     spy(page);
     await until(page, () => window.__train && window.__train.frames > 0);
     await page.mouse.click(3, 400);
+    // 1.8.5: the station-complete sequence keeps the figure on the old platform until it hops on, rides and hops off
+    await until(page, () => window.__train.kid.index === window.__train.currentIndex, null, 20000);
     const t = await page.evaluate(() => ({ kid: window.__train.kid.index, cur: window.__train.currentIndex, name: window.__train.kidName }));
     ok(t.kid === t.cur && t.name === 'kid', `3D home: the figure stands at the current stop (${JSON.stringify(t)})`);
     ok(await until(page, () => window.__train.kid.waving, null, 20000), '3D home: the figure waves when the train arrives');

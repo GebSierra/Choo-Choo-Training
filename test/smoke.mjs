@@ -354,6 +354,8 @@ await sackGrownupsChecks({ browser, url, ok });
   await page.waitForSelector('.stone', { state: 'attached' });
   await page.waitForTimeout(600);
   ok((await page.locator('.stone.is-done').count()) === 1 && (await page.locator('.stone.is-current').count()) === 1, 'got it: lesson 1 done, lesson 2 current');
+  // 1.8.5: after a lesson the station-complete sequence plays (the camera follows the train); let it finish first
+  await page.waitForFunction(() => !window.__train || !window.__train.running, null, { timeout: 15000 });
   await showStop(page, '.stone.is-done');
   await page.locator('.stone.is-done').click();
   await page.waitForSelector('.lesson-overview');

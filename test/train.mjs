@@ -214,9 +214,12 @@ export async function arrivalChecks({ browser, url, ok, shot }) {
   }
   {
     // lesson 4 was just finished: the train was at lesson 4's stop (index 4) and lesson 5 is now current
-    const { ctx, page, errors } = await openHome(browser, url, vp, state(4, { trainAt: iL(4) }));
+    // Returning from a lesson, the child has already tapped, so sound is unlocked before the sequence's first toot.
+    // A fresh test page has had no tap, so the unlock click is sent as soon as the page has loaded.
+    const UNLOCKED = () => addEventListener('DOMContentLoaded', () => dispatchEvent(new MouseEvent('click')));
+    const { ctx, page, errors } = await openHome(browser, url, vp, state(4, { trainAt: iL(4) }), { init: [UNLOCKED] });
     await until(page, () => window.__train && window.__train.frames > 0);
-    await page.mouse.click(3, 300); // the first tap of the page lets sound play
+    await page.mouse.click(3, 300); // a real tap as well
     const a = await train(page);
     ok(a.arriving && Math.abs(a.trainS - (a.stops[iL(4)] + a.engineAt)) < 0.01, `arrival: the train starts at the stop before (${a.trainS.toFixed(2)})`);
     const mid = await until(page, ([i4, i5]) => window.__train.trainS > window.__train.stopS[i4] + 1 && window.__train.trainS < window.__train.stopS[i5], [iL(4), iL(5)], 8000);
