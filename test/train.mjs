@@ -226,7 +226,7 @@ export async function arrivalChecks({ browser, url, ok, shot }) {
     const b = await train(page);
     ok(Math.abs(b.trainS - (b.stops[iL(5)] + b.engineAt)) < 0.01, `arrival: the train stands at the new current stop (${b.trainS.toFixed(2)})`);
     const toots = await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'toot' && !n.partial).length);
-    ok(toots === 2, `arrival: the toot's two whistle notes were scheduled (${toots})`);
+    ok(toots === 4, `arrival: two toots (one at the station, one on arrival), two whistle notes each (${toots})`);
     ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainAt)) === iL(5), 'arrival: the new stop is remembered, so it plays once');
     ok(errors.length === 0, `arrival: errors ${errors.join(' | ')}`);
     await ctx.close();
@@ -244,6 +244,74 @@ export async function arrivalChecks({ browser, url, ok, shot }) {
     ok(f2.frames === f1.frames && f2.idleFrames === 0, `reduced motion: nothing is drawn while nothing moves (${f1.frames} then ${f2.frames} frames)`);
     ok(f2.tootAt !== null, 'reduced motion: the arrival still toots');
     ok(errors.length === 0, `reduced motion: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+}
+
+// The station-complete sequence (1.8.5): lesson 4 was just finished (it has the newest completion time and one more station is
+// done than Home last saw). The figure waits on lesson 4's platform, the train toots, the figure hops on, the train rides to
+// the next station with thick smoke, the figure hops off and waves. Reduced motion skips the animation; nothing draws when idle.
+const RAF_COUNT = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
+const justDone = (settings = {}) => state(4, { trainAt: iL(5), trainDone: 3, ...settings }, { character: { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit: 'dress', made: true }, lessons: Object.fromEntries([1, 2, 3, 4].map((n) => [n, { tasksDone: [], result: 'got-it', completedAt: `2026-10-0${n}T10:00:00.000Z` }])) });
+export async function sequenceChecks({ browser, url, ok, shot }) {
+  const vp = VIEWPORTS[0];
+  {
+    const { ctx, page, errors } = await openHome(browser, url, vp, justDone(), { init: [RAF_COUNT] });
+    await until(page, () => window.__train && window.__train.frames > 0);
+    await page.mouse.click(3, 300);
+    const a = await train(page);
+    ok(a.arriving && a.fromIndex === iL(4) && a.kid.index === iL(4), `sequence: the figure waits on the platform of the station just finished (kid at ${a.kid.index}, from ${a.fromIndex})`);
+    ok(await until(page, () => window.__train.startTootAt !== null, null, 8000), 'sequence: the train toots first');
+    ok(await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'toot' && !n.partial).length) >= 2, 'sequence: the toot is scheduled in the synthesized audio');
+    ok(await until(page, () => window.__train.kid.phase === 'on', null, 8000), 'sequence: the figure hops on');
+    if (shot) await shot(page, 'station-sequence-hop');
+    ok(await until(page, () => window.__train.kid.phase === 'go', null, 8000), 'sequence: then the train sets off');
+    const live = await page.evaluate(() => window.__train.kid.index);
+    ok(live === iL(4), `sequence: while it rides, the figure is still counted at the station it left (${live})`);
+    await until(page, ([i4, i5]) => window.__train.trainS > window.__train.stopS[i4] + 2 && window.__train.trainS < window.__train.stopS[i5] - 2, [iL(4), iL(5)], 8000);
+    if (shot) await shot(page, 'station-sequence-smoke');
+    ok(await until(page, () => window.__train.kid.phase === 'off', null, 12000), 'sequence: the train arrives and the figure hops off');
+    ok(await until(page, () => window.__train.kid.phase === '' && window.__train.kid.index === window.__train.currentIndex && window.__train.kid.waving, null, 8000), 'sequence: the figure lands on the next platform and waves');
+    const b = await train(page);
+    ok(Math.abs(b.trainS - (b.stops[iL(5)] + b.engineAt)) < 0.01, `sequence: the train ends at the next stop (${b.trainS.toFixed(2)})`);
+    ok(await until(page, () => !window.__train.running, null, 8000), 'sequence: the scene settles');
+    await page.waitForTimeout(800);
+    const r0 = await page.evaluate(() => window.__raf);
+    await page.waitForTimeout(3000);
+    const frames = (await page.evaluate(() => window.__raf)) - r0;
+    ok(frames <= 2, `sequence: no idle frames afterwards (${frames} in 3 s)`);
+    ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainDone)) === 4, 'sequence: remembered, so it plays once');
+    ok(errors.length === 0, `sequence: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  {
+    const { ctx, page, errors } = await openHome(browser, url, vp, justDone(), { init: [RAF_COUNT], extra: { reducedMotion: 'reduce' } });
+    await until(page, () => window.__train && window.__train.frames > 0);
+    await page.mouse.click(3, 300);
+    let phases = 0;
+    for (let i = 0; i < 14; i++) { phases += (await page.evaluate(() => window.__train.kid.phase)) ? 1 : 0; await page.waitForTimeout(150); }
+    const a = await train(page);
+    ok(phases === 0 && a.kid.index === iL(5) && Math.abs(a.trainS - (a.stops[iL(5)] + a.engineAt)) < 0.01, `reduced motion sequence: no hop and no ride, the figure and the train are at the next station (${phases} phases, kid ${a.kid.index})`);
+    await page.waitForTimeout(800);
+    ok(await until(page, () => window.__train.tootAt !== null, null, 4000), 'reduced motion sequence: one soft toot at the end (the arrival toot only, no start toot)');
+    ok((await page.evaluate(() => window.__train.startTootAt)) === null, 'reduced motion sequence: no toot at the start');
+    const r0 = await page.evaluate(() => window.__raf);
+    await page.waitForTimeout(3000);
+    ok((await page.evaluate(() => window.__raf)) - r0 <= 2, 'reduced motion sequence: no idle frames');
+    ok(errors.length === 0, `reduced motion sequence: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  {
+    // the 2D path: a toot, the figure slides to the next stone, smoke, and the real figure is back
+    const { ctx, page, errors } = await openHome(browser, url, vp, justDone({ trainWorld: false }));
+    await page.waitForSelector('.map-scroll');
+    await page.evaluate(async () => (await import('/js/sfx.js')).sfx.unlock());
+    ok(await until(page, () => !!document.querySelector('.seq-kid'), null, 6000), '2D sequence: the figure sets off along the path');
+    ok(await until(page, () => document.querySelectorAll('.scene .steam-puff').length > 0, null, 4000), '2D sequence: with puffs of smoke');
+    ok(await until(page, () => !document.querySelector('.seq-kid') && getComputedStyle(document.querySelector('.stone-kid')).visibility === 'visible', null, 8000), '2D sequence: it arrives and the figure stands by the next stone');
+    ok(await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'toot' && !n.partial).length) >= 2, '2D sequence: and a toot as it sets off');
+
+    ok(errors.length === 0, `2D sequence: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
 }
@@ -366,6 +434,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   for (const vp of VIEWPORTS) await homeChecks({ browser, url, ok, vp, shot });
   await tapChecks({ browser, url, ok });
   await arrivalChecks({ browser, url, ok, shot });
+  await sequenceChecks({ browser, url, ok, shot });
   await lifeChecks({ browser, url, ok });
   await heatChecks({ browser, url, ok, log: console.log });
   await browser.close(); server.close();

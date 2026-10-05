@@ -101,8 +101,8 @@ export function buildTrain(sceneBag, line, cars) {
   const wagons = cars.map((c) => { const w = buildCar(bag, c.glyph, c.accent); group.add(w.group); return w; });
   // steam: a few soft white puffs, reused
   const puffMat = [];
-  const puffs = Array.from({ length: 8 }, () => {
-    const m = bag.add(new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 1, transparent: true, opacity: 0, depthWrite: false }));
+  const puffs = Array.from({ length: 28 }, () => {
+    const m = bag.add(new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 0.45, roughness: 1, transparent: true, opacity: 0, depthWrite: false }));
     puffMat.push(m);
     const s = new THREE.Mesh(bag.geo('puff', () => new THREE.SphereGeometry(0.3, 14, 10)), m);
     s.visible = false;
@@ -139,21 +139,22 @@ export function buildTrain(sceneBag, line, cars) {
       wagons.forEach((c) => c.wheels.forEach((w) => { w.rotation.x = rolled / CAR_WHEEL_R; }));
     },
     // A puff of steam from the funnel (world position), and the puffs' rise and fade at time t. Returns whether any is alive.
-    puff(t) {
+    // big: the reward puff while the child rides to the next station: bigger, higher and lasting longer.
+    puff(t, big = false) {
       const free = puffs.find((q) => q.born < 0) || puffs.reduce((a, b) => (a.born < b.born ? a : b));
       engine.funnelTop.getWorldPosition(tmp);
-      free.mesh.position.copy(tmp); free.origin = tmp.clone(); free.born = t; free.mesh.visible = true;
+      free.mesh.position.copy(tmp); free.origin = tmp.clone(); free.born = t; free.big = big; free.mesh.visible = true;
     },
     steam(t) {
       let alive = false;
       for (const q of puffs) {
         if (q.born < 0) continue;
-        const k = (t - q.born) / 1.4;
+        const big = q.big, k = (t - q.born) / (big ? 2 : 1.4);
         if (k >= 1 || k < 0) { q.born = -1; q.mesh.visible = false; q.mat.opacity = 0; continue; }
         alive = true;
-        q.mesh.position.set(q.origin.x, q.origin.y + k * 1.3, q.origin.z + k * 0.4);
-        q.mesh.scale.setScalar(0.5 + k * 1.3);
-        q.mat.opacity = 0.85 * (1 - k) * Math.min(1, k * 6);
+        q.mesh.position.set(q.origin.x, q.origin.y + k * (big ? 2.2 : 1.3), q.origin.z + k * (big ? 0.2 : 0.4));
+        q.mesh.scale.setScalar(big ? 0.8 + k * 2.1 : 0.5 + k * 1.3);
+        q.mat.opacity = (big ? 0.95 : 0.85) * (1 - k) * Math.min(1, k * 6);
       }
       return alive;
     },

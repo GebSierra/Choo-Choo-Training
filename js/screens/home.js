@@ -3,7 +3,9 @@ import { glyphSvg } from '../glyphs.js';
 import { holdButton } from '../components/hold-button.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
 import { firstRunOverlay } from '../components/welcome-card.js';
-import { stopIcon } from '../art/train2d.js';
+import { stopIcon, puffEl } from '../art/train2d.js';
+import { finishedStop } from '../sequence.js';
+import { sfx } from '../sfx.js';
 import { kidSvg } from '../art/kid.js';
 
 // The path is a long winding trail that scrolls: up the screen in portrait (lesson 1 at the bottom, the newest stone at the top),
@@ -219,6 +221,8 @@ export function mapScreen(ctx) {
   });
   if (!found) currentIndex = nodes.length - 1;
   stones.forEach((s) => scene.append(s));
+  // A station was just finished: the figure rides to the next stone (the simple version of the 3D sequence).
+  const fromStop = finishedStop(store, nodes.map((n) => (n.checkpoint ? (store.isCheckpointDone(n.checkpoint.id) && (store.checkpoint(n.checkpoint.id).completedAt || null)) : (store.isDone(n.lesson.number) && (store.lesson(n.lesson.number).completedAt || null)))).map((d) => (d === false || d === undefined ? false : d)), currentIndex);
 
   const grown = holdButton({ label: 'Grownups · hold', caption: null, hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
   const top = h('div', { class: 'home-top' }, grown);
@@ -235,12 +239,42 @@ export function mapScreen(ctx) {
     const p = g.stones[currentIndex];
     return isPortrait() ? Math.max(0, Math.min(g.H - scroller.clientHeight, p.py - scroller.clientHeight * 0.55)) : Math.max(0, Math.min(g.W - scroller.clientWidth, p.lx - scroller.clientWidth * 0.36));
   };
+  // toot, the figure slides along the path to the next stone, puffs of smoke behind it
+  function runRide() {
+    const target = targetScroll(), portrait = isPortrait();
+    const real = stones[currentIndex].querySelector('.stone-kid');
+    const mid = (el) => { const r = el.getBoundingClientRect(), o = scene.getBoundingClientRect(); return [r.left - o.left + r.width / 2, r.top - o.top + r.height / 2]; };
+    const [ax, ay] = mid(stones[fromStop].querySelector('.stone')), [bx, by] = mid(stones[currentIndex].querySelector('.stone'));
+    const dx = -34, dy = -38; // the figure stands a little left of the stone and above its middle
+    const kidEl = h('span', { class: 'seq-kid', 'aria-hidden': 'true', style: { left: ax + dx - 30 + 'px', top: ay + dy - 38 + 'px' } }, kidSvg({ ...store.character(), pose: 'wave', still: true }));
+    scene.append(kidEl);
+    if (real) real.style.visibility = 'hidden';
+    setTimeout(() => sfx.play('toot'), 450); // as the figure sets off
+    const MS = 1700;
+    const a = kidEl.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${(bx - ax) / 2}px,${(by - ay) / 2 - 22}px)`, offset: 0.5 }, { transform: `translate(${bx - ax}px,${by - ay}px)` }], { duration: MS, delay: 500, easing: 'ease-in-out', fill: 'both' });
+    let n = 0;
+    const timer = setInterval(() => {
+      const r = kidEl.getBoundingClientRect(), o = scene.getBoundingClientRect();
+      const p = puffEl();
+      Object.assign(p.style, { left: r.left - o.left + r.width / 2 - 12 + 'px', top: r.top - o.top + 6 + 'px', position: 'absolute', zIndex: 3 });
+      scene.append(p);
+      p.animate([{ transform: 'translate(0,0) scale(.5)', opacity: 0.9 }, { transform: 'translate(-14px,-34px) scale(1.7)', opacity: 0 }], { duration: 1000, easing: 'ease-out', fill: 'forwards' }).finished.then(() => p.remove(), () => p.remove());
+      if (++n > 14) clearInterval(timer);
+    }, 130);
+    setTimeout(() => { try { scroller.scrollTo(portrait ? { top: target, behavior: 'smooth' } : { left: target, behavior: 'smooth' }); } catch { /* fine */ } }, 500);
+    const stop = () => { clearInterval(timer); kidEl.remove(); if (real) real.style.visibility = ''; };
+    a.finished.then(stop, stop);
+  }
   const startScroll = () => (isPortrait() ? Math.max(0, g.H - scroller.clientHeight) : 0);
   const settle = () => {
     const portrait = isPortrait(), start = startScroll(), target = targetScroll(), view = portrait ? scroller.clientHeight : scroller.clientWidth;
     const set = (v) => { if (portrait) scroller.scrollTop = v; else scroller.scrollLeft = v; };
     const visible = (i) => { const p = g.stones[i], pos = portrait ? p.py : p.lx; return pos > target - 60 && pos < target + view + 60; };
-    set(start);
+    const ride = fromStop >= 0 && !reduced();
+    const rideStart = () => { const p = g.stones[fromStop]; return portrait ? Math.max(0, Math.min(g.H - scroller.clientHeight, p.py - scroller.clientHeight * 0.55)) : Math.max(0, Math.min(g.W - scroller.clientWidth, p.lx - scroller.clientWidth * 0.36)); };
+    set(ride ? rideStart() : start);
+    if (ride) { runRide(); return; }
+    if (fromStop >= 0) sfx.play('toot'); // reduced motion: the figure is simply at the next stone, with one toot
     if (!reduced()) {
       const shown = stones.map((s, i) => [s, i]).filter(([, i]) => visible(i));
       shown.forEach(([s], k) => {

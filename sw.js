@@ -13,7 +13,7 @@ const APP_FILES = [
   'js/screens/home3d.js', 'js/train/world.js', 'js/train/scene.js', 'js/train/track.js', 'js/train/scenery.js', 'js/train/stations.js', 'js/train/train.js', 'js/train/pip3d.js', 'js/train/camera.js', 'js/train/overlay.js',
   'vendor/three/three.module.min.js', 'vendor/three/RoundedBoxGeometry.js',
   'data/curriculum.json', 'data/books/book-1.json',
-  'assets/fonts/nunito-latin.woff2', 'assets/fonts/andika-latin-400-normal.woff2', 'assets/fonts/andika-latin-700-normal.woff2', 'js/components/page-turn.js', 'js/character.js', 'js/art/kid.js', 'js/train/kid3d.js', 'js/components/character-picker.js',
+  'assets/fonts/nunito-latin.woff2', 'assets/fonts/andika-latin-400-normal.woff2', 'assets/fonts/andika-latin-700-normal.woff2', 'js/components/page-turn.js', 'js/character.js', 'js/art/kid.js', 'js/train/kid3d.js', 'js/sequence.js', 'js/components/character-picker.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',
   // picture tiles curriculum.json uses (node tools/precache-images.mjs prints this list; the smoke test checks it)
   'assets/images/mentava/web/a/apple.webp', 'assets/images/mentava/web/a/astronaut.webp', 'assets/images/mentava/web/a/cat.webp',

@@ -6,7 +6,8 @@
 // disposes everything; a hidden page draws nothing.
 //
 //   home3dScreen(ctx, { canvas, gl, soft }) -> element, or throws (the caller falls back to the 2D map).
-import { makeBag, makeLine } from '../train/world.js';
+import { makeBag, makeLine, THREE } from '../train/world.js';
+import { finishedStop } from '../sequence.js';
 import { createRenderer, createScene } from '../train/scene.js';
 import { buildTrack } from '../train/track.js';
 import { buildScenery } from '../train/scenery.js';
@@ -23,6 +24,7 @@ import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
 
 const ARRIVE_MS = 2400, TAP_SLOP = 8;
+const TOOT_LEAD_MS = 500, HOP_MS = 650, SEAT = new THREE.Vector3(-0.4, 0.95, -0.95), SEAT_SCALE = 0.82; // the sequence: toot, hop on, ride, hop off
 const ENGINE_AT = 0.7; // the engine's middle stands this far past its stop's middle, so Pip's cab is by the platform
 
 // The stops in order and which one the train is at, by the same rules as the 2D path (js/screens/home.js).
@@ -66,7 +68,10 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   if (cur0 && stops[currentIndex].state === 'current') cur0.faceMat.emissiveIntensity = 0.22; // a steady soft glow (no idle animation)
   // the child's figure waits on the platform of the current stop (it adds no frames: it moves only when it waves)
   const kid = buildKid(bag, store.character());
-  { const spot = kidSpot(stops[currentIndex]); kid.group.position.set(spot.x, spot.y, spot.z); kid.group.rotation.y = spot.ry; built[currentIndex].group.add(kid.group); }
+  const KID_SCALE = kid.group.scale.x;
+  let kidIndex = currentIndex;
+  const kidTo = (i) => { const spot = kidSpot(stops[i]); kid.group.scale.setScalar(KID_SCALE); kid.group.position.set(spot.x, spot.y, spot.z); kid.group.rotation.y = spot.ry; built[i].group.add(kid.group); kidIndex = i; };
+  kidTo(currentIndex);
   const train = buildTrain(bag, line, doneLessons.map((l) => ({ glyph: l.sound, accent: accentOf(l.sound) })));
   scene.add(train.group);
 
@@ -75,11 +80,13 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   const lastAt = Number.isInteger(settings.trainAt) ? settings.trainAt : null;
   let prevLesson = -1;
   for (let i = currentIndex - 1; i >= 0; i--) if (stops[i].kind === 'lesson') { prevLesson = i; break; }
-  const arriving = lastAt !== null && lastAt < currentIndex && prevLesson >= 0;
-  const fromIndex = arriving ? Math.max(lastAt, prevLesson) : currentIndex;
+  const finished = finishedStop(store, stops.map((s) => (s.state === 'done' ? (s.kind === 'lesson' ? store.lesson(s.number).completedAt : store.checkpoint(s.checkpoint.id).completedAt) || null : false)), currentIndex);
+  const arriving = (lastAt !== null && lastAt < currentIndex && prevLesson >= 0) || finished >= 0;
+  const fromIndex = finished >= 0 ? finished : arriving ? Math.max(lastAt, prevLesson) : currentIndex;
   if (settings.trainAt !== currentIndex) store.setSetting('trainAt', currentIndex);
   const restS = (i) => stopS[i] + ENGINE_AT;
   train.place(restS(fromIndex));
+  if (arriving && !reduced()) kidTo(fromIndex); // the figure waits where the train is, and rides from there
 
   // ---- the camera ----
   const min = stopS[0] - 2, max = stopS[stopS.length - 1] + 1;
@@ -121,7 +128,8 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   const debug = { stopS, engineAt: ENGINE_AT, frames: 0, idleFrames: 0, trainS: train.at, focus: rig.focus, arriving, fromIndex, currentIndex, tootAt: null, running: false, disposed: false, glideIn, reduced: reduced(), soft };
   // Brings stop i into view (keyboard focus does the same for a stop that is on screen); tests use it to reach a stop.
   debug.show = (i) => { rig.jump(stopS[Math.max(0, Math.min(stopS.length - 1, i))]); render(); wake(); };
-  debug.kid = { index: currentIndex, get waving() { return kid.waving; } };
+  debug.kid = { get index() { return kidIndex; }, get waving() { return kid.waving; }, get phase() { return seq ? seq.phase : ''; } };
+  debug.startTootAt = null; debug.seqLog = [];
   debug.kidName = kid.group.name;
   root.__train = debug;
   window.__train = debug;
@@ -144,22 +152,73 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
     debug.trainS = train.at; debug.focus = rig.focus;
   }
 
+  // ---- the station-complete sequence: toot, the figure hops on, the train rides with thick smoke, the figure hops off ----
+  let seq = null;
+  const arrived = (t) => {
+    debug.tootAt = performance.now();
+    sfx.play('toot');
+    train.pip.wave(true, t); train.pip.lean(1); kid.wave(true, t);
+    waveUntil = t + 2.6;
+  };
+  const ease3 = (k) => (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2);
+  // Gets a hop ready: the figure's world pose now, and at its destination (place() puts it there under its new parent);
+  // for the flight it lives in the scene itself.
+  function hopPrep(place) {
+    scene.updateMatrixWorld(true);
+    const a = new THREE.Vector3(), qa = new THREE.Quaternion(), sa = kid.group.scale.x;
+    kid.group.getWorldPosition(a); kid.group.getWorldQuaternion(qa);
+    place(); scene.updateMatrixWorld(true);
+    const b = new THREE.Vector3(), qb = new THREE.Quaternion(), sb = kid.group.scale.x;
+    kid.group.getWorldPosition(b); kid.group.getWorldQuaternion(qb);
+    scene.add(kid.group);
+    kid.group.position.copy(a); kid.group.quaternion.copy(qa); kid.group.scale.setScalar(sa);
+    return { a, qa, sa, b, qb, sb, place };
+  }
+  // Moves the figure along a short jump arc; returns true when it has landed.
+  function hopStep(hp, k) {
+    const e = ease3(Math.min(1, k));
+    kid.group.position.lerpVectors(hp.a, hp.b, e);
+    kid.group.position.y += Math.sin(Math.min(1, k) * Math.PI) * 0.9;
+    kid.group.quaternion.slerpQuaternions(hp.qa, hp.qb, e);
+    kid.group.scale.setScalar(hp.sa + (hp.sb - hp.sa) * e);
+    if (k < 1) return false;
+    hp.place();
+    return true;
+  }
+  const seatPlace = () => { train.engine.group.add(kid.group); kid.group.position.copy(SEAT); kid.group.rotation.set(0, 2.55, 0); kid.group.scale.setScalar(SEAT_SCALE); };
+  function stepSeq(now, t) {
+    const e = now - seq.t0;
+    if (seq.phase === 'toot') {
+      if (!seq.tooted) { seq.tooted = true; sfx.play('toot'); debug.startTootAt = performance.now(); train.puff(t, true); train.pip.wave(true, t); waveUntil = t + 0.9; }
+      if (e >= TOOT_LEAD_MS) { seq.phase = 'on'; seq.t0 = now; seq.hop = hopPrep(seatPlace); }
+    } else if (seq.phase === 'on') {
+      if (hopStep(seq.hop, e / HOP_MS)) {
+        seq.phase = 'go'; seq.hop = null;
+        arrival = { from: restS(fromIndex), to: restS(currentIndex), start: now, lastPuff: -1 };
+        if (doneLessons.length) train.bounceLast(t);
+        rig.follow(() => (arrival ? train.at - ENGINE_AT : null));
+      }
+    } else if (seq.phase === 'off') {
+      if (hopStep(seq.hop, e / HOP_MS)) { seq = null; arrived(t); }
+    }
+  }
+
   function step(dt, now) {
     const t = (now - t0) / 1000;
     let busy = rig.update(dt, now);
+    if (seq) { busy = true; stepSeq(now, t); }
     if (arrival) {
       const k = Math.min(1, Math.max(0, (now - arrival.start) / ARRIVE_MS));
       const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
       const s = arrival.from + (arrival.to - arrival.from) * e;
       train.roll(s - train.at);
       train.place(s, t);
-      if (t - arrival.lastPuff > 0.5 && k < 1) { train.puff(t); arrival.lastPuff = t; }
+      // the reward: thick billowing smoke the whole way (a normal arrival puffs every half second)
+      if (t - arrival.lastPuff > (seq ? 0.1 : 0.5) && k < 1) { train.puff(t, !!seq); arrival.lastPuff = t; }
       if (k >= 1) {
         arrival = null;
-        debug.tootAt = performance.now();
-        sfx.play('toot');
-        train.pip.wave(true, t); train.pip.lean(1); kid.wave(true, t);
-        waveUntil = t + 2.6;
+        if (seq) { seq.phase = 'off'; seq.t0 = now; seq.hop = hopPrep(() => kidTo(currentIndex)); }
+        else arrived(t);
       }
       busy = true;
     }
@@ -260,9 +319,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
     } else {
       setTimeout(() => {
         if (disposed) return;
-        arrival = { from: restS(fromIndex), to: restS(currentIndex), start: performance.now(), lastPuff: -1 };
-        if (doneLessons.length) train.bounceLast((performance.now() - t0) / 1000);
-        rig.follow(() => (arrival ? train.at - ENGINE_AT : null));
+        seq = { phase: 'toot', t0: performance.now(), tooted: false };
         wake();
       }, 600);
     }
