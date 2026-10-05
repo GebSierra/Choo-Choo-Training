@@ -345,11 +345,10 @@ await sackGrownupsChecks({ browser, url, ok });
   ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[1]?.result ?? null)) === null, 'the first Yes tap arms without storing got-it');
   ok(await page.locator('.btn.got').isDisabled(), 'the armed Yes is dimmed for 1.5 s');
   await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
-  await page.click('.btn.got'); // the second tap records got-it and opens lesson 2
-  await page.waitForSelector('.lesson-overview');
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[1].result)) === 'got-it', 'the second Yes tap stores got-it');
-  await page.evaluate(() => { location.hash = '#/home'; });
+  await page.click('.btn.got'); // the second tap records got-it and goes back to the railway
   await page.waitForSelector('.stone', { state: 'attached' });
+  ok(page.url().endsWith('#/home'), 'the second Yes tap lands on the railway home');
+  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[1].result)) === 'got-it', 'the second Yes tap stores got-it');
   await page.waitForTimeout(600);
   ok((await page.locator('.stone.is-done').count()) === 1 && (await page.locator('.stone.is-current').count()) === 1, 'got it: lesson 1 done, lesson 2 current');
   // 1.8.5: after a lesson the station-complete sequence plays (the camera follows the train); let it finish first
@@ -502,14 +501,14 @@ for (const [name, raw] of [
   const stored = (n) => page.evaluate((k) => JSON.parse(localStorage.getItem('reading.v1')).lessons[k]?.result ?? null, n);
   await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
   await page.click('.btn.got');
-  ok(/Yes, open lesson 3/.test(await page.locator('.btn.got').innerText()) && page.url().endsWith('#/lesson/2/finish'), 'first Yes tap only arms the button');
-  ok(/Tap again to open lesson 3\./.test(await page.locator('.finish-note').innerText()), 'armed note says "Tap again to open lesson 3."');
+  ok(/Yes, back to path/.test(await page.locator('.btn.got').innerText()) && page.url().endsWith('#/lesson/2/finish'), 'first Yes tap only arms the button');
+  ok(/Tap again to go back to the path\./.test(await page.locator('.finish-note').innerText()), 'armed note says "Tap again to go back to the path."');
   ok(await page.locator('.btn.got').isDisabled(), 'after the arming tap the button is disabled');
   await page.waitForTimeout(1700);
   ok(await page.locator('.btn.got').isEnabled(), 'the armed button wakes after 1.5 s');
   await page.click('.btn.got');
-  await page.waitForSelector('.lesson-overview');
-  ok(page.url().endsWith('#/lesson/3'), 'second Yes tap opens the next lesson overview');
+  await page.waitForFunction(() => location.hash === '#/home', null, { timeout: 4000 }).catch(() => {});
+  ok(page.url().endsWith('#/home'), 'second Yes tap goes back to the railway home');
   {
     // The final lesson: Yes goes back to the path. A fresh page, with every lesson before it done and itself not yet.
     const LAST = CUR.lessons.length;

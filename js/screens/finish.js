@@ -9,7 +9,7 @@ import { kidSvg } from '../art/kid.js';
 
 // Calm finish: no confetti. The parent decides whether the child got it.
 // Taps are ignored for the first 1.5 s, and "Yes" takes two taps, so a child cannot move on by accident.
-// The first Yes tap only arms the button (and dims it for 1.5 s); the second records "got it" and goes on (onContinue).
+// The first Yes tap only arms the button (and dims it for 1.5 s); the second records "got it" and goes back to the railway (onContinue).
 function finishView({ speech, router, character, heading, badge, accent, armedLabel, armedNote, onContinue, onPractice }) {
   const note = h('p', { class: 'finish-note', 'aria-live': 'polite' });
   let armed = false, armTimer = 0; // the first "Yes" tap has been made
@@ -45,15 +45,15 @@ export function finishScreen({ store, router, curriculum, speech }, n) {
   const lesson = lessonByNumber(curriculum, n);
   if (!lesson || !store.isUnlocked(lesson.number)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
   const num = lesson.number;
-  const last = num >= curriculum.lessons.length;
   return finishView({
     speech, router, character: store.character(),
     heading: `That's lesson ${num}.`,
     badge: glyphSvg(lesson.sound, { color: accentOf(lesson.sound), label: 'lesson letter' }),
     accent: accentOf(lesson.sound),
-    armedLabel: last ? 'Yes, back to path' : `Yes, open lesson ${num + 1}`,
-    armedNote: last ? 'Tap again to go back to the path.' : `Tap again to open lesson ${num + 1}.`,
-    onContinue: () => { store.setResult(num, 'got-it'); router.go(last ? '/home' : `/lesson/${num + 1}`); },
+    // Yes goes back to the railway, where the station-complete sequence rides the train to the next stop (js/sequence.js).
+    armedLabel: 'Yes, back to path',
+    armedNote: 'Tap again to go back to the path.',
+    onContinue: () => { store.setResult(num, 'got-it'); router.go('/home'); },
     onPractice: () => {
       if (store.lesson(num).result !== 'got-it') store.setResult(num, 'practice-again'); // keep the best result
       store.resetLessonTasks(num);

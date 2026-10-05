@@ -259,7 +259,29 @@ const justDone = (settings = {}) => state(4, { trainAt: iL(5), trainDone: 3, ...
 export async function sequenceChecks({ browser, url, ok, shot }) {
   const vp = VIEWPORTS[0];
   {
-    const { ctx, page, errors } = await openHome(browser, url, vp, justDone(), { init: [RAF_COUNT] });
+    // The lesson finish: the second Yes goes back to the railway (not the next overview), and the sequence plays there.
+    const { ctx, page, errors } = await openHome(browser, url, vp, justDone(), { route: '#/lesson/4/finish', init: [RAF_COUNT] });
+    await page.waitForSelector('.finish');
+    await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
+    await page.click('.btn.got');
+    ok(page.url().endsWith('#/lesson/4/finish'), 'finish: the first Yes only arms the button');
+    await page.waitForTimeout(1700);
+    await page.click('.btn.got');
+    await page.waitForFunction(() => location.hash === '#/home', null, { timeout: 4000 }).catch(() => {});
+    ok(page.url().endsWith('#/home'), `finish: the second Yes lands on the railway home (${page.url().split('#')[1]})`);
+    await until(page, () => window.__train && window.__train.frames > 0);
+    await page.mouse.click(3, 300);
+    ok(await until(page, () => window.__train.startTootAt !== null, null, 8000), 'finish: the station-complete sequence toots');
+    ok(await until(page, () => window.__train.kid.phase === 'on', null, 8000), 'finish: the figure hops on');
+    ok(await until(page, () => window.__train.kid.phase === 'go', null, 8000), 'finish: the train rides to the next stop');
+    ok(await until(page, () => !window.__train.running, null, 20000), 'finish: the sequence ends and the next station is current');
+    ok(errors.length === 0, 'finish to home: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  {
+    // The phases are recorded every 16 ms, so the short "hops off" phase cannot slip between two polls of the test.
+    const PHASES = () => { window.__phases = []; setInterval(() => { const p = window.__train && window.__train.kid.phase; if (p !== undefined && window.__phases[window.__phases.length - 1] !== p) window.__phases.push(p); }, 16); };
+    const { ctx, page, errors } = await openHome(browser, url, vp, justDone(), { init: [RAF_COUNT, PHASES] });
     await until(page, () => window.__train && window.__train.frames > 0);
     await page.mouse.click(3, 300);
     const a = await train(page);
@@ -273,7 +295,7 @@ export async function sequenceChecks({ browser, url, ok, shot }) {
     ok(live === iL(4), `sequence: while it rides, the figure is still counted at the station it left (${live})`);
     await until(page, ([i4, i5]) => window.__train.trainS > window.__train.stopS[i4] + 2 && window.__train.trainS < window.__train.stopS[i5] - 2, [iL(4), iL(5)], 8000);
     if (shot) await shot(page, 'station-sequence-smoke');
-    ok(await until(page, () => window.__train.kid.phase === 'off', null, 12000), 'sequence: the train arrives and the figure hops off');
+    ok(await until(page, () => window.__phases.includes('off'), null, 20000), 'sequence: the train arrives and the figure hops off');
     ok(await until(page, () => window.__train.kid.phase === '' && window.__train.kid.index === window.__train.currentIndex && window.__train.kid.waving, null, 8000), 'sequence: the figure lands on the next platform and waves');
     const b = await train(page);
     ok(Math.abs(b.trainS - (b.stops[iL(5)] + b.engineAt)) < 0.01, `sequence: the train ends at the next stop (${b.trainS.toFixed(2)})`);

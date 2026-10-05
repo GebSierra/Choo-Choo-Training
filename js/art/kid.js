@@ -62,10 +62,12 @@ function hairParts(style, col, shade, skinC) {
     };
   }
   if (style === 'bob') {
+    // One mass of straight, shoulder-length hair behind the head (wider than the face, falling to the shoulders), with a soft
+    // rounded fringe on top that joins its sides. Nothing is drawn beside the cheeks.
     return {
-      back: [h('path', { d: 'M25 54 C21 80 24 90 33 92 L87 92 C96 90 99 80 95 54 Z', fill: shade })],
-      front: [...cap('M29 62 C26 30 44 22 60 22 C78 22 94 30 91 62 L88 50 C80 43 40 43 32 50 Z'),
-        h('path', { d: 'M29 60 C26 74 28 86 34 90 L42 88 C37 80 36 70 37 60 Z', fill: col }), h('path', { d: 'M91 60 C94 74 92 86 86 90 L78 88 C83 80 84 70 83 60 Z', fill: col })],
+      back: [h('path', { d: 'M60 20 C34 20 22 36 22 62 C22 80 24 94 28 101 Q60 108 92 101 C96 94 98 80 98 62 C98 36 86 20 60 20 Z', fill: shade }),
+        h('path', { d: 'M60 23 C37 23 25 37 25 62 C25 79 27 91 30 98 Q60 104 90 98 C93 91 95 79 95 62 C95 37 83 23 60 23 Z', fill: col })],
+      front: [...cap('M28 62 C24 32 42 22 60 22 C78 22 96 32 92 62 C90 52 80 43 60 43 C40 43 30 52 28 62 Z')],
     };
   }
   if (style === 'buzz') {
