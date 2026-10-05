@@ -9,6 +9,18 @@ Last pushed commit: 1c09ae0 on main. Working tree clean.
 2. **Review screenshots** in `docs/screenshots/v19/`: the three games (Green Light, Wagon Parade,
    Station Board) must look like our wooden-toy train world, and `hair-bob-redrawn.png` must no
    longer look like sideburns. Nobody has reviewed these yet.
+2a. **Wagon Parade bug (owner report, fix before Phase B).** Sometimes a correct tap (for example
+   on an "s" wagon) makes the wagon run off the top track, but the train on the bottom does not move
+   forward and no star or point is counted. Every correct tap must count, every time. Likely cause:
+   a race between taps or rounds (a tap during an animation, a wagon reused or removed before its
+   handler finishes, or a count keyed to the wrong wagon). Write a test that taps correct wagons
+   quickly and mid-animation and asserts the count and bottom-train position, prove it fails, then fix.
+   **Owner's wanted behaviour:** the correct top wagon rolls off its track and couples onto the back of
+   the bottom train, so the train visibly grows by one wagon per correct tap.
+2b. **Auto-advance between activities (owner request).** When the child finishes an activity, move
+   straight on to the next activity in the lesson without a tap (after the short success moment).
+   The last activity goes to the lesson finish screen as now. Keep a way back (the back button).
+   Update tests that expect to land on the lesson overview between activities.
 3. **Phase B of docs/PLAN-v1.9.md: levels and celebrations** (not started). Owner decisions:
    Level 1 after 6 sounds (m a s i t p), Level 2 after all 13; later levels for all short vowels,
    every single letter, then digraphs. Reward at each level: tunnel celebration with Pip dancing
