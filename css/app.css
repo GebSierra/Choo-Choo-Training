@@ -323,11 +323,11 @@ body.night { background: var(--night); }
 .task-head .icon-btn { grid-area: b; } .head-spacer { grid-area: s; }
 .icon-btn.light { color: #fff; } .icon-btn.light:active { background: rgba(255,255,255,.14); }
 .dots { grid-area: d; display: flex; justify-content: center; padding: 6px 0 12px; }
-.dots-track { position: relative; display: flex; gap: 14px; }
+.dots-track { position: relative; display: flex; gap: var(--dgap, 14px); }
 .dot { display: block; width: 10px; height: 10px; border-radius: 999px; background: rgba(255,255,255,.28); transition: background var(--t-base); }
 .dot.past { background: rgba(255,255,255,.6); }
 /* The active pill is one fixed 28 px shape that slides and is never resized: transform only. */
-.dot-pill { position: absolute; left: -9px; top: 0; width: 28px; height: 10px; border-radius: 999px; background: var(--sun); transform: translateX(calc(var(--at, 0) * 24px)); transition: transform var(--t-base) var(--ease-out); }
+.dot-pill { position: absolute; left: -9px; top: 0; width: 28px; height: 10px; border-radius: 999px; background: var(--sun); transform: translateX(calc(var(--at, 0) * (10px + var(--dgap, 14px)))); transition: transform var(--t-base) var(--ease-out); }
 .task-stage { position: relative; flex: 1 1 auto; min-height: 0; margin: 0 12px; border-radius: 28px 28px 0 0; background: var(--bg); color: var(--ink); overflow: hidden; display: flex; }
 .task-stage.c-sky { --bg: var(--sky); } .task-stage.c-violet { --bg: var(--violet); } .task-stage.c-coral { --bg: var(--coral); } .task-stage.c-sun { --bg: var(--sun); }
 .task-stage.c-mint { --bg: var(--mint); } .task-stage.c-lilac { --bg: var(--lilac); } .task-stage.c-blue { --bg: var(--blue); }
@@ -457,7 +457,7 @@ body.night { background: var(--night); }
   /* the stage takes the whole height on the left; the title, dots, script and buttons stack at the top of the narrow right column */
   .task-screen { display: grid; grid-template-columns: 1fr 264px; grid-template-rows: auto 1fr; height: 100dvh; }
   .task-head { grid-column: 2; grid-row: 1; grid-template-columns: 52px 1fr; grid-template-areas: "b t" "d d"; padding-bottom: 0; }
-  .task-head .dots { padding: 0 0 8px; } .head-spacer { display: none; }
+  .task-head .dots { padding: 0 0 8px; --dgap: 10px; } .head-spacer { display: none; }
   .task-head h1 { text-align: left; font-size: 22px; }
   .task-stage { grid-column: 1; grid-row: 1 / -1; margin: calc(8px + var(--sat)) 0 0 12px; border-radius: 28px 28px 0 0; }
   .task-foot { grid-column: 2; grid-row: 2; align-content: start; padding-top: 4px; }
