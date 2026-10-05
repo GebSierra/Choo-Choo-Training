@@ -1,20 +1,36 @@
-# Queued owner requests (not yet planned or built)
+# Handoff: where Choo Choo Training stands (version 1.9.3.1)
 
-Recorded while the usage limit was hit. Plan with Opus, build with Sonnet.
+Last pushed commit: 1c09ae0 on main. Working tree clean.
 
-1. Smooth Ride: keep as it is. No sound-form matching for now. (kept as is)
-2. Storybook look (planned in PLAN-v1.8 Phase C): tapping a story stop opens a real-looking book (cover opens, paper pages,
-   page-curl turns by swipe or tap, gutter shadow). Keep every interactive part of the reader.
-   Nothing animates while idle (heat). Reduced motion: cross-fade.
-3. (done in v1.8.0) App name: "Choo Choo Training" (replaces "Pip's Reading Train" everywhere: manifest, title,
-   welcome card, docs, tests).
-4. Music:
-   - Plays on app open (after the first tap, because browsers block audio before a tap),
-     on the railway home, while browsing letters, and while choosing an activity.
-   - Never plays during an exercise. Fade out when an exercise opens, fade back in on return.
-   - Theme loop plus short stings (startup, transition, success) that share one motif,
-     built on the toot whistle interval (G5 to E5, sol-mi).
-   - Soft volume so the parent can talk over it. Obeys the existing sound/mute setting.
-   - Audio files will come from the owner (generated elsewhere) as MP3 or OGG; precache them
-     and watch total size. Synthesized placeholder until then is optional.
-5. Still open from v1.7: Story 2 text approval. The character creator is done (v1.8.3) and so is the new sound order (v1.8.1).
+## Pick up here, in this order
+1. **Verify before building more.** The full `npm test` was NOT run after 1.9.3.1.
+   `test/smoke.mjs` was edited (finish screen Yes now goes to #/home) but not run.
+   Run the full suite in the background with a log ending in an EXIT line, and fix any failures.
+2. **Review screenshots** in `docs/screenshots/v19/`: the three games (Green Light, Wagon Parade,
+   Station Board) must look like our wooden-toy train world, and `hair-bob-redrawn.png` must no
+   longer look like sideburns. Nobody has reviewed these yet.
+3. **Phase B of docs/PLAN-v1.9.md: levels and celebrations** (not started). Owner decisions:
+   Level 1 after 6 sounds (m a s i t p), Level 2 after all 13; later levels for all short vowels,
+   every single letter, then digraphs. Reward at each level: tunnel celebration with Pip dancing
+   and a "Level one complete!" banner, a new special car (caboose, coach, flatbed, tanker, dome),
+   and a gold star.
+4. **App store readiness**: docs/APP-STORE.md (native detection, storage seam test, no-remote test,
+   grown-up gate before external links, Android back button).
+5. **Story 2 "Pip and the Map"**: text approved in docs/PLAN-v1.7.md Phase D. Place after lesson 6.
+6. **Music**: deferred until the owner supplies audio files. The spec is in the old notes below
+   and the "Later" section of docs/PLAN-v1.8.md.
+
+## Open questions for the owner
+- Should Smooth Ride also lose its "Say this" bar, as the book did?
+- The parent must record every letter sound in Grownups for the new games; unrecorded sounds show
+  a "Say: ..." prompt instead. Consider a hired voice actor before selling.
+- Before selling: trademark check on the name, IP check on Smooth Ride and the three tap games
+  (similar ideas to another app), Andika font license check, privacy policy for the stores.
+
+## Standing rules (owner)
+- The phone's voice never says letter sounds. Parent voice or recordings only.
+- No privacy or recording warnings in the app UI.
+- Never change the YouTube links. Do not touch the jingle cut-off.
+- No JS animation loops while idle (the phone overheated once). Small CSS animations are fine.
+- Plans by Opus, building by Sonnet, to save credits. Commit and push to main after each phase.
+- Read the execution rules at the top of docs/PLAN-v1.9.md before building.
