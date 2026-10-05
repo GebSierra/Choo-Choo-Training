@@ -291,6 +291,103 @@ export async function wagonChecks({ browser, url, ok, CUR }) {
   }
 }
 
+// Wagon Parade taps that do not depend on where a rolling wagon is on screen: a pointerdown straight on the nth wagon
+// matching `sel` (a real touch tap is used elsewhere). `extra` adds a click (as a screen reader or a double fire would).
+const poke = (page, sel, n = 0, extra = false) => page.evaluate(([s, i, x]) => {
+  const b = document.querySelectorAll(s)[i]; if (!b) return false;
+  b.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', bubbles: true, cancelable: true, button: 0 }));
+  if (x) { b.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 })); b.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', bubbles: true, button: 0 })); }
+  return true;
+}, [sel, n, extra]);
+const hitsOf = (page) => page.evaluate(() => Number(document.querySelector('.wagons').dataset.hits));
+const coupledOf = (page) => page.evaluate(() => ({ n: document.querySelectorAll('.train-wrap .coupled-wagon').length, pending: document.querySelectorAll('.train-wrap .coupled-wagon.pending').length }));
+const T1 = '.parade-wagon[data-target="1"]', T0 = '.parade-wagon[data-target="0"]';
+
+export async function wagonCoupleChecks({ browser, url, ok }) {
+  // Quick taps, taps while earlier wagons are still hopping and travelling, a double fire, a tap while a cross shows.
+  {
+    const { ctx, page, errors } = await open(browser, url, VIEWPORTS[0], { n: 1, type: 'wagons', games: ['wagons'] });
+    await page.waitForSelector('.parade-wagon');
+    await page.waitForTimeout(600);
+    ok((await hitsOf(page)) === 0 && (await coupledOf(page)).n === 0, 'Wagon Parade couple: a new parade starts with 0 hits and an empty train');
+    ok(await poke(page, T1, 0, true), 'Wagon Parade couple: the first target exists');
+    ok((await hitsOf(page)) === 1, `Wagon Parade couple: tap 1 counts at once, even with a double fire (${await hitsOf(page)})`);
+    // a wrong tap, and while its cross shows a right one
+    await poke(page, T0, 0);
+    ok((await page.locator('.no-x').count()) >= 1, 'Wagon Parade couple: the wrong tap shows its cross');
+    ok((await hitsOf(page)) === 1, 'Wagon Parade couple: a wrong tap does not count');
+    await poke(page, T1 + ':not([style*="pointer-events"])', 0);
+    ok((await hitsOf(page)) === 2 && (await page.locator('.no-x').count()) >= 1, `Wagon Parade couple: tap 2, made while the cross shows, counts (${await hitsOf(page)})`);
+    // the first wagon is still flying: tapping it again does nothing
+    await poke(page, '.parade-wagon[style*="pointer-events"]', 0);
+    ok((await hitsOf(page)) === 2, 'Wagon Parade couple: a wagon that has already hopped is not counted twice');
+    await page.waitForTimeout(150);
+    const c = await coupledOf(page);
+    ok(c.n === 2, `Wagon Parade couple: two cars are in the train while the first still travels (${c.n})`);
+    await poke(page, T1 + ':not([style*="pointer-events"])', 0);
+    ok((await hitsOf(page)) === 3 && (await roundOf(page, 'wagons')) === 1, 'Wagon Parade couple: tap 3 counts and fills the star');
+    // a tap in the gap between parades is ignored and never eats a counted tap
+    await poke(page, T0, 0); await poke(page, T1 + ':not([style*="pointer-events"])', 0);
+    ok((await hitsOf(page)) === 3, 'Wagon Parade couple: taps in the gap between parades are ignored');
+    await page.waitForFunction(() => document.querySelectorAll('.train-wrap .coupled-wagon:not(.pending)').length === 3, null, { timeout: 4000 }).catch(() => {});
+    const done3 = await coupledOf(page);
+    ok(done3.n === 3 && done3.pending === 0, `Wagon Parade couple: three coupled wagons stand behind the engine once the animations settle (${done3.n}, ${done3.pending} pending)`);
+    ok(await page.evaluate(() => [...document.querySelectorAll('.train-wrap .coupled-wagon')].every((c) => c.dataset.letter === 'm')), 'Wagon Parade couple: the coupled wagons carry the target letter');
+    await shotOf(page, 'wagons-coupled-3');
+    // the next parade: the train uncouples and starts empty, and the first right tap counts as hit 1
+    await page.waitForFunction(() => document.querySelector('.wagons').dataset.hits === '0' && document.querySelector('.wagons').dataset.round === '1', null, { timeout: 5000 }).catch(() => {});
+    ok((await hitsOf(page)) === 0 && (await coupledOf(page)).n === 0, 'Wagon Parade couple: the next parade starts with an empty train');
+    await page.waitForTimeout(400);
+    await poke(page, T1, 0);
+    ok((await hitsOf(page)) === 1 && (await coupledOf(page)).n === 1, 'Wagon Parade couple: the first right tap of the next parade counts');
+    // hidden tab mid-hop, then back: the count stands and the wagon couples
+    await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => true }); document.dispatchEvent(new Event('visibilitychange')); });
+    await poke(page, T1 + ':not([style*="pointer-events"])', 0);
+    ok((await hitsOf(page)) === 2, 'Wagon Parade couple: a tap right after the tab was hidden still counts');
+    await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => false }); document.dispatchEvent(new Event('visibilitychange')); });
+    await page.waitForFunction(() => document.querySelectorAll('.train-wrap .coupled-wagon.pending').length === 0, null, { timeout: 4000 }).catch(() => {});
+    ok((await coupledOf(page)).n === 2 && (await coupledOf(page)).pending === 0, 'Wagon Parade couple: both wagons are coupled after the tab returns');
+    // Again mid-parade: the count and train reset, nothing is stuck
+    await page.locator('.btn.again, button:has-text("Again")').first().click().catch(() => {});
+    await page.waitForTimeout(500);
+    ok((await hitsOf(page)) === 0 && (await coupledOf(page)).n === 0 && (await roundOf(page, 'wagons')) === 0, 'Wagon Parade couple: Again resets the count and the train');
+    await poke(page, T1, 0);
+    ok((await hitsOf(page)) === 1, 'Wagon Parade couple: a right tap after Again counts');
+    ok(errors.length === 0, 'Wagon Parade couple: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // Reduced motion: the coupled wagon simply appears, at once.
+  {
+    const { ctx, page, errors } = await open(browser, url, VIEWPORTS[0], { n: 1, type: 'wagons', games: ['wagons'], reduced: true });
+    await page.waitForSelector('.parade-wagon');
+    await page.waitForTimeout(500);
+    for (let k = 1; k <= 3; k++) {
+      await poke(page, T1 + ':not([style*="pointer-events"])', 0);
+      const c = await coupledOf(page);
+      ok((await hitsOf(page)) === k && c.n === k && c.pending === 0, `Wagon Parade couple reduced: tap ${k} shows ${k} coupled wagon(s) at once (${c.n}, ${c.pending} pending)`);
+    }
+    ok((await page.evaluate(() => document.getAnimations().filter((a) => a.effect && a.effect.target && a.effect.target.classList && a.effect.target.classList.contains('parade-wagon')).length)) === 0, 'Wagon Parade couple reduced: no travel animation');
+    ok(errors.length === 0, 'Wagon Parade couple reduced: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // Fit: engine plus three coupled wagons inside the scene, clear of the hear button and the find card, hear button >= 48 px.
+  for (const v of [...VIEWPORTS, { name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }, { name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }]) {
+    const { ctx, page } = await open(browser, url, v, { n: 1, type: 'wagons', games: ['wagons'], reduced: true });
+    await page.waitForSelector('.parade-wagon');
+    await page.waitForTimeout(500);
+    for (let k = 0; k < 3; k++) await poke(page, T1 + ':not([style*="pointer-events"])', 0);
+    const [scene] = await rects(page, '.farm'), cars = await rects(page, '.train-wrap .coupled-wagon'), eng = (await rects(page, '.train-hop'))[0];
+    const [hear] = await rects(page, '.wagon-hear'), [card] = await rects(page, '.find-card'), [prompt] = await rects(page, '.say-prompt');
+    const tag = `${v.name} Wagon Parade train`;
+    ok(cars.length === 3 && [...cars, eng].every((r) => inside(r, scene)), `${tag}: engine and three coupled wagons are inside the scene`);
+    ok(![...cars, eng].some((r) => overlaps(r, hear)) && !overlaps(hear, card) && !overlaps(hear, prompt), `${tag}: the hear button overlaps nothing`);
+    ok(hear.w >= 48 && hear.h >= 48 && inside(hear, scene), `${tag}: the hear button is at least 48 px and inside the scene (${hear.w}x${hear.h})`);
+    ok(!anyOverlap([...cars, eng].map((r) => ({ ...r, x: r.x + 6, w: r.w - 12 }))), `${tag}: the wagons do not overlap each other`);
+    if (v.name === '360x640' || v.name === '390x844') await shotOf(page, `wagons-coupled-reduced-${v.name}`);
+    await ctx.close();
+  }
+}
+
 export async function boardChecks({ browser, url, ok }) {
   const vp = VIEWPORTS[0];
   const spelled = (page) => page.evaluate(() => [...document.querySelectorAll('.flap-tile')].map((b) => b.dataset.letter).join(''));
@@ -410,14 +507,14 @@ export async function screenshots({ browser, url }) {
       await unlock(page);
       await page.waitForTimeout(1500);
       await shotOf(page, `${g.type}-${vp.name}`);
-      if (g.after) { await g.after(page); await page.waitForTimeout(500); await shotOf(page, `${g.type}-${vp.name}-tap`); }
+      if (g.after) { await g.after(page); await page.waitForTimeout(g.wait ?? 500); await shotOf(page, `${g.type}-${vp.name}-tap`); }
       await ctx.close();
     }
   }
 }
 const SHOT_GAMES = [
   { n: 2, type: 'signals', ready: '.signal', after: async (page) => { await tapEl(page, page.locator('.signal[data-target="1"]')); } },
-  { n: 1, type: 'wagons', ready: '.parade-wagon' },
+  { n: 1, type: 'wagons', ready: '.parade-wagon', wait: 1000, after: async (page) => { for (let k = 0; k < 3; k++) await poke(page, T1 + ':not([style*="pointer-events"])', 0); } },
   { n: 5, type: 'board', ready: '.flap-tile', after: async (page) => { await tapEl(page, page.locator('.flap-tile[data-target="1"]')); } },
 ];
 
@@ -430,6 +527,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   if (process.env.SHOTS) await screenshots({ browser, url });
   await signalChecks({ browser, url, ok, CUR });
   await wagonChecks({ browser, url, ok, CUR });
+  await wagonCoupleChecks({ browser, url, ok });
   await boardChecks({ browser, url, ok });
   await rotationChecks({ browser, url, ok, CUR });
   await browser.close(); server.close();

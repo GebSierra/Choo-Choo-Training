@@ -1073,7 +1073,18 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 @media (prefers-reduced-motion: reduce) { .signal .lamp-go { transition: none; } }
 /* Wagon Parade: toy wagons on a siding, each with a wooden crate that carries the letter */
 .wagons-scene .say-prompt { left: 108px; max-width: calc(100% - 184px); margin: 0; }
-.wagons-scene .say-hear { top: auto; left: auto; bottom: 14px; right: 12px; }
+.wagons-scene .say-hear { top: 96px; left: 12px; bottom: auto; right: auto; width: 56px; height: 56px; } /* in the sky under the find card: the bottom track belongs to the train */
+.wagons-scene .train-wrap { left: auto; right: 6px; bottom: 12px; display: flex; align-items: flex-end; }
+.coupled { display: flex; flex-direction: row-reverse; align-items: flex-end; gap: 4px; margin-right: -2px; } /* first coupled wagon sits next to the engine */
+.coupled-wagon { position: relative; flex: 0 0 auto; width: 62px; height: 62px; margin-bottom: 1px; will-change: opacity; }
+.coupled-wagon.pending { opacity: 0; }
+.coupled-wagon::after { content: ''; position: absolute; right: -5px; bottom: 11px; width: 7px; height: 3px; border-radius: 2px; background: #2B2D5C; }
+.coupled-wagon .wagon-art { position: absolute; left: 0; bottom: 0; width: 100%; height: auto; overflow: visible; }
+.coupled-wagon .wagon-lid { display: none; }
+.coupled-wagon .wagon-panel-bg { fill: rgba(0,0,0,.14); }
+.coupled-wagon .crate { position: absolute; left: 50%; top: 1px; width: 28px; height: 28px; margin-left: -14px; display: grid; place-items: center; box-sizing: border-box; border-radius: 4px; background: #FFF8EC; border: 2px solid #C99A5B; box-shadow: inset 0 0 0 1px #E8D3AE, 0 1px 0 #A87B4F; pointer-events: none; }
+.coupled-wagon .crate .glyph { height: 19px; width: auto; } .coupled-wagon .crate .glyph path { stroke-width: 13; }
+.coupled-wagon .crate .font-letter { font-size: 21px; }
 .wagons-scene .find-card { top: 10px; }
 .parade-rail { left: 0; right: 0; bottom: 112px; height: 16px; z-index: 1; background:
   linear-gradient(#8A6E5A, #8A6E5A) 0 2px / 100% 4px no-repeat,

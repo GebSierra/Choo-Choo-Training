@@ -10,16 +10,16 @@ import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 
 const INK = '#1E2140';
-const TRAIN_W = 116, WAGON_W = 104, GAP = 16, SIZE = 8, HITS = 3, SPEED = 80; // px and px per second
+const TRAIN_W = 116, WAGON_W = 104, CW = 62, GAP = 16, SIZE = 8, HITS = 3, SPEED = 80; // px and px per second
 const SLOT = WAGON_W + GAP, LOOP = SIZE * SLOT, OFF = 120; // a wagon is drawn from -OFF to LOOP - OFF, so it wraps out of sight
-const NEXT_MS = 900, FIRST_MS = 400;
+const NEXT_MS = 1700, FIRST_MS = 400, FLY_MS = 900; // NEXT_MS leaves time to see the last wagon couple before the train uncouples
 // Soft wagon colours that are never tied to which letter is the target.
 const PAINT = [{ body: '#D65A4A', rib: '#B8463A' }, { body: '#5AA7DD', rib: '#3F86BD' }, { body: '#4FB783', rib: '#3A9568' }, { body: '#9B7FE0', rib: '#7B5FC0' }];
 const CROSS = 'M6 6 L26 26 M26 6 L6 26';
 
 // Wagon Parade. Toy goods wagons roll along a siding, coupled in a loop, each with a wooden crate that carries a letter.
 // The grown-up's recorded sound plays on every tap (or "Say: mmm" shows for the grown-up); the child taps every wagon whose
-// crate has the sound. A right wagon hops, uncouples and speeds ahead with a puff from the engine and a cheer from Pip;
+// crate has the sound. A right wagon hops, rolls off its track and travels down to couple behind the engine on the bottom train (one more wagon per right tap, up to three) with a puff from the engine and a cheer from Pip;
 // a wrong one only gets a soft red cross. The loop brings a missed wagon round again: nothing is timed. The one
 // requestAnimationFrame loop runs only while a parade is rolling. Reduced motion: the wagons stand still in rows.
 export function build(ctx) {
@@ -28,19 +28,20 @@ export function build(ctx) {
   const rounds = roundsFor(lesson, 'wagons');
   const others = otherLetters(curriculum, lesson.number, target, 3);
   const T = timers();
-  let round = 0, hitsLeft = 0, hitsDone = 0, locked = true, done = false, rolling = false, W = 0, H = 0, offset = 0, raf = 0, last = 0, wagons = [], endAnims = [], serial = 0, still = reduced();
+  let round = 0, hitsLeft = 0, hitsDone = 0, locked = true, done = false, rolling = false, W = 0, H = 0, offset = 0, raf = 0, last = 0, wagons = [], endAnims = [], coupled = [], serial = 0, still = reduced();
 
   const prompt = sayPrompt();
   const card = findCard(target);
   const hear = h('button', { class: 'say-hear wagon-hear', type: 'button', 'aria-label': 'Hear the sound again', onclick: () => saySound(ctx, target, prompt) }, icon('speaker', 32));
   const rail = h('div', { class: 'parade-rail', 'aria-hidden': 'true' });
   const lane = h('div', { class: 'parade' + (still ? ' still' : '') });
-  const trainHop = h('div', { class: 'train-hop' }, engineSvg());
-  const train = h('div', { class: 'train-wrap', style: { width: TRAIN_W + 'px' } }, trainHop);
+  const trainHop = h('div', { class: 'train-hop', style: { width: TRAIN_W + 'px', flex: '0 0 auto' } }, engineSvg());
+  const cars = h('div', { class: 'coupled' }); // the wagons coupled behind the engine, drawn from the `coupled` list (state)
+  const train = h('div', { class: 'train-wrap' }, cars, trainHop);
   const stars = starRow(rounds);
   const scene = h('div', { class: 'farm wagons-scene' }, huntBackdrop());
   scene.append(rail, lane, card, prompt.el, hear, train);
-  const el = h('div', { class: 'game wagons', dataset: { round: '0', state: 'playing' } }, scene, stars.el);
+  const el = h('div', { class: 'game wagons', dataset: { round: '0', state: 'playing', hits: '0' } }, scene, stars.el);
 
   const seat = () => train.querySelector('.pip-seat');
   const setPip = (pose) => { const s = seat(), old = s.firstChild, p = pipSvg({ pose }); for (const k of ['x', 'y', 'width', 'height']) p.setAttribute(k, old.getAttribute(k)); s.replaceChildren(p); };
@@ -77,13 +78,14 @@ export function build(ctx) {
   function newParade() {
     const mine = ++serial;
     lane.replaceChildren();
+    coupled = []; cars.replaceChildren(); el.dataset.hits = '0';
     const letters = parade(target, others, { size: SIZE, hits: HITS });
     wagons = letters.map((ch, i) => {
       const paint = PAINT[(i + round) % PAINT.length];
       const btn = h('button', { class: 'parade-wagon', type: 'button', 'aria-label': 'wagon', dataset: { letter: ch, target: ch === target ? '1' : '0', slot: String(i) } },
         wagonSvg(paint), h('span', { class: 'crate' }, letterFace(ch, INK)));
       const pos = h('div', { class: 'pw' }, btn);
-      const w = { i, ch, isTarget: ch === target, btn, pos, x0: i * SLOT, gone: false };
+      const w = { i, ch, paint, isTarget: ch === target, btn, pos, x0: i * SLOT, gone: false };
       btn.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse' && e.button !== 0) return; tap(w); });
       btn.addEventListener('click', (e) => { if (e.detail === 0) tap(w); });
       lane.append(pos);
@@ -124,6 +126,38 @@ export function build(ctx) {
   const onVisible = () => { if (document.hidden) stop(); else if (hitsLeft > 0 && !locked) start(); };
   document.addEventListener('visibilitychange', onVisible);
 
+  // The coupled wagons are drawn from the count: the car is in the DOM the moment the tap is counted (hidden until it
+  // arrives), so no animation callback can lose a tap. settle() shows it; it runs on finish, cancel or at once.
+  function couple(w) {
+    const car = h('div', { class: 'coupled-wagon pending', dataset: { letter: w.ch } }, wagonSvg(w.paint), h('span', { class: 'crate' }, letterFace(w.ch, INK)));
+    const entry = { w, car, mine: serial, settled: false };
+    coupled.push(entry);
+    cars.append(car);
+    el.dataset.hits = String(coupled.length);
+    return entry;
+  }
+  function settle(entry, fx) {
+    if (entry.settled) return;
+    entry.settled = true;
+    entry.car.classList.remove('pending');
+    entry.w.btn.style.opacity = '0';
+    if (fx && entry.mine === serial && !done && train.isConnected) chug();
+  }
+  function fly(entry) {
+    const { w } = entry;
+    if (still || reduced()) { settle(entry, false); return; }
+    const s = w.btn.getBoundingClientRect(), d = entry.car.getBoundingClientRect();
+    const dx = d.left + d.width / 2 - (s.left + s.width / 2), dy = d.bottom - s.bottom, k = d.width / s.width;
+    w.btn.style.transformOrigin = '50% 100%';
+    const a = w.btn.animate([
+      { transform: 'translate(0,0) scale(1)', offset: 0, easing: 'ease-out' },
+      { transform: 'translate(0,-18px) scale(1)', offset: 0.22, easing: 'ease-in' },
+      { transform: 'translate(0,0) scale(1)', offset: 0.34, easing: 'ease-in-out' },
+      { transform: `translate(${dx}px,${dy}px) scale(${k})`, offset: 1 }], { duration: FLY_MS, fill: 'forwards' });
+    endAnims.push(a);
+    a.finished.then(() => settle(entry, true)).catch(() => settle(entry, false));
+  }
+
   function tap(w) {
     if (done || locked || w.gone) return;
     hearOne(); // every tap plays the sound (or shows what to say)
@@ -135,12 +169,8 @@ export function build(ctx) {
     const r = w.btn.getBoundingClientRect(), o = scene.getBoundingClientRect();
     sparkle(scene, r.left - o.left + r.width / 2, r.top - o.top + r.height / 3, { count: 9, size: [10, 20], reach: [30, 62] });
     setPip('cheer'); T.later(() => setPip('idle'), 900);
-    chug();
-    if (still) animate(w.btn, [{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' });
-    else {
-      endAnims.push(w.btn.animate([{ transform: 'translateY(0)', offset: 0 }, { transform: 'translateY(-18px)', offset: 0.35 }, { transform: 'translate(0,0)', offset: 0.5 }, { transform: `translateX(${W + 200}px)`, offset: 1 }], { duration: 1000, easing: 'ease-in', fill: 'forwards' }));
-    }
     w.btn.style.pointerEvents = 'none';
+    fly(couple(w));
     if (hitsLeft > 0) return;
     // the parade is over: the wagons stop rolling, the star fills, the next parade follows
     locked = true;
@@ -149,7 +179,10 @@ export function build(ctx) {
     stars.fill(round - 1);
     el.dataset.round = String(round);
     if (round >= rounds) { done = true; hints.stop(); T.later(ending, NEXT_MS); return; }
-    T.later(() => { wagons.forEach((x) => { if (!x.gone) animate(x.btn, [{ opacity: 1 }, { opacity: 0 }], { duration: 240, fill: 'forwards' }); }); }, NEXT_MS - 300);
+    T.later(() => {
+      wagons.forEach((x) => { if (!x.gone) animate(x.btn, [{ opacity: 1 }, { opacity: 0 }], { duration: 240, fill: 'forwards' }); });
+      coupled.forEach((c) => { settle(c, false); animate(c.car, [{ opacity: 1, transform: 'translateX(0)' }, { opacity: 0, transform: 'translateX(-24px)' }], { duration: 280, fill: 'forwards' }); }); // uncouple
+    }, NEXT_MS - 300);
     T.later(newParade, NEXT_MS);
   }
 
@@ -194,6 +227,6 @@ export function build(ctx) {
     gist: () => fit(`Tap every ${soundPhrase(sound)}.`, 'Tap every one.'),
     script: () => `Say: 'Tap every wagon that says ${soundPhrase(sound)}.' Every tap plays the sound; say it with them.`,
     again: () => { again(); speech.say(parts); },
-    cleanup: () => { T.clear(); stop(); document.removeEventListener('visibilitychange', onVisible); hints.stop(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
+    cleanup: () => { T.clear(); stop(); document.removeEventListener('visibilitychange', onVisible); hints.stop(); stopWatching(); endAnims.forEach((a) => a.cancel()); coupled.forEach((c) => settle(c, false)); },
   };
 }
