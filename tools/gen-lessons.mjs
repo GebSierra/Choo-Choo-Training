@@ -1,4 +1,4 @@
-// Builds lessons 4 to 13 (t f d g i n p h b l) into data/curriculum.json from one compact table, so ten lessons are never
+// Builds lessons 4 to 13 (i t p n f d h g b l) into data/curriculum.json from one compact table, so ten lessons are never
 // hand-edited. Lessons 1 to 3, the sounds m a s and checkpoint c1 are left exactly as they are.
 // Run: node tools/gen-lessons.mjs [last lesson, default 13]      (then: node test/check-content.mjs)
 // It also rewrites the picture list in sw.js from the data, so every tile in use is precached.
@@ -14,38 +14,38 @@ const lastLesson = Number(process.argv[2] || 13);
 // sound, how to say it, tiles (folder/word; the word begins with the sound), letter words (only letters taught so far),
 // one picture word for Saying Sounds, four compound words (parts + one emoji each), the Quick Check and the games' distractor letters.
 const TABLE = [
-  { n: 4, k: 't', practice: ['tiger', 'table', 'tent'], say: 't-', hold: false, not: 'tuh', how: 'Tap the tip of your tongue just behind your top teeth. Short and crisp: t-. Do not add uh.',
-    tiles: ['t/tiger', 't/table', 't/tree', 'e/tent'], words: ['at', 'mat', 'sat'], pic: 'table',
-    compounds: [['tree', 'house', '🌳', '🏠'], ['tea', 'pot', '🍵', '🍲'], ['cow', 'boy', '🐄', '👦'], ['sand', 'box', '🏖️', '📦']],
-    qc: { kind: 'letter', others: ['m', 'a'] }, hunt: 'masone' },
-  { n: 5, k: 'f', practice: ['fish', 'fan', 'fox'], say: 'fff', hold: true, not: 'fuh', how: 'Rest your top teeth on your bottom lip and blow. Hold it: fff. Do not add uh.',
-    tiles: ['f/fan', 'f/fish', 'f/fork', 'x/fox'], words: ['fat', 'fast', 'sat'], pic: 'fish',
-    compounds: [['fish', 'bowl', '🐟', '🥣'], ['flower', 'pot', '🌸', '🪴'], ['fire', 'truck', '🔥', '🚚'], ['butter', 'fly', '🧈', '🪰']],
-    qc: { kind: 'picture', word: 'fish', others: ['wagon', 'camel'] }, hunt: 'masone' },
-  { n: 6, k: 'd', practice: ['duck', 'dog', 'door'], say: 'd-', hold: false, not: 'duh', how: 'Tap your tongue behind your top teeth and let your voice out. Short: d-. Do not add uh.',
-    tiles: ['d/duck', 'd/deer', 'd/dog', 'd/door', 'd/dolphin'], words: ['dad', 'sad', 'mad'], pic: 'duck',
-    compounds: [['doll', 'house', '🪆', '🏠'], ['door', 'bell', '🚪', '🔔'], ['rain', 'drop', '🌧️', '💧'], ['bull', 'dog', '🐂', '🐕']],
-    qc: { kind: 'letter', others: ['m', 't'] }, hunt: 'mstonif' },
-  { n: 7, k: 'g', practice: ['goat', 'gate'], say: 'g-', hold: false, not: 'guh', how: 'Lift the back of your tongue and let your voice out. Short: g-. Do not add uh.',
-    tiles: ['g/goat', 'g/gate'], words: ['tag', 'sag', 'gas'], pic: 'goat',
-    compounds: [['gold', 'fish', '🪙', '🐟'], ['egg', 'plant', '🥚', '🌱'], ['dragon', 'fly', '🐉', '🪰'], ['dog', 'house', '🐕', '🏠']],
-    qc: { kind: 'picture', word: 'goat', others: ['rabbit', 'van'] }, hunt: 'mstonif' },
-  { n: 8, k: 'i', practice: ['igloo'], say: 'i', asIn: 'igloo', hold: true, not: null, how: 'Say i as in igloo. Keep your mouth small and relaxed.',
-    tiles: ['i/igloo', 'i/sit', 'i/stick'], start: ['i/igloo'], words: ['it', 'sit', 'dig'], pic: 'igloo',
+  { n: 4, k: 'i', practice: ['igloo'], say: 'i', asIn: 'igloo', hold: true, not: null, how: 'Say i as in igloo. Keep your mouth small and relaxed.',
+    tiles: ['i/igloo', 'i/sit', 'i/stick'], start: ['i/igloo'], words: ['sis', 'miss', 'am'], pic: 'igloo',
     compounds: [['pine', 'apple', '🌲', '🍎'], ['spider', 'web', '🕷️', '🕸️'], ['light', 'house', '💡', '🏠'], ['drum', 'stick', '🥁', '🪵']],
     qc: { kind: 'letter', others: ['m', 's'] }, hunt: 'masonedp' },
-  { n: 9, k: 'n', practice: ['nose', 'nut', 'nest'], say: 'nnn', hold: true, not: 'nuh', how: 'Put your tongue behind your top teeth and hum through your nose. Hold it: nnn. Do not add uh.',
-    tiles: ['n/nut', 'n/nose', 'n/necklace', 'e/nest'], words: ['man', 'tan', 'tin'], pic: 'nut',
-    compounds: [['pea', 'nut', '🫛', '🥜'], ['note', 'book', '📝', '📖'], ['moon', 'light', '🌙', '💡'], ['ant', 'hill', '🐜', '⛰️']],
-    qc: { kind: 'picture', word: 'nut', others: ['window', 'chair'] }, hunt: 'astoeifd' },
-  { n: 10, k: 'p', practice: ['pig', 'pot', 'panda'], say: 'p-', hold: false, not: 'puh', how: 'Close your lips, then let out a tiny puff of air. Short: p-. Do not add uh.',
-    tiles: ['p/pig', 'p/panda', 'p/pumpkin', 'o/pot'], words: ['pat', 'tap', 'pig'], pic: 'pig',
+  { n: 5, k: 't', practice: ['tiger', 'table', 'tent'], say: 't-', hold: false, not: 'tuh', how: 'Tap the tip of your tongue just behind your top teeth. Short and crisp: t-. Do not add uh.',
+    tiles: ['t/tiger', 't/table', 't/tree', 'e/tent'], words: ['at', 'sit', 'mat'], pic: 'table',
+    compounds: [['tree', 'house', '🌳', '🏠'], ['tea', 'pot', '🍵', '🍲'], ['cow', 'boy', '🐄', '👦'], ['sand', 'box', '🏖️', '📦']],
+    qc: { kind: 'picture', word: 'table', others: ['wagon', 'camel'] }, hunt: 'masone' },
+  { n: 6, k: 'p', practice: ['pig', 'pot', 'panda'], say: 'p-', hold: false, not: 'puh', how: 'Close your lips, then let out a tiny puff of air. Short: p-. Do not add uh.',
+    tiles: ['p/pig', 'p/panda', 'p/pumpkin', 'o/pot'], words: ['pat', 'tip', 'map'], pic: 'pig',
     compounds: [['pop', 'corn', '💥', '🌽'], ['paint', 'brush', '🎨', '🖌️'], ['paper', 'clip', '📄', '📎'], ['space', 'ship', '🪐', '🚢']],
     qc: { kind: 'letter', others: ['s', 't'] }, hunt: 'mstoeifn' },
-  { n: 11, k: 'h', practice: ['hat', 'hand', 'horse'], say: 'h-', hold: false, not: 'huh', how: 'Breathe out as if fogging a mirror. Short: h-. Do not add uh.',
-    tiles: ['h/hat', 'h/hand', 'h/hippo', 'e/hen', 'or/horse'], words: ['hat', 'him', 'hip'], pic: 'hippo',
+  { n: 7, k: 'n', practice: ['nose', 'nut', 'nest'], say: 'nnn', hold: true, not: 'nuh', how: 'Put your tongue behind your top teeth and hum through your nose. Hold it: nnn. Do not add uh.',
+    tiles: ['n/nut', 'n/nose', 'n/necklace', 'e/nest'], words: ['man', 'pin', 'tan'], pic: 'nut',
+    compounds: [['pea', 'nut', '🫛', '🥜'], ['note', 'book', '📝', '📖'], ['moon', 'light', '🌙', '💡'], ['ant', 'hill', '🐜', '⛰️']],
+    qc: { kind: 'picture', word: 'nut', others: ['window', 'chair'] }, hunt: 'astoeifd' },
+  { n: 8, k: 'f', practice: ['fish', 'fan', 'fox'], say: 'fff', hold: true, not: 'fuh', how: 'Rest your top teeth on your bottom lip and blow. Hold it: fff. Do not add uh.',
+    tiles: ['f/fan', 'f/fish', 'f/fork', 'x/fox'], words: ['fan', 'fit', 'fin'], pic: 'fish',
+    compounds: [['fish', 'bowl', '🐟', '🥣'], ['flower', 'pot', '🌸', '🪴'], ['fire', 'truck', '🔥', '🚚'], ['butter', 'fly', '🧈', '🪰']],
+    qc: { kind: 'letter', others: ['m', 'a'] }, hunt: 'masone' },
+  { n: 9, k: 'd', practice: ['duck', 'dog', 'door'], say: 'd-', hold: false, not: 'duh', how: 'Tap your tongue behind your top teeth and let your voice out. Short: d-. Do not add uh.',
+    tiles: ['d/duck', 'd/deer', 'd/dog', 'd/door', 'd/dolphin'], words: ['dad', 'sad', 'dip'], pic: 'duck',
+    compounds: [['doll', 'house', '🪆', '🏠'], ['door', 'bell', '🚪', '🔔'], ['rain', 'drop', '🌧️', '💧'], ['bull', 'dog', '🐂', '🐕']],
+    qc: { kind: 'picture', word: 'duck', others: ['robot', 'yarn'] }, hunt: 'mstonif' },
+  { n: 10, k: 'h', practice: ['hat', 'hand', 'horse'], say: 'h-', hold: false, not: 'huh', how: 'Breathe out as if fogging a mirror. Short: h-. Do not add uh.',
+    tiles: ['h/hat', 'h/hand', 'h/hippo', 'e/hen', 'or/horse'], words: ['hat', 'him', 'hid'], pic: 'hippo',
     compounds: [['horse', 'shoe', '🐴', '👟'], ['hat', 'box', '👒', '📦'], ['bird', 'house', '🐦', '🏠'], ['ham', 'burger', '🍖', '🍔']],
-    qc: { kind: 'picture', word: 'hand', others: ['robot', 'yarn'] }, hunt: 'astoeifd' },
+    qc: { kind: 'letter', others: ['m', 's'] }, hunt: 'astoeifd' },
+  { n: 11, k: 'g', practice: ['goat', 'gate'], say: 'g-', hold: false, not: 'guh', how: 'Lift the back of your tongue and let your voice out. Short: g-. Do not add uh.',
+    tiles: ['g/goat', 'g/gate'], words: ['tag', 'dig', 'pig'], pic: 'goat',
+    compounds: [['gold', 'fish', '🪙', '🐟'], ['egg', 'plant', '🥚', '🌱'], ['dragon', 'fly', '🐉', '🪰'], ['dog', 'house', '🐕', '🏠']],
+    qc: { kind: 'picture', word: 'goat', others: ['rabbit', 'van'] }, hunt: 'mstonif' },
   { n: 12, k: 'b', practice: ['ball', 'bus', 'banana'], say: 'b-', hold: false, not: 'buh', how: 'Close your lips, then let your voice pop out. Short: b-. Do not add uh.',
     tiles: ['b/baby', 'b/banana', 'b/ball', 'b/bear', 'b/bus'], words: ['bat', 'bad', 'big'], pic: 'ball',
     compounds: [['basket', 'ball', '🧺', '🏀'], ['butter', 'cup', '🧈', '☕'], ['snow', 'ball', '❄️', '⚽'], ['bean', 'bag', '🫘', '👜']],
@@ -112,6 +112,10 @@ for (const e of TABLE.filter((t) => t.n <= lastLesson)) {
 }
 
 for (const w of c.gameDistractors) if (w.avoid) { w.avoid = w.avoid.filter((k) => k in c.sounds); if (!w.avoid.length) delete w.avoid; }
+
+// Each stop that needs sounds sits after the first lesson by which all of them are taught.
+const taughtAt = (s) => { const i = c.lessons.findIndex((L) => L.sound === s); if (i < 0) throw new Error('untaught sound ' + s); return i + 1; };
+for (const k of c.checkpoints) if (Array.isArray(k.needs)) k.after = Math.max(...k.needs.map(taughtAt));
 
 fs.writeFileSync(FILE, JSON.stringify(c, null, 2) + '\n');
 

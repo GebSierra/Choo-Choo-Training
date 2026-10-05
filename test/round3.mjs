@@ -1,4 +1,4 @@
-// Round 3 (lessons 4 to 13): the glyphs, Letter Writing for every letter, the parent scripts and the pictures of every lesson.
+// Round 3 (lessons 4 to 13: i t p n f d h g b l): the glyphs, Letter Writing for every letter, the parent scripts and the pictures of every lesson.
 // Run alone with `node test/round3.mjs`, or as part of test/smoke.mjs. Data rules live in check-content.mjs.
 import fs from 'node:fs';
 import path from 'node:path';

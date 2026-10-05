@@ -1,2 +1,2 @@
 // Bump both this and CACHE_VERSION in sw.js whenever content or code changes.
-export const APP_VERSION = '1.8.0';
+export const APP_VERSION = '1.8.1';

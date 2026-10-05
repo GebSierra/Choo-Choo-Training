@@ -296,7 +296,7 @@ Five independent reviews of 1.3.5 produced `docs/FIXES-round2.md` (45 numbered f
 
 ## Round 3: the next ten sounds (version 1.4.0)
 
-Lessons 4 to 13 are t f d g i n p h b l in Mentava's order, built exactly as `docs/ROUND3-sounds.md` says: `tools/gen-lessons.mjs` writes the data (and the picture list in `sw.js`) from one table, ten new glyphs with their accents, three more Sound Sack checkpoints (c2 after lesson 6, c3 after 9, c4 after 13) and a scrolling home map for 17 stones. Run `node tools/gen-lessons.mjs` then `node test/check-content.mjs` after changing the table. New tests: `test/round3.mjs` (glyph geometry, Letter Writing for every letter, parent scripts read aloud, pictures) and `test/map.mjs` (the map); `test/check-content.mjs` now checks every lesson (letters taught so far, no clipped sound stretched, no word where s says z, look-alike letters, tile files, checkpoint pools, accent contrast).
+Lessons 4 to 13 are i t p n f d h g b l (the v1.8.1 order m a s i t p n f d h g b l), built exactly as `docs/ROUND3-sounds.md` says: `tools/gen-lessons.mjs` writes the data (and the picture list in `sw.js`) from one table, ten new glyphs with their accents, three more Sound Sack checkpoints (c2 after lesson 6, c3 after 9, c4 after 13) and a scrolling home map for 17 stones. Run `node tools/gen-lessons.mjs` then `node test/check-content.mjs` after changing the table. New tests: `test/round3.mjs` (glyph geometry, Letter Writing for every letter, parent scripts read aloud, pictures) and `test/map.mjs` (the map); `test/check-content.mjs` now checks every lesson (letters taught so far, no clipped sound stretched, no word where s says z, look-alike letters, tile files, checkpoint pools, accent contrast).
 
 ### Decisions made during build: round 3
 
@@ -366,3 +366,7 @@ The design is in `docs/TRAIN-WORLD.md`; screenshots at four phone sizes are in `
 ### Decisions made during build: version 1.8.0 (rename)
 
 - v1.8.0: renamed to Choo Choo Training (home-screen label "Choo Choo"); Pip stays the mascot; the cache prefix and storage key are unchanged.
+
+### Decisions made during build: version 1.8.1 (sound order)
+
+- v1.8.1: the sound order is m a s i t p n f d h g b l (`js/order.js`). Lessons 4 to 13 are rebuilt by `tools/gen-lessons.mjs`. A real install (its saved state has a string `lastOpened`) saved under another order has its lessons, checkpoints, `trainAt` and `lesson:` first-time scripts cleared once, with no message; settings, the name and the welcome stay, and test seeds (no `lastOpened`) keep their progress. Smooth Ride and Story 1 both sit after lesson 4 (Smooth Ride first). `check-content` now proves every word the child reads is readable with the sounds taught by then (plus is, I, It) and that no page naming `{name}` uses he or she.

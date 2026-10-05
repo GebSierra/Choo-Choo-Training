@@ -5,6 +5,7 @@ import { ROOT } from './lib.mjs';
 import { scriptToParts, slowSounds, firstSoundOut } from '../js/scripts.js';
 import { GLYPHS } from '../js/glyphs.js';
 import { ACCENT } from '../js/theme.js';
+import { ORDER } from '../js/order.js';
 import { sackPool, roundCaps, practiceRounds, rideWords } from '../js/lessons.js';
 
 export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee', 'aitch', 'eye', 'jay', 'kay', 'el', 'em', 'en', 'oh', 'pee', 'cue', 'ar', 'ess', 'tee', 'you', 'vee', 'double', 'ex', 'wye', 'zee'];
@@ -52,6 +53,7 @@ export function webpSize(file) {
 export function checkCurriculum(c, root = ROOT) {
   const errors = [];
   const err = (m) => errors.push(m);
+  if ((c.lessons || []).map((L) => L.sound).join('') !== ORDER) err('lessons must teach m a s i t p n f d h g b l in order (js/order.js)');
 
   // Collect every string with its path.
   const strings = [];
@@ -359,6 +361,36 @@ export function checkCurriculum(c, root = ROOT) {
   return errors;
 }
 
+// The proof: every word the child reads, anywhere, uses only sounds taught by then (plus the sight words is, I and It).
+const SIGHT = ['is', 'i', 'it'];
+export function childReadProof(c, root = ROOT) {
+  const errors = [];
+  const items = [];
+  const clean = (t) => String(t).split(/\s+/).map((w) => w.replace(/[^\p{L}]/gu, '').toLowerCase()).filter(Boolean);
+  for (const L of c.lessons || []) {
+    for (const w of L.sayingSounds || []) if (w.showLetters) items.push({ where: `lesson ${L.number} sayingSounds`, word: w.word, after: L.number });
+    for (const o of (L.quickCheck && L.quickCheck.options) || []) if (o.glyph) items.push({ where: `lesson ${L.number} quickCheck`, word: o.glyph, after: L.number });
+  }
+  for (const k of c.checkpoints || []) {
+    if (k.kind === 'book') {
+      let book;
+      try { book = JSON.parse(fs.readFileSync(path.join(root, 'data/books', `${k.book}.json`), 'utf8')); } catch (e) { errors.push(`proof: data/books/${k.book}.json unreadable (${e.message})`); continue; }
+      for (const w of book.sight || []) if (!SIGHT.includes(String(w).toLowerCase())) errors.push(`proof: ${k.id} sight word "${w}" is not one of is, I, It`);
+      (book.pages || []).forEach((pg, n) => {
+        for (const f of ['child', 'slider']) if (pg[f] !== undefined) for (const w of clean(pg[f])) items.push({ where: `${k.id} page ${n + 1}.${f}`, word: w, after: k.after });
+        for (const text of pg.words || []) for (const w of clean(text)) items.push({ where: `${k.id} page ${n + 1}.words`, word: w, after: k.after });
+        for (const f of ['read', 'after']) if (typeof pg[f] === 'string' && /\{name\}/.test(pg[f]) && /\b(he|she|him|his|her|hers)\b/i.test(pg[f])) errors.push(`proof: ${k.id} page ${n + 1}.${f}: use the name, not he or she`);
+      });
+    } else if (k.kind === 'ride') for (const w of rideWords(c, k)) items.push({ where: `${k.id} ride`, word: w, after: k.after });
+  }
+  for (const { where, word, after } of items) {
+    const w = word.toLowerCase();
+    const taught = (c.lessons || []).slice(0, after).map((L) => L.sound);
+    if (!SIGHT.includes(w) && ![...w].every((ch) => taught.includes(ch))) errors.push(`proof: ${where} "${w}" is not readable by lesson ${after}`);
+  }
+  return { errors, count: items.length };
+}
+
 // Reading a script aloud with sounds off drops a quotation that holds a sound whole: no "Touch it.'" fragments.
 export function checkQuietScripts() {
   const errors = [];
@@ -372,7 +404,8 @@ export function checkQuietScripts() {
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
   const file = process.argv[2] || path.join(ROOT, 'data/curriculum.json');
   const c = JSON.parse(fs.readFileSync(file, 'utf8'));
-  const errors = [...checkCurriculum(c), ...checkQuietScripts()];
+  const proof = childReadProof(c);
+  const errors = [...checkCurriculum(c), ...proof.errors, ...checkQuietScripts()];
   if (errors.length) { console.error(errors.map((e) => 'FAIL: ' + e).join('\n')); console.error(`check-content: ${errors.length} problem(s)`); process.exit(1); }
-  console.log(`check-content: OK (${Object.keys(c.sounds).length} sounds, ${c.lessons.length} lessons, all rules pass)`);
+  console.log(`check-content: OK (${Object.keys(c.sounds).length} sounds, ${c.lessons.length} lessons, all rules pass, ${proof.count} child-read words proven readable)`);
 }

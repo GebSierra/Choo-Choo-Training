@@ -1,8 +1,10 @@
 // Progress and settings in localStorage. Every access is guarded: a throwing or corrupt store starts fresh.
+import { ORDER } from './order.js';
 const KEY = 'reading.v1';
 
 const fresh = () => ({
   schema: 1,
+  order: ORDER, // the lesson order this state was saved under (js/order.js)
   lessons: {},
   checkpoints: {}, // bonus review games between lessons, by id: {result, completedAt, unlocked}
   settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: false, sfx: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {} },
@@ -24,7 +26,9 @@ export function cleanSettings(s, d) {
 }
 
 export function createStore() {
+  let migrated = false;
   let state = load();
+  if (migrated) save();
 
   function load() {
     try {
@@ -33,17 +37,25 @@ export function createStore() {
       const p = JSON.parse(raw);
       if (!p || p.schema !== 1 || !p.lessons || typeof p.lessons !== 'object' || Array.isArray(p.lessons)) return fresh();
       const f = fresh();
+      // v1.8.1 changed the sound order: a real install (it has been opened, so it has lastOpened) saved under another order starts its lessons again once. Settings, seen task scripts, the name and the welcome stay.
+      const reorder = p.order !== ORDER && typeof p.lastOpened === 'string';
       const lessons = {};
-      for (const [n, l] of Object.entries(p.lessons)) {
+      for (const [n, l] of Object.entries(reorder ? {} : p.lessons)) {
         if (l && typeof l === 'object' && !Array.isArray(l)) lessons[n] = { ...l, tasksDone: Array.isArray(l.tasksDone) ? l.tasksDone.filter(Number.isInteger) : [] };
       }
-      const settings = p.settings && typeof p.settings === 'object' && !Array.isArray(p.settings) ? p.settings : {};
+      let settings = p.settings && typeof p.settings === 'object' && !Array.isArray(p.settings) ? p.settings : {};
+      if (reorder) {
+        migrated = true;
+        const { trainAt, ...rest } = settings;
+        const seen = rest.seenScripts && typeof rest.seenScripts === 'object' && !Array.isArray(rest.seenScripts) ? rest.seenScripts : {};
+        settings = { ...rest, seenScripts: Object.fromEntries(Object.entries(seen).filter(([k]) => !/^lesson:/.test(k))) };
+      }
       // Saved data from before checkpoints existed simply has none.
       const checkpoints = {};
       if (p.checkpoints && typeof p.checkpoints === 'object' && !Array.isArray(p.checkpoints)) {
-        for (const [id, c] of Object.entries(p.checkpoints)) if (c && typeof c === 'object' && !Array.isArray(c)) checkpoints[id] = c;
+        for (const [id, c] of Object.entries(reorder ? {} : p.checkpoints)) if (c && typeof c === 'object' && !Array.isArray(c)) checkpoints[id] = c;
       }
-      return { ...f, ...p, lessons, checkpoints, character: cleanCharacter(p.character), settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
+      return { ...f, ...p, order: ORDER, lessons, checkpoints, character: cleanCharacter(p.character), settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
     } catch { return fresh(); }
   }
   function save() {

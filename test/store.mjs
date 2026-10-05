@@ -1,0 +1,36 @@
+// The store's one-time reset for the v1.8.1 sound order. No browser. Run: node test/store.mjs
+import { ORDER } from '../js/order.js';
+const mem = new Map();
+globalThis.localStorage = { getItem: (k) => (mem.has(k) ? mem.get(k) : null), setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k) };
+const { createStore } = await import('../js/store.js');
+let n = 0, bad = 0;
+const check = (ok, msg) => { n++; if (!ok) { bad++; console.error('FAIL: ' + msg); } };
+const old = (extra = {}) => ({
+  schema: 1, lastOpened: '2026-09-01T00:00:00Z',
+  lessons: Object.fromEntries([1, 2, 3, 4, 5, 6].map((i) => [i, { tasksDone: [0], result: 'got-it' }])),
+  checkpoints: { r1: { result: 'got-it' } },
+  settings: { rate: 1.0, trainAt: 5, trainIntroDone: true, seenScripts: { 'lesson:4': true, newLetter: true, 'tip:1:newLetter': true } },
+  character: { name: 'Lily' }, firstRunDone: true, ...extra,
+});
+const open = (saved) => { mem.clear(); mem.set('reading.v1', JSON.stringify(saved)); return createStore(); };
+
+let s = open(old());
+check(Object.keys(s.state.lessons).length === 0 && Object.keys(s.state.checkpoints).length === 0, 'case 1: lessons and checkpoints cleared');
+check(s.settings.rate === 1 && s.settings.trainIntroDone === true && s.settings.trainAt === undefined, 'case 1: settings kept, trainAt dropped');
+check(s.settings.seenScripts.newLetter && s.settings.seenScripts['tip:1:newLetter'] && !('lesson:4' in s.settings.seenScripts), 'case 1: seenScripts lesson: keys dropped only');
+check(s.character().name === 'Lily' && s.state.firstRunDone === true && s.currentLesson(13) === 1, 'case 1: name, welcome kept; starts at lesson 1');
+check(JSON.parse(mem.get('reading.v1')).order === ORDER && ORDER === 'masitpnfdhgbl', 'case 1: migrated state saved with the order');
+
+s = open(old({ order: ORDER }));
+check(Object.keys(s.state.lessons).length === 6 && s.settings.trainAt === 5, 'case 2: same order keeps lessons');
+
+const seed = old(); delete seed.lastOpened;
+s = open(seed);
+check(Object.keys(s.state.lessons).length === 6 && s.settings.trainAt === 5 && 'lesson:4' in s.settings.seenScripts, 'case 3: no lastOpened (test seed) keeps progress');
+
+s = open(old({ order: ORDER }));
+s.resetAll();
+check(s.state.order === ORDER && JSON.parse(mem.get('reading.v1')).order === ORDER, 'case 4: resetAll keeps order');
+
+console.log(`store: ${n - bad}/${n} checks passed`);
+process.exit(bad ? 1 : 0);
