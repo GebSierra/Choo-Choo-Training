@@ -12,7 +12,7 @@ export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee'
 // Words where s says z, which a child must not learn as an s word.
 export const S_SAYS_Z = ['as', 'is', 'his', 'has', 'was', 'does', 'goes', 'hers', 'ours', 'yours'];
 // Letters that look like each other, so they never stand together in a game or a Quick Check (mirror and look-alike pairs).
-import { LOOKALIKE } from '../js/games-data.js';
+import { LOOKALIKE, boardWords } from '../js/games-data.js';
 export const LOOKALIKE_PAIRS = LOOKALIKE;
 export const lookAlike = (x, y) => LOOKALIKE_PAIRS.some((p) => (p[0] === x && p[1] === y) || (p[0] === y && p[1] === x));
 // Contrast of a colour on white (WCAG), so a glyph in its accent stays visible.
@@ -155,6 +155,21 @@ export function checkCurriculum(c, root = ROOT) {
     }
   }
 
+  // Station Board words: 3 or 4 per lesson, taught letters only, each target once in its word, no word twice.
+  for (const L of c.lessons || []) {
+    if (!L.board) continue;
+    const taught = c.lessons.slice(0, L.number).map((x) => x.sound), seenW = new Set();
+    if (!Array.isArray(L.board) || L.board.length < 3 || L.board.length > 4) err(`lesson ${L.number}.board needs 3 or 4 entries`);
+    for (const b of L.board) {
+      const where = `lesson ${L.number}.board ${b.word}`;
+      if (typeof b.word !== 'string' || b.word.length < 2 || b.word.length > 4) err(`${where}: a word of 2 to 4 letters`);
+      else if (![...b.word].every((ch) => taught.includes(ch))) err(`${where}: a letter is not taught by lesson ${L.number}`);
+      else if (S_SAYS_Z.includes(b.word)) err(`${where}: s says z`);
+      if (!taught.includes(b.target) || !b.word.includes(b.target) || b.word.split(b.target).length !== 2) err(`${where}: target ${b.target} must be taught and appear exactly once`);
+      if (seenW.has(b.word)) err(`lesson ${L.number}.board repeats ${b.word}`);
+      seenW.add(b.word);
+    }
+  }
   // The tap games (Green Light, Wagon Parade, Station Board): one spoken line each, no distractors needed.
   for (const kind of ['signals', 'wagons', 'board']) {
     const g = (c.games || {})[kind];
@@ -377,6 +392,7 @@ export function childReadProof(c, root = ROOT) {
   const items = [];
   const clean = (t) => String(t).split(/\s+/).map((w) => w.replace(/[^\p{L}]/gu, '').toLowerCase()).filter(Boolean);
   for (const L of c.lessons || []) {
+    for (const b of L.board || []) items.push({ where: `lesson ${L.number} board`, word: b.word, after: L.number });
     for (const w of L.sayingSounds || []) if (w.showLetters) items.push({ where: `lesson ${L.number} sayingSounds`, word: w.word, after: L.number });
     for (const o of (L.quickCheck && L.quickCheck.options) || []) if (o.glyph) items.push({ where: `lesson ${L.number} quickCheck`, word: o.glyph, after: L.number });
   }
@@ -415,6 +431,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const c = JSON.parse(fs.readFileSync(file, 'utf8'));
   const proof = childReadProof(c);
   const errors = [...checkCurriculum(c), ...proof.errors, ...checkQuietScripts()];
+  // The board words are a test too: these are the exact lists the plan promises.
+  const show = (n) => { const b = boardWords(ORDER.split(''), n, 4); return b && b.map((x) => `${x.word}(${x.target})`).join(' '); };
+  const want = { 1: null, 2: null, 3: null, 4: null, 5: 'sat(t) sit(i) it(t) mist(s)', 7: 'man(n) map(p) nap(n) tap(t)', 9: 'sad(d) fad(f) mad(d) man(n)', 13: 'pal(l) dab(b) lab(l) lag(g)' };
+  for (const [n, w] of Object.entries(want)) if (show(Number(n)) !== w) errors.push(`boardWords lesson ${n}: got ${show(Number(n))}, expected ${w}`);
   if (errors.length) { console.error(errors.map((e) => 'FAIL: ' + e).join('\n')); console.error(`check-content: ${errors.length} problem(s)`); process.exit(1); }
   console.log(`check-content: OK (${Object.keys(c.sounds).length} sounds, ${c.lessons.length} lessons, all rules pass, ${proof.count} child-read words proven readable)`);
 }

@@ -3,7 +3,7 @@
 // Run alone with `node test/tap-games.mjs`; SHOTS=1 also saves screenshots to docs/screenshots/v19/.
 import fs from 'node:fs';
 import path from 'node:path';
-import { SPEECH_STUB } from './stubs.mjs';
+import { SPEECH_STUB, silentWav } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, DONE_JSON } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
 
@@ -29,6 +29,8 @@ export async function open(browser, url, vp, { n, type, games, settings = {}, cl
   if (games) CUR.lessons[n - 1].games = games;
   for (const [k, v] of Object.entries(clipsPatch || {})) CUR.sounds[k].clip = v;
   if (games || clipsPatch) await page.route('**/data/curriculum.json', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(CUR) }));
+  // A clip patched to a path with no file behind it is given a silent stand-in, so the recorded path can be tested.
+  for (const k of Object.keys(clipsPatch || {})) if (!/none|missing/.test(clipsPatch[k]) && !fs.existsSync(path.join(ROOT, clipsPatch[k]))) await page.route('**/' + clipsPatch[k], (r) => r.fulfill({ status: 200, contentType: 'audio/wav', body: silentWav() }));
   const index = tasksFor(CUR.lessons[n - 1]).find((t) => t.type === type).index;
   await page.goto(url + `#/lesson/${n}/task/${index}`);
   return { ...made, CUR };
@@ -238,12 +240,11 @@ export async function wagonChecks({ browser, url, ok, CUR }) {
     ok((await roundOf(page, 'wagons')) === 1, 'Wagon Parade: three right taps finish the parade');
     // the other two parades
     for (let p = 2; p <= 3; p++) {
-      await page.waitForFunction((k) => document.querySelectorAll('.parade-wagon').length === 8 && !document.querySelector('.wagons').dataset.state.includes('x') && Number(document.querySelector('.wagons').dataset.round) === k - 1, p, { timeout: 4000 }).catch(() => {});
-      await page.waitForTimeout(900);
-      let n = 0;
-      for (let i = 0; i < 120 && n < 3; i++) {
+      await page.waitForFunction((k) => Number(document.querySelector('.wagons').dataset.round) === k - 1 && !document.querySelector('.parade-wagon[style*="pointer-events"]'), p, { timeout: 5000 }).catch(() => {});
+      await page.waitForTimeout(700);
+      for (let i = 0; i < 150 && (await roundOf(page, 'wagons')) < p; i++) {
         const t = await aim('.parade-wagon[data-target="1"]:not([style*="pointer-events"])');
-        if (t) { await page.touchscreen.tap(t.x, t.y); n++; await page.waitForTimeout(350); } else await page.waitForTimeout(200);
+        if (t) { await page.touchscreen.tap(t.x, t.y); await page.waitForTimeout(350); } else await page.waitForTimeout(200);
       }
     }
     await waitDone(page);
@@ -289,6 +290,86 @@ export async function wagonChecks({ browser, url, ok, CUR }) {
   }
 }
 
+export async function boardChecks({ browser, url, ok }) {
+  const vp = VIEWPORTS[0];
+  const spelled = (page) => page.evaluate(() => [...document.querySelectorAll('.flap-tile')].map((b) => b.dataset.letter).join(''));
+  const waitWord = (page, w) => page.waitForFunction((x) => document.querySelector('.board-game').dataset.word === x, w, { timeout: 4000 }).catch(() => {});
+  const stable = (page, w) => page.waitForFunction((x) => { const t = [...document.querySelectorAll('.flap-tile')]; return t.map((b) => b.dataset.letter).join('') === x && document.getAnimations().filter((a) => a.effect && /rotateX/.test(JSON.stringify(a.effect.getKeyframes()))).length === 0; }, w, { timeout: 4000 }).catch(() => {});
+  for (const v of VIEWPORTS) {
+    const { ctx, page, errors } = await open(browser, url, v, { n: 5, type: 'board', games: ['board'] });
+    await page.waitForSelector('.flap-tile');
+    await page.waitForTimeout(600);
+    const tag = `${v.name} Station Board`;
+    const t = await rects(page, '.flap-tile'), board = (await rects(page, '.flap-board'))[0], scene = (await rects(page, '.farm'))[0];
+    ok((await spelled(page)) === 'sat', `${tag}: the tiles spell sat`);
+    ok(t.every((r) => r.w >= 72 && r.h >= 72 && inside(r, board) && inside(r, scene) && r.x >= 0 && r.x + r.w <= v.width), `${tag}: tiles are at least 72 px, inside the board, the scene and the screen (${t.map((r) => Math.round(r.w) + 'x' + Math.round(r.h))})`);
+    ok(inside(board, scene), `${tag}: the board is inside the scene`);
+    await page.evaluate(() => { document.querySelector('.say-prompt').hidden = false; document.querySelector('.say-text').textContent = 'Say: This is sat. Tap t-.'; });
+    const pr = (await rects(page, '.say-prompt'))[0], bell = (await rects(page, '.say-hear'))[0], eng = (await rects(page, '.train-wrap'))[0];
+    ok(!overlaps(pr, board) && !overlaps(bell, board) && !overlaps(board, eng) && !overlaps(pr, bell), `${tag}: prompt, bell, board and engine do not overlap`);
+    ok(await page.evaluate(() => { const a = document.querySelector('.task-activity'); return a.scrollHeight <= a.clientHeight + 1; }), `${tag}: the stage does not scroll`);
+    ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  // Prompt path, wrong and right taps through four words.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, { n: 5, type: 'board', games: ['board'], settings: { playSounds: false } });
+    await page.waitForSelector('.flap-tile');
+    await unlock(page);
+    await page.waitForSelector('.say-prompt:not([hidden])', { timeout: 3000 });
+    ok(await page.evaluate(() => document.querySelector('.say-text').textContent === 'Say: This is sat. Tap t-.'), 'Station Board prompt path: "Say: This is sat. Tap t-."');
+    ok((await ttsAll(page)).every((x) => !/sat/.test(x)), 'Station Board: the word is never sent to text to speech');
+    await tapEl(page, page.locator('.flap-tile[data-target="0"]').first());
+    await page.waitForTimeout(500);
+    ok((await spelled(page)) === 'sat' && (await roundOf(page, 'board-game')) === 0, 'Station Board: a wrong tap leaves the round');
+    for (const [i, w] of ['sit', 'it', 'mist'].entries()) {
+      await tapEl(page, page.locator('.flap-tile[data-target="1"]'));
+      await waitWord(page, w); await stable(page, w);
+      ok((await spelled(page)) === w, `Station Board: round ${i + 2} spells ${w}`);
+      if (i === 0) await shotOf(page, 'board-playing');
+      await page.waitForTimeout(150);
+    }
+    await tapEl(page, page.locator('.flap-tile[data-target="1"]'));
+    await page.waitForFunction(() => document.querySelector('.board-game').dataset.state === 'done', null, { timeout: 8000 }).catch(() => {});
+    ok((await state(page, 'board-game')) === 'done', 'Station Board: four words reach done');
+    ok(/Next|Finish/.test(await lastButton(page)), 'Station Board: the shell button reads Next or Finish');
+    await shotOf(page, 'board-done');
+    await idleCheck(page, ok, 'Station Board done');
+    ok(errors.length === 0, 'Station Board play: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // Recorded path.
+  {
+    const { ctx, page } = await open(browser, url, vp, { n: 5, type: 'board', games: ['board'], settings: { playSounds: true }, clipsPatch: { t: 'assets/audio/sounds/t.mp3' } });
+    await page.waitForSelector('.flap-tile');
+    await unlock(page);
+    await tapEl(page, page.locator('.say-hear'));
+    await page.waitForFunction(() => window.__events.some((e) => e.type === 'clip' && e.src === 't.mp3'), null, { timeout: 2500 }).catch(() => {});
+    ok((await clips(page)).includes('t.mp3'), 'Station Board recorded path: t.mp3 played');
+    await page.waitForTimeout(200);
+    ok(await page.evaluate(() => document.querySelector('.say-text').textContent === 'Say: This is sat.'), 'Station Board recorded path: the prompt reads "Say: This is sat."');
+    await ctx.close();
+  }
+  // Reduced motion: no flip.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, { n: 5, type: 'board', games: ['board'], reduced: true });
+    await page.waitForSelector('.flap-tile');
+    await page.waitForTimeout(600);
+    let flips = 0;
+    for (let i = 0; i < 4; i++) {
+      await tapEl(page, page.locator('.flap-tile[data-target="1"]'));
+      await page.waitForTimeout(500);
+      flips += await page.evaluate(() => document.getAnimations().filter((a) => a.effect && /rotateX/.test(JSON.stringify(a.effect.getKeyframes()))).length);
+      await page.waitForTimeout(700);
+    }
+    await page.waitForFunction(() => document.querySelector('.board-game').dataset.state === 'done', null, { timeout: 6000 }).catch(() => {});
+    ok(flips === 0, `Station Board reduced: no flip animations (${flips})`);
+    ok((await state(page, 'board-game')) === 'done', 'Station Board reduced: done');
+    ok(errors.length === 0, 'Station Board reduced: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+}
+
 // Screenshots for looking at: each game at 390x844 and 360x640 (SHOTS=1).
 const SHOT_VPS = [{ name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }, { name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }];
 export async function screenshots({ browser, url }) {
@@ -307,6 +388,7 @@ export async function screenshots({ browser, url }) {
 const SHOT_GAMES = [
   { n: 2, type: 'signals', ready: '.signal', after: async (page) => { await tapEl(page, page.locator('.signal[data-target="1"]')); } },
   { n: 1, type: 'wagons', ready: '.parade-wagon' },
+  { n: 5, type: 'board', ready: '.flap-tile', after: async (page) => { await tapEl(page, page.locator('.flap-tile[data-target="1"]')); } },
 ];
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
@@ -318,6 +400,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   if (process.env.SHOTS) await screenshots({ browser, url });
   await signalChecks({ browser, url, ok, CUR });
   await wagonChecks({ browser, url, ok, CUR });
+  await boardChecks({ browser, url, ok });
   await browser.close(); server.close();
   console.log(`tap-games: ${checks - failures}/${checks} checks passed`);
   process.exit(failures ? 1 : 0);

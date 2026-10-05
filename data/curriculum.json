@@ -1224,7 +1224,25 @@
             "correct": false
           }
         ]
-      }
+      },
+      "board": [
+        {
+          "word": "sat",
+          "target": "t"
+        },
+        {
+          "word": "sit",
+          "target": "i"
+        },
+        {
+          "word": "it",
+          "target": "t"
+        },
+        {
+          "word": "mist",
+          "target": "s"
+        }
+      ]
     },
     {
       "number": 6,
@@ -1345,7 +1363,25 @@
             "correct": false
           }
         ]
-      }
+      },
+      "board": [
+        {
+          "word": "sap",
+          "target": "p"
+        },
+        {
+          "word": "sat",
+          "target": "t"
+        },
+        {
+          "word": "pat",
+          "target": "p"
+        },
+        {
+          "word": "pit",
+          "target": "i"
+        }
+      ]
     },
     {
       "number": 7,
@@ -1469,7 +1505,25 @@
             "correct": false
           }
         ]
-      }
+      },
+      "board": [
+        {
+          "word": "man",
+          "target": "n"
+        },
+        {
+          "word": "map",
+          "target": "p"
+        },
+        {
+          "word": "nap",
+          "target": "n"
+        },
+        {
+          "word": "tap",
+          "target": "t"
+        }
+      ]
     },
     {
       "number": 8,
@@ -1590,7 +1644,25 @@
             "correct": false
           }
         ]
-      }
+      },
+      "board": [
+        {
+          "word": "fan",
+          "target": "f"
+        },
+        {
+          "word": "an",
+          "target": "n"
+        },
+        {
+          "word": "if",
+          "target": "f"
+        },
+        {
+          "word": "sip",
+          "target": "p"
+        }
+      ]
     },
     {
       "number": 9,
@@ -1714,7 +1786,25 @@
             "correct": false
           }
         ]
-      }
+      },
+      "board": [
+        {
+          "word": "sad",
+          "target": "d"
+        },
+        {
+          "word": "fad",
+          "target": "f"
+        },
+        {
+          "word": "mad",
+          "target": "d"
+        },
+        {
+          "word": "man",
+          "target": "n"
+        }
+      ]
     },
     {
       "number": 10,
@@ -1835,7 +1925,25 @@
             "correct": false
           }
         ]
-      }
+      },
+      "board": [
+        {
+          "word": "hat",
+          "target": "h"
+        },
+        {
+          "word": "had",
+          "target": "d"
+        },
+        {
+          "word": "ham",
+          "target": "h"
+        },
+        {
+          "word": "fan",
+          "target": "f"
+        }
+      ]
     },
     {
       "number": 11,
@@ -1959,7 +2067,25 @@
             "correct": false
           }
         ]
-      }
+      },
+      "board": [
+        {
+          "word": "sag",
+          "target": "g"
+        },
+        {
+          "word": "hat",
+          "target": "h"
+        },
+        {
+          "word": "tag",
+          "target": "g"
+        },
+        {
+          "word": "sad",
+          "target": "d"
+        }
+      ]
     },
     {
       "number": 12,
@@ -2080,7 +2206,25 @@
             "correct": false
           }
         ]
-      }
+      },
+      "board": [
+        {
+          "word": "dab",
+          "target": "b"
+        },
+        {
+          "word": "sag",
+          "target": "g"
+        },
+        {
+          "word": "bag",
+          "target": "b"
+        },
+        {
+          "word": "hat",
+          "target": "h"
+        }
+      ]
     },
     {
       "number": 13,
@@ -2204,7 +2348,25 @@
             "correct": false
           }
         ]
-      }
+      },
+      "board": [
+        {
+          "word": "pal",
+          "target": "l"
+        },
+        {
+          "word": "dab",
+          "target": "b"
+        },
+        {
+          "word": "lab",
+          "target": "l"
+        },
+        {
+          "word": "lag",
+          "target": "g"
+        }
+      ]
     }
   ],
   "games": {
@@ -2465,6 +2627,9 @@
     },
     "wagons": {
       "say": "Tap every wagon that has the sound."
+    },
+    "board": {
+      "say": "Find the sound in the word."
     }
   },
   "checkpoints": [

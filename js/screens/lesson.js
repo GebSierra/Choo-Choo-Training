@@ -23,6 +23,7 @@ function illustration(task, lesson, curriculum) {
     case 'hunt': wrap.append(h('span', { class: 'art-train' }, engineSvg({ still: true }))); break;
     case 'signals': wrap.append(h('span', { class: 'art-signals' }, signalSvg())); break;
     case 'wagons': wrap.append(h('span', { class: 'art-wagons' }, wagonSvg())); break;
+    case 'board': wrap.append(h('span', { class: 'flap-board mini' }, h('span', { class: 'flap-tile' }), h('span', { class: 'flap-tile' }), h('span', { class: 'flap-tile' }))); break;
     case 'barn': wrap.append(h('span', { class: 'art-barn' }, barnSvg({ interior: true }))); break;
     case 'practice': wrap.append(h('span', { class: 'art-crate' }, crateSvg())); break;
     case 'check': wrap.append(h('span', { class: 'qmark' }, '?')); break;

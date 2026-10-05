@@ -1105,3 +1105,28 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .parade.still .parade-wagon .crate { width: 32px; height: 32px; margin-left: -16px; border-width: 2px; }
 .parade.still .parade-wagon .crate .glyph { height: 22px; } .parade.still .parade-wagon .crate .font-letter { font-size: 24px; }
 .wagons-scene:has(.parade.still) .parade-rail { display: none; }
+/* Station Board: a split-flap board on the station wall, a platform edge and the engine on its track */
+.board-scene .say-prompt { left: 12px; right: 76px; margin: 0; max-width: calc(100% - 88px); }
+.board-scene .say-hear { top: auto; left: auto; bottom: 14px; right: 12px; }
+.station-wall { left: 0; right: 0; top: 0; bottom: 112px; z-index: 0; background:
+  linear-gradient(rgba(60,30,20,.16), rgba(60,30,20,0) 14%),
+  repeating-linear-gradient(0deg, rgba(60,30,20,.12) 0 2px, transparent 2px 24px),
+  repeating-linear-gradient(90deg, rgba(60,30,20,.12) 0 2px, transparent 2px 56px),
+  #D98A6C; }
+.wall-clock { position: absolute; right: 12px; bottom: 14px; width: 44px; height: 44px; border-radius: 50%; background: #FFF8EC; border: 4px solid #2B2D5C; box-sizing: border-box; box-shadow: 0 2px 0 rgba(0,0,0,.18); }
+.wall-clock i { position: absolute; left: 50%; bottom: 50%; width: 3px; border-radius: 2px; background: #2B2D5C; transform-origin: 50% 100%; margin-left: -1.5px; }
+.wall-clock i:first-child { height: 14px; } .wall-clock i:last-child { height: 10px; transform: rotate(100deg); }
+.station-platform { left: 0; right: 0; bottom: 96px; height: 18px; z-index: 1; background: linear-gradient(#FFD166 0 5px, #F3E6CF 5px); border-radius: 6px 6px 0 0; box-shadow: 0 3px 0 rgba(60,40,20,.2); }
+.flap-board { position: absolute; left: 50%; top: max(112px, calc(112px + (100% - 340px) * .22)); transform: translateX(-50%); z-index: 2; box-sizing: border-box; padding: 14px 8px 8px; border-radius: 16px; background: #2B2D5C; border-top: 6px solid #FFD166; box-shadow: 0 6px 0 #1E2140, 0 10px 16px rgba(30,20,10,.3); }
+.flap-chain { position: absolute; top: -34px; width: 4px; height: 30px; background: repeating-linear-gradient(#8A8FB5 0 5px, #5A5E88 5px 8px); border-radius: 2px; }
+.flap-chain.l { left: 22%; } .flap-chain.r { right: 22%; }
+.flap-row { display: flex; justify-content: center; gap: 6px; }
+.flap-tile { position: relative; flex: 0 0 auto; width: var(--tw, 72px); height: 96px; padding: 0; border: 0; border-radius: 10px; background: #F3E6CF; cursor: pointer; touch-action: manipulation; box-shadow: inset 0 -4px 0 rgba(60,40,20,.12); display: block; }
+.flap-tile::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 3px; margin-top: -1.5px; background: rgba(30,33,64,.4); pointer-events: none; }
+.flap-face { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.flap-tile .glyph { height: 66px; width: auto; } .flap-tile .glyph path { stroke-width: 13; }
+.flap-tile .font-letter { font-size: 70px; }
+.flap-tile.glow { background: #FFE9A8; box-shadow: 0 0 0 4px #FFD166, 0 0 18px rgba(255,214,102,.8); }
+.flap-board.mini { position: relative; left: auto; top: auto; transform: none; display: flex; gap: 4px; padding: 8px 6px 6px; width: 120px; box-sizing: border-box; border-radius: 10px; border-top-width: 4px; }
+.flap-board.mini .flap-tile { width: 30px; height: 40px; border-radius: 5px; }
+@media (max-height: 700px) { .wall-clock { display: none; } }

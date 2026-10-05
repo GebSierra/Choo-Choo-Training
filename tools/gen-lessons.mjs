@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT } from '../test/lib.mjs';
 import { usedImages } from './precache-images.mjs';
+import { boardWords } from '../js/games-data.js';
 
 const FILE = path.join(ROOT, 'data/curriculum.json');
 const tile = (folder, word) => ({ word, image: `assets/images/mentava/web/${folder}/${word}.webp` });
@@ -117,6 +118,9 @@ for (const w of c.gameDistractors) if (w.avoid) { w.avoid = w.avoid.filter((k) =
 const taughtAt = (s) => { const i = c.lessons.findIndex((L) => L.sound === s); if (i < 0) throw new Error('untaught sound ' + s); return i + 1; };
 for (const k of c.checkpoints) if (Array.isArray(k.needs)) k.after = Math.max(...k.needs.map(taughtAt));
 
+// Station Board words: for every lesson that has a full list (lessons 5 on), the proven short words of the bank.
+for (const L of c.lessons) { const b = boardWords(c.lessons.map((x) => x.sound), L.number, 4); if (b) L.board = b; else delete L.board; }
+c.games.board = { say: 'Find the sound in the word.' };
 c.games.wagons = { say: 'Tap every wagon that has the sound.' };
 c.games.signals = { say: 'Listen. Then tap the light that makes the sound.' };
 
