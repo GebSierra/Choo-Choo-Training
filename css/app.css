@@ -344,6 +344,7 @@ body.night { background: var(--night); }
 .script-tag { display: block; font-size: 16px; font-weight: 800; color: #565B7A; letter-spacing: .02em; }
 .script-text { font-size: 17px; line-height: 1.3; font-weight: 600; }
 .task-buttons { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
+.task-buttons.solo { grid-template-columns: 1fr; }
 .task-buttons .btn { min-height: 56px; width: 100%; padding: 0 12px; }
 .btn.again { background: transparent; color: #fff; box-shadow: inset 0 0 0 2px rgba(255,255,255,.45); }
 .btn.again:active { box-shadow: inset 0 0 0 2px rgba(255,255,255,.45); transform: scale(.97); }
@@ -882,21 +883,23 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .book-title { font-size: 15px; font-weight: 700; letter-spacing: .02em; color: #A8573F; }
 .book-says { font-size: 19px; } .book-says b { font-size: 24px; letter-spacing: .04em; color: #C93A40; }
 .book-after { color: #6B5A4C; font-weight: 700; }
-.book-art { position: relative; flex: 1 1 0; min-height: 96px; display: flex; align-items: center; justify-content: center; gap: 16px; border-radius: 6px; overflow: hidden; border: 5px solid #FFF8EA; outline: 1.5px solid rgba(59,47,42,.55); outline-offset: 0; background: linear-gradient(180deg, #CDEBFF 0%, #FFF3DE 70%, #A6E3B4 70.5%, #78D193 100%); }
+.book-art { position: relative; flex: 1 1 0; min-height: var(--art-min, 64px); display: flex; align-items: center; justify-content: center; gap: 16px; border-radius: 6px; overflow: hidden; border: 5px solid #FFF8EA; --art-min: 64px; outline: 1.5px solid rgba(59,47,42,.55); outline-offset: 0; background: linear-gradient(180deg, #CDEBFF 0%, #FFF3DE 70%, #A6E3B4 70.5%, #78D193 100%); }
 .book-img { width: 100%; height: 100%; object-fit: cover; }
 .book-part, .book-tap { position: relative; display: block; flex: 0 0 auto; border: 0; padding: 0; background: none; font: inherit; color: inherit; touch-action: manipulation; }
 .book-tap { min-width: 64px; min-height: 64px; cursor: pointer; }
 .book-train { width: min(64vw, 250px); } .book-train .engine-art, .book-pip .pip { display: block; width: 100%; height: auto; overflow: visible; }
 .book-pip { height: min(100%, 190px); } .book-pip .pip { height: 100%; width: auto; }
 .book-puffs { position: absolute; inset: 0; pointer-events: none; }
-.book-emoji { display: block; font-size: clamp(64px, 17vmin, 120px); line-height: 1; }
+.book-emoji { display: block; font-size: clamp(34px, min(17vmin, 64cqh), 120px); line-height: 1; }
 .book-emojis { display: flex; gap: 8px; align-items: center; }
-.book-child { flex: 0 0 auto; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 22px; padding: 10px 14px; border-radius: 14px; background: #FFF1C2; box-shadow: none; --cap: 78px; }
+.book-child { flex: 0 0 auto; max-width: 100%; box-sizing: border-box; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 22px; padding: 10px 14px; border-radius: 14px; background: #FFF1C2; box-shadow: none; --cap: 78px; }
 .book-child .glyph-row { width: auto; padding: 4px 2px; }
 .book-bar { align-self: center; flex: 0 0 auto; margin-bottom: 4px; }
 .book-nav { position: relative; z-index: 7; flex: 0 0 auto; display: flex; gap: 12px; justify-content: space-between; margin-top: auto; }
-.book-nav .btn { min-height: 64px; min-width: 112px; font-size: 20px; }
-.book-nav .book-next { margin-left: auto; min-width: 180px; }
+.book-nav .btn { min-height: 64px; min-width: 0; padding: 0 14px; font-size: 20px; white-space: nowrap; }
+.book-nav .book-back { flex: 0 0 auto; min-width: 88px; }
+.book-nav .book-next { margin-left: auto; flex: 1 1 auto; max-width: 190px; }
+@media (max-height: 720px) and (orientation: portrait) { .book-nav .btn { min-height: 56px; } .book-sheet { gap: 8px; padding-bottom: 26px; } }
 .book-nav .btn[disabled] { opacity: .35; }
 .book-drag { flex-direction: column; align-items: stretch; justify-content: center; padding: 0 14px; }
 .book-track { width: 100%; background: #E9ECF8; margin-bottom: 28px; }
@@ -939,7 +942,9 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .book-sheet .pip .pip-fig, .book-sheet .pip .pip-look, .cover-pip .pip .pip-fig, .cover-pip .pip .pip-look { animation: none; }
 .book-sheet .pip .pip-eyes, .cover-pip .pip .pip-eyes { animation: pip-blink 4.7s ease-in-out infinite; }
 .book.is-paused, .book.is-paused * { animation-play-state: paused !important; }
-.book-stage.has-child .book-art { min-height: 80px; }
+.book-stage.has-child .book-art { min-height: 92px; }
+.book-art { container-type: size; }
+.book-train { max-width: 100%; } .book-train .engine-art { max-height: 100cqh; }
 @media (prefers-reduced-motion: reduce) { .book, .book * { animation: none !important; transition: none !important; } }
 /* a spread: text on the left page, picture and the child's word on the right */
 .book[data-spread="1"] .book-sheet { padding-top: 12px; padding-bottom: 28px; gap: 8px; }
@@ -1044,3 +1049,11 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .ride-intro-go { min-width: 150px; }
 .ride-intro-later { background: none; border: 0; box-shadow: none; color: #5A5F80; padding: 0 16px; }
 @media (orientation: landscape) and (max-height: 520px) { .ride-intro-card { padding: 12px 16px; gap: 6px; } .ride-intro-card h2 { font-size: 22px; } .ride-intro-card p { font-size: 16px; line-height: 1.3; } }
+
+/* ---------- the grown-up page before a book (js/screens/book.js) ---------- */
+.book-stage > .book-intro { z-index: 40; border-radius: 0; }
+.book-intro-list { margin: 0; padding: 0 0 0 20px; display: grid; gap: 7px; font-size: 16.5px; font-weight: 600; line-height: 1.32; }
+.book-intro-go { flex: 1 1 auto; }
+.book-info { position: absolute; top: 18px; right: 20px; z-index: 25; width: 48px; height: 48px; border-radius: 50%; border: 2px solid rgba(255,243,218,.7); background: rgba(255,243,218,.2); color: #FFF3DA; font-family: 'Andika', Georgia, serif; font-style: italic; font-weight: 700; font-size: 26px; line-height: 1; padding: 0; touch-action: manipulation; cursor: pointer; }
+.book-info[hidden] { display: none; }
+@media (orientation: landscape) and (max-height: 520px) { .book-intro-list { font-size: 15px; gap: 4px; line-height: 1.25; } }

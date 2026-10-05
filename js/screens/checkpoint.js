@@ -14,7 +14,7 @@ export async function checkpointScreen(ctx, id) {
   if (ck.kind === 'book') {
     const book = await loadBook(ck, store);
     await Promise.race([document.fonts.load('700 20px Andika'), new Promise((r) => setTimeout(r, 600))]).catch(() => {}); // the book's typeface, but never a long wait
-    const shell = makeShell({ ctx, title: ck.title, color: 'sky', steps: book.pages.length, pos: 0, from: -1, isLast: true, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to the path', stepNoun: 'Page', seenKeys: ['book'], autoOpen: true, skipUntilDone: true });
+    const shell = makeShell({ ctx, title: ck.title, color: 'sky', steps: book.pages.length, pos: 0, from: -1, isLast: true, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to the path', stepNoun: 'Page', seenKeys: [], autoOpen: false, skipUntilDone: true, noScript: true, noAgain: true });
     const current = bookBuild({ ...ctx, checkpoint: ck, book, refresh: shell.refresh, setProgress: shell.setPos, setDone: shell.setDone });
     return shell.mount(current, () => current.close().then(done));
   }

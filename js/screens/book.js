@@ -60,9 +60,30 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
       h('span', { class: 'cover-hint' }, 'Tap to open')),
     h('span', { class: 'cover-back', 'aria-hidden': 'true' }));
   const bookEl = h('div', { class: 'book', tabindex: '0', dataset: { state: 'closed', spread: '0' } }, block, cover);
-  stage.append(bookEl);
+  // The grown-up page: shown once per book before the cover; the small "i" on the cover brings it back.
+  const introKey = `storyIntro:${checkpoint.id}`;
+  const seenMap = () => { const m = store.settings.seenScripts; return m && typeof m === 'object' && !Array.isArray(m) ? m : {}; };
+  let introEl = null;
+  const infoBtn = h('button', { class: 'book-info', type: 'button', 'aria-label': 'Story time: how to read this book', onclick: () => showIntro() }, 'i');
+  function showIntro() {
+    if (introEl) return;
+    const go = () => { store.setSetting('seenScripts', { ...seenMap(), [introKey]: true }); introEl.remove(); introEl = null; infoBtn.hidden = state() !== 'closed'; if (state() === 'closed') openCover(); };
+    introEl = h('div', { class: 'ride-intro book-intro', role: 'dialog', 'aria-labelledby': 'book-intro-t' },
+      h('div', { class: 'ride-intro-card' },
+        h('h2', { id: 'book-intro-t' }, 'Story time'),
+        h('ul', { class: 'book-intro-list' },
+          h('li', {}, 'You read the small words out loud.'),
+          h('li', {}, 'Your child reads the big words. They use only sounds your child knows.'),
+          h('li', {}, 'Under some words is a slider. Have your child slide a finger along it while saying each sound, then say the whole word.'),
+          h('li', {}, 'Tap the pictures to make them move.'),
+          h('li', {}, 'Swipe or tap the corner to turn the page.')),
+        h('div', { class: 'ride-intro-btns' }, h('button', { class: 'btn primary ride-intro-go book-intro-go', type: 'button', onclick: go }, 'Open the book'))));
+    stage.append(introEl); infoBtn.hidden = true;
+    try { introEl.querySelector('button').focus({ preventScroll: true }); } catch { /* fine */ }
+  }
+  stage.append(bookEl, infoBtn);
   const state = () => bookEl.dataset.state;
-  const setState = (s) => { bookEl.dataset.state = s; };
+  const setState = (s) => { bookEl.dataset.state = s; infoBtn.hidden = s !== 'closed'; };
   const turner = pageTurner({ block, spread: () => spread, reducedMotion: reduced });
 
   function teardown() {
@@ -216,8 +237,25 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     cornerPrev.hidden = i === 0;
     cornerNext.hidden = last;
     pending = c && c.sliderSvg ? { c, host: R } : null;
+    fit();
     setProgress(i);
     refresh();
+  }
+
+  // Fitting one page: the picture has already given way (it is the flexible part, down to its minimum); if the page still
+  // does not fit, the child's word steps down one size at a time. The word never goes below 36 px, so it stays the biggest text.
+  const CAPS = [84, 74, 66, 58, 52, 46, 41, 36];
+  function fit() {
+    for (const sheet of block.querySelectorAll('.book-sheet.is-live')) {
+      const box = sheet.querySelector('.book-child');
+      if (!box) continue;
+      box.style.removeProperty('--cap');
+      const start = parseFloat(getComputedStyle(box).getPropertyValue('--cap')) || 78;
+      for (const cap of [start, ...CAPS.filter((c) => c < start)]) {
+        box.style.setProperty('--cap', cap + 'px');
+        if (sheet.scrollHeight <= sheet.clientHeight + 0.5 && box.getBoundingClientRect().width <= sheet.clientWidth) break;
+      }
+    }
   }
 
   // Runs after a turn (or at once): the parts that need measuring or that run, so nothing is measured mid-turn.
@@ -320,7 +358,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
   const wantSpread = () => { const w = stage.clientWidth, hh = stage.clientHeight; return w >= 1.3 * hh && (w - 40) / 2 >= 295 && hh >= 260; };
   const ro = new ResizeObserver(() => {
     const s = wantSpread();
-    if (s === spread) return;
+    if (s === spread) { fit(); return; }
     spread = s; turner.finish(); turnId++;
     bookEl.dataset.spread = s ? '1' : '0';
     if (state() === 'turning') setState('open');
@@ -331,6 +369,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
   document.addEventListener('visibilitychange', onVis);
 
   paint(0);
+  if (!seenMap()[introKey]) showIntro();
 
   return {
     el, flush: true,

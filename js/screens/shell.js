@@ -11,12 +11,13 @@ import { richText } from '../letters.js';
 // autoOpen: false for the games, where the gist in the bar is enough and the sheet must not open over the play.
 // tip: one short grown-up reminder (js/guide.js) shown under the script, with tipKey in seenScripts: the first time, the script opens by itself for longer so it is read.
 // skipUntilDone: the last button reads "Skip" until the game says it is done (setDone(true)), then "Finish".
+// noScript: no grown-up script bar (the book gives that height to the page and has its own intro). noAgain: no Again button.
 // setDone(true) also pulses the button once, so a parent sees that the game is finished.
 //   const current = build({ ...env, refresh: shell.refresh, setProgress: shell.setPos });
 //   return shell.mount(current, advance);
 // current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?, lockScroll?}.
 // lockScroll: the activity never scrolls and ignores pan gestures (tasks where a finger slides across the screen).
-export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false, tip = null, tipKey = '' }) {
+export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false, tip = null, tipKey = '', noScript = false, noAgain = false }) {
   const { router, speech, store } = ctx;
   let current = null, doneHook = () => {};
   const scriptText = h('p', { class: 'script-text' });
@@ -83,7 +84,9 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
         }
       };
       const closeScript = () => setOpen(false);
-      if (full) {
+      if (noScript) {
+        wrap = null;
+      } else if (full) {
         const fullCard = h('section', { class: 'script-card full', 'aria-label': 'Parent script' },
           h('span', { class: 'script-ic' }, icon('adult', 22)),
           h('div', { class: 'script-body' }, h('span', { class: 'script-tag' }, 'Say this'), scriptText, tipEl()),
@@ -111,7 +114,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
         if (skipUntilDone) nextText.textContent = done ? 'Finish' : 'Skip';
         if (done && !reduced()) next.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.04)', offset: 0.5 }, { transform: 'scale(1)' }], { duration: 420, easing: 'ease-in-out' });
       };
-      const foot = h('footer', { class: 'task-foot' }, wrap, h('div', { class: 'task-buttons' }, again, next));
+      const foot = h('footer', { class: 'task-foot' + (noScript ? ' no-script' : '') }, ...(wrap ? [wrap] : []), h('div', { class: 'task-buttons' + (noAgain ? ' solo' : '') }, ...(noAgain ? [] : [again]), next));
       refreshAll();
 
       const root = h('div', { class: 'task-screen' + (full ? ' full-script' : '') }, head, stage, foot);
@@ -126,7 +129,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
       let introTimer = 0;
       const saved = store.settings.seenScripts, seen = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
       const keys = tip ? [...seenKeys, tipKey] : seenKeys;
-      if (!full && autoOpen && keys.some((k) => !seen[k])) {
+      if (!noScript && !full && autoOpen && keys.some((k) => !seen[k])) {
         // Marked as seen only when it really opens, so leaving within half a second does not burn the first-visit help.
         const longer = tip && !seen[tipKey]; // a tip is worth reading: it stays open longer
         introTimer = setTimeout(() => {

@@ -9,6 +9,7 @@ import { AUDIO_STUB } from './stubs.mjs';
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // Saved progress with every lesson done (so every lesson and checkpoint is open), built from the data.
+const CUR_CK = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')).checkpoints;
 const LESSON_COUNT = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')).lessons.length;
 export const doneThrough = (n = LESSON_COUNT) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it' }]));
 export const DONE_JSON = JSON.stringify(doneThrough());
@@ -90,7 +91,7 @@ export async function touchSession(page) {
 
 // Every kind of task and lesson already seen on this device, so the parent script does not open by itself over the
 // controls a test is about to tap. (The first-visit behaviour is tested with an empty list.)
-export const SEEN_BASE = { rideIntro: true, storyIntro: true, review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, barn: true, practice: true, book: true, ride: true, check: true, checkpoint: true, ...Object.fromEntries(Array.from({ length: LESSON_COUNT }, (_, i) => [`lesson:${i + 1}`, true])) };
+export const SEEN_BASE = { rideIntro: true, ...Object.fromEntries(CUR_CK.filter((c) => c.kind === 'book').map((c) => ['storyIntro:' + c.id, true])), review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, barn: true, practice: true, book: true, ride: true, check: true, checkpoint: true, ...Object.fromEntries(Array.from({ length: LESSON_COUNT }, (_, i) => [`lesson:${i + 1}`, true])) };
 // Everything the first-visit help shows, tips included: tests that are not about the help start from here.
 import { TIPS } from '../js/guide.js';
 export const SEEN = { ...SEEN_BASE, ...Object.fromEntries(Object.keys(TIPS).map((k) => { const [lesson, type] = k.split(':'); return [`tip:${lesson}:${type}`, true]; })) };

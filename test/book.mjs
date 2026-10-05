@@ -186,6 +186,93 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
   await made.ctx.close();
 }
 
+// Fit: every page of the book lies fully inside its page at the phone sizes that matter: the Back and Next page buttons, the
+// child's word box and every word in it. The picture shrinks first, then the word steps down; the word stays the biggest text.
+export const FIT_SIZES = [[346, 690], [360, 640], [375, 667], [390, 844], [412, 780], [915, 412]];
+export async function bookFit({ browser, url, ok, sizes = FIT_SIZES, shot = null, extraSeed = null }) {
+  for (const [w, hgt] of sizes) {
+    const { ctx, page, errors } = await newPage(browser, { name: 'fit', width: w, height: hgt, deviceScaleFactor: 1 });
+    await page.addInitScript(SPEECH_STUB);
+    await page.addInitScript(extraSeed || seedScript);
+    await page.goto(url + `#/checkpoint/${ck.id}`);
+    await page.waitForSelector('.book-stage');
+    await page.waitForTimeout(400);
+    await page.locator('.book-cover').click();
+    await page.waitForSelector('.book[data-state="open"]', { timeout: 1500 });
+    const tag = `fit ${w}x${hgt}`;
+    const bad = [];
+    for (let n = 0; n < BOOK.pages.length; n++) {
+      await page.waitForFunction((k) => Number(document.querySelector('.book-stage').dataset.page) === k && !document.querySelector('.book-leaf'), n);
+      await page.waitForTimeout(80);
+      const m = await page.evaluate(() => {
+        const inside = (el, box, why) => { const r = el.getBoundingClientRect(), b = box.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.top >= b.top - 1 && r.bottom <= b.bottom + 1 && r.left >= b.left - 1 && r.right <= b.right + 1 ? null : `${why} ${[r.left, r.top, r.right, r.bottom].map(Math.round)} not in ${[b.left, b.top, b.right, b.bottom].map(Math.round)}`; };
+        const out = [];
+        const view = { getBoundingClientRect: () => ({ left: 0, top: 0, right: innerWidth, bottom: innerHeight }) };
+        for (const sel of ['.book-back', '.book-next', '.book-child', '.book-child .glyph-row', '.book-read', '.book-art']) {
+          for (const el of document.querySelectorAll(`.book-sheet.is-live ${sel}`)) {
+            const sheet = el.closest('.book-sheet'), why = inside(el, sheet, sel) || inside(el, view, sel + ' (screen)');
+            if (why) out.push(why);
+          }
+        }
+        for (const s of document.querySelectorAll('.book-sheet.is-live')) if (s.scrollHeight > s.clientHeight + 1) out.push(`sheet scrolls ${s.scrollHeight} > ${s.clientHeight}`);
+        const next = document.querySelector('.task-buttons .next'); if (next) { const r = next.getBoundingClientRect(); if (r.bottom > innerHeight + 1 || r.top < 0) out.push('Finish/Skip button off screen'); }
+        const fsz = Math.max(0, ...[...document.querySelectorAll('.book-sheet.is-live .book-read p')].map((p) => parseFloat(getComputedStyle(p).fontSize)));
+        const kids = [...document.querySelectorAll('.book-sheet.is-live .book-child svg')].map((s) => s.getBoundingClientRect().height);
+        const art = document.querySelector('.book-sheet.is-live .book-art');
+        return { out, fsz, minKid: kids.length ? Math.min(...kids) : null, art: art ? art.getBoundingClientRect().height : null, hasNext: !!document.querySelector('.book-sheet.is-live .book-next'), hasBack: !!document.querySelector('.book-sheet.is-live .book-back') };
+      });
+      for (const o of m.out) bad.push(`page ${n + 1}: ${o}`);
+      if (!m.hasBack) bad.push(`page ${n + 1}: no Back button`);
+      if (n < BOOK.pages.length - 1 && !m.hasNext) bad.push(`page ${n + 1}: no Next page button`);
+      if (m.minKid !== null && !(m.minKid > m.fsz * 1.4)) bad.push(`page ${n + 1}: the child's word (${Math.round(m.minKid)} px) is not clearly bigger than the text (${m.fsz} px)`);
+      if (m.art !== null && m.art < 48) bad.push(`page ${n + 1}: the picture is squeezed to ${Math.round(m.art)} px`);
+      if (shot && n === 3) await shot(page, `fit-${w}x${hgt}-page-4`);
+      if (n < BOOK.pages.length - 1) await page.locator('.book-next').click();
+    }
+    ok(bad.length === 0, `${tag}: every page fits inside the page, nav and child's word whole (${bad.slice(0, 4).join(' ; ')}${bad.length > 4 ? ` ... ${bad.length} problems` : ''})`);
+    ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+}
+
+// The grown-up page before the book: once per book, "i" brings it back, and the book screen has no script bar.
+export async function bookIntro({ browser, url, ok, shotDir = null }) {
+  const seen = { ...SEEN }; delete seen[`storyIntro:${ck.id}`];
+  const seed = `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: done(ck.after), settings: { seenScripts: seen }, firstRunDone: true, meetDue: false, character: { name: NAME } })})); }`;
+  const BULLETS = ['You read the small words out loud.', 'Your child reads the big words. They use only sounds your child knows.', 'Under some words is a slider. Have your child slide a finger along it while saying each sound, then say the whole word.', 'Tap the pictures to make them move.', 'Swipe or tap the corner to turn the page.'];
+  for (const [w, hh] of [[346, 690], [915, 412]]) {
+    const { ctx, page, errors } = await newPage(browser, { name: 'intro', width: w, height: hh, deviceScaleFactor: 2 });
+    await page.addInitScript(SPEECH_STUB); await page.addInitScript(seed);
+    await page.goto(url + `#/checkpoint/${ck.id}`);
+    await page.waitForSelector('.book-intro'); await page.waitForTimeout(700);
+    const tag = `book intro ${w}x${hh}`;
+    ok((await page.locator('.book-intro h2').innerText()) === 'Story time', `${tag}: the first open shows "Story time"`);
+    ok(JSON.stringify(await page.locator('.book-intro li').allInnerTexts()) === JSON.stringify(BULLETS), `${tag}: the five bullets, word for word`);
+    ok((await page.locator('.book-intro-go').innerText()) === 'Open the book', `${tag}: the button reads Open the book`);
+    const f = await page.evaluate(() => { const k = document.querySelector('.book-intro .ride-intro-card'), r = k.getBoundingClientRect(); return { ok: r.top >= 0 && r.bottom <= innerHeight && r.right <= innerWidth && k.scrollHeight <= k.clientHeight + 1, r: [r.top, r.bottom, innerHeight, k.scrollHeight, k.clientHeight] }; });
+    ok(f.ok, `${tag}: the intro fits whole ${JSON.stringify(f.r)}`);
+    ok((await page.locator('.script-wrap, .script-bar, .script-toggle, .script-card').count()) === 0, `${tag}: no "Say this" bar in the book screen`);
+    ok((await page.locator('.task-buttons .again').count()) === 0 && (await page.locator('.task-buttons .next').count()) === 1, `${tag}: no Again button; Skip/Finish stays to record progress`);
+    if (shotDir && w === 346) await page.screenshot({ path: path.join(shotDir, 'story-intro.png') });
+    await page.locator('.book-intro-go').click();
+    await page.waitForSelector('.book[data-state="open"]', { timeout: 2500 });
+    ok((await page.locator('.book-intro').count()) === 0, `${tag}: Open the book closes the intro and opens the book`);
+    await page.reload(); await page.waitForSelector('.book-stage'); await page.waitForTimeout(700);
+    ok((await page.locator('.book-intro').count()) === 0 && (await page.locator('.book[data-state="closed"]').count()) === 1, `${tag}: the second open has no intro`);
+    ok((await page.locator('.book-info').isVisible()) && (await page.locator('.book-info').innerText()) === 'i', `${tag}: a small "i" sits on the cover`);
+    const ib = await page.locator('.book-info').boundingBox(); ok(ib.width >= 44 && ib.height >= 44, `${tag}: the "i" is a real tap target (${ib.width}x${ib.height})`);
+    if (shotDir && w === 346) await page.screenshot({ path: path.join(shotDir, 'story-cover-i.png') });
+    await page.locator('.book-info').click();
+    await page.waitForSelector('.book-intro');
+    ok((await page.locator('.book-intro h2').innerText()) === 'Story time', `${tag}: "i" reopens the intro`);
+    await page.locator('.book-intro-go').click();
+    await page.waitForSelector('.book[data-state="open"]', { timeout: 2500 });
+    ok((await page.locator('.book-info').isHidden()), `${tag}: the "i" is gone once the book is open`);
+    ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+}
+
 // Landscape: a two-page spread that fits without scrolling on every page, then reduced motion.
 export async function bookLandscape({ browser, url, ok, shot = null }) {
   const vp = VIEWPORTS[1];
@@ -249,6 +336,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const browser = await launch(await loadPlaywright());
   await bookChecks({ browser, url, ok });
   await bookLandscape({ browser, url, ok });
+  await bookFit({ browser, url, ok, shot: async (pg, n) => { if (n === 'fit-346x690-page-4') await pg.screenshot({ path: path.join(ROOT, 'docs/screenshots/v185/book-346x690-page-4.png') }); } });
+  await bookIntro({ browser, url, ok, shotDir: path.join(ROOT, 'docs/screenshots/v185') });
   await bookReduced({ browser, url, ok });
   await browser.close(); server.close();
   console.log(`book: ${checks - failures}/${checks} checks passed`);
