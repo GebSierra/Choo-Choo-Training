@@ -69,7 +69,7 @@ More sounds in `data/curriculum.json` (the format already allows 120 lessons), t
 
 Letter sound clips are derived from Wikipedia's IPA vowel and consonant chart recordings, CC BY-SA 3.0, obtained via github.com/joshstephenson/PhoneticFlashCards, trimmed and loudness-normalized.
 
-Fonts: Nunito (SIL Open Font License), self-hosted. Pictures for the sound "a": Mentava's "Alphabet Sounds" (see the private-use notice above).
+Fonts: Nunito (SIL Open Font License), self-hosted. Andika by SIL International, SIL Open Font License 1.1 (`assets/fonts/ANDIKA-OFL.txt`), used only inside the storybook. Pictures for the sound "a": Mentava's "Alphabet Sounds" (see the private-use notice above).
 
 ## Decisions made during build
 
@@ -370,3 +370,7 @@ The design is in `docs/TRAIN-WORLD.md`; screenshots at four phone sizes are in `
 ### Decisions made during build: version 1.8.1 (sound order)
 
 - v1.8.1: the sound order is m a s i t p n f d h g b l (`js/order.js`). Lessons 4 to 13 are rebuilt by `tools/gen-lessons.mjs`. A real install (its saved state has a string `lastOpened`) saved under another order has its lessons, checkpoints, `trainAt` and `lesson:` first-time scripts cleared once, with no message; settings, the name and the welcome stay, and test seeds (no `lastOpened`) keep their progress. Smooth Ride and Story 1 both sit after lesson 4 (Smooth Ride first). `check-content` now proves every word the child reads is readable with the sounds taught by then (plus is, I, It) and that no page naming `{name}` uses he or she.
+
+### Decisions made during build: version 1.8.2 (the storybook)
+
+- v1.8.2: Story 1 is a picture book. Technique: CSS 3D transforms on DOM pages (`js/components/page-turn.js`), not canvas, because every page holds live interactive DOM (the slider, the train drag, taps, review tiles) that a canvas would have to rebuild. The turning page is a leaf of static clones swung around the spine with WAAPI on transform and opacity; JavaScript runs only to set up a turn and, during a finger drag, to set the angle once per pointer move. Andika (400 and 700, self-hosted) sets the grown-up's text and the cover. The stop opens on a closed cover; Finish closes the book, then the two-tap finish screen shows. One page in portrait; a two-page spread (text left, picture and the child's word right) when the stage is at least 1.3 times as wide as tall with room for two pages of about 295 px. Idle rules: no rAF, no timers, at most 6 CSS animations (transform and opacity only), paused when the tab is hidden, a cross-fade and no leaf under reduced motion.

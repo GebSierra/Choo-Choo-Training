@@ -6,6 +6,7 @@ import { slideTrack } from '../components/slide-track.js';
 import { slideBlend, placeBand, startSweep, handCue } from '../components/slide-blend.js';
 import { timers } from '../components/game-kit.js';
 import { sfx } from '../sfx.js';
+import { pageTurner } from '../components/page-turn.js';
 
 const INK = '#1E2140';
 const FRIEND = "Pip's friend"; // when no name is set: fits every sentence of Books 1 and 2
@@ -40,11 +41,28 @@ const TAP_MS = { wave: 700, giggle: 800, bounce: 800, walk: 900, toot: 500 };
 export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDone }) {
   const pages = book.pages;
   const T = timers();
+  const INTERACTIVE = 'button, input, .slide-band, .slide-track, .book-word[data-slider], .book-tile';
   let i = 0, anims = [], blend = null, bandWatch = null, bandEl = null, cue = null, sweepAnim = null, track = null;
+  let spread = false, turnId = 0, coverAnim = null;
   const keep = (a) => { anims.push(a); return a; };
 
   const stage = h('div', { class: 'book-stage', dataset: { page: '0' } });
   const el = stage;
+  const block = h('div', { class: 'book-block' });
+  const cornerPrev = h('button', { class: 'book-corner prev', type: 'button', 'aria-label': 'Previous page', hidden: true, onclick: () => go(i - 1) });
+  const cornerNext = h('button', { class: 'book-corner next', type: 'button', 'aria-label': 'Next page', onclick: () => go(i + 1) });
+  block.append(cornerPrev, cornerNext);
+  const cover = h('button', { class: 'book-cover', type: 'button', 'aria-label': `Open the book: ${book.title}` },
+    h('span', { class: 'cover-front' },
+      h('span', { class: 'cover-title' }, book.title),
+      h('span', { class: 'cover-pip', 'aria-hidden': 'true' }, pipSvg({ pose: 'wave', still: false })),
+      h('span', { class: 'cover-hint' }, 'Tap to open')),
+    h('span', { class: 'cover-back', 'aria-hidden': 'true' }));
+  const bookEl = h('div', { class: 'book', tabindex: '0', dataset: { state: 'closed', spread: '0' } }, block, cover);
+  stage.append(bookEl);
+  const state = () => bookEl.dataset.state;
+  const setState = (s) => { bookEl.dataset.state = s; };
+  const turner = pageTurner({ block, spread: () => spread, reducedMotion: reduced });
 
   function teardown() {
     T.clear();
@@ -66,9 +84,10 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     if (a.train) {
       const p = h('span', { class: 'book-part book-train' }, engineSvg({ pose: a.pip || 'idle', still: true }));
       const puffs = h('span', { class: 'book-puffs', 'aria-hidden': 'true' });
-      p.append(puffs); p.puffs = puffs; parts.train = p;
+      p.append(puffs, h('span', { class: 'book-smoke', 'aria-hidden': 'true', style: { left: `calc(${FUNNEL_TOP.x * 100}% - 11px)`, top: `calc(${FUNNEL_TOP.y * 100}% - 11px)` } }));
+      p.puffs = puffs; parts.train = p;
     } else if (a.pip) {
-      parts.pip = h('span', { class: 'book-part book-pip' }, pipSvg({ pose: a.pip, still: true }));
+      parts.pip = h('span', { class: 'book-part book-pip' }, pipSvg({ pose: a.pip, still: false }));
     }
     if (a.friend) parts.friend = h('span', { class: 'book-part book-friend', role: 'img', 'aria-label': (store.character().name || FRIEND) }, h('span', { class: 'book-emoji' }, '🧒'));
     if (a.emoji) parts.emoji = h('span', { class: 'book-part book-emojis', role: 'img', 'aria-hidden': 'true' }, a.emoji.map((e) => h('span', { class: 'book-emoji' }, e)));
@@ -122,21 +141,22 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     return { box, sliderSvg, sliderRow };
   }
 
-  function mountSlider(c) {
-    const bar = h('span', { class: 'blend-bar book-bar', 'aria-hidden': 'true' }, h('i'));
+  let pending = null; // what start() must mount for the page just painted
+  function mountSlider(c, host) {
+    const bar = c.bar;
     const band = h('span', { class: 'slide-band', 'aria-hidden': 'true' });
-    c.box.after(bar);
-    stage.append(band); bandEl = band;
-    blend = slideBlend({ band, svg: c.sliderSvg, host: stage, lift: c.sliderRow, bar, accent: null, onTouch: stopSweep, onTap: () => {} });
-    bandWatch = placeBand(band, stage, c.sliderRow);
+    host.append(band); bandEl = band;
+    blend = slideBlend({ band, svg: c.sliderSvg, host, lift: c.sliderRow, bar, accent: null, onTouch: stopSweep, onTap: () => {} });
+    bandWatch = placeBand(band, host, c.sliderRow);
     sweepAnim = startSweep(c.sliderRow.sweep);
-    if (sweepAnim) cue = handCue(stage, bar);
+    if (sweepAnim && bar.getBoundingClientRect().width) cue = handCue(host, bar); // in a spread the bar is hidden: the sweep alone shows the way
     bar.dataset.bar = '1';
   }
   const stopSweep = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } if (cue) { cue.stop(); cue = null; } };
 
   // ---- the page ----
-  function render(n) {
+  const liveSheet = (side) => { const s = document.createElement('section'); s.className = `book-sheet is-${side} is-live`; return s; };
+  function paint(n) {
     teardown();
     i = n;
     const page = pages[i], kind = page.kind || 'page';
@@ -149,11 +169,10 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     if (page.sound) read.append(h('p', { class: 'book-says' }, 'Your child says: ', h('b', {}, page.sound)));
     if (page.after) read.append(h('p', { class: 'book-after' }, page.after));
 
-    const back = h('button', { class: 'btn ghost book-back', type: 'button', 'aria-label': 'Back one page', disabled: i === 0, onclick: () => render(i - 1) }, 'Back');
     const last = i === pages.length - 1;
-    const next = h('button', { class: 'btn book-next', type: 'button', onclick: () => render(i + 1) }, 'Next page');
-    const nav = h('div', { class: 'book-nav' }, back, last ? null : next);
-    const kids = [read];
+    const back = h('button', { class: 'btn ghost book-back', type: 'button', 'aria-label': 'Back one page', disabled: i === 0, onclick: () => go(i - 1) }, 'Back');
+    const next = last ? null : h('button', { class: 'btn book-next', type: 'button', onclick: () => go(i + 1) }, 'Next page');
+    const mid = [];
     let c = null;
 
     if (kind === 'drag') {
@@ -161,7 +180,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
       track = slideTrack({ handle: engineSvg({ still: true }), onComplete: () => { track.dataset.done = '1'; sfx.play('toot'); } });
       track.classList.add('book-track');
       art.append(track);
-      kids.push(art);
+      mid.push(art);
     } else if (kind === 'review') {
       const tiles = h('div', { class: 'book-tiles' }, page.words.map((w) => {
         const svg = wordSvg(w, { color: INK, label: w, all: true });
@@ -174,28 +193,151 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
         });
         return tile;
       }));
-      kids.push(tiles);
+      mid.push(tiles);
       setDone(true);
     } else {
       const s = scene(page);
-      kids.push(s.art);
-      if (page.child) { c = child(page); kids.push(c.box); }
+      mid.push(s.art);
+      if (page.child) {
+        c = child(page); mid.push(c.box);
+        if (c.sliderSvg) { c.bar = h('span', { class: 'blend-bar book-bar', 'aria-hidden': 'true' }, h('i')); mid.push(c.bar); }
+      }
     }
+    const folio = h('span', { class: 'book-folio', 'aria-hidden': 'true' }, String(i + 1));
+    const R = liveSheet('right'), L = spread ? liveSheet('left') : null;
+    if (spread) {
+      L.append(read, h('div', { class: 'book-nav' }, back));
+      R.append(...mid, h('div', { class: 'book-nav' }, next), folio);
+    } else R.append(read, ...mid, h('div', { class: 'book-nav' }, back, next), folio);
+    block.querySelectorAll('.book-sheet.is-live').forEach((s) => s.remove());
+    block.prepend(...(L ? [L] : []), R);
     stage.classList.toggle('has-child', !!c);
-    stage.replaceChildren(...kids, nav);
-    if (c && c.sliderSvg) mountSlider(c);
-    if (!reduced()) keep(animate(stage, [{ opacity: 0 }, { opacity: 1 }], { duration: 220, fill: 'none' }));
+    cornerPrev.hidden = i === 0;
+    cornerNext.hidden = last;
+    pending = c && c.sliderSvg ? { c, host: R } : null;
     setProgress(i);
     refresh();
   }
-  render(0);
+
+  // Runs after a turn (or at once): the parts that need measuring or that run, so nothing is measured mid-turn.
+  function start() {
+    if (state() !== 'open') return;
+    if (pending) { mountSlider(pending.c, pending.host); pending = null; }
+  }
+
+  async function go(n) {
+    if (n < 0 || n >= pages.length || n === i) return;
+    if (state() !== 'open' && state() !== 'turning') return;
+    if (turner.busy) turner.finish();
+    const my = ++turnId;
+    setState('turning');
+    await turner.turn(Math.sign(n - i), () => paint(n));
+    if (my !== turnId) return;
+    setState('open');
+    start();
+  }
+
+  // ---- fingers ----
+  let ds = null;
+  const sheetWidth = () => (block.querySelector('.book-sheet.is-live') || block).offsetWidth || 300;
+  block.addEventListener('pointerdown', (e) => {
+    if (state() !== 'open' || !e.isPrimary || e.button > 0 || e.target.closest(INTERACTIVE)) return;
+    ds = { id: e.pointerId, x: e.clientX, y: e.clientY, drag: null, dir: 0, k: 0, samples: [[e.clientX, performance.now()]] };
+  });
+  block.addEventListener('pointermove', (e) => {
+    if (!ds || e.pointerId !== ds.id) return;
+    const dx = e.clientX - ds.x, dy = e.clientY - ds.y;
+    ds.samples.push([e.clientX, performance.now()]);
+    if (ds.samples.length > 6) ds.samples.shift();
+    if (!ds.drag) {
+      if (Math.abs(dx) <= 12 || Math.abs(dx) <= 1.4 * Math.abs(dy)) return;
+      const dir = dx < 0 ? 1 : -1, target = i + dir;
+      if (target < 0 || target >= pages.length) { ds = null; return; }
+      turnId++; setState('turning');
+      ds.dir = dir; ds.origin = i;
+      ds.drag = turner.drag(dir, () => paint(target));
+      try { block.setPointerCapture(e.pointerId); } catch { /* a synthetic pointer: fine */ }
+    }
+    if (Math.sign(dx) === -ds.dir || dx === 0) ds.k = Math.min(1, Math.abs(dx) / sheetWidth()); else ds.k = 0;
+    ds.drag.move(ds.k);
+  });
+  const lift = async (e) => {
+    if (!ds || e.pointerId !== ds.id) return;
+    const d = ds; ds = null;
+    if (!d.drag) return;
+    const my = ++turnId;
+    const [x0, t0] = d.samples[0], [x1, t1] = d.samples[d.samples.length - 1];
+    const v = t1 > t0 ? ((x1 - x0) / (t1 - t0)) * -d.dir : 0; // px per ms in the direction of the turn
+    const commit = e.type === 'pointerup' && (d.k > 50 / 180 || v > 0.35);
+    await d.drag.release(commit, () => paint(d.origin));
+    if (my !== turnId) return;
+    setState('open');
+    start();
+  };
+  block.addEventListener('pointerup', lift);
+  block.addEventListener('pointercancel', lift);
+  bookEl.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(i + 1); } else if (e.key === 'ArrowLeft') { e.preventDefault(); go(i - 1); }
+  });
+
+  // ---- the cover ----
+  const coverMove = (open) => {
+    if (reduced()) return cover.animate(open ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 0 }, { opacity: 1 }], { duration: 200, fill: 'forwards' });
+    return cover.animate(open ? [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(-180deg)' }] : [{ transform: 'rotateY(-180deg)' }, { transform: 'rotateY(0deg)' }],
+      { duration: open ? 800 : 700, easing: 'cubic-bezier(.4,.1,.3,1)', fill: 'forwards' });
+  };
+  async function openCover() {
+    if (state() !== 'closed') return;
+    setState('opening');
+    coverAnim = coverMove(true);
+    try { await coverAnim.finished; } catch { return; }
+    coverAnim.cancel(); coverAnim = null;
+    cover.hidden = true;
+    setState('open');
+    start();
+    try { bookEl.focus({ preventScroll: true }); } catch { /* fine */ }
+  }
+  let cs = null;
+  cover.addEventListener('click', openCover);
+  cover.addEventListener('pointerdown', (e) => { if (e.isPrimary) cs = { id: e.pointerId, x: e.clientX }; });
+  cover.addEventListener('pointermove', (e) => { if (cs && e.pointerId === cs.id && cs.x - e.clientX > 40) { cs = null; openCover(); } });
+  cover.addEventListener('pointerup', () => { cs = null; });
+  cover.addEventListener('pointercancel', () => { cs = null; });
+
+  function close() {
+    turner.finish(); teardown();
+    return new Promise((resolve) => {
+      if (state() === 'closed' || state() === 'closing') return resolve();
+      cover.hidden = false;
+      setState('closing');
+      const a = coverMove(false);
+      a.finished.then(resolve, resolve);
+    });
+  }
+
+  // ---- one page or a spread: the stage decides ----
+  const wantSpread = () => { const w = stage.clientWidth, hh = stage.clientHeight; return w >= 1.3 * hh && (w - 40) / 2 >= 295 && hh >= 260; };
+  const ro = new ResizeObserver(() => {
+    const s = wantSpread();
+    if (s === spread) return;
+    spread = s; turner.finish(); turnId++;
+    bookEl.dataset.spread = s ? '1' : '0';
+    if (state() === 'turning') setState('open');
+    paint(i); start();
+  });
+  ro.observe(stage);
+  const onVis = () => bookEl.classList.toggle('is-paused', document.hidden);
+  document.addEventListener('visibilitychange', onVis);
+
+  paint(0);
 
   return {
     el, flush: true,
     parts: () => [], // silent: the page text, and so the child's name, never reaches a speech engine
     script: () => 'Read the page aloud. When you reach the big word, point to it and let your child read it. Do not say letter names.',
     gist: () => 'Read; your child reads the big word',
-    again: () => { setDone(false); render(0); },
-    cleanup: teardown,
+    again: () => { setDone(false); turner.finish(); turnId++; if (state() === 'turning') setState('open'); paint(0); start(); },
+    close,
+    cleanup() { teardown(); turner.cleanup(); ro.disconnect(); document.removeEventListener('visibilitychange', onVis); if (coverAnim) coverAnim.cancel(); },
   };
 }
