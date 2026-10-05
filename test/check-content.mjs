@@ -12,7 +12,7 @@ export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee'
 // Words where s says z, which a child must not learn as an s word.
 export const S_SAYS_Z = ['as', 'is', 'his', 'has', 'was', 'does', 'goes', 'hers', 'ours', 'yours'];
 // Letters that look like each other, so they never stand together in a game or a Quick Check (mirror and look-alike pairs).
-import { LOOKALIKE, boardWords } from '../js/games-data.js';
+import { LOOKALIKE, boardWords, gameSlot } from '../js/games-data.js';
 export const LOOKALIKE_PAIRS = LOOKALIKE;
 export const lookAlike = (x, y) => LOOKALIKE_PAIRS.some((p) => (p[0] === x && p[1] === y) || (p[0] === y && p[1] === x));
 // Contrast of a colour on white (WCAG), so a glyph in its accent stays visible.
@@ -137,8 +137,8 @@ export function checkCurriculum(c, root = ROOT) {
     });
   }
 
-  // The two games: one spoken line each, and distractor letters per taught sound.
-  for (const kind of ['hunt', 'barn']) {
+  // Letter Hunt: one spoken line, and, and distractor letters per taught sound.
+  for (const kind of ['hunt']) {
     const g = (c.games || {})[kind];
     const p = `games.${kind}`;
     if (!g) { err(`${p} missing`); continue; }
@@ -155,6 +155,19 @@ export function checkCurriculum(c, root = ROOT) {
     }
   }
 
+  // The game slot: every lesson lists 1 or 2 of the tap games, the ones gameSlot picks; Board needs its words.
+  {
+    const ord = (c.lessons || []).map((x) => x.sound);
+    for (const L of c.lessons || []) {
+      const g = L.games, want = gameSlot(ord, L.number);
+      if (!Array.isArray(g) || g.length < 1 || g.length > 2 || !g.every((k) => ['signals', 'wagons', 'board'].includes(k))) err(`lesson ${L.number}.games must hold 1 or 2 of signals, wagons, board`);
+      else if (g.join() !== want.join()) err(`lesson ${L.number}.games is ${g.join()} but the rotation says ${want.join()}`);
+      if (Array.isArray(g) && g.includes('board') && !L.board) err(`lesson ${L.number} lists board but has no board words`);
+    }
+    if (c.lessons && c.lessons[0] && (c.lessons[0].games || []).join() !== 'wagons') err('lesson 1 must hold only Wagon Parade');
+    for (const [k, s] of Object.entries(c.sounds || {})) if (s.clip !== null && s.clip !== `assets/audio/sounds/${k}.mp3`) err(`sounds.${k}.clip must be assets/audio/sounds/${k}.mp3 or null`);
+    if ((c.games || {}).barn) err('games.barn must be gone (Barn Doors was removed in 1.9.3)');
+  }
   // Station Board words: 3 or 4 per lesson, taught letters only, each target once in its word, no word twice.
   for (const L of c.lessons || []) {
     if (!L.board) continue;

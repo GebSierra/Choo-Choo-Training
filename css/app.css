@@ -548,7 +548,7 @@ html { touch-action: manipulation; }
 button, .stone, .slide-track, .trace-pad { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none; }
 
-/* ---------- games: the farm, Letter Hunt, Barn Doors ---------- */
+/* ---------- games: the farm and Letter Hunt ---------- */
 .task-activity.flush { padding: 0; overflow: hidden; }
 .game { flex: 1; display: flex; flex-direction: column; min-height: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .farm { position: relative; flex: 1; min-height: 0; overflow: hidden; }
@@ -577,17 +577,9 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 
 .goal-glow { position: absolute; left: -20%; right: -20%; top: -14%; bottom: -8%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,230,150,.85), rgba(255,230,150,0)); opacity: 0; transition: opacity 500ms ease; }
 .hunt-goal.done .goal-glow { opacity: 1; }
-.barn { left: 50%; bottom: 60px; z-index: 1; margin-left: calc(var(--bw, 300px) / -2); will-change: transform; }
-.barn .barn-art { display: block; width: 100%; height: 100%; overflow: visible; }
-.barn-letter { position: absolute; left: 50%; top: 73%; width: calc(var(--bw, 300px) * .4); height: calc(var(--bw, 300px) * .4); transform: translate(-50%, -50%); padding: 0; border: 0; background: none; cursor: pointer; touch-action: manipulation; }
-.barn-letter:disabled { cursor: default; }
-.barn-letter .face { position: absolute; inset: 5%; display: grid; place-items: center; border-radius: 30%; background: radial-gradient(circle, #FFF6DC 55%, #F5DCA4); box-shadow: 0 0 28px rgba(255,214,120,.55); }
-.barn-letter .glyph { width: 90%; height: auto; }
-.barn-letter .font-letter { font-size: calc(var(--bw, 300px) * .4); }
-.barn-game .farm-sun { top: 64px; } .barn-game .farm-cloud.c1 { top: 32%; } .barn-game .farm-cloud.c2 { top: 48%; }
 .spark { z-index: 6; }
-.art-train, .art-barn, .art-crate, .art-wagons { display: block; width: 150px; } .art-signals { display: block; width: 74px; }
-.art-train svg.engine-art, .art-barn svg, .art-crate svg, .art-wagons svg, .art-signals svg { display: block; width: 100%; height: auto; }
+.art-train, .art-crate, .art-wag { display: block; width: 150px; } .art-sig { display: block; width: 74px; }
+.art-train svg.engine-art, .art-crate svg, .art-wag svg, .art-sig svg { display: block; width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) { .goal-glow { transition: none; } }
 
 /* ---------- Saying Sounds: slide to blend ---------- */
@@ -630,7 +622,6 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .sack .sack-art { display: block; width: 100%; height: 100%; overflow: visible; }
 .sack-front { position: absolute; left: 28%; top: 52%; width: 44%; }
 .sack-front .glyph { display: block; width: 100%; height: auto; }
-.sack-barn { left: 8px; bottom: 40px; width: 78px; z-index: 1; pointer-events: none; } .sack-barn .barn-art { display: block; width: 100%; height: auto; }
 .stone-top.stone-sack { background: #F7EAD0; } .stone-top.stone-sack .sack-art { width: 62%; height: auto; margin-top: 4px; }
 .stone.is-locked .stone-sack .sack-art { opacity: .45; }
 .finish-glyph .sack-art { width: 62%; height: auto; }

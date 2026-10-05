@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT } from '../test/lib.mjs';
 import { usedImages } from './precache-images.mjs';
-import { boardWords } from '../js/games-data.js';
+import { boardWords, gameSlot } from '../js/games-data.js';
 
 const FILE = path.join(ROOT, 'data/curriculum.json');
 const tile = (folder, word) => ({ word, image: `assets/images/mentava/web/${folder}/${word}.webp` });
@@ -69,7 +69,8 @@ const c = JSON.parse(fs.readFileSync(FILE, 'utf8'));
 const old = { sounds: ['m', 'a', 's'], lessons: 3 };
 c.sounds = Object.fromEntries(old.sounds.map((k) => [k, c.sounds[k]]));
 c.lessons = c.lessons.slice(0, old.lessons);
-for (const k of ['hunt', 'barn']) c.games[k].distractors = Object.fromEntries(old.sounds.map((s) => [s, c.games[k].distractors[s]]));
+for (const k of ['hunt']) c.games[k].distractors = Object.fromEntries(old.sounds.map((s) => [s, c.games[k].distractors[s]]));
+delete c.games.barn; // Barn Doors is gone (v1.9.3): the tap games take its place
 c.checkpoints = (c.checkpoints || []).filter((k) => k.kind);
 
 const phrase = (e) => (e.asIn ? `${e.say} as in ${e.asIn}` : e.say);
@@ -85,7 +86,7 @@ for (const w of c.gameDistractors) { const a = ALL_AVOID[w.word]; if (a && a.len
 for (const e of TABLE.filter((t) => t.n <= lastLesson)) {
   const words = e.tiles.map((t) => tile(...t.split('/')));
   const start = (e.start ? e.start.map((t) => tile(...t.split('/'))) : words).filter((w) => w.word[0] === e.k);
-  c.sounds[e.k] = { glyph: e.k, sayItLike: e.say, hold: e.hold, doNotSay: e.not, howTo: e.how, asIn: e.asIn || null, clip: null, words, startWords: start, practice: e.practice };
+  c.sounds[e.k] = { glyph: e.k, sayItLike: e.say, hold: e.hold, doNotSay: e.not, howTo: e.how, asIn: e.asIn || null, clip: `assets/audio/sounds/${e.k}.mp3`, words, startWords: start, practice: e.practice };
   const pickPicture = (w) => words.find((x) => x.word === w) || (() => { throw new Error('no tile for ' + w); })();
   const sayingSounds = [...e.words.map((w) => ({ word: w, emoji: null, showLetters: true })), { ...pickPicture(e.pic), showLetters: false }];
   const asInTail = e.asIn ? [{ tts: `as in ${e.asIn}.` }] : [];
@@ -109,7 +110,7 @@ for (const e of TABLE.filter((t) => t.n <= lastLesson)) {
     },
   });
   // Distractor letters for the two games, visually unlike the target.
-  for (const kind of ['hunt', 'barn']) c.games[kind].distractors[e.k] = [...e.hunt];
+  for (const kind of ['hunt']) c.games[kind].distractors[e.k] = [...e.hunt];
 }
 
 for (const w of c.gameDistractors) if (w.avoid) { w.avoid = w.avoid.filter((k) => k in c.sounds); if (!w.avoid.length) delete w.avoid; }
@@ -119,7 +120,7 @@ const taughtAt = (s) => { const i = c.lessons.findIndex((L) => L.sound === s); i
 for (const k of c.checkpoints) if (Array.isArray(k.needs)) k.after = Math.max(...k.needs.map(taughtAt));
 
 // Station Board words: for every lesson that has a full list (lessons 5 on), the proven short words of the bank.
-for (const L of c.lessons) { const b = boardWords(c.lessons.map((x) => x.sound), L.number, 4); if (b) L.board = b; else delete L.board; }
+for (const L of c.lessons) { const b = boardWords(c.lessons.map((x) => x.sound), L.number, 4); if (b) L.board = b; else delete L.board; L.games = gameSlot(c.lessons.map((x) => x.sound), L.number); }
 c.games.board = { say: 'Find the sound in the word.' };
 c.games.wagons = { say: 'Tap every wagon that has the sound.' };
 c.games.signals = { say: 'Listen. Then tap the light that makes the sound.' };
@@ -134,5 +135,7 @@ const lines = []; let line = '  ';
 for (const f of list) { const item = `'${f}', `; if ((line + item).length > 150) { lines.push(line.trimEnd()); line = '  '; } line += item; }
 lines.push(line.trimEnd());
 sw = sw.replace(/(\/\/ picture tiles curriculum\.json uses[^\n]*\n)[\s\S]*?(\n\];)/, `$1${lines.join('\n')}$2`);
+// Recorded sounds are optional precache files: one per sound clip (a missing file never stops the install).
+sw = sw.replace(/OPTIONAL_FILES = \[[^\]]*\];/, `OPTIONAL_FILES = [${Object.values(c.sounds).map((s) => s.clip).filter(Boolean).map((f) => `'${f}'`).join(', ')}];`);
 fs.writeFileSync(SW, sw);
 console.log(`gen-lessons: ${c.lessons.length} lessons, ${Object.keys(c.sounds).length} sounds, ${c.checkpoints.length} checkpoints, ${list.length} tiles in the precache list`);

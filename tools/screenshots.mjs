@@ -98,9 +98,9 @@ await page.goto(url + '#/lesson/1/task/3'); await page.waitForSelector('.sounds-
 await page.goto(url + '#/lesson/1/task/5'); await page.waitForSelector('.sky-letter'); await page.waitForTimeout(1200);
 for (let i = 0; i < 2; i++) { await page.evaluate(() => document.querySelector('.sky-letter[data-target="1"]:not(.popped)').click()); await page.waitForTimeout(i ? 350 : 1600); }
 await save(page, '09-letter-hunt.png');
-await page.goto(url + '#/lesson/2/task/7'); await page.waitForSelector('.barn-letter:not([disabled])'); await page.waitForTimeout(900);
-await page.click('.barn-letter'); await page.waitForTimeout(330);
-await save(page, '10-barn-doors.png');
+await page.goto(url + '#/lesson/2/task/7'); await page.waitForSelector('.signal'); await page.waitForTimeout(900);
+await page.click('.signal[data-target="1"]'); await page.waitForTimeout(330);
+await save(page, '10-green-light.png');
 await page.goto(url + '#/lesson/2'); await page.waitForSelector('.task-card'); await page.waitForTimeout(900);
 await page.evaluate(() => { const s = document.querySelector('.cards-scroll'); const c = document.querySelectorAll('.task-card')[6]; s.scrollTo({ left: c.offsetLeft - 20 }); });
 await page.waitForTimeout(700);
@@ -135,9 +135,9 @@ await lp.goto(url + '#/lesson/1/task/3'); await lp.waitForSelector('.sounds-stag
 await lp.goto(url + '#/lesson/1/task/5'); await lp.waitForSelector('.sky-letter'); await lp.waitForTimeout(1200);
 for (let i = 0; i < 2; i++) { await lp.evaluate(() => document.querySelector('.sky-letter[data-target="1"]:not(.popped)').click()); await lp.waitForTimeout(i ? 350 : 1600); }
 await save(lp, '12-letter-hunt-landscape.png');
-await lp.goto(url + '#/lesson/2/task/7'); await lp.waitForSelector('.barn-letter:not([disabled])'); await lp.waitForTimeout(900);
-await lp.click('.barn-letter'); await lp.waitForTimeout(330);
-await save(lp, '13-barn-doors-landscape.png');
+await lp.goto(url + '#/lesson/2/task/7'); await lp.waitForSelector('.signal'); await lp.waitForTimeout(900);
+await lp.click('.signal[data-target="1"]'); await lp.waitForTimeout(330);
+await save(lp, '13-green-light-landscape.png');
 
 // Round 2 (layout fixes): the screens that changed, at 360x780, 412x915 and 915x412.
 await land.close();
@@ -154,13 +154,13 @@ for (const [vn, w, h] of [['360', 360, 780], ['412', 412, 915], ['land', 915, 41
   await shot('#/lesson/2', 'overview');
   await shot('#/lesson/1/task/2', 'saying-words-revealed', async () => { await p.click('.merged-tile'); await p.waitForTimeout(1300); });
   await shot('#/lesson/1/task/5', 'letter-hunt');
-  await shot('#/lesson/1/task/6', 'barn-doors');
+  await shot('#/lesson/1/task/6', 'wagon-parade');
   await shot('#/lesson/1/task/7', 'quick-check');
   await shot('#/checkpoint/c1', 'sound-sack');
   await shot('#/lesson/1/task/1', 'sound-story');
   await c.close();
 }
-// The end of Letter Hunt: only the barn, the stars and the glow are left.
+// The end of Letter Hunt: only the station, the stars and the glow are left.
 {
   const c = await browser.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
   const p = await c.newPage();

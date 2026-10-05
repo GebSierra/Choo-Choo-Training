@@ -27,7 +27,7 @@ const route = (n, type) => `#/lesson/${n}/task/${tasksFor(CUR.lessons[n - 1]).fi
 const PRIMARY = {
   review: ['.slide-track'], newLetter: ['.slide-track', '.word-tile:first-child'], story: ['.hold-btn'], words: ['.parts-row', '.merged-tile', '.btn.ghost.small'],
   sounds: ['.sounds-stage', '.btn.ghost.small'], writing: ['.tp-ink', '.writing-buttons .btn'], hunt: ['.sky-letter', '.train-wrap', '.star-row'],
-  barn: ['.barn', '.star-row'], practice: ['.sack', '.sack-card'], check: ['.opt-card'],
+  signals: ['.signal', '.star-row'], wagons: ['.find-card', '.train-wrap', '.star-row'], board: ['.flap-tile', '.star-row'], practice: ['.sack', '.sack-card'], check: ['.opt-card'],
 };
 async function controlsFit(page, selectors, vp) {
   return page.evaluate(([sels, w, h]) => {
@@ -245,13 +245,13 @@ export async function timerAndFirstVisitChecks({ browser, url, ok }) {
     await page.clock.runFor(2000);
     ok((await expanded(page)) === 'false', 'afterwards: it stays compact until tapped');
     // A new lesson's first task opens it again; a later task of that lesson, whose kind was seen, does not.
-    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, barn: true, check: true, 'tip:2:newLetter': true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
+    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, check: true, 'tip:2:newLetter': true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
     await page.goto(url + route(2, 'review'));
     await page.waitForSelector('.script-toggle');
     await page.clock.runFor(1200);
     ok((await expanded(page)) === 'true', 'a lesson seen for the first time opens its first task with the script');
     // The app keeps its settings in memory, so write the "all seen" state and reload before checking the later task.
-    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, barn: true, check: true, 'lesson:2': true, 'tip:2:newLetter': true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
+    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, check: true, 'lesson:2': true, 'tip:2:newLetter': true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
     await page.reload();
     await page.waitForSelector('.script-toggle');
     await page.goto(url + route(2, 'newLetter'));
@@ -282,7 +282,7 @@ export async function timerAndFirstVisitChecks({ browser, url, ok }) {
     await ctx.close();
   }
   // The games never open the sheet over the play, even on a first visit.
-  for (const r of [route(1, 'hunt'), route(1, 'barn'), route(3, 'practice')]) {
+  for (const r of [route(1, 'hunt'), route(1, 'wagons'), route(3, 'practice')]) {
     const { ctx, page, errors } = await newPage(browser, vp);
     await page.clock.install();
     await page.addInitScript(SPEECH_STUB);

@@ -29,7 +29,7 @@ async function open(browser, url, vp, route, { clock = false, extra, settings } 
 const running = (page, sel, iterations, ms = null) => page.evaluate(([s, n, d]) => [...document.querySelectorAll(s)].reduce((c, e) => c + e.getAnimations().filter((a) => a.effect.getTiming().iterations === n && (d === null || a.effect.getTiming().duration === d)).length, 0), [sel, iterations, ms]);
 const anims = (page, sel) => page.evaluate((s) => [...document.querySelectorAll(s)].reduce((c, e) => c + e.getAnimations().length, 0), sel);
 
-// Item 12 and 14: Letter Hunt and Barn Doors idle hints, the ending fade and the Next pulse.
+// Item 12 and 14: Letter Hunt idle hints, the ending fade and the Next pulse.
 export async function gameFlowChecks({ browser, url, ok }) {
   const vp = VIEWPORTS[0];
   // Idle hints in Letter Hunt: after 8 quiet seconds the Find this card swells twice and the targets once; a touch starts the wait over.
@@ -51,15 +51,6 @@ export async function gameFlowChecks({ browser, url, ok }) {
     await page.clock.runFor(3500);
     ok((await running(page, '.find-card', 2)) === 1, 'Hunt hint: and a hint follows after 8 s of quiet again');
     ok(errors.length === 0, 'Hunt hint: errors ' + errors.join(' | '));
-    await ctx.close();
-  }
-  // Idle hints in Barn Doors: the Find this card pulses twice.
-  {
-    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'barn')}`, { clock: true });
-    await page.waitForSelector('.barn-letter');
-    await page.clock.runFor(8200);
-    ok((await running(page, '.find-card', 2)) === 1, 'Barn hint: after 8 s the Find this card pulses twice');
-    ok(errors.length === 0, 'Barn hint: errors ' + errors.join(' | '));
     await ctx.close();
   }
   // No hints with reduced motion.
@@ -90,23 +81,6 @@ export async function gameFlowChecks({ browser, url, ok }) {
     ok(errors.length === 0, 'Hunt ending: errors ' + errors.join(' | '));
     await ctx.close();
   }
-  // Barn Doors: Next pulses at five stars only.
-  {
-    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'barn')}`, { extra: undefined });
-    await page.addInitScript(() => { Math.random = () => 0.99; });
-    await page.reload();
-    await page.waitForSelector('.barn-letter');
-    for (let r = 1; r <= 5; r++) {
-      await page.waitForFunction(() => document.querySelector('.barn-game').dataset.state === 'open', null, { timeout: 6000 });
-      await page.waitForTimeout(450);
-      if (r === 5) ok((await anims(page, '.btn.next')) === 0, 'Barn: Next does not pulse before the last star');
-      await tap(page, page.locator('.barn-letter'));
-      await page.waitForTimeout(r < 5 ? 1000 : 200);
-    }
-    ok((await running(page, '.btn.next', 1)) === 1, 'Barn: Next pulses once at five stars');
-    ok(errors.length === 0, 'Barn pulse: errors ' + errors.join(' | '));
-    await ctx.close();
-  }
 }
 
 // Item 11 is in smoke.mjs and sack.mjs (the finish two-tap). Item 12 and 13: the Sound Sack tap path, idle demo and Skip / Finish.
@@ -131,7 +105,7 @@ export async function sackFlowChecks({ browser, url, ok }) {
     await page.waitForTimeout(150);
     ok((await running(page, '.sack-card[data-correct="1"]', 1)) >= 1, 'Sack tap: the right card flies');
     await page.waitForTimeout(700);
-    ok((await game('stars')) === '1' && (await page.locator('.star-row .gold-star').count()) === 1 && (await page.locator('.sack-barn ~ .spark, .farm .spark').count()) >= 0, 'Sack tap: a gold star fills');
+    ok((await game('stars')) === '1' && (await page.locator('.star-row .gold-star').count()) === 1 && (await page.locator('.farm .spark').count()) >= 0, 'Sack tap: a gold star fills');
     await page.waitForFunction(() => document.querySelector('.sack-game').dataset.round === '2', null, { timeout: 3000 });
     // Play the remaining rounds by tap: the label changes to Finish and Next pulses once at the end.
     for (let r = 2; r <= 3; r++) {
@@ -350,14 +324,6 @@ export async function layoutChecks({ browser, url, ok, vp }) {
     ok(letters.length >= 12 && letters.every((l) => l.in && !l.onGoal), `${tag} Hunt: ${letters.length} letters, all inside the sky and none on the station`);
     await ctx.close();
   }
-  {
-    const { ctx, page } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'barn')}`);
-    await page.waitForSelector('.barn-letter');
-    await page.waitForTimeout(700);
-    const b = await page.evaluate(() => { const e = document.querySelector('.barn').getBoundingClientRect(), s = document.querySelector('.farm').getBoundingClientRect(); return { w: e.width, bottom: s.bottom - e.bottom, in: e.top >= s.top }; });
-    ok(b.w <= Math.min(vp.width * 0.86, 360) + 1 && Math.abs(b.bottom - 60) < 1 && b.in, `${tag} Barn: the barn is at most min(86vw, 360px) and sits 60 px above the bottom (${Math.round(b.w)} px, ${Math.round(b.bottom)})`);
-    await ctx.close();
-  }
   // 24: Quick Check's prompt and cards are grouped in the middle of the stage.
   {
     const { ctx, page } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'check')}`);
@@ -369,10 +335,10 @@ export async function layoutChecks({ browser, url, ok, vp }) {
   }
   // 25: the speaker is violet with a white icon, white with a violet icon only on the violet stage; an open sheet dims the stage.
   {
-    const { ctx, page } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'barn')}`);
+    const { ctx, page } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'hunt')}`);
     await page.waitForSelector('.task-stage > .speak-btn');
     const bg = (sel) => page.evaluate((s) => getComputedStyle(document.querySelector(s)).backgroundColor, sel);
-    ok((await bg('.task-stage > .speak-btn')) === 'rgb(90, 75, 214)', `${tag} speaker: violet on the coral Barn stage`);
+    ok((await bg('.task-stage > .speak-btn')) === 'rgb(90, 75, 214)', `${tag} speaker: violet on the sky Hunt stage`);
     await page.evaluate(() => { location.hash = '#/lesson/1/task/0'; });
     await page.waitForFunction(() => document.querySelector('.task-stage.c-violet'));
     await page.waitForTimeout(500);

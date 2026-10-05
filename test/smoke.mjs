@@ -6,7 +6,7 @@ import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDra
 import { spokenStrings, isIsolated } from './check-content.mjs';
 import { tasksFor } from '../js/lessons.js';
 import { usedImages } from '../tools/precache-images.mjs';
-import { huntChecks, dragChecks, dragReducedChecks, barnChecks, reducedChecks } from './games.mjs';
+import { huntChecks, dragChecks, dragReducedChecks, reducedChecks } from './games.mjs';
 import { blendChecks, blendReducedChecks } from './blend.mjs';
 import { practiceChecks, renameChecks, sackMapChecks, sackGrownupsChecks } from './sack.mjs';
 import { dealerChecks } from './deal.mjs';
@@ -229,16 +229,14 @@ await grownupsScriptChecks({ browser, url, ok });
 // Sound effects: what would be scheduled for each event (Web Audio is a recorder in the tests).
 await sfxChecks({ browser, url, ok });
 await sfxGrownupsChecks({ browser, url, ok });
-// The games (Letter Hunt, Barn Doors): layout and touch behaviour at the three viewports, plus reduced motion.
+// The Letter Hunt game: layout and touch behaviour at the three viewports, plus reduced motion.
 const shotTo = (dir) => async (page, name) => { await page.screenshot({ path: path.join(dir, `${name}.png`) }); };
 for (const vp of VIEWPORTS) {
   await huntChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) });
   await dragChecks({ browser, url, ok, CUR, vp, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `drag-${vp.name}-${name}.png`) }) });
-  await barnChecks({ browser, url, ok, CUR, vp, full: vp.name === 'pixel7', shot: shotTo(OUT) });
 }
-// Letter Hunt for every lesson from the second on (every new letter and its distractors), Barn Doors for a sample.
+// Letter Hunt for every lesson from the second on (every new letter and its distractors).
 for (const lessonNo of CUR.lessons.map((l) => l.number).filter((n) => n >= 2)) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
-for (const lessonNo of SAMPLE_LESSONS.filter((n) => n >= 3)) await barnChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
 await reducedChecks({ browser, url, ok, CUR });
 await dragReducedChecks({ browser, url, ok, CUR });
 // Saying Sounds, slide to blend: real touch drags across am (lesson 2) and sam (lesson 3).

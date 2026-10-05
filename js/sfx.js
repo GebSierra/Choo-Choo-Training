@@ -6,7 +6,7 @@
 // bell notes from the C major pentatonic scale, so anything heard together is pleasant. Every call is wrapped: a missing
 // or blocked AudioContext never throws and never blocks the screen.
 //
-//   sfx.play('sparkle' | 'pop' | 'star' | 'doors' | 'win' | 'lesson' | 'unlock' | 'checkpoint' | 'toot', { step, delay, bloop })
+//   sfx.play('sparkle' | 'pop' | 'star' | 'win' | 'lesson' | 'unlock' | 'checkpoint' | 'toot', { step, delay, bloop })
 //
 // 'toot' is the little train's whistle: two soft pentatonic notes (G5 then E5), each a breathy sine that slides up into
 // its pitch. It is a short sound, so callers play it when no jingle is ringing (before a jingle, or once it has ended).
@@ -25,7 +25,6 @@ const PATIENT = new Set(['win', 'lesson', 'unlock', 'checkpoint']); // these wai
 const SOUNDS = {
   sparkle: [[C5, 0, 0.45, 1], [E5, 0.11, 0.45, 1], [G5, 0.22, 0.55, 1], [C6, 0.3, 0.9, 0.45]],
   star: [[G5, 0, 0.45, 1], [C6, 0.13, 0.75, 1]],
-  doors: [[G5, 0, 0.16, 0.45], [C6, 0.07, 0.16, 0.45]], // a soft bell glide, under 300 ms
   win: [[C5, 0, 0.4, 1], [D5, 0.12, 0.4, 1], [E5, 0.24, 0.4, 1], [G5, 0.36, 0.45, 1], [A5, 0.48, 0.5, 1], [C6, 0.66, 0.9, 1.1], [C6 * 1.005, 0.66, 0.9, 0.4]],
   lesson: [[C5, 0, 0.5, 1], [E5, 0.2, 0.5, 1], [G5, 0.4, 0.5, 1], [A5, 0.6, 0.55, 1], [G5, 0.85, 0.55, 1], [C6, 1.05, 0.75, 1], [C5, 1.1, 0.7, 0.5], [E5, 1.1, 0.7, 0.45], [G5, 1.1, 0.7, 0.4]],
   unlock: [[C5, 0, 0.45, 1], [E5, 0.11, 0.45, 1], [G5, 0.22, 0.55, 1], [C6, 0.3, 0.9, 0.45], [E5, 0.42, 0.5, 1], [C6, 0.56, 0.8, 1]],

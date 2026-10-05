@@ -142,7 +142,7 @@
       "doNotSay": null,
       "howTo": "Say i as in igloo. Keep your mouth small and relaxed.",
       "asIn": "igloo",
-      "clip": null,
+      "clip": "assets/audio/sounds/i.mp3",
       "words": [
         {
           "word": "igloo",
@@ -174,7 +174,7 @@
       "doNotSay": "tuh",
       "howTo": "Tap the tip of your tongue just behind your top teeth. Short and crisp: t-. Do not add uh.",
       "asIn": null,
-      "clip": null,
+      "clip": "assets/audio/sounds/t.mp3",
       "words": [
         {
           "word": "tiger",
@@ -224,7 +224,7 @@
       "doNotSay": "puh",
       "howTo": "Close your lips, then let out a tiny puff of air. Short: p-. Do not add uh.",
       "asIn": null,
-      "clip": null,
+      "clip": "assets/audio/sounds/p.mp3",
       "words": [
         {
           "word": "pig",
@@ -274,7 +274,7 @@
       "doNotSay": "nuh",
       "howTo": "Put your tongue behind your top teeth and hum through your nose. Hold it: nnn. Do not add uh.",
       "asIn": null,
-      "clip": null,
+      "clip": "assets/audio/sounds/n.mp3",
       "words": [
         {
           "word": "nut",
@@ -324,7 +324,7 @@
       "doNotSay": "fuh",
       "howTo": "Rest your top teeth on your bottom lip and blow. Hold it: fff. Do not add uh.",
       "asIn": null,
-      "clip": null,
+      "clip": "assets/audio/sounds/f.mp3",
       "words": [
         {
           "word": "fan",
@@ -374,7 +374,7 @@
       "doNotSay": "duh",
       "howTo": "Tap your tongue behind your top teeth and let your voice out. Short: d-. Do not add uh.",
       "asIn": null,
-      "clip": null,
+      "clip": "assets/audio/sounds/d.mp3",
       "words": [
         {
           "word": "duck",
@@ -432,7 +432,7 @@
       "doNotSay": "huh",
       "howTo": "Breathe out as if fogging a mirror. Short: h-. Do not add uh.",
       "asIn": null,
-      "clip": null,
+      "clip": "assets/audio/sounds/h.mp3",
       "words": [
         {
           "word": "hat",
@@ -490,7 +490,7 @@
       "doNotSay": "guh",
       "howTo": "Lift the back of your tongue and let your voice out. Short: g-. Do not add uh.",
       "asIn": null,
-      "clip": null,
+      "clip": "assets/audio/sounds/g.mp3",
       "words": [
         {
           "word": "goat",
@@ -523,7 +523,7 @@
       "doNotSay": "buh",
       "howTo": "Close your lips, then let your voice pop out. Short: b-. Do not add uh.",
       "asIn": null,
-      "clip": null,
+      "clip": "assets/audio/sounds/b.mp3",
       "words": [
         {
           "word": "baby",
@@ -581,7 +581,7 @@
       "doNotSay": "ull or luh",
       "howTo": "Put the tip of your tongue behind your top teeth. Say lion but stop before ion: l-. Do not add uh.",
       "asIn": null,
-      "clip": null,
+      "clip": "assets/audio/sounds/l.mp3",
       "words": [
         {
           "word": "leaf",
@@ -740,7 +740,10 @@
             "correct": false
           }
         ]
-      }
+      },
+      "games": [
+        "wagons"
+      ]
     },
     {
       "number": 2,
@@ -857,7 +860,10 @@
             "correct": false
           }
         ]
-      }
+      },
+      "games": [
+        "signals"
+      ]
     },
     {
       "number": 3,
@@ -973,7 +979,10 @@
             "correct": false
           }
         ]
-      }
+      },
+      "games": [
+        "wagons"
+      ]
     },
     {
       "number": 4,
@@ -1100,7 +1109,10 @@
             "correct": false
           }
         ]
-      }
+      },
+      "games": [
+        "signals"
+      ]
     },
     {
       "number": 5,
@@ -1242,6 +1254,10 @@
           "word": "mist",
           "target": "s"
         }
+      ],
+      "games": [
+        "signals",
+        "wagons"
       ]
     },
     {
@@ -1381,6 +1397,9 @@
           "word": "pit",
           "target": "i"
         }
+      ],
+      "games": [
+        "wagons"
       ]
     },
     {
@@ -1523,6 +1542,10 @@
           "word": "tap",
           "target": "t"
         }
+      ],
+      "games": [
+        "board",
+        "signals"
       ]
     },
     {
@@ -1662,6 +1685,9 @@
           "word": "sip",
           "target": "p"
         }
+      ],
+      "games": [
+        "signals"
       ]
     },
     {
@@ -1804,6 +1830,10 @@
           "word": "man",
           "target": "n"
         }
+      ],
+      "games": [
+        "wagons",
+        "board"
       ]
     },
     {
@@ -1943,6 +1973,9 @@
           "word": "fan",
           "target": "f"
         }
+      ],
+      "games": [
+        "board"
       ]
     },
     {
@@ -2085,6 +2118,10 @@
           "word": "sad",
           "target": "d"
         }
+      ],
+      "games": [
+        "signals",
+        "wagons"
       ]
     },
     {
@@ -2224,6 +2261,9 @@
           "word": "hat",
           "target": "h"
         }
+      ],
+      "games": [
+        "wagons"
       ]
     },
     {
@@ -2366,135 +2406,16 @@
           "word": "lag",
           "target": "g"
         }
+      ],
+      "games": [
+        "board",
+        "signals"
       ]
     }
   ],
   "games": {
     "hunt": {
       "say": "Find this letter. Touch it.",
-      "distractors": {
-        "m": [
-          "a",
-          "s",
-          "o",
-          "t",
-          "l",
-          "i"
-        ],
-        "a": [
-          "m",
-          "s",
-          "t",
-          "l",
-          "i",
-          "n"
-        ],
-        "s": [
-          "m",
-          "a",
-          "t",
-          "l",
-          "i",
-          "o"
-        ],
-        "i": [
-          "m",
-          "a",
-          "s",
-          "o",
-          "n",
-          "e",
-          "d",
-          "p"
-        ],
-        "t": [
-          "m",
-          "a",
-          "s",
-          "o",
-          "n",
-          "e"
-        ],
-        "p": [
-          "m",
-          "s",
-          "t",
-          "o",
-          "e",
-          "i",
-          "f",
-          "n"
-        ],
-        "n": [
-          "a",
-          "s",
-          "t",
-          "o",
-          "e",
-          "i",
-          "f",
-          "d"
-        ],
-        "f": [
-          "m",
-          "a",
-          "s",
-          "o",
-          "n",
-          "e"
-        ],
-        "d": [
-          "m",
-          "s",
-          "t",
-          "o",
-          "n",
-          "i",
-          "f"
-        ],
-        "h": [
-          "a",
-          "s",
-          "t",
-          "o",
-          "e",
-          "i",
-          "f",
-          "d"
-        ],
-        "g": [
-          "m",
-          "s",
-          "t",
-          "o",
-          "n",
-          "i",
-          "f"
-        ],
-        "b": [
-          "m",
-          "s",
-          "t",
-          "o",
-          "e",
-          "i",
-          "f",
-          "n"
-        ],
-        "l": [
-          "m",
-          "a",
-          "s",
-          "o",
-          "e",
-          "n",
-          "d",
-          "p"
-        ]
-      }
-    },
-    "barn": {
-      "say": "Watch the barn doors. Touch the letter that matches.",
       "distractors": {
         "m": [
           "a",

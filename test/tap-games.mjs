@@ -6,6 +6,7 @@ import path from 'node:path';
 import { SPEECH_STUB, silentWav } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, DONE_JSON } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
+import { gameSlot, order as orderOf } from '../js/games-data.js';
 
 const SHOT_DIR = path.join(ROOT, 'docs/screenshots/v19');
 const RAF_COUNT = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
@@ -370,6 +371,35 @@ export async function boardChecks({ browser, url, ok }) {
   }
 }
 
+// The real data, no patch: the rotation table, the lesson cards and the short count of a shared slot.
+export async function rotationChecks({ browser, url, ok, CUR }) {
+  const ord = orderOf(CUR);
+  const W = 'wagons', G = 'signals', B = 'board';
+  const want = [[W], [G], [W], [G], [G, W], [W], [B, G], [G], [W, B], [B], [G, W], [W], [B, G]];
+  for (let n = 1; n <= 13; n++) ok(gameSlot(ord, n).join() === want[n - 1].join() && CUR.lessons[n - 1].games.join() === want[n - 1].join(), `rotation: lesson ${n} is ${want[n - 1].join('+')} (${gameSlot(ord, n).join('+')})`);
+  const vp = VIEWPORTS[0];
+  for (const [n, names] of [[1, ['Letter Hunt', 'Wagon Parade', 'Practicing Words']], [7, ['Letter Hunt', 'Station Board', 'Green Light', 'Practicing Words']]]) {
+    const { ctx, page, errors } = await open(browser, url, vp, { n, type: n === 1 ? 'wagons' : 'signals' });
+    await page.goto(url + `#/lesson/${n}`);
+    await page.waitForSelector('.task-card');
+    const cards = await page.locator('.task-card .card-name').allInnerTexts();
+    const a = cards.indexOf('Letter Hunt'), b = cards.indexOf('Practicing Words');
+    ok(JSON.stringify(cards.slice(a, b + 1)) === JSON.stringify(names) && !cards.includes('Barn Doors'), `lesson ${n}: the cards run ${names.join(', ')} and there is no Barn Doors (${cards.join(', ')})`);
+    if (n === 7) await shotOf(page, 'lesson-7-cards');
+    ok(errors.length === 0, `lesson ${n} cards: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  {
+    const { ctx, page } = await open(browser, url, vp, { n: 7, type: 'signals' });
+    await page.waitForSelector('.signal');
+    await page.waitForTimeout(600);
+    for (let r = 1; r <= 3; r++) { await tapEl(page, page.locator('.signal[data-target="1"]')); await page.waitForTimeout(r < 3 ? 1100 : 300); }
+    await page.waitForFunction(() => document.querySelector('.signals').dataset.state === 'done', null, { timeout: 6000 }).catch(() => {});
+    ok((await state(page, 'signals')) === 'done' && (await page.locator('.star-slot').count()) === 3, 'lesson 7: Green Light runs three rounds (the short count)');
+    await ctx.close();
+  }
+}
+
 // Screenshots for looking at: each game at 390x844 and 360x640 (SHOTS=1).
 const SHOT_VPS = [{ name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }, { name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }];
 export async function screenshots({ browser, url }) {
@@ -401,6 +431,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   await signalChecks({ browser, url, ok, CUR });
   await wagonChecks({ browser, url, ok, CUR });
   await boardChecks({ browser, url, ok });
+  await rotationChecks({ browser, url, ok, CUR });
   await browser.close(); server.close();
   console.log(`tap-games: ${checks - failures}/${checks} checks passed`);
   process.exit(failures ? 1 : 0);

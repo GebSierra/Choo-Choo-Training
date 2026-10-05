@@ -6,7 +6,7 @@ import { shuffle } from '../../components/game-kit.js';
 export const BOX = 56; // touch target of a letter
 
 // Cells of a loose grid in the sky of a scene W by H, clear of the "Find this" card, the speaker button, the sun, the
-// goal barn and the grass. At most `count` of them are returned, spread evenly over the grid; each has the room its
+// goal station and the grass. At most `count` of them are returned, spread evenly over the grid; each has the room its
 // letter may be nudged by (jx, jy), which keeps at least 12 px between neighbours.
 // A short scene (a phone with the browser's bars showing) gives the grass less room; if that still leaves under 8
 // cells, the grid packs tighter (letters exactly 12 px apart, no nudging). The keep-outs are the art's real size.

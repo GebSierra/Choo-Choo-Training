@@ -79,3 +79,12 @@ export function boardWords(order, n, rounds = 4) {
   }
   return out;
 }
+
+export const CYCLE = [['signals'], ['wagons', 'board'], ['board'], ['signals', 'wagons'], ['wagons'], ['board', 'signals']];
+// The game slot of lesson n (Barn Doors' old place): lesson 1 has one sound, so only Wagon Parade fits.
+export function gameSlot(order, n) {
+  if (n === 1) return ['wagons'];
+  const ok = { signals: n >= 2, wagons: true, board: !!boardWords(order, n, 4) };
+  const pick = CYCLE[(n - 2) % CYCLE.length].filter((g) => ok[g]);
+  return pick.length ? pick : ['signals'];
+}

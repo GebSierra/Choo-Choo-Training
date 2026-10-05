@@ -98,7 +98,7 @@ export async function renameChecks({ browser, url, ok, CUR }) {
   const man = await page.evaluate(async () => (await (await fetch('manifest.webmanifest')).json()));
   ok(man.name === "Choo Choo Training" && man.short_name === "Choo Choo", `the manifest name is Choo Choo Training, short name Choo Choo (${man.name} / ${man.short_name})`);
   const names = await page.locator('.task-card .card-name').allInnerTexts();
-  const want = ['Letter Review', 'New Sound', 'Sound Story', 'Word Cars', 'Saying Sounds', 'Track Tracing', 'Letter Hunt', 'Barn Doors', 'Practicing Words', 'Ticket Check'];
+  const want = ['Letter Review', 'New Sound', 'Sound Story', 'Word Cars', 'Saying Sounds', 'Track Tracing', 'Letter Hunt', 'Wagon Parade', 'Practicing Words', 'Ticket Check'];
   ok(JSON.stringify(names) === JSON.stringify(want), `lesson 3's task cards are named ${want.join(', ')} (${names.join(', ')})`);
   ok(errors.length === 0, `rename lesson: errors ${errors.join(' | ')}`);
   await ctx.close();
