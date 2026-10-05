@@ -25,7 +25,7 @@ const REST = -62, FULL = 62; // the needle's two ends, in degrees
 // braking, no fading). The microphone is read only for loudness, only during a try (at most about 5 s), and is closed
 // after each one. Without a microphone, or when the browser's permission is refused, a "Next word" button does the same job.
 // The slide-to-blend slider is under the word in both modes. Timings come from the stop's data (js/blend-detect.js).
-export function rideBuild({ checkpoint, curriculum, speech, refresh, setProgress, setDone }) {
+export function rideBuild({ store, checkpoint, curriculum, speech, refresh, setProgress, setDone }) {
   const T = timers();
   const words = rideWords(curriculum, checkpoint);
   const rounds = words.length;
@@ -283,8 +283,27 @@ export function rideBuild({ checkpoint, curriculum, speech, refresh, setProgress
 
   const stopWatching = watchSize(scene, layout);
   showWord();
-  if (!hasMic()) { mode = 'tap'; paintControls(); }
-  else { paintControls(); askPermission().then((granted) => { if (disposed) return; mode = granted ? 'mic' : 'tap'; paintControls(); refresh(); }); }
+  // ---- the first visit: a card for the grown-up, BEFORE the browser is asked for the microphone ----
+  const seenMap = () => { const m = store.settings.seenScripts; return m && typeof m === 'object' && !Array.isArray(m) ? m : {}; };
+  const markIntroSeen = () => store.setSetting('seenScripts', { ...seenMap(), rideIntro: true });
+  function startMode() {
+    if (!hasMic()) { mode = 'tap'; paintControls(); refresh(); return; }
+    paintControls();
+    askPermission().then((granted) => { if (disposed) return; mode = granted ? 'mic' : 'tap'; paintControls(); refresh(); });
+  }
+  function showIntro() {
+    const close = () => { markIntroSeen(); card.remove(); };
+    const card = h('div', { class: 'ride-intro', role: 'dialog', 'aria-labelledby': 'ride-intro-t' },
+      h('div', { class: 'ride-intro-card' },
+        h('h2', { id: 'ride-intro-t' }, 'Smooth Ride'),
+        h('p', {}, 'This helps your child blend sounds into words. Your phone will ask to use the microphone. Allow it so the train can hear your child\'s voice. The train rolls while the voice keeps going and stops the moment the voice stops, so your child can see any pause between sounds. If it stops, say "keep your voice on" and try again.'),
+        h('div', { class: 'ride-intro-btns' },
+          h('button', { class: 'btn ride-intro-later', type: 'button', onclick: () => { close(); mode = 'tap'; paintControls(); refresh(); } }, 'Not now'),
+          h('button', { class: 'btn primary ride-intro-go', type: 'button', onclick: () => { close(); startMode(); } }, 'Start'))));
+    el.append(card);
+  }
+  paintControls();
+  if (hasMic() && !seenMap().rideIntro) showIntro(); else startMode();
 
   const say = [{ tts: curriculum.games.ride.say }];
   return {

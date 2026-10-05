@@ -177,8 +177,54 @@ export async function rideChecks({ url, ok, log = console.log }) {
   ok(m3.errors.length === 0, `ride mid-try: errors ${m3.errors.join(' | ')}`);
   await m3.ctx.close(); await b3.close();
 
-  // ---- no microphone, and a refused one ----
+  // ---- the grown-up card comes before the permission request ----
   const browser = await launch(await loadPlaywright());
+  {
+    const counter = () => { window.__gum = 0; const md = navigator.mediaDevices; if (md) md.getUserMedia = () => { window.__gum++; return Promise.reject(new DOMException('denied', 'NotAllowedError')); }; };
+    const CARD = 'This helps your child blend sounds into words. Your phone will ask to use the microphone. Allow it so the train can hear your child\'s voice. The train rolls while the voice keeps going and stops the moment the voice stops, so your child can see any pause between sounds. If it stops, say "keep your voice on" and try again.';
+    const seedFresh = `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: lessonsDone(ck.after), settings: { seenScripts: { ...SEEN, rideIntro: undefined } }, firstRunDone: true, meetDue: false })})); }`;
+    const open = async (extra, vp = VIEWPORTS[0]) => {
+      const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: 1, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
+      const page = await ctx.newPage(); const errors = [];
+      page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+      await page.addInitScript(SPEECH_STUB); await page.addInitScript(seedFresh); await page.addInitScript(counter);
+      await page.goto(url + `#/checkpoint/${ck.id}`);
+      await page.waitForSelector('.ride-game');
+      return { ctx, page, errors };
+    };
+    const a = await open();
+    await a.page.waitForSelector('.ride-intro');
+    await sleep(1200);
+    ok((await a.page.locator('.ride-intro h2').innerText()) === 'Smooth Ride' && (await a.page.locator('.ride-intro p').innerText()) === CARD, 'ride card: the first visit shows the card with the exact title and text');
+    ok((await a.page.locator('.ride-intro .ride-intro-go').innerText()) === 'Start' && (await a.page.locator('.ride-intro .ride-intro-later').innerText()) === 'Not now', 'ride card: buttons Start and Not now');
+    ok((await a.page.evaluate(() => window.__gum)) === 0, 'ride card: getUserMedia is not called before the tap');
+    ok(!/privacy|record|stored|sent/i.test(await a.page.locator('.ride-intro').innerText()), 'ride card: no privacy or recording wording');
+    const fit = await a.page.evaluate(() => { const c = document.querySelector('.ride-intro-card').getBoundingClientRect(); return c.top >= 0 && c.bottom <= innerHeight && c.left >= 0 && c.right <= innerWidth; });
+    ok(fit, 'ride card: fits the screen');
+    await a.page.locator('.ride-intro-go').click();
+    await sleep(500);
+    ok((await a.page.evaluate(() => window.__gum)) === 1 && (await a.page.locator('.ride-intro').count()) === 0, 'ride card: Start closes the card and only then asks for the microphone (one call)');
+    ok((await a.page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.seenScripts.rideIntro)) === true, 'ride card: the seen flag is stored with the seen scripts');
+    await a.page.reload(); await a.page.waitForSelector('.ride-game'); await sleep(900);
+    ok((await a.page.locator('.ride-intro').count()) === 0, 'ride card: the second visit has no card');
+    ok(a.errors.length === 0, `ride card: errors ${a.errors.join(' | ')}`);
+    await a.ctx.close();
+    const b = await open();
+    await b.page.waitForSelector('.ride-intro');
+    await b.page.locator('.ride-intro-later').click();
+    await b.page.waitForFunction(() => document.querySelector('.ride-game').dataset.mode === 'tap', null, { timeout: 4000 });
+    ok((await b.page.evaluate(() => window.__gum)) === 0 && (await b.page.locator('.ride-go').count()) === 0 && (await b.page.locator('.ride-smooth').innerText()) === 'Next word' && (await b.page.locator('.slide-band').count()) === 1, 'ride card: Not now gives the no-mic mode (Next word and the slider), without asking for the microphone');
+    await b.ctx.close();
+    for (const [w, hh] of [[360, 640], [915, 412]]) {
+      const c = await open(null, { width: w, height: hh }); await c.page.waitForSelector('.ride-intro'); await sleep(300);
+      const f = await c.page.evaluate(() => { const k = document.querySelector('.ride-intro-card'), r = k.getBoundingClientRect(); return { ok: r.top >= 0 && r.bottom <= innerHeight && k.scrollHeight <= k.clientHeight + 1, r: [r.top, r.bottom, innerHeight, k.scrollHeight, k.clientHeight] }; });
+      ok(f.ok, `ride card: fits whole at ${w}x${hh} ${JSON.stringify(f.r)}`);
+      if (w === 360) { fs.mkdirSync(path.join(ROOT, 'docs/screenshots/v185'), { recursive: true }); await c.page.screenshot({ path: path.join(ROOT, 'docs/screenshots/v185/ride-card.png') }); }
+      await c.ctx.close();
+    }
+  }
+
+  // ---- no microphone, and a refused one ----
   for (const [name, init] of [
     ['denied', () => { navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('denied', 'NotAllowedError')); }],
     ['missing', () => { Object.defineProperty(navigator, 'mediaDevices', { value: undefined, configurable: true }); }],
