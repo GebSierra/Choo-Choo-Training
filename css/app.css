@@ -899,7 +899,7 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .book-nav .book-next { margin-left: auto; min-width: 180px; }
 .book-nav .btn[disabled] { opacity: .35; }
 .book-drag { flex-direction: column; align-items: stretch; justify-content: center; padding: 0 14px; }
-.book-track { width: 100%; background: #E9ECF8; }
+.book-track { width: 100%; background: #E9ECF8; margin-bottom: 28px; }
 .slide-track.book-track .st-handle { background: transparent; box-shadow: none; width: 96px; }
 .st-glyph.has-art .engine-art { display: block; width: 116px; max-width: none; height: auto; overflow: visible; }
 .book-tiles { flex: 1 1 0; min-height: 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 12px; }
@@ -982,13 +982,12 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .cp-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .cp-later { min-height: 56px; padding: 0 18px; border: 0; background: none; font: inherit; font-weight: 800; font-size: 18px; color: #5A5F80; touch-action: manipulation; }
 .cp-done { min-height: 60px; min-width: 190px; font-size: 22px; }
-.cp-note { margin: 0; font-size: 14px !important; font-weight: 600 !important; color: #5A5F80; text-align: center; }
 @media (orientation: landscape) and (max-height: 520px) {
   .first-card.meet { max-width: min(760px, 100%); padding: 14px 16px 10px; }
   .first-card.meet h2 { display: none; }
-  .first-card.meet .cp { grid-template-columns: 150px minmax(0, 1fr); column-gap: 16px; row-gap: 8px; grid-template-areas: "pv fld" "pv skin" "pv hair" "act col" "act note"; align-items: center; }
+  .first-card.meet .cp { grid-template-columns: 150px minmax(0, 1fr); column-gap: 16px; row-gap: 8px; grid-template-areas: "pv fld" "pv skin" "pv hair" "act col"; align-items: center; }
   .cp-preview { grid-area: pv; width: 120px; height: 150px; justify-self: center; }
-  .cp-field { grid-area: fld; } .cp-skin { grid-area: skin; } .cp-hair { grid-area: hair; } .cp-hair-color { grid-area: col; } .cp-note { grid-area: note; text-align: left; }
+  .cp-field { grid-area: fld; } .cp-skin { grid-area: skin; } .cp-hair { grid-area: hair; } .cp-hair-color { grid-area: col; }
   .cp-actions { grid-area: act; flex-direction: column-reverse; align-items: stretch; gap: 0; align-self: end; }
   .cp-row { flex-wrap: nowrap; } .cp-label { flex: 0 0 74px; }
   .cp-done { min-width: 0; font-size: 18px; white-space: nowrap; padding: 0 8px; }

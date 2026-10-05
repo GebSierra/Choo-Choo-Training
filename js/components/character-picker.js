@@ -3,7 +3,7 @@ import { kidSvg } from '../art/kid.js';
 import { SKINS, HAIR_COLORS, HAIR_STYLES, HAIR_NAMES, cleanCharacter } from '../character.js';
 import { sfx } from '../sfx.js';
 
-// The character creator: the child taps big swatches (skin, hair style, hair colour) and watches the figure; the
+// The character creator: the child taps big swatches (skin, hair style, hair color) and watches the figure; the
 // grown-up types the name. Used twice: "first" (after the welcome card, with "All aboard!" and "Later") and "grownups"
 // (in the Grownups screen, with Save). Everything is kept on this device: nothing here is sent or spoken.
 export function characterPicker({ store, mode = 'first', onDone = () => {} }) {
@@ -26,22 +26,21 @@ export function characterPicker({ store, mode = 'first', onDone = () => {} }) {
   const skinRow = row('cp-skin', 'Skin', SKINS, () => picks.skin, (i) => { picks.skin = i; }, (c) => swatch(c), (c, i) => `Skin tone ${i + 1}`);
   const hairIdx = () => HAIR_STYLES.indexOf(picks.hair);
   const hairRow = row('cp-hair', 'Hair', HAIR_STYLES, hairIdx, (i) => { picks.hair = HAIR_STYLES[i]; }, (st) => face(st), (st) => HAIR_NAMES[st]);
-  const colorRow = row('cp-hair-color', 'Hair colour', HAIR_COLORS, () => picks.hairColor, (i) => { picks.hairColor = i; }, (c) => swatch(c), (c, i) => `Hair colour ${i + 1}`);
+  const colorRow = row('cp-hair-color', 'Hair color', HAIR_COLORS, () => picks.hairColor, (i) => { picks.hairColor = i; }, (c) => swatch(c), (c, i) => `Hair color ${i + 1}`);
   hairRow.querySelectorAll('.cp-opt').forEach((b, i) => { b.dataset.style = HAIR_STYLES[i]; hairBtns.push(b); });
   paintPreview();
 
-  const note = h('p', { class: 'cp-note' }, 'Saved only on this device. Never sent anywhere, never spoken.');
   const kids = [];
   if (mode === 'first') kids.push(h('h2', {}, 'Who is riding with Pip?'));
   kids.push(preview, h('label', { class: 'gu-field cp-field' }, h('span', {}, 'Name (the grown-up types it)'), name), skinRow, hairRow, colorRow);
   if (mode === 'first') {
     const done = h('button', { class: 'btn primary cp-done', type: 'button', onclick: () => { store.finishMeet(picks); sfx.play('toot'); onDone(); } }, 'All aboard!');
     const later = h('button', { class: 'cp-later meet-later', type: 'button', onclick: () => { store.finishMeet({}); onDone(); } }, 'Later');
-    kids.push(h('div', { class: 'cp-actions' }, later, done), note);
+    kids.push(h('div', { class: 'cp-actions' }, later, done));
   } else {
     const saved = h('span', { class: 'gu-sub', 'aria-live': 'polite' });
     const save = h('button', { class: 'btn small cp-save', type: 'button', onclick: () => { store.setCharacter(picks); name.value = store.character().name; saved.textContent = 'Saved'; } }, 'Save');
-    kids.push(h('div', { class: 'gu-actions' }, save, saved), note);
+    kids.push(h('div', { class: 'gu-actions' }, save, saved));
   }
   return h('div', { class: `cp cp-${mode}` }, ...kids);
 }

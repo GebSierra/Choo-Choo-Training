@@ -33,7 +33,7 @@ export async function characterChecks({ browser, url, ok }) {
     await page.waitForSelector('.cp');
     await page.waitForTimeout(600);
     ok((await page.locator('.cp h2').innerText()) === 'Who is riding with Pip?', 'first run: the creator asks who is riding with Pip');
-    ok((await page.locator('.cp-skin button, .cp-hair button, .cp-hair-color button').count()) === 15, 'first run: five skins, five hair styles, five hair colours');
+    ok((await page.locator('.cp-skin button, .cp-hair button, .cp-hair-color button').count()) === 15, 'first run: five skins, five hair styles, five hair colors');
     const small = await page.evaluate(() => [...document.querySelectorAll('.cp button')].filter((b) => { const r = b.getBoundingClientRect(); return r.width < 55.5 || r.height < 55.5; }).map((b) => b.className));
     ok(small.length === 0, `first run: every button is at least 56 px (${small.join(',')})`);
     ok((await page.locator('.cp-skin button').nth(2).getAttribute('aria-pressed')) === 'true', 'first run: skin tone 3 starts picked');
@@ -43,7 +43,7 @@ export async function characterChecks({ browser, url, ok }) {
     await page.fill('.cp-name', 'Lily');
     ok((await page.locator('.cp-preview .kid-head').getAttribute('fill')) === SKINS[3], 'first run: the figure follows the picks');
     ok((await page.locator('.cp-skin button').nth(3).getAttribute('aria-pressed')) === 'true' && (await page.locator('.cp-skin button').nth(2).getAttribute('aria-pressed')) === 'false', 'first run: the picked swatch is marked');
-    ok((await page.locator('.cp-note').innerText()).includes('Saved only on this device'), 'first run: the privacy note is shown');
+    ok((await page.locator('.cp-note').count()) === 0, 'first run: no privacy note (owner choice)');
     await page.click('.cp-done');
     await page.waitForTimeout(500);
     ok((await page.locator('.first-run').count()) === 0, 'first run: All aboard closes the creator');

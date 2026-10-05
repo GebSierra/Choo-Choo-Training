@@ -1,7 +1,7 @@
 {
   "name": "kddash-reading",
   "private": true,
-  "version": "1.8.3",
+  "version": "1.8.4",
   "type": "module",
   "description": "Personal reading app, stage 1. The app has no runtime dependencies.",
   "scripts": {
