@@ -84,19 +84,38 @@ export function huntBackdrop() {
 
 // An open goods wagon, facing right, with a cream panel on its side for the letter (.wagon-panel, filled by the game),
 // a lid (.wagon-lid) that swings shut, and wheels.
-export function wagonSvg() {
+export function wagonSvg({ body = '#D65A4A', rib = '#B8463A' } = {}) {
   return h('svg', { class: 'wagon-art', viewBox: '0 0 200 150', 'aria-hidden': 'true' },
     h('ellipse', { cx: 100, cy: 144, rx: 86, ry: 5, fill: 'rgba(60,40,20,.18)' }),
     h('rect', { x: 26, y: 112, width: 148, height: 12, rx: 5, fill: C.navy }),
-    h('rect', { x: 16, y: 40, width: 168, height: 76, rx: 12, fill: '#D65A4A' }),
+    h('rect', { x: 16, y: 40, width: 168, height: 76, rx: 12, fill: body }),
     h('rect', { x: 16, y: 84, width: 168, height: 32, rx: 12, fill: '#000', opacity: 0.08 }),
-    ...[48, 152].map((x) => h('rect', { x, y: 44, width: 5, height: 68, rx: 2.5, fill: '#B8463A' })),
+    ...[48, 152].map((x) => h('rect', { x, y: 44, width: 5, height: 68, rx: 2.5, fill: rib })),
     h('rect', { x: 12, y: 34, width: 176, height: 10, rx: 5, fill: C.sun }),
     h('rect', { class: 'wagon-panel-bg', x: 66, y: 50, width: 68, height: 58, rx: 12, fill: '#FFF8EC' }),
     h('g', { class: 'wagon-lid', style: { 'transform-box': 'fill-box', 'transform-origin': '0% 100%' } },
       h('rect', { x: 14, y: 22, width: 172, height: 14, rx: 7, fill: C.navy }), h('rect', { x: 14, y: 22, width: 172, height: 5, rx: 2.5, fill: '#fff', opacity: 0.2 })),
     wheel(52, 126, 14, C.navy), wheel(148, 126, 14, C.navy),
     h('rect', { x: 2, y: 104, width: 16, height: 6, rx: 3, fill: C.navy }), h('rect', { x: 182, y: 104, width: 16, height: 6, rx: 3, fill: C.navy }));
+}
+
+// A railway signal post: a navy and yellow striped post on a sleeper base, a lamp housing with a hood, and a lamp that is
+// cream until it turns green (.lamp-go fades in). The letter plate is HTML over the lamp (the game puts it there).
+// viewBox 0 0 100 170; the lamp's centre is at 50, 52.
+export function signalSvg() {
+  return h('svg', { class: 'signal-art', viewBox: '0 0 100 170', 'aria-hidden': 'true' },
+    h('ellipse', { cx: 50, cy: 165, rx: 40, ry: 4, fill: 'rgba(60,40,20,.2)' }),
+    h('rect', { x: 20, y: 156, width: 60, height: 8, rx: 3, fill: C.sleeper }),
+    h('rect', { x: 14, y: 158, width: 72, height: 4, rx: 2, fill: C.rail }),
+    h('rect', { x: 43, y: 96, width: 14, height: 62, rx: 3, fill: C.navy }),
+    ...[104, 124, 144].map((y) => h('rect', { x: 43, y, width: 14, height: 8, fill: C.sun })),
+    h('rect', { x: 33, y: 150, width: 34, height: 9, rx: 4, fill: C.navyLight }),
+    h('rect', { x: 8, y: 4, width: 84, height: 96, rx: 24, fill: C.navy }),
+    h('rect', { x: 8, y: 4, width: 84, height: 96, rx: 24, fill: 'none', stroke: C.sun, 'stroke-width': 4 }),
+    h('circle', { class: 'lamp', cx: 50, cy: 52, r: 33, fill: '#FFE3A3' }),
+    h('circle', { class: 'lamp-go', cx: 50, cy: 52, r: 33, fill: '#2FB37A', opacity: 0 }),
+    h('circle', { cx: 50, cy: 52, r: 33, fill: 'none', stroke: C.sunDark, 'stroke-width': 3 }),
+    h('path', { d: 'M22 30 Q50 -4 78 30 L72 30 Q50 6 28 30 Z', fill: C.red }));
 }
 
 // The Loading Dock scene: the same sky, hills, grass and track (the game lays its wooden platform over it).

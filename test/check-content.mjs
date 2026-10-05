@@ -12,7 +12,8 @@ export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee'
 // Words where s says z, which a child must not learn as an s word.
 export const S_SAYS_Z = ['as', 'is', 'his', 'has', 'was', 'does', 'goes', 'hers', 'ours', 'yours'];
 // Letters that look like each other, so they never stand together in a game or a Quick Check (mirror and look-alike pairs).
-const LOOKALIKE_PAIRS = ['da', 'db', 'dp', 'dq', 'dg', 'bp', 'bq', 'bh', 'pq', 'pg', 'nm', 'nh', 'nr', 'nu', 'hb', 'hk', 'hl', 'li', 'lt', 'lj', 'lf', 'tf', 'fi'];
+import { LOOKALIKE } from '../js/games-data.js';
+export const LOOKALIKE_PAIRS = LOOKALIKE;
 export const lookAlike = (x, y) => LOOKALIKE_PAIRS.some((p) => (p[0] === x && p[1] === y) || (p[0] === y && p[1] === x));
 // Contrast of a colour on white (WCAG), so a glyph in its accent stays visible.
 export const contrastOnWhite = (hex) => {
@@ -152,6 +153,14 @@ export function checkCurriculum(c, root = ROOT) {
       d.forEach((x) => { if (!/^[a-z]$/.test(x)) err(`${p}.distractors.${k} "${x}" must be one lowercase letter`); });
       if (d.includes(k)) err(`${p}.distractors.${k} contains its own target`);
     }
+  }
+
+  // The tap games (Green Light, Wagon Parade, Station Board): one spoken line each, no distractors needed.
+  for (const kind of ['signals', 'wagons', 'board']) {
+    const g = (c.games || {})[kind];
+    if (!g) { if (kind === 'signals') err('games.signals missing'); continue; }
+    if (typeof g.say !== 'string' || !g.say || isIsolated(g.say)) err(`games.${kind}.say must be a sentence of words`);
+    else if (strayCaps(g.say)) err(`games.${kind}.say has a capital outside a sentence start`);
   }
 
   // Sound sack: each sound's start words, the shared pool of words that start with none of the taught sounds, and the checkpoints.

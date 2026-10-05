@@ -5,7 +5,7 @@ import { speakButton } from '../components/speak-button.js';
 import { tasksFor, lessonByNumber, targetsFor, soundPhrase, introParts } from '../lessons.js';
 import { richText, letterText } from '../letters.js';
 import { barnSvg } from '../art.js';
-import { engineSvg, crateSvg } from '../art/train2d.js';
+import { engineSvg, crateSvg, signalSvg } from '../art/train2d.js';
 
 // Little illustrations for the task cards, drawn from our own shapes and emoji.
 function illustration(task, lesson, curriculum) {
@@ -21,6 +21,7 @@ function illustration(task, lesson, curriculum) {
     case 'sounds': wrap.append(h('span', { class: 'wave' }, h('i'), h('i'), h('i'), h('i'), h('i'))); break;
     case 'writing': wrap.append(h('span', { class: 'big-glyph ghost' }, glyphSvg(lesson.sound, { color: 'currentColor' })), h('span', { class: 'pencil' }, '✏️')); break;
     case 'hunt': wrap.append(h('span', { class: 'art-train' }, engineSvg({ still: true }))); break;
+    case 'signals': wrap.append(h('span', { class: 'art-signals' }, signalSvg())); break;
     case 'barn': wrap.append(h('span', { class: 'art-barn' }, barnSvg({ interior: true }))); break;
     case 'practice': wrap.append(h('span', { class: 'art-crate' }, crateSvg())); break;
     case 'check': wrap.append(h('span', { class: 'qmark' }, '?')); break;

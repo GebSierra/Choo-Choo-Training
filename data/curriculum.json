@@ -2459,6 +2459,9 @@
     },
     "ride": {
       "say": "Tap the whistle. Then say the word with your grown-up in one long sound."
+    },
+    "signals": {
+      "say": "Listen. Then tap the light that makes the sound."
     }
   },
   "checkpoints": [
