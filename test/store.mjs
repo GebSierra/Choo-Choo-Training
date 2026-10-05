@@ -32,5 +32,22 @@ s = open(old({ order: ORDER }));
 s.resetAll();
 check(s.state.order === ORDER && JSON.parse(mem.get('reading.v1')).order === ORDER, 'case 4: resetAll keeps order');
 
+// The character: bad values clean to the defaults; the creator is due for a fresh store and an old real save only.
+s = open({ ...old({ order: ORDER }), character: { name: 'Lily', skin: 99, hair: '<b>', hairColor: -1, made: 'yes' } });
+const c = s.character();
+check(c.name === 'Lily' && c.skin === 2 && c.hair === 'short' && c.hairColor === 1 && c.made === false, 'character: bad values clean to 2, short, 1, false');
+mem.clear(); s = createStore();
+check(s.state.meetDue === true && s.character().made === false, 'meetDue: true for a fresh store');
+s = open(old({ order: ORDER }));
+check(s.state.meetDue === true, 'meetDue: true for an old real save without the field');
+const seeded = old({ order: ORDER }); delete seeded.lastOpened;
+s = open(seeded);
+check(s.state.meetDue === false, 'meetDue: false for a test seed (no lastOpened)');
+s = open(old({ order: ORDER }));
+s.finishMeet({ skin: 4 });
+check(s.character().skin === 4 && s.character().made === true && s.state.meetDue === false && JSON.parse(mem.get('reading.v1')).meetDue === false, 'finishMeet sets made, keeps the pick and clears meetDue');
+s.resetAll();
+check(s.state.meetDue === false && s.character().skin === 4, 'resetAll keeps the character and meetDue');
+
 console.log(`store: ${n - bad}/${n} checks passed`);
 process.exit(bad ? 1 : 0);

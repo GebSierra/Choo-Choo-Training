@@ -916,11 +916,12 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .book-cast { position: absolute; top: 0; bottom: 0; z-index: 9; pointer-events: none; opacity: 0; background: linear-gradient(90deg, rgba(40,25,10,.30), rgba(40,25,10,0) 45%); }
 .book-cover { position: absolute; inset: -5px -9px -5px -4px; z-index: 20; border: 0; padding: 0; transform-origin: left center; transform-style: preserve-3d; background: none; cursor: pointer; touch-action: none; font: inherit; }
 .cover-front, .cover-back { position: absolute; inset: 0; border-radius: 8px 12px 12px 8px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.cover-front { display: grid; place-items: center; align-content: center; gap: 14px; padding: 24px 24px 24px 34px; color: #FFF3DA; box-shadow: inset 0 0 0 5px rgba(255,243,218,.16), inset 0 0 0 7px rgba(0,0,0,.08);
+.cover-front { display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; align-content: center; gap: 14px; padding: 24px 24px 24px 34px; color: #FFF3DA; box-shadow: inset 0 0 0 5px rgba(255,243,218,.16), inset 0 0 0 7px rgba(0,0,0,.08);
   background: var(--grain), repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0 2px, rgba(0,0,0,.04) 2px 4px), linear-gradient(90deg, var(--cloth-dark) 0 14px, var(--cloth) 14px); }
 .cover-title { font-family: 'Andika', 'Nunito', sans-serif; font-weight: 700; font-size: clamp(30px, 8vw, 44px); line-height: 1.15; text-align: center; text-shadow: 0 2px 0 rgba(0,0,0,.18); }
-.cover-pip { display: flex; justify-content: center; align-items: flex-end; gap: 6px; height: clamp(150px, 26vh, 230px); }
-.cover-pip .pip { height: 100%; width: auto; }
+.cover-pip { display: flex; justify-content: center; align-items: flex-end; gap: 4px; width: 100%; max-width: 340px; height: clamp(130px, 24vh, 220px); }
+.cover-pip > * { flex: 1 1 0; min-width: 0; height: 100%; }
+.cover-pip .pip, .cover-pip .kid { display: block; width: 100%; height: 100%; }
 .cover-hint { font-family: 'Andika', 'Nunito', sans-serif; font-weight: 700; font-size: 18px; padding: 8px 20px; border-radius: 999px; background: rgba(255,243,218,.18); }
 .cover-back { transform: rotateY(180deg); background: repeating-linear-gradient(135deg, #F6E6C6 0 10px, #EAD3A8 10px 20px); }
 .book-cover[hidden] { display: none; }
@@ -950,6 +951,48 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .book[data-spread="1"] .book-emoji { font-size: clamp(52px, 17vh, 90px); }
 .book[data-spread="1"] .book-title { font-size: 14px; }
 .book[data-spread="1"] .book-tile { min-height: 64px; --tile-cap: 44px; }
+
+
+/* ---------- the child's figure (js/art/kid.js) and the character creator (js/components/character-picker.js) ---------- */
+.kid { display: block; overflow: visible; }
+.kid .kid-eyes { transform-origin: 60px 60px; animation: pip-blink 4.7s ease-in-out 3; }
+.kid.pose-wave .kid-arm-r { transform-origin: 80px 96px; animation: pip-wave 3.2s ease-in-out 2; }
+.kid.pose-cheer .kid-hop { animation: pip-hop 760ms cubic-bezier(.3,.7,.4,1) 300ms backwards; }
+.kid.still, .kid.still * { animation: none !important; }
+.book-sheet .kid .kid-eyes, .cover-kid .kid .kid-eyes { animation: pip-blink 4.7s ease-in-out infinite; }
+.book-friend .kid { height: min(100%, 190px); width: auto; }
+.book-friend { height: min(100%, 190px); }
+.stone-kid { position: absolute; width: 58%; left: -52%; bottom: 8%; pointer-events: none; }
+.stone-kid .kid { width: 100%; height: auto; }
+.finish-kid { position: absolute; left: -70px; bottom: -18px; width: 84px; height: 105px; pointer-events: none; }
+.finish-kid .kid { width: 100%; height: 100%; }
+@media (orientation: landscape) and (max-height: 520px) { .finish-kid { left: auto; right: -66px; bottom: -14px; width: 62px; height: 78px; } }
+.first-card.meet { max-width: min(520px, 100%); width: 100%; max-height: calc(100dvh - 32px); overflow-y: auto; padding: 16px 12px 12px; gap: 8px; justify-items: stretch; text-align: left; }
+.first-card.meet h2 { margin: 0; text-align: center; font-size: 24px; }
+.cp { display: grid; gap: 10px; justify-items: stretch; }
+.cp-preview { justify-self: center; width: 100px; height: 126px; }
+.cp-preview .kid { width: 100%; height: 100%; }
+.cp-field { gap: 4px; }
+.cp-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cp-label { flex: 0 0 100%; font-size: 15px; font-weight: 800; color: #5A5F80; }
+.cp-opt { flex: 1 1 0; max-width: 64px; min-width: 56px; aspect-ratio: 1; height: auto; padding: 0; display: grid; place-items: center; border: 3px solid transparent; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px #D9DCEE; touch-action: manipulation; overflow: hidden; }
+.cp-opt[aria-pressed="true"] { border-color: #5B4BD6; box-shadow: 0 0 0 2px #5B4BD6; }
+.cp-swatch { display: block; width: 36px; height: 36px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(0,0,0,.14); }
+.cp-opt .kid { width: 100%; height: 100%; }
+.cp-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cp-later { min-height: 56px; padding: 0 18px; border: 0; background: none; font: inherit; font-weight: 800; font-size: 18px; color: #5A5F80; touch-action: manipulation; }
+.cp-done { min-height: 60px; min-width: 190px; font-size: 22px; }
+.cp-note { margin: 0; font-size: 14px !important; font-weight: 600 !important; color: #5A5F80; text-align: center; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .first-card.meet { max-width: min(760px, 100%); padding: 14px 16px 10px; }
+  .first-card.meet h2 { display: none; }
+  .first-card.meet .cp { grid-template-columns: 150px minmax(0, 1fr); column-gap: 16px; row-gap: 8px; grid-template-areas: "pv fld" "pv skin" "pv hair" "act col" "act note"; align-items: center; }
+  .cp-preview { grid-area: pv; width: 120px; height: 150px; justify-self: center; }
+  .cp-field { grid-area: fld; } .cp-skin { grid-area: skin; } .cp-hair { grid-area: hair; } .cp-hair-color { grid-area: col; } .cp-note { grid-area: note; text-align: left; }
+  .cp-actions { grid-area: act; flex-direction: column-reverse; align-items: stretch; gap: 0; align-self: end; }
+  .cp-row { flex-wrap: nowrap; } .cp-label { flex: 0 0 74px; }
+  .cp-done { min-width: 0; font-size: 18px; white-space: nowrap; padding: 0 8px; }
+}
 
 /* ---------- Smooth Ride (js/screens/ride.js): no transitions on the engine, the puffs or the needle ---------- */
 .stone-top.stone-sack .gauge-art { width: 60%; height: auto; } .stone.is-locked .stone-sack .gauge-art { opacity: .45; }

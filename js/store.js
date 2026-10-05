@@ -1,5 +1,6 @@
 // Progress and settings in localStorage. Every access is guarded: a throwing or corrupt store starts fresh.
 import { ORDER } from './order.js';
+import { cleanCharacter } from './character.js';
 const KEY = 'reading.v1';
 
 const fresh = () => ({
@@ -8,12 +9,11 @@ const fresh = () => ({
   lessons: {},
   checkpoints: {}, // bonus review games between lessons, by id: {result, completedAt, unlocked}
   settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: false, sfx: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {} },
-  character: { name: '' }, // the child's name, for the stories (js/screens/book.js)
+  character: cleanCharacter({}), // the child's figure and name (js/character.js): on this device only
+  meetDue: true, // the character creator shows once, after the welcome card
   firstRunDone: false,
   lastOpened: null,
 });
-
-const cleanCharacter = (c) => ({ name: typeof c?.name === 'string' ? c.name.replace(/[^\p{L} '\-]/gu, '').trim().slice(0, 16) : '' });
 
 // A saved setting of the wrong type (a rate that is "fast", say) falls back to its default; numbers are clamped.
 export function cleanSettings(s, d) {
@@ -55,7 +55,7 @@ export function createStore() {
       if (p.checkpoints && typeof p.checkpoints === 'object' && !Array.isArray(p.checkpoints)) {
         for (const [id, c] of Object.entries(reorder ? {} : p.checkpoints)) if (c && typeof c === 'object' && !Array.isArray(c)) checkpoints[id] = c;
       }
-      return { ...f, ...p, order: ORDER, lessons, checkpoints, character: cleanCharacter(p.character), settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
+      return { ...f, ...p, order: ORDER, lessons, checkpoints, character: cleanCharacter(p.character), meetDue: typeof p.meetDue === 'boolean' ? p.meetDue : typeof p.lastOpened === 'string', settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
     } catch { return fresh(); }
   }
   function save() {
@@ -98,10 +98,12 @@ export function createStore() {
     unlockCheckpoint(id) { state.checkpoints[id] = { ...checkpoint(id), unlocked: true }; save(); },
     character: () => state.character,
     setCharacter(patch) { state.character = cleanCharacter({ ...state.character, ...patch }); save(); },
+    // The creator was closed (All aboard or Later): keep what was picked and do not show it again.
+    finishMeet(patch = {}) { state.character = cleanCharacter({ ...state.character, ...patch, made: true }); state.meetDue = false; save(); },
     setSetting(k, v) { state.settings = { ...state.settings, [k]: v }; save(); },
     setFirstRunDone() { state.firstRunDone = true; save(); },
     touch() { state.lastOpened = new Date().toISOString(); save(); },
     // Progress only: the parent's voice settings and the child's name are kept.
-    resetAll() { const { settings, character } = state; state = { ...fresh(), settings, character }; save(); },
+    resetAll() { const { settings, character, meetDue } = state; state = { ...fresh(), settings, character, meetDue }; save(); },
   };
 }

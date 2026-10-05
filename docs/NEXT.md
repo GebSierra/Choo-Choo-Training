@@ -17,4 +17,4 @@ Recorded while the usage limit was hit. Plan with Opus, build with Sonnet.
    - Soft volume so the parent can talk over it. Obeys the existing sound/mute setting.
    - Audio files will come from the owner (generated elsewhere) as MP3 or OGG; precache them
      and watch total size. Synthesized placeholder until then is optional.
-5. Still open from v1.7: Story 2 text approval, character creator. The new sound order is done (v1.8.1).
+5. Still open from v1.7: Story 2 text approval. The character creator is done (v1.8.3) and so is the new sound order (v1.8.1).

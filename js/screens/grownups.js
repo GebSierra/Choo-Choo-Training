@@ -1,6 +1,7 @@
 import { h, icon } from '../dom.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
 import { WELCOME } from '../guide.js';
+import { characterPicker } from '../components/character-picker.js';
 import { soundCard } from '../components/sound-card.js';
 import { glyphSvg } from '../glyphs.js';
 import { stopIcon } from '../art/train2d.js';
@@ -60,10 +61,8 @@ export function grownupsScreen(ctx) {
   };
   paintReset(false);
 
-  // ---- the child's name, for the stories ----
-  const nameIn = h('input', { class: 'gu-name', type: 'text', maxlength: 16, autocomplete: 'off', autocapitalize: 'words', spellcheck: 'false', 'aria-label': "Your child's name, for the stories", value: store.character().name, placeholder: 'Name' });
-  const nameNote = h('span', { class: 'gu-sub', 'aria-live': 'polite' });
-  const nameSave = h('button', { class: 'btn small', type: 'button', onclick: () => { store.setCharacter({ name: nameIn.value }); nameIn.value = store.character().name; nameNote.textContent = 'Saved'; } }, 'Save');
+  // ---- the child's figure and name (the character creator) ----
+  const picker = characterPicker({ store, mode: 'grownups' });
 
   // ---- voice ----
   const select = h('select', { class: 'gu-select', 'aria-label': 'Voice', onchange: () => { store.setSetting('voiceURI', select.value); } });
@@ -118,8 +117,8 @@ export function grownupsScreen(ctx) {
     h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to the path', onclick: () => router.go('/home') }, icon('back', 28)), h('h1', {}, 'Grownups')),
     h('div', { class: 'gu-body' },
       sec('Lessons', resetBox, lessonsBox), // Reset first: with seventeen rows below it, it would be buried at the bottom
-      sec('Your child', h('label', { class: 'gu-field' }, h('span', {}, "Your child's name, for the stories"), nameIn), h('div', { class: 'gu-actions' }, nameSave, nameNote),
-        h('p', { class: 'gu-note' }, "Used only inside the stories on this device. It is never sent anywhere and never spoken by the phone's voice.")),
+      sec('Your child', picker,
+        h('p', { class: 'gu-note' }, "The name is used only inside the stories on this device. It is never sent anywhere and never spoken by the phone's voice.")),
       sec('Voice', h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate), test,
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Speak automatically'), toggle),
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Always show full instructions'), fullSwitch),

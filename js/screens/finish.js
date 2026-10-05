@@ -5,11 +5,12 @@ import { lessonByNumber } from '../lessons.js';
 import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
 import { pipSvg } from '../art/pip.js';
+import { kidSvg } from '../art/kid.js';
 
 // Calm finish: no confetti. The parent decides whether the child got it.
 // Taps are ignored for the first 1.5 s, and "Yes" takes two taps, so a child cannot move on by accident.
 // The first Yes tap only arms the button (and dims it for 1.5 s); the second records "got it" and goes on (onContinue).
-function finishView({ speech, router, heading, badge, accent, armedLabel, armedNote, onContinue, onPractice }) {
+function finishView({ speech, router, character, heading, badge, accent, armedLabel, armedNote, onContinue, onPractice }) {
   const note = h('p', { class: 'finish-note', 'aria-live': 'polite' });
   let armed = false, armTimer = 0; // the first "Yes" tap has been made
   const label = h('span', {}, 'Yes, go on');
@@ -27,7 +28,7 @@ function finishView({ speech, router, heading, badge, accent, armedLabel, armedN
   const back = h('button', { class: 'btn secondary back-path', type: 'button', disabled: true, onclick: () => router.go('/home') }, 'Back to path');
   const ring = h('span', { class: 'finish-ring', style: { '--accent': accent } });
   const root = h('div', { class: 'finish' },
-    h('div', { class: 'finish-glyph', style: { '--accent': accent } }, ring, badge, h('span', { class: 'finish-pip' }, pipSvg({ pose: 'cheer' }))),
+    h('div', { class: 'finish-glyph', style: { '--accent': accent } }, ring, badge, h('span', { class: 'finish-pip' }, pipSvg({ pose: 'cheer' })), h('span', { class: 'finish-kid', 'aria-hidden': 'true' }, kidSvg({ ...character, pose: 'cheer' }))),
     h('h1', {}, heading),
     h('section', { class: 'finish-card' }, h('p', { class: 'finish-for' }, 'For the grown-up'), h('p', { class: 'finish-q' }, 'Did your child get it?'), h('div', { class: 'finish-choices' }, gotIt, again), note),
     back);
@@ -46,7 +47,7 @@ export function finishScreen({ store, router, curriculum, speech }, n) {
   const num = lesson.number;
   const last = num >= curriculum.lessons.length;
   return finishView({
-    speech, router,
+    speech, router, character: store.character(),
     heading: `That's lesson ${num}.`,
     badge: glyphSvg(lesson.sound, { color: accentOf(lesson.sound), label: 'lesson letter' }),
     accent: accentOf(lesson.sound),
@@ -66,7 +67,7 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
   const ck = (curriculum.checkpoints || []).find((c) => c.id === id);
   if (!ck || !store.isCheckpointUnlocked(ck)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
   return finishView({
-    speech, router,
+    speech, router, character: store.character(),
     heading: ck.kind === 'book' ? "That's the end of the story." : ck.kind === 'ride' ? 'Smooth ride!' : `That's the ${ck.title.toLowerCase()}.`,
     badge: stopIcon(ck),
     accent: ck.kind === 'book' ? '#E5484D' : ck.kind === 'ride' ? '#E5A73A' : '#C99A5B', // a book's red cover, a gauge's brass, a crate's wood

@@ -94,7 +94,7 @@ export async function pipChecks({ browser, url, ok }) {
 
 const NODES = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
 const nameOf = (n) => (n.lesson ? `Lesson ${n.lesson.number}` : n.checkpoint.title);
-const state = (done, settings = {}, extra = {}) => ({ schema: 1, lessons: doneThrough(done), settings: { seenScripts: SEEN, trainIntroDone: true, ...settings }, firstRunDone: true, ...extra });
+export const state = (done, settings = {}, extra = {}) => ({ schema: 1, lessons: doneThrough(done), settings: { seenScripts: SEEN, trainIntroDone: true, ...settings }, firstRunDone: true, ...extra });
 // Counts the WebGL contexts the page makes, and how many are still alive.
 const GL_COUNTER = () => {
   window.__gls = [];
@@ -107,7 +107,7 @@ const train = (page) => page.evaluate(() => { const t = window.__train; return t
 const shown = (page) => page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => { const r = b.getBoundingClientRect(); return { label: b.getAttribute('aria-label'), cls: [...b.classList].filter((c) => c.startsWith('is-')).join(' '), shown: b.dataset.shown === '1', vis: getComputedStyle(b).visibility, x: r.x, y: r.y, w: r.width, h: r.height }; }));
 const until = async (page, fn, arg, timeout = 15000) => page.waitForFunction(fn, arg, { timeout }).then(() => true).catch(() => false);
 
-async function openHome(browser, url, vp, st, { init = [], extra, route = '#/home' } = {}) {
+export async function openHome(browser, url, vp, st, { init = [], extra, route = '#/home' } = {}) {
   const made = await newPage(browser, vp, extra);
   await made.page.addInitScript(SPEECH_STUB);
   await made.page.addInitScript(GL_COUNTER);
@@ -197,7 +197,7 @@ export async function tapChecks({ browser, url, ok }) {
 
 // The first visit glides from the start of the line; a just-finished lesson brings the train in with a toot.
 // The index of a lesson's stop on the line (the line has no Sound Station stops since 1.7.0).
-const iL = (n) => NODES.findIndex((x) => x.lesson && x.lesson.number === n);
+export const iL = (n) => NODES.findIndex((x) => x.lesson && x.lesson.number === n);
 export async function arrivalChecks({ browser, url, ok, shot }) {
   const vp = VIEWPORTS[0];
   {

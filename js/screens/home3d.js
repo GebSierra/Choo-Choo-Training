@@ -10,15 +10,15 @@ import { makeBag, makeLine } from '../train/world.js';
 import { createRenderer, createScene } from '../train/scene.js';
 import { buildTrack } from '../train/track.js';
 import { buildScenery } from '../train/scenery.js';
-import { buildStop } from '../train/stations.js';
+import { buildStop, kidSpot } from '../train/stations.js';
+import { buildKid } from '../train/kid3d.js';
 import { buildTrain } from '../train/train.js';
 import { createRig } from '../train/camera.js';
 import { createOverlay } from '../train/overlay.js';
 import { h, animate, reduced } from '../dom.js';
 import { holdButton } from '../components/hold-button.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
-import { welcomeCard } from '../components/welcome-card.js';
-import { WELCOME } from '../guide.js';
+import { firstRunOverlay } from '../components/welcome-card.js';
 import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
 
@@ -64,6 +64,9 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   const doneLessons = curriculum.lessons.filter((l) => store.isDone(l.number));
   const cur0 = built[currentIndex];
   if (cur0 && stops[currentIndex].state === 'current') cur0.faceMat.emissiveIntensity = 0.22; // a steady soft glow (no idle animation)
+  // the child's figure waits on the platform of the current stop (it adds no frames: it moves only when it waves)
+  const kid = buildKid(bag, store.character());
+  { const spot = kidSpot(stops[currentIndex]); kid.group.position.set(spot.x, spot.y, spot.z); kid.group.rotation.y = spot.ry; built[currentIndex].group.add(kid.group); }
   const train = buildTrain(bag, line, doneLessons.map((l) => ({ glyph: l.sound, accent: accentOf(l.sound) })));
   scene.add(train.group);
 
@@ -112,17 +115,14 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   canvas.setAttribute('aria-hidden', 'true');
   const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, grown), ...(fs ? [fs] : []));
 
-  if (!store.state.firstRunDone) {
-    const done = () => { store.setFirstRunDone(); animate(card, [{ opacity: 1 }, { opacity: 0 }], { duration: 200 }).finished.then(() => card.remove()); };
-    const card = h('div', { class: 'first-run', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Welcome' }, welcomeCard({ pages: WELCOME, onDone: done }));
-    root.append(card);
-    animate(card.firstChild, [{ opacity: 0, transform: 'translateY(16px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 500, easing: 'cubic-bezier(.34,1.56,.64,1)' });
-  }
+  firstRunOverlay({ store, root });
 
   // ---- state shown to tests (read only) ----
   const debug = { stopS, engineAt: ENGINE_AT, frames: 0, idleFrames: 0, trainS: train.at, focus: rig.focus, arriving, fromIndex, currentIndex, tootAt: null, running: false, disposed: false, glideIn, reduced: reduced(), soft };
   // Brings stop i into view (keyboard focus does the same for a stop that is on screen); tests use it to reach a stop.
   debug.show = (i) => { rig.jump(stopS[Math.max(0, Math.min(stopS.length - 1, i))]); render(); wake(); };
+  debug.kid = { index: currentIndex, get waving() { return kid.waving; } };
+  debug.kidName = kid.group.name;
   root.__train = debug;
   window.__train = debug;
 
@@ -158,18 +158,18 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
         arrival = null;
         debug.tootAt = performance.now();
         sfx.play('toot');
-        train.pip.wave(true, t); train.pip.lean(1);
+        train.pip.wave(true, t); train.pip.lean(1); kid.wave(true, t);
         waveUntil = t + 2.6;
       }
       busy = true;
     }
     if (train.steam(t)) busy = true;
-    if (waveUntil && t > waveUntil) { waveUntil = 0; train.pip.wave(false); train.pip.lean(0); }
+    if (waveUntil && t > waveUntil) { waveUntil = 0; train.pip.wave(false); train.pip.lean(0); kid.wave(false); }
     // Pip's life (breathing, blinking, waving) is drawn only while something else already moves or he waves
     if (!still) {
-      train.pip.tick(t);
+      train.pip.tick(t); kid.tick(t);
       if (waveUntil) busy = true;
-    } else train.pip.tick(t, true);
+    } else { train.pip.tick(t, true); kid.tick(t, true); }
     for (const [i, start] of wobbles) {
       const k = (now - start) / 320;
       built[i].sign.rotation.z = k >= 1 ? 0 : Math.sin(k * Math.PI * 3) * 0.12 * (1 - k);

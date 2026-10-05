@@ -1,5 +1,7 @@
-import { h } from '../dom.js';
+import { h, animate } from '../dom.js';
 import { pipSvg } from '../art/pip.js';
+import { characterPicker } from './character-picker.js';
+import { WELCOME } from '../guide.js';
 
 // The first-run card: a few short pages for the grown-up, one at a time. All pages sit in the same grid cell, so the
 // card keeps one size and nothing jumps when the page changes. Nothing here is spoken. Pip waves hello at the top.
@@ -26,4 +28,22 @@ export function welcomeCard({ pages, onDone }) {
     h('div', { class: 'wc-dots', 'aria-hidden': 'true' }, ...dots),
     h('div', { class: 'wc-actions' }, back, next),
     skip);
+}
+
+// Both homes call this: the welcome card on the first run, then the character creator (once; also for a device that was
+// installed before the creator existed). The card is fixed in size and fades in and out. Nothing here is spoken.
+export function firstRunOverlay({ store, root }) {
+  const welcome = !store.state.firstRunDone, meet = store.state.meetDue;
+  if (!welcome && !meet) return;
+  const frame = h('div', { class: 'first-run', role: 'dialog', 'aria-modal': 'true', 'aria-label': welcome ? 'Welcome' : 'Who is riding with Pip?' });
+  const close = () => animate(frame, [{ opacity: 1 }, { opacity: 0 }], { duration: 200 }).finished.then(() => frame.remove());
+  const show = (card) => {
+    frame.replaceChildren(card);
+    animate(card, [{ opacity: 0, transform: 'translateY(16px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 500, easing: 'cubic-bezier(.34,1.56,.64,1)' });
+  };
+  const picker = () => { frame.setAttribute('aria-label', 'Who is riding with Pip?'); show(h('div', { class: 'first-card meet' }, characterPicker({ store, mode: 'first', onDone: close }))); };
+  if (welcome) {
+    show(welcomeCard({ pages: WELCOME, onDone: () => { store.setFirstRunDone(); if (store.state.meetDue) picker(); else close(); } }));
+  } else picker();
+  root.append(frame);
 }

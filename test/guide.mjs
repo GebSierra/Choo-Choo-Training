@@ -61,6 +61,21 @@ async function welcomeChecks(ok, browser, url) {
   await page.click('.wc-skip'); await page.waitForTimeout(500);
   ok((await page.locator('.first-run').count()) === 0 && (await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).firstRunDone)), 'Skip closes the welcome and remembers it');
   await ctx.close();
+  // A new install: after the welcome's Start the character creator shows, and Later closes it.
+  {
+    const { ctx, page } = await newPage(browser, SIZES[0]);
+    await page.addInitScript(SPEECH_STUB);
+    await page.addInitScript(`if (!localStorage.getItem('reading.v1')) localStorage.setItem('reading.v1', ${JSON.stringify(JSON.stringify({ schema: 1, lessons: {}, settings: {}, firstRunDone: false, meetDue: true }))})`);
+    await page.goto(url + '#/home'); await page.waitForSelector('.welcome'); await page.waitForTimeout(800);
+    await page.click('.wc-next'); await page.waitForTimeout(450); await page.click('.wc-next'); await page.waitForTimeout(450); await page.click('.wc-next');
+    await page.waitForSelector('.cp'); await page.waitForTimeout(600);
+    ok((await page.locator('.cp h2').innerText()) === 'Who is riding with Pip?', 'after the welcome\'s Start the character creator asks "Who is riding with Pip?"');
+    await page.click('.meet-later'); await page.waitForTimeout(500);
+    ok((await page.locator('.first-run').count()) === 0, 'Later closes the creator');
+    const st = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')));
+    ok(st.meetDue === false && st.character.made === true, 'and remembers it: the creator does not come back');
+    await ctx.close();
+  }
 }
 
 async function tipChecks(ok, browser, url) {

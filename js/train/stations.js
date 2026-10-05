@@ -216,3 +216,11 @@ export function buildStop(bag, line, node, s, state) {
   // A soft round shadow under the stop.
   return { group: g, sign: sp.sign, faceMat: sp.faceMat, state, signY: 2.75 };
 }
+
+// Where the child's figure stands at a stop, in the stop's local frame: on the platform of a lesson station, at the end the
+// train comes from (the roof hides the middle of the platform from the camera above), facing the track and turned a little
+// toward the camera; on the ground by the door of a goods depot.
+export function kidSpot(node) {
+  const ry = -OUT * Math.PI / 2 - OUT * 0.95;
+  return node.kind === 'lesson' ? { x: OUT * 1.4, y: 0.4, z: -1.72, ry } : { x: OUT * 1.0, y: 0, z: -1.2, ry };
+}

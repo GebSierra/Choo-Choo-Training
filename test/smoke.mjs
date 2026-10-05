@@ -688,6 +688,11 @@ for (const [name, raw] of [
   let hp = await audit(page, 'home first-run');
   ok(hp.length === 0, hp.join(' | '));
   await page.click('.first-run .wc-skip');
+  await page.waitForSelector('.cp'); // a new install meets the character creator after the welcome card
+  await page.waitForTimeout(700);
+  hp = await audit(page, 'home character creator');
+  ok(hp.length === 0, hp.join(' | '));
+  await page.click('.meet-later');
   await page.waitForTimeout(500);
   hp = await audit(page, 'home');
   ok(hp.length === 0, hp.join(' | '));

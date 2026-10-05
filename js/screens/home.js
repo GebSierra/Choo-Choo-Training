@@ -2,9 +2,9 @@ import { h, animate, icon, reduced } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { holdButton } from '../components/hold-button.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
-import { welcomeCard } from '../components/welcome-card.js';
-import { WELCOME } from '../guide.js';
+import { firstRunOverlay } from '../components/welcome-card.js';
 import { stopIcon } from '../art/train2d.js';
+import { kidSvg } from '../art/kid.js';
 
 // The path is a long winding trail that scrolls: up the screen in portrait (lesson 1 at the bottom, the newest stone at the top),
 // along it in landscape (lesson 1 at the left). Every stone, the trail and the scenery are placed from the data and the sizes
@@ -116,7 +116,7 @@ function scenery(g) {
 }
 
 // A stone on the path. A lesson shows its letter and number; a checkpoint ({title}) shows a small crate instead.
-function stone(g, i, what, state, onTap, speech) {
+function stone(g, i, what, state, onTap, speech, character) {
   const sound = what.sound;
   const accent = sound ? `var(--${sound.glyph})` : '#C99A5B';
   const name = sound ? `Lesson ${what.number}` : what.title;
@@ -127,7 +127,8 @@ function stone(g, i, what, state, onTap, speech) {
     ? h('span', { class: 'stone-badge done' }, h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, 'aria-hidden': 'true' }, h('path', { d: 'M5 12.5l4.5 4.5L19 7.5', class: 'tick', fill: 'none', stroke: '#fff', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })))
     : state === 'locked' ? h('span', { class: 'stone-badge lock' }, icon('lock', 16)) : null;
   const btn = h('button', { class: `stone is-${state}`, type: 'button', style: { '--accent': accent }, 'aria-label': `${name}${state === 'locked' ? ', locked' : state === 'done' ? ', done' : ''}`, 'aria-disabled': state === 'locked' ? 'true' : null, onclick: () => onTap(btn, state) },
-    state === 'current' ? h('span', { class: 'stone-ring' }) : null, h('span', { class: 'stone-base' }), top, badge);
+    state === 'current' ? h('span', { class: 'stone-ring' }) : null, h('span', { class: 'stone-base' }), top, badge,
+    state === 'current' && character ? h('span', { class: 'stone-kid', 'aria-hidden': 'true' }, kidSvg({ ...character, pose: 'wave' })) : null);
   const p = g.stones[i];
   const wrap = h('div', { class: 'stone-wrap', style: { '--px': p.px + '%', '--py': p.py + 'px', '--lx': p.lx + 'px', '--ly': p.ly + '%' } });
   if (state === 'current') {
@@ -207,14 +208,14 @@ export function mapScreen(ctx) {
       const pending = (curriculum.checkpoints || []).find((k) => !store.isCheckpointDone(k.id) && store.isCheckpointUnlocked(k));
       const state = store.isCheckpointDone(c.id) ? 'done' : (!store.isCheckpointUnlocked(c) ? 'locked' : (current === null && pending && pending.id === c.id ? 'current' : 'open'));
       if (state === 'current') { currentIndex = i; found = true; }
-      return stone(g, i, c, state === 'open' ? 'unlocked' : state, tap((btn, st) => { if (st === 'locked') wobble(btn); else router.go(`/checkpoint/${c.id}`); }), speech);
+      return stone(g, i, c, state === 'open' ? 'unlocked' : state, tap((btn, st) => { if (st === 'locked') wobble(btn); else router.go(`/checkpoint/${c.id}`); }), speech, store.character());
     }
     const l = node.lesson;
     const state = store.isDone(l.number) ? 'done' : (!store.isUnlocked(l.number) ? 'locked' : (l.number === current ? 'current' : 'open'));
     if (l.number === current) { currentIndex = i; found = true; }
     return stone(g, i, { sound: curriculum.sounds[l.sound], number: l.number }, state === 'open' ? 'current' : state, tap((btn, st) => {
       if (st === 'locked') wobble(btn); else router.go(`/lesson/${l.number}`);
-    }), speech);
+    }), speech, store.character());
   });
   if (!found) currentIndex = nodes.length - 1;
   stones.forEach((s) => scene.append(s));
@@ -225,15 +226,7 @@ export function mapScreen(ctx) {
   const root = h('div', { class: 'home' }, scroller, top, ...(fs ? [fs] : []));
   root.cleanup = grown.cleanup;
 
-  if (!store.state.firstRunDone) {
-    const done = () => {
-      store.setFirstRunDone();
-      animate(card, [{ opacity: 1 }, { opacity: 0 }], { duration: 200 }).finished.then(() => card.remove());
-    };
-    const card = h('div', { class: 'first-run', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Welcome' }, welcomeCard({ pages: WELCOME, onDone: done }));
-    root.append(card);
-    animate(card.firstChild, [{ opacity: 0, transform: 'translateY(16px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 500, easing: 'cubic-bezier(.34,1.56,.64,1)' });
-  }
+  firstRunOverlay({ store, root });
 
   // Open with the path's start in view, then glide to the current stone (at once if it is already in view or motion is reduced).
   // Only the stones that will be on screen rise into place, one after another; the rest simply stand there.

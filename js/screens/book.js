@@ -2,6 +2,7 @@ import { h, animate, reduced } from '../dom.js';
 import { wordSvg } from '../glyphs.js';
 import { engineSvg, puffEl, FUNNEL_TOP } from '../art/train2d.js';
 import { pipSvg } from '../art/pip.js';
+import { kidSvg } from '../art/kid.js';
 import { slideTrack } from '../components/slide-track.js';
 import { slideBlend, placeBand, startSweep, handCue } from '../components/slide-blend.js';
 import { timers } from '../components/game-kit.js';
@@ -55,7 +56,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
   const cover = h('button', { class: 'book-cover', type: 'button', 'aria-label': `Open the book: ${book.title}` },
     h('span', { class: 'cover-front' },
       h('span', { class: 'cover-title' }, book.title),
-      h('span', { class: 'cover-pip', 'aria-hidden': 'true' }, pipSvg({ pose: 'wave', still: false })),
+      h('span', { class: 'cover-pip', 'aria-hidden': 'true' }, pipSvg({ pose: 'wave', still: false }), h('span', { class: 'cover-kid' }, kidSvg({ ...store.character(), pose: 'wave', still: false }))),
       h('span', { class: 'cover-hint' }, 'Tap to open')),
     h('span', { class: 'cover-back', 'aria-hidden': 'true' }));
   const bookEl = h('div', { class: 'book', tabindex: '0', dataset: { state: 'closed', spread: '0' } }, block, cover);
@@ -89,7 +90,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     } else if (a.pip) {
       parts.pip = h('span', { class: 'book-part book-pip' }, pipSvg({ pose: a.pip, still: false }));
     }
-    if (a.friend) parts.friend = h('span', { class: 'book-part book-friend', role: 'img', 'aria-label': (store.character().name || FRIEND) }, h('span', { class: 'book-emoji' }, '🧒'));
+    if (a.friend) parts.friend = h('span', { class: 'book-part book-friend' }, kidSvg({ ...store.character(), pose: page.tap && page.tap.on === 'friend' ? 'idle' : 'wave', still: false, label: store.character().name || FRIEND }));
     if (a.emoji) parts.emoji = h('span', { class: 'book-part book-emojis', role: 'img', 'aria-hidden': 'true' }, a.emoji.map((e) => h('span', { class: 'book-emoji' }, e)));
     const order = ['pip', 'train', 'friend', 'emoji'].filter((k) => parts[k]);
     for (const k of order) {
