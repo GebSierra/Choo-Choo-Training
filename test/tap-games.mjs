@@ -497,6 +497,77 @@ export async function rotationChecks({ browser, url, ok, CUR }) {
   }
 }
 
+// Auto-advance: a finished lesson game moves on by itself after its success moment (AUTO_MS 1.2 s). Parent-led tasks never do.
+export async function autoAdvanceChecks({ browser, url, ok }) {
+  const vp = VIEWPORTS[0];
+  const hashOf = (page) => page.evaluate(() => location.hash);
+  const play = async (page) => {
+    await page.waitForSelector('.signal');
+    await unlock(page);
+    await page.waitForTimeout(600);
+    for (let r = 1; r <= 5; r++) { await tapEl(page, page.locator('.signal[data-target="1"]')); await page.waitForTimeout(r < 5 ? 1100 : 100); }
+    await page.waitForFunction(() => document.querySelector('.signals')?.dataset.state === 'done', null, { timeout: 6000 });
+  };
+  const live = (page) => page.evaluate(() => { window.__noAutoAdvance = false; });
+  // (a) and (e): done, then the next task opens with no tap; Back goes to the lesson overview, and the game can be reopened and played again.
+  for (const reduced of [false, true]) {
+    const { ctx, page, errors } = await open(browser, url, vp, { n: 2, type: 'signals', games: ['signals'], reduced });
+    const tag = `auto-advance${reduced ? ' (reduced motion)' : ''}`;
+    await live(page);
+    const here = await hashOf(page);
+    await play(page);
+    await page.waitForFunction((h) => location.hash !== h, here, { timeout: 3000 }).catch(() => {});
+    const next = await hashOf(page);
+    ok(next !== here && /#\/lesson\/2\/task\/\d+$/.test(next), `${tag}: a finished Green Light opens the next task by itself (${here} to ${next})`);
+    await page.waitForSelector('.task-screen:not(.leaving) .task-head h1');
+    ok((await page.locator('.screen:not(.leaving) .signals').count()) === 0, `${tag}: the next task is not the game`);
+    await page.waitForTimeout(1500);
+    ok((await hashOf(page)) === next, `${tag}: it moves on once, not twice`);
+    await page.locator('.task-head .icon-btn').first().click();
+    await page.waitForFunction(() => location.hash === '#/lesson/2', null, { timeout: 3000 }).catch(() => {});
+    ok((await hashOf(page)) === '#/lesson/2', `${tag}: Back from the next task goes to the lesson overview (the router's Back is the parent screen)`);
+    await page.evaluate((h) => { location.hash = h; }, here); // reopen the game from there
+    await page.waitForSelector('.signal');
+    ok((await state(page, 'signals')) === 'playing', `${tag}: the game can be played again`);
+    await page.waitForTimeout(2000);
+    ok((await hashOf(page)) === here, `${tag}: replaying does not advance until it is finished again`);
+    ok(errors.length === 0, `${tag}: errors ` + errors.join(' | '));
+    await ctx.close();
+  }
+  // (c) Again inside the 1.2 s cancels it.
+  {
+    const { ctx, page } = await open(browser, url, vp, { n: 2, type: 'signals', games: ['signals'] });
+    await live(page);
+    const here = await hashOf(page);
+    await play(page);
+    await page.click('.btn.again');
+    await page.waitForTimeout(2500);
+    ok((await hashOf(page)) === here && (await state(page, 'signals')) === 'playing', 'auto-advance: Again within the success moment cancels it and restarts the game');
+    await ctx.close();
+  }
+  // Back inside the 1.2 s cancels it too (the previous page is shown and no later hop happens).
+  {
+    const { ctx, page } = await open(browser, url, vp, { n: 2, type: 'signals', games: ['signals'] });
+    await live(page);
+    await play(page);
+    await page.locator('.task-head .icon-btn').first().click();
+    await page.waitForTimeout(2500);
+    ok((await hashOf(page)) === '#/lesson/2', 'auto-advance: Back within the success moment cancels it, no later hop (' + (await hashOf(page)) + ')');
+    await ctx.close();
+  }
+  // (d) A parent-led task has no finished signal and never moves on by itself.
+  {
+    const { ctx, page } = await open(browser, url, vp, { n: 2, type: 'newLetter' });
+    await live(page);
+    const here = await hashOf(page);
+    await page.waitForSelector('.task-screen');
+    await page.waitForTimeout(4000);
+    ok((await hashOf(page)) === here, 'auto-advance: a parent-led task (New Letter) stays until Next is pressed');
+    await ctx.close();
+  }
+  // (b) Every lesson ends with Practicing Words and Ticket Check, so no lesson's last task is a game and the finish-screen route is not reachable by auto-advance alone; it is the same advance() as Next.
+}
+
 // Screenshots for looking at: each game at 390x844 and 360x640 (SHOTS=1).
 const SHOT_VPS = [{ name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }, { name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }];
 export async function screenshots({ browser, url }) {
@@ -530,6 +601,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   await wagonCoupleChecks({ browser, url, ok });
   await boardChecks({ browser, url, ok });
   await rotationChecks({ browser, url, ok, CUR });
+  await autoAdvanceChecks({ browser, url, ok });
   await browser.close(); server.close();
   console.log(`tap-games: ${checks - failures}/${checks} checks passed`);
   process.exit(failures ? 1 : 0);

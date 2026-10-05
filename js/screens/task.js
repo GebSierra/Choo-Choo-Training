@@ -29,7 +29,7 @@ export function taskScreen(ctx, n, idx) {
   const pos = tasks.indexOf(task);
   const isLast = pos === tasks.length - 1;
 
-  const shell = makeShell({ ctx, title: task.name, color: task.color, steps: tasks.length, pos, from: tasks.findIndex((t) => t.index === lastIndex[lesson.number]), isLast, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to lesson', stepNoun: 'Task',
+  const shell = makeShell({ ctx, title: task.name, color: task.color, steps: tasks.length, pos, from: tasks.findIndex((t) => t.index === lastIndex[lesson.number]), isLast, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to lesson', stepNoun: 'Task', autoAdvance: true,
     // The parent script opens by itself the first time this kind of task, or this lesson, is opened on the device.
     tip: tipFor(lesson.number, task.type), tipKey: `tip:${lesson.number}:${task.type}`,
     autoOpen: !['hunt', 'signals', 'wagons', 'board', 'practice'].includes(task.type), seenKeys: [task.type, ...(pos === 0 && !store.lesson(lesson.number).tasksDone.length ? [`lesson:${lesson.number}`] : [])] });

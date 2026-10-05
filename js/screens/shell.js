@@ -17,7 +17,7 @@ import { richText } from '../letters.js';
 //   return shell.mount(current, advance);
 // current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?, lockScroll?}.
 // lockScroll: the activity never scrolls and ignores pan gestures (tasks where a finger slides across the screen).
-export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false, tip = null, tipKey = '', noScript = false, noAgain = false }) {
+export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false, tip = null, tipKey = '', noScript = false, noAgain = false, autoAdvance = false }) {
   const { router, speech, store } = ctx;
   let current = null, doneHook = () => {};
   const scriptText = h('p', { class: 'script-text' });
@@ -46,6 +46,11 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
     refresh: () => refreshAll(), setPos, setDone: (done) => doneHook(done),
     mount(cur, advance) {
       current = cur;
+      // Auto-advance (lesson games): a moment after the game says it is done, go on as Next would. Runs once, and only if nothing cancelled it.
+      const AUTO_MS = 1200;
+      let autoTimer = 0, autoWait = null, advanced = false;
+      const cancelAuto = () => { clearTimeout(autoTimer); autoTimer = 0; if (autoWait) { document.removeEventListener('visibilitychange', autoWait); autoWait = null; } };
+      const goNext = () => { if (advanced) return; advanced = true; cancelAuto(); advance(); };
       const full = !!store.settings.fullInstructions;
       const onDark = color === 'violet' || color === 'coral', light = color === 'violet'; // the speaker is violet with a white icon, white with a violet icon only on a violet stage
       const speaker = speakButton({ speech, getParts: () => current.parts(), label: 'Hear this again' });
@@ -55,7 +60,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
       const speakers = [mkScriptSpeaker()];
 
       const head = h('header', { class: 'task-head' },
-        h('button', { class: 'icon-btn light', type: 'button', 'aria-label': backLabel, onclick: () => router.back() }, icon('back', 28)),
+        h('button', { class: 'icon-btn light', type: 'button', 'aria-label': backLabel, onclick: () => { cancelAuto(); router.back(); } }, icon('back', 28)),
         h('h1', {}, title),
         h('span', { class: 'head-spacer' }),
         bar);
@@ -107,10 +112,21 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
         stage.addEventListener('pointerdown', () => { if (isOpen) closeScript(); }, true);
       }
 
-      const again = h('button', { class: 'btn again', type: 'button', onclick: () => { closeScript(); current.again(); refreshAll(); } }, icon('redo', 22), 'Again');
+      const again = h('button', { class: 'btn again', type: 'button', onclick: () => { cancelAuto(); closeScript(); current.again(); refreshAll(); } }, icon('redo', 22), 'Again');
       const nextText = h('span', {}, skipUntilDone ? 'Skip' : isLast ? 'Finish' : 'Next');
-      const next = h('button', { class: 'btn next', type: 'button', disabled: true, onclick: () => { closeScript(); if (current.next && current.next()) { dimNext(); refreshAll(); return; } advance(); } }, nextText, icon('arrowRight', 22));
+      const next = h('button', { class: 'btn next', type: 'button', disabled: true, onclick: () => { closeScript(); if (current.next && current.next()) { dimNext(); refreshAll(); return; } goNext(); } }, nextText, icon('arrowRight', 22));
       doneHook = (done) => {
+        cancelAuto();
+        if (done && autoAdvance && !advanced) {
+          const fire = () => {
+            autoTimer = 0;
+            if (document.hidden) { autoWait = () => { if (!document.hidden) { cancelAuto(); fire(); } }; document.addEventListener('visibilitychange', autoWait); return; }
+            if (window.__noAutoAdvance) return; // tests that sit on a finished game switch this on
+            if (isOpen) return; // the grown-up is reading the script: leave Next to them
+            closeScript(); goNext();
+          };
+          autoTimer = setTimeout(fire, AUTO_MS);
+        }
         if (skipUntilDone) nextText.textContent = done ? 'Finish' : 'Skip';
         if (done && !reduced()) next.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.04)', offset: 0.5 }, { transform: 'scale(1)' }], { duration: 420, easing: 'ease-in-out' });
       };
@@ -137,7 +153,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
           setOpen(true, { hold: longer ? 11000 : 6000 });
         }, 500);
       }
-      root.cleanup = () => { clearTimeout(timer); clearTimeout(nextTimer); clearTimeout(closeTimer); clearTimeout(introTimer); speaker.cleanup(); speakers.forEach((s) => s.cleanup()); if (current.cleanup) current.cleanup(); };
+      root.cleanup = () => { cancelAuto(); clearTimeout(timer); clearTimeout(nextTimer); clearTimeout(closeTimer); clearTimeout(introTimer); speaker.cleanup(); speakers.forEach((s) => s.cleanup()); if (current.cleanup) current.cleanup(); };
       // Opacity only: the tap targets must not move while a finger may be heading for them.
       animate(stage, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 60 });
       animate(foot, [{ opacity: 0 }, { opacity: 1 }], { duration: 260, delay: 120 });
