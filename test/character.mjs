@@ -5,11 +5,12 @@ import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, doneThrough } from './lib.mjs';
 import { openHome, state, iL } from './train.mjs';
-import { SKINS } from '../js/character.js';
+import { SKINS, HAIR_STYLES, HAIR_COLORS, OUTFITS, OUTFIT_IDS, cleanCharacter } from '../js/character.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const BOOK = CUR.checkpoints.find((k) => k.kind === 'book');
-const LILY = { name: 'Lily', skin: 3, hair: 'puffs', hairColor: 3, made: true };
+const LILY = { name: 'Lily', skin: 3, hair: 'puffs', hairColor: 3, made: true }; // as saved before 1.8.5: no outfit
+const LILY_NOW = { name: 'Lily', skin: 3, hair: 'puffs', hairColor: 3, outfit: 'star', made: true };
 const RAF_COUNTER = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
 const seedState = (st) => `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded','1'); localStorage.setItem('reading.v1', ${JSON.stringify(JSON.stringify(st))}); }`;
 const base = (lessons, settings = {}, extra = {}) => ({ schema: 1, lessons, settings: { seenScripts: SEEN, trainIntroDone: true, ...settings }, firstRunDone: true, character: LILY, ...extra });
@@ -33,13 +34,16 @@ export async function characterChecks({ browser, url, ok }) {
     await page.waitForSelector('.cp');
     await page.waitForTimeout(600);
     ok((await page.locator('.cp h2').innerText()) === 'Who is riding with Pip?', 'first run: the creator asks who is riding with Pip');
-    ok((await page.locator('.cp-skin button, .cp-hair button, .cp-hair-color button').count()) === 15, 'first run: five skins, five hair styles, five hair colors');
+    ok((await page.locator('.cp-skin button, .cp-hair button, .cp-hair-color button, .cp-outfit button').count()) === 5 + 10 + 5 + OUTFITS.length, 'first run: five skins, ten hair styles, five hair colors and the clothes');
+    ok(HAIR_STYLES.length === 10 && HAIR_COLORS.length === 5 && OUTFITS.length >= 8 && OUTFITS[0].id === 'star', 'data: ten hair styles, five colors, at least eight outfits, the old look first');
+    ok((await page.locator('.cp-outfit button').nth(0).getAttribute('aria-pressed')) === 'true', 'first run: the original outfit starts picked');
     const small = await page.evaluate(() => [...document.querySelectorAll('.cp button')].filter((b) => { const r = b.getBoundingClientRect(); return r.width < 55.5 || r.height < 55.5; }).map((b) => b.className));
     ok(small.length === 0, `first run: every button is at least 56 px (${small.join(',')})`);
     ok((await page.locator('.cp-skin button').nth(2).getAttribute('aria-pressed')) === 'true', 'first run: skin tone 3 starts picked');
     await page.locator('.cp-skin button').nth(3).click();
     await page.locator('.cp-hair button').nth(2).click();
     await page.locator('.cp-hair-color button').nth(3).click();
+    await page.locator('.cp-outfit button').nth(0).click();
     await page.fill('.cp-name', 'Lily');
     ok((await page.locator('.cp-preview .kid-head').getAttribute('fill')) === SKINS[3], 'first run: the figure follows the picks');
     ok((await page.locator('.cp-skin button').nth(3).getAttribute('aria-pressed')) === 'true' && (await page.locator('.cp-skin button').nth(2).getAttribute('aria-pressed')) === 'false', 'first run: the picked swatch is marked');
@@ -50,7 +54,7 @@ export async function characterChecks({ browser, url, ok }) {
     await page.reload();
     await page.waitForTimeout(900);
     const s = await stored(page);
-    ok(JSON.stringify(s.character) === JSON.stringify(LILY) && s.meetDue === false, `first run: the character is stored and the creator is done (${JSON.stringify(s.character)}, meetDue ${s.meetDue})`);
+    ok(JSON.stringify(s.character) === JSON.stringify(LILY_NOW) && s.meetDue === false, `first run: the character is stored and the creator is done (${JSON.stringify(s.character)}, meetDue ${s.meetDue})`);
     ok((await page.locator('.first-run').count()) === 0, 'first run: no overlay after a reload');
     spoken.push(...(await page.evaluate(() => window.__spoken || [])));
     ok(errors.length === 0, `first run: errors ${errors.join(' | ')}`);
@@ -70,11 +74,15 @@ export async function characterChecks({ browser, url, ok }) {
     await page.mouse.down(); await page.waitForTimeout(2300); await page.mouse.up();
     await page.waitForSelector('.cp-grownups');
     ok((await page.locator('.cp-grownups .cp-name').inputValue()) === 'Lily' && (await page.locator('.cp-grownups .cp-hair button').nth(2).getAttribute('aria-pressed')) === 'true', 'grownups: the editor starts with the saved figure');
+    ok((await page.locator('.cp-grownups .cp-outfit button').nth(0).getAttribute('aria-pressed')) === 'true', 'grownups: a character saved before the outfit existed starts with the default outfit');
     await page.locator('.cp-grownups .cp-hair button').nth(4).click();
+    await page.locator('.cp-grownups .cp-outfit button').nth(5).scrollIntoViewIfNeeded();
+    await page.locator('.cp-grownups .cp-outfit button').nth(5).click();
     await page.click('.cp-save');
     ok((await page.locator('.cp-grownups').innerText()).includes('Saved'), 'grownups: Save says Saved');
     await page.reload(); await page.waitForTimeout(500);
     ok((await stored(page)).character.hair === 'bun', 'grownups: the new hair survives a reload');
+    ok((await stored(page)).character.outfit === OUTFIT_IDS[5], 'grownups: the new outfit is saved');
     ok(errors.length === 0, `grownups: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
@@ -141,6 +149,57 @@ export async function characterChecks({ browser, url, ok }) {
     ok(frames <= 2, `3D home: the figure adds no idle frames (${frames} in 3 s)`);
     ok(errors.length === 0, `3D home: errors ${errors.join(' | ')}`);
     spoken.push(...(await page.evaluate(() => window.__spoken || [])));
+    await ctx.close();
+  }
+
+  // Every option draws, in 2D and in 3D; an old saved character gets the default.
+  {
+    const c = cleanCharacter({ name: 'A', skin: 1, hair: 'bun', hairColor: 2, made: true });
+    ok(c.outfit === 'star', 'old character: no outfit field gives the default outfit');
+    ok(cleanCharacter({ outfit: 'nonsense' }).outfit === 'star', 'old character: an unknown outfit gives the default');
+    const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+    await page.goto(url + '#/home');
+    const r = await page.evaluate(async ({ hairs, outfits }) => {
+      const { kidSvg } = await import('/js/art/kid.js'); const { THREE, makeBag } = await import('/js/train/world.js'); const { buildKid } = await import('/js/train/kid3d.js');
+      const out = { two: 0, three: 0, bad: [], sig2: new Set(), sig3: new Set() };
+      const bag = makeBag();
+      for (const hair of hairs) for (const outfit of outfits) {
+        const svg = kidSvg({ skin: 2, hair, hairColor: 1, outfit }); out.two += svg.querySelectorAll('path,circle,ellipse,rect,polygon').length > 10 ? 1 : 0;
+        out.sig2.add(hair + '|' + svg.querySelector('.kid-hair-front').innerHTML.length + '|' + svg.querySelector('.kid-hair-back').innerHTML.length + '|' + svg.querySelector('.kid-fig').innerHTML + svg.querySelector('.kid-wear-back').innerHTML);
+        const k = buildKid(bag, { skin: 2, hair, hairColor: 1, outfit }); let n = 0; k.group.traverse((m) => { if (m.isMesh) n++; });
+        out.three += n > 12 ? 1 : 0; out.sig3.add(hair + '|' + outfit + '|' + n);
+        if (!(n > 12)) out.bad.push(hair + outfit);
+      }
+      const meshes = (o, h) => { let n = 0; buildKid(bag, { hair: h, outfit: o }).group.traverse((m) => { if (m.isMesh) n++; }); return n; };
+      out.hairMeshes = hairs.map((h) => meshes('star', h)); out.outMeshes = outfits.map((o) => meshes(o, 'short'));
+      return { ...out, sig2: out.sig2.size, sig3: out.sig3.size };
+    }, { hairs: HAIR_STYLES, outfits: OUTFIT_IDS });
+    const total = HAIR_STYLES.length * OUTFIT_IDS.length;
+    ok(r.two === total && r.three === total && r.bad.length === 0, `render: every hair style and outfit draws in 2D and 3D (${r.two}/${r.three} of ${total})`);
+    ok(r.sig2 === total, `render: every 2D combination is different (${r.sig2})`);
+    ok(new Set(r.hairMeshes).size >= 6 && new Set(r.outMeshes).size >= 6, `render: the 3D figure changes with the hair and the outfit (${r.hairMeshes} | ${r.outMeshes})`);
+    ok(errors.length === 0, `render: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+
+  // The card fits without scrolling in portrait 360 x 640 and in landscape 915 x 412, with 56 px buttons.
+  for (const [w, hgt] of [[360, 640], [915, 412], [346, 690]]) {
+    const { ctx, page } = await newPage(browser, { name: 'fit', width: w, height: hgt, deviceScaleFactor: 1 });
+    await page.addInitScript(SPEECH_STUB);
+    await page.goto(url + '#/home');
+    await page.waitForSelector('.welcome'); await page.waitForTimeout(700); await page.click('.wc-skip');
+    await page.waitForSelector('.cp'); await page.waitForTimeout(600);
+    const m = await page.evaluate(() => {
+      const c = document.querySelector('.first-card'), r = c.getBoundingClientRect(), cp = document.querySelector('.cp').getBoundingClientRect();
+      const small = [...document.querySelectorAll('.cp button')].filter((b) => { const q = b.getBoundingClientRect(); return q.width < 55.5 || q.height < 55.5; }).length;
+      const out = [...document.querySelectorAll('.cp-done, .cp-later, .cp-name, .cp-skin, .cp-hair, .cp-hair-color, .cp-outfit')].filter((e) => { const q = e.getBoundingClientRect(); return q.top < r.top - 1 || q.bottom > r.bottom + 1 || q.left < r.left - 1 || q.right > r.right + 1; }).map((e) => e.className);
+      return { top: r.top, bottom: r.bottom, vh: innerHeight, vw: innerWidth, right: r.right, scrolls: c.scrollHeight > c.clientHeight + 1, small, out, hscroll: document.documentElement.scrollWidth > innerWidth, cpw: cp.width };
+    });
+    ok(!m.scrolls && m.top >= 0 && m.bottom <= m.vh && m.right <= m.vw && m.small === 0 && m.out.length === 0 && !m.hscroll, `fit ${w}x${hgt}: the creator card fits with 56 px buttons (${JSON.stringify(m)})`);
+    // a row with more than five choices scrolls sideways and the last choice can be reached
+    await page.locator('.cp-outfit button').last().scrollIntoViewIfNeeded();
+    await page.locator('.cp-outfit button').last().click();
+    ok((await page.locator('.cp-outfit button').last().getAttribute('aria-pressed')) === 'true', `fit ${w}x${hgt}: the last outfit can be reached and picked`);
     await ctx.close();
   }
 
