@@ -20,3 +20,9 @@ export function otherLetters(curriculum, n, target, count) {
   for (const k of [...taught, ...pad]) if (out.length < count && k !== target && !looksLike(k, target) && !out.includes(k)) out.push(k);
   return out;
 }
+// A parade: `size` wagons in a loop, `hits` of them the target, the rest from `others` in turn; no two targets side by side.
+export function parade(target, others, { size = 8, hits = 3, rng = Math.random } = {}) {
+  const slots = Array.from({ length: size }, (_, i) => i).filter((i) => i % 2 === 0);
+  const at = new Set(); while (at.size < hits) at.add(slots[Math.floor(rng() * slots.length)]);
+  return Array.from({ length: size }, (_, i) => (at.has(i) ? target : others[i % others.length]));
+}

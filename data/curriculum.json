@@ -2462,6 +2462,9 @@
     },
     "signals": {
       "say": "Listen. Then tap the light that makes the sound."
+    },
+    "wagons": {
+      "say": "Tap every wagon that has the sound."
     }
   },
   "checkpoints": [

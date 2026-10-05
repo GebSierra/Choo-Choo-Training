@@ -146,9 +146,9 @@ export async function signalChecks({ browser, url, ok, CUR }) {
     ok(errors.length === 0, 'Green Light play: errors ' + errors.join(' | '));
     await ctx.close();
   }
-  // 7b. Short count: with two games in the slot there are three rounds. (Barn Doors stands in until A2.)
+  // 7b. Short count: with two games in the slot there are three rounds. 
   {
-    const { ctx, page } = await open(browser, url, vp, { n: 2, type: 'signals', games: ['signals', 'hunt'] });
+    const { ctx, page } = await open(browser, url, vp, { n: 2, type: 'signals', games: ['signals', 'wagons'] });
     await page.waitForSelector('.signal');
     await page.waitForTimeout(600);
     for (let r = 1; r <= 3; r++) { await tapEl(page, page.locator('.signal[data-target="1"]')); await page.waitForTimeout(r < 3 ? 1100 : 300); }
@@ -170,6 +170,125 @@ export async function signalChecks({ browser, url, ok, CUR }) {
   }
 }
 
+
+export async function wagonChecks({ browser, url, ok, CUR }) {
+  const vp = VIEWPORTS[0];
+  const dist = new Set(['m', ...CUR.games.hunt.distractors.m]);
+  const waitDone = (page) => page.waitForFunction(() => document.querySelector('.wagons').dataset.state === 'done', null, { timeout: 30000 }).catch(() => {});
+  // Layout at all viewports, and the parade's letters (lesson 1).
+  for (const v of VIEWPORTS) {
+    const { ctx, page, errors } = await open(browser, url, v, { n: 1, type: 'wagons', games: ['wagons'] });
+    await page.waitForSelector('.parade-wagon');
+    await page.waitForTimeout(700);
+    const tag = `${v.name} Wagon Parade`;
+    const ws = await rects(page, '.parade-wagon');
+    ok(ws.length === 8 && ws.every((r) => r.w >= 72 && r.h >= 72), `${tag}: eight wagons, each at least 72 px`);
+    const letters = await page.locator('.parade-wagon').evaluateAll((l) => l.map((b) => b.dataset.letter));
+    ok(letters.every((l) => dist.has(l)) && !letters.includes('n'), `${tag}: letters are m or a Hunt distractor of m, never n (${letters.join('')})`);
+    const tgt = await page.locator('.parade-wagon').evaluateAll((l) => l.map((b) => b.dataset.target));
+    ok(tgt.filter((t) => t === '1').length === 3 && !tgt.some((t, i) => t === '1' && tgt[i + 1] === '1'), `${tag}: three targets, never side by side (${tgt.join('')})`);
+    const scene = (await rects(page, '.farm'))[0];
+    const vis = (await rects(page, '.parade-wagon')).filter((r) => r.x >= scene.x && r.x + r.w <= scene.x + scene.w);
+    ok(vis.length >= 2, `${tag}: at least two wagons are in view`);
+    ok(vis.every((r) => inside(r, scene)), `${tag}: visible wagons are inside the scene`);
+    ok(await page.evaluate(() => { const t = document.querySelector('.task-activity'); return t.scrollHeight <= t.clientHeight + 1; }), `${tag}: the stage does not scroll`);
+    ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  // Motion, every tap plays the sound, wrong tap, right taps, rAF stops, done.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, { n: 1, type: 'wagons', games: ['wagons'], settings: { playSounds: true } });
+    await page.waitForSelector('.parade-wagon');
+    await unlock(page);
+    await page.waitForTimeout(900);
+    const x0 = (await rects(page, '.parade-wagon[data-target="1"]'))[0].x;
+    await page.waitForTimeout(500);
+    const x1 = (await rects(page, '.parade-wagon[data-target="1"]'))[0].x;
+    ok(Math.abs(x1 - x0) > 5, `Wagon Parade: a wagon moves (${Math.round(x0)} to ${Math.round(x1)})`);
+    await shotOf(page, 'wagons-playing');
+    // a wrong tap: the wagon under the finger right now
+    const aim = async (sel) => page.evaluate((s) => { const l = [...document.querySelectorAll(s)].map((b) => b.getBoundingClientRect()).filter((r) => r.left > 6 && r.right < innerWidth - 6 && r.top > 0); const r = l[0]; return r ? { x: r.x + r.width / 2, y: r.y + r.height * 0.7 } : null; }, sel);
+    let w = null;
+    for (let i = 0; i < 40 && !w; i++) { w = await aim('.parade-wagon[data-target="0"]'); if (!w) await page.waitForTimeout(250); }
+    const c0 = (await clips(page)).length, p0 = await popCount(page);
+    await page.touchscreen.tap(w.x, w.y);
+    await page.waitForTimeout(250);
+    ok((await page.locator('.no-x').count()) >= 1, 'Wagon Parade: a wrong tap shows a soft red cross');
+    ok((await popCount(page)) === p0 && (await roundOf(page, 'wagons')) === 0, 'Wagon Parade: a wrong tap adds no pop and leaves the round');
+    ok((await clips(page)).length === c0 + 1 && (await clips(page)).every((c) => c === 'm.mp3'), 'Wagon Parade: a wrong tap plays m.mp3 too');
+    // right taps: three targets in the first parade
+    const gone = () => page.locator('.parade-wagon[style*="pointer-events"]').count();
+    let got = 0;
+    for (let i = 0; i < 100 && got < 3; i++) {
+      const t = await aim('.parade-wagon[data-target="1"]:not([style*="pointer-events"])');
+      if (!t) { await page.waitForTimeout(200); continue; }
+      const n0 = (await clips(page)).length;
+      await page.touchscreen.tap(t.x, t.y);
+      await page.waitForTimeout(450);
+      const g = await gone().catch(() => 3);
+      if (g > got || (await roundOf(page, 'wagons')) === 1) { got++; ok((await clips(page)).length === n0 + 1, `Wagon Parade: right tap ${got} plays the sound`); }
+    }
+    ok(got === 3, `Wagon Parade: three targets tapped (${got})`);
+    await page.waitForTimeout(100);
+    // between parades the loop stops: at most 2 frames in 600 ms
+    const f0 = await page.evaluate(() => window.__raf);
+    await page.waitForTimeout(250);
+    const frames = (await page.evaluate(() => window.__raf)) - f0;
+    ok(frames <= 2, `Wagon Parade: no frames between parades (${frames})`);
+    ok((await roundOf(page, 'wagons')) === 1, 'Wagon Parade: three right taps finish the parade');
+    // the other two parades
+    for (let p = 2; p <= 3; p++) {
+      await page.waitForFunction((k) => document.querySelectorAll('.parade-wagon').length === 8 && !document.querySelector('.wagons').dataset.state.includes('x') && Number(document.querySelector('.wagons').dataset.round) === k - 1, p, { timeout: 4000 }).catch(() => {});
+      await page.waitForTimeout(900);
+      let n = 0;
+      for (let i = 0; i < 120 && n < 3; i++) {
+        const t = await aim('.parade-wagon[data-target="1"]:not([style*="pointer-events"])');
+        if (t) { await page.touchscreen.tap(t.x, t.y); n++; await page.waitForTimeout(350); } else await page.waitForTimeout(200);
+      }
+    }
+    await waitDone(page);
+    ok((await state(page, 'wagons')) === 'done', 'Wagon Parade: three parades reach done');
+    ok(/Next|Finish/.test(await lastButton(page)), 'Wagon Parade: the shell button reads Next or Finish');
+    await shotOf(page, 'wagons-done');
+    await idleCheck(page, ok, 'Wagon Parade done');
+    ok(errors.length === 0, 'Wagon Parade play: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  // Prompt path.
+  {
+    const { ctx, page } = await open(browser, url, vp, { n: 1, type: 'wagons', games: ['wagons'], settings: { playSounds: false } });
+    await page.waitForSelector('.parade-wagon');
+    await unlock(page);
+    await page.waitForSelector('.say-prompt:not([hidden])', { timeout: 3000 });
+    ok(await page.evaluate(() => document.querySelector('.say-text').textContent === 'Say: mmm'), 'Wagon Parade prompt path: "Say: mmm"');
+    ok((await clips(page)).length === 0, 'Wagon Parade prompt path: no clip');
+    await ctx.close();
+  }
+  // Reduced motion: wagons stand still, few frames, done.
+  {
+    const { ctx, page, errors } = await open(browser, url, vp, { n: 1, type: 'wagons', games: ['wagons'], reduced: true });
+    await page.waitForSelector('.parade-wagon');
+    await page.waitForTimeout(700);
+    const ws = await rects(page, '.parade-wagon'), scene = (await rects(page, '.farm'))[0];
+    ok(ws.length === 8 && ws.every((r) => r.w >= 72 && r.h >= 72 && inside(r, scene)), 'Wagon Parade reduced: eight wagons, at least 72 px, inside the scene');
+    const x0 = (await rects(page, '.parade-wagon'))[2].x;
+    const f0 = await page.evaluate(() => window.__raf);
+    await page.waitForTimeout(1000);
+    ok(Math.abs((await rects(page, '.parade-wagon'))[2].x - x0) < 0.5, 'Wagon Parade reduced: wagons do not move');
+    await page.waitForTimeout(2000);
+    ok((await page.evaluate(() => window.__raf)) - f0 <= 2, 'Wagon Parade reduced: at most 2 frames mid-round');
+    await shotOf(page, 'wagons-reduced');
+    for (let p = 1; p <= 3; p++) {
+      for (let n = 0; n < 3; n++) { await tapEl(page, page.locator('.parade-wagon[data-target="1"]:not([style*="pointer-events"])').first()); await page.waitForTimeout(450); }
+      await page.waitForTimeout(1300);
+    }
+    await waitDone(page);
+    ok((await state(page, 'wagons')) === 'done', 'Wagon Parade reduced: done after all parades');
+    ok(errors.length === 0, 'Wagon Parade reduced: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+}
+
 // Screenshots for looking at: each game at 390x844 and 360x640 (SHOTS=1).
 const SHOT_VPS = [{ name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }, { name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }];
 export async function screenshots({ browser, url }) {
@@ -187,6 +306,7 @@ export async function screenshots({ browser, url }) {
 }
 const SHOT_GAMES = [
   { n: 2, type: 'signals', ready: '.signal', after: async (page) => { await tapEl(page, page.locator('.signal[data-target="1"]')); } },
+  { n: 1, type: 'wagons', ready: '.parade-wagon' },
 ];
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
@@ -197,6 +317,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const browser = await launch(await loadPlaywright());
   if (process.env.SHOTS) await screenshots({ browser, url });
   await signalChecks({ browser, url, ok, CUR });
+  await wagonChecks({ browser, url, ok, CUR });
   await browser.close(); server.close();
   console.log(`tap-games: ${checks - failures}/${checks} checks passed`);
   process.exit(failures ? 1 : 0);

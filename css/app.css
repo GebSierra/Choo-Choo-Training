@@ -586,8 +586,8 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .barn-letter .font-letter { font-size: calc(var(--bw, 300px) * .4); }
 .barn-game .farm-sun { top: 64px; } .barn-game .farm-cloud.c1 { top: 32%; } .barn-game .farm-cloud.c2 { top: 48%; }
 .spark { z-index: 6; }
-.art-train, .art-barn, .art-crate { display: block; width: 150px; }
-.art-train svg.engine-art, .art-barn svg, .art-crate svg { display: block; width: 100%; height: auto; }
+.art-train, .art-barn, .art-crate, .art-wagons { display: block; width: 150px; } .art-signals { display: block; width: 74px; }
+.art-train svg.engine-art, .art-barn svg, .art-crate svg, .art-wagons svg, .art-signals svg { display: block; width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) { .goal-glow { transition: none; } }
 
 /* ---------- Saying Sounds: slide to blend ---------- */
@@ -1080,3 +1080,28 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .signal-plate .font-letter { font-size: calc(var(--sw, 79px) * .5); }
 .signals-scene .train-wrap { bottom: 12px; }
 @media (prefers-reduced-motion: reduce) { .signal .lamp-go { transition: none; } }
+/* Wagon Parade: toy wagons on a siding, each with a wooden crate that carries the letter */
+.wagons-scene .say-prompt { left: 108px; max-width: calc(100% - 184px); margin: 0; }
+.wagons-scene .say-hear { top: auto; left: auto; bottom: 14px; right: 12px; }
+.wagons-scene .find-card { top: 10px; }
+.parade-rail { left: 0; right: 0; bottom: 112px; height: 16px; z-index: 1; background:
+  linear-gradient(#8A6E5A, #8A6E5A) 0 2px / 100% 4px no-repeat,
+  linear-gradient(#8A6E5A, #8A6E5A) 0 10px / 100% 4px no-repeat,
+  repeating-linear-gradient(90deg, #B8926A 0 10px, transparent 10px 26px); border-radius: 3px; }
+.parade { left: 0; right: 0; bottom: 119px; height: 104px; z-index: 2; }
+.parade .pw { position: absolute; left: 0; bottom: 0; width: 104px; height: 104px; will-change: transform; }
+.parade .pw::after { content: ''; position: absolute; left: -16px; bottom: 19px; width: 18px; height: 5px; border-radius: 3px; background: #2B2D5C; pointer-events: none; }
+.parade-wagon { position: absolute; inset: 0; padding: 0; border: 0; background: none; cursor: pointer; touch-action: manipulation; display: block; }
+.parade-wagon .wagon-art { position: absolute; left: 0; bottom: 0; width: 100%; height: auto; overflow: visible; }
+.parade-wagon .wagon-lid { display: none; }
+.parade-wagon .wagon-panel-bg { fill: rgba(0,0,0,.14); }
+.parade-wagon .crate { position: absolute; left: 50%; top: 2px; width: 46px; height: 46px; margin-left: -23px; display: grid; place-items: center; box-sizing: border-box; border-radius: 7px; background: #FFF8EC; border: 3px solid #C99A5B; box-shadow: inset 0 0 0 2px #E8D3AE, 0 2px 0 #A87B4F; pointer-events: none; }
+.parade-wagon .crate .glyph { height: 32px; width: auto; } .parade-wagon .crate .glyph path { stroke-width: 13; }
+.parade-wagon .crate .font-letter { font-size: 34px; }
+.parade .pw .no-x { position: absolute; left: 50%; top: 14px; width: 40px; height: 40px; margin-left: -20px; pointer-events: none; opacity: 0; z-index: 2; }
+.parade.still { display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-end; gap: 6px 6px; padding: 0 12px; bottom: 126px; height: auto; }
+.parade.still .pw { position: relative; width: 72px; height: 72px; }
+.parade.still .pw::after { display: none; }
+.parade.still .parade-wagon .crate { width: 32px; height: 32px; margin-left: -16px; border-width: 2px; }
+.parade.still .parade-wagon .crate .glyph { height: 22px; } .parade.still .parade-wagon .crate .font-letter { font-size: 24px; }
+.wagons-scene:has(.parade.still) .parade-rail { display: none; }

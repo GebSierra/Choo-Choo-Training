@@ -117,6 +117,7 @@ for (const w of c.gameDistractors) if (w.avoid) { w.avoid = w.avoid.filter((k) =
 const taughtAt = (s) => { const i = c.lessons.findIndex((L) => L.sound === s); if (i < 0) throw new Error('untaught sound ' + s); return i + 1; };
 for (const k of c.checkpoints) if (Array.isArray(k.needs)) k.after = Math.max(...k.needs.map(taughtAt));
 
+c.games.wagons = { say: 'Tap every wagon that has the sound.' };
 c.games.signals = { say: 'Listen. Then tap the light that makes the sound.' };
 
 fs.writeFileSync(FILE, JSON.stringify(c, null, 2) + '\n');
