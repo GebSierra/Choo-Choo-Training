@@ -1,6 +1,6 @@
 # Fix list, round 2 (from five independent reviews of v1.3.5)
 
-Repo /home/user/kddash, branch main. Work through the groups in order; after each group run `node test/check-content.mjs`, `node test/games.mjs`, `node test/sfx.mjs` and `node test/smoke.mjs` (Chromium; smoke takes several minutes) and only when all are green commit and push. Keep CACHE_VERSION (sw.js) and APP_VERSION (js/version.js) equal; bump once at the end to 1.3.6. Every changed line must trace to an item. Keep teaching rules in PLAN.md section 2.
+Repo /home/user/Choo-Choo-Training, branch main. Work through the groups in order; after each group run `node test/check-content.mjs`, `node test/games.mjs`, `node test/sfx.mjs` and `node test/smoke.mjs` (Chromium; smoke takes several minutes) and only when all are green commit and push. Keep CACHE_VERSION (sw.js) and APP_VERSION (js/version.js) equal; bump once at the end to 1.3.6. Every changed line must trace to an item. Keep teaching rules in PLAN.md section 2.
 
 Decisions already made by Geb (do not do these; they are NOT in the list): keep the YouTube hold-to-open exactly as is (works on his phone); do not change the jingle cut-off code; keep 2 s hold length; keep the alphabet song; keep wrong-touch shake; keep m and s inside words in the font (only "a" is a glyph there); keep the letters of reveals lit even when untaught (he asked for sliding over "map" and compound words); keep the portrait manifest; no remapping of old saves.
 

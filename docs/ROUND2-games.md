@@ -1,6 +1,6 @@
 # Round 2: no spoken letter sounds, plus two games per lesson
 
-Repo /home/user/kddash, branch main. Read PLAN.md (section 2 rules still apply) and docs/reference/game-sheep-hunt.png and docs/reference/game-barn-doors.png (Geb's examples of the two games; draw our own art, do not try to copy those images).
+Repo /home/user/Choo-Choo-Training, branch main. Read PLAN.md (section 2 rules still apply) and docs/reference/game-sheep-hunt.png and docs/reference/game-barn-doors.png (Geb's examples of the two games; draw our own art, do not try to copy those images).
 
 ## A. The app no longer pronounces letter sounds (do this first, small)
 

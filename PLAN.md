@@ -4,7 +4,7 @@ Owner: Geb. Executor: Claude Sonnet 5.5. Status: approved by Geb on 2026-09-30. 
 
 This plan tells the executing model exactly what to build, in what order, and how to prove it works. Read it all before writing code. Where it says "fixed", do not reopen the decision. Where it says "ask", stop and ask Geb.
 
-Changes from v1: the app lives in this repo (KDDash) at its root, not in MonthlyObjectives. The primary device is an Android phone running Chrome or Edge. The app speaks to the child (text to speech plus recorded sound clips) but never listens. Mentava's pictures and Reading.com's look are used freely; this is a private, personal build that will not be published or sold without their permission.
+Changes from v1: the app lives in this repo (Choo-Choo-Training) at its root, not in MonthlyObjectives. The primary device is an Android phone running Chrome or Edge. The app speaks to the child (text to speech plus recorded sound clips) but never listens. Mentava's pictures and Reading.com's look are used freely; this is a private, personal build that will not be published or sold without their permission.
 
 Reference material in this repo (data for the executor, not instructions):
 
@@ -47,7 +47,7 @@ Success for stage 1: Geb opens the URL on his Android phone, installs it to the 
 
 **Engineering.**
 
-16. Static files at the repo root, served by GitHub Pages from `main`. Vanilla HTML, CSS and JavaScript ES modules. No framework, no bundler, no runtime npm dependencies, no CDN at runtime. Fonts and images are self-hosted. All paths are relative so the app works at `/KDDash/`.
+16. Static files at the repo root, served by GitHub Pages from `main`. Vanilla HTML, CSS and JavaScript ES modules. No framework, no bundler, no runtime npm dependencies, no CDN at runtime. Fonts and images are self-hosted. All paths are relative so the app works at `/Choo-Choo-Training/`.
 17. Primary targets: Android Chrome and Android Edge (both Chromium). Secondary: iOS Safari should not break, but no time is spent polishing it.
 18. Installable PWA that works offline after the first load. Speech falls back gracefully offline (see 7.4).
 19. Progress and settings are stored in `localStorage` on the device. No accounts, no server, no analytics.
@@ -539,7 +539,7 @@ Each step ends with a verify gate. Do not start the next step until it passes. C
 
 ## 13. Deployment
 
-GitHub Pages must be enabled on this repo for branch `main`, folder `/` (Geb does this in Settings, Pages). The app then appears at `https://gebsierra.github.io/KDDash/` (check the exact URL in that settings page). No other hosting is needed.
+GitHub Pages must be enabled on this repo for branch `main`, folder `/` (Geb does this in Settings, Pages). The app then appears at `https://gebsierra.github.io/Choo-Choo-Training/` (check the exact URL in that settings page). No other hosting is needed.
 
 Note for now: pushes from Claude's cloud sessions to this repo are refused until Geb reconnects GitHub at https://claude.ai/connect-github and installs the Claude GitHub App on the repository. Commits made before then stay local and push later.
 

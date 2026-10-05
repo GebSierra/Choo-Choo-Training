@@ -429,7 +429,7 @@ export async function platformChecks({ browser, url, ok }) {
     const run = async (res) => {
       answer = res; const puts = []; cacheObj.put = async (r) => { puts.push(r.url); };
       cacheObj.match = async () => ({ cached: true });
-      let out; const ev = { request: { method: 'GET', url: 'https://x.test/kddash/data/curriculum.json', mode: 'cors' }, respondWith: (p) => { out = p; }, waitUntil: () => {} };
+      let out; const ev = { request: { method: 'GET', url: 'https://x.test/choo-choo-training/data/curriculum.json', mode: 'cors' }, respondWith: (p) => { out = p; }, waitUntil: () => {} };
       listeners.fetch(ev); const got = await out.catch((e) => ({ error: e.message }));
       return { got, puts };
     };

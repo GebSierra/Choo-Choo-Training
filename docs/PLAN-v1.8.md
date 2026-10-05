@@ -21,7 +21,7 @@ unchanged, Story 2 deferred, idle CSS animation allowed on storybook pages (with
 
 ## 0. Execution rules for Sonnet (read first, follow in every phase)
 
-1. **Start state.** Before Phase A, run `git -C /home/user/kddash pull -q origin main`, `git -C /home/user/kddash status --short` and `git -C /home/user/kddash log -1 --oneline`. The only file allowed to be uncommitted is `docs/PLAN-v1.8.md` (this plan); commit it with Phase A. If anything else is uncommitted, stop and tell the owner. Do not commit someone else's work, and do not build on top of it.
+1. **Start state.** Before Phase A, run `git -C /home/user/Choo-Choo-Training pull -q origin main`, `git -C /home/user/Choo-Choo-Training status --short` and `git -C /home/user/Choo-Choo-Training log -1 --oneline`. The only file allowed to be uncommitted is `docs/PLAN-v1.8.md` (this plan); commit it with Phase A. If anything else is uncommitted, stop and tell the owner. Do not commit someone else's work, and do not build on top of it.
 2. **Playwright.** It is installed globally at `/opt/node22/lib/node_modules`, and Chromium is at `/opt/pw-browsers/chromium`. `test/lib.mjs` already finds both. Never run `npx playwright install` or `npm install`.
 3. **Versions.** `CACHE_VERSION` in `sw.js` must equal `'reading-v' + APP_VERSION`, where `APP_VERSION` is in `js/version.js`. In each phase, bump both of these and `"version"` in `package.json` once, to the version in the table above. Keep the `reading-v` cache prefix and the localStorage key `reading.v1`, even though the app is renamed. Renaming either one would orphan old caches or lose saved data.
 4. **Precache.** Every new file the app loads goes into `APP_FILES` in `sw.js`. That includes fonts, JSON under `data/books/` and new JS modules. Debug-only screens are the only exception.
@@ -58,7 +58,7 @@ unchanged, Story 2 deferred, idle CSS animation allowed on storybook pages (with
 ### Decisions
 - Full name: "Choo Choo Training". Home-screen label (`short_name` and `apple-mobile-web-app-title`): "Choo Choo". Launchers cut labels off at about 12 characters, and "Choo Choo Training" is 18.
 - The welcome card's first page title becomes "Welcome to Choo Choo Training". Its body is unchanged.
-- Pip stays the mascot. `package.json` `"name"` (`kddash-reading`), the cache prefix and the storage key stay as they are (rule 3).
+- Pip stays the mascot. `package.json` `"name"` (`choo-choo-training`), the cache prefix and the storage key stay as they are (rule 3).
 
 ### Exact changes
 1. `manifest.webmanifest`: `"name": "Choo Choo Training"`, `"short_name": "Choo Choo"`.
@@ -66,7 +66,7 @@ unchanged, Story 2 deferred, idle CSS animation allowed on storybook pages (with
 3. `js/guide.js`: change `WELCOME[0].title` to `'Welcome to Choo Choo Training'`.
 4. `js/screens/grownups.js` line about 139: `` `Choo Choo Training version ${APP_VERSION}` ``.
 5. `README.md`:
-   - Change the title to `# Choo Choo Training (KDDash)`.
+   - Change the title to `# Choo Choo Training`.
    - Add a Decisions bullet: "v1.8.0: renamed to Choo Choo Training (home-screen label "Choo Choo"); Pip stays the mascot; the cache prefix and storage key are unchanged."
    - Do not rewrite the older Decisions bullets: they record history.
 6. `docs/TRAIN-WORLD.md` line 43: append " Renamed to Choo Choo Training in v1.8.0."
@@ -262,8 +262,8 @@ unchanged, Story 2 deferred, idle CSS animation allowed on storybook pages (with
 S=/tmp/claude-0/andika && mkdir -p $S && cd $S
 curl -sS -o andika.tgz https://registry.npmjs.org/@fontsource/andika/-/andika-5.3.0.tgz
 tar xzf andika.tgz package/LICENSE package/files/andika-latin-400-normal.woff2 package/files/andika-latin-700-normal.woff2
-cp package/files/andika-latin-400-normal.woff2 package/files/andika-latin-700-normal.woff2 /home/user/kddash/assets/fonts/
-cp package/LICENSE /home/user/kddash/assets/fonts/ANDIKA-OFL.txt
+cp package/files/andika-latin-400-normal.woff2 package/files/andika-latin-700-normal.woff2 /home/user/Choo-Choo-Training/assets/fonts/
+cp package/LICENSE /home/user/Choo-Choo-Training/assets/fonts/ANDIKA-OFL.txt
 ```
 Expected sizes: 19208 and 19472 bytes. Add a README credit line: "Andika by SIL International, SIL Open Font License 1.1 (assets/fonts/ANDIKA-OFL.txt)".
 

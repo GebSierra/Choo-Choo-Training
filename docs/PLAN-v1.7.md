@@ -22,7 +22,7 @@ Phase C2 was added after the first draft. It keeps the letter "C2" so that D, E 
 
 ## 0. Execution rules for Sonnet (read first, follow in every phase)
 
-1. **Start state.** Another agent is finishing v1.6.0 in this repo. Before Phase A, run `git -C /home/user/kddash status --short` and `git -C /home/user/kddash log -1 --oneline`. If the working tree still has v1.6.0 changes that are not committed (for example `js/train/camera.js`, `sw.js`, `PLAN.md`), stop and tell the owner. Do not commit someone else's work, and do not build on top of it.
+1. **Start state.** Another agent is finishing v1.6.0 in this repo. Before Phase A, run `git -C /home/user/Choo-Choo-Training status --short` and `git -C /home/user/Choo-Choo-Training log -1 --oneline`. If the working tree still has v1.6.0 changes that are not committed (for example `js/train/camera.js`, `sw.js`, `PLAN.md`), stop and tell the owner. Do not commit someone else's work, and do not build on top of it.
 2. **Playwright.** It is installed globally at `/opt/node22/lib/node_modules`, and Chromium is at `/opt/pw-browsers/chromium`. `test/lib.mjs` already finds both. Never run `npx playwright install` or `npm install`.
 3. **Versions.** `CACHE_VERSION` in `sw.js` must equal `'reading-v' + APP_VERSION`, where `APP_VERSION` is in `js/version.js`. Bump both, and `"version"` in `package.json`, once per phase, to the version in the table above. Keep the `reading-v` cache prefix and the localStorage key `reading.v1`, even though the app is renamed. Renaming either one would orphan old caches or lose the child's progress.
 4. **Precache.** Every new file the app loads goes into `APP_FILES` in `sw.js`, including JSON under `data/books/`. Debug-only screens are the only exception.

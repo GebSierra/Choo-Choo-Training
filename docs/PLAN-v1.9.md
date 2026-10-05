@@ -20,7 +20,7 @@ changing what the child sees until A4 switches the lessons over.
 
 ## 0. Execution rules for Sonnet (read first, follow in every phase)
 
-1. **Start state.** Before Phase A1, run `git -C /home/user/kddash pull -q origin main`, `git -C /home/user/kddash status --short` and `git -C /home/user/kddash log -1 --oneline`. The only file allowed to be uncommitted is `docs/PLAN-v1.9.md` (this plan); commit it with Phase A1. If anything else is uncommitted, stop and tell the owner. Do not commit someone else's work, and do not build on top of it.
+1. **Start state.** Before Phase A1, run `git -C /home/user/Choo-Choo-Training pull -q origin main`, `git -C /home/user/Choo-Choo-Training status --short` and `git -C /home/user/Choo-Choo-Training log -1 --oneline`. The only file allowed to be uncommitted is `docs/PLAN-v1.9.md` (this plan); commit it with Phase A1. If anything else is uncommitted, stop and tell the owner. Do not commit someone else's work, and do not build on top of it.
 2. **Playwright.** It is installed globally at `/opt/node22/lib/node_modules`, and Chromium is at `/opt/pw-browsers/chromium`. `test/lib.mjs` already finds both. Never run `npx playwright install` or `npm install`.
 3. **Versions.** `CACHE_VERSION` in `sw.js` must equal `'reading-v' + APP_VERSION`, where `APP_VERSION` is in `js/version.js`. In each phase, bump both of these and `"version"` in `package.json` once, to the version in the table above. Keep the `reading-v` cache prefix and the localStorage key `reading.v1`. Renaming either one would orphan old caches or lose saved data.
 4. **Precache.** Every new file the app loads goes into `APP_FILES` in `sw.js`. That includes fonts, JSON under `data/books/` and new JS modules. Debug-only screens are the only exception.
@@ -43,7 +43,7 @@ changing what the child sees until A4 switches the lessons over.
 14. **Pronouns.** UI text and docs say "your child" or "the child". Books use the character's name (or "Pip's friend"), never he or she, for the friend.
 15. **The station-complete sequence takes a few seconds.** On the 3D Home, any test that taps a stop, reads the train's position or counts frames must first wait for `!window.__train.running` (use the `until` helper in `test/train.mjs`; allow up to 20 s when a sequence or, from Phase B, a level celebration is due).
 16. **Sound only plays after a tap.** `sfx` and `speech` unlock on the first `pointerup` or `click`. A test that counts sounds (synth notes in `window.__audioNotes()`, or `clip` and `tts` entries in `window.__events`) must unlock first: `await page.mouse.click(3, 300)` on Home, or a first tap on the game, or `page.evaluate(async () => (await import('/js/sfx.js')).sfx.unlock())` for sfx only.
-17. **Commit and push as separate, simple commands.** Write the message to `_test/msg.txt` with the Write tool, then run, one per Bash call: `git -C /home/user/kddash add -A`, `git -C /home/user/kddash commit -q -F _test/msg.txt`, `git -C /home/user/kddash push -q origin main`. No `&&` chains, no heredocs inside git commands.
+17. **Commit and push as separate, simple commands.** Write the message to `_test/msg.txt` with the Write tool, then run, one per Bash call: `git -C /home/user/Choo-Choo-Training add -A`, `git -C /home/user/Choo-Choo-Training commit -q -F _test/msg.txt`, `git -C /home/user/Choo-Choo-Training push -q origin main`. No `&&` chains, no heredocs inside git commands.
 18. **One final report.** Send exactly one report at the end of the session, after the last push. No interim or progress reports, and never repeat a report.
 
 ---
@@ -368,7 +368,7 @@ Commit message: `Tap games: Station Board, find the sound in a word on a split-f
    ```
 2. **`tools/gen-lessons.mjs`:** in the all-lessons pass from A3, add `L.games = gameSlot(order, L.number)`. In the TABLE loop set `clip: \`assets/audio/sounds/${e.k}.mp3\`` instead of `clip: null` (see "Sound playback"). Stop writing `games.barn`: change `for (const kind of ['hunt', 'barn'])` to `['hunt']` in both places, and add `delete c.games.barn;`. Run gen and check the printed summary.
 3. **`js/lessons.js`:** `tasksFor` uses `...(lesson.games || [])` (no barn fallback). Remove `barn` from `TASK_TYPES` and from `targetsFor`.
-4. **Remove Barn Doors.** Run `grep -rn "barn" --include=*.js --include=*.mjs --include=*.css --include=*.html /home/user/kddash --exclude-dir=node_modules --exclude-dir=vendor` and handle every hit:
+4. **Remove Barn Doors.** Run `grep -rn "barn" --include=*.js --include=*.mjs --include=*.css --include=*.html /home/user/Choo-Choo-Training --exclude-dir=node_modules --exclude-dir=vendor` and handle every hit:
    - delete `js/screens/tasks/barn.js`; remove it from `task.js` (import, `BUILDERS`, `autoOpen` list) and from `sw.js`;
    - `js/screens/lesson.js`: remove `case 'barn'` and the `barnSvg` import;
    - `js/art.js`: remove `barnSvg` only if nothing else uses it (the grep above shows its only users are barn.js and lesson.js); keep `farmBackdrop` (game-kit uses it);

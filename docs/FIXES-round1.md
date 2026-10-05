@@ -1,6 +1,6 @@
 # Stage 1 fix list (merged from five independent reviews)
 
-Repo: /home/user/kddash, branch main. Work through the groups in order. Commit and push after each group once `node test/check-content.mjs` and `node test/smoke.mjs` are green. Bump CACHE_VERSION in sw.js and APP_VERSION once at the end (and make the smoke test assert they match). Keep every teaching rule in PLAN.md section 2. Do not remove the alphabet song row: Geb asked for it, it stays at the top of the lesson overview; note in README that it is Geb's deliberate exception to rule 1.
+Repo: /home/user/Choo-Choo-Training, branch main. Work through the groups in order. Commit and push after each group once `node test/check-content.mjs` and `node test/smoke.mjs` are green. Bump CACHE_VERSION in sw.js and APP_VERSION once at the end (and make the smoke test assert they match). Keep every teaching rule in PLAN.md section 2. Do not remove the alphabet song row: Geb asked for it, it stays at the top of the lesson overview; note in README that it is Geb's deliberate exception to rule 1.
 
 Decisions already made (do not re-debate):
 - Inside words, m and s may render from the font; only "a" must always come from js/glyphs.js (it is the only letter whose font shape differs). Record this in README "Decisions made during build".

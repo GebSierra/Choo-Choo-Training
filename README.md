@@ -1,4 +1,4 @@
-# Choo Choo Training (KDDash)
+# Choo Choo Training
 
 A personal reading app for one child. Stage 1 teaches three letter sounds (m, a, s) the Mentava way, in Reading.com's lesson shape. Static files, no build step, no runtime dependencies, installable on an Android phone (Chrome or Edge) and usable offline.
 
@@ -10,7 +10,7 @@ The app speaks but never listens. It never asks for the microphone. Only `tools/
 
 GitHub Pages serves this repo from `main` at the root. After you enable Pages (Settings, Pages, Branch: main, Folder: / (root)) the app is at:
 
-    https://gebsierra.github.io/KDDash/
+    https://gebsierra.github.io/Choo-Choo-Training/
 
 (Check the exact address on the Pages settings page.)
 
