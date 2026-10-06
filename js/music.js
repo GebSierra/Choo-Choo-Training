@@ -1,7 +1,9 @@
 // The theme song (assets/audio/music/theme.mp3, 61 s): it plays once through, never loops, each time the Home (the pathway
 // page) opens, and fades out when the Home is left. Two rules from the owner: it never starts on top of a celebration (the
 // station-complete ride or a level party: the Home says when that is over), and it ducks, quieter, while the voice speaks or a
-// jingle rings. Browsers block audio before the first tap, so a Home that opens earlier waits for sfx/speech's unlock tap.
+// jingle rings. It starts by itself when the Home opens (owner): it tries to play at once, which works wherever the browser
+// allows it (Android Chrome for an app added to the home screen, a native store build, or after any earlier tap in this page
+// session); where the browser blocks sound before a first tap, the attempt fails quietly and the theme starts on that tap.
 //
 // The train whistle (a sample in js/sfx.js) sounds together with the theme at the first Home of each app launch only.
 //
@@ -18,7 +20,7 @@ const LEVEL = 0.45, DUCKED = 0.15, RAMP_MS = 250;
 
 function createMusic() {
   let store = null, sfx = null, el = null, unlocked = false, playing = false, stopping = false;
-  let homeOpen = false, hold = null, holdTimer = 0, whistled = false, startedThisVisit = false;
+  let homeOpen = false, hold = null, holdTimer = 0, whistled = false, startedThisVisit = false, trying = false;
   let rampTimer = 0, rampId = 0;
   const ducks = { manual: false, speech: false, jingle: false };
   let jingleTimer = 0;
@@ -90,13 +92,29 @@ function createMusic() {
   // The Home may start the theme now: it is open, unlocked and nothing is celebrating.
   function tryStart() {
     clearTimeout(holdTimer); holdTimer = 0;
-    if (!homeOpen || startedThisVisit) return;
+    if (!homeOpen || startedThisVisit || trying) return;
     ensure(); // begin loading, even before the first tap
-    if (!unlocked) return;
     if (hold && hold()) { holdTimer = setTimeout(tryStart, 250); return; } // a finite wait: one check every quarter second until the party is over
+    if (!unlocked) { autoStart(); return; }
     startedThisVisit = true;
     playTheme();
     if (!whistled) { whistled = true; if (sfx) sfx.play('whistle'); }
+  }
+
+  // No tap yet: try to play anyway. If the browser allows it, this counts as the unlock (the whistle's audio context is resumed
+  // too); if it refuses, nothing is heard and the first tap starts both, as before.
+  function autoStart() {
+    if (!on() || !ensure() || (typeof document !== 'undefined' && document.hidden)) return;
+    trying = true;
+    let p;
+    try { el.currentTime = 0; el.volume = target(); p = el.play(); } catch { trying = false; return; }
+    Promise.resolve(p).then(() => {
+      trying = false;
+      if (!homeOpen) { try { el.pause(); } catch { /* fine */ } return; }
+      unlocked = true; playing = true; startedThisVisit = true;
+      if (sfx && sfx.unlock) sfx.unlock();
+      if (!whistled) { whistled = true; if (sfx) sfx.play('whistle'); }
+    }, () => { trying = false; playing = false; });
   }
 
   return {

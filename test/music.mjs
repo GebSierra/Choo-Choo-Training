@@ -11,10 +11,18 @@ import { openHome, state, until, iL } from './train.mjs';
 const MEDIA_SPY = () => {
   window.__media = [];
   const note = (op, el) => window.__media.push({ op, src: el.src.split('/').pop(), vol: el.volume, loop: el.loop, preload: el.preload, phase: window.__train ? window.__train.kid.phase : null, running: window.__train ? window.__train.running : null, t: performance.now() });
-  HTMLMediaElement.prototype.play = function () { note('play', this); return Promise.resolve(); };
+  // Like a phone browser that blocks sound before the first tap (window.__autoplay = true: one that allows it).
+  window.__gesture = false;
+  addEventListener('pointerdown', () => { window.__gesture = true; }, true);
+  addEventListener('click', () => { window.__gesture = true; }, true);
+  HTMLMediaElement.prototype.play = function () {
+    if (!window.__gesture && !window.__autoplay) return Promise.reject(new DOMException('blocked before a tap', 'NotAllowedError'));
+    note('play', this); return Promise.resolve();
+  };
   HTMLMediaElement.prototype.pause = function () { note('pause', this); };
 };
 const SLOW_SPEECH = () => { window.__ttsMs = 1600; };
+const AUTOPLAY = () => { window.__autoplay = true; };
 const NO_WEBGL = () => { const orig = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (type, ...rest) { return /webgl/.test(type) ? null : orig.call(this, type, ...rest); }; };
 const themePlays = (page) => page.evaluate(() => window.__media.filter((m) => m.op === 'play' && m.src === 'theme.mp3'));
 const whistles = (page) => page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'whistle' && n.sample).length);
@@ -27,11 +35,21 @@ const whistleStarted = (page, ms = 8000) => until(page, () => window.__audioNote
 export async function musicChecks({ browser, url, ok }) {
   const vp = VIEWPORTS[0];
   {
+    // Where the browser allows sound without a tap (an installed Android app, a store build): theme and whistle start by themselves.
+    const { ctx, page } = await openHome(browser, url, vp, state(3), { init: [MEDIA_SPY, AUTOPLAY] });
+    ok(await homeReady(page), 'music (autoplay allowed): the railway Home opens');
+    ok(await themeStarted(page), 'music (autoplay allowed): the theme starts by itself, without a tap');
+    ok(await whistleStarted(page), 'music (autoplay allowed): the whistle starts with it, without a tap');
+    await page.mouse.click(3, 300); await page.waitForTimeout(800);
+    ok((await themePlays(page)).length === 1 && (await whistles(page)) === 1, 'music (autoplay allowed): a later tap does not start them again');
+    await ctx.close();
+  }
+  {
     // Cold start: nothing before the first tap; then theme and whistle together; leaving stops it; coming back starts it again.
     const { ctx, page, errors } = await openHome(browser, url, vp, state(3), { init: [MEDIA_SPY, SLOW_SPEECH] });
     ok(await homeReady(page), 'music: the railway Home opens');
     await page.waitForTimeout(1500);
-    ok((await themePlays(page)).length === 0 && (await whistles(page)) === 0, 'music: the theme and the whistle do not start before the first tap');
+    ok((await themePlays(page)).length === 0 && (await whistles(page)) === 0, 'music (sound blocked before a tap): nothing is heard before the first tap');
     await page.mouse.click(3, 300);
     ok(await themeStarted(page), 'music: after the first tap the theme starts');
     ok(await whistleStarted(page), 'music: the whistle starts with it');
