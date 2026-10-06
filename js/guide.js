@@ -2,14 +2,21 @@
 // Parent-facing only: it is never spoken and never shown to the child. It names letter names on purpose
 // (“em”, “ay”) to explain what to avoid, which is why it lives here and not in curriculum.json.
 export const WELCOME = [
-  { title: 'Welcome to Choo Choo Training', body: ['Sit with your child. You say the sounds; the app shows the way and plays the games.', 'Tap the glowing lesson to start.'] },
+  { title: 'Welcome to Choo Choo Training', body: [
+    'Most reading apps are like cotton candy: enjoyable, but they have no substance; in fact, they’re bad for you! If your child uses them, there’s a risk they will struggle to develop the deep reading skills they need.',
+  ] },
+  { title: 'Loved by kids, built on research', body: [
+    'Choo Choo Training is a program your kids will love, but it’s built on decades of research. We designed the app first to educate, and second to entertain.',
+    'Behind each lesson are academic studies from Harvard, the National Institutes of Health, the U.S. Department of Education, and more. “What’s an example?” you might ask.',
+  ] },
   { title: 'Say the sound, not the name', body: [
-    'Many reading programs begin with the names of the letters, and with capital letters too. When a child is first learning to read, it helps to strip away everything that is confusing or not needed, and keep it as simple as you can.',
-    'So here, call a letter by its sound: mmm for m, not “em”, and aaa (as in apple) for a, not “ay”.',
+    'We use the sounds-first approach. This will seem counterintuitive, but instead of starting with the alphabet (like most programs), we start with the sounds of the alphabet.',
+    'So the letter m is “mmm,” not “em,” and a is “aaa” (as in apple), not “ay.” Why do it this way?',
   ] },
   { title: 'Why it matters', body: [
-    'Sound out the word ma. With letter names it would be “em-ay”. But we say it “maaa”.',
-    'It is a small difference, and the idea behind this app is that it makes learning quicker and less confusing for your child. We also start with lowercase letters; capitals can wait.',
+    'Take the word “mom.” If your kid tried to read “mom” by saying those 3 letters by name, it would be “em-oh-em.” But that’s not how we say “mom”! If that’s confusing to you, imagine how confusing it is for a kid!',
+    'It’s a small thing that makes a big difference, and only one example of how we do things based on the research. Children will learn their letter names eventually, but we begin with the important information: the sounds.',
+    'If you want to be a parent who sets their children up for success, then Choo Choo Training is for you.',
   ] },
 ];
 

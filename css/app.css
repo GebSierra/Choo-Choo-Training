@@ -740,6 +740,7 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .wc-dot { width: 10px; height: 10px; border-radius: 50%; background: #D9DCEA; transition: transform var(--t-base) var(--ease-spring), background var(--t-base); }
 .wc-dot.on { background: var(--violet); transform: scale(1.3); }
 .wc-actions { display: grid; grid-template-columns: 1fr 1.6fr; gap: 10px; align-items: center; }
+.wc-actions.first { grid-template-columns: 1fr; justify-items: center; } .wc-actions.first .wc-back { display: none; } .wc-actions.first .wc-next { width: min(100%, 260px); }
 .wc-next { min-height: 56px; }
 .wc-back, .wc-skip { min-height: 48px; border: 0; background: none; font: inherit; font-size: 17px; font-weight: 800; color: var(--violet); cursor: pointer; touch-action: manipulation; border-radius: 14px; }
 .wc-skip { justify-self: center; color: var(--muted); }

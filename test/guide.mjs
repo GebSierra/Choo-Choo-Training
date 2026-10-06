@@ -26,24 +26,30 @@ async function welcomeChecks(ok, browser, url) {
     let f = await fit();
     ok(f.fits && f.scroll <= 1, `${tag}: page 1 fits the screen with no scrolling (${JSON.stringify(f)})`);
     ok((await targets()).every(([, w, h]) => w >= 48 && h >= 48), `${tag}: every button is at least 48 px (${JSON.stringify(await targets())})`);
-    ok((await page.locator('.wc-page[aria-hidden="true"]').count()) === 2, `${tag}: the two hidden pages are hidden from screen readers`);
+    ok((await page.locator('.wc-page[aria-hidden="true"]').count()) === 3, `${tag}: the three hidden pages are hidden from screen readers`);
+    ok(/cotton candy/.test(await body()), `${tag}: page 1 is the cotton-candy paragraph`);
+    ok(await page.locator('.wc-actions').evaluate((a) => { const r = a.getBoundingClientRect(), n = a.querySelector('.wc-next').getBoundingClientRect(); return a.classList.contains('first') && Math.abs((n.left + n.right) / 2 - (r.left + r.right) / 2) < 2; }), `${tag}: on page 1, Next is centred`);
     ok((await page.locator('.wc-back').evaluate((b) => getComputedStyle(b).visibility)) === 'hidden', `${tag}: no Back on the first page`);
 
     await page.click('.wc-next'); await page.waitForTimeout(450);
-    ok((await title()) === 'Say the sound, not the name', `${tag}: page 2 is "Say the sound, not the name"`);
-    const b2 = await body();
-    ok(b2.includes('mmm for m, not “em”') && b2.includes('aaa (as in apple) for a, not “ay”') && /capital letters/.test(b2) && /simple as you can/.test(b2), `${tag}: page 2 says call m "mmm" not "em", a "aaa (as in apple)" not "ay", and keep it simple`);
+    ok((await title()) === 'Loved by kids, built on research', `${tag}: page 2 is the research page`);
+    ok((await page.locator('.wc-actions.first').count()) === 0, `${tag}: from page 2, Back and Next sit side by side again`);
     f = await fit(); ok(f.fits && f.scroll <= 1, `${tag}: page 2 fits (${JSON.stringify(f)})`);
-
     await page.click('.wc-next'); await page.waitForTimeout(450);
-    ok((await title()) === 'Why it matters', `${tag}: page 3 is "Why it matters"`);
-    const b3 = await body();
-    ok(b3.includes('“em-ay”') && b3.includes('“maaa”') && /lowercase/.test(b3), `${tag}: page 3 explains ma is "maaa", not "em-ay", and lowercase first`);
-    ok((await page.locator('.wc-next').textContent()).trim() === 'Start', `${tag}: the last page says Start`);
+    ok((await title()) === 'Say the sound, not the name', `${tag}: page 3 is "Say the sound, not the name"`);
+    const b2 = await body();
+    ok(b2.includes('“mmm,” not “em,”') && b2.includes('“aaa” (as in apple), not “ay.”') && /sounds-first/.test(b2), `${tag}: page 3 says m is "mmm" not "em", a is "aaa (as in apple)" not "ay", sounds first`);
     f = await fit(); ok(f.fits && f.scroll <= 1, `${tag}: page 3 fits (${JSON.stringify(f)})`);
 
+    await page.click('.wc-next'); await page.waitForTimeout(450);
+    ok((await title()) === 'Why it matters', `${tag}: page 4 is "Why it matters"`);
+    const b3 = await body();
+    ok(b3.includes('“em-oh-em.”') && /letter names eventually/.test(b3), `${tag}: page 4 explains "mom" is not "em-oh-em"`);
+    ok((await page.locator('.wc-next').textContent()).trim() === 'Start', `${tag}: the last page says Start`);
+    f = await fit(); ok(f.fits && f.scroll <= 1, `${tag}: page 4 fits (${JSON.stringify(f)})`);
+
     await page.click('.wc-back'); await page.waitForTimeout(450);
-    ok((await title()) === 'Say the sound, not the name', `${tag}: Back goes to page 2`);
+    ok((await title()) === 'Say the sound, not the name', `${tag}: Back goes to page 3`);
     await page.click('.wc-next'); await page.waitForTimeout(450);
     await page.click('.wc-next'); await page.waitForTimeout(500);
     ok((await page.locator('.first-run').count()) === 0, `${tag}: Start closes the card`);
@@ -146,7 +152,7 @@ async function grownupsChecks(ok, browser, url) {
   ok((await head.count()) === 1 && (await head.getAttribute('aria-expanded')) === 'false', 'Grownups: "The thinking behind this app" is there and closed');
   await head.click(); await page.waitForTimeout(300);
   const text = await page.evaluate(() => document.querySelector('#gu-fold-the-thinking-behind-this-app').textContent);
-  ok(text.includes('Say the sound, not the name') && text.includes('“maaa”') && text.includes('Why it matters'), 'Grownups: opened, it holds the same explanation');
+  ok(text.includes('Say the sound, not the name') && text.includes('“em-oh-em.”') && text.includes('Why it matters'), 'Grownups: opened, it holds the same explanation');
   ok(errors.length === 0, 'Grownups: no errors ' + errors.join(' | '));
   await ctx.close();
 }

@@ -13,20 +13,23 @@ export function welcomeCard({ pages, onDone }) {
   const nextText = h('span', {}, 'Next');
   const next = h('button', { class: 'btn primary wc-next', type: 'button', onclick: () => (i === pages.length - 1 ? onDone() : go(i + 1)) }, nextText);
   const skip = h('button', { class: 'wc-skip', type: 'button', onclick: onDone }, 'Skip');
+  let actions = null;
   const go = (k) => {
     i = Math.max(0, Math.min(pages.length - 1, k));
+    if (actions) actions.classList.toggle('first', i === 0); // the first page has only Next, centred
     els.forEach((e, n) => { e.classList.toggle('on', n === i); e.setAttribute('aria-hidden', String(n !== i)); });
     dots.forEach((d, n) => d.classList.toggle('on', n === i));
     nextText.textContent = i === pages.length - 1 ? 'Start' : 'Next';
     back.style.visibility = i === 0 ? 'hidden' : 'visible';
     skip.style.visibility = i === pages.length - 1 ? 'hidden' : 'visible';
   };
+  actions = h('div', { class: 'wc-actions' }, back, next);
   go(0);
   return h('div', { class: 'first-card welcome' },
     h('div', { class: 'wc-pip' }, pipSvg({ pose: 'wave' })),
     h('div', { class: 'wc-pages', 'aria-live': 'polite' }, ...els),
     h('div', { class: 'wc-dots', 'aria-hidden': 'true' }, ...dots),
-    h('div', { class: 'wc-actions' }, back, next),
+    actions,
     skip);
 }
 
