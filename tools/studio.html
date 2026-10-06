@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recording studio</title>
+<style>
+  @font-face { font-family: 'Andika'; font-weight: 400; font-style: normal; font-display: swap; src: url(../assets/fonts/andika-latin-400-normal.woff2) format('woff2'); }
+  @font-face { font-family: 'Andika'; font-weight: 700; font-style: normal; font-display: swap; src: url(../assets/fonts/andika-latin-700-normal.woff2) format('woff2'); }
+  :root { --ink:#1E2140; --muted:#6E7391; --violet:#5A4BD6; --cream:#FFF8EC; --red:#B3261E; --green:#2FB37A; --line:#E3DCCB; }
+  * { box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
+  body { margin: 0; font: 18px/1.4 Andika, system-ui, Roboto, sans-serif; background: var(--cream); color: var(--ink); padding: 16px 16px 60px; }
+  main { max-width: 640px; margin: 0 auto; display: grid; gap: 14px; }
+  h1 { margin: 0; font-size: 22px; line-height: 1.2; }
+  .howto { margin: 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .card { background: #fff; border-radius: 20px; padding: 16px; box-shadow: 0 6px 20px rgba(60,40,20,.12); display: grid; gap: 10px; min-width: 0; }
+  .progress { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .progress strong { font-size: 20px; }
+  .bar { flex: 1 1 120px; height: 12px; border-radius: 6px; background: #E9ECF8; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--green); }
+  details summary { cursor: pointer; font-weight: 700; min-height: 48px; display: flex; align-items: center; }
+  .grp { margin: 8px 0 4px; font-weight: 700; font-size: 15px; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { min-height: 48px; min-width: 48px; padding: 0 10px; border-radius: 12px; border: 2px solid var(--line); background: #fff; color: var(--ink); font: 700 16px Andika, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .chip.cur { border-color: var(--violet); background: #EEEBFF; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #B8BCD3; background: transparent; flex: none; }
+  .chip.done .dot { background: var(--green); border-color: var(--green); }
+  .show { font-size: 76px; line-height: 1.1; font-weight: 700; text-align: center; color: var(--violet); margin: 4px 0; overflow-wrap: anywhere; }
+  .show.long { font-size: 56px; }
+  .where { text-align: center; color: var(--muted); font-size: 15px; margin: 0; }
+  .badge { justify-self: center; background: #EEEBFF; color: var(--violet); border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 16px; text-align: center; }
+  .line { margin: 0; }
+  .say { font-weight: 700; }
+  .dont { color: var(--red); }
+  .tip, .ex { color: var(--ink); font-size: 16px; }
+  .lbl { font-weight: 700; }
+  .meter { height: 14px; border-radius: 7px; background: #E9ECF8; overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 0; background: var(--green); transition: width 60ms; }
+  .status { min-height: 1.4em; color: var(--muted); text-align: center; font-size: 16px; margin: 0; }
+  .status.err { color: var(--red); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > * { flex: 1 1 130px; }
+  button { min-height: 48px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--violet); color: #fff; font: 700 17px Andika, system-ui, sans-serif; cursor: pointer; }
+  button.rec { background: #E5484D; min-height: 60px; font-size: 20px; flex-basis: 100%; }
+  button.alt { background: #fff; color: var(--violet); border: 2px solid var(--violet); }
+  button.quiet { background: #fff; color: var(--ink); border: 2px solid var(--line); }
+  button.go { background: var(--green); }
+  button:disabled { opacity: .4; cursor: default; }
+  button:focus-visible { outline: 3px solid #FFB020; outline-offset: 2px; }
+  .foot { display: flex; gap: 10px; flex-wrap: wrap; }
+  .foot button { flex: 1 1 150px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Choo Choo Training · Recording studio</h1>
+    <ul class="howto">
+      <li>Find a quiet room.</li>
+      <li>Hold the phone about 20 cm from your mouth.</li>
+      <li>Say it the way the card says.</li>
+    </ul>
+  </header>
+
+  <section class="card" aria-label="Progress">
+    <div class="progress"><strong id="count"></strong><div class="bar"><i id="barfill"></i></div></div>
+    <details id="listwrap">
+      <summary>All sounds</summary>
+      <div id="list"></div>
+    </details>
+  </section>
+
+  <section class="card" id="card" aria-live="polite">
+    <p class="where" id="where"></p>
+    <div class="show" id="show"></div>
+    <div class="badge" id="hold"></div>
+    <p class="line say"><span class="lbl">Say:</span> <span id="say"></span></p>
+    <p class="line dont"><span class="lbl">Don't say:</span> <span id="dont"></span></p>
+    <p class="line tip"><span class="lbl">Tip:</span> <span id="tip"></span></p>
+    <p class="line ex"><span class="lbl">Example:</span> <span id="ex"></span></p>
+    <div class="meter" aria-hidden="true"><i id="level"></i></div>
+    <p class="status" id="status"></p>
+    <div class="row">
+      <button type="button" class="rec" id="rec">Record</button>
+      <button type="button" class="alt" id="play">Play back</button>
+      <button type="button" class="alt" id="redo">Redo</button>
+      <button type="button" class="go" id="save">Save &amp; next</button>
+    </div>
+    <div class="row">
+      <button type="button" class="quiet" id="prev">Previous</button>
+      <button type="button" class="quiet" id="skip">Skip</button>
+      <button type="button" class="quiet hidden" id="again">Download again</button>
+    </div>
+  </section>
+
+  <div class="foot">
+    <button type="button" class="alt" id="all">Download all recorded</button>
+    <button type="button" class="quiet" id="reset">Start over</button>
+  </div>
+</main>
+<script type="module" src="studio.js"></script>
+</body>
+</html>
