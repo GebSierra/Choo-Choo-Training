@@ -122,7 +122,7 @@ export async function characterChecks({ browser, url, ok }) {
   {
     const { ctx, page } = await newPage(browser, VIEWPORTS[0]);
     spy(page);
-    await page.addInitScript(SPEECH_STUB); await page.addInitScript(seedState(base(doneThrough(4), { trainWorld: false })));
+    await page.addInitScript(SPEECH_STUB); await page.addInitScript(seedState(base(doneThrough(4), { trainWorld: false, migrated1912: true })));
     await page.goto(url + '#/home');
     await page.waitForSelector('.stone-kid .kid', { state: 'attached' });
     await page.waitForTimeout(1500);

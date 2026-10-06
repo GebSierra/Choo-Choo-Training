@@ -51,7 +51,6 @@ async function boot() {
     { re: /^\/preview\/tip$/, screen: (...a) => import('./screens/previews.js').then((m) => m.tipPreview(...a)) },
     { re: /^\/preview\/board$/, screen: (...a) => import('./screens/previews.js').then((m) => m.boardPreview(...a)) },
     { re: /^\/preview\/gateway$/, screen: (...a) => import('./screens/previews.js').then((m) => m.gatewayPreview(...a)) },
-    { re: /^\/preview\/list$/, screen: (...a) => import('./screens/previews.js').then((m) => m.listPreview(...a)) },
     // Prototype 4: one lesson in the new eight-step loop (Grownups > Previews). Loaded on demand; its files are precached.
     { re: /^\/proto\/f$/, screen: (...a) => import('./screens/proto-lesson.js').then((m) => m.protoIntro(...a)) },
     { re: /^\/proto\/f\/task\/(\d+)$/, screen: (...a) => import('./screens/proto-lesson.js').then((m) => m.protoTask(...a)) },

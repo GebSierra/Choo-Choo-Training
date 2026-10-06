@@ -111,7 +111,7 @@ export async function renameChecks({ browser, url, ok, CUR }) {
   ok(/Choo Choo Training version/.test(await g.page.locator('.gu-version').innerText()), 'Grownups shows "Choo Choo Training version"');
   ok(g.errors.length === 0, `rename grownups: errors ${g.errors.join(' | ')}`);
   await g.ctx.close();
-  const m = await open(browser, url, VIEWPORTS[0], `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{},settings:{seenScripts:${JSON.stringify(SEEN)},trainWorld:false},firstRunDone:true}))`, '#/home');
+  const m = await open(browser, url, VIEWPORTS[0], `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{},settings:{seenScripts:${JSON.stringify(SEEN)},trainWorld:false, migrated1912: true},firstRunDone:true}))`, '#/home');
   await m.page.waitForSelector('.stone', { state: 'attached' });
   await m.page.waitForTimeout(800);
   ok((await m.page.locator('.stone').count()) === CUR.lessons.length + CUR.checkpoints.length && (await m.page.locator('.stone-sack .crate-art').count()) === 0, `the 2D Home has ${CUR.lessons.length + CUR.checkpoints.length} stones (lessons and story stops) and no sound station crate`);
@@ -175,7 +175,7 @@ export async function sackGrownupsChecks({ browser, url, ok }) {
   const hold = async () => { const gb = await page.locator('.pill-hold').boundingBox(); await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await page.mouse.down(); await page.waitForTimeout(2250); await page.mouse.up(); };
   await hold();
   await page.waitForSelector('.grownups');
-  const rows = page.locator('.gu-card').first().locator('.gu-row');
+  const rows = page.locator('.gu-world .gu-row');
   ok((await rows.count()) === NODES, `Grownups lists every lesson and stop (${NODES})`);
   ok(/Practice again/.test(await rows.nth(at).innerText()) && (await rows.nth(at).innerText()).includes(K.title), `Grownups shows the ${K.title} result`);
   await page.locator(`[aria-label="Unlock ${name}"]`).first().click();

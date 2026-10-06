@@ -480,7 +480,7 @@ export async function platformChecks({ browser, url, ok }) {
     const fakeStorage = (value) => { globalThis.localStorage = { getItem: () => value, setItem() {} }; };
     const load = (settings) => { fakeStorage(JSON.stringify({ schema: 1, lessons: {}, settings })); return createStore().settings; };
     let st = load({ rate: 'fast', sfxVolume: 'loud', autoSpeak: 'yes', playSounds: 1, sfx: null, fullInstructions: [], voiceURI: 5, seenScripts: [] });
-    ok(st.rate === 0.9 && st.sfxVolume === 0.6 && st.autoSpeak === true && st.playSounds === false && st.sfx === true && st.fullInstructions === false && st.voiceURI === null && JSON.stringify(st.seenScripts) === '{}', `settings: wrong types fall back to the defaults (${JSON.stringify(st)})`);
+    ok(st.rate === 0.9 && st.sfxVolume === 0.6 && st.autoSpeak === true && st.playSounds === true && st.sfx === true && st.fullInstructions === false && st.voiceURI === null && JSON.stringify(st.seenScripts) === '{}', `settings: wrong types fall back to the defaults (${JSON.stringify(st)})`);
     st = load({ rate: 7, sfxVolume: -3 }); ok(st.rate === 1.1 && st.sfxVolume === 0, `settings: numbers are clamped (${st.rate}, ${st.sfxVolume})`);
     st = load({ rate: 0.1, sfxVolume: 9 }); ok(st.rate === 0.7 && st.sfxVolume === 1, `settings: numbers are clamped at the other end (${st.rate}, ${st.sfxVolume})`);
     st = load({ rate: NaN, sfxVolume: Infinity }); ok(st.rate === 0.9 && st.sfxVolume === 0.6, 'settings: NaN and Infinity fall back to the defaults');

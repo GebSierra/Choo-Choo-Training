@@ -1,7 +1,7 @@
 // Prototype 2 (v1.9.8): worlds, the world gateway, the "Did you know?" card, the journey board and the lessons grouped by
 // world, all behind Grownups > Previews. Data checks, the helpers, each preview opening from Grownups, the gateway reaching
 // the second world's Home with only its stations and then sitting still (heat), tip rotation, the 2D fallback and reduced
-// motion. Screenshots for the owner are written to docs/screenshots/v198/ only with `--shots`.
+// motion. Screenshots for the owner are written to docs/screenshots/v1912/ only with `--shots`.
 // Run alone with `node test/worlds.mjs [--shots]`.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -14,7 +14,7 @@ import { nextTip } from '../js/components/tip-card.js';
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const TIPS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/tips.json'), 'utf8'));
 const SHOTS = process.argv.includes('--shots');
-const SHOT_DIR = path.join(ROOT, 'docs/screenshots/v198');
+const SHOT_DIR = path.join(ROOT, 'docs/screenshots/v1912');
 export const SHOT_VIEWPORTS = [
   { name: 'portrait', width: 390, height: 844, deviceScaleFactor: 2 },
   { name: 'landscape', width: 915, height: 412, deviceScaleFactor: 2 },
@@ -88,6 +88,29 @@ export async function previewChecks({ browser, url, ok, vp }) {
   ok(await page.evaluate(() => window.__train.world === null && window.__train.stopCount === 16 && window.__train.lessonCount === 13 && window.__train.checkpointCount === 3), `${tag}: the real Home still builds every station (16 stops)`);
   await gate(page);
 
+  // ---- the lessons grouped by world and unit (the live list at the top of Grownups) ----
+  await page.waitForSelector('.gu-world');
+  await page.waitForTimeout(500);
+  const g = await page.evaluate(() => ({
+    worlds: [...document.querySelectorAll('.gu-world')].map((w) => ({ id: w.dataset.world, open: w.querySelector('.gu-fold').getAttribute('aria-expanded'), hidden: w.querySelector('.gu-fold-body').hidden, units: [...w.querySelectorAll('.gu-unit strong')].map((u) => u.textContent) })),
+    rows: document.querySelectorAll('.gu-row').length, note: document.querySelector('.gu-body > .gu-list > .gu-note').textContent,
+  }));
+  ok(g.worlds.length === 2 && g.worlds[0].open === 'true' && g.worlds[1].open === 'false' && g.worlds[1].hidden, `${tag} list: two worlds with lessons, only the current one open (${JSON.stringify(g.worlds.map((w) => w.id + w.open))})`);
+  ok(g.worlds[0].units.join() === 'Unit 2.1,Unit 2.2,Unit 2.3' && g.worlds[1].units.join() === 'Unit 2.4,Unit 2.5,Unit 2.6,Unit 2.7,Unit 2.8', `${tag} list: units group the rows (${g.worlds.map((w) => w.units.join(' ')).join(' / ')})`);
+  ok(/9 more worlds/.test(g.note), `${tag} list: the later worlds are noted`);
+  await shot(page, 'grownups-top', tag);
+  await page.locator('.gu-world[data-world="W2"] .gu-fold').click();
+  ok(await page.evaluate(() => document.querySelectorAll('.gu-world[data-world="W2"] .gu-row').length === 7 && document.querySelectorAll('.gu-world[data-world="W1"] .gu-row').length === 9), `${tag} list: opening world 2 shows its seven lessons; world 1 has six lessons and three checkpoints`);
+  await page.locator('.gu-world[data-world="W2"] button[aria-label="Unlock lesson 9"]').click();
+  ok((await page.locator('.gu-confirm').count()) === 1 && (await page.locator('.gu-world[data-world="W2"] .gu-fold').getAttribute('aria-expanded')) === 'true', `${tag} list: the unlock confirm works inside a fold and the fold stays open`);
+  await page.locator('.gu-confirm button', { hasText: 'Cancel' }).click();
+  ok((await page.locator('.gu-confirm').count()) === 0, `${tag} list: Cancel closes the confirm`);
+  const l3 = await layout(page, '.gu-world-head', { vertical: false });
+  ok(l3.length === 0, `${tag} list: fold heads fit and are big enough (${l3.join(' | ')})`);
+
+  ok((await page.locator('.grownups [aria-label="Train world"], .grownups [aria-label="Play recorded letter sounds"]').count()) === 0, `${tag} Grownups: no Train world or Play recorded letter sounds switch`);
+  ok(await page.evaluate(() => { const b = document.querySelector('.gu-body'); return b.children[0].querySelector('h2').textContent === 'Lessons' && b.children[0].querySelector('.gu-reset') && b.children[1].classList.contains('gu-grouped'); }), `${tag} list: Lessons heading and Reset progress sit above the grouped list`);
+
   // ---- the Previews fold ----
   const fold = page.locator('.gu-fold', { hasText: 'Previews' });
   ok((await fold.count()) === 1 && (await fold.getAttribute('aria-expanded')) === 'false', `${tag}: Grownups has a closed Previews fold`);
@@ -95,7 +118,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
   await fold.click();
   ok((await page.locator('.grownups .gu-fold-body:not([hidden]) .gu-note', { hasText: 'Try new screens before they go live.' }).count()) === 1, `${tag}: the Previews note is shown`);
   const btns = await page.locator('.preview-btn').evaluateAll((l) => l.map((b) => { const r = b.getBoundingClientRect(); return { key: b.dataset.preview, h: r.height, w: r.width }; }));
-  ok(btns.length === 5 && btns.every((b) => b.h >= 48 && b.w >= 120), `${tag}: five preview buttons, each at least 48 px tall (${JSON.stringify(btns.map((b) => b.key + ':' + Math.round(b.h)))})`);
+  ok(btns.length === 4 && btns.every((b) => b.h >= 48 && b.w >= 120), `${tag}: four preview buttons, each at least 48 px tall (${JSON.stringify(btns.map((b) => b.key + ':' + Math.round(b.h)))})`);
   await page.locator('.gu-version').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
   await shot(page, 'previews-fold', tag);
@@ -103,7 +126,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
   // ---- the Did you know? card over Home ----
   await openPreview(page, 'tip');
   ok(await until(page, () => !!document.querySelector('.tip-card.in') && document.querySelector('.home'), null, 15000), `${tag} tip: the card shows over Home`);
-  await page.waitForTimeout(500);
+  await until(page, () => getComputedStyle(document.querySelector('.tip-card')).opacity === '1', null, 5000);
   const tip = await page.evaluate(() => { const c = document.querySelector('.tip-card'); return { title: c.querySelector('.tip-title').textContent, text: c.querySelector('.tip-text').textContent, id: c.dataset.tip, op: getComputedStyle(c).opacity, close: (() => { const r = c.querySelector('.tip-close').getBoundingClientRect(); return [r.width, r.height]; })(), pip: !!c.querySelector('.pip') }; });
   ok(tip.title === 'Did you know?' && tipTexts.has(tip.text) && !/^did you know/i.test(tip.text), `${tag} tip: the heading is "Did you know?" and the text is one of the nineteen (${tip.id})`);
   ok(tip.op === '1' && tip.close[0] >= 48 && tip.close[1] >= 48 && tip.pip, `${tag} tip: it has faded in, holds a small Pip and has a 48 px close target`);
@@ -147,31 +170,11 @@ export async function previewChecks({ browser, url, ok, vp }) {
   const l2 = await layout(page, '.jb-go');
   const l2b = await page.evaluate(() => [...document.querySelectorAll('.jb-badge')].filter((b) => { const r = b.getBoundingClientRect(); return r.left < 0 || r.right > innerWidth; }).length);
   ok(l2.length === 0 && l2b === 0, `${tag} board: the button and every badge fit the screen (${l2.join(' | ')})`);
+  const clipped = await page.evaluate(() => { const t = document.querySelector('.jb-track').getBoundingClientRect(); return [...document.querySelectorAll('.jb-dot, .jb-sound, .jb-title')].filter((s) => { const r = s.getBoundingClientRect(); return r.right > t.left + 1 && r.left < t.left - 0.5; }).length; });
+  ok(clipped === 0, `${tag} board: no dot or first letter is cut off at the left of the track (${clipped})`);
   await shot(page, 'journey-board', tag);
   await page.locator('.jb-go').click();
   ok(await until(page, () => !document.querySelector('.jb'), null, 3000) && (await page.locator('.home').count()) === 1, `${tag} board: "All aboard!" closes it and Home is there`);
-  await backToGrownups(page);
-
-  // ---- the lessons grouped by world and unit ----
-  await openPreview(page, 'list');
-  await page.waitForSelector('.gu-world');
-  await page.waitForTimeout(800); // the screen change has finished
-  const g = await page.evaluate(() => ({
-    worlds: [...document.querySelectorAll('.gu-world')].map((w) => ({ id: w.dataset.world, open: w.querySelector('.gu-fold').getAttribute('aria-expanded'), hidden: w.querySelector('.gu-fold-body').hidden, units: [...w.querySelectorAll('.gu-unit strong')].map((u) => u.textContent) })),
-    rows: document.querySelectorAll('.gu-row').length, note: document.querySelector('.preview-list .gu-note:last-child').textContent,
-  }));
-  ok(g.worlds.length === 2 && g.worlds[0].open === 'true' && g.worlds[1].open === 'false' && g.worlds[1].hidden, `${tag} list: two worlds with lessons, only the current one open (${JSON.stringify(g.worlds.map((w) => w.id + w.open))})`);
-  ok(g.worlds[0].units.join() === 'Unit 2.1,Unit 2.2,Unit 2.3' && g.worlds[1].units.join() === 'Unit 2.4,Unit 2.5,Unit 2.6,Unit 2.7,Unit 2.8', `${tag} list: units group the rows (${g.worlds.map((w) => w.units.join(' ')).join(' / ')})`);
-  ok(/9 more worlds/.test(g.note), `${tag} list: the later worlds are noted`);
-  await shot(page, 'grouped-list', tag);
-  await page.locator('.gu-world[data-world="W2"] .gu-fold').click();
-  ok(await page.evaluate(() => document.querySelectorAll('.gu-world[data-world="W2"] .gu-row').length === 7 && document.querySelectorAll('.gu-world[data-world="W1"] .gu-row').length === 9), `${tag} list: opening world 2 shows its seven lessons; world 1 has six lessons and three checkpoints`);
-  await page.locator('.gu-world[data-world="W2"] button[aria-label="Unlock lesson 9"]').click();
-  ok((await page.locator('.gu-confirm').count()) === 1 && (await page.locator('.gu-world[data-world="W2"] .gu-fold').getAttribute('aria-expanded')) === 'true', `${tag} list: the unlock confirm works inside a fold and the fold stays open`);
-  await page.locator('.gu-confirm button', { hasText: 'Cancel' }).click();
-  ok((await page.locator('.gu-confirm').count()) === 0, `${tag} list: Cancel closes the confirm`);
-  const l3 = await layout(page, '.gu-world-head', { vertical: false });
-  ok(l3.length === 0, `${tag} list: fold heads fit and are big enough (${l3.join(' | ')})`);
   await backToGrownups(page);
 
   // ---- the world gateway ----
@@ -221,7 +224,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
 // The flat map: the same card between two flat maps, no WebGL involved.
 export async function flatChecks({ browser, url, ok }) {
   const vp = SHOT_VIEWPORTS[0];
-  const { ctx, page, errors } = await openHome(browser, url, vp, seed(4, { trainWorld: false }));
+  const { ctx, page, errors } = await openHome(browser, url, vp, seed(4, { trainWorld: false, migrated1912: true }));
   await page.waitForSelector('.stone');
   await gate(page);
   await openPreview(page, 'gateway');

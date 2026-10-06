@@ -145,7 +145,7 @@ function stone(g, i, what, state, onTap, speech, character) {
   return wrap;
 }
 
-// Home: the 3D railway when the Grownups switch "Train world" is on (the default) and WebGL works, else this 2D path.
+// Home: the 3D railway (always on) when WebGL works, else this 2D path. settings.trainWorld stays only so tests can seed the 2D map.
 // The probe's context is handed to the renderer, so Home never holds two. Any failure on the way falls back quietly.
 // preview (prototype 2, Grownups > Previews): { world, mode, onEnter } builds only that world's stops; null for the real Home.
 export async function homeScreen(ctx) {
