@@ -1,11 +1,12 @@
+import { openOutside } from '../../components/grown-gate.js';
 import { h, icon } from '../../dom.js';
 import { holdButton } from '../../components/hold-button.js';
 import { soundPhrase, fit } from '../../lessons.js';
 import { shake } from '../../components/game-kit.js';
 
-// Task 3: the only place a child screen leads outside the app, and it sits behind a hold.
+// Task 3: the only place a child screen leads outside the app, and it sits behind a hold and then a grown-up check.
 export function build({ sound, curriculum, speech }) {
-  const open = () => window.open(curriculum.playlistUrl, '_blank', 'noopener');
+  const open = () => openOutside(curriculum.playlistUrl);
   const hold = holdButton({ label: 'Open playlist', caption: 'Hold to open', hint: 'Press and hold', className: 'big', leading: icon('external', 16), onComplete: open });
   // The picture is only decoration, but a child taps it: it answers by wiggling the real button.
   const art = h('div', { class: 'story-art', 'aria-hidden': 'true', onclick: () => shake(hold.button) }, h('span', { class: 'play' }, icon('play', 28)));

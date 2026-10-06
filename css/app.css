@@ -1151,3 +1151,12 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .gu-level.off .gold-star path { fill: none; stroke: #C9C4BA; stroke-width: 1.6; stroke-dasharray: 3 2.4; }
 .level-replay { min-height: 48px; grid-column: 2; justify-self: start; }
 @media (orientation: landscape) { .level-banner { top: 56%; } }
+
+/* The grown-up check before a link leaves the app */
+.grown-gate { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(40, 30, 20, .55); }
+.gg-card { background: var(--paper, #fff8ec); color: var(--ink, #3a2c20); border-radius: 20px; padding: 20px 18px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 8px 30px rgba(0, 0, 0, .35); }
+.gg-title { margin: 0 0 6px; font-size: 22px; }
+.gg-ask { margin: 0 0 14px; font-size: 20px; }
+.gg-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 14px; }
+.gg-num { min-width: 64px; min-height: 64px; border-radius: 16px; border: 2px solid currentColor; background: #fff; color: inherit; font: inherit; font-size: 28px; font-weight: 700; cursor: pointer; }
+.gg-cancel { min-height: 48px; }

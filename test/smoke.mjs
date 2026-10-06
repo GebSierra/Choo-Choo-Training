@@ -307,7 +307,7 @@ await sackGrownupsChecks({ browser, url, ok });
   const sb = await page.locator('.song-hold').boundingBox();
   const [songPopup] = await Promise.all([
     page.waitForEvent('popup', { timeout: 4000 }),
-    (async () => { await page.mouse.move(sb.x + sb.width / 2, sb.y + sb.height / 2); await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up(); })(),
+    (async () => { await page.mouse.move(sb.x + sb.width / 2, sb.y + sb.height / 2); await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up(); await page.waitForSelector('.gg-card'); await page.click('.gg-num[data-n="' + (await page.getAttribute('.gg-card', 'data-target')) + '"]'); })(),
   ]);
   await songPopup.waitForLoadState('domcontentloaded');
   ok(/qKQAQc2NEuk/.test(songPopup.url()), 'alphabet song opens its video: ' + songPopup.url());
@@ -330,7 +330,7 @@ await sackGrownupsChecks({ browser, url, ok });
   const hb = await hold.boundingBox();
   const [popup] = await Promise.all([
     page.waitForEvent('popup', { timeout: 4000 }),
-    (async () => { await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up(); })(),
+    (async () => { await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up(); await page.waitForSelector('.gg-card'); await page.click('.gg-num[data-n="' + (await page.getAttribute('.gg-card', 'data-target')) + '"]'); })(),
   ]);
   ok(/youtube\.com\/playlist\?list=PL2hNdtrsO2hIINInfmEb55IpwTw0IrQZW/.test(popup.url()), 'playlist popup opened the playlist: ' + popup.url());
   await popup.close();

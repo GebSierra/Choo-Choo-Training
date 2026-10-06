@@ -1,5 +1,6 @@
 import { createStore } from './store.js';
-import { createRouter } from './router.js';
+import { createRouter, watchBackButton } from './router.js';
+import { isNative } from './platform.js';
 import { homeScreen } from './screens/home.js';
 import { lessonScreen } from './screens/lesson.js';
 import { createSpeech } from './speech.js';
@@ -50,7 +51,8 @@ async function boot() {
   ];
   ctx.router = createRouter(root, routes, ctx);
   await ctx.router.start();
-  if ('serviceWorker' in navigator) {
+  watchBackButton(ctx.router);
+  if (!isNative && 'serviceWorker' in navigator) {
     // A new service worker takes over: reload, but only when the parent next returns to Home, never mid-task.
     const hadController = !!navigator.serviceWorker.controller;
     let updated = false;

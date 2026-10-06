@@ -1,3 +1,4 @@
+import { openOutside } from '../components/grown-gate.js';
 import { h, animate, icon } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { holdButton } from '../components/hold-button.js';
@@ -64,7 +65,7 @@ export function lessonScreen({ store, router, curriculum, speech }, n) {
   } }, startLabel, icon('arrowRight', 24));
 
   // Optional alphabet song: not one of the tasks, so it never counts toward progress.
-  const openSong = () => window.open(curriculum.alphabetSongUrl, '_blank', 'noopener');
+  const openSong = () => openOutside(curriculum.alphabetSongUrl);
   const songHold = holdButton({ label: 'Play', caption: 'Hold to open', hint: 'Press and hold', className: 'song-hold', leading: icon('external', 16), onComplete: openSong });
   const song = h('section', { class: 'song-row', 'aria-label': 'Alphabet song' },
     h('span', { class: 'song-thumb' }, icon('play', 26)),

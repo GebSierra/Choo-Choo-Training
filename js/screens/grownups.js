@@ -1,3 +1,4 @@
+import { openOutside } from '../components/grown-gate.js';
 import { h, icon } from '../dom.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
 import { WELCOME } from '../guide.js';
@@ -146,8 +147,8 @@ export function grownupsScreen(ctx) {
       fold('Recorded sounds', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play recorded letter sounds'), soundsSwitch), h('p', { class: 'gu-note' }, 'Off: your grown up says the sounds.'), clipList, h('p', { class: 'gu-note' }, 'When the switch is on, isolated sounds play from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT)),
       fold('Levels', h('p', { class: 'gu-note' }, 'Each level adds a special car to the train and a gold star.'), h('div', { class: 'gu-list' }, ...levelRows)),
       fold('All the sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
-      sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Sound story playlist'),
-        h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Alphabet song')),
+      sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.playlistUrl); } }, icon('external', 20), 'Sound story playlist'),
+        h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.alphabetSongUrl); } }, icon('external', 20), 'Alphabet song')),
       ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),
       sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),
       h('p', { class: 'gu-version' }, `Choo Choo Training version ${APP_VERSION}`)));

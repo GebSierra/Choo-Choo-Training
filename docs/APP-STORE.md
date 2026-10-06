@@ -32,6 +32,10 @@ Facts below marked VERIFY must be checked in current Apple, Google and Capacitor
    iOS needs an NSMicrophoneUsageDescription string (a plain OS prompt line, not in-app
    text). VERIFY getUserMedia and speechSynthesis inside WKWebView on current iOS.
 
+Status (v1.9.5): items 1 to 6 are built and tested in `test/platform.mjs`. Item 4 deviates from the
+note above: the Grownups page keeps its hold gate (it never leaves the app); the number gate guards the
+YouTube links only. The VERIFY notes above still need checking against current docs before a store build.
+
 ## Later, when wrapping
 - Store icons and splash screens from one source image.
 - Privacy policy page (required by both stores, separate from the app UI).
