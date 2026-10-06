@@ -229,7 +229,8 @@ export async function arrivalChecks({ browser, url, ok, shot }) {
     const b = await train(page);
     ok(Math.abs(b.trainS - (b.stops[iL(5)] + b.engineAt)) < 0.01, `arrival: the train stands at the new current stop (${b.trainS.toFixed(2)})`);
     const toots = await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'toot' && !n.partial).length);
-    ok(toots === 4, `arrival: two toots (one at the station, one on arrival), two whistle notes each (${toots})`);
+    const whistleSamples = await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'whistle' && n.sample).length);
+    ok(toots === 2 && whistleSamples >= 1, `arrival: the train whistle as it sets off and a toot (two whistle notes) on arrival (${whistleSamples} whistle, ${toots} toot notes)`);
     ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainAt)) === iL(5), 'arrival: the new stop is remembered, so it plays once');
     ok(errors.length === 0, `arrival: errors ${errors.join(' | ')}`);
     await ctx.close();
@@ -287,7 +288,7 @@ export async function sequenceChecks({ browser, url, ok, shot }) {
     const a = await train(page);
     ok(a.arriving && a.fromIndex === iL(4) && a.kid.index === iL(4), `sequence: the figure waits on the platform of the station just finished (kid at ${a.kid.index}, from ${a.fromIndex})`);
     ok(await until(page, () => window.__train.startTootAt !== null, null, 8000), 'sequence: the train toots first');
-    ok(await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'toot' && !n.partial).length) >= 2, 'sequence: the toot is scheduled in the synthesized audio');
+    ok(await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'whistle' && n.sample).length) >= 1, 'sequence: the train whistle is scheduled as the train sets off');
     ok(await until(page, () => window.__train.kid.phase === 'on', null, 8000), 'sequence: the figure hops on');
     if (shot) await shot(page, 'station-sequence-hop');
     ok(await until(page, () => window.__train.kid.phase === 'go', null, 8000), 'sequence: then the train sets off');
@@ -334,7 +335,7 @@ export async function sequenceChecks({ browser, url, ok, shot }) {
     ok(await until(page, () => !!document.querySelector('.seq-kid'), null, 6000), '2D sequence: the figure sets off along the path');
     ok(await until(page, () => document.querySelectorAll('.scene .steam-puff').length > 0, null, 4000), '2D sequence: with puffs of smoke');
     ok(await until(page, () => !document.querySelector('.seq-kid') && getComputedStyle(document.querySelector('.stone-kid')).visibility === 'visible', null, 8000), '2D sequence: it arrives and the figure stands by the next stone');
-    ok(await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'toot' && !n.partial).length) >= 2, '2D sequence: and a toot as it sets off');
+    ok(await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'whistle' && n.sample).length) >= 1, '2D sequence: and the train whistle as it sets off');
 
     ok(errors.length === 0, `2D sequence: errors ${errors.join(' | ')}`);
     await ctx.close();

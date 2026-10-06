@@ -109,6 +109,7 @@ export async function sfxChecks({ browser, url, ok }) {
     ok(of(await notes(page), 'win').bells.length === 7, 'Hunt: the train reaching the station plays the win jingle');
     const tootT = of(await notes(page), 'toot').bells, winT = of(await notes(page), 'win').bells;
     ok(tootT.length === 2 && winT.length && Math.max(...tootT.flatMap((n) => n.stops)) <= Math.min(...winT.map((n) => n.t)) + 0.01, 'Hunt: the toot plays as the train pulls in, and ends before the jingle starts');
+    ok((await notes(page)).filter((n) => n.event === 'whistle').length === 0, 'Hunt: games keep the synthesized toot and never play the train whistle sample (that is for the Home only)');
     ok(errors.length === 0, 'Hunt sfx: errors ' + errors.join(' | '));
     await ctx.close();
   }
@@ -259,6 +260,11 @@ export async function sfxGrownupsChecks({ browser, url, ok }) {
   ok((await settings()).sfx === false && (await page.locator('text=Test sound').isDisabled()), 'Grownups: the switch turns sound effects off and disables Test sound');
   await page.click('[aria-label="Play sounds"]');
   ok((await settings()).sfx === true && (await page.locator('text=Test sound').isEnabled()), 'Grownups: the switch turns them on again');
+  ok((await page.getAttribute('[aria-label="Music"]', 'aria-checked')) === 'true' && (await page.locator('text=The theme song plays once when the railway opens.').count()) === 1, 'Grownups: the Music switch is on by default, with its one line under the sound switch');
+  await page.click('[aria-label="Music"]');
+  ok((await settings()).music === false, 'Grownups: the Music switch turns the theme song off');
+  await page.click('[aria-label="Music"]');
+  ok((await settings()).music === true, 'Grownups: and on again');
   // Both settings survive a reset, like the voice settings.
   await page.locator('[aria-label="Sound effects volume"]').evaluate((el) => { el.value = 0.8; el.dispatchEvent(new Event('input', { bubbles: true })); });
   await page.click('[aria-label="Play sounds"]');

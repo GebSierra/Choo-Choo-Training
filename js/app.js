@@ -5,6 +5,7 @@ import { homeScreen } from './screens/home.js';
 import { lessonScreen } from './screens/lesson.js';
 import { createSpeech } from './speech.js';
 import { sfx } from './sfx.js';
+import { music } from './music.js';
 import { grownupsScreen } from './screens/grownups.js';
 import { taskScreen } from './screens/task.js';
 import { finishScreen, checkpointFinishScreen } from './screens/finish.js';
@@ -33,9 +34,10 @@ async function boot() {
   const speech = createSpeech({ store, curriculum });
   store.touch();
   sfx.init({ store, speech });
+  music.init({ store, speech, sfx });
   const ctx = { store, curriculum, speech, router: null };
   // Browsers only allow speech after a completed tap, so the first pointerup (or click) unlocks it for this page session.
-  for (const type of ['pointerup', 'click']) addEventListener(type, () => { speech.unlock(); sfx.unlock(); }, { capture: true });
+  for (const type of ['pointerup', 'click']) addEventListener(type, () => { speech.unlock(); sfx.unlock(); music.unlock(); }, { capture: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) speech.cancel(); });
   const routes = [
     { re: /^\/home$/, screen: homeScreen },

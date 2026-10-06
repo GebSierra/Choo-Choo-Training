@@ -80,11 +80,12 @@ export const AUDIO_STUB = () => {
     createBuffer(ch, len) { return { getChannelData: () => new Float32Array(len) }; }
     createBufferSource() { return new Source(true); }
     createOscillator() { return new Source(false); }
+    decodeAudioData() { return Promise.resolve({ duration: 1.5 }); }
   }
   window.AudioContext = FakeAudioContext;
   window.webkitAudioContext = undefined;
   window.__audioNotes = () => log.nodes.map((n) => ({
-    event: n.eventName, partial: !!n.partial, bloop: !!n.bloop, noise: !!n.noise, t: n.startedAt,
+    event: n.eventName, sample: !!n.sample, partial: !!n.partial, bloop: !!n.bloop, noise: !!n.noise, t: n.startedAt,
     freqs: n.noise ? (n.filter ? n.filter.frequency.values : (n.filterParam || [])) : n.frequency.values,
     stops: n.stops,
   }));

@@ -6,6 +6,7 @@ import { firstRunOverlay } from '../components/welcome-card.js';
 import { stopIcon, puffEl } from '../art/train2d.js';
 import { finishedStop } from '../sequence.js';
 import { sfx } from '../sfx.js';
+import { music } from '../music.js';
 import { kidSvg } from '../art/kid.js';
 import { dueLevel, builtLevels } from '../levels.js';
 import { starBoard } from '../components/star-board.js';
@@ -242,14 +243,18 @@ export function mapScreen(ctx, preview = null) {
   const top = h('div', { class: 'home-top' }, grown, stars.el);
   const fs = fullscreenButton({ className: 'home-fs' });
   const root = h('div', { class: 'home' }, scroller, top, ...(fs ? [fs] : []));
+  // The theme song waits for the ride and the level banner to finish (it starts at once when neither is due).
+  let celebrating = fromStop >= 0 || !!due;
   const showLevel = () => {
-    if (!due || !root.isConnected) return;
+    if (!due || !root.isConnected) { celebrating = false; return; }
+    later(() => { celebrating = false; }, reduced() ? 1500 : 3000);
     const i = builtLevels(curriculum).findIndex((v) => v.id === due.id);
     levelBanner({ level: due, host: root, reducedMotion: reduced() });
     stars.pop(i);
     sfx.play(reduced() ? 'star' : 'checkpoint');
   };
-  root.cleanup = () => { grown.cleanup(); timers.forEach(clearTimeout); timers.clear(); };
+  root.cleanup = () => { grown.cleanup(); timers.forEach(clearTimeout); timers.clear(); if (!preview) music.leaveHome(); };
+  if (!preview) music.enterHome({ hold: () => celebrating });
 
   firstRunOverlay({ store, root });
 
@@ -270,7 +275,7 @@ export function mapScreen(ctx, preview = null) {
     const kidEl = h('span', { class: 'seq-kid', 'aria-hidden': 'true', style: { left: ax + dx - 30 + 'px', top: ay + dy - 38 + 'px' } }, kidSvg({ ...store.character(), pose: 'wave', still: true }));
     scene.append(kidEl);
     if (real) real.style.visibility = 'hidden';
-    setTimeout(() => sfx.play('toot'), 450); // as the figure sets off
+    setTimeout(() => sfx.play('whistle'), 450); // as the figure sets off
     const MS = 1700;
     const a = kidEl.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${(bx - ax) / 2}px,${(by - ay) / 2 - 22}px)`, offset: 0.5 }, { transform: `translate(${bx - ax}px,${by - ay}px)` }], { duration: MS, delay: 500, easing: 'ease-in-out', fill: 'both' });
     let n = 0;
@@ -295,7 +300,7 @@ export function mapScreen(ctx, preview = null) {
     const rideStart = () => { const p = g.stones[fromStop]; return portrait ? Math.max(0, Math.min(g.H - scroller.clientHeight, p.py - scroller.clientHeight * 0.55)) : Math.max(0, Math.min(g.W - scroller.clientWidth, p.lx - scroller.clientWidth * 0.36)); };
     set(ride ? rideStart() : start);
     if (ride) { runRide(); return; }
-    if (fromStop >= 0) sfx.play('toot'); // reduced motion: the figure is simply at the next stone, with one toot
+    if (fromStop >= 0) sfx.play('whistle'); // reduced motion: the figure is simply at the next stone, with one whistle
     later(showLevel, 600);
     if (!reduced()) {
       const shown = stones.map((s, i) => [s, i]).filter(([, i]) => visible(i));
