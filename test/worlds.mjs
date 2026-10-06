@@ -135,7 +135,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
   await fold.click();
   ok((await page.locator('.grownups .gu-fold-body:not([hidden]) .gu-note', { hasText: 'Try new screens before they go live.' }).count()) === 1, `${tag}: the Previews note is shown`);
   const btns = await page.locator('.preview-btn').evaluateAll((l) => l.map((b) => { const r = b.getBoundingClientRect(); return { key: b.dataset.preview, h: r.height, w: r.width }; }));
-  ok(btns.length === 4 && btns.every((b) => b.h >= 48 && b.w >= 120), `${tag}: four preview buttons, each at least 48 px tall (${JSON.stringify(btns.map((b) => b.key + ':' + Math.round(b.h)))})`);
+  ok(btns.length === 6 && btns.every((b) => b.h >= 48 && b.w >= 120), `${tag}: six preview buttons, each at least 48 px tall (${JSON.stringify(btns.map((b) => b.key + ':' + Math.round(b.h)))})`);
   await page.locator('.gu-version').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
   await shot(page, 'previews-fold', tag);

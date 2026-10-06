@@ -10,7 +10,7 @@ const APP_FILES = [
   'js/screens/home.js', 'js/screens/lesson.js', 'js/screens/task.js', 'js/screens/shell.js', 'js/screens/sack.js', 'js/screens/checkpoint.js', 'js/screens/book.js', 'js/screens/ride.js', 'js/blend-detect.js', 'js/mic.js', 'js/screens/finish.js', 'js/screens/grownups.js',
   'js/screens/tasks/review.js', 'js/screens/tasks/new-letter.js', 'js/screens/tasks/story.js', 'js/screens/tasks/words.js', 'js/screens/tasks/sounds.js', 'js/screens/tasks/writing.js', 'js/screens/tasks/hunt.js', 'js/screens/tasks/hunt-deal.js', 'js/screens/tasks/signals.js', 'js/screens/tasks/wagons.js', 'js/screens/tasks/board.js', 'js/screens/tasks/practice.js', 'js/screens/tasks/check.js',
   // Prototype 4: the eight-step lesson for f (Grownups > Previews)
-  'js/screens/tasks/proto/kit.js', 'js/screens/tasks/proto/warmup.js', 'js/screens/tasks/proto/recall.js', 'js/screens/tasks/proto/new-sound.js', 'js/screens/tasks/proto/blend-it.js', 'js/screens/tasks/proto/read-it.js', 'js/screens/tasks/proto/build-it.js', 'js/screens/tasks/proto/read-story.js', 'data/proto-lesson-f.json',
+  'js/screens/tasks/proto/kit.js', 'js/screens/tasks/proto/warmup.js', 'js/screens/tasks/proto/recall.js', 'js/screens/tasks/proto/new-sound.js', 'js/screens/tasks/proto/blend-it.js', 'js/screens/tasks/proto/read-it.js', 'js/screens/tasks/proto/build-it.js', 'js/screens/tasks/proto/read-story.js', 'data/proto-lesson-f.json', 'js/screens/proto-play.js', 'js/screens/proto-placement.js', 'js/screens/tasks/proto/play.js', 'data/proto-play.json',
   // the train world: the 3D Home and three.js (MIT, vendor/three/LICENSE)
   'js/screens/home3d.js', 'js/screens/previews.js', 'js/screens/crossing.js', 'js/worlds.js', 'js/components/tip-card.js', 'js/components/journey-board.js', 'js/components/lesson-list.js', 'js/train/world.js', 'js/train/scene.js', 'js/train/track.js', 'js/train/scenery.js', 'js/train/stations.js', 'js/train/train.js', 'js/train/tunnel.js', 'js/levels.js', 'js/components/star-board.js', 'js/components/level-banner.js', 'js/art/cars2d.js', 'js/train/pip3d.js', 'js/train/camera.js', 'js/train/overlay.js',
   'vendor/three/three.module.min.js', 'vendor/three/RoundedBoxGeometry.js',
@@ -49,6 +49,9 @@ const APP_FILES = [
 const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3', 'assets/audio/sounds/s.mp3', 'assets/audio/sounds/i.mp3', 'assets/audio/sounds/t.mp3', 'assets/audio/sounds/p.mp3', 'assets/audio/sounds/n.mp3', 'assets/audio/sounds/f.mp3', 'assets/audio/sounds/d.mp3', 'assets/audio/sounds/h.mp3', 'assets/audio/sounds/g.mp3', 'assets/audio/sounds/b.mp3', 'assets/audio/sounds/l.mp3'];
 // Connected blend models for the f lesson prototype ("fffiiit"), recorded by the grown-up, are optional too.
 OPTIONAL_FILES.push('assets/audio/blends/sat.mp3', 'assets/audio/blends/map.mp3', 'assets/audio/blends/mat.mp3', 'assets/audio/blends/sip.mp3', 'assets/audio/blends/fit.mp3', 'assets/audio/blends/fat.mp3', 'assets/audio/blends/if.mp3', 'assets/audio/blends/tip.mp3', 'assets/audio/blends/sam.mp3', 'assets/audio/blends/at.mp3', 'assets/audio/blends/it.mp3', 'assets/audio/blends/sis.mp3');
+
+// Stage 1 sound play (prototype 6): the grown-up's stretched recordings of its picture words are optional too.
+OPTIONAL_FILES.push(...['milk', 'moon', 'sun', 'sock', 'fish', 'fox', 'apple', 'ant', 'pig', 'egg', 'up'].map((w) => `assets/audio/blends/${w}.mp3`));
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {

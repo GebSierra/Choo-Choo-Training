@@ -4,7 +4,7 @@ import { isNative } from './platform.js';
 
 const depthOf = (path) => {
   if (path === '/home') return 0;
-  if (/^\/(lesson\/\d+\/(task\/\d+|finish)|checkpoint\/[\w-]+\/finish|proto\/f\/task\/\d+)$/.test(path)) return 2;
+  if (/^\/(lesson\/\d+\/(task\/\d+|finish)|checkpoint\/[\w-]+\/finish|proto\/f\/task\/\d+|proto\/play\/\d+\/task\/\d+)$/.test(path)) return 2;
   return 1;
 };
 
@@ -57,7 +57,8 @@ export function createRouter(root, routes, ctx) {
     back() {
       const p = parse();
       const m = p.match(/^\/lesson\/(\d+)\/(task\/\d+|finish)$/);
-      this.go(m ? `/lesson/${m[1]}` : /^\/proto\/f\/task\/\d+$/.test(p) ? '/proto/f' : '/home');
+      const pp = p.match(/^\/proto\/play\/\d+\/task\/\d+$/);
+      this.go(m ? `/lesson/${m[1]}` : /^\/proto\/f\/task\/\d+$/.test(p) ? '/proto/f' : pp ? '/proto/play' : '/home');
     },
     get path() { return parse(); },
   };
