@@ -1165,3 +1165,88 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .gg-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 14px; }
 .gg-num { min-width: 64px; min-height: 64px; border-radius: 16px; border: 2px solid currentColor; background: #fff; color: inherit; font: inherit; font-size: 28px; font-weight: 700; cursor: pointer; }
 .gg-cancel { min-height: 48px; }
+
+/* ---- prototype 2 (v1.9.8, Grownups > Previews): worlds, the world gateway, the "Did you know?" card, the journey board ---- */
+.gu-previews { display: grid; gap: 10px; }
+.preview-btn { width: 100%; justify-content: center; }
+.preview-back { position: fixed; left: calc(16px + var(--sal)); bottom: calc(16px + var(--sab)); z-index: 12; min-height: 48px; display: inline-flex; align-items: center; gap: 4px; padding: 0 18px 0 10px; border: 0; border-radius: 999px; background: #fff; color: var(--violet); font: inherit; font-weight: 800; font-size: 18px; box-shadow: var(--shadow); cursor: pointer; touch-action: manipulation; }
+.gateway-host { position: fixed; inset: 0; }
+
+/* the tip card */
+.tip-card { position: fixed; left: 50%; bottom: calc(84px + var(--sab)); transform: translateX(-50%); z-index: 14; width: min(460px, calc(100% - 32px)); box-sizing: border-box; display: grid; grid-template-columns: 52px 1fr 48px; gap: 8px; align-items: start; padding: 12px 4px 12px 12px; border-radius: 24px; background: var(--cream); border: 4px solid var(--sun); box-shadow: 0 8px 0 rgba(30,33,64,.14), var(--shadow); cursor: pointer; touch-action: manipulation; opacity: 0; transition: opacity 300ms ease; }
+.tip-card.in { opacity: 1; } .tip-card.closing { opacity: 0; pointer-events: none; } .tip-card.still { transition: none; }
+.tip-pip svg { width: 52px; height: auto; display: block; }
+.tip-title { display: block; font-size: 19px; font-weight: 800; color: var(--violet); }
+.tip-text { margin: 2px 0 0; font-size: 16px; line-height: 1.35; font-weight: 600; }
+.tip-close { width: 48px; height: 48px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; }
+@media (orientation: landscape) and (max-height: 520px) { .tip-card { width: min(560px, calc(100% - 200px)); bottom: calc(12px + var(--sab)); left: auto; right: calc(16px + var(--sar)); transform: none; } }
+
+/* the loading card between two worlds */
+.world-card { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; box-sizing: border-box; background: var(--wc); cursor: pointer; touch-action: manipulation; opacity: 0; transition: opacity 380ms ease; }
+.world-card.in { opacity: 1; } .world-card.out { opacity: 0; pointer-events: none; }
+.wg-panel { width: min(460px, 100%); box-sizing: border-box; display: grid; gap: 14px; padding: 22px 18px 18px; border-radius: 32px; background: var(--cream); text-align: center; box-shadow: 0 10px 0 rgba(30,33,64,.18), var(--shadow); }
+.wg-head { display: grid; gap: 4px; justify-items: center; }
+.wg-badge { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; background: var(--wc); border: 5px solid #fff; box-shadow: 0 4px 0 rgba(30,33,64,.18); font-size: 40px; font-weight: 800; color: var(--ink); }
+.wg-next { margin: 6px 0 0; font-size: 18px; font-weight: 700; color: var(--muted); }
+.wg-name { margin: 0; font-size: 34px; line-height: 1.1; font-weight: 800; }
+.wg-more { display: grid; gap: 10px; }
+.wg-tip { background: #fff; border-radius: 20px; padding: 10px 14px; text-align: left; box-shadow: inset 0 0 0 2px #ECEEF8; }
+.wg-tip strong { font-size: 16px; color: var(--violet); } .wg-tip p { margin: 2px 0 0; font-size: 16px; line-height: 1.35; font-weight: 600; }
+.wg-hint { margin: 0; font-size: 16px; font-weight: 700; color: var(--muted); }
+@media (orientation: landscape) and (max-height: 520px) { .wg-panel { width: min(820px, 100%); grid-template-columns: 0.8fr 1.2fr; align-items: center; gap: 18px; padding: 16px 20px; } .wg-more { text-align: left; } .wg-badge { width: 60px; height: 60px; font-size: 32px; } .wg-name { font-size: 30px; } }
+
+/* the journey board */
+.jb { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; background: linear-gradient(to bottom, #BFE8FF 0%, #FFF6E5 60%); padding: var(--sat) var(--sar) var(--sab) var(--sal); opacity: 1; transition: opacity 250ms ease; }
+.jb.closing { opacity: 0; pointer-events: none; } .jb.still { transition: none; }
+.jb-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; box-sizing: border-box; width: 100%; max-width: 760px; margin: 0 auto; padding: 18px 16px 8px; }
+.jb-head { margin: auto 0 12px; text-align: center; font-size: 28px; font-weight: 800; }
+.jb-badges { list-style: none; margin: 0; padding: 6px 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.jb-badge { position: relative; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--wc); color: var(--ink); font-size: 20px; font-weight: 800; box-shadow: 0 3px 0 rgba(30,33,64,.18); }
+.jb-badge.is-current { width: 54px; height: 54px; font-size: 24px; margin: 0 2px; box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--ink), 0 4px 0 7px rgba(30,33,64,.2); }
+.jb-badge.is-future { background: rgba(255,255,255,.55); border: 3px dashed #B7BCD6; color: #8A8FAE; box-shadow: none; box-sizing: border-box; }
+.jb-badge-mark { position: absolute; right: -5px; top: -5px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; box-shadow: 0 2px 0 rgba(30,33,64,.2); }
+.jb-badge-mark.gold { background: var(--sun); } .jb-badge-mark.gold .jb-tick { width: 15px; height: 15px; } .jb-badge-mark.gold .jb-tick path { stroke: #7A5200; }
+.jb-badge-mark.lock { background: #fff; color: #8A8FAE; top: auto; bottom: -5px; box-shadow: 0 1px 0 rgba(30,33,64,.15); }
+.jb-world { min-width: 0; margin: 28px 0 auto; padding: 16px 10px 18px; border-radius: 28px; background: #fff; border-top: 10px solid var(--wc); box-shadow: var(--shadow); }
+.jb-world-n { margin: 0; text-align: center; font-weight: 700; color: var(--muted); }
+.jb-world-name { margin: 0 0 4px; text-align: center; font-size: 26px; font-weight: 800; }
+.jb-track { position: relative; list-style: none; margin: 0; padding: 66px 4px 6px; display: flex; overflow-x: auto; scroll-snap-type: x proximity; }
+.jb-stn { position: relative; flex: 0 0 auto; min-width: 104px; padding: 0 6px; box-sizing: border-box; display: grid; justify-items: center; align-content: start; gap: 6px; scroll-snap-align: center; }
+.jb-stn::before { content: ''; position: absolute; top: 22px; left: 0; right: 0; height: 8px; border-radius: 4px; background: #D9DCEE; }
+.jb-stn:first-child::before { left: 50%; } .jb-stn:last-child::before { right: 50%; }
+.jb-stn.is-done::before { background: var(--wc); }
+.jb-dot { position: relative; z-index: 1; width: 52px; height: 52px; box-sizing: border-box; border-radius: 50%; display: grid; place-items: center; background: #fff; border: 5px solid #C9CDE3; color: var(--muted); font-size: 17px; font-weight: 800; }
+.jb-stn.is-later .jb-dot { border-style: dashed; }
+.jb-stn.is-done .jb-dot { background: var(--wc); border-color: var(--wc); }
+.jb-stn.is-here .jb-dot { background: var(--wc); border-color: #fff; color: var(--ink); box-shadow: 0 0 0 4px var(--ink); }
+.jb-dot .jb-tick { width: 28px; height: 28px; } .jb-dot .jb-tick path { stroke: var(--ink); }
+.jb-stn.unbuilt .jb-dot { opacity: .7; }
+.jb-sounds { min-height: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.jb-sound .glyph { height: 26px; width: auto; display: block; } .jb-sound .font-letter { font-size: 30px; }
+.jb-title { font-size: 14px; line-height: 1.15; font-weight: 700; color: var(--muted); text-align: center; }
+.jb-pip { position: absolute; top: -64px; left: 50%; margin-left: -24px; width: 48px; }
+.jb-pip svg { width: 48px; height: auto; display: block; }
+.jb-foot { display: grid; justify-items: center; padding: 8px 16px 16px; }
+.jb-go { width: min(340px, 100%); }
+@media (orientation: landscape) and (max-height: 520px) {
+  .jb-scroll { max-width: 900px; display: grid; grid-template-columns: 290px 1fr; grid-template-areas: "head world" "badges world"; align-content: start; column-gap: 18px; padding-top: 10px; }
+  .jb-head { grid-area: head; font-size: 24px; margin: 0 0 4px; text-align: left; }
+  .jb-badges { grid-area: badges; justify-content: flex-start; align-content: flex-start; gap: 8px; }
+  .jb-badge { width: 42px; height: 42px; font-size: 18px; } .jb-badge.is-current { width: 48px; height: 48px; font-size: 22px; }
+  .jb-world { grid-area: world; margin: 0; padding: 12px 10px; align-self: start; }
+  .jb-world-name { font-size: 24px; }
+  .jb-foot { padding: 6px 16px 10px; } .jb-go { min-height: 56px; }
+}
+@media (prefers-reduced-motion: reduce) { .world-card, .tip-card, .jb { transition: none; } }
+
+/* Grownups: the lessons grouped by world and unit */
+.gu-world { border-left: 10px solid var(--wc); }
+.gu-world-head { justify-content: flex-start; gap: 12px; }
+.gu-world-head .icon { margin-left: auto; flex: none; }
+.gu-world-dot { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--ink); font-weight: 800; }
+.gu-world-title { display: grid; flex: 1; min-width: 0; }
+.gu-world-title strong { font-size: 20px; }
+.gu-unit { margin: 6px 0 0; padding-top: 10px; border-top: 2px solid #ECEEF8; display: flex; align-items: baseline; gap: 10px; font-size: 18px; font-weight: 800; }
+.gu-world-body > .gu-unit:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+.gu-world-body { gap: 8px; }
+.gu-glyph .book-art { width: 30px; height: 44px; min-height: 0; flex: none; } /* the reader's .book-art rules would stretch the Story icon past its box */

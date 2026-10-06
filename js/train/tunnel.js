@@ -9,7 +9,8 @@ const WIDTH = 3.0, HEIGHT = 3.0, LENGTH = 3.8; // the hill, in world units
 const MOUTH_W = 1.0, MOUTH_H = 1.75;           // the arch's half width and height
 
 // s: the distance along the line of the hill's middle. Returns { group }.
-export function buildTunnel(bag, line, s) {
+// flip: the mouth faces forward along the line instead of back (a tunnel the train rolls out of, at the start of a world).
+export function buildTunnel(bag, line, s, flip = false) {
   const group = new THREE.Group();
   group.name = 'tunnel';
   const p = line.at(s);
@@ -33,6 +34,6 @@ export function buildTunnel(bag, line, s) {
     group.add(foot);
   }
   group.position.set(p.x, 0, p.z);
-  group.rotation.y = p.heading;
+  group.rotation.y = p.heading + (flip ? Math.PI : 0);
   return { group };
 }

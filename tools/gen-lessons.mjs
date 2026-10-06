@@ -65,6 +65,31 @@ const POOL_ADD = [
 ];
 const AVOID = { egg: ['a', 'i'], nest: ['m'], nut: ['m'], nose: ['m'], jet: ['d'], van: ['f'], vest: ['f'], camel: ['g'], candy: ['g'], king: ['g'], koala: ['g'], rabbit: ['l'], rocket: ['l'] };
 
+// The plan's units and worlds (docs/CURRICULUM.md sections 9 and 11). A unit is a group of new sounds; a world is one stretch of
+// track, with a tunnel at its end. Only Stage 1 and Stage 2 units are listed in full; worlds 4 to 11 name their units by id.
+const UNITS = [
+  { id: '1.1', stage: 1, title: 'Left to right', sounds: [] }, { id: '1.2', stage: 1, title: 'First sounds', sounds: [] }, { id: '1.3', stage: 1, title: 'Blending', sounds: [] },
+  { id: '2.1', stage: 2, sounds: ['m', 'a', 's'] }, { id: '2.2', stage: 2, sounds: ['i', 't'] }, { id: '2.3', stage: 2, sounds: ['p'] },
+  { id: '2.4', stage: 2, sounds: ['f', 'o'] }, { id: '2.5', stage: 2, sounds: ['n', 'd'] }, { id: '2.6', stage: 2, sounds: ['c', 'k', 'h'] },
+  { id: '2.7', stage: 2, sounds: ['u', 'g', 'l'] }, { id: '2.8', stage: 2, sounds: ['r', 'b'] }, { id: '2.9', stage: 2, sounds: ['e'] },
+  { id: '2.10', stage: 2, sounds: ['j', 'w', 'v'] }, { id: '2.11', stage: 2, sounds: ['y', 'z', 'x', 'qu'] },
+];
+const stageUnits = (stage, count) => Array.from({ length: count }, (_, i) => `${stage}.${i + 1}`);
+// PLACEHOLDER names: the owner will choose the real ones. Colours come from the house palette (css/app.css).
+const WORLDS = [
+  { id: 'W1', n: 1, name: 'Starter Station', color: '#F0556A', units: ['1.1', '1.2', '1.3', '2.1', '2.2', '2.3'] },
+  { id: 'W2', n: 2, name: 'Green Valley', color: '#3DD68C', units: ['2.4', '2.5', '2.6', '2.7', '2.8'] },
+  { id: 'W3', n: 3, name: 'Sunny Hills', color: '#FFD166', units: ['2.9', '2.10', '2.11'] },
+  { id: 'W4', n: 4, name: 'Digraph Docks', color: '#5AC8FA', units: stageUnits(3, 5) },
+  { id: 'W5', n: 5, name: 'Blend Bay', color: '#6C5CE7', units: stageUnits(4, 5) },
+  { id: 'W6', n: 6, name: 'Endings Junction', color: '#7DB8F5', units: stageUnits(5, 5) },
+  { id: 'W7', n: 7, name: 'Silent E Summit', color: '#5FE3B0', units: stageUnits(6, 5) },
+  { id: 'W8', n: 8, name: 'Vowel Team Town', color: '#CDC4F8', units: stageUnits(7, 6) },
+  { id: 'W9', n: 9, name: 'Bossy R Bridge', color: '#5DE0F0', units: stageUnits(8, 5) },
+  { id: 'W10', n: 10, name: 'Sliding Slopes', color: '#E0559C', units: stageUnits(9, 3) },
+  { id: 'W11', n: 11, name: 'Tricky Peak', color: '#5A4BD6', units: stageUnits(10, 6) },
+];
+
 const c = JSON.parse(fs.readFileSync(FILE, 'utf8'));
 const old = { sounds: ['m', 'a', 's'], lessons: 3 };
 c.sounds = Object.fromEntries(old.sounds.map((k) => [k, c.sounds[k]]));
@@ -137,6 +162,18 @@ const LEVELS = [
 ];
 const builtAt = (s) => { const i = c.lessons.findIndex((L) => L.sound === s); return i < 0 ? null : i + 1; };
 c.levels = LEVELS.map((v) => { const at = v.needs.map(builtAt); return { ...v, after: at.includes(null) ? null : Math.max(...at) }; });
+
+// Units and worlds: each lesson belongs to the unit that teaches its sound, and so to that unit's world; a checkpoint
+// belongs to the world of the lesson it follows.
+c.units = UNITS;
+c.worlds = WORLDS;
+for (const L of c.lessons) {
+  const u = UNITS.find((x) => x.sounds.includes(L.sound));
+  const w = u && WORLDS.find((x) => x.units.includes(u.id));
+  if (!w) throw new Error('no unit or world for sound ' + L.sound);
+  L.unit = u.id; L.world = w.id;
+}
+for (const k of c.checkpoints) { const l = c.lessons.find((x) => x.number === k.after); if (!l) throw new Error('checkpoint ' + k.id + ' has no lesson ' + k.after); k.world = l.world; }
 
 fs.writeFileSync(FILE, JSON.stringify(c, null, 2) + '\n');
 

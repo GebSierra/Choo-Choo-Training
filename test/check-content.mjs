@@ -311,6 +311,48 @@ export function checkCurriculum(c, root = ROOT) {
     }
   }
 
+  // Units and worlds (js/worlds.js): every lesson sits in a known unit and world, a checkpoint in the world of its lesson.
+  {
+    const us = c.units, ws = c.worlds;
+    if (!Array.isArray(us) || !us.length) err('units missing');
+    else if (!Array.isArray(ws) || !ws.length) err('worlds missing');
+    else {
+      const uids = new Set();
+      us.forEach((u, i) => {
+        if (!/^\d+\.\d+$/.test(u.id || '') || uids.has(u.id)) err(`units[${i}].id "${u.id}" must be unique and look like 2.1`);
+        uids.add(u.id);
+        if (u.stage !== Number(String(u.id).split('.')[0])) err(`units[${i}].stage must match its id`);
+        if (!Array.isArray(u.sounds)) err(`units[${i}].sounds must be a list`);
+      });
+      const wids = new Set(), inWorld = new Map();
+      ws.forEach((w, i) => {
+        const p = `worlds[${i}]`;
+        if (w.n !== i + 1) err(`${p}.n must be ${i + 1} (worlds run 1 to ${ws.length} with no gaps)`);
+        if (w.id !== 'W' + w.n || wids.has(w.id)) err(`${p}.id must be W${w.n}, unique`);
+        wids.add(w.id);
+        if (!w.name || !/^#[0-9A-Fa-f]{6}$/.test(w.color || '')) err(`${p} needs a name and a #rrggbb colour`);
+        if (!Array.isArray(w.units) || !w.units.length) return err(`${p}.units missing`);
+        for (const id of w.units) { if (inWorld.has(id)) err(`${p}: unit ${id} is already in world ${inWorld.get(id)}`); inWorld.set(id, w.id); }
+      });
+      if (ws.length !== 11) err(`there must be 11 worlds, found ${ws.length}`);
+      for (const u of us) if (!inWorld.has(u.id)) err(`unit ${u.id} is in no world`);
+      const lessonSounds = new Set();
+      (c.lessons || []).forEach((L) => {
+        const u = us.find((x) => x.id === L.unit);
+        if (!u) return err(`lesson ${L.number} has an unknown unit "${L.unit}"`);
+        if (!u.sounds.includes(L.sound)) err(`lesson ${L.number}: sound ${L.sound} is not in unit ${L.unit}`);
+        if (!wids.has(L.world)) err(`lesson ${L.number} has an unknown world "${L.world}"`);
+        else if (inWorld.get(L.unit) !== L.world) err(`lesson ${L.number}: unit ${L.unit} is in world ${inWorld.get(L.unit)}, not ${L.world}`);
+        lessonSounds.add(L.sound);
+      });
+      for (const k of c.checkpoints || []) {
+        const l = (c.lessons || []).find((x) => x.number === k.after);
+        if (!wids.has(k.world)) err(`checkpoint ${k.id} has an unknown world "${k.world}"`);
+        else if (l && l.world !== k.world) err(`checkpoint ${k.id} is in world ${k.world} but follows lesson ${k.after} of world ${l.world}`);
+      }
+    }
+  }
+
   const ids = new Set();
   (c.checkpoints || []).forEach((k, i) => {
     const p = `checkpoints[${i}]`;
@@ -459,6 +501,19 @@ export function childReadProof(c, root = ROOT) {
   return { errors, count: items.length };
 }
 
+// data/tips.json: the 19 "Did you know?" tips of docs/CURRICULUM.md section 13 as [{ id, text }]. No privacy or recording warnings.
+export function checkTips(tips) {
+  const errors = [];
+  if (!Array.isArray(tips) || tips.length !== 19) return ['tips.json must be a list of 19 tips'];
+  tips.forEach((t, i) => {
+    if (t.id !== i + 1) errors.push(`tips[${i}].id must be ${i + 1}`);
+    if (typeof t.text !== 'string' || t.text.length < 20) errors.push(`tips[${i}].text missing`);
+    else if (/^did you know/i.test(t.text) || /\*\*/.test(t.text)) errors.push(`tips[${i}].text must not repeat the heading or hold markdown`);
+    else if (/privacy|record(ing|ed)? (of )?your|microphone|tracking/i.test(t.text)) errors.push(`tips[${i}] must not hold a privacy or recording warning`);
+  });
+  return errors;
+}
+
 // Reading a script aloud with sounds off drops a quotation that holds a sound whole: no "Touch it.'" fragments.
 export function checkQuietScripts() {
   const errors = [];
@@ -473,7 +528,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const file = process.argv[2] || path.join(ROOT, 'data/curriculum.json');
   const c = JSON.parse(fs.readFileSync(file, 'utf8'));
   const proof = childReadProof(c);
-  const errors = [...checkCurriculum(c), ...proof.errors, ...checkQuietScripts()];
+  const errors = [...checkCurriculum(c), ...proof.errors, ...checkQuietScripts(), ...checkTips(JSON.parse(fs.readFileSync(path.join(ROOT, 'data/tips.json'), 'utf8')))];
   // The board words are a test too: these are the exact lists the plan promises.
   const show = (n) => { const b = boardWords(ORDER.split(''), n, 4); return b && b.map((x) => `${x.word}(${x.target})`).join(' '); };
   const want = { 1: null, 2: null, 3: null, 4: null, 5: 'sat(t) sit(i) it(t) mist(s)', 7: 'man(n) map(p) nap(n) tap(t)', 9: 'sad(d) fad(f) mad(d) man(n)', 13: 'pal(l) dab(b) lab(l) lag(g)' };
