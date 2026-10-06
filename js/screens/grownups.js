@@ -5,7 +5,7 @@ import { WELCOME } from '../guide.js';
 import { characterPicker } from '../components/character-picker.js';
 import { soundCard } from '../components/sound-card.js';
 import { glyphSvg } from '../glyphs.js';
-import { stopIcon } from '../art/train2d.js';
+import { lessonList } from '../components/lesson-list.js';
 import { sfx } from '../sfx.js';
 import { accentOf } from '../theme.js';
 import { APP_VERSION } from '../version.js';
@@ -14,8 +14,10 @@ import { soundPhrase } from '../lessons.js';
 import { starSvg } from '../art.js';
 import { NUMBER_WORDS, earnedLevels } from '../levels.js';
 
-const fmt = (iso) => { try { return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return ''; } };
 export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA vowel and consonant chart recordings, CC BY-SA 3.0, obtained via github.com/joshstephenson/PhoneticFlashCards, trimmed and loudness-normalized.";
+
+// The screens the owner can try before they go live (prototype 2): route key and button label.
+const PREVIEWS = [['tip', 'Did you know? card'], ['board', 'Journey board'], ['gateway', 'World gateway'], ['list', 'Lessons by world']];
 
 // Parent area. Reached only through the hold gate on Home (ctx.gate), and expires after ten minutes.
 const folds = {}; // which reference cards are open, for this page session only
@@ -23,33 +25,11 @@ const folds = {}; // which reference cards are open, for this page session only
 export function grownupsScreen(ctx) {
   const { store, router, curriculum, speech } = ctx;
   if (!ctx.gate || Date.now() - ctx.gate.openedAt > 10 * 60 * 1000) { queueMicrotask(() => router.replace('/home')); return h('div'); }
+  ctx.guOpenedAt = ctx.gate.openedAt; // the previews send the grown-up back here, within the same ten minutes
   ctx.gate = null; // one visit per hold: Back then history.back() cannot re-enter
 
-  // ---- lessons and checkpoints ----
-  const lessonsBox = h('div', { class: 'gu-list' });
-  let unlocking = null; // what is waiting for the confirm tap: a lesson number or a checkpoint id
-  const paintLessons = () => {
-    // One row per lesson, and a checkpoint right after the lesson it follows.
-    const rows = curriculum.lessons.flatMap((l) => [{ key: l.number, lesson: l }, ...(curriculum.checkpoints || []).filter((c) => c.after === l.number).map((c) => ({ key: c.id, checkpoint: c }))]);
-    lessonsBox.replaceChildren(...rows.map((r) => {
-      const name = r.lesson ? `lesson ${r.lesson.number}` : `the ${r.checkpoint.title.toLowerCase()}`;
-      if (unlocking === r.key) {
-        return h('div', { class: 'gu-confirm', role: 'alertdialog', 'aria-label': 'Confirm unlock' },
-          h('p', {}, r.lesson ? `Unlock lesson ${r.lesson.number} without finishing the one before it?` : `Unlock the ${r.checkpoint.title.toLowerCase()} without finishing lesson ${r.checkpoint.after}?`),
-          h('div', { class: 'gu-actions' },
-            h('button', { class: 'btn ghost small', type: 'button', onclick: () => { unlocking = null; paintLessons(); } }, 'Cancel'),
-            h('button', { class: 'btn small', type: 'button', onclick: () => { if (r.lesson) store.unlock(r.lesson.number); else store.unlockCheckpoint(r.checkpoint.id); unlocking = null; paintLessons(); } }, 'Unlock')));
-      }
-      const st = r.lesson ? store.lesson(r.lesson.number) : store.checkpoint(r.checkpoint.id);
-      const unlocked = r.lesson ? store.isUnlocked(r.lesson.number) : store.isCheckpointUnlocked(r.checkpoint);
-      const status = st.result === 'got-it' ? `Got it${st.completedAt ? ' on ' + fmt(st.completedAt) : ''}` : st.result === 'practice-again' ? `Practice again${st.completedAt ? ' (' + fmt(st.completedAt) + ')' : ''}` : (unlocked ? 'Open, not finished' : 'Locked');
-      return h('div', { class: 'gu-row' },
-        h('span', { class: 'gu-glyph' }, r.lesson ? glyphSvg(r.lesson.sound, { color: accentOf(r.lesson.sound), label: name }) : stopIcon(r.checkpoint)),
-        h('div', { class: 'gu-row-text' }, h('strong', {}, r.lesson ? `Lesson ${r.lesson.number}` : r.checkpoint.title), h('span', { class: 'gu-sub' }, status)),
-        unlocked ? h('span', { class: 'gu-open' }, st.result === 'got-it' ? icon('check', 20) : '') : h('button', { class: 'btn ghost small', type: 'button', 'aria-label': `Unlock ${name}`, onclick: () => { unlocking = r.key; paintLessons(); } }, 'Unlock'));
-    }));
-  };
-  paintLessons();
+  // ---- lessons and checkpoints (js/components/lesson-list.js, shared with the grouped preview) ----
+  const lessonsBox = lessonList({ store, curriculum }).el;
 
   // ---- reset ----
   const resetBox = h('div', { class: 'gu-reset' });
@@ -151,6 +131,7 @@ export function grownupsScreen(ctx) {
         h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.alphabetSongUrl); } }, icon('external', 20), 'Alphabet song')),
       ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),
       sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),
+      fold('Previews', h('p', { class: 'gu-note' }, 'Try new screens before they go live.'), h('div', { class: 'gu-previews' }, ...PREVIEWS.map(([key, label]) => h('button', { class: 'btn small preview-btn', type: 'button', dataset: { preview: key }, onclick: () => router.go('/preview/' + key) }, label)))),
       h('p', { class: 'gu-version' }, `Choo Choo Training version ${APP_VERSION}`)));
   root.cleanup = () => clearTimeout(voiceTimer);
   return root;

@@ -45,6 +45,11 @@ async function boot() {
     { re: /^\/checkpoint\/([\w-]+)$/, screen: checkpointScreen },
     { re: /^\/checkpoint\/([\w-]+)\/finish$/, screen: checkpointFinishScreen },
     { re: /^\/grownups$/, screen: grownupsScreen },
+    // Prototype 2 previews (Grownups > Previews). Loaded on demand; nothing in the child's flow leads here.
+    { re: /^\/preview\/tip$/, screen: (...a) => import('./screens/previews.js').then((m) => m.tipPreview(...a)) },
+    { re: /^\/preview\/board$/, screen: (...a) => import('./screens/previews.js').then((m) => m.boardPreview(...a)) },
+    { re: /^\/preview\/gateway$/, screen: (...a) => import('./screens/previews.js').then((m) => m.gatewayPreview(...a)) },
+    { re: /^\/preview\/list$/, screen: (...a) => import('./screens/previews.js').then((m) => m.listPreview(...a)) },
     // Debug routes for development and the smoke test. Loaded on demand and not precached by sw.js.
     { re: /^\/lab$/, screen: (...a) => import('./screens/lab.js').then((m) => m.labScreen(...a)) },
     { re: /^\/glyphs$/, screen: (...a) => import('./screens/glyphs-debug.js').then((m) => m.glyphsDebug(...a)) },

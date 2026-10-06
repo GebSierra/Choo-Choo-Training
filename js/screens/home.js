@@ -146,7 +146,10 @@ function stone(g, i, what, state, onTap, speech, character) {
 
 // Home: the 3D railway when the Grownups switch "Train world" is on (the default) and WebGL works, else this 2D path.
 // The probe's context is handed to the renderer, so Home never holds two. Any failure on the way falls back quietly.
+// preview (prototype 2, Grownups > Previews): { world, mode, onEnter } builds only that world's stops; null for the real Home.
 export async function homeScreen(ctx) {
+  const preview = ctx.preview || null;
+  ctx.preview = null;
   if (ctx.store.settings.trainWorld !== false && !ctx.noTrain) {
     let canvas = null, gl = null, soft = false;
     const opts = (antialias) => ({ antialias, alpha: true, powerPreference: 'low-power' });
@@ -166,7 +169,7 @@ export async function homeScreen(ctx) {
     if (gl) {
       try {
         const m = await import('./home3d.js');
-        return m.home3dScreen(ctx, { canvas, gl, soft });
+        return m.home3dScreen(ctx, { canvas, gl, soft, preview });
       } catch (e) {
         console.warn('train world unavailable, using the 2D path:', e && e.message);
         loseContext(gl);
@@ -174,7 +177,7 @@ export async function homeScreen(ctx) {
       }
     }
   }
-  return mapScreen(ctx);
+  return mapScreen(ctx, preview);
 }
 
 function loseContext(gl) { try { const lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext(); } catch { /* fine */ } }
@@ -186,19 +189,19 @@ export function isSoftware(gl) {
 }
 
 // The 2D path (round 3): a long winding trail of stones that scrolls.
-export function mapScreen(ctx) {
+export function mapScreen(ctx, preview = null) {
   const { store, router, curriculum, speech } = ctx;
   // A level earned since Home was last open (or one replayed from Grownups) shows its banner once (the 2D path has no tunnel or car).
-  const replayId = ctx.replayLevel || null;
-  ctx.replayLevel = null;
-  const due = replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
+  const replayId = preview ? null : ctx.replayLevel || null;
+  if (!preview) ctx.replayLevel = null;
+  const due = preview ? null : replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
   const stars = starBoard(curriculum, store, { hold: due && !replayId && !reduced() ? due.id : null });
   const timers = new Set();
   const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); };
   const total = curriculum.lessons.length;
   const current = store.currentLesson(total);
   // One numbered path: the lessons in order, each checkpoint right after the lesson it follows.
-  const nodes = curriculum.lessons.flatMap((l) => [{ lesson: l }, ...(curriculum.checkpoints || []).filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
+  const nodes = curriculum.lessons.filter((l) => !preview || l.world === preview.world).flatMap((l) => [{ lesson: l }, ...(curriculum.checkpoints || []).filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   const g = mapGeometry(nodes.length);
   const scene = h('div', { class: 'scene', style: { '--H': g.H, '--W': g.W } },
     ...scenery(g),
@@ -230,9 +233,10 @@ export function mapScreen(ctx) {
     }), speech, store.character());
   });
   if (!found) currentIndex = nodes.length - 1;
+  if (preview) currentIndex = preview.mode === 'in' ? 0 : nodes.length - 1; // a previewed world opens at its start (arriving) or its end (leaving)
   stones.forEach((s) => scene.append(s));
   // A station was just finished: the figure rides to the next stone (the simple version of the 3D sequence).
-  const fromStop = finishedStop(store, nodes.map((n) => (n.checkpoint ? (store.isCheckpointDone(n.checkpoint.id) && (store.checkpoint(n.checkpoint.id).completedAt || null)) : (store.isDone(n.lesson.number) && (store.lesson(n.lesson.number).completedAt || null)))).map((d) => (d === false || d === undefined ? false : d)), currentIndex);
+  const fromStop = preview ? -1 : finishedStop(store, nodes.map((n) => (n.checkpoint ? (store.isCheckpointDone(n.checkpoint.id) && (store.checkpoint(n.checkpoint.id).completedAt || null)) : (store.isDone(n.lesson.number) && (store.lesson(n.lesson.number).completedAt || null)))).map((d) => (d === false || d === undefined ? false : d)), currentIndex);
 
   const grown = holdButton({ label: 'Grownups · hold', caption: null, hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
   const top = h('div', { class: 'home-top' }, grown, stars.el);

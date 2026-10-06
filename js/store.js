@@ -8,7 +8,7 @@ const fresh = () => ({
   order: ORDER, // the lesson order this state was saved under (js/order.js)
   lessons: {},
   checkpoints: {}, // bonus review games between lessons, by id: {result, completedAt, unlocked}
-  settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: false, sfx: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {} },
+  settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: false, sfx: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {}, tipsSeen: [] },
   character: cleanCharacter({}), // the child's figure and name (js/character.js): on this device only
   meetDue: true, // the character creator shows once, after the welcome card
   firstRunDone: false,
@@ -23,6 +23,7 @@ export function cleanSettings(s, d) {
   for (const k of ['autoSpeak', 'playSounds', 'sfx', 'fullInstructions', 'trainWorld']) if (typeof s[k] !== 'boolean') out[k] = d[k];
   if (s.voiceURI !== null && typeof s.voiceURI !== 'string') out.voiceURI = d.voiceURI;
   if (!s.seenScripts || typeof s.seenScripts !== 'object' || Array.isArray(s.seenScripts)) out.seenScripts = {};
+  if (!Array.isArray(s.tipsSeen) || !s.tipsSeen.every((x) => Number.isInteger(x))) out.tipsSeen = [];
   return out;
 }
 

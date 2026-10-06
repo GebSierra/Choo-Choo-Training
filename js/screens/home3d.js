@@ -31,15 +31,17 @@ const ARRIVE_MS = 2400, TAP_SLOP = 8;
 const TOOT_LEAD_MS = 500, HOP_MS = 650, SEAT = new THREE.Vector3(-0.4, 0.95, -0.95), SEAT_SCALE = 0.82; // the sequence: toot, hop on, ride, hop off
 const PARTY_BACK = 10.5, BANNER_AT_MS = 1000; // during the party the camera moves back along the train so the new car is seen coupling on; the banner follows a moment later // during the party the camera moves back along the train so the new car is seen coupling on
 const LEVEL_IN_MS = 1600, LEVEL_HOLD_MS = 600, LEVEL_OUT_MS = 1600, LEVEL_PARTY_MS = 2600; // a level celebration: roll into the tunnel, toot, back out, party
+const GATE_BACK = 6.6, GATE_OUT_MS = 3000, GATE_IN_MS = 3400, GATE_PAST = 7.4; // the world gateway: the tunnel before a world's first stop, and how the train rolls
 const ENGINE_AT = 0.7; // the engine's middle stands this far past its stop's middle, so Pip's cab is by the platform
 
 // The stops in order and which one the train is at, by the same rules as the 2D path (js/screens/home.js).
-export function stopsOf(curriculum, store) {
+// worldId (prototype 2): build only that world's lessons and checkpoints; the line is as long as that subset.
+export function stopsOf(curriculum, store, worldId = null) {
   const total = curriculum.lessons.length;
   const current = store.currentLesson(total);
-  const cks = curriculum.checkpoints || [];
+  const cks = (curriculum.checkpoints || []).filter((k) => !worldId || k.world === worldId);
   const pending = cks.find((k) => !store.isCheckpointDone(k.id) && store.isCheckpointUnlocked(k));
-  const nodes = curriculum.lessons.flatMap((l) => [{ lesson: l }, ...cks.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
+  const nodes = curriculum.lessons.filter((l) => !worldId || l.world === worldId).flatMap((l) => [{ lesson: l }, ...cks.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   let currentIndex = -1;
   const stops = nodes.map((n, i) => {
     if (n.checkpoint) {
@@ -57,16 +59,21 @@ export function stopsOf(curriculum, store) {
   return { stops, currentIndex };
 }
 
-export function home3dScreen(ctx, { canvas, gl, soft = false }) {
+// preview (prototype 2, the world gateway): { world, mode: 'out' | 'in', onEnter }. It builds only that world's stops. 'out': the
+// train waits at the last stop, rolls into a tunnel at the end of the line and calls onEnter when it is inside. 'in': the train
+// waits inside a tunnel before the first stop and rolls out when root.gatewayGo() is called. A preview never writes the store.
+export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null }) {
   const { store, router, curriculum, speech } = ctx;
   const bag = makeBag();
-  const { stops, currentIndex } = stopsOf(curriculum, store);
+  const stopsInfo = stopsOf(curriculum, store, preview && preview.world);
+  const { stops } = stopsInfo;
+  const currentIndex = preview ? (preview.mode === 'in' ? 0 : stops.length - 1) : stopsInfo.currentIndex;
   // A level earned since Home was last open (or one the parent replays from Grownups) celebrates once, after the arrival.
-  const replayId = ctx.replayLevel || null;
-  ctx.replayLevel = null;
-  const due = replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
+  const replayId = preview ? null : ctx.replayLevel || null;
+  if (!preview) ctx.replayLevel = null;
+  const due = preview ? null : replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
   const earnedNow = earnedLevels(curriculum, store);
-  const specialKinds = carsOf(due && !earnedNow.includes(due) ? [...earnedNow, due] : earnedNow);
+  const specialKinds = preview ? [] : carsOf(due && !earnedNow.includes(due) ? [...earnedNow, due] : earnedNow);
   const line = makeLine(stops.length);
   const stopS = stops.map((_, i) => line.stop(i));
   const renderer = createRenderer(canvas, gl, soft);
@@ -75,7 +82,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   const scenery = buildScenery(bag, line, stopS);
   scene.add(scenery.group, scenery.clouds);
   const built = stops.map((s, i) => { const b = buildStop(bag, line, s, stopS[i], s.state); scene.add(b.group); return b; });
-  const doneLessons = curriculum.lessons.filter((l) => store.isDone(l.number));
+  const doneLessons = curriculum.lessons.filter((l) => store.isDone(l.number) && (!preview || l.world === preview.world));
   const cur0 = built[currentIndex];
   if (cur0 && stops[currentIndex].state === 'current') cur0.faceMat.emissiveIntensity = 0.22; // a steady soft glow (no idle animation)
   // the child's figure waits on the platform of the current stop (it adds no frames: it moves only when it waves)
@@ -89,7 +96,9 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   const stillNow = reduced();
   const dueCar = due ? train.specialGroup(due.car) : null;
   if (dueCar && !stillNow) dueCar.visible = false; // it rolls up and couples on during the party
-  const tunnel = due && !stillNow ? buildTunnel(bag, line, stopS[currentIndex] + TUNNEL_AT) : null;
+  const tunnel = preview
+    ? buildTunnel(bag, line, preview.mode === 'in' ? stopS[0] - GATE_BACK : stopS[stops.length - 1] + TUNNEL_AT, preview.mode === 'in')
+    : due && !stillNow ? buildTunnel(bag, line, stopS[currentIndex] + TUNNEL_AT) : null;
   if (tunnel) scene.add(tunnel.group);
   const stars = starBoard(curriculum, store, { hold: due && !replayId && !stillNow ? due.id : null });
 
@@ -99,20 +108,21 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   let prevLesson = -1;
   for (let i = currentIndex - 1; i >= 0; i--) if (stops[i].kind === 'lesson') { prevLesson = i; break; }
   const finished = finishedStop(store, stops.map((s) => (s.state === 'done' ? (s.kind === 'lesson' ? store.lesson(s.number).completedAt : store.checkpoint(s.checkpoint.id).completedAt) || null : false)), currentIndex);
-  const arriving = (lastAt !== null && lastAt < currentIndex && prevLesson >= 0) || finished >= 0;
+  const arriving = !preview && (lastAt !== null && lastAt < currentIndex && prevLesson >= 0) || finished >= 0;
   const fromIndex = finished >= 0 ? finished : arriving ? Math.max(lastAt, prevLesson) : currentIndex;
-  if (settings.trainAt !== currentIndex) store.setSetting('trainAt', currentIndex);
+  if (!preview && settings.trainAt !== currentIndex) store.setSetting('trainAt', currentIndex);
   const restS = (i) => stopS[i] + ENGINE_AT;
-  train.place(restS(fromIndex));
+  const gateStartS = stopS[0] - GATE_BACK + 0.3; // rolling out of a tunnel: the engine starts inside the hill
+  train.place(preview && preview.mode === 'in' && !stillNow ? gateStartS : restS(fromIndex));
   if (arriving && !reduced()) kidTo(fromIndex); // the figure waits where the train is, and rides from there
 
   // ---- the camera ----
-  const min = stopS[0] - 2, max = stopS[stopS.length - 1] + 1;
+  const min = stopS[0] - (preview && preview.mode === 'in' ? 9 : 2), max = stopS[stopS.length - 1] + 1;
   const rig = createRig(camera, line, { min, max });
-  const firstVisit = !settings.trainIntroDone;
+  const firstVisit = !preview && !settings.trainIntroDone;
   if (firstVisit) store.setSetting('trainIntroDone', true);
   const glideIn = firstVisit && currentIndex > 0 && !reduced();
-  rig.jump(glideIn ? min : stopS[arriving ? fromIndex : currentIndex]);
+  rig.jump(glideIn ? min : preview && preview.mode === 'in' && !stillNow ? gateStartS - ENGINE_AT : stopS[arriving ? fromIndex : currentIndex]);
 
   // ---- the overlay: the real buttons ----
   let downAt = null, dragged = false, lastMove = 0;
@@ -147,6 +157,12 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   debug.level = { id: due ? due.id : null, phase: '' };
   debug.specials = train.specials;
   debug.tunnel = !!tunnel;
+  // which world is built and how many stops it has (prototype 2); the real Home builds every lesson
+  debug.world = preview ? preview.world : null;
+  debug.stopCount = stops.length;
+  debug.lessonCount = stops.filter((x) => x.kind === 'lesson').length;
+  debug.checkpointCount = stops.filter((x) => x.kind === 'depot').length;
+  debug.gate = { mode: preview ? preview.mode : null, phase: '' };
   // Brings stop i into view (keyboard focus does the same for a stop that is on screen); tests use it to reach a stop.
   debug.show = (i) => { rig.jump(stopS[Math.max(0, Math.min(stopS.length - 1, i))]); render(); wake(); };
   debug.kid = { get index() { return kidIndex; }, get waving() { return kid.waving; }, get phase() { return seq ? seq.phase : ''; } };
@@ -226,7 +242,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
 
   // ---- the level celebration: the train rolls into the tunnel, toots, backs out, then the party (Pip dances, the banner,
   // confetti, the new car couples on and the star lands on the board). Drawn only while it plays, then nothing again. ----
-  let lvl = null, lvlTimer = 0;
+  let lvl = null, lvlTimer = 0, gateTimer = 0;
   const levelIndex = () => builtLevels(curriculum).findIndex((v) => v.id === due.id);
   const levelAfter = (ms) => {
     if (!due || disposed) return;
@@ -274,11 +290,45 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
     }
   }
 
+  // ---- the world gateway (preview): out, the train rolls into the tunnel at the end of the line; in, it rolls out of one at the start ----
+  let gate = null;
+  function startGate(mode) {
+    if (disposed || gate) return;
+    const t = (performance.now() - t0) / 1000;
+    if (mode === 'in') {
+      if (still) { train.place(restS(0)); rig.jump(stopS[0]); debug.gate.phase = 'done'; render(); return; }
+      gate = { mode, t0: performance.now(), lastPuff: -1, from: gateStartS, to: restS(0), ms: GATE_IN_MS, told: true };
+      rig.follow(() => (gate ? train.at - ENGINE_AT : null));
+    } else {
+      if (still) { debug.gate.phase = 'entered'; render(); if (preview.onEnter) preview.onEnter(); return; }
+      gate = { mode, t0: performance.now(), lastPuff: -1, from: restS(currentIndex), to: restS(currentIndex) + GATE_PAST, ms: GATE_OUT_MS, told: false };
+      rig.glideTo(stopS[currentIndex] + 3, GATE_OUT_MS, performance.now());
+    }
+    debug.gate.phase = mode;
+    sfx.play('toot'); train.puff(t, true); train.pip.wave(true, t); waveUntil = t + 1.2;
+    wake();
+  }
+  function stepGate(now, t) {
+    const k = Math.min(1, (now - gate.t0) / gate.ms);
+    const s = gate.from + (gate.to - gate.from) * ease3(k);
+    train.roll(s - train.at); train.place(s, t);
+    if (t - gate.lastPuff > 0.35 && k < 1) { train.puff(t); gate.lastPuff = t; }
+    if (!gate.told && k >= 0.55) { gate.told = true; debug.gate.phase = 'entered'; if (preview.onEnter) preview.onEnter(); }
+    if (k >= 1) {
+      const mode = gate.mode;
+      gate = null;
+      debug.gate.phase = mode === 'in' ? 'done' : 'entered';
+      if (mode === 'in') arrived(t);
+    }
+  }
+  root.gatewayGo = () => startGate('in');
+
   function step(dt, now) {
     const t = (now - t0) / 1000;
     let busy = rig.update(dt, now);
     if (seq) { busy = true; stepSeq(now, t); }
     if (lvl) { busy = true; stepLevel(now, t); }
+    if (gate) { busy = true; stepGate(now, t); }
     if (arrival) {
       const k = Math.min(1, Math.max(0, (now - arrival.start) / ARRIVE_MS));
       const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
@@ -395,6 +445,9 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
         wake();
       }, 600);
     }
+  } else if (preview) {
+    // the gateway: leaving a world starts by itself; arriving waits for gatewayGo() (the loading card is still showing)
+    if (preview.mode === 'out') { if (!still) { train.pip.wave(true, 0); waveUntil = 1.4; } gateTimer = setTimeout(() => startGate('out'), still ? 900 : 1100); }
   } else if (!still) {
     // Pip waves hello when Home opens
     train.pip.wave(true, 0); waveUntil = 2.2;
@@ -405,7 +458,8 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
 
   root.cleanup = () => {
     disposed = true;
-    clearTimeout(lvlTimer);
+    clearTimeout(lvlTimer); clearTimeout(gateTimer);
+    gate = null;
     debug.disposed = true;
     cancelAnimationFrame(raf);
     grown.cleanup && grown.cleanup();
