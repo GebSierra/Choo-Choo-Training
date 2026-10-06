@@ -55,10 +55,16 @@ export function buildPip(bag) {
   for (const x of [-0.32, 0.32]) { const e = sph(0.08, PIP.skinShade, 12); e.position.set(x, -0.02, 0); head.add(e); }
   const eyes = new THREE.Group();
   head.add(eyes);
-  for (const x of [-0.12, 0.12]) {
-    const e = sph(0.06, PIP.eye, 14); e.scale.set(0.85, 1.05, 0.6); e.position.set(x, 0.0, 0.29); eyes.add(e);
-    const glint = new THREE.Mesh(bag.geo('glint', () => new THREE.SphereGeometry(0.02, 8, 6)), bag.paint('#ffffff', { emissive: '#ffffff', emissiveIntensity: 0.6 }));
-    glint.position.set(x + 0.022, 0.028, 0.33); eyes.add(glint);
+  // big eyes, as on the 2D Pip: dark, a warm brown iris, a pupil and two sparkles
+  const glintMat = bag.paint('#ffffff', { emissive: '#ffffff', emissiveIntensity: 0.6 });
+  for (const x of [-0.125, 0.125]) {
+    const e = sph(0.078, PIP.eye, 16); e.scale.set(0.85, 1.05, 0.55); e.position.set(x, -0.005, 0.285); eyes.add(e);
+    const iris = sph(0.052, '#5A3626', 14); iris.scale.set(0.85, 1.05, 0.3); iris.position.set(x + 0.004, -0.018, 0.316); eyes.add(iris);
+    const pupil = sph(0.03, PIP.eye, 10); pupil.scale.set(0.85, 1.05, 0.3); pupil.position.set(x + 0.004, -0.018, 0.324); eyes.add(pupil);
+    const glint = new THREE.Mesh(bag.geo('glint', () => new THREE.SphereGeometry(0.026, 8, 6)), glintMat);
+    glint.position.set(x + 0.026, 0.034, 0.326); eyes.add(glint);
+    const glint2 = new THREE.Mesh(bag.geo('glint2', () => new THREE.SphereGeometry(0.012, 6, 5)), glintMat);
+    glint2.position.set(x - 0.026, -0.04, 0.326); eyes.add(glint2);
   }
   for (const x of [-0.2, 0.2]) { const c = sph(0.06, PIP.cheek, 12); c.scale.set(1.1, 0.7, 0.3); c.position.set(x, -0.11, 0.27); c.material = bag.paint(PIP.cheek, { transparent: true, opacity: 0.75 }); head.add(c); }
   const nose = sph(0.035, PIP.skinShade, 10); nose.position.set(0, -0.07, 0.33); head.add(nose);
@@ -74,6 +80,11 @@ export function buildPip(bag) {
   const badge = cylm(0.07, 0.07, 0.02, PIP.badge, 16); badge.rotation.x = Math.PI / 2 - 0.5; badge.position.set(0, 0.14, 0.31);
   badge.material = bag.paint(PIP.badge, { emissive: '#B07A10', emissiveIntensity: 0.2, roughness: 0.4 });
   cap.add(crown, band, brim, badge);
+  // a little engine on the badge (boiler, cab, chimney), and a button on top of the cap
+  const engine = new THREE.Group(); engine.rotation.x = -0.5; engine.position.set(0, 0.14, 0.322); cap.add(engine);
+  const ebox = (w, h, x, y) => { const m = new THREE.Mesh(bag.geo(`pe${w},${h}`, () => new THREE.BoxGeometry(w, h, 0.012)), mat(PIP.cap)); m.position.set(x, y, 0); engine.add(m); };
+  ebox(0.06, 0.03, -0.012, -0.004); ebox(0.034, 0.056, 0.03, 0.008); ebox(0.014, 0.026, -0.028, 0.024);
+  const top = sph(0.035, PIP.capLight, 10); top.position.set(0, 0.26, -0.04); cap.add(top);
   // two eyebrows and a tuft of hair at each temple, mirrored (as on the 2D Pip)
   for (const side of [-1, 1]) {
     const brow = new THREE.Mesh(bag.geo('brow', () => new THREE.CapsuleGeometry(0.016, 0.07, 3, 8)), mat(PIP.hair));

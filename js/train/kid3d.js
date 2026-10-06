@@ -70,12 +70,20 @@ export function buildKid(bag, character = {}) {
   group.add(head);
   head.add(sph(0.27, skin, 26));
   for (const x of [-0.27, 0.27]) head.add(place(sph(0.06, skin, 10), x, -0.02, 0));
-  for (const x of [-0.095, 0.095]) {
-    const e = sph(0.045, '#2A1E1A', 12); e.scale.set(0.85, 1.1, 0.6); head.add(place(e, x, 0.0, 0.245));
-    const glint = new THREE.Mesh(bag.geo('kglint', () => new THREE.SphereGeometry(0.016, 8, 6)), bag.paint('#ffffff', { emissive: '#ffffff', emissiveIntensity: 0.6 }));
-    head.add(place(glint, x + 0.018, 0.022, 0.275));
-    const c = sph(0.05, '#F28B82', 10); c.scale.set(1.1, 0.7, 0.3); c.material = bag.paint('#F28B82', { transparent: true, opacity: 0.7 }); head.add(place(c, x * 1.9, -0.09, 0.225));
+  // big eyes, as on the 2D figure: dark, a warm brown iris, a pupil and two sparkles; eyebrows in the hair colour; a nose
+  const glintMat = bag.paint('#ffffff', { emissive: '#ffffff', emissiveIntensity: 0.6 });
+  const browC = mixHex(hairC, '#000000', 0.15), skinD = mixHex(skin, '#000000', 0.14);
+  for (const x of [-0.1, 0.1]) {
+    const e = sph(0.062, '#2A1E1A', 14); e.scale.set(0.85, 1.08, 0.55); head.add(place(e, x, 0.0, 0.235));
+    const iris = sph(0.042, '#4A3024', 12); iris.scale.set(0.85, 1.05, 0.3); head.add(place(iris, x + 0.003, -0.012, 0.26));
+    const pupil = sph(0.024, '#2A1E1A', 10); pupil.scale.set(0.85, 1.05, 0.3); head.add(place(pupil, x + 0.003, -0.012, 0.266));
+    head.add(place(new THREE.Mesh(bag.geo('kglint', () => new THREE.SphereGeometry(0.021, 8, 6)), glintMat), x + 0.022, 0.03, 0.268));
+    head.add(place(new THREE.Mesh(bag.geo('kglint2', () => new THREE.SphereGeometry(0.01, 6, 5)), glintMat), x - 0.022, -0.034, 0.268));
+    const brow = new THREE.Mesh(bag.geo('kbrow', () => new THREE.CapsuleGeometry(0.013, 0.06, 3, 8)), mat(browC));
+    brow.rotation.z = Math.PI / 2 - Math.sign(x) * 0.15; head.add(place(brow, x, 0.095, 0.245));
+    const c = sph(0.05, '#F28B82', 10); c.scale.set(1.1, 0.7, 0.3); c.material = bag.paint('#F28B82', { transparent: true, opacity: 0.7 }); head.add(place(c, x * 1.85, -0.09, 0.225));
   }
+  const nose = sph(0.026, skinD, 10); head.add(place(nose, 0, -0.06, 0.268));
   const mouth = new THREE.Mesh(bag.geo('kmouth', () => new THREE.TorusGeometry(0.05, 0.012, 6, 14, Math.PI)), mat('#7A3B2E'));
   mouth.rotation.z = Math.PI; head.add(place(mouth, 0, -0.12, 0.25));
 
