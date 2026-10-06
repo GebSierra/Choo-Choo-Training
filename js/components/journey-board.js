@@ -63,7 +63,15 @@ export function journeyBoard({ host, curriculum, store, onClose }) {
   // The current station is brought to the middle of the track (the track alone scrolls, not the page).
   // (a screen is attached just after it is built, so the centring runs again a moment later, when the track has a width)
   const here = track.querySelector('.is-here');
-  const centre = () => { if (here && track.clientWidth) track.scrollLeft = Math.max(0, here.offsetLeft - (track.clientWidth - here.offsetWidth) / 2); };
+  // It always comes to rest on a station's left edge, never part-way through one (a half-hidden first letter looked clipped).
+  const centre = () => {
+    if (!here || !track.clientWidth) return;
+    const pad = parseFloat(getComputedStyle(track).paddingLeft) || 0, want = Math.min(here.offsetLeft - (track.clientWidth - here.offsetWidth) / 2, track.scrollWidth - track.clientWidth);
+    const list = [...stations];
+    let i = Math.max(0, list.findLastIndex((x) => x.offsetLeft - pad <= want + 1));
+    while (i < list.indexOf(here) && here.offsetLeft + here.offsetWidth > list[i].offsetLeft - pad + track.clientWidth) i++; // keep the current station in view
+    track.scrollLeft = Math.max(0, list[i].offsetLeft - pad);
+  };
   centre();
   setTimeout(centre, 0);
   if (!still) {

@@ -130,8 +130,8 @@ for (const vp of VIEWPORTS) {
 const LESSONS = SAMPLE_LESSONS; // lessons 1 to 3, the first new one, a middle one and the last: all their tasks are walked
 const TASK_COUNTS = Object.fromEntries(LESSONS.map((n) => [n, tasksFor(CUR.lessons[n - 1]).length]));
 const TOTAL_TASKS = Object.values(TASK_COUNTS).reduce((a, b) => a + b, 0);
-const ALL_OPEN = SEED(JSON.parse(DONE_JSON));
-const ALL_OPEN_SOUNDS = SEED(JSON.parse(DONE_JSON), { playSounds: true });
+const ALL_OPEN = SEED(JSON.parse(DONE_JSON), { playSounds: false, migrated1912: true }); // the quiet path: the grown up says every sound
+const ALL_OPEN_SOUNDS = SEED(JSON.parse(DONE_JSON), { playSounds: true, migrated1912: true });
 const allSpoken = [];
 for (const vp of VIEWPORTS) {
   const { ctx, page, errors } = await newPage(browser, vp);
@@ -295,7 +295,7 @@ await sackGrownupsChecks({ browser, url, ok });
 {
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
   await page.addInitScript(SPEECH_STUB);
-  await page.addInitScript(SEED({}));
+  await page.addInitScript(SEED({}, { playSounds: false, migrated1912: true }));
   await ctx.route(/youtu(\.be|be\.com)/, (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>video</title>' }));
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone.is-current');
@@ -406,18 +406,16 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings);
   ok(saved.voiceURI === 'g-us' && saved.rate === 1.05 && saved.autoSpeak === false, 'voice, rate and auto-speak persist ' + JSON.stringify(saved));
   // "The thinking behind this app", "Recorded sounds" and "All the sounds" start closed (so Reset is within reach); a tap opens one, and "Test voice" sits right under Speed.
-  const folds = page.locator('.gu-fold');
+  const folds = page.locator('.gu-fold:not(.gu-world-head)');
   ok((await folds.count()) === 5 && (await folds.evaluateAll((l) => l.every((b) => b.getAttribute('aria-expanded') === 'false' && document.getElementById(b.getAttribute('aria-controls')).hidden))), 'Grownups: the four reference cards and the Previews fold start closed');
   ok(await page.evaluate(() => { const r = document.querySelector('[aria-label="Speaking speed"]').closest('label'); return r.nextElementSibling && r.nextElementSibling.textContent.includes('Test voice'); }), 'Grownups: Test voice sits directly under Speed');
   ok((await page.locator('[aria-label="Play sounds"]').count()) === 1, 'Grownups: the sound-effects switch is labelled "Play sounds"');
   const recorded = page.locator('.gu-fold', { hasText: 'Recorded sounds' });
   await recorded.click();
-  ok((await recorded.getAttribute('aria-expanded')) === 'true' && await page.locator('[aria-label="Play recorded letter sounds"]').isVisible(), 'Grownups: a tap on "Recorded sounds" opens it');
-  ok(saved.playSounds === false && (await page.getAttribute('[aria-label="Play recorded letter sounds"]', 'aria-checked')) === 'false', 'Grownups: Play recorded letter sounds is off by default');
-  await page.click('[aria-label="Play recorded letter sounds"]');
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.playSounds)) === true, 'Grownups: the switch turns playSounds on');
-  await page.click('[aria-label="Play recorded letter sounds"]');
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.playSounds)) === false, 'Grownups: the switch turns playSounds off again');
+  ok((await recorded.getAttribute('aria-expanded')) === 'true' && (await page.locator('.gu-pill').first().isVisible()), 'Grownups: a tap on "Recorded sounds" opens it');
+  ok(saved.playSounds === true && saved.trainWorld === true && saved.migrated1912 === true, 'Grownups: recorded sounds and the railway are on by default, with the migration flag set');
+  ok((await page.locator('[aria-label="Play recorded letter sounds"], [aria-label="Train world"]').count()) === 0, 'Grownups: no Play recorded letter sounds switch and no Train world switch');
+  ok(!/Play recorded letter sounds|Train world/.test(await page.locator('.grownups').innerText()), 'Grownups: no text about those switches');
   await page.evaluate(() => window.__spoken.length = 0);
   await page.click('text=Test voice');
   await page.waitForTimeout(300);

@@ -123,7 +123,7 @@ export async function levelChecks({ browser, url, ok }) {
   }
   {
     // 5. 2D
-    const { ctx, page, errors } = await openHome(browser, url, vp, six({ trainWorld: false }));
+    const { ctx, page, errors } = await openHome(browser, url, vp, six({ trainWorld: false, migrated1912: true }));
     await page.waitForSelector('.map-scroll');
     await page.evaluate(async () => (await import('/js/sfx.js')).sfx.unlock());
     ok(await until(page, () => !!document.querySelector('.level-banner .car-icon'), null, 12000), '2D: after the ride the banner shows the new car');

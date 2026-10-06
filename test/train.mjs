@@ -329,7 +329,7 @@ export async function sequenceChecks({ browser, url, ok, shot }) {
   }
   {
     // the 2D path: a toot, the figure slides to the next stone, smoke, and the real figure is back
-    const { ctx, page, errors } = await openHome(browser, url, vp, justDone({ trainWorld: false }));
+    const { ctx, page, errors } = await openHome(browser, url, vp, justDone({ trainWorld: false, migrated1912: true }));
     await page.waitForSelector('.map-scroll');
     await page.evaluate(async () => (await import('/js/sfx.js')).sfx.unlock());
     ok(await until(page, () => !!document.querySelector('.seq-kid'), null, 6000), '2D sequence: the figure sets off along the path');
@@ -378,7 +378,7 @@ export async function lifeChecks({ browser, url, ok }) {
   }
   // No WebGL: the 2D map, with its stones, and no error.
   for (const [why, opts] of [['no WebGL', { init: [NO_WEBGL] }], ['Train world off', {}]]) {
-    const st = why === 'Train world off' ? state(3, { trainWorld: false }) : state(3);
+    const st = why === 'Train world off' ? state(3, { trainWorld: false, migrated1912: true }) : state(3);
     const { ctx, page, errors } = await openHome(browser, url, vp, st, opts);
     await page.waitForSelector('.stone', { timeout: 10000 });
     await page.waitForTimeout(600);
@@ -390,7 +390,7 @@ export async function lifeChecks({ browser, url, ok }) {
     ok(errors.length === 0, `${why}: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
-  // The Grownups switch is there and turns the train world off and on.
+  // Grownups has no Train world switch any more (the 2D map is only the fallback for phones without WebGL).
   {
     const { ctx, page, errors } = await openHome(browser, url, VIEWPORTS[0], state(3));
     await page.waitForSelector('.pill-hold');
@@ -398,13 +398,7 @@ export async function lifeChecks({ browser, url, ok }) {
     const hold = await page.locator('.pill-hold').boundingBox();
     await page.mouse.move(hold.x + 20, hold.y + 20); await page.mouse.down(); await page.waitForTimeout(2300); await page.mouse.up();
     await page.waitForSelector('.grownups');
-    const sw = page.locator('[role="switch"][aria-label="Train world"]');
-    ok((await sw.count()) === 1 && (await sw.getAttribute('aria-checked')) === 'true', 'Grownups: a "Train world" switch, on by default');
-    await sw.click();
-    ok((await sw.getAttribute('aria-checked')) === 'false' && (await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainWorld)) === false, 'Grownups: the switch turns it off and is saved');
-    await page.locator('.gu-head .icon-btn').click();
-    await page.waitForSelector('.map-scroll');
-    ok((await page.locator('.home3d').count()) === 0, 'Grownups: with the switch off, Home is the 2D path');
+    ok((await page.locator('[aria-label="Train world"], [aria-label="Play recorded letter sounds"]').count()) === 0, 'Grownups: no Train world switch and no recorded-sounds switch');
     ok(errors.length === 0, `Grownups switch: errors ${errors.join(' | ')}`);
     await ctx.close();
   }

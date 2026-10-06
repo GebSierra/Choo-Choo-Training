@@ -67,5 +67,15 @@ s = open({ ...old({ order: ORDER }), levels: { seen: 2, earned: { L1: '2026-10-0
 s.resetAll();
 check(s.levels().seen === null && Object.keys(s.levels().earned).length === 0 && JSON.parse(mem.get('reading.v1')).levels.seen === null, 'levels: resetAll clears them');
 
+// v1.9.12: the Train world and recorded sounds switches are gone; a saved "off" turns on once.
+s = open({ ...old({ order: ORDER }), settings: { trainWorld: false, playSounds: false } });
+check(s.settings.trainWorld === true && s.settings.playSounds === true && s.settings.migrated1912 === true && JSON.parse(mem.get('reading.v1')).settings.migrated1912 === true, 'migration: saved off becomes on and the flag is saved');
+s = open({ ...old({ order: ORDER }), settings: { trainWorld: false, playSounds: false, migrated1912: true } });
+check(s.settings.trainWorld === false && s.settings.playSounds === false, 'migration: with the flag set it never runs again (tests can seed the 2D map)');
+s = open({ ...old({ order: ORDER }), settings: { playSounds: 'no', trainWorld: 0 } });
+check(s.settings.trainWorld === true && s.settings.playSounds === true && s.settings.migrated1912 === true, 'migration: wrong types come out on');
+mem.clear(); s = createStore();
+check(s.settings.trainWorld === true && s.settings.playSounds === true && s.settings.migrated1912 === true, 'migration: a new install is on, flag set');
+
 console.log(`store: ${n - bad}/${n} checks passed`);
 process.exit(bad ? 1 : 0);

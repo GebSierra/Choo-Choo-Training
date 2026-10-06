@@ -95,7 +95,7 @@ export async function signalChecks({ browser, url, ok, CUR }) {
   }
   // 4. Prompt path.
   {
-    const { ctx, page } = await open(browser, url, vp, { n: 2, type: 'signals', games: ['signals'], settings: { playSounds: false } });
+    const { ctx, page } = await open(browser, url, vp, { n: 2, type: 'signals', games: ['signals'], settings: { playSounds: false, migrated1912: true } });
     await page.waitForSelector('.signal');
     await unlock(page);
     await page.waitForSelector('.say-prompt:not([hidden])', { timeout: 3000 });
@@ -265,7 +265,7 @@ export async function wagonChecks({ browser, url, ok, CUR }) {
   }
   // Prompt path.
   {
-    const { ctx, page } = await open(browser, url, vp, { n: 1, type: 'wagons', games: ['wagons'], settings: { playSounds: false } });
+    const { ctx, page } = await open(browser, url, vp, { n: 1, type: 'wagons', games: ['wagons'], settings: { playSounds: false, migrated1912: true } });
     await page.waitForSelector('.parade-wagon');
     await unlock(page);
     await page.waitForSelector('.say-prompt:not([hidden])', { timeout: 3000 });
@@ -418,7 +418,7 @@ export async function boardChecks({ browser, url, ok }) {
   }
   // Prompt path, wrong and right taps through four words.
   {
-    const { ctx, page, errors } = await open(browser, url, vp, { n: 5, type: 'board', games: ['board'], settings: { playSounds: false } });
+    const { ctx, page, errors } = await open(browser, url, vp, { n: 5, type: 'board', games: ['board'], settings: { playSounds: false, migrated1912: true } });
     await page.waitForSelector('.flap-tile');
     await unlock(page);
     await page.waitForSelector('.say-prompt:not([hidden])', { timeout: 3000 });
@@ -580,7 +580,7 @@ const SHOT_VPS = [{ name: '390x844', width: 390, height: 844, deviceScaleFactor:
 export async function screenshots({ browser, url }) {
   for (const vp of SHOT_VPS) {
     for (const g of SHOT_GAMES) {
-      const { ctx, page } = await open(browser, url, vp, { n: g.n, type: g.type, games: [g.type], settings: { playSounds: false } });
+      const { ctx, page } = await open(browser, url, vp, { n: g.n, type: g.type, games: [g.type], settings: { playSounds: false, migrated1912: true } });
       await page.waitForSelector(g.ready);
       await unlock(page);
       await page.waitForTimeout(1500);

@@ -19,7 +19,7 @@ export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA 
 export const WHISTLE_CREDIT = 'The train whistle sound is a toy train whistle from Pixabay (Pixabay licence: free to use in apps, no credit required).';
 
 // The screens the owner can try before they go live (prototype 2): route key and button label.
-const PREVIEWS = [['tip', 'Did you know? card'], ['board', 'Journey board'], ['gateway', 'World gateway'], ['list', 'Lessons by world'], ['proto-f', 'New lesson: f (eight steps)']];
+const PREVIEWS = [['tip', 'Did you know? card'], ['board', 'Journey board'], ['gateway', 'World gateway'], ['proto-f', 'New lesson: f (eight steps)']];
 
 // Parent area. Reached only through the hold gate on Home (ctx.gate), and expires after ten minutes.
 const folds = {}; // which reference cards are open, for this page session only
@@ -30,8 +30,8 @@ export function grownupsScreen(ctx) {
   ctx.guOpenedAt = ctx.gate.openedAt; // the previews send the grown-up back here, within the same ten minutes
   ctx.gate = null; // one visit per hold: Back then history.back() cannot re-enter
 
-  // ---- lessons and checkpoints (js/components/lesson-list.js, shared with the grouped preview) ----
-  const lessonsBox = lessonList({ store, curriculum }).el;
+  // ---- lessons and checkpoints, grouped by world then unit, only the current world open (js/components/lesson-list.js) ----
+  const lessonsBox = lessonList({ store, curriculum, grouped: true }).el;
 
   // ---- reset ----
   const resetBox = h('div', { class: 'gu-reset' });
@@ -61,7 +61,6 @@ export function grownupsScreen(ctx) {
   const rateOut = h('output', {}, `${Number(store.settings.rate).toFixed(2)}`);
   const rate = h('input', { type: 'range', min: 0.7, max: 1.1, step: 0.05, value: store.settings.rate, 'aria-label': 'Speaking speed', class: 'gu-range', oninput: () => { store.setSetting('rate', Number(rate.value)); rateOut.textContent = Number(rate.value).toFixed(2); } });
   const toggle = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(store.settings.autoSpeak), 'aria-label': 'Speak automatically when a task opens', onclick: () => { const v = !store.settings.autoSpeak; store.setSetting('autoSpeak', v); toggle.setAttribute('aria-checked', String(v)); } }, h('i'));
-  const soundsSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(!!store.settings.playSounds), 'aria-label': 'Play recorded letter sounds', onclick: () => { const v = !store.settings.playSounds; store.setSetting('playSounds', v); soundsSwitch.setAttribute('aria-checked', String(v)); } }, h('i'));
   const fullSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(!!store.settings.fullInstructions), 'aria-label': 'Always show full instructions', onclick: () => { const v = !store.settings.fullInstructions; store.setSetting('fullInstructions', v); fullSwitch.setAttribute('aria-checked', String(v)); } }, h('i'));
   const test = h('button', { class: 'btn small', type: 'button', onclick: () => speech.say([{ tts: 'moon, apple, sun' }]) }, icon('speaker', 20), 'Test voice');
 
@@ -75,10 +74,6 @@ export function grownupsScreen(ctx) {
   // ---- the theme song ----
   const musicOn = () => store.settings.music !== false;
   const musicSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(musicOn()), 'aria-label': 'Music', onclick: () => { store.setSetting('music', !musicOn()); musicSwitch.setAttribute('aria-checked', String(musicOn())); } }, h('i'));
-
-  // ---- the train world ----
-  const trainOn = () => store.settings.trainWorld !== false;
-  const trainSwitch = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(trainOn()), 'aria-label': 'Train world', onclick: () => { store.setSetting('trainWorld', !trainOn()); trainSwitch.setAttribute('aria-checked', String(trainOn())); } }, h('i'));
 
   // ---- clips ----
   const clipList = h('div', { class: 'gu-list' });
@@ -117,7 +112,7 @@ export function grownupsScreen(ctx) {
   const root = h('div', { class: 'grownups' },
     h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to the path', onclick: () => router.go('/home') }, icon('back', 28)), h('h1', {}, 'Grownups')),
     h('div', { class: 'gu-body' },
-      sec('Lessons', resetBox, lessonsBox), // Reset first: with seventeen rows below it, it would be buried at the bottom
+      sec('Lessons', resetBox), lessonsBox, // Reset first: with the lessons below it, it would be buried at the bottom
       sec('Your child', picker,
         h('p', { class: 'gu-note' }, "The name is used only inside the stories on this device. It is never sent anywhere and never spoken by the phone's voice.")),
       sec('Voice', h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate), test,
@@ -129,10 +124,8 @@ export function grownupsScreen(ctx) {
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Music'), musicSwitch),
         h('p', { class: 'gu-note' }, 'The theme song plays once when the railway opens.'),
         h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a train at its station, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),
-      sec('Home screen', h('div', { class: 'gu-field inline' }, h('span', {}, 'Train world'), trainSwitch),
-        h('p', { class: 'gu-note' }, 'On: the lessons are stations on a little 3D railway, and the train grows one wagon for each lesson done. Off: the simple flat path. Turn it off if the railway looks wrong or runs slowly on this phone.')),
       fold('The thinking behind this app', ...WELCOME.slice(1).flatMap((pg) => [h('h3', { class: 'gu-h3' }, pg.title), ...pg.body.map((t) => h('p', { class: 'gu-para' }, t))])),
-      fold('Recorded sounds', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play recorded letter sounds'), soundsSwitch), h('p', { class: 'gu-note' }, 'Off: your grown up says the sounds.'), clipList, h('p', { class: 'gu-note' }, 'When the switch is on, isolated sounds play from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT), h('p', { class: 'gu-credit' }, WHISTLE_CREDIT)),
+      fold('Recorded sounds', clipList, h('p', { class: 'gu-note' }, 'Isolated sounds play from recordings, never from the phone voice. A sound with no recording shows a line for you to say instead ("Say: mmm"). To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT), h('p', { class: 'gu-credit' }, WHISTLE_CREDIT)),
       fold('Levels', h('p', { class: 'gu-note' }, 'Each level adds a special car to the train and a gold star.'), h('div', { class: 'gu-list' }, ...levelRows)),
       fold('All the sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
       sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.playlistUrl); } }, icon('external', 20), 'Sound story playlist'),

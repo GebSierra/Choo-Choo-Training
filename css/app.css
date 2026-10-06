@@ -1210,8 +1210,8 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .jb-world { min-width: 0; margin: 28px 0 auto; padding: 16px 10px 18px; border-radius: 28px; background: #fff; border-top: 10px solid var(--wc); box-shadow: var(--shadow); }
 .jb-world-n { margin: 0; text-align: center; font-weight: 700; color: var(--muted); }
 .jb-world-name { margin: 0 0 4px; text-align: center; font-size: 26px; font-weight: 800; }
-.jb-track { position: relative; list-style: none; margin: 0; padding: 66px 4px 6px; display: flex; overflow-x: auto; scroll-snap-type: x proximity; }
-.jb-stn { position: relative; flex: 0 0 auto; min-width: 104px; padding: 0 6px; box-sizing: border-box; display: grid; justify-items: center; align-content: start; gap: 6px; scroll-snap-align: center; }
+.jb-track { position: relative; list-style: none; margin: 0; padding: 66px 8px 6px; display: flex; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding: 0 8px; }
+.jb-stn { position: relative; flex: 0 0 auto; min-width: 104px; width: max-content; padding: 0 6px; box-sizing: border-box; display: grid; justify-items: center; align-content: start; gap: 6px; scroll-snap-align: start; }
 .jb-stn::before { content: ''; position: absolute; top: 22px; left: 0; right: 0; height: 8px; border-radius: 4px; background: #D9DCEE; }
 .jb-stn:first-child::before { left: 50%; } .jb-stn:last-child::before { right: 50%; }
 .jb-stn.is-done::before { background: var(--wc); }
@@ -1223,7 +1223,7 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .jb-stn.unbuilt .jb-dot { opacity: .7; }
 .jb-sounds { min-height: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .jb-sound .glyph { height: 26px; width: auto; display: block; } .jb-sound .font-letter { font-size: 30px; }
-.jb-title { font-size: 14px; line-height: 1.15; font-weight: 700; color: var(--muted); text-align: center; }
+.jb-title { max-width: 92px; font-size: 14px; line-height: 1.15; font-weight: 700; color: var(--muted); text-align: center; }
 .jb-pip { position: absolute; top: -64px; left: 50%; margin-left: -24px; width: 48px; }
 .jb-pip svg { width: 48px; height: auto; display: block; }
 .jb-foot { display: grid; justify-items: center; padding: 8px 16px 16px; }

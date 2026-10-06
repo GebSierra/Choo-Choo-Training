@@ -1,11 +1,9 @@
-// Prototype 2 (Grownups > Previews): worlds, the world gateway, the "Did you know?" card, the journey board and the lessons
-// grouped by world. Each preview is reached only from the Previews fold in Grownups; nothing in the child's normal flow uses
+// Prototype 2 (Grownups > Previews): worlds, the world gateway, the "Did you know?" card, and the journey board. Each preview is reached only from the Previews fold in Grownups; nothing in the child's normal flow uses
 // them yet. They show real data (curriculum.worlds, data/tips.json) and never change progress.
 import { h, icon, reduced } from '../dom.js';
 import { homeScreen } from './home.js';
 import { tipCard, nextTip, loadTips } from '../components/tip-card.js';
 import { journeyBoard } from '../components/journey-board.js';
-import { lessonList } from '../components/lesson-list.js';
 import { currentWorld, nextWorld, lessonsIn } from '../worlds.js';
 
 export const CARD_MIN_MS = 3000, CARD_FADE_MS = 380;
@@ -30,15 +28,6 @@ export async function boardPreview(ctx) {
   root.append(backChip(ctx));
   journeyBoard({ host: root, curriculum: ctx.curriculum, store: ctx.store });
   return root;
-}
-
-// Lessons and checkpoints grouped as world, unit, rows (only the current world open), with the real unlock rows.
-export function listPreview(ctx) {
-  const { curriculum, store } = ctx;
-  const list = lessonList({ store, curriculum, grouped: true });
-  return h('div', { class: 'grownups preview-list' },
-    h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to Grownups', onclick: () => backToGrownups(ctx) }, icon('back', 28)), h('h1', {}, 'Lessons by world')),
-    h('div', { class: 'gu-body' }, h('p', { class: 'gu-note' }, 'A preview: the real list in Grownups stays as it is until you say.'), list.el));
 }
 
 // The world gateway. The current world's Home (only its stations): the train rolls into a tunnel at the end of the line, the

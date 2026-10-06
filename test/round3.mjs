@@ -110,7 +110,7 @@ export async function scriptChecks({ browser, url, ok }) {
     const made = await newPage(browser, VIEWPORTS[2]);
     const { page, errors } = made;
     await page.addInitScript(SPEECH_STUB);
-    await page.addInitScript(SEED.replace('settings:{', `settings:{playSounds:${playSounds},`));
+    await page.addInitScript(SEED.replace('settings:{', `settings:{playSounds:${playSounds},migrated1912:true,`));
     await page.goto(url + '#/home');
     await page.waitForSelector('.home');
     const spokenAll = [];

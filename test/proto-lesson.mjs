@@ -99,7 +99,7 @@ const SOUNDY = (t) => /^\s*[a-z]\s*$/i.test(t) || /(^|[^a-z])([a-z])\2{2,}/i.tes
 async function walk(browser, url, ok, mode) {
   const clipMode = mode === 'recordings';
   shotsOn = !clipMode;
-  const { ctx, page, errors } = await open(browser, url, PHONE, { step: 0, settings: { playSounds: clipMode } });
+  const { ctx, page, errors } = await open(browser, url, PHONE, { step: 0, settings: { playSounds: clipMode, migrated1912: true } });
   const T = (s) => `${mode}: ${s}`;
 
   // 1. Sound Warm-up
