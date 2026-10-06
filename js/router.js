@@ -56,6 +56,7 @@ export function createRouter(root, routes, ctx) {
     // Back always goes to the parent screen, so it is predictable and animates in reverse.
     back() {
       const p = parse();
+      if (/^\/proto\/heart(\/done)?$/.test(p)) { ctx.gate = { openedAt: ctx.guOpenedAt || Date.now() }; this.go('/grownups'); return; } // the heart-word preview was opened from Grownups
       const m = p.match(/^\/lesson\/(\d+)\/(task\/\d+|finish)$/);
       const pp = p.match(/^\/proto\/play\/\d+\/task\/\d+$/);
       this.go(m ? `/lesson/${m[1]}` : /^\/proto\/f\/task\/\d+$/.test(p) ? '/proto/f' : pp ? '/proto/play' : '/home');
