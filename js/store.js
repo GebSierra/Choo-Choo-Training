@@ -12,6 +12,7 @@ const fresh = () => ({
   character: cleanCharacter({}), // the child's figure and name (js/character.js): on this device only
   meetDue: true, // the character creator shows once, after the welcome card
   firstRunDone: false,
+  worlds: { seen: null }, // the world the child last saw on Home (js/worlds.js planHome): a crossing plays once, then this moves on
   levels: { seen: null, earned: {} }, // milestones (js/levels.js): how many were earned when Home last opened, and when each was
   lastOpened: null,
 });
@@ -34,6 +35,11 @@ export function cleanLevels(v) {
   if (v.seen !== null && !(Number.isInteger(v.seen) && v.seen >= 0)) return f;
   if (!v.earned || typeof v.earned !== 'object' || Array.isArray(v.earned) || !Object.values(v.earned).every((x) => typeof x === 'string')) return f;
   return { seen: v.seen, earned: { ...v.earned } };
+}
+
+// Worlds: seen is a world id string or null. Anything else is fresh.
+export function cleanWorlds(v) {
+  return v && typeof v === 'object' && !Array.isArray(v) && typeof v.seen === 'string' && v.seen ? { seen: v.seen } : { seen: null };
 }
 
 export function createStore() {
@@ -68,7 +74,7 @@ export function createStore() {
       if (p.checkpoints && typeof p.checkpoints === 'object' && !Array.isArray(p.checkpoints)) {
         for (const [id, c] of Object.entries(reorder ? {} : p.checkpoints)) if (c && typeof c === 'object' && !Array.isArray(c)) checkpoints[id] = c;
       }
-      return { ...f, ...p, order: ORDER, lessons, checkpoints, character: cleanCharacter(p.character), levels: cleanLevels(p.levels), meetDue: typeof p.meetDue === 'boolean' ? p.meetDue : typeof p.lastOpened === 'string', settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
+      return { ...f, ...p, order: ORDER, lessons, checkpoints, character: cleanCharacter(p.character), levels: cleanLevels(p.levels), worlds: cleanWorlds(p.worlds), meetDue: typeof p.meetDue === 'boolean' ? p.meetDue : typeof p.lastOpened === 'string', settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
     } catch { return fresh(); }
   }
   function save() {
@@ -111,6 +117,8 @@ export function createStore() {
     unlockCheckpoint(id) { state.checkpoints[id] = { ...checkpoint(id), unlocked: true }; save(); },
     levels: () => state.levels,
     setLevels(patch) { state.levels = { ...state.levels, ...patch, earned: { ...state.levels.earned, ...(patch.earned || {}) } }; save(); },
+    worlds: () => state.worlds,
+    setWorlds(patch) { state.worlds = cleanWorlds({ ...state.worlds, ...patch }); save(); },
     character: () => state.character,
     setCharacter(patch) { state.character = cleanCharacter({ ...state.character, ...patch }); save(); },
     // The creator was closed (All aboard or Later): keep what was picked and do not show it again.

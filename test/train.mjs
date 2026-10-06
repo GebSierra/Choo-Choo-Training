@@ -93,6 +93,11 @@ export async function pipChecks({ browser, url, ok }) {
 
 
 const NODES = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
+// The world a Home shows (js/worlds.js currentWorld) when `done` lessons are done, and its stops: only that world's lessons and
+// checkpoints are built since 1.9.14 (the line runs on into a tunnel portal to the next world).
+const worldOfNode = (n) => (n.lesson || n.checkpoint).world;
+export const worldIdFor = (done) => (CUR.lessons.find((l) => l.number === done + 1) || CUR.lessons[CUR.lessons.length - 1]).world;
+export const worldNodes = (done) => NODES.filter((n) => worldOfNode(n) === worldIdFor(done));
 const nameOf = (n) => (n.lesson ? `Lesson ${n.lesson.number}` : n.checkpoint.title);
 export const state = (done, settings = {}, extra = {}) => ({ schema: 1, lessons: doneThrough(done), settings: { seenScripts: SEEN, trainIntroDone: true, ...settings }, firstRunDone: true, ...extra });
 // Counts the WebGL contexts the page makes, and how many are still alive.
@@ -122,17 +127,18 @@ export async function homeChecks({ browser, url, ok, vp, shot }) {
   for (const done of [0, 3, 8, CUR.lessons.length]) {
     const { ctx, page, errors } = await openHome(browser, url, vp, state(done));
     const tag = `${vp.name} train home (${done} done)`;
+    const WN = worldNodes(done), wcks = WN.filter((n) => n.checkpoint).length;
     ok(await until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running, null, 20000), `${tag}: the 3D railway renders and settles`);
     const info = await page.evaluate(() => { const c = document.querySelector('.home3d canvas'); const gl = c && (c.getContext('webgl2')); const ext = gl && gl.getExtension('WEBGL_debug_renderer_info'); return { renderer: document.querySelector('.home3d') && document.querySelector('.home3d').dataset.renderer, gl: !!gl, name: gl && ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null, map: !!document.querySelector('.map-scroll') }; });
     ok(info.renderer === 'webgl' && info.gl && !info.map, `${tag}: a WebGL context drew the railway, not the 2D map (${info.name})`);
     const b = await shown(page);
-    ok(b.length === NODES.length && b.every((x, i) => x.label.startsWith(nameOf(NODES[i]))), `${tag}: one button per stop, in lesson order (${b.length})`);
+    ok(b.length === WN.length && b.every((x, i) => x.label.startsWith(nameOf(WN[i]))), `${tag}: one button per stop of the current world only, in lesson order (${b.length} of ${NODES.length})`);
     const want = (n) => (n.lesson ? (n.lesson.number <= done ? 'is-done' : n.lesson.number === done + 1 ? 'is-current' : 'is-locked') : (n.checkpoint.after <= done ? (done === CUR.lessons.length && n === NODES.find((m) => m.checkpoint && m.checkpoint.after <= done) ? 'is-current' : 'is-unlocked') : 'is-locked'));
-    const bad = b.filter((x, i) => x.cls !== want(NODES[i]));
+    const bad = b.filter((x, i) => x.cls !== want(WN[i]));
     ok(bad.length === 0, `${tag}: done, current, open and locked as the progress says (${bad.map((x) => x.label + ':' + x.cls).join('; ')})`);
-    ok(b.every((x, i) => (x.label.endsWith(', done') === (want(NODES[i]) === 'is-done')) && (x.label.endsWith(', locked') === (want(NODES[i]) === 'is-locked'))), `${tag}: labels say done and locked ("${b[0].label}", "${b[b.length - 1].label}")`);
+    ok(b.every((x, i) => (x.label.endsWith(', done') === (want(WN[i]) === 'is-done')) && (x.label.endsWith(', locked') === (want(WN[i]) === 'is-locked'))), `${tag}: labels say done and locked ("${b[0].label}", "${b[b.length - 1].label}")`);
     const vis = b.filter((x) => x.shown);
-    ok(vis.length >= (done === CUR.lessons.length && !CUR.checkpoints.length ? 1 : 2) && vis.every((x) => x.vis === 'visible' && x.w >= 64 && x.h >= 64 && x.x >= 0 && x.y >= 0 && x.x + x.w <= vp.width + 0.5 && x.y + x.h <= vp.height + 0.5), `${tag}: ${vis.length} stops on screen, each a button of at least 64 px inside the screen`);
+    ok(vis.length >= (done === CUR.lessons.length && !wcks ? 1 : 2) && vis.every((x) => x.vis === 'visible' && x.w >= 64 && x.h >= 64 && x.x >= 0 && x.y >= 0 && x.x + x.w <= vp.width + 0.5 && x.y + x.h <= vp.height + 0.5), `${tag}: ${vis.length} stops on screen, each a button of at least 64 px inside the screen`);
     ok(b.filter((x) => !x.shown).every((x) => x.vis === 'hidden'), `${tag}: the stops off screen are hidden`);
     const t = await train(page);
     const cur = t.currentIndex;
@@ -181,7 +187,7 @@ export async function tapChecks({ browser, url, ok }) {
   for (let k = 0; k < 6; k++) await touchDrag(page, { x: from.x, y: 150 }, { x: from.x, y: 800 }, { steps: 8 });
   await until(page, () => !window.__train.running, null, 12000);
   const t = await train(page);
-  ok(t.focus <= t.stops[t.stops.length - 1] + 1.01, `train drag: past the last stop the camera springs back (${t.focus.toFixed(2)})`);
+  ok(t.focus <= t.stops[t.stops.length - 1] + 3.01, `train drag: past the last stop the camera springs back (the end clamp shows the portal) (${t.focus.toFixed(2)})`);
   ok(errors.length === 0, `train taps: errors ${errors.join(' | ')}`);
   await ctx.close();
   // a tap on the current stop opens its lesson
@@ -197,7 +203,8 @@ export async function tapChecks({ browser, url, ok }) {
 
 // The first visit glides from the start of the line; a just-finished lesson brings the train in with a toot.
 // The index of a lesson's stop on the line (the line has no Sound Station stops since 1.7.0).
-export const iL = (n) => NODES.findIndex((x) => x.lesson && x.lesson.number === n);
+// (1.9.14: the index within the lesson's own world, which is the line the Home builds for it.)
+export const iL = (n) => { const w = CUR.lessons.find((l) => l.number === n).world; return NODES.filter((x) => worldOfNode(x) === w).findIndex((x) => x.lesson && x.lesson.number === n); };
 export async function arrivalChecks({ browser, url, ok, shot }) {
   const vp = VIEWPORTS[0];
   {
@@ -383,7 +390,7 @@ export async function lifeChecks({ browser, url, ok }) {
     await page.waitForSelector('.stone', { timeout: 10000 });
     await page.waitForTimeout(600);
     const m = await page.evaluate(() => ({ map: !!document.querySelector('.map-scroll'), three: !!document.querySelector('.home3d'), stones: document.querySelectorAll('.stone').length, live: window.__liveGL() }));
-    ok(m.map && !m.three && m.stones === NODES.length && m.live === 0, `${why}: the 2D path renders instead, with all ${NODES.length} stones and no WebGL context (${JSON.stringify(m)})`);
+    ok(m.map && !m.three && m.stones === worldNodes(3).length && m.live === 0, `${why}: the 2D path renders instead, with all ${worldNodes(3).length} stones of the world and no WebGL context (${JSON.stringify(m)})`);
     await page.locator('.stone.is-current').click();
     await page.waitForSelector('.lesson-overview');
     ok(page.url().endsWith('#/lesson/4'), `${why}: its current stone opens lesson 4`);

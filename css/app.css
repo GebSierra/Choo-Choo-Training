@@ -137,6 +137,9 @@ h1, h2, h3, p { margin: 0; }
 .scene { position: relative; width: 100%; height: calc(var(--H) * 1px); background: var(--grass); overflow: hidden; }
 .pl { position: absolute; left: var(--px); top: var(--py); }
 .scene-water { background: var(--water); border-radius: 50%; box-shadow: 0 0 0 14px rgba(255,255,255,.22); }
+.scene-tunnel { display: grid; justify-items: center; align-content: start; gap: 2px; pointer-events: none; }
+.tunnel-art { width: 100%; height: 76px; display: block; overflow: visible; }
+.tunnel-name { order: -1; font-size: 15px; font-weight: 800; line-height: 1.1; color: var(--ink); text-align: center; background: #FFF8EC; border-radius: 10px; padding: 2px 8px; box-shadow: 0 2px 0 rgba(30,33,64,.18); white-space: nowrap; }
 .scene-bush { background: #4DA3FF; border-radius: 50%; }
 .scene-bush:nth-of-type(3n) { background: #3B86F0; }
 .scene-house { overflow: visible; }

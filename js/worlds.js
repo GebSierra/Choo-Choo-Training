@@ -40,3 +40,25 @@ export function nextWorld(curriculum, worldId) {
   const ws = curriculum.worlds || [], i = ws.findIndex((w) => w.id === worldId);
   return ws.slice(i + 1).find((w) => lessonsIn(curriculum, w.id).length) || null;
 }
+// The world that follows worldId in the list, built or not (the portal at a world's end names it, so the child sees there is more).
+export function worldAfter(curriculum, worldId) {
+  const ws = curriculum.worlds || [], i = ws.findIndex((w) => w.id === worldId);
+  return i >= 0 ? ws[i + 1] || null : null;
+}
+// What the Home shows. The world of the first open lesson that is not done, except that the Home first finishes the world
+// the child last saw (state.worlds.seen) when that world is now done: then `cross` is { from, to } and the Home plays the
+// crossing once. The first look (no record), a world reached by a Grownups unlock, and a reset only record the world.
+// Returns { world, cross }; world is null when the curriculum has no worlds.
+export function planHome(store, curriculum) {
+  const cur = currentWorld(store, curriculum);
+  if (!cur) return { world: null, cross: null };
+  const seenId = store.worlds().seen;
+  let world = cur, cross = null;
+  if (seenId !== cur.id) {
+    const from = seenId ? worldById(curriculum, seenId) : null;
+    const next = from ? nextWorld(curriculum, from.id) : null;
+    if (from && next && next.id === cur.id && worldDone(store, curriculum, from.id)) { world = from; cross = { from, to: cur }; }
+    store.setWorlds({ seen: cur.id });
+  }
+  return { world, cross };
+}

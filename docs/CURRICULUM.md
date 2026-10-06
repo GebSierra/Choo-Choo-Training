@@ -238,8 +238,9 @@ At the end of a world the train rolls into a tunnel and out into the next world,
   world badges, with the current world opened up to show its units as stations, the finished ones ticked.
 - **Grownups** shows the whole path grouped by world and unit, the current lesson, and the grade label (section 10).
 
-> **Builder notes (internal).** Owner decision 10A. Only the current world's track and stations are built in the 3D Home,
-> which keeps the scene small (heat) and loading short; earlier worlds can be revisited from the journey board.
+> **Builder notes (internal).** Owner decision 10A. Only the current world's track and stations are built in the 3D Home
+> (built in 1.9.14: the line ends in a tunnel portal with a signpost to the next world, and the train crosses through it once
+> a world is done), which keeps the scene small (heat) and loading short; earlier worlds can be revisited from the journey board.
 > Proposed worlds (names are placeholders for the owner to choose):
 >
 > | World | Contents | Ends with |

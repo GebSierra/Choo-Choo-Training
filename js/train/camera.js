@@ -7,7 +7,7 @@ const PITCH = 38 * Math.PI / 180;
 const TAN_V = Math.tan(35 / 2 * Math.PI / 180);
 const ease = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 
-export function createRig(camera, line, { min, max }) {
+export function createRig(camera, line, { min, max, side: sideOpt }) {
   let focus = min, vel = 0, glide = null, dist = 20, ahead = 2, side = 1.2, w = 1, h = 1, dragging = false, follow = null;
   const p = {}, look = new THREE.Vector3();
 
@@ -19,7 +19,7 @@ export function createRig(camera, line, { min, max }) {
     dist = Math.max(12, Math.min(34, Math.max(8.6 / (2 * tanH), 12.5 / (2 * TAN_V))));
     const portrait = h > w;
     ahead = portrait ? 5 : 3.2;
-    side = portrait ? 1.3 : 0.9;
+    side = sideOpt !== undefined ? sideOpt : portrait ? 1.3 : 0.9;
     camera.updateProjectionMatrix();
     apply();
   }

@@ -67,6 +67,23 @@ s = open({ ...old({ order: ORDER }), levels: { seen: 2, earned: { L1: '2026-10-0
 s.resetAll();
 check(s.levels().seen === null && Object.keys(s.levels().earned).length === 0 && JSON.parse(mem.get('reading.v1')).levels.seen === null, 'levels: resetAll clears them');
 
+// Worlds (1.9.14): state.worlds = { seen: id | null }; bad values load as fresh; setWorlds saves; resetAll clears it.
+mem.clear(); s = createStore();
+check(s.worlds().seen === null, 'worlds: a fresh store has seen null');
+s.setWorlds({ seen: 'W1' });
+check(s.worlds().seen === 'W1' && JSON.parse(mem.get('reading.v1')).worlds.seen === 'W1', 'worlds: setWorlds saves the world last seen');
+for (const bad of [{ seen: 3 }, { seen: '' }, { seen: ['W1'] }, 'W1', [], null, {}]) {
+  s = open({ ...old({ order: ORDER }), worlds: bad });
+  check(s.worlds().seen === null, `worlds: bad value ${JSON.stringify(bad)} loads as fresh`);
+}
+s = open({ ...old({ order: ORDER }), worlds: { seen: 'W2' } });
+check(s.worlds().seen === 'W2', 'worlds: a good value loads');
+s = open({ ...old({ order: ORDER }) });
+check(s.worlds().seen === null, 'worlds: saved data from before 1.9.14 has none (the first Home visit only records)');
+s = open({ ...old({ order: ORDER }), worlds: { seen: 'W2' } });
+s.resetAll();
+check(s.worlds().seen === null && JSON.parse(mem.get('reading.v1')).worlds.seen === null, 'worlds: resetAll clears it');
+
 // v1.9.12: the Train world and recorded sounds switches are gone; a saved "off" turns on once.
 s = open({ ...old({ order: ORDER }), settings: { trainWorld: false, playSounds: false } });
 check(s.settings.trainWorld === true && s.settings.playSounds === true && s.settings.migrated1912 === true && JSON.parse(mem.get('reading.v1')).settings.migrated1912 === true, 'migration: saved off becomes on and the flag is saved');

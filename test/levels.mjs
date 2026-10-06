@@ -8,8 +8,11 @@ import { openHome, state, iL, until, RAF_COUNT } from './train.mjs';
 
 const CHARACTER = { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit: 'dress', made: true };
 const done = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it', completedAt: `2026-10-${String(i + 1).padStart(2, '0')}T10:00:00.000Z` }]));
-// Lessons 1..6 done and the train still waiting at lesson 6's station: Home plays the arrival, then level one.
-const six = (settings = {}, extra = {}) => state(6, { trainAt: iL(6), trainDone: 5, ...settings }, { lessons: done(6), levels: { seen: 0, earned: {} }, character: CHARACTER, meetDue: false, ...extra });
+// Lessons 1..6 done, world 1 the world last seen, and the train still waiting at lesson 6's station: Home (world 1) plays the
+// arrival, then level one in the world's tunnel portal, then (1.9.14) the crossing into world 2.
+const six = (settings = {}, extra = {}) => state(6, { trainAt: iL(6), trainDone: 5, ...settings }, { lessons: done(6), levels: { seen: 0, earned: {} }, worlds: { seen: 'W1' }, character: CHARACTER, meetDue: false, ...extra });
+// The crossing after the party has finished: world 2's Home is up and still.
+const crossed = (page) => until(page, () => { const h = document.querySelector('.gateway-host'); return h && h.dataset.phase === 'done' && window.__train && window.__train.world === 'W2' && !window.__train.running; }, null, 40000);
 const PHASES = () => { window.__phases = []; setInterval(() => { const p = window.__train && window.__train.level && window.__train.level.phase; if (p !== undefined && window.__phases[window.__phases.length - 1] !== p) window.__phases.push(p); }, 16); };
 const stored = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')));
 const idle = async (page) => {
@@ -46,7 +49,8 @@ export async function levelChecks({ browser, url, ok }) {
     ok(await until(page, () => document.querySelector('.level-stars') && document.querySelector('.level-stars').dataset.count === '1', null, 3000), 'level one: the star board shows one gold star');
     ok((await page.evaluate(() => window.__train.specials)).includes('caboose'), 'level one: the caboose is on the train');
     ok(await page.evaluate(() => window.__audioNotes().some((n) => n.event === 'checkpoint')), 'level one: the checkpoint jingle plays');
-    ok(await until(page, () => window.__train.level.phase === '' && !window.__train.running, null, 20000), 'level one: the celebration ends and Home settles');
+    ok(await page.evaluate(() => window.__train.world === 'W1' && window.__train.portal), 'level one: it plays in world 1, whose tunnel portal is the tunnel (one tunnel, not two)');
+    ok(await crossed(page), 'level one: after the party the train crosses into world 2 and Home settles there');
     const sw = await page.evaluate(() => { const b = document.querySelector('.level-banner'); const r = b && b.getBoundingClientRect(); return r ? { l: r.left, r: r.right, w: innerWidth } : null; });
     ok(!sw || (sw.l >= 0 && sw.r <= sw.w), 'level one: the banner fits the screen');
     await page.waitForTimeout(800);
@@ -111,10 +115,11 @@ export async function levelChecks({ browser, url, ok }) {
     ok(await until(page, () => !!document.querySelector('.level-banner'), null, 8000), 'reduced motion: the banner shows');
     ok((await page.locator('.level-banner').first().innerText()).trim() === 'Level one complete!', 'reduced motion: it reads "Level one complete!"');
     ok((await page.evaluate(() => window.__phases.filter(Boolean).length)) === 0, 'reduced motion: no ride (the phase never leaves empty)');
-    ok(!(await page.evaluate(() => window.__train.tunnel)), 'reduced motion: no tunnel');
+    ok(await page.evaluate(() => window.__train.world === 'W1'), 'reduced motion: world 1 is on screen for the banner');
     ok(await page.evaluate(() => window.__audioNotes().some((n) => n.event === 'star')), 'reduced motion: one soft star sound');
     ok((await page.locator('.level-stars[data-count="1"]').count()) === 1 && (await page.evaluate(() => window.__train.specials)).includes('caboose'), 'reduced motion: the star is filled and the caboose is on the train');
     ok(await page.evaluate(() => document.querySelectorAll('.spark').length) === 0, 'reduced motion: no confetti');
+    ok(await crossed(page), 'reduced motion: the card shows still, then world 2 is simply there');
     await page.waitForTimeout(800);
     const m = await idle(page);
     ok(m.raf <= 2, `reduced motion: at most 2 frames in 3 s after the banner (${m.raf})`);
@@ -142,7 +147,7 @@ export async function levelChecks({ browser, url, ok }) {
     ok(await page.evaluate(() => window.__train.level.id) === 'L2', 'level two: due at thirteen');
     ok(await until(page, () => !!document.querySelector('.level-banner'), null, 20000), 'level two: the banner shows');
     ok((await page.locator('.level-banner').first().innerText()).trim() === 'Level two complete!', 'level two: it reads "Level two complete!"');
-    ok((await page.evaluate(() => window.__train.specials.join())) === 'coach,caboose', 'level two: the coach is added and the caboose stays last');
+    ok((await page.evaluate(() => window.__train.specials.join())) === 'coach', 'level two: the coach is the newest car and the only special car (the owner\'s wagon rule)');
     ok(await until(page, () => document.querySelector('.level-stars') && document.querySelector('.level-stars').dataset.count === '2', null, 3000), 'level two: two gold stars');
     ok(await until(page, () => window.__train.level.phase === '' && !window.__train.running, null, 20000), 'level two: ends');
     ok(errors.length === 0, `level two: errors ${errors.join(' | ')}`);

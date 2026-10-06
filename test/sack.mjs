@@ -9,7 +9,8 @@ import { firstSoundOut } from '../js/scripts.js';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN, showStop } from './lib.mjs';
 
 const CURR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
-const NODES = CURR.lessons.length + CURR.checkpoints.length; // stones on the map, rows in Grownups
+const NODES = CURR.lessons.length + CURR.checkpoints.length; // rows in Grownups
+const WORLD1 = CURR.lessons.filter((l) => l.world === CURR.lessons[0].world).length + CURR.checkpoints.filter((k) => k.world === CURR.lessons[0].world).length; // stones on the Home map: only the current world (1.9.14)
 const seed = (lessons, extra = {}) => `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons, settings: { seenScripts: SEEN }, firstRunDone: true, ...extra })}))`;
 const DONE = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it' }]));
 const rect = (page, sel, i = 0) => page.evaluate(([s, k]) => { const e = document.querySelectorAll(s)[k]; if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }, [sel, i]);
@@ -134,7 +135,7 @@ export async function sackMapChecks({ browser, url, ok, vp }) {
   await page.waitForSelector('.stone', { state: 'attached' });
   await page.waitForTimeout(900);
   const tag = `${vp.name} map`;
-  ok((await page.locator('.stone').count()) === NODES, `${tag}: ${NODES} stones (${CURR.lessons.length} lessons and ${CURR.checkpoints.length} stops)`);
+  ok((await page.locator('.stone').count()) === WORLD1, `${tag}: ${WORLD1} stones (world 1: its lessons and stops)`);
   const stop = page.locator(sel).first();
   ok((await stop.getAttribute('aria-label')) === `${K.title}, locked` && (await stop.evaluate((e) => e.classList.contains('is-locked'))), `${tag}: the ${K.title} stone is locked before lesson ${K.after} is done`);
   await showStop(page, sel); // the 3D railway: bring the stop into view first

@@ -1,5 +1,5 @@
 // The island the railway runs across: a soft green tabletop with two-tone grass, rounded hills, toy trees, little
-// flowers, a river under a wooden bridge, a water tower, a windmill, a tunnel through one hill and a few slow clouds.
+// flowers, a river under a wooden bridge, a water tower, a windmill and a few slow clouds.
 // Everything repeated is instanced, and everything is placed from a seeded random, so the island never changes.
 import { THREE, PAL, rng, block } from './world.js';
 
@@ -154,32 +154,6 @@ export function buildScenery(bag, line, stops) {
   mill.add(blades);
   mill.position.copy(landmark(9, -6));
   group.add(mill);
-
-  // the tunnel: a long low hill over the line beyond the last stop, with a stone arch at each end (the line runs on into it)
-  const tunnelS = stops[stops.length - 1] + 13;
-  {
-    line.at(tunnelS, p);
-    const hill = new THREE.Mesh(hillGeo, bag.paint('#53C27F', { roughness: 0.9 }));
-    hill.scale.set(4.2, 2.3, 3.2);
-    hill.position.set(p.x, -0.1, p.z);
-    hill.rotation.y = p.heading;
-    hill.castShadow = true; hill.receiveShadow = true;
-    group.add(hill);
-    for (const end of [-1, 1]) {
-      line.at(tunnelS + end * 3.0, p);
-      const portal = new THREE.Group();
-      portal.position.set(p.x, 0, p.z); portal.rotation.y = p.heading;
-      const arch = new THREE.Mesh(bag.geo('arch', () => new THREE.TorusGeometry(1.15, 0.28, 10, 20, Math.PI)), bag.paint('#E9DCC6'));
-      arch.position.y = 1.0; arch.castShadow = true;
-      const dark = new THREE.Mesh(bag.geo('archdark', () => new THREE.CircleGeometry(1.0, 20, 0, Math.PI)), bag.paint('#3A2E2A', { roughness: 1 }));
-      dark.position.set(0, 1.0, -end * 0.05);
-      if (end < 0) dark.rotation.y = Math.PI;
-      for (const x of [-1.15, 1.15]) { const pier = block(bag, 0.56, 1.0, 0.5, '#E9DCC6', { r: 0.1 }); pier.position.set(x, 0.5, 0); portal.add(pier); }
-      const darkLow = block(bag, 2.0, 1.0, 0.02, '#3A2E2A', { r: 0.005, shadow: false }); darkLow.position.set(0, 0.5, -end * 0.05);
-      portal.add(arch, dark, darkLow);
-      group.add(portal);
-    }
-  }
 
   // clouds: a few puffy white lumps floating low over the island to either side of the line (the screen keeps them
   // beside the camera's look point), drifting very slowly to and fro in their own lane, so they never cover the track

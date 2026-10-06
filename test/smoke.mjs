@@ -20,6 +20,8 @@ import { lettersSlideChecks, pictureWordSlideChecks, wordsSlideChecks, slideRedu
 const FAST = process.argv.includes('--fast');
 const OUT = path.join(ROOT, '_test');
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
+// The Home builds only the current world (1.9.14): a fresh install shows world 1 (six lessons and its checkpoints).
+const HOME_STONES = CUR.lessons.filter((l) => l.world === CUR.lessons[0].world).length + CUR.checkpoints.filter((k) => k.world === CUR.lessons[0].world).length;
 fs.mkdirSync(OUT, { recursive: true });
 let failures = 0, checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.error('FAIL: ' + msg); } };
@@ -46,8 +48,8 @@ for (const vp of VIEWPORTS) {
   await page.addInitScript(SEED({ 1: { tasksDone: [0, 1], result: null, completedAt: null } }));
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone', { state: 'attached' });
-  const STONES = CUR.lessons.length + CUR.checkpoints.length;
-  ok((await page.locator('.stone').count()) === STONES, `${vp.name}: ${STONES} stones (${CUR.lessons.length} lessons and ${CUR.checkpoints.length} sound sacks)`);
+  const STONES = HOME_STONES;
+  ok((await page.locator('.stone').count()) === STONES, `${vp.name}: ${STONES} stones (world 1 only: its lessons and its stops)`);
   ok((await page.evaluate(() => getComputedStyle(document.documentElement).overscrollBehaviorY)) === 'none', `${vp.name}: html refuses overscroll, so pull-to-refresh is off`);
   ok((await page.locator('.stone.is-current').count()) === 1 && (await page.locator('.stone.is-locked').count()) === STONES - 1, `${vp.name}: one current, every other stone locked`);
   await page.waitForTimeout(900);
@@ -473,7 +475,7 @@ for (const [name, raw] of [
   await page.addInitScript(`localStorage.setItem('reading.v1', ${JSON.stringify(raw)})`);
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone', { state: 'attached' });
-  ok((await page.locator('.stone').count()) === CUR.lessons.length + CUR.checkpoints.length, `corrupt store (${name}): Home renders`);
+  ok((await page.locator('.stone').count()) === HOME_STONES, `corrupt store (${name}): Home renders`);
   if (name === 'bad entries') {
     await page.goto(url + '#/lesson/2');
     await page.waitForSelector('.lesson-overview');
@@ -544,7 +546,7 @@ for (const [name, raw] of [
   await page.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new Error('blocked'); } }); });
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone', { state: 'attached' });
-  ok((await page.locator('.stone').count()) === CUR.lessons.length + CUR.checkpoints.length, 'app renders when localStorage throws');
+  ok((await page.locator('.stone').count()) === HOME_STONES, 'app renders when localStorage throws');
   ok(errors.length === 0, 'storage-blocked errors ' + errors.join(' | '));
   await ctx.close();
 }
@@ -608,7 +610,7 @@ for (const [name, raw] of [
   await ctx.setOffline(true);
   await page.reload();
   await page.waitForSelector('.stone', { state: 'attached', timeout: 8000 });
-  ok((await page.locator('.stone').count()) === CUR.lessons.length + CUR.checkpoints.length, 'offline reload renders Home');
+  ok((await page.locator('.stone').count()) === HOME_STONES, 'offline reload renders Home');
   ok((await page.locator('.home3d').count()) === 1, 'offline reload renders the 3D railway (three.js comes from the cache)');
   await page.goto(url + 'index.html#/lesson/1/task/0');
   await page.reload();

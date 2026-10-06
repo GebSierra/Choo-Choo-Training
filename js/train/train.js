@@ -29,7 +29,77 @@ function glyphTexture(bag, glyph, accent) {
   return t;
 }
 
-function buildEngine(bag) {
+// A small flat gold star (one extruded shape, shared), for the engine's upgrades.
+function goldStar(bag, r = 0.2) {
+  const m = new THREE.Mesh(bag.geo('goldstar', () => {
+    const sh = new THREE.Shape();
+    for (let i = 0; i < 10; i++) { const k = i % 2 ? 0.45 : 1, a = Math.PI / 2 + (i * Math.PI) / 5; if (i) sh.lineTo(Math.cos(a) * k, Math.sin(a) * k); else sh.moveTo(Math.cos(a) * k, Math.sin(a) * k); }
+    sh.closePath();
+    const g = new THREE.ExtrudeGeometry(sh, { depth: 0.1, bevelEnabled: false });
+    g.center();
+    return g;
+  }), bag.paint(PAL.sun, { emissive: '#F0A93B', emissiveIntensity: 0.25, roughness: 0.4 }));
+  m.scale.set(r, r, r);
+  return m;
+}
+
+// The brass plate on the boiler: the letters of the first world the child finished (drawn into a canvas texture once).
+function plateTexture(bag, letters) {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 96;
+  const g = c.getContext('2d');
+  g.fillStyle = '#D9A441'; g.beginPath(); g.roundRect(0, 0, 256, 96, 18); g.fill();
+  g.strokeStyle = '#FFE3A0'; g.lineWidth = 6; g.beginPath(); g.roundRect(5, 5, 246, 86, 14); g.stroke();
+  g.fillStyle = PAL.navy; g.font = '800 54px Nunito, system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(letters.join(' '), 128, 52, 232);
+  const t = bag.add(new THREE.CanvasTexture(c));
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return t;
+}
+
+// The engine's upgrades, one per finished world and cumulative (a few primitives each, nothing animated):
+// 1 a gold stripe along the boiler, a brass plate with that world's letters and a gold star on the cab side; 2 a brass bell;
+// 3 a big round headlamp; 4 gold wheel rims; 5 a taller chimney with a gold band; 6 a small flag on the cab; each later world adds one more gold star.
+function upgradeEngine(bag, e, level, letters) {
+  const { group: g } = e;
+  const add = (m, x, y, z) => { m.position.set(x, y, z); g.add(m); return m; };
+  const gold = () => bag.paint('#E8B341', { roughness: 0.35, metalness: 0.15 });
+  const stars = Math.max(0, level - 5); // star 1 comes with upgrade 1
+  if (level >= 1) {
+    add(new THREE.Mesh(bag.box(0.12, 0.05, 1.5, 0.02, 1), gold()), 0, 1.74, 0.5);
+    const plateMat = bag.add(new THREE.MeshStandardMaterial({ map: plateTexture(bag, letters), roughness: 0.45, metalness: 0.1 }));
+    for (const side of [-1, 1]) {
+      const pl = add(new THREE.Mesh(bag.geo('engplate', () => new THREE.PlaneGeometry(0.9, 0.34)), plateMat), side * 0.49, 1.3, 0.5);
+      pl.rotation.y = side * Math.PI / 2;
+    }
+  }
+  const starSpots = [[-0.84, 1.12], [-0.52, 1.12], [-1.16, 1.12], [-0.84, 0.86], [-0.52, 0.86], [-1.16, 0.86]];
+  if (level >= 1) for (let i = 0; i < Math.min(1 + stars, starSpots.length); i++) {
+    for (const side of [-1, 1]) { const st = goldStar(bag, 0.16); st.position.set(side * 0.7, starSpots[i][1], starSpots[i][0]); st.rotation.y = side * Math.PI / 2; g.add(st); }
+  }
+  if (level >= 2) { // a brass bell on a little bracket above the boiler, by the cab
+    add(new THREE.Mesh(bag.box(0.08, 0.3, 0.08, 0.02, 1), gold()), 0, 1.9, 0.0);
+    add(new THREE.Mesh(bag.geo('engbell', () => new THREE.ConeGeometry(0.17, 0.26, 16, 1, true)), bag.paint('#E8B341', { roughness: 0.3, metalness: 0.2, side: THREE.DoubleSide })), 0, 2.05, 0.0);
+  }
+  if (level >= 3) { // a big round headlamp on the smokebox
+    const lamp = add(new THREE.Mesh(bag.geo('enghead', () => new THREE.CylinderGeometry(0.22, 0.22, 0.2, 20)), gold()), 0, 1.78, 1.12);
+    lamp.rotation.x = Math.PI / 2;
+    add(new THREE.Mesh(bag.geo('engheadglass', () => new THREE.SphereGeometry(0.17, 16, 10)), bag.paint('#FFF6D6', { emissive: '#FFE3A0', emissiveIntensity: 0.6 })), 0, 1.78, 1.24);
+  }
+  if (level >= 4) e.wheels.forEach((w) => { const r = new THREE.Mesh(bag.geo('engrim', () => new THREE.TorusGeometry(WHEEL_R, 0.035, 8, 20)), gold()); r.rotation.y = Math.PI / 2; for (const x of [-0.075, 0.075]) { const c = r.clone(); c.position.x = x; w.add(c); } });
+  if (level >= 5) { // a taller chimney with a gold band
+    add(new THREE.Mesh(bag.geo('engstack', () => new THREE.CylinderGeometry(0.19, 0.24, 0.45, 18)), bag.paint(PAL.navy)), 0, 2.5, 0.95);
+    add(new THREE.Mesh(bag.geo('engstackband', () => new THREE.CylinderGeometry(0.245, 0.245, 0.07, 18)), gold()), 0, 2.45, 0.95);
+    e.funnelTop.position.y += 0.45;
+  }
+  if (level >= 6) { // a small flag on the cab roof
+    add(new THREE.Mesh(bag.box(0.04, 0.6, 0.04, 0.01, 1), bag.paint(PAL.woodLight)), 0.58, 2.35, -1.25);
+    const flag = add(new THREE.Mesh(bag.geo('engflag', () => new THREE.PlaneGeometry(0.34, 0.22)), bag.paint(PAL.sun, { side: THREE.DoubleSide })), 0.58 + 0.19, 2.52, -1.25);
+    flag.rotation.y = Math.PI / 2;
+  }
+}
+
+function buildEngine(bag, upgrades = 0, letters = []) {
   const g = new THREE.Group();
   g.name = 'engine';
   const wheels = [];
@@ -64,7 +134,9 @@ function buildEngine(bag) {
   pip.group.rotation.y = -2.55; // looks back toward the camera, a little to the right (the station side)
   pip.group.scale.setScalar(1.22);
   g.add(pip.group);
-  return { group: g, wheels, funnelTop, pip };
+  const engine = { group: g, wheels, funnelTop, pip };
+  if (upgrades > 0) upgradeEngine(bag, engine, upgrades, letters);
+  return engine;
 }
 
 function buildCar(bag, glyph, accent) {
@@ -139,12 +211,13 @@ const JOIN_BACK = 2.6, JOIN_S = 0.9;
 
 // cars: [{ glyph, accent }] in lesson order, the first right behind the engine. specials: kinds of special car, in train
 // order, coupled behind the letter wagons (the caboose last).
-export function buildTrain(sceneBag, line, cars, specials = []) {
+// opts.upgrades: how many worlds the child has finished (the engine's upgrades, above); opts.letters: the first world's letters.
+export function buildTrain(sceneBag, line, cars, specials = [], opts = {}) {
   // The train has its own materials (so a fade-in never touches the stations), still disposed with the scene's bag.
   const bag = Object.create(sceneBag);
   bag.paint = (c, o = {}) => sceneBag.paint(c, { ...o, name: 'train' });
   const group = new THREE.Group();
-  const engine = buildEngine(bag);
+  const engine = buildEngine(bag, opts.upgrades || 0, opts.letters || []);
   group.add(engine.group);
   const wagons = cars.map((c) => { const w = buildCar(bag, c.glyph, c.accent); group.add(w.group); return w; });
   const extras = specials.map((k) => { const w = buildSpecial(bag, k); group.add(w.group); return w; });
@@ -161,8 +234,10 @@ export function buildTrain(sceneBag, line, cars, specials = []) {
     return { mesh: s, mat: m, born: -1 };
   });
   const p = {}, tmp = new THREE.Vector3();
-  let at = 0, rolled = 0, bounce = null, lastT = 0;
-  const offsets = () => everyCar.map((_, i) => ENGINE_BACK + GAP + CAR_HALF + i * (2 * CAR_HALF + GAP));
+  let at = 0, rolled = 0, bounce = null, lastT = 0, released = null;
+  const STEP = 2 * CAR_HALF + GAP;
+  const offsets = () => everyCar.map((_, i) => ENGINE_BACK + GAP + CAR_HALF + i * STEP);
+  const DETACH_S = 1.2; // the special cars close up behind the engine over this long once the letter wagons are left behind
 
   function put(obj, s, lift = 0) {
     line.at(s, p);
@@ -172,6 +247,12 @@ export function buildTrain(sceneBag, line, cars, specials = []) {
   return {
     group, engine, pip: engine.pip,
     get at() { return at; },
+    upgrades: opts.upgrades || 0,
+    wagonCount: wagons.length,
+    // Uncouple the letter wagons (the crossing): they stay where they stand while the engine drives on, and the special cars
+    // glide up behind it. place() keeps working as before for the engine and the special cars.
+    detach(t) { if (!released) released = { t, s: at }; },
+    get detached() { return !!released; },
     get length() { return ENGINE_FRONT + ENGINE_BACK + everyCar.length * (2 * CAR_HALF + GAP); },
     specials: extras.map((e) => e.kind),
     // The group of a special car (the celebration hides it until the car rolls up), and join(kind, t): it starts 2.6 units
@@ -185,6 +266,8 @@ export function buildTrain(sceneBag, line, cars, specials = []) {
       put(engine.group, s);
       offsets().forEach((o, i) => {
         let lift = 0, back = 0;
+        if (released && i < wagons.length) { put(everyCar[i].group, released.s - o, 0); return; }
+        if (released) { const k = Math.min(1, Math.max(0, (t - released.t) / DETACH_S)); o -= wagons.length * STEP * (k * k * (3 - 2 * k)); }
         if (bounce && i === wagons.length - 1) { const k = (t - bounce) / 0.5; lift = k >= 0 && k < 1 ? Math.sin(k * Math.PI) * 0.18 : 0; }
         const car = everyCar[i];
         if (car.kind && joins.has(car.kind)) { const k = Math.min(1, Math.max(0, (t - joins.get(car.kind)) / JOIN_S)); back = JOIN_BACK * Math.pow(1 - k, 3); }
@@ -221,4 +304,20 @@ export function buildTrain(sceneBag, line, cars, specials = []) {
       group.traverse((m) => { if (m.isMesh && !puffMat.includes(m.material)) { m.material.transparent = o < 1; m.material.opacity = o; } });
     },
   };
+}
+
+// The letter wagons parked on a siding (a finished world's Home): cars [{ glyph, accent }] stand on the line's far side, offset
+// `off` from the centre line, the first with its middle at s0 and the rest behind it. Static: returns a group.
+export function buildParked(bag, line, cars, s0, off) {
+  const group = new THREE.Group();
+  group.name = 'parked-wagons';
+  const p = {};
+  cars.forEach((c, i) => {
+    const w = buildCar(bag, c.glyph, c.accent);
+    line.at(s0 - i * (2 * CAR_HALF + GAP), p);
+    w.group.position.set(p.x + p.nx * off, 0, p.z + p.nz * off);
+    w.group.rotation.y = p.heading;
+    group.add(w.group);
+  });
+  return group;
 }

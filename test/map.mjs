@@ -1,4 +1,4 @@
-// The 2D home map (the Train world switch off, or no WebGL): 13 lessons and 4 checkpoint stones on one long winding path, scrolling up in portrait and along in landscape.
+// The 2D home map (the Train world switch off, or no WebGL): the current world's lessons and checkpoint stones (since 1.9.14 world 1 is 6 lessons and 3 checkpoints, world 2 is 7 lessons) on one long winding path, scrolling up in portrait and along in landscape.
 // Run alone with `node test/map.mjs`, or as part of test/smoke.mjs.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,6 +10,9 @@ import { tasksFor } from '../js/lessons.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const NODES = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
+// The stones the map shows when `done` lessons are done: only the current world's (the world of the first lesson not done, else the last).
+const worldOfNode = (n) => (n.lesson || n.checkpoint).world;
+const worldNodes = (done) => { const w = (CUR.lessons.find((l) => l.number === done + 1) || CUR.lessons[CUR.lessons.length - 1]).world; return NODES.filter((n) => worldOfNode(n) === w); };
 const label = (n) => (n.lesson ? `Lesson ${n.lesson.number}` : n.checkpoint.title);
 const seed = (done, extra = {}) => `localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: doneThrough(done), settings: { seenScripts: SEEN, trainWorld: false, migrated1912: true }, firstRunDone: true, ...extra })}))`;
 const overlaps = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
@@ -48,18 +51,19 @@ export async function mapChecks({ browser, url, ok, vp, shot }) {
     const { ctx, page, errors } = await open(browser, url, vp, seed(done, extra));
     await page.waitForTimeout(2200); // the glide to the current stone takes about a second
     const tag = `${vp.name} map (${done} lessons done${withCks.length ? ', sacks done' : ''})`;
+    const WN = worldNodes(done);
     const stones = await rectsOf(page, '.stone');
-    ok(stones.length === NODES.length, `${tag}: ${NODES.length} stones, one for each lesson and checkpoint (${stones.length})`);
-    ok(stones.every((s, i) => s.label.startsWith(label(NODES[i]))), `${tag}: the stones are in lesson order, each named by its own lesson (${stones.slice(0, 5).map((s) => s.label).join(', ')} ...)`);
+    ok(stones.length === WN.length, `${tag}: ${WN.length} stones, one for each lesson and checkpoint of the current world only (${stones.length} of ${NODES.length})`);
+    ok(stones.every((s, i) => s.label.startsWith(label(WN[i]))), `${tag}: the stones are in lesson order, each named by its own lesson (${stones.slice(0, 5).map((s) => s.label).join(', ')} ...)`);
     ok(stones.every((s) => s.w >= 47.5 && s.h >= 47.5), `${tag}: every stone is at least 48 px`);
     ok(!stones.some((s, i) => stones.slice(i + 1).some((t) => overlaps(s, t))), `${tag}: no two stones overlap`);
     // States: a lesson is open when the one before is done; a checkpoint when its lesson is done.
     const state = (n) => (n.lesson ? (n.lesson.number <= done ? 'done' : n.lesson.number === done + 1 ? 'current' : 'locked') : (withCks.includes(n.checkpoint.id) ? 'done' : n.checkpoint.after <= done ? 'open' : 'locked'));
     const classes = await page.evaluate(() => [...document.querySelectorAll('.stone')].map((s) => [...s.classList].filter((c) => c.startsWith('is-')).join(' ')));
-    const bad = NODES.map((n, i) => [n, classes[i], i]).filter(([n, c]) => { const w = state(n); return w === 'locked' ? c !== 'is-locked' : w === 'done' ? c !== 'is-done' : w === 'current' ? c !== 'is-current' : !/is-(unlocked|current)/.test(c); });
+    const bad = WN.map((n, i) => [n, classes[i], i]).filter(([n, c]) => { const w = state(n); return w === 'locked' ? c !== 'is-locked' : w === 'done' ? c !== 'is-done' : w === 'current' ? c !== 'is-current' : !/is-(unlocked|current)/.test(c); });
     ok(bad.length === 0, `${tag}: locked, open, current and done stones are as the progress says (${bad.map(([n, c]) => label(n) + ':' + c).join('; ')})`);
     const current = await page.locator('.stone.is-current').count();
-    const finished = done === CUR.lessons.length && !CUR.checkpoints.length; // nothing left to do: no current stone, no bubble
+    const finished = done === CUR.lessons.length && !WN.some((n) => n.checkpoint); // nothing left to do: no current stone, no bubble
     ok(current === (finished ? 0 : 1), `${tag}: exactly one current stone, so exactly one bubble (${current} stones, ${await page.locator('.bubble').count()} bubbles)`);
     ok((await page.locator('.bubble').count()) === (finished ? 0 : 1), `${tag}: one bubble`);
     // Opens on the current stone, with its bubble, clear of the pill and the full screen button.
@@ -72,11 +76,11 @@ export async function mapChecks({ browser, url, ok, vp, shot }) {
     ok(bubble && (portrait ? true : bubble.y > cur.y + cur.h / 2), `${tag}: ${portrait ? 'the bubble sits by its stone' : 'in landscape the bubble sits below its stone'}`);
     const flipped = await page.evaluate(() => document.querySelector('.bubble').classList.contains('below'));
     // Only when the stop left to do sits at the far end of the path (a book after lesson 8 is mid-path, where the bubble stays above).
-    if (portrait && withCks.length && CUR.checkpoints[CUR.checkpoints.length - 1].after >= CUR.lessons.length - 1) ok(flipped && bubble.y > cur.y + cur.h / 2 - 4, `${tag}: the stone near the top of the path has its bubble below it (flipped)`);
+    if (portrait && withCks.length && WN.some((n) => n.checkpoint) && CUR.checkpoints[CUR.checkpoints.length - 1].after >= CUR.lessons.length - 1) ok(flipped && bubble.y > cur.y + cur.h / 2 - 4, `${tag}: the stone near the top of the path has its bubble below it (flipped)`);
     }
     // The path scrolls along its own axis only, and the page does not.
     const m = await page.evaluate(() => { const s = document.querySelector('.map-scroll'); const de = document.documentElement; return { sh: s.scrollHeight, ch: s.clientHeight, sw: s.scrollWidth, cw: s.clientWidth, over: getComputedStyle(s).overscrollBehaviorY, html: getComputedStyle(de).overscrollBehaviorY, doc: de.scrollHeight - de.clientHeight, docw: de.scrollWidth - de.clientWidth }; });
-    ok(portrait ? m.sh > m.ch * 2 && m.sw <= m.cw : m.sw > m.cw * 2 && m.sh <= m.ch + 1, `${tag}: the path scrolls ${portrait ? 'up and down' : 'sideways'} and not the other way (${m.sh}/${m.ch}, ${m.sw}/${m.cw})`);
+    ok(portrait ? m.sh > m.ch * 1.2 && m.sw <= m.cw : m.sw > m.cw * 1.2 && m.sh <= m.ch + 1, `${tag}: the path scrolls ${portrait ? 'up and down' : 'sideways'} and not the other way (${m.sh}/${m.ch}, ${m.sw}/${m.cw})`);
     ok(m.over === 'contain' && m.html === 'none' && m.doc <= 0 && m.docw <= 0, `${tag}: pull to refresh stays off and the page itself never scrolls (${m.over}, ${m.html})`);
     // Animations: only transform and opacity; few of them; only the stones on screen are staggered in.
     const anim = await page.evaluate(() => document.getAnimations().map((a) => ({ props: [...new Set(a.effect ? a.effect.getKeyframes().flatMap((k) => Object.keys(k)) : [])].filter((p) => !['offset', 'easing', 'composite', 'computedOffset'].includes(p)), inf: a.effect && a.effect.getTiming().iterations === Infinity })));
@@ -96,6 +100,7 @@ export async function mapReachChecks({ browser, url, ok, vp }) {
   const { ctx, page, errors } = await open(browser, url, vp, seed(CUR.lessons.length));
   await page.waitForTimeout(1800);
   const tag = `${vp.name} map reach`;
+  const NODES = worldNodes(CUR.lessons.length); // the last world: lessons 7 to 13
   const pill = await rectOf(page, '.pill-hold'), fsb = await rectOf(page, '.home-fs');
   const failures = [];
   for (let i = 0; i < NODES.length; i++) {
@@ -121,7 +126,7 @@ export async function mapReachChecks({ browser, url, ok, vp }) {
   const f = await rectOf(page, '.stone', 0);
   await page.touchscreen.tap(f.x + f.w / 2, f.y + f.h / 2);
   await page.waitForSelector('.lesson-overview', { timeout: 5000 }).catch(() => {});
-  ok(page.url().endsWith('#/lesson/1'), `${tag}: a tap on a stone of a scrollable map opens its lesson`);
+  ok(page.url().endsWith(`#/lesson/${NODES[0].lesson.number}`), `${tag}: a tap on a stone of a scrollable map opens its lesson`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
   await ctx.close();
 
@@ -129,7 +134,7 @@ export async function mapReachChecks({ browser, url, ok, vp }) {
   const s2 = await open(browser, url, vp, seed(CUR.lessons.length));
   const pg = s2.page;
   await pg.waitForTimeout(1800);
-  const idx = 4; // lesson 5's stone is done and so would open if the swipe counted as a tap
+  const idx = portrait ? 1 : 4; // that stone is done and so would open if the swipe counted as a tap (a short map: one with room to scroll back)
   await pg.evaluate((k) => document.querySelectorAll('.stone')[k].scrollIntoView({ block: 'center', inline: 'center' }), idx);
   await pg.waitForTimeout(300);
   const st = await rectOf(pg, '.stone', idx);
@@ -177,7 +182,7 @@ export async function mapUpgradeChecks({ browser, url, ok }) {
   // Story 2 sits on the path right after lesson 6 (the stop that needs m a s i t p).
   {
     const k = CUR.checkpoints.find((x) => x.id === 'b2');
-    const { ctx, page } = await open(browser, url, VIEWPORTS[0], seed(6, {}));
+    const { ctx, page } = await open(browser, url, VIEWPORTS[0], seed(5, {}));
     await page.waitForTimeout(1500);
     const labels = await page.locator('.stone').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label') || ''));
     const a = labels.findIndex((l) => l.startsWith('Lesson 6')), b = labels.findIndex((l) => l.startsWith(k ? k.title : 'Story 2'));

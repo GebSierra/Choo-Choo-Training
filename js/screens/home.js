@@ -11,11 +11,12 @@ import { kidSvg } from '../art/kid.js';
 import { dueLevel, builtLevels } from '../levels.js';
 import { starBoard } from '../components/star-board.js';
 import { levelBanner } from '../components/level-banner.js';
+import { planHome, worldAfter } from '../worlds.js';
 
 // The path is a long winding trail that scrolls: up the screen in portrait (lesson 1 at the bottom, the newest stone at the top),
 // along it in landscape (lesson 1 at the left). Every stone, the trail and the scenery are placed from the data and the sizes
 // below, so any number of lessons and checkpoints fits.
-const STEP_P = 150, TOP_P = 190, BOTTOM_P = 210;   // portrait: pixels between stones, room above the last, room below the first
+const STEP_P = 150, TOP_P = 250, BOTTOM_P = 210;   // portrait: pixels between stones, room above the last, room below the first
 const STEP_L = 190, LEFT_L = 190, RIGHT_L = 210;   // landscape: the same, along the path
 const wave = (i) => Math.sin(i * 1.1 + 0.4);
 export const BUBBLE_FLIP_Y = 330;                   // portrait: a bubble flips below its stone when the stone is this near the top of the scene
@@ -28,7 +29,7 @@ export function mapGeometry(n) {
 }
 
 // The trail through the stones, with a bend between each pair so it winds.
-function trailPoints(g, portrait) {
+function trailPoints(g, portrait, tunnel = false) {
   const pts = [portrait ? [30, g.H - 80] : [60, 70]];
   g.stones.forEach((s, i) => {
     const p = portrait ? [s.px, s.py] : [s.lx, s.ly];
@@ -38,6 +39,7 @@ function trailPoints(g, portrait) {
     }
     pts.push(p);
   });
+  if (tunnel) pts.push(portrait ? [58.8, 170] : [g.W - 95, 58]); // on into the tunnel at the world's end
   return pts;
 }
 
@@ -98,9 +100,24 @@ function place(g, el, { t, side, w = 0, hgt = 0 }) {
   return el;
 }
 
+// The world's end: a hill with an arch, glowing in the next world's colour, and its name. The trail runs into it.
+function tunnelIcon(g, next) {
+  const svg = h('svg', { class: 'tunnel-art', viewBox: '0 0 160 110', 'aria-hidden': 'true' },
+    h('path', { d: 'M6 104 C6 40 40 8 80 8 C120 8 154 40 154 104 Z', fill: '#2FA35E' }),
+    h('path', { d: 'M80 8 C120 8 154 40 154 104 L120 104 C120 60 104 24 80 8 Z', fill: '#268A4D' }),
+    h('path', { d: 'M40 104 C40 62 58 40 80 40 C102 40 120 62 120 104 Z', fill: '#2B2D5C' }),
+    h('path', { d: 'M52 104 C52 72 64 54 80 54 C96 54 108 72 108 104 Z', fill: next.color, stroke: '#FFF8EC', 'stroke-width': 3 }),
+    h('path', { d: 'M40 104 C40 62 58 40 80 40 C102 40 120 62 120 104', fill: 'none', stroke: '#C9C4BA', 'stroke-width': 9, 'stroke-linecap': 'round' }));
+  const el = h('div', { class: 'scene-tunnel', dataset: { world: next.id }, 'aria-label': `Tunnel to ${next.name}` }, svg, h('span', { class: 'tunnel-name' }, next.name, ' \u2192'));
+  const out = place(g, el, { t: 1, side: 0.2, w: 150, hgt: 100 });
+  out.style.setProperty('--py', '126px'); // in portrait it stands above the last stone, clear of the top bar
+  out.style.setProperty('--lx', (g.W - 95) + 'px'); // in landscape it stands whole at the far end
+  return out;
+}
+
 // The scenery: soft patches, trees, daisies and bushes repeated along the trail, the house at the start and a pond at the far end.
 // Nothing here moves except the two butterflies, and everything is placed by a fixed pattern (the map looks the same every time).
-function scenery(g) {
+function scenery(g, next = null) {
   const out = [];
   const count = Math.max(6, Math.round(g.stones.length * 0.9));
   for (let k = 0; k < count; k++) {
@@ -115,7 +132,7 @@ function scenery(g) {
   }
   out.push(place(g, house(), { t: 0, side: -0.55, w: 230, hgt: 178 }));
   out[out.length - 1].classList.add('scene-house');
-  out.push(place(g, h('div', { class: 'scene-water' }), { t: 1, side: 0.9, w: 300, hgt: 190 }));
+  if (next) out.push(tunnelIcon(g, next)); else out.push(place(g, h('div', { class: 'scene-water' }), { t: 1, side: 0.9, w: 300, hgt: 190 }));
   // The two butterflies fly by the start of the path (so a new child sees them) and halfway along.
   out.push(place(g, butterfly('b-one'), { t: 0.08, side: 0.5, w: 34, hgt: 26 }), place(g, butterfly('b-two'), { t: 0.5, side: -0.5, w: 26, hgt: 20 }));
   return out;
@@ -151,6 +168,13 @@ function stone(g, i, what, state, onTap, speech, character) {
 export async function homeScreen(ctx) {
   const preview = ctx.preview || null;
   ctx.preview = null;
+  // The Home builds one world only. When the child has just finished a world, its crossing plays once (js/screens/crossing.js).
+  let plan = null;
+  if (!preview) {
+    plan = ctx.homePlan || planHome(ctx.store, ctx.curriculum);
+    ctx.homePlan = null;
+    if (plan.cross && !plan.hosted) { const m = await import('./crossing.js'); return m.crossingHost(ctx, plan); }
+  }
   if (ctx.store.settings.trainWorld !== false && !ctx.noTrain) {
     let canvas = null, gl = null, soft = false;
     const opts = (antialias) => ({ antialias, alpha: true, powerPreference: 'low-power' });
@@ -170,7 +194,7 @@ export async function homeScreen(ctx) {
     if (gl) {
       try {
         const m = await import('./home3d.js');
-        return m.home3dScreen(ctx, { canvas, gl, soft, preview });
+        return m.home3dScreen(ctx, { canvas, gl, soft, preview, plan });
       } catch (e) {
         console.warn('train world unavailable, using the 2D path:', e && e.message);
         loseContext(gl);
@@ -178,7 +202,7 @@ export async function homeScreen(ctx) {
       }
     }
   }
-  return mapScreen(ctx, preview);
+  return mapScreen(ctx, preview, plan);
 }
 
 function loseContext(gl) { try { const lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext(); } catch { /* fine */ } }
@@ -190,7 +214,7 @@ export function isSoftware(gl) {
 }
 
 // The 2D path (round 3): a long winding trail of stones that scrolls.
-export function mapScreen(ctx, preview = null) {
+export function mapScreen(ctx, preview = null, plan = null) {
   const { store, router, curriculum, speech } = ctx;
   // A level earned since Home was last open (or one replayed from Grownups) shows its banner once (the 2D path has no tunnel or car).
   const replayId = preview ? null : ctx.replayLevel || null;
@@ -201,12 +225,16 @@ export function mapScreen(ctx, preview = null) {
   const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); };
   const total = curriculum.lessons.length;
   const current = store.currentLesson(total);
+  const worldId = preview ? preview.world : plan && plan.world ? plan.world.id : null;
+  const cross = !preview && plan && plan.cross ? plan.cross : null;
+  const arrive = !preview && plan && plan.arrive ? plan.arrive : null;
+  const next = worldId ? worldAfter(curriculum, worldId) : null;
   // One numbered path: the lessons in order, each checkpoint right after the lesson it follows.
-  const nodes = curriculum.lessons.filter((l) => !preview || l.world === preview.world).flatMap((l) => [{ lesson: l }, ...(curriculum.checkpoints || []).filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
+  const nodes = curriculum.lessons.filter((l) => !worldId || l.world === worldId).flatMap((l) => [{ lesson: l }, ...(curriculum.checkpoints || []).filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   const g = mapGeometry(nodes.length);
   const scene = h('div', { class: 'scene', style: { '--H': g.H, '--W': g.W } },
-    ...scenery(g),
-    pathSvg(trailPoints(g, true), 'portrait', `0 0 100 ${g.H}`), pathSvg(trailPoints(g, false), 'landscape', `0 0 ${g.W} 100`));
+    ...scenery(g, next),
+    pathSvg(trailPoints(g, true, !!next), 'portrait', `0 0 100 ${g.H}`), pathSvg(trailPoints(g, false, !!next), 'landscape', `0 0 ${g.W} 100`));
   const scroller = h('div', { class: 'map-scroll', role: 'region', 'aria-label': 'The path of lessons', tabindex: '0' }, scene);
 
   // A swipe along the map never counts as a tap on a stone under the finger.
@@ -245,16 +273,19 @@ export function mapScreen(ctx, preview = null) {
   const root = h('div', { class: 'home' }, scroller, top, ...(fs ? [fs] : []));
   // The theme song waits for the ride and the level banner to finish (it starts at once when neither is due).
   let celebrating = fromStop >= 0 || !!due;
+  const gateHold = cross || arrive ? (cross || arrive).gate : null;
+  // Everything due is over: when a crossing is due, the loading card comes now (the flat map has no tunnel to ride into).
+  const over = () => { celebrating = false; if (cross && cross.onEnter && root.isConnected) later(() => cross.onEnter(), reduced() ? 600 : 900); };
   const showLevel = () => {
-    if (!due || !root.isConnected) { celebrating = false; return; }
-    later(() => { celebrating = false; }, reduced() ? 1500 : 3000);
+    if (!due || !root.isConnected) { over(); return; }
+    later(over, reduced() ? 1500 : 3000);
     const i = builtLevels(curriculum).findIndex((v) => v.id === due.id);
     levelBanner({ level: due, host: root, reducedMotion: reduced() });
     stars.pop(i);
     sfx.play(reduced() ? 'star' : 'checkpoint');
   };
   root.cleanup = () => { grown.cleanup(); timers.forEach(clearTimeout); timers.clear(); if (!preview) music.leaveHome(); };
-  if (!preview) music.enterHome({ hold: () => celebrating });
+  if (!preview) music.enterHome({ hold: () => celebrating || !!(gateHold && gateHold.active) });
 
   firstRunOverlay({ store, root });
 

@@ -16,6 +16,7 @@ export function createRenderer(canvas, gl, soft = false) {
   renderer.shadowMap.enabled = !soft;
   renderer.shadowMap.type = THREE.PCFShadowMap; // cheap soft-edged shadows from a small map
   renderer.shadowMap.autoUpdate = true;
+  renderer.localClippingEnabled = true; // the train is not drawn inside a start tunnel (js/screens/home3d.js)
   renderer.setClearColor(0x000000, 0);
   return renderer;
 }

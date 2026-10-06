@@ -137,6 +137,28 @@ export async function musicChecks({ browser, url, ok }) {
     ok(errors.length === 0, '2D ride: errors ' + errors.join(' | '));
     await ctx.close();
   }
+  {
+    // The crossing between two worlds (1.9.14): the move has its whistle, and the theme does not start while the train crosses (the
+    // portal, the loading card, the roll out of the next tunnel); it starts when the crossing ends.
+    const crossing = state(6, { trainDone: 6, trainAt: 8 }, { levels: { seen: 1, earned: { L1: '2026-10-06T10:00:00.000Z' } }, worlds: { seen: 'W1' }, meetDue: false });
+    const { ctx, page, errors } = await openHome(browser, url, vp, crossing, { init: [MEDIA_SPY], route: '#/lesson/1' });
+    await page.waitForTimeout(1200);
+    await page.mouse.click(3, 300); // the first tap comes on another screen, so sound is unlocked when the train sets off
+    await page.evaluate(() => { location.hash = '#/home'; });
+    ok(await until(page, () => window.__train && window.__train.gate.mode === 'out', null, 15000), 'crossing: Home shows world 1 with its crossing due');
+    let first = null, early = 0;
+    for (let i = 0; i < 300 && !first; i++) {
+      const r = await page.evaluate(() => { const h = document.querySelector('.gateway-host'); return { plays: window.__media.filter((m) => m.op === 'play' && m.src === 'theme.mp3').length, phase: h ? h.dataset.phase : null, card: !!document.querySelector('.world-card'), run: window.__train ? window.__train.running : null }; });
+      if (r.plays > 0) first = r; else if (r.phase === 'card' || r.phase === 'arrive') early++;
+      if (!first) await page.waitForTimeout(150);
+    }
+    ok(whistles && (await whistles(page)) >= 1, 'crossing: the train whistle sounds as it rolls into the portal');
+    ok(first && first.phase === 'done' && early > 3, `crossing: no theme during the card or the roll out; it starts when the crossing ends (${JSON.stringify(first)}, ${early} polls without it before)`);
+    await page.waitForTimeout(600);
+    ok((await themePlays(page)).length === 1, 'crossing: one theme only');
+    ok(errors.length === 0, 'crossing: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   ok(fs.existsSync(path.join(root, 'assets/audio/music/theme.mp3')) && fs.existsSync(path.join(root, 'assets/audio/sfx/whistle.mp3')), 'music: the theme and the whistle files exist');
   const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
