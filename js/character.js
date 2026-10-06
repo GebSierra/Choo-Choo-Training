@@ -2,8 +2,14 @@
 // never sent anywhere and never passed to text to speech.
 export const SKINS = ['#F6D3B8', '#E8B48F', '#C98E62', '#8F5A36', '#5C3A22'];
 export const HAIR_COLORS = ['#20160F', '#5A3A22', '#9A6A3A', '#E0B866', '#B5532E'];
-export const HAIR_STYLES = ['short', 'curly', 'puffs', 'ponytail', 'bun', 'long', 'braids', 'afro', 'bob', 'buzz'];
-export const HAIR_NAMES = { short: 'Short hair', curly: 'Curly hair', puffs: 'Two puffs', ponytail: 'Ponytail', bun: 'Bun', long: 'Long wavy hair', braids: 'Braids', afro: 'Big round curls', bob: 'Bob', buzz: 'Buzz cut' };
+export const HAIR_STYLES = ['short', 'curly', 'puffs', 'ponytail', 'bun', 'long', 'braids', 'afro', 'bob', 'buzz', 'cap', 'pinkcap', 'cowboy'];
+export const HAIR_NAMES = { short: 'Short hair', curly: 'Curly hair', puffs: 'Two puffs', ponytail: 'Ponytail', bun: 'Bun', long: 'Long wavy hair', braids: 'Braids', afro: 'Big round curls', bob: 'Bob', buzz: 'Buzz cut', cap: 'Baseball cap', pinkcap: 'Pink cap', cowboy: 'Cowboy hat' };
+// The three hats: the hair colour still shows under them (short hair at the sides and the nape). Colours for 2D and 3D.
+export const HATS = {
+  cap: { crown: '#2B4A9C', panel: '#5D8BE0', brim: '#1F3670', button: '#5D8BE0' },
+  pinkcap: { crown: '#F472B6', panel: '#FFFFFF', brim: '#DB4F94', button: '#DB4F94' },
+  cowboy: { crown: '#C58B4F', brim: '#B07A3F', band: '#5A3A22', edge: '#8C5A2B' },
+};
 // What the figure wears. `top` is the shirt (and the sleeves), `legs` the trousers (null: bare legs, for the dress). The
 // first one is the original look and the default for every saved character that has no `outfit` yet.
 export const OUTFITS = [

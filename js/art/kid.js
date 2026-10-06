@@ -4,7 +4,7 @@
 //
 //   kidSvg({ skin, hair, hairColor, pose: 'idle' | 'wave' | 'cheer', still, label })   (skin, hairColor: index)
 import { h } from '../dom.js';
-import { SKINS, HAIR_COLORS, HAIR_STYLES, OUTFIT, outfitOf, mixHex } from '../character.js';
+import { SKINS, HAIR_COLORS, HAIR_STYLES, HATS, OUTFIT, outfitOf, mixHex } from '../character.js';
 
 const EYE = '#2A1E1A', CHEEK = '#F28B82', MOUTH = '#7A3B2E';
 
@@ -18,8 +18,32 @@ const ARMS = {
 const star = (cx, cy, r) => Array.from({ length: 10 }, (_, k) => { const a = -Math.PI / 2 + (k * Math.PI) / 5, rr = k % 2 ? r * 0.45 : r; return `${(cx + rr * Math.cos(a)).toFixed(1)},${(cy + rr * Math.sin(a)).toFixed(1)}`; }).join(' ');
 const ring = (n, a0, a1, rad, cx = 60, cy = 58) => Array.from({ length: n }, (_, k) => { const a = ((a0 + ((a1 - a0) * k) / (n - 1)) * Math.PI) / 180; return [cx + rad * Math.cos(a), cy + rad * Math.sin(a)]; });
 
+// The hats (front layer): short hair in the hair colour shows around the ears behind the head, and the brim stops above
+// the brows so the eyes and brows stay clear.
+function hatParts(style, col) {
+  const t = HATS[style];
+  const back = [h('path', { d: 'M27.5 73 C23.5 50 36 25 60 25 C84 25 96.5 50 92.5 73 Z', fill: col })];
+  if (style === 'cowboy') {
+    return { back, front: [h('g', { transform: 'translate(0 -3)' },
+      h('path', { d: 'M15 27 Q17 39 36 40 Q60 43 84 40 Q103 39 105 27 Q110 40 98 45 Q80 49.5 60 48.5 Q40 49.5 22 45 Q10 40 15 27 Z', fill: t.brim, stroke: t.edge, 'stroke-width': 1.4, 'stroke-linejoin': 'round' }),
+      h('path', { d: 'M37 39 C36 26 39 12 46 9.5 Q53 7.5 57 12.5 Q60 15 63 12.5 Q67 7.5 74 9.5 C81 12 84 26 83 39 Q60 44 37 39 Z', fill: t.crown }),
+      h('path', { d: 'M37.4 33.4 Q60 39 82.6 33.4 L83 39.2 Q60 44.4 37 39.2 Z', fill: t.band }),
+      h('path', { d: 'M60 15 L60 31 M39.5 22 Q40.5 16 46 11.5', fill: 'none', stroke: t.edge, 'stroke-width': 1.4, 'stroke-linecap': 'round', opacity: 0.6 }),
+      h('path', { d: 'M42 31 Q44 20 49 14', fill: 'none', stroke: '#fff', 'stroke-width': 2, 'stroke-linecap': 'round', opacity: 0.25 })) ] };
+  }
+  return { back, front: [h('g', {},
+    h('path', { d: 'M29 42 C26 18 42 10 60 10 C78 10 94 18 91 42 Q60 40 29 42 Z', fill: t.crown }),
+    h('path', { d: 'M43.2 41.3 C41 28 48 13 60 10.6 C72 13 79 28 76.8 41.3 Q60 40.2 43.2 41.3 Z', fill: t.panel }),
+    h('path', { d: 'M43.2 41.3 C41 28 48 13 60 10.6 C72 13 79 28 76.8 41.3', fill: 'none', stroke: mixHex(t.crown, '#000000', 0.25), 'stroke-width': 1.1, opacity: 0.55 }),
+    h('circle', { cx: 60, cy: 10.2, r: 2.6, fill: t.button }),
+    h('path', { d: 'M34 24 Q40 15 51 12.5', fill: 'none', stroke: '#fff', 'stroke-width': 2, 'stroke-linecap': 'round', opacity: 0.25 }),
+    h('path', { d: 'M29.5 41 Q60 38.5 90.5 41 C96 44.5 88 46 74 46.4 Q60 48 46 46.4 C32 46 24 44.5 29.5 41 Z', fill: t.brim }),
+    h('path', { d: 'M38 44.2 Q60 47.6 82 44.2', fill: 'none', stroke: '#fff', 'stroke-width': 1.2, 'stroke-linecap': 'round', opacity: 0.25 })) ] };
+}
+
 // Hair: { back, front } as arrays of elements, from the colour and its shade.
 function hairParts(style, col, shade, skinC) {
+  if (HATS[style]) return hatParts(style, col);
   const blob = (cx, cy, r, fill = col) => fill === col
     ? h('g', {}, h('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r, fill }), h('path', { d: `M${(cx - r * 0.55).toFixed(1)} ${(cy - r * 0.2).toFixed(1)} Q${(cx - r * 0.3).toFixed(1)} ${(cy - r * 0.62).toFixed(1)} ${(cx + r * 0.2).toFixed(1)} ${(cy - r * 0.62).toFixed(1)}`, fill: 'none', stroke: '#fff', 'stroke-width': 1.1, 'stroke-linecap': 'round', opacity: 0.12 }))
     : h('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r, fill });

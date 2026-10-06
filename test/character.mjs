@@ -5,7 +5,7 @@ import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, doneThrough } from './lib.mjs';
 import { openHome, state, iL } from './train.mjs';
-import { SKINS, HAIR_STYLES, HAIR_COLORS, OUTFITS, OUTFIT_IDS, cleanCharacter } from '../js/character.js';
+import { SKINS, HAIR_STYLES, HAIR_NAMES, HAIR_COLORS, OUTFITS, OUTFIT_IDS, cleanCharacter } from '../js/character.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const BOOK = CUR.checkpoints.find((k) => k.kind === 'book');
@@ -34,8 +34,8 @@ export async function characterChecks({ browser, url, ok }) {
     await page.waitForSelector('.cp');
     await page.waitForTimeout(600);
     ok((await page.locator('.cp h2').innerText()) === 'Who is riding with Pip?', 'first run: the creator asks who is riding with Pip');
-    ok((await page.locator('.cp-skin button, .cp-hair button, .cp-hair-color button, .cp-outfit button').count()) === 5 + 10 + 5 + OUTFITS.length, 'first run: five skins, ten hair styles, five hair colors and the clothes');
-    ok(HAIR_STYLES.length === 10 && HAIR_COLORS.length === 5 && OUTFITS.length >= 8 && OUTFITS[0].id === 'star', 'data: ten hair styles, five colors, at least eight outfits, the old look first');
+    ok((await page.locator('.cp-skin button, .cp-hair button, .cp-hair-color button, .cp-outfit button').count()) === 5 + 13 + 5 + OUTFITS.length, 'first run: five skins, thirteen hair styles (three of them hats), five hair colors and the clothes');
+    ok(HAIR_STYLES.length === 13 && HAIR_COLORS.length === 5 && OUTFITS.length >= 8 && OUTFITS[0].id === 'star', 'data: thirteen hair styles, five colors, at least eight outfits, the old look first');
     ok((await page.locator('.cp-outfit button').nth(0).getAttribute('aria-pressed')) === 'true', 'first run: the original outfit starts picked');
     const small = await page.evaluate(() => [...document.querySelectorAll('.cp button')].filter((b) => { const r = b.getBoundingClientRect(); return r.width < 55.5 || r.height < 55.5; }).map((b) => b.className));
     ok(small.length === 0, `first run: every button is at least 56 px (${small.join(',')})`);
@@ -184,6 +184,51 @@ export async function characterChecks({ browser, url, ok }) {
     await ctx.close();
   }
 
+  // The three hats: in the creator, kept after a reload, drawn flat in 2D and as meshes in 3D, with the hair colour showing.
+  {
+    const HATS3 = ['cap', 'pinkcap', 'cowboy'];
+    ok(HATS3.every((k) => HAIR_STYLES.includes(k) && cleanCharacter({ hair: k }).hair === k), 'hats: the three styles exist and are accepted');
+    ok(HAIR_NAMES.cap === 'Baseball cap' && HAIR_NAMES.pinkcap === 'Pink cap' && HAIR_NAMES.cowboy === 'Cowboy hat', 'hats: the names are neutral');
+    const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
+    await page.addInitScript(SPEECH_STUB);
+    await page.goto(url + '#/home');
+    await page.waitForSelector('.welcome'); await page.waitForTimeout(700); await page.click('.wc-skip');
+    await page.waitForSelector('.cp'); await page.waitForTimeout(600);
+    const names = await page.locator('.cp-hair button').evaluateAll((bs) => bs.map((b) => b.getAttribute('aria-label')));
+    ok(['Baseball cap', 'Pink cap', 'Cowboy hat'].every((n) => names.includes(n)), `hats: the creator lists them (${names.slice(-3)})`);
+    for (const [i, k] of HATS3.entries()) {
+      const b = page.locator('.cp-hair button').nth(HAIR_STYLES.indexOf(k));
+      await b.scrollIntoViewIfNeeded(); await b.click();
+      ok((await b.getAttribute('aria-pressed')) === 'true', `hats: ${k} can be picked`);
+      const svg = await page.evaluate(() => { const s = document.querySelector('.cp-preview svg'); return { ids: s.querySelectorAll('[id]').length, grad: s.querySelectorAll('linearGradient,radialGradient,defs,filter').length, front: s.querySelector('.kid-hair-front').children.length, back: s.querySelector('.kid-hair-back').children.length }; });
+      ok(svg.ids === 0 && svg.grad === 0 && svg.front >= 1 && svg.back >= 1, `hats: ${k} draws flat in 2D with hair behind (${JSON.stringify(svg)})`);
+    }
+    await page.locator('.cp-hair-color button').nth(3).click();
+    const back = await page.evaluate(() => document.querySelector('.cp-preview .kid-hair-back path').getAttribute('fill'));
+    ok(back.toLowerCase() === HAIR_COLORS[3].toLowerCase(), `hats: the hair colour shows under the hat (${back})`);
+    await page.click('.cp-done'); await page.waitForTimeout(500);
+    await page.reload(); await page.waitForTimeout(900);
+    ok((await stored(page)).character.hair === 'cowboy', 'hats: the hat survives a reload');
+    ok(errors.length === 0, `hats: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  {
+    const { ctx, page, errors } = await openHome(browser, url, VIEWPORTS[0], state(4, { trainAt: iL(4) }, { character: { name: 'Lily', skin: 2, hair: 'cap', hairColor: 1, outfit: 'star', made: true } }));
+    await until(page, () => window.__train && window.__train.frames > 0);
+    const names = [];
+    for (const k of ['cap', 'pinkcap', 'cowboy']) {
+      const r = await page.evaluate(async (hair) => {
+        const { makeBag } = await import('/js/train/world.js'); const { buildKid } = await import('/js/train/kid3d.js');
+        const meshes = (hr) => { let n = 0; buildKid(makeBag(), { skin: 2, hair: hr, hairColor: 1 }).group.traverse((m) => { if (m.isMesh) n++; }); return n; };
+        return { n: meshes(hair), plain: meshes('short') };
+      }, k);
+      ok(r.n > r.plain && r.n <= r.plain + 8, `hats: ${k} adds a few meshes in 3D (${r.n} vs ${r.plain})`);
+    }
+    ok(await until(page, () => window.__train.kid && window.__train.kidName === 'kid'), '3D home: the kid group is there with the hat');
+    ok(errors.length === 0, `hats 3D: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+
   // The card fits without scrolling in portrait 360 x 640 and in landscape 915 x 412, with 56 px buttons.
   for (const [w, hgt] of [[360, 640], [915, 412], [346, 690]]) {
     const { ctx, page } = await newPage(browser, { name: 'fit', width: w, height: hgt, deviceScaleFactor: 1 });
@@ -193,9 +238,9 @@ export async function characterChecks({ browser, url, ok }) {
     await page.waitForSelector('.cp'); await page.waitForTimeout(600);
     const m = await page.evaluate(() => {
       const c = document.querySelector('.first-card'), r = c.getBoundingClientRect(), cp = document.querySelector('.cp').getBoundingClientRect();
-      const small = [...document.querySelectorAll('.cp button')].filter((b) => { const q = b.getBoundingClientRect(); return q.width < 55.5 || q.height < 55.5; }).length;
+      const smallL = [...document.querySelectorAll('.cp button')].filter((b) => { const q = b.getBoundingClientRect(); return q.width < 55.5 || q.height < 55.5; }); const small = smallL.length; window.__smallInfo = smallL.slice(0, 3).map((b) => b.className + ' ' + b.getBoundingClientRect().width + 'x' + b.getBoundingClientRect().height + ' ' + b.parentElement.className);
       const out = [...document.querySelectorAll('.cp-done, .cp-later, .cp-name, .cp-skin, .cp-hair, .cp-hair-color, .cp-outfit')].filter((e) => { const q = e.getBoundingClientRect(); return q.top < r.top - 1 || q.bottom > r.bottom + 1 || q.left < r.left - 1 || q.right > r.right + 1; }).map((e) => e.className);
-      return { top: r.top, bottom: r.bottom, vh: innerHeight, vw: innerWidth, right: r.right, scrolls: c.scrollHeight > c.clientHeight + 1, small, out, hscroll: document.documentElement.scrollWidth > innerWidth, cpw: cp.width };
+      return { top: r.top, bottom: r.bottom, vh: innerHeight, vw: innerWidth, right: r.right, scrolls: c.scrollHeight > c.clientHeight + 1, small, info: window.__smallInfo, out, hscroll: document.documentElement.scrollWidth > innerWidth, cpw: cp.width };
     });
     ok(!m.scrolls && m.top >= 0 && m.bottom <= m.vh && m.right <= m.vw && m.small === 0 && m.out.length === 0 && !m.hscroll, `fit ${w}x${hgt}: the creator card fits with 56 px buttons (${JSON.stringify(m)})`);
     // a row with more than five choices scrolls sideways and the last choice can be reached

@@ -3,7 +3,7 @@
 // waves when the train arrives. It does not breathe or blink: it is drawn only while something else moves.
 //   const kid = buildKid(bag, character); kid.group (named 'kid'); kid.tick(t, still); kid.wave(on, t); kid.waving
 import { THREE } from './world.js';
-import { SKINS, HAIR_COLORS, HAIR_STYLES, OUTFIT, outfitOf, mixHex } from '../character.js';
+import { SKINS, HAIR_COLORS, HAIR_STYLES, HATS, OUTFIT, outfitOf, mixHex } from '../character.js';
 
 export function buildKid(bag, character = {}) {
   const skin = SKINS[character.skin] || SKINS[2], hairC = HAIR_COLORS[character.hairColor] || HAIR_COLORS[1];
@@ -116,6 +116,25 @@ export function buildKid(bag, character = {}) {
     hair(0.11, -0.12, 0.27, 0.08); hair(0.11, 0.12, 0.27, 0.08); hair(0.11, 0, 0.3, 0.04);
   } else if (style === 'bob') {
     crown(); hair(0.3, 0, -0.07, -0.12, 1.02, 1.0, 0.78);
+  } else if (HATS[style]) {
+    // a hat: short hair under it, in the hair colour (at the sides above the ears and at the back), then the hat
+    const t = HATS[style];
+    hair(0.285, 0, -0.04, -0.08, 1, 0.78, 0.95);
+    const part = (geo, c, key) => new THREE.Mesh(bag.geo(key, () => geo), mat(c));
+    if (style === 'cowboy') {
+      head.add(place(part(new THREE.CylinderGeometry(0.2, 0.235, 0.27, 22), t.crown, 'hcrown'), 0, 0.29, -0.04));
+      const dent = part(new THREE.BoxGeometry(0.05, 0.03, 0.34), mixHex(t.crown, '#000000', 0.25), 'hdent'); head.add(place(dent, 0, 0.43, -0.04));
+      head.add(place(part(new THREE.CylinderGeometry(0.237, 0.243, 0.07, 22), t.band, 'hband'), 0, 0.19, -0.04));
+      for (const [side, ts] of [[1, 0], [-1, Math.PI]]) {
+        const b = part(new THREE.CylinderGeometry(0.47, 0.47, 0.018, 24, 1, false, ts, Math.PI), t.brim, 'hbrim' + side); b.scale.z = 0.95; b.position.set(0, 0.17, -0.04); b.rotation.z = side * 0.28; head.add(b);
+      }
+    } else {
+      const dome = (r, c, key, phi0 = 0, phiLen = Math.PI * 2) => part(new THREE.SphereGeometry(r, 24, 12, phi0, phiLen, 0, 1.07), c, key);
+      head.add(place(dome(0.292, t.crown, 'hdome'), 0, 0.02, -0.04));
+      head.add(place(dome(0.296, t.panel, 'hpanel', Math.PI / 2 - 0.62, 1.24), 0, 0.02, -0.04));
+      head.add(place(sph(0.022, t.button, 8), 0, 0.31, -0.04));
+      const brim = part(new THREE.CylinderGeometry(0.43, 0.43, 0.02, 24, 1, false, -Math.PI / 2, Math.PI), mixHex(t.brim, '#ffffff', 0.16), 'hvisor'); brim.scale.x = 0.66; brim.position.set(0, 0.17, -0.04); brim.rotation.x = 0.1; head.add(brim);
+    }
   } else if (style === 'buzz') {
     hair(0.275, 0, 0.06, -0.03, 1, 0.8, 1.0, mixHex(hairC, skin, 0.45));
   } else { crown(); }
