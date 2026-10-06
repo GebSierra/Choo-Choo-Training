@@ -42,6 +42,12 @@ Nothing in this list gets built until the owner has picked an option and approve
    current line, with a way back to earlier lines. This also keeps the 3D scene small (heat).
 5. **New sounds master plan** (the owner will supply it): only after 1 and 2 are approved.
 6. Music: deferred until the owner supplies audio files (see "Later" in docs/PLAN-v1.8.md).
+7. **Replace the Mentava pictures (owner request, not urgent).** The app uses about 77 Mentava picture tiles
+   (assets/images/mentava/web/, listed in APP_FILES in sw.js: apple, fish, milk, camel and so on), which cannot ship in a
+   sold app. Make docs/IMAGES-TO-REPLACE.md: every non-emoji picture the app uses, where it appears (lesson, task,
+   word), and for each one an image-generation prompt in one shared house style (soft flat illustration, warm palette,
+   single object centred on a plain light background, no text, square), so the set can be recreated and swapped in at
+   the same file paths.
 
 ## How to plan (owner rule)
 When the owner gives a plan or a problem: for each problem give **three options** with trade-offs and a
