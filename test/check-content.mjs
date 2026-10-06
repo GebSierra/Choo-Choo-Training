@@ -281,6 +281,36 @@ export function checkCurriculum(c, root = ROOT) {
     if (!c.games || !c.games.ride || !c.games.ride.say) err('games.ride.say missing');
   };
 
+  // Levels: milestones that earn a special car and a gold star (js/levels.js). `after` is the first lesson by which every needed sound is taught.
+  {
+    const CARS = ['caboose', 'coach', 'flatbed', 'tanker', 'dome'];
+    const lv = c.levels;
+    if (!Array.isArray(lv) || !lv.length) err('levels missing');
+    else {
+      const taughtOrder = (c.lessons || []).map((L) => L.sound);
+      const seenIds = new Set(), seenCars = new Set();
+      let built = 0;
+      lv.forEach((v, i) => {
+        const p = `levels[${i}]`;
+        if (!v.id || seenIds.has(v.id)) err(`${p}.id must be unique`);
+        seenIds.add(v.id);
+        if (v.n !== i + 1) err(`${p}.n must be ${i + 1}`);
+        if (!CARS.includes(v.car) || seenCars.has(v.car)) err(`${p}.car "${v.car}" must be one of ${CARS.join(' ')}, used once`);
+        seenCars.add(v.car);
+        if (!Array.isArray(v.needs) || !v.needs.length) return err(`${p}.needs missing`);
+        if (i && !lv[i - 1].needs.every((k) => v.needs.includes(k))) err(`${p}.needs must hold the needs of level ${i}`);
+        const at = v.needs.map((k) => taughtOrder.indexOf(k) + 1);
+        const want = at.includes(0) ? null : Math.max(...at);
+        if (v.after !== want) err(`${p}.after is ${v.after}, expected ${want}`);
+        if (v.after !== null) {
+          const prev = built ? lv[built - 1].after : 0;
+          if (v.after - prev < 4 || v.after - prev > 15) err(`${p} is ${v.after - prev} sounds after the one before; built levels must be 4 to 15 apart`);
+          built++;
+        }
+      });
+    }
+  }
+
   const ids = new Set();
   (c.checkpoints || []).forEach((k, i) => {
     const p = `checkpoints[${i}]`;

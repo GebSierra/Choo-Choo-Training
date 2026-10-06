@@ -125,6 +125,19 @@ c.games.board = { say: 'Find the sound in the word.' };
 c.games.wagons = { say: 'Tap every wagon that has the sound.' };
 c.games.signals = { say: 'Listen. Then tap the light that makes the sound.' };
 
+// Milestones (docs/PLAN-v1.9.md). A level is earned when its `after` lesson is done; after is null while a needed sound
+// is not built yet. Keep levels 5 to 15 sounds apart: when o e u are added, bring c k r in the same stretch.
+const ALL13 = ['m', 'a', 's', 'i', 't', 'p', 'n', 'f', 'd', 'h', 'g', 'b', 'l'];
+const LEVELS = [
+  { id: 'L1', n: 1, car: 'caboose', needs: ['m', 'a', 's', 'i', 't', 'p'] },
+  { id: 'L2', n: 2, car: 'coach', needs: ALL13 },
+  { id: 'L3', n: 3, car: 'flatbed', needs: [...ALL13, 'o', 'e', 'u'] },
+  { id: 'L4', n: 4, car: 'tanker', needs: [...ALL13, ...'oeuckrwjvxyzq'] },
+  { id: 'L5', n: 5, car: 'dome', needs: [...ALL13, ...'oeuckrwjvxyzq', 'sh', 'ch', 'th', 'ng', 'ck'] },
+];
+const builtAt = (s) => { const i = c.lessons.findIndex((L) => L.sound === s); return i < 0 ? null : i + 1; };
+c.levels = LEVELS.map((v) => { const at = v.needs.map(builtAt); return { ...v, after: at.includes(null) ? null : Math.max(...at) }; });
+
 fs.writeFileSync(FILE, JSON.stringify(c, null, 2) + '\n');
 
 // The precache list in sw.js: every tile curriculum.json uses.
@@ -138,4 +151,4 @@ sw = sw.replace(/(\/\/ picture tiles curriculum\.json uses[^\n]*\n)[\s\S]*?(\n\]
 // Recorded sounds are optional precache files: one per sound clip (a missing file never stops the install).
 sw = sw.replace(/OPTIONAL_FILES = \[[^\]]*\];/, `OPTIONAL_FILES = [${Object.values(c.sounds).map((s) => s.clip).filter(Boolean).map((f) => `'${f}'`).join(', ')}];`);
 fs.writeFileSync(SW, sw);
-console.log(`gen-lessons: ${c.lessons.length} lessons, ${Object.keys(c.sounds).length} sounds, ${c.checkpoints.length} checkpoints, ${list.length} tiles in the precache list`);
+console.log(`gen-lessons: ${c.lessons.length} lessons, ${Object.keys(c.sounds).length} sounds, ${c.levels.filter((v) => v.after !== null).length} built levels, ${c.checkpoints.length} checkpoints, ${list.length} tiles in the precache list`);

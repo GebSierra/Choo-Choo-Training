@@ -407,7 +407,7 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   ok(saved.voiceURI === 'g-us' && saved.rate === 1.05 && saved.autoSpeak === false, 'voice, rate and auto-speak persist ' + JSON.stringify(saved));
   // "The thinking behind this app", "Recorded sounds" and "All the sounds" start closed (so Reset is within reach); a tap opens one, and "Test voice" sits right under Speed.
   const folds = page.locator('.gu-fold');
-  ok((await folds.count()) === 3 && (await folds.evaluateAll((l) => l.every((b) => b.getAttribute('aria-expanded') === 'false' && document.getElementById(b.getAttribute('aria-controls')).hidden))), 'Grownups: the three reference cards start closed');
+  ok((await folds.count()) === 4 && (await folds.evaluateAll((l) => l.every((b) => b.getAttribute('aria-expanded') === 'false' && document.getElementById(b.getAttribute('aria-controls')).hidden))), 'Grownups: the four reference cards start closed');
   ok(await page.evaluate(() => { const r = document.querySelector('[aria-label="Speaking speed"]').closest('label'); return r.nextElementSibling && r.nextElementSibling.textContent.includes('Test voice'); }), 'Grownups: Test voice sits directly under Speed');
   ok((await page.locator('[aria-label="Play sounds"]').count()) === 1, 'Grownups: the sound-effects switch is labelled "Play sounds"');
   const recorded = page.locator('.gu-fold', { hasText: 'Recorded sounds' });

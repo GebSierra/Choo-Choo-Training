@@ -49,5 +49,23 @@ check(s.character().skin === 4 && s.character().made === true && s.state.meetDue
 s.resetAll();
 check(s.state.meetDue === false && s.character().skin === 4, 'resetAll keeps the character and meetDue');
 
+// Levels: a fresh store has none; bad values load as fresh; setLevels merges; resetAll clears them.
+mem.clear(); s = createStore();
+check(s.levels().seen === null && Object.keys(s.levels().earned).length === 0, 'levels: fresh store has seen null and nothing earned');
+s.setLevels({ seen: 1, earned: { L1: '2026-10-01T10:00:00.000Z' } });
+s.setLevels({ seen: 2, earned: { L2: '2026-10-02T10:00:00.000Z' } });
+check(s.levels().seen === 2 && Object.keys(s.levels().earned).join() === 'L1,L2' && JSON.parse(mem.get('reading.v1')).levels.seen === 2, 'levels: setLevels merges earned and saves');
+for (const bad of [{ seen: -1, earned: {} }, { seen: 1.5, earned: {} }, { seen: 'one', earned: {} }, { seen: 1, earned: [] }, { seen: 1, earned: { L1: 5 } }, 'x', [], { earned: {} }]) {
+  s = open({ ...old({ order: ORDER }), levels: bad });
+  check(s.levels().seen === null && Object.keys(s.levels().earned).length === 0, `levels: bad value ${JSON.stringify(bad)} loads as fresh`);
+}
+s = open({ ...old({ order: ORDER }), levels: { seen: 2, earned: { L1: '2026-10-01T10:00:00.000Z' } } });
+check(s.levels().seen === 2 && typeof s.levels().earned.L1 === 'string', 'levels: good values load');
+s = open({ ...old({ order: ORDER }) });
+check(s.levels().seen === null, 'levels: saved data from before 1.9.4 has none');
+s = open({ ...old({ order: ORDER }), levels: { seen: 2, earned: { L1: '2026-10-01T10:00:00.000Z' } } });
+s.resetAll();
+check(s.levels().seen === null && Object.keys(s.levels().earned).length === 0 && JSON.parse(mem.get('reading.v1')).levels.seen === null, 'levels: resetAll clears them');
+
 console.log(`store: ${n - bad}/${n} checks passed`);
 process.exit(bad ? 1 : 0);

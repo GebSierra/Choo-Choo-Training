@@ -105,7 +105,7 @@ const GL_COUNTER = () => {
 const NO_WEBGL = () => { const orig = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (type, ...rest) { return /webgl/.test(type) ? null : orig.call(this, type, ...rest); }; };
 const train = (page) => page.evaluate(() => { const t = window.__train; return t ? { ...t, stopS: undefined, stops: t.stopS } : null; });
 const shown = (page) => page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => { const r = b.getBoundingClientRect(); return { label: b.getAttribute('aria-label'), cls: [...b.classList].filter((c) => c.startsWith('is-')).join(' '), shown: b.dataset.shown === '1', vis: getComputedStyle(b).visibility, x: r.x, y: r.y, w: r.width, h: r.height }; }));
-const until = async (page, fn, arg, timeout = 15000) => page.waitForFunction(fn, arg, { timeout }).then(() => true).catch(() => false);
+export const until = async (page, fn, arg, timeout = 15000) => page.waitForFunction(fn, arg, { timeout }).then(() => true).catch(() => false);
 
 export async function openHome(browser, url, vp, st, { init = [], extra, route = '#/home' } = {}) {
   const made = await newPage(browser, vp, extra);
@@ -254,7 +254,7 @@ export async function arrivalChecks({ browser, url, ok, shot }) {
 // The station-complete sequence (1.8.5): lesson 4 was just finished (it has the newest completion time and one more station is
 // done than Home last saw). The figure waits on lesson 4's platform, the train toots, the figure hops on, the train rides to
 // the next station with thick smoke, the figure hops off and waves. Reduced motion skips the animation; nothing draws when idle.
-const RAF_COUNT = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
+export const RAF_COUNT = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
 const justDone = (settings = {}) => state(4, { trainAt: iL(5), trainDone: 3, ...settings }, { character: { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit: 'dress', made: true }, lessons: Object.fromEntries([1, 2, 3, 4].map((n) => [n, { tasksDone: [], result: 'got-it', completedAt: `2026-10-0${n}T10:00:00.000Z` }])) });
 export async function sequenceChecks({ browser, url, ok, shot }) {
   const vp = VIEWPORTS[0];

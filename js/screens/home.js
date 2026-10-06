@@ -7,6 +7,9 @@ import { stopIcon, puffEl } from '../art/train2d.js';
 import { finishedStop } from '../sequence.js';
 import { sfx } from '../sfx.js';
 import { kidSvg } from '../art/kid.js';
+import { dueLevel, builtLevels } from '../levels.js';
+import { starBoard } from '../components/star-board.js';
+import { levelBanner } from '../components/level-banner.js';
 
 // The path is a long winding trail that scrolls: up the screen in portrait (lesson 1 at the bottom, the newest stone at the top),
 // along it in landscape (lesson 1 at the left). Every stone, the trail and the scenery are placed from the data and the sizes
@@ -185,6 +188,13 @@ export function isSoftware(gl) {
 // The 2D path (round 3): a long winding trail of stones that scrolls.
 export function mapScreen(ctx) {
   const { store, router, curriculum, speech } = ctx;
+  // A level earned since Home was last open (or one replayed from Grownups) shows its banner once (the 2D path has no tunnel or car).
+  const replayId = ctx.replayLevel || null;
+  ctx.replayLevel = null;
+  const due = replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
+  const stars = starBoard(curriculum, store, { hold: due && !replayId && !reduced() ? due.id : null });
+  const timers = new Set();
+  const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); };
   const total = curriculum.lessons.length;
   const current = store.currentLesson(total);
   // One numbered path: the lessons in order, each checkpoint right after the lesson it follows.
@@ -225,10 +235,17 @@ export function mapScreen(ctx) {
   const fromStop = finishedStop(store, nodes.map((n) => (n.checkpoint ? (store.isCheckpointDone(n.checkpoint.id) && (store.checkpoint(n.checkpoint.id).completedAt || null)) : (store.isDone(n.lesson.number) && (store.lesson(n.lesson.number).completedAt || null)))).map((d) => (d === false || d === undefined ? false : d)), currentIndex);
 
   const grown = holdButton({ label: 'Grownups · hold', caption: null, hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
-  const top = h('div', { class: 'home-top' }, grown);
+  const top = h('div', { class: 'home-top' }, grown, stars.el);
   const fs = fullscreenButton({ className: 'home-fs' });
   const root = h('div', { class: 'home' }, scroller, top, ...(fs ? [fs] : []));
-  root.cleanup = grown.cleanup;
+  const showLevel = () => {
+    if (!due || !root.isConnected) return;
+    const i = builtLevels(curriculum).findIndex((v) => v.id === due.id);
+    levelBanner({ level: due, host: root, reducedMotion: reduced() });
+    stars.pop(i);
+    sfx.play(reduced() ? 'star' : 'checkpoint');
+  };
+  root.cleanup = () => { grown.cleanup(); timers.forEach(clearTimeout); timers.clear(); };
 
   firstRunOverlay({ store, root });
 
@@ -262,7 +279,7 @@ export function mapScreen(ctx) {
       if (++n > 14) clearInterval(timer);
     }, 130);
     setTimeout(() => { try { scroller.scrollTo(portrait ? { top: target, behavior: 'smooth' } : { left: target, behavior: 'smooth' }); } catch { /* fine */ } }, 500);
-    const stop = () => { clearInterval(timer); kidEl.remove(); if (real) real.style.visibility = ''; };
+    const stop = () => { clearInterval(timer); kidEl.remove(); if (real) real.style.visibility = ''; later(showLevel, 400); };
     a.finished.then(stop, stop);
   }
   const startScroll = () => (isPortrait() ? Math.max(0, g.H - scroller.clientHeight) : 0);
@@ -275,6 +292,7 @@ export function mapScreen(ctx) {
     set(ride ? rideStart() : start);
     if (ride) { runRide(); return; }
     if (fromStop >= 0) sfx.play('toot'); // reduced motion: the figure is simply at the next stone, with one toot
+    later(showLevel, 600);
     if (!reduced()) {
       const shown = stones.map((s, i) => [s, i]).filter(([, i]) => visible(i));
       shown.forEach(([s], k) => {

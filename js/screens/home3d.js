@@ -14,6 +14,7 @@ import { buildScenery } from '../train/scenery.js';
 import { buildStop, kidSpot } from '../train/stations.js';
 import { buildKid } from '../train/kid3d.js';
 import { buildTrain } from '../train/train.js';
+import { buildTunnel, TUNNEL_AT, IN } from '../train/tunnel.js';
 import { createRig } from '../train/camera.js';
 import { createOverlay } from '../train/overlay.js';
 import { h, animate, reduced } from '../dom.js';
@@ -22,9 +23,14 @@ import { fullscreenButton } from '../components/fullscreen-button.js';
 import { firstRunOverlay } from '../components/welcome-card.js';
 import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
+import { dueLevel, builtLevels, earnedLevels, carsOf } from '../levels.js';
+import { starBoard } from '../components/star-board.js';
+import { levelBanner } from '../components/level-banner.js';
 
 const ARRIVE_MS = 2400, TAP_SLOP = 8;
 const TOOT_LEAD_MS = 500, HOP_MS = 650, SEAT = new THREE.Vector3(-0.4, 0.95, -0.95), SEAT_SCALE = 0.82; // the sequence: toot, hop on, ride, hop off
+const PARTY_BACK = 10.5, BANNER_AT_MS = 1000; // during the party the camera moves back along the train so the new car is seen coupling on; the banner follows a moment later // during the party the camera moves back along the train so the new car is seen coupling on
+const LEVEL_IN_MS = 1600, LEVEL_HOLD_MS = 600, LEVEL_OUT_MS = 1600, LEVEL_PARTY_MS = 2600; // a level celebration: roll into the tunnel, toot, back out, party
 const ENGINE_AT = 0.7; // the engine's middle stands this far past its stop's middle, so Pip's cab is by the platform
 
 // The stops in order and which one the train is at, by the same rules as the 2D path (js/screens/home.js).
@@ -55,6 +61,12 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   const { store, router, curriculum, speech } = ctx;
   const bag = makeBag();
   const { stops, currentIndex } = stopsOf(curriculum, store);
+  // A level earned since Home was last open (or one the parent replays from Grownups) celebrates once, after the arrival.
+  const replayId = ctx.replayLevel || null;
+  ctx.replayLevel = null;
+  const due = replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
+  const earnedNow = earnedLevels(curriculum, store);
+  const specialKinds = carsOf(due && !earnedNow.includes(due) ? [...earnedNow, due] : earnedNow);
   const line = makeLine(stops.length);
   const stopS = stops.map((_, i) => line.stop(i));
   const renderer = createRenderer(canvas, gl, soft);
@@ -72,8 +84,14 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   let kidIndex = currentIndex;
   const kidTo = (i) => { const spot = kidSpot(stops[i]); kid.group.scale.setScalar(KID_SCALE); kid.group.position.set(spot.x, spot.y, spot.z); kid.group.rotation.y = spot.ry; built[i].group.add(kid.group); kidIndex = i; };
   kidTo(currentIndex);
-  const train = buildTrain(bag, line, doneLessons.map((l) => ({ glyph: l.sound, accent: accentOf(l.sound) })));
+  const train = buildTrain(bag, line, doneLessons.map((l) => ({ glyph: l.sound, accent: accentOf(l.sound) })), specialKinds);
   scene.add(train.group);
+  const stillNow = reduced();
+  const dueCar = due ? train.specialGroup(due.car) : null;
+  if (dueCar && !stillNow) dueCar.visible = false; // it rolls up and couples on during the party
+  const tunnel = due && !stillNow ? buildTunnel(bag, line, stopS[currentIndex] + TUNNEL_AT) : null;
+  if (tunnel) scene.add(tunnel.group);
+  const stars = starBoard(curriculum, store, { hold: due && !replayId && !stillNow ? due.id : null });
 
   // ---- where the train comes from ----
   const settings = store.settings;
@@ -120,12 +138,15 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   const fs = fullscreenButton({ className: 'home-fs' });
   canvas.classList.add('train-canvas');
   canvas.setAttribute('aria-hidden', 'true');
-  const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, grown), ...(fs ? [fs] : []));
+  const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, grown, stars.el), ...(fs ? [fs] : []));
 
   firstRunOverlay({ store, root });
 
   // ---- state shown to tests (read only) ----
   const debug = { stopS, engineAt: ENGINE_AT, frames: 0, idleFrames: 0, trainS: train.at, focus: rig.focus, arriving, fromIndex, currentIndex, tootAt: null, running: false, disposed: false, glideIn, reduced: reduced(), soft };
+  debug.level = { id: due ? due.id : null, phase: '' };
+  debug.specials = train.specials;
+  debug.tunnel = !!tunnel;
   // Brings stop i into view (keyboard focus does the same for a stop that is on screen); tests use it to reach a stop.
   debug.show = (i) => { rig.jump(stopS[Math.max(0, Math.min(stopS.length - 1, i))]); render(); wake(); };
   debug.kid = { get index() { return kidIndex; }, get waving() { return kid.waving; }, get phase() { return seq ? seq.phase : ''; } };
@@ -137,7 +158,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   // ---- the loop ----
   let raf = 0, last = 0, disposed = false, W = 0, H = 0, blockers = [];
   // The Grownups pill and the full screen button, with a margin: no stop button or bubble goes under them.
-  const measureBlockers = () => { const o = root.getBoundingClientRect(); blockers = [...root.querySelectorAll('.home-top .hold-btn, .home-fs')].map((e) => { const r = e.getBoundingClientRect(); return { x: r.x - o.x - 6, y: r.y - o.y - 6, w: r.width + 12, h: r.height + 12 }; }); };
+  const measureBlockers = () => { const o = root.getBoundingClientRect(); blockers = [...root.querySelectorAll('.home-top .hold-btn, .home-top .level-stars, .home-fs')].map((e) => { const r = e.getBoundingClientRect(); return { x: r.x - o.x - 6, y: r.y - o.y - 6, w: r.width + 12, h: r.height + 12 }; }); };
   const t0 = performance.now();
   let arrival = null, waveUntil = 0;
   const still = reduced();
@@ -199,7 +220,57 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
         rig.follow(() => (arrival ? train.at - ENGINE_AT : null));
       }
     } else if (seq.phase === 'off') {
-      if (hopStep(seq.hop, e / HOP_MS)) { seq = null; arrived(t); }
+      if (hopStep(seq.hop, e / HOP_MS)) { seq = null; arrived(t); levelAfter(600); }
+    }
+  }
+
+  // ---- the level celebration: the train rolls into the tunnel, toots, backs out, then the party (Pip dances, the banner,
+  // confetti, the new car couples on and the star lands on the board). Drawn only while it plays, then nothing again. ----
+  let lvl = null, lvlTimer = 0;
+  const levelIndex = () => builtLevels(curriculum).findIndex((v) => v.id === due.id);
+  const levelAfter = (ms) => {
+    if (!due || disposed) return;
+    lvlTimer = setTimeout(() => { lvlTimer = 0; if (!disposed) startLevel(); }, ms);
+  };
+  function startLevel() {
+    if (still) {
+      // reduced motion: no ride, no dance, no confetti; the banner, the star and one soft sound
+      levelBanner({ level: due, host: root, reducedMotion: true });
+      stars.pop(levelIndex());
+      sfx.play('star');
+      render();
+      return;
+    }
+    lvl = { phase: 'in', t0: performance.now(), lastPuff: -1, from: restS(currentIndex), pipY: train.pip.group.position.y };
+    debug.level.phase = 'in';
+    wake();
+  }
+  function stepLevel(now, t) {
+    const e = now - lvl.t0, to = restS(currentIndex);
+    const roll = (s) => { train.roll(s - train.at); train.place(s, t); if (t - lvl.lastPuff > 0.5) { train.puff(t); lvl.lastPuff = t; } };
+    if (lvl.phase === 'in') {
+      roll(lvl.from + IN * ease3(Math.min(1, e / LEVEL_IN_MS)));
+      if (e >= LEVEL_IN_MS) { lvl.phase = 'hold'; lvl.t0 = now; debug.level.phase = 'hold'; sfx.play('toot'); train.puff(t, true); rig.glideTo(stopS[currentIndex] - PARTY_BACK, LEVEL_HOLD_MS + LEVEL_OUT_MS, now); }
+    } else if (lvl.phase === 'hold') {
+      if (e >= LEVEL_HOLD_MS) { lvl.phase = 'out'; lvl.t0 = now; debug.level.phase = 'out'; }
+    } else if (lvl.phase === 'out') {
+      roll(lvl.from + IN * (1 - ease3(Math.min(1, e / LEVEL_OUT_MS))));
+      if (e >= LEVEL_OUT_MS) {
+        train.roll(to - train.at); train.place(to, t);
+        lvl.phase = 'party'; lvl.t0 = now; debug.level.phase = 'party';
+        sfx.play('checkpoint');
+        if (dueCar) dueCar.visible = true;
+        train.join(due.car, t);
+        train.pip.wave(true, t); kid.wave(true, t);
+        waveUntil = t + LEVEL_PARTY_MS / 1000 - 0.1;
+      }
+    } else if (lvl.phase === 'party') {
+      const k = Math.min(1, e / LEVEL_PARTY_MS), g = train.pip.group;
+      if (!lvl.bannered && e >= BANNER_AT_MS) { lvl.bannered = true; levelBanner({ level: due, host: root }); stars.pop(levelIndex()); }
+      train.place(to, t); // the new car glides to its place
+      g.position.y = lvl.pipY + Math.abs(Math.sin(k * Math.PI * 4)) * 0.12;
+      g.rotation.z = Math.sin(k * Math.PI * 4) * 0.15;
+      if (e >= LEVEL_PARTY_MS) { g.position.y = lvl.pipY; g.rotation.z = 0; train.place(to, t); lvl = null; debug.level.phase = ''; rig.glideTo(stopS[currentIndex], 1200, now); }
     }
   }
 
@@ -207,6 +278,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
     const t = (now - t0) / 1000;
     let busy = rig.update(dt, now);
     if (seq) { busy = true; stepSeq(now, t); }
+    if (lvl) { busy = true; stepLevel(now, t); }
     if (arrival) {
       const k = Math.min(1, Math.max(0, (now - arrival.start) / ARRIVE_MS));
       const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
@@ -314,7 +386,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
       train.place(restS(currentIndex));
       rig.jump(stopS[currentIndex]);
       train.setOpacity(0.01);
-      const fade = (now) => { if (disposed) return; const k = Math.min(1, (now - startAt) / 300); train.setOpacity(k); render(); if (k < 1) requestAnimationFrame(fade); else { train.setOpacity(1); debug.tootAt = performance.now(); sfx.play('toot'); } };
+      const fade = (now) => { if (disposed) return; const k = Math.min(1, (now - startAt) / 300); train.setOpacity(k); render(); if (k < 1) requestAnimationFrame(fade); else { train.setOpacity(1); debug.tootAt = performance.now(); sfx.play('toot'); levelAfter(0); } };
       requestAnimationFrame(fade);
     } else {
       setTimeout(() => {
@@ -326,12 +398,14 @@ export function home3dScreen(ctx, { canvas, gl, soft = false }) {
   } else if (!still) {
     // Pip waves hello when Home opens
     train.pip.wave(true, 0); waveUntil = 2.2;
-  }
+    levelAfter(900);
+  } else levelAfter(0);
   debug.running = true;
   wake();
 
   root.cleanup = () => {
     disposed = true;
+    clearTimeout(lvlTimer);
     debug.disposed = true;
     cancelAnimationFrame(raf);
     grown.cleanup && grown.cleanup();

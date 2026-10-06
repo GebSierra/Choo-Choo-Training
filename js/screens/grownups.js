@@ -10,6 +10,8 @@ import { accentOf } from '../theme.js';
 import { APP_VERSION } from '../version.js';
 import { richText } from '../letters.js';
 import { soundPhrase } from '../lessons.js';
+import { starSvg } from '../art.js';
+import { NUMBER_WORDS, earnedLevels } from '../levels.js';
 
 const fmt = (iso) => { try { return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return ''; } };
 export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA vowel and consonant chart recordings, CC BY-SA 3.0, obtained via github.com/joshstephenson/PhoneticFlashCards, trimmed and loudness-normalized.";
@@ -100,6 +102,18 @@ export function grownupsScreen(ctx) {
   paintClips(null);
   speech.checkClips().then(paintClips).catch(() => paintClips({}));
 
+  // ---- levels: each built level, with Play again once it is earned; the rest are listed as coming later ----
+  const earnedIds = new Set(earnedLevels(curriculum, store).map((v) => v.id));
+  const levelRows = (curriculum.levels || []).map((v) => {
+    const name = `Level ${NUMBER_WORDS[v.n - 1]}`;
+    if (v.after === null) return h('div', { class: 'gu-level off', 'data-level': v.id }, h('span', { class: 'gu-glyph' }, starSvg()), h('div', { class: 'gu-row-text' }, h('strong', {}, name), h('span', { class: 'gu-sub' }, 'Coming later')));
+    const earned = earnedIds.has(v.id);
+    return h('div', { class: 'gu-level' + (earned ? '' : ' off'), 'data-level': v.id },
+      h('span', { class: 'gu-glyph' }, starSvg()),
+      h('div', { class: 'gu-row-text' }, h('strong', {}, name), h('span', { class: 'gu-sub' }, `Sounds: ${v.needs.join(' ')}`), h('span', { class: 'gu-sub' }, earned ? 'Earned' : `Earned when lesson ${v.after} is done`)),
+      earned ? h('button', { class: 'btn small level-replay', type: 'button', 'data-level': v.id, 'aria-label': `Play ${name} again`, onclick: () => { ctx.replayLevel = v.id; router.go('/home'); } }, 'Play again') : null);
+  });
+
   const fsBtn = fullscreenButton({ label: true, className: 'btn small fs-row' });
   const sec = (title, ...kids) => h('section', { class: 'gu-card' }, h('h2', {}, title), ...kids);
   // The two long reference cards start closed, so Reset is within reach; each stays as the grown-up left it until the page closes.
@@ -130,6 +144,7 @@ export function grownupsScreen(ctx) {
         h('p', { class: 'gu-note' }, 'On: the lessons are stations on a little 3D railway, and the train grows one wagon for each lesson done. Off: the simple flat path. Turn it off if the railway looks wrong or runs slowly on this phone.')),
       fold('The thinking behind this app', ...WELCOME.slice(1).flatMap((pg) => [h('h3', { class: 'gu-h3' }, pg.title), ...pg.body.map((t) => h('p', { class: 'gu-para' }, t))])),
       fold('Recorded sounds', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play recorded letter sounds'), soundsSwitch), h('p', { class: 'gu-note' }, 'Off: your grown up says the sounds.'), clipList, h('p', { class: 'gu-note' }, 'When the switch is on, isolated sounds play from recordings, never from the phone voice. A missing sound is skipped. To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT)),
+      fold('Levels', h('p', { class: 'gu-note' }, 'Each level adds a special car to the train and a gold star.'), h('div', { class: 'gu-list' }, ...levelRows)),
       fold('All the sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
       sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Sound story playlist'),
         h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener' }, icon('external', 20), 'Alphabet song')),

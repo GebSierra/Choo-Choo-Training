@@ -1132,3 +1132,22 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .flap-board.mini { position: relative; left: auto; top: auto; transform: none; display: flex; gap: 4px; padding: 8px 6px 6px; width: 120px; box-sizing: border-box; border-radius: 10px; border-top-width: 4px; }
 .flap-board.mini .flap-tile { width: 30px; height: 40px; border-radius: 5px; }
 @media (max-height: 700px) { .wall-clock { display: none; } }
+
+/* ---- levels (v1.9.4): the gold star board, the level banner and the Grownups "Levels" fold ---- */
+.home-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; max-width: calc(100vw - 112px - var(--sal) - var(--sar)); }
+.level-stars { display: inline-flex; align-items: center; gap: 4px; min-height: 40px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.92); box-shadow: var(--shadow); }
+.level-star { display: inline-grid; width: 30px; height: 30px; place-items: center; }
+.level-star svg { width: 30px; height: 30px; }
+.level-star:not(.on) svg path { fill: none; stroke: #C9C4BA; stroke-width: 1.6; stroke-dasharray: 3 2.4; }
+.level-banner { position: fixed; left: 50%; top: 31%; transform: translate(-50%, -50%); z-index: 15; width: max-content; max-width: calc(100% - 32px); box-sizing: border-box; display: grid; justify-items: center; gap: 8px; padding: 18px 22px 20px; border-radius: 28px; background: var(--cream); border: 6px solid var(--sun); box-shadow: 0 10px 0 rgba(30,33,64,.18), var(--shadow); text-align: center; cursor: pointer; touch-action: manipulation; opacity: 1; transition: opacity 250ms ease; }
+.level-banner.closing { opacity: 0; pointer-events: none; }
+.level-banner-art { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.level-banner-art .gold-star { width: 76px; height: 76px; flex: none; }
+.level-banner-art .car-icon { width: 132px; height: auto; flex: none; }
+.level-banner-text { font-size: 34px; line-height: 1.1; font-weight: 800; color: var(--ink); }
+@media (max-width: 380px) { .level-banner-art .gold-star { width: 60px; height: 60px; } .level-banner-art .car-icon { width: 104px; } .level-banner-text { font-size: 30px; } }
+.gu-level { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; min-height: 56px; padding: 6px 0; }
+.gu-level .gold-star { width: 36px; height: 36px; }
+.gu-level.off .gold-star path { fill: none; stroke: #C9C4BA; stroke-width: 1.6; stroke-dasharray: 3 2.4; }
+.level-replay { min-height: 48px; grid-column: 2; justify-self: start; }
+@media (orientation: landscape) { .level-banner { top: 56%; } }

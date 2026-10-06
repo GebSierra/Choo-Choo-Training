@@ -90,8 +90,56 @@ function buildCar(bag, glyph, accent) {
   return { group: g, wheels };
 }
 
-// cars: [{ glyph, accent }] in lesson order, the first right behind the engine.
-export function buildTrain(sceneBag, line, cars) {
+// A level's special car: the same chassis, wheels and coupler as a letter wagon, with its own body (docs/PLAN-v1.9.md, Levels).
+const SPECIAL_COLORS = { sky: '#7DB8F5', mint: '#5FE3B0', lilac: '#CDC4F8', pale: '#EDE8FF', cream: '#FFF6D6' };
+function buildSpecial(bag, kind) {
+  const g = new THREE.Group();
+  g.name = 'special-' + kind;
+  const wheels = [];
+  const add = (m, x, y, z) => { m.position.set(x, y, z); g.add(m); return m; };
+  add(block(bag, 0.95, 0.2, 1.75, PAL.navy), 0, 0.46, 0);
+  if (kind === 'caboose') {
+    add(block(bag, 1.26, 0.72, 1.8, PAL.red, { r: 0.12 }), 0, 0.95, 0);
+    add(block(bag, 1.34, 0.08, 1.88, PAL.sun, { r: 0.03 }), 0, 1.34, 0);
+    add(block(bag, 0.8, 0.46, 0.9, '#C93A40', { r: 0.1 }), 0, 1.62, -0.1);
+    add(block(bag, 0.9, 0.07, 1.0, PAL.sun, { r: 0.03 }), 0, 1.88, -0.1);
+    for (const side of [-1, 1]) {
+      add(block(bag, 0.06, 0.26, 0.3, SPECIAL_COLORS.cream, { r: 0.02 }), side * 0.41, 1.62, -0.1);
+      for (const z of [-0.45, 0.45]) add(block(bag, 0.06, 0.28, 0.3, SPECIAL_COLORS.cream, { r: 0.02 }), side * 0.64, 1.0, z);
+    }
+  } else if (kind === 'coach') {
+    add(block(bag, 1.26, 0.8, 1.8, SPECIAL_COLORS.sky, { r: 0.14 }), 0, 1.0, 0);
+    add(block(bag, 1.32, 0.08, 1.86, PAL.sun, { r: 0.03 }), 0, 1.44, 0);
+    for (const side of [-1, 1]) for (const z of [-0.55, 0, 0.55]) add(block(bag, 0.06, 0.32, 0.36, SPECIAL_COLORS.cream, { r: 0.03 }), side * 0.64, 1.06, z);
+  } else if (kind === 'flatbed') {
+    add(block(bag, 1.26, 0.14, 1.8, PAL.navy, { r: 0.05 }), 0, 0.64, 0);
+    add(block(bag, 1.3, 0.05, 1.84, PAL.sun, { r: 0.02 }), 0, 0.73, 0);
+    add(block(bag, 0.95, 0.72, 1.0, PAL.wood, { r: 0.08 }), 0, 1.12, 0);
+    add(block(bag, 1.0, 0.07, 1.05, PAL.woodLight, { r: 0.03 }), 0, 1.5, 0);
+    for (const z of [-0.28, 0.28]) add(block(bag, 1.0, 0.76, 0.07, '#A87B4F', { r: 0.02 }), 0, 1.12, z);
+  } else if (kind === 'tanker') {
+    add(block(bag, 1.26, 0.14, 1.8, PAL.navy, { r: 0.05 }), 0, 0.64, 0);
+    const tank = add(new THREE.Mesh(bag.geo('tank', () => new THREE.CylinderGeometry(0.58, 0.58, 1.7, 28)), bag.paint(SPECIAL_COLORS.mint, { roughness: 0.45 })), 0, 1.3, 0);
+    tank.rotation.x = Math.PI / 2; tank.castShadow = true;
+    for (const z of [-0.55, 0.55]) { const b = add(new THREE.Mesh(bag.geo('tankband', () => new THREE.CylinderGeometry(0.6, 0.6, 0.07, 28)), bag.paint(PAL.sun)), 0, 1.3, z); b.rotation.x = Math.PI / 2; }
+    add(new THREE.Mesh(bag.geo('tankcap', () => new THREE.CylinderGeometry(0.14, 0.14, 0.14, 12)), bag.paint(PAL.sun)), 0, 1.92, 0);
+  } else { // dome
+    add(block(bag, 1.26, 0.7, 1.8, SPECIAL_COLORS.lilac, { r: 0.12 }), 0, 0.95, 0);
+    add(block(bag, 1.32, 0.08, 1.86, PAL.sun, { r: 0.03 }), 0, 1.3, 0);
+    const dome = add(new THREE.Mesh(bag.geo('cardome', () => new THREE.SphereGeometry(0.62, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2)), bag.paint(SPECIAL_COLORS.pale, { roughness: 0.3, transparent: true, opacity: 0.92 })), 0, 1.34, 0);
+    dome.scale.set(1, 0.8, 1.45); dome.castShadow = true;
+    for (const side of [-1, 1]) for (const z of [-0.5, 0.5]) add(block(bag, 0.06, 0.26, 0.34, SPECIAL_COLORS.cream, { r: 0.03 }), side * 0.64, 0.98, z);
+  }
+  for (const z of [0.55, -0.55]) for (const x of [-0.6, 0.6]) { const w = wheel(bag, CAR_WHEEL_R, PAL.navy); w.position.set(x, CAR_WHEEL_R + 0.06, z); g.add(w); wheels.push(w); }
+  add(new THREE.Mesh(bag.geo('coupler', () => new THREE.CylinderGeometry(0.07, 0.07, 0.4, 8)), bag.paint(PAL.navy)), 0, 0.5, -1.0).rotation.x = Math.PI / 2;
+  return { group: g, wheels, kind };
+}
+
+const JOIN_BACK = 2.6, JOIN_S = 0.9;
+
+// cars: [{ glyph, accent }] in lesson order, the first right behind the engine. specials: kinds of special car, in train
+// order, coupled behind the letter wagons (the caboose last).
+export function buildTrain(sceneBag, line, cars, specials = []) {
   // The train has its own materials (so a fade-in never touches the stations), still disposed with the scene's bag.
   const bag = Object.create(sceneBag);
   bag.paint = (c, o = {}) => sceneBag.paint(c, { ...o, name: 'train' });
@@ -99,6 +147,9 @@ export function buildTrain(sceneBag, line, cars) {
   const engine = buildEngine(bag);
   group.add(engine.group);
   const wagons = cars.map((c) => { const w = buildCar(bag, c.glyph, c.accent); group.add(w.group); return w; });
+  const extras = specials.map((k) => { const w = buildSpecial(bag, k); group.add(w.group); return w; });
+  const everyCar = [...wagons, ...extras];
+  const joins = new Map(); // kind -> start time (seconds): that car glides in from behind
   // steam: a few soft white puffs, reused
   const puffMat = [];
   const puffs = Array.from({ length: 28 }, () => {
@@ -110,8 +161,8 @@ export function buildTrain(sceneBag, line, cars) {
     return { mesh: s, mat: m, born: -1 };
   });
   const p = {}, tmp = new THREE.Vector3();
-  let at = 0, rolled = 0, bounce = null;
-  const offsets = () => wagons.map((_, i) => ENGINE_BACK + GAP + CAR_HALF + i * (2 * CAR_HALF + GAP));
+  let at = 0, rolled = 0, bounce = null, lastT = 0;
+  const offsets = () => everyCar.map((_, i) => ENGINE_BACK + GAP + CAR_HALF + i * (2 * CAR_HALF + GAP));
 
   function put(obj, s, lift = 0) {
     line.at(s, p);
@@ -121,22 +172,30 @@ export function buildTrain(sceneBag, line, cars) {
   return {
     group, engine, pip: engine.pip,
     get at() { return at; },
-    length: ENGINE_FRONT + ENGINE_BACK + wagons.length * (2 * CAR_HALF + GAP),
+    get length() { return ENGINE_FRONT + ENGINE_BACK + everyCar.length * (2 * CAR_HALF + GAP); },
+    specials: extras.map((e) => e.kind),
+    // The group of a special car (the celebration hides it until the car rolls up), and join(kind, t): it starts 2.6 units
+    // further back and glides to its place over 0.9 s (ease-out); `joined` is true once every join has finished.
+    specialGroup: (kind) => (extras.find((e) => e.kind === kind) || {}).group,
+    join(kind, t) { joins.set(kind, t); },
+    get joined() { return joins.size === 0 || [...joins.values()].every((t0) => lastT - t0 >= JOIN_S); },
     // The engine's middle at s; the wagons follow along the line behind it. t (seconds) drives the new wagon's bounce.
     place(s, t = 0) {
-      at = s;
+      at = s; lastT = t;
       put(engine.group, s);
       offsets().forEach((o, i) => {
-        let lift = 0;
+        let lift = 0, back = 0;
         if (bounce && i === wagons.length - 1) { const k = (t - bounce) / 0.5; lift = k >= 0 && k < 1 ? Math.sin(k * Math.PI) * 0.18 : 0; }
-        put(wagons[i].group, s - o, lift);
+        const car = everyCar[i];
+        if (car.kind && joins.has(car.kind)) { const k = Math.min(1, Math.max(0, (t - joins.get(car.kind)) / JOIN_S)); back = JOIN_BACK * Math.pow(1 - k, 3); }
+        put(car.group, s - o - back, lift);
       });
     },
     bounceLast(t) { bounce = t; },
     roll(d) {
       rolled += d;
       engine.wheels.forEach((w) => { w.rotation.x = rolled / WHEEL_R; });
-      wagons.forEach((c) => c.wheels.forEach((w) => { w.rotation.x = rolled / CAR_WHEEL_R; }));
+      everyCar.forEach((c) => c.wheels.forEach((w) => { w.rotation.x = rolled / CAR_WHEEL_R; }));
     },
     // A puff of steam from the funnel (world position), and the puffs' rise and fade at time t. Returns whether any is alive.
     // big: the reward puff while the child rides to the next station: bigger, higher and lasting longer.
