@@ -1,4 +1,4 @@
-# Handoff: where Choo Choo Training stands (version 1.9.6)
+# Handoff: where Choo Choo Training stands (version 1.9.14)
 
 Repo: GebSierra/Choo-Choo-Training (the old name KDDash is retired everywhere). Work on `main`.
 Last session finished every item of the previous handoff. Full `npm test` result: see the last line of this file.
@@ -19,6 +19,25 @@ Last session finished every item of the previous handoff. Full `npm test` result
 - 1.9.6 Story 2 "Pip and the Map" after lesson 6. Page 10 says "Sam runs to {name}" (check-content forbids
   he/she in a line with the child's name). Review tiles shrink when a review has more than six words.
 - Test fix: smoke's precache size check counts an unrecorded optional letter sound as 0 bytes.
+
+## Since 1.9.6 (2026-10-06/07) — read this first
+- Live at https://choochootraining.com (CNAME file at the repo root; keep it). Plan approved: docs/CURRICULUM.md (v0.9,
+  research fact-checked) is the authority; docs/CURRICULUM-REVIEW.md holds every owner decision.
+- Built and live: recording studio (tools/studio.html, 47 items, files named sound-<key> / blend-<word>); Wagon Parade
+  star flight; Pip and child redrawn with bigger eyes (2D + 3D); 3 hats (Baseball cap, Pink cap, Cowboy hat); theme
+  song + real whistle on the railway only (coded toot stays in games), trying to autostart, else first tap; Music switch;
+  Train world and Play recorded sounds switches REMOVED (always on, old settings migrated once, flag migrated1912);
+  Grownups lesson list grouped World > Unit; worlds LIVE on the Home (only the current world, end portal + signpost to the
+  next world, one-time crossing with the loading card); owner decision on wagons = option A (letter wagons delivered on
+  a siding at the world tunnel, engine upgrades per world, only the newest level car stays); new 4-page welcome text
+  (owner's words; "Harvard, Stanford, the CDC" replaced by the sources actually cited, owner informed).
+- Prototypes under Grownups > Previews: tip card, journey board, world gateway, the f lesson in the 8-step loop
+  (waiting for owner review = the template for every lesson); prototypes 5 (heart word "the") and 6 (Stage 1 sound play
+  + placement check) in progress.
+- 11 worlds: Starter Station (Stage 1 + m a s i t p), Green Valley (f o n d c/k h u g l r b), Sunny Hills (e j w v y z x
+  qu), then one world per stage 3–10 (names are placeholders). Today's 13 lessons are still in the OLD order; regenerating
+  them in the new order waits for the owner's approval of the f lesson.
+- Owner's 3D models are stored in assets/models/ (not loaded; licences in its README).
 
 ## Master plan status (2026-10-06) — read this first
 - The owner's master plan is docs/CURRICULUM-DRAFT.md; the review, the owner's decisions and the prototype order are in
