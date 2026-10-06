@@ -4,7 +4,7 @@ import { pipSvg } from '../../art/pip.js';
 import { letterFace } from '../../components/letter-face.js';
 import { sayPrompt, saySound } from '../../components/say-sound.js';
 import { sparkle } from '../../components/sparkle.js';
-import { timers, watchSize, findCard, starRow, idleHints, pulseCard } from '../../components/game-kit.js';
+import { timers, watchSize, findCard, starRow, idleHints, pulseCard, shake } from '../../components/game-kit.js';
 import { roundsFor, otherLetters, parade } from '../../games-data.js';
 import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
@@ -33,6 +33,9 @@ export function build(ctx) {
 
   const prompt = sayPrompt();
   const card = findCard(target);
+  // sayFirst (the prototype lesson's review): the child says the sound before hearing it, so the sound and its bell wait for the first tap.
+  const sayFirst = !!ctx.sayFirst;
+  if (sayFirst) { card.classList.add('say-first'); card.firstChild.textContent = 'Say it, then find it!'; }
   const hear = h('button', { class: 'say-hear wagon-hear', type: 'button', 'aria-label': 'Hear the sound again', onclick: () => saySound(ctx, target, prompt) }, icon('speaker', 32));
   const rail = h('div', { class: 'parade-rail', 'aria-hidden': 'true' });
   const lane = h('div', { class: 'parade' + (still ? ' still' : '') });
@@ -40,7 +43,7 @@ export function build(ctx) {
   const cars = h('div', { class: 'coupled' }); // the wagons coupled behind the engine, drawn from the `coupled` list (state)
   const train = h('div', { class: 'train-wrap' }, cars, trainHop);
   const stars = starRow(rounds);
-  const scene = h('div', { class: 'farm wagons-scene' }, huntBackdrop());
+  const scene = h('div', { class: 'farm wagons-scene' + (sayFirst ? ' say-first' : '') }, huntBackdrop());
   scene.append(rail, lane, card, prompt.el, hear, train);
   const el = h('div', { class: 'game wagons', dataset: { round: '0', state: 'playing', hits: '0' } }, scene, stars.el);
 
@@ -105,7 +108,8 @@ export function build(ctx) {
       start();
     }
     wagons.forEach((w) => animate(w.btn, [{ opacity: 0 }, { opacity: 1 }], { duration: 260 }));
-    T.later(() => { if (mine === serial && !done) hearOne(); }, FIRST_MS);
+    if (sayFirst) hear.classList.add('later'); // the bell comes back with the first tap of the parade
+    else T.later(() => { if (mine === serial && !done) hearOne(); }, FIRST_MS);
   }
 
   // The one animation loop: it exists only while wagons are rolling.
@@ -161,6 +165,7 @@ export function build(ctx) {
 
   function tap(w) {
     if (done || locked || w.gone) return;
+    hear.classList.remove('later');
     hearOne(); // every tap plays the sound (or shows what to say)
     if (!w.isTarget) { wrong(w); return; }
     w.gone = true;
@@ -219,6 +224,7 @@ export function build(ctx) {
   }
 
   function wrong(w) {
+    if (sayFirst) { shake(w.btn); return; } // the review step has no red anywhere: a wrong wagon only wobbles
     const x = h('svg', { class: 'no-x', viewBox: '0 0 32 32', 'aria-hidden': 'true' }, h('path', { d: CROSS, stroke: '#E5484D', 'stroke-width': 5, 'stroke-linecap': 'round', fill: 'none' }));
     w.pos.append(x);
     const a = x.animate([{ opacity: 0 }, { opacity: 0.7, offset: 0.25 }, { opacity: 0.7, offset: 0.6 }, { opacity: 0 }], { duration: reduced() ? 400 : 600 });

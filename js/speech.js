@@ -2,12 +2,14 @@
 // isolated sounds (mmm, aaa, sss) only ever come from recorded clips, never from text to speech,
 // and those clips play only when the parent turns on "Play recorded letter sounds" (off by default).
 //
-// say(parts) takes [{tts:'text'} | {clip:'m'} | {src:'path'} | {pause:ms}] and plays them in order.
+// say(parts) takes [{tts:'text'} | {clip:'m'} | {blend:'fit'} | {src:'path'} | {pause:ms}] and plays them in order.
+// {blend:'fit'} is a connected blend model ("fffiiit"): the recording assets/audio/blends/fit.mp3 (or .webm), never text to speech.
 // A new say() cancels the one before it. The returned promise always resolves, so no screen ever waits
 // on speech that never starts.
 
 const START_TIMEOUT = 2000;   // if speech has not started by then, move on
 const MAX_UTTERANCE = 15000;  // hard ceiling for one spoken part
+export const blendUrls = (word) => [`assets/audio/blends/${word}.mp3`, `assets/audio/blends/${word}.webm`];
 const isIsolatedSound = (t) => {
   const s = t.trim().toLowerCase().replace(/[^a-z]/g, '');
   return s.length === 1 || (s.length > 1 && /^(.)\1+$/.test(s));
@@ -35,6 +37,7 @@ export function createSpeech({ store, curriculum }) {
   let speaking = false;
   let active = null;               // {audio?, done}
   const missing = new Set();       // clip keys that failed to load
+  const missingBlend = new Set();  // blend words (fit, sat ...) with no recording
   const clipStatus = {};           // key -> true | false
   const listeners = new Set();
   const emit = () => listeners.forEach((fn) => fn({ speaking, missing: [...missing] }));
@@ -126,7 +129,7 @@ export function createSpeech({ store, curriculum }) {
     let list = (Array.isArray(parts) ? parts : [parts]).map((p) => (typeof p === 'string' ? { tts: p } : p)).filter(Boolean);
     // By default the grown up says every sound: clip parts are skipped silently, never replaced by text to speech.
     if (!store.settings.playSounds) {
-      list = list.filter((p) => p.clip === undefined);
+      list = list.filter((p) => p.clip === undefined && p.blend === undefined);
       while (list.length && list[0].pause !== undefined) list.shift();
     }
     cancel();
@@ -150,6 +153,17 @@ export function createSpeech({ store, curriculum }) {
             if (st !== 'missing') break;
           }
           if (states.length && states.every((st) => st === 'missing')) { missing.add(part.clip); clipStatus[part.clip] = false; emit(); }
+        } else if (part.blend !== undefined) {
+          // Like a clip: each candidate file in turn; none playing means no recording, and the screen shows its prompt instead.
+          const states = [];
+          for (const url of blendUrls(part.blend)) {
+            if (run !== runId) return;
+            const st = await playAudio(url, null);
+            states.push(st);
+            if (st !== 'missing') break;
+          }
+          if (states.every((st) => st === 'missing')) missingBlend.add(part.blend);
+          else if (states.includes('played')) missingBlend.delete(part.blend);
         } else if (part.src !== undefined) {
           await playAudio(part.src, null);
         } else if (part.pause !== undefined) {
@@ -192,6 +206,7 @@ export function createSpeech({ store, curriculum }) {
     get unlocked() { return unlocked; },
     get speaking() { return speaking; },
     get missing() { return [...missing]; },
+    get missingBlends() { return [...missingBlend]; },
     // Speak on entry to a task, only if the parent left auto-speak on.
     autoSay(parts) { if (store.settings.autoSpeak) return say(parts); },
     voices() { return (synth && synth.getVoices ? synth.getVoices() : voices).filter((v) => normalizeLang(v.lang) === 'en-us'); },

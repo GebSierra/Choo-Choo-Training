@@ -592,8 +592,8 @@ for (const [name, raw] of [
   ok(images.length > 0 && images.every((f) => listed.has(f)), 'every image in curriculum.json is precached; missing: ' + images.filter((f) => !listed.has(f)).join(', '));
   const listedImages = [...listed].filter((f) => f.startsWith('assets/images/'));
   ok(listedImages.length === images.length && listedImages.every((f) => images.includes(f)), 'sw precaches exactly the picture tiles the curriculum uses; extra: ' + listedImages.filter((f) => !images.includes(f)).join(', '));
-  // Recorded letter sounds are optional (OPTIONAL_FILES in sw.js): one that is not recorded yet counts as 0 bytes.
-  const optional = (f) => f.startsWith('assets/audio/sounds/') && !fs.existsSync(path.join(ROOT, f));
+  // Recorded letter sounds and blend models are optional (OPTIONAL_FILES in sw.js): one that is not recorded yet counts as 0 bytes.
+  const optional = (f) => (f.startsWith('assets/audio/sounds/') || f.startsWith('assets/audio/blends/')) && !fs.existsSync(path.join(ROOT, f));
   const precacheBytes = [...listed].reduce((n, f) => n + (optional(f) ? 0 : fs.statSync(path.join(ROOT, f)).size), 0);
   ok(precacheBytes < 8 * 1024 * 1024, `the precache stays well under 8 MB (${(precacheBytes / 1048576).toFixed(1)} MB of assets and code)`);
   ok(![...listed].some((f) => f.includes('/ipa/') || f.endsWith('.png') && f.includes('mentava/') && !f.includes('/web/')), 'sw does not precache ipa recordings or the PNG originals');
