@@ -574,6 +574,7 @@ async function entry({ browser, url, ok }) {
   const pb = await sel(page, '#gu-fold-previews .preview-btn[data-preview="proto-f"]').boundingBox();
   ok(pb.height >= 48 && (await text(page, '#gu-fold-previews .preview-btn[data-preview="proto-f"]')) === 'New lesson: f (eight steps)', `Grownups: the button is 48 px or more (${Math.round(pb.height)})`);
   await shotOf(page, '00-grownups-previews');
+  await sel(page, '#gu-fold-previews .preview-btn[data-preview="proto-f"]').scrollIntoViewIfNeeded();
   await tapEl(page, sel(page, '#gu-fold-previews .preview-btn[data-preview="proto-f"]')); await page.waitForSelector('.proto-intro');
   ok(page.url().endsWith('#/proto/f'), 'Grownups: the button opens the overview');
   ok(errors.length === 0, 'overview: errors ' + errors.join(' | '));
