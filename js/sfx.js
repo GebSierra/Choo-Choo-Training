@@ -6,10 +6,14 @@
 // bell notes from the C major pentatonic scale, so anything heard together is pleasant. Every call is wrapped: a missing
 // or blocked AudioContext never throws and never blocks the screen.
 //
-//   sfx.play('sparkle' | 'pop' | 'star' | 'win' | 'lesson' | 'unlock' | 'checkpoint' | 'toot', { step, delay, bloop })
+//   sfx.play('sparkle' | 'pop' | 'star' | 'win' | 'lesson' | 'unlock' | 'checkpoint' | 'toot' | 'whistle', { step, delay, bloop })
 //
 // 'toot' is the little train's whistle: two soft pentatonic notes (G5 then E5), each a breathy sine that slides up into
 // its pitch. It is a short sound, so callers play it when no jingle is ringing (before a jingle, or once it has ended).
+//
+// 'whistle' is the one sample: a toy train whistle (assets/audio/sfx/whistle.mp3, Pixabay licence), decoded once into an
+// AudioBuffer and played through the same master gain. If it cannot load, it is silent. It sounds when the app opens (with the
+// theme song, js/music.js) and whenever the train moves from one station to the next.
 //
 // There is no sound for ordinary taps, Next, Again, navigation or a wrong touch.
 
@@ -19,6 +23,7 @@ const POP_STEPS = [C5, D5, E5, G5, A5]; // the train's progress in Letter Hunt, 
 const LEVEL = 0.22;                     // master gain at the default volume setting
 const DEFAULT_VOLUME = 0.6;
 const JINGLES = new Set(['win', 'lesson', 'unlock', 'checkpoint']); // the long ones: they cancel the short ones ringing
+const WHISTLE_URL = 'assets/audio/sfx/whistle.mp3', WHISTLE_GAIN = 0.8;
 const PATIENT = new Set(['win', 'lesson', 'unlock', 'checkpoint']); // these wait for a voice that has just started
 
 // A sound as notes: [frequency, start (s), decay (s), relative loudness]. The last two of a list may be the shimmer.
@@ -34,6 +39,8 @@ const SOUNDS = {
 function createSfx() {
   let store = null, speech = null, ctx = null, master = null, unlocked = false, broken = false;
   let active = [];           // voices still ringing: { end, jingle, gains, oscs }
+  let whistleBuf = null;     // a promise of the decoded whistle (null when it could not load)
+  const jingleListeners = new Set();
   let speechStartedAt = 0, wasSpeaking = false, waiting = [], sleepTimer = 0;
 
   const enabled = () => !broken && store && store.settings.sfx !== false;
@@ -49,8 +56,29 @@ function createSfx() {
       const limiter = ctx.createDynamicsCompressor(); // a soft limiter: nothing is ever harsh
       limiter.threshold.value = -14; limiter.knee.value = 24; limiter.ratio.value = 6; limiter.attack.value = 0.003; limiter.release.value = 0.25;
       master.connect(limiter); limiter.connect(ctx.destination);
+      loadWhistle(ctx);
     } catch { broken = true; ctx = null; }
     return ctx;
+  }
+
+  // The whistle sample, fetched and decoded once through the shared context; any failure leaves it silent.
+  function loadWhistle(c) {
+    try {
+      whistleBuf = fetch(WHISTLE_URL).then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => (b ? new Promise((ok, no) => { const p = c.decodeAudioData(b, ok, no); if (p && p.then) p.then(ok, no); }) : null)).catch(() => null);
+    } catch { whistleBuf = null; }
+  }
+  function sample(c, at, event) {
+    if (!whistleBuf) return;
+    whistleBuf.then((buf) => {
+      if (!buf || !ctx || document.hidden) return;
+      const when = Math.max(at, c.currentTime), src = c.createBufferSource(), g = c.createGain();
+      g.gain.value = WHISTLE_GAIN;
+      src.buffer = buf; src.eventName = event; src.sample = true;
+      src.connect(g); g.connect(master);
+      src.start(when);
+      active.push({ end: when + (buf.duration || 1.5) + 0.05, jingle: false, gains: [g], oscs: [src] });
+      sleepLater();
+    }).catch(() => {});
   }
 
   // One soft bell: a sine and one quiet partial an octave up (only where that stays under about 2.1 kHz).
@@ -155,7 +183,9 @@ function createSfx() {
     else if (live.some((v) => v.jingle)) return;
     master.gain.setValueAtTime(LEVEL * (volume() / DEFAULT_VOLUME), now);
     const at = now + 0.02 + (opts.delay || 0);
-    if (name === 'toot') { whistle(c, G5, at, 0.2, 1, name); whistle(c, E5, at + 0.3, 0.38, 0.9, name); }
+    if (jingle) { const len = Math.max(...(SOUNDS[name] || []).map((n) => n[1] + n[2])); jingleListeners.forEach((fn) => { try { fn(len); } catch { /* fine */ } }); }
+    if (name === 'whistle') sample(c, at, name);
+    else if (name === 'toot') { whistle(c, G5, at, 0.2, 1, name); whistle(c, E5, at + 0.3, 0.38, 0.9, name); }
     else if (name === 'pop') bell(c, POP_STEPS[Math.max(0, Math.min(POP_STEPS.length - 1, opts.step || 0))], at, 0.6, 1, name, false);
     else {
       for (const [f, start, decay, loud] of SOUNDS[name] || []) bell(c, f, at + start, decay, loud, name, jingle);
@@ -202,6 +232,8 @@ function createSfx() {
     // 'none' before the first sound, then the AudioContext's state (tests and the frame check read it).
     state() { return ctx ? ctx.state : 'none'; },
     play,
+    // music.js ducks the theme while a jingle rings: fn(seconds)
+    onJingle(fn) { jingleListeners.add(fn); },
   };
 }
 

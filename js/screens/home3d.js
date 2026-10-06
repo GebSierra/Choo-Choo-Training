@@ -23,6 +23,7 @@ import { fullscreenButton } from '../components/fullscreen-button.js';
 import { firstRunOverlay } from '../components/welcome-card.js';
 import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
+import { music } from '../music.js';
 import { dueLevel, builtLevels, earnedLevels, carsOf } from '../levels.js';
 import { starBoard } from '../components/star-board.js';
 import { levelBanner } from '../components/level-banner.js';
@@ -226,7 +227,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null }) 
   function stepSeq(now, t) {
     const e = now - seq.t0;
     if (seq.phase === 'toot') {
-      if (!seq.tooted) { seq.tooted = true; sfx.play('toot'); debug.startTootAt = performance.now(); train.puff(t, true); train.pip.wave(true, t); waveUntil = t + 0.9; }
+      if (!seq.tooted) { seq.tooted = true; sfx.play('whistle'); debug.startTootAt = performance.now(); train.puff(t, true); train.pip.wave(true, t); waveUntil = t + 0.9; }
       if (e >= TOOT_LEAD_MS) { seq.phase = 'on'; seq.t0 = now; seq.hop = hopPrep(seatPlace); }
     } else if (seq.phase === 'on') {
       if (hopStep(seq.hop, e / HOP_MS)) {
@@ -243,9 +244,11 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null }) 
   // ---- the level celebration: the train rolls into the tunnel, toots, backs out, then the party (Pip dances, the banner,
   // confetti, the new car couples on and the star lands on the board). Drawn only while it plays, then nothing again. ----
   let lvl = null, lvlTimer = 0, gateTimer = 0;
+  // The theme song waits while this is true: the station-complete ride and a level party come first.
+  let celebrating = false;
   const levelIndex = () => builtLevels(curriculum).findIndex((v) => v.id === due.id);
   const levelAfter = (ms) => {
-    if (!due || disposed) return;
+    if (!due || disposed) { celebrating = false; return; }
     lvlTimer = setTimeout(() => { lvlTimer = 0; if (!disposed) startLevel(); }, ms);
   };
   function startLevel() {
@@ -255,6 +258,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null }) 
       stars.pop(levelIndex());
       sfx.play('star');
       render();
+      celebrating = false;
       return;
     }
     lvl = { phase: 'in', t0: performance.now(), lastPuff: -1, from: restS(currentIndex), pipY: train.pip.group.position.y };
@@ -266,7 +270,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null }) 
     const roll = (s) => { train.roll(s - train.at); train.place(s, t); if (t - lvl.lastPuff > 0.5) { train.puff(t); lvl.lastPuff = t; } };
     if (lvl.phase === 'in') {
       roll(lvl.from + IN * ease3(Math.min(1, e / LEVEL_IN_MS)));
-      if (e >= LEVEL_IN_MS) { lvl.phase = 'hold'; lvl.t0 = now; debug.level.phase = 'hold'; sfx.play('toot'); train.puff(t, true); rig.glideTo(stopS[currentIndex] - PARTY_BACK, LEVEL_HOLD_MS + LEVEL_OUT_MS, now); }
+      if (e >= LEVEL_IN_MS) { lvl.phase = 'hold'; lvl.t0 = now; debug.level.phase = 'hold'; sfx.play('whistle'); train.puff(t, true); rig.glideTo(stopS[currentIndex] - PARTY_BACK, LEVEL_HOLD_MS + LEVEL_OUT_MS, now); }
     } else if (lvl.phase === 'hold') {
       if (e >= LEVEL_HOLD_MS) { lvl.phase = 'out'; lvl.t0 = now; debug.level.phase = 'out'; }
     } else if (lvl.phase === 'out') {
@@ -286,7 +290,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null }) 
       train.place(to, t); // the new car glides to its place
       g.position.y = lvl.pipY + Math.abs(Math.sin(k * Math.PI * 4)) * 0.12;
       g.rotation.z = Math.sin(k * Math.PI * 4) * 0.15;
-      if (e >= LEVEL_PARTY_MS) { g.position.y = lvl.pipY; g.rotation.z = 0; train.place(to, t); lvl = null; debug.level.phase = ''; rig.glideTo(stopS[currentIndex], 1200, now); }
+      if (e >= LEVEL_PARTY_MS) { g.position.y = lvl.pipY; g.rotation.z = 0; train.place(to, t); lvl = null; celebrating = false; debug.level.phase = ''; rig.glideTo(stopS[currentIndex], 1200, now); }
     }
   }
 
@@ -305,7 +309,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null }) 
       rig.glideTo(stopS[currentIndex] + 3, GATE_OUT_MS, performance.now());
     }
     debug.gate.phase = mode;
-    sfx.play('toot'); train.puff(t, true); train.pip.wave(true, t); waveUntil = t + 1.2;
+    sfx.play('whistle'); train.puff(t, true); train.pip.wave(true, t); waveUntil = t + 1.2;
     wake();
   }
   function stepGate(now, t) {
@@ -427,6 +431,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null }) 
 
   // ---- the opening ----
   const startAt = performance.now();
+  celebrating = !preview && (!!arriving || !!due);
   if (glideIn) {
     setTimeout(() => { if (!disposed) { rig.glideTo(stopS[currentIndex], Math.min(3200, 1200 + currentIndex * 160), performance.now()); wake(); } }, 450);
   }
@@ -436,7 +441,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null }) 
       train.place(restS(currentIndex));
       rig.jump(stopS[currentIndex]);
       train.setOpacity(0.01);
-      const fade = (now) => { if (disposed) return; const k = Math.min(1, (now - startAt) / 300); train.setOpacity(k); render(); if (k < 1) requestAnimationFrame(fade); else { train.setOpacity(1); debug.tootAt = performance.now(); sfx.play('toot'); levelAfter(0); } };
+      const fade = (now) => { if (disposed) return; const k = Math.min(1, (now - startAt) / 300); train.setOpacity(k); render(); if (k < 1) requestAnimationFrame(fade); else { train.setOpacity(1); debug.tootAt = performance.now(); sfx.play('whistle'); levelAfter(0); } };
       requestAnimationFrame(fade);
     } else {
       setTimeout(() => {
@@ -455,9 +460,12 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null }) 
   } else levelAfter(0);
   debug.running = true;
   wake();
+  const waitIdle = celebrating; // after a celebration the theme also waits for the last movement to settle
+  if (!preview) music.enterHome({ hold: () => celebrating || (waitIdle && debug.running) });
 
   root.cleanup = () => {
     disposed = true;
+    if (!preview) music.leaveHome();
     clearTimeout(lvlTimer); clearTimeout(gateTimer);
     gate = null;
     debug.disposed = true;
