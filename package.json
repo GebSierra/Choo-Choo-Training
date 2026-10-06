@@ -1,7 +1,7 @@
 {
   "name": "choo-choo-training",
   "private": true,
-  "version": "1.9.9",
+  "version": "1.9.10",
   "type": "module",
   "description": "Personal reading app, stage 1. The app has no runtime dependencies.",
   "scripts": {
