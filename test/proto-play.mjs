@@ -1,10 +1,9 @@
-// Prototype 6: Stage 1 sound play (#/proto/play, three lessons) and the placement check (#/proto/placement), both reached from
-// Grownups > Previews (data/proto-play.json, js/screens/proto-play.js, js/screens/proto-placement.js, js/screens/tasks/proto/play.js).
+// Prototype 6: Stage 1 sound play (#/proto/play, three lessons); the placement check (#/proto/placement) has its own suite,
+// test/proto-placement.mjs. Both are reached from Grownups > Previews (data/proto-play.json, js/screens/proto-play.js, js/screens/proto-placement.js, js/screens/tasks/proto/play.js).
 // Checks: each Stage 1 lesson walks to done; no letters are shown in Stage 1; the phone's voice never says an isolated or
-// stretched sound; wrong taps never show a red X; the placement paths (all known, early "Not yet" x3, scattered "Not yet",
-// nothing known, blending misses capping the suggestion); nothing is written to progress; reduced motion; idle frames; three
+// stretched sound; wrong taps never show a red X; nothing is written to progress; reduced motion; idle frames; three
 // phone sizes; the Previews entries. Run alone with `node test/proto-play.mjs`; SHOTS=1 also saves screenshots in
-// docs/screenshots/proto-play/ (390x844 each lesson and the placement cards, 915x412 for 1.2 and the result).
+// docs/screenshots/proto-play/ (390x844 each lesson, 915x412 for 1.2).
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB, silentWav } from './stubs.mjs';
@@ -258,145 +257,6 @@ async function tips({ browser, url, ok }) {
   await ctx.close();
 }
 
-// ---- the placement check ----
-const judge = async (page, yes) => {
-  await page.waitForSelector('.judge-bar:not([hidden])');
-  await page.waitForTimeout(480);
-  await tapEl(page, sel(page, yes ? '.judge-btn.got' : '.judge-btn.help'));
-  await page.waitForTimeout(350);
-};
-const phaseOf = (page) => dset(page, '.proto.placement', 'phase');
-async function startPlacement(browser, url, vp = PHONE, opts = {}) {
-  const made = await open(browser, url, vp, '#/proto/placement', opts);
-  await made.page.waitForSelector('.proto.placement .pc-begin');
-  return made;
-}
-// Answers the letters: a string of 'y' (Knows it) and 'n' (Not yet); returns once the phase is no longer letters.
-async function letters(page, pattern) {
-  await tapEl(page, sel(page, '.pc-begin')); await page.waitForSelector('.rc-card');
-  const shown = [];
-  for (const c of pattern) {
-    if ((await phaseOf(page)) !== 'letters') break;
-    shown.push(await dset(page, '.proto.placement', 'letter'));
-    await judge(page, c === 'y');
-  }
-  return shown;
-}
-const wordsShown = async (page, pattern) => {
-  const seen = [];
-  for (const c of pattern) {
-    if ((await phaseOf(page)) !== 'words') break;
-    seen.push(await dset(page, '.proto.placement', 'word'));
-    await judge(page, c === 'y');
-  }
-  return seen;
-};
-const resultOf = async (page) => { await page.waitForFunction(() => document.querySelector('.proto.placement').dataset.phase === 'result', null, { timeout: 4000 }); await page.waitForTimeout(300); return { n: Number(await dset(page, '.proto.placement', 'lesson')), sound: await dset(page, '.proto.placement', 'sound'), head: await text(page, '.pc-suggest'), why: await text(page, '.pc-why'), all: await text(page, '.pc-result') }; };
-const levelOf = (w) => Math.max(...[...w].map((c) => ORDER.indexOf(c) + 1));
-
-async function placement({ browser, url, ok }) {
-  shotsOn = true;
-  // the welcome, then all known
-  let made = await startPlacement(browser, url);
-  let { page, errors, before } = made;
-  ok(/Let's see what you already know!/.test((await text(page, '.pc-welcome')) || ''), 'placement: "Let\'s see what you already know!"');
-  ok((await redX(page)) === 0 && !/test|quiz|exam|wrong/i.test((await text(page, '.pc-pad')) || ''), 'placement: the welcome never says test and shows no red');
-  await shotOf(page, '20a-placement-welcome');
-  await tapEl(page, sel(page, '.pc-begin')); await page.waitForSelector('.rc-card'); await page.waitForTimeout(500);
-  ok((await dset(page, '.proto.placement', 'letter')) === ORDER[0], 'placement: the first letter is the first lesson\'s sound');
-  ok((await sel(page, '.rc-glyph .glyph').count()) === 1, 'placement: one big letter');
-  ok(/Knows it/.test((await text(page, '.judge-btn.got')) || '') && /Not yet/.test((await text(page, '.judge-btn.help')) || ''), 'placement: the buttons say "Knows it" and "Not yet"');
-  ok(await page.evaluate(() => { const r = document.querySelector('.judge-btn').getBoundingClientRect(); return r.height >= 48; }), 'placement: judge buttons are 48 px or more');
-  await shotOf(page, '20b-placement-letter');
-  await idleCheck(page, ok, 'placement letter card');
-  const shown = [ORDER[0]];
-  await judge(page, true);
-  for (let k = 1; k < ORDER.length; k++) { if ((await phaseOf(page)) !== 'letters') break; shown.push(await dset(page, '.proto.placement', 'letter')); await judge(page, true); }
-  ok(shown.join('') === ORDER.join(''), `placement: the letters come in teaching order (${shown.join('')})`);
-  ok((await phaseOf(page)) === 'words', 'placement: after the last letter, the blending part');
-  const words = [];
-  ok((await sel(page, '.pc-word .glyph').count()) === 1, 'placement: a word is shown');
-  const preview = await page.evaluate(async () => { const m = await import('/js/screens/proto-placement.js'); const c = await (await fetch('data/curriculum.json')).json(); const s = c.lessons.map((l) => l.sound); return { w: m.pickWords(s, new Set(s)), mid: m.pickWords(s, new Set(['m', 'a', 's'])), one: m.pickWords(s, new Set(['m'])) }; });
-  await shotOf(page, '20c-placement-word');
-  await idleCheck(page, ok, 'placement word card');
-  words.push(...(await wordsShown(page, 'yyyy')));
-  ok(words.length === 4 && words.join() === preview.w.join(), `placement: four words built from the known sounds (${words})`);
-  ok(words.every((w) => w.length <= 4 && [...w].every((c) => ORDER.includes(c))), 'placement: every word uses only known sounds');
-  let r = await resultOf(page);
-  ok(r.n === ORDER.length && r.sound === ORDER[ORDER.length - 1] && r.head === `Suggested start: Lesson ${ORDER.length} (sound ${ORDER[ORDER.length - 1]})`, `placement all known: suggests the end (${r.head})`);
-  ok(/Your child knows m a s i/.test(r.why) && /can blend/.test(r.why), `placement all known: the why line (${r.why})`);
-  const start = await sel(page, '.pc-start').evaluate((b) => ({ d: b.disabled, t: b.textContent, h: b.getBoundingClientRect().height }));
-  ok(start.d && /Start here/.test(start.t) && /\(preview: nothing changes\)/.test(start.t) && start.h >= 48, `placement: "Start here" is switched off and labelled (${start.t})`);
-  ok((await sel(page, '.pc-later').count()) === 1, 'placement: a "Do this later" button');
-  await shotOf(page, '20d-placement-result');
-  ok((await store(page)) === before, 'placement all known: nothing written (localStorage unchanged)');
-  ok(errors.length === 0, 'placement all known: errors ' + errors.join(' | '));
-  await tapEl(page, sel(page, '.pc-later')); await page.waitForTimeout(600);
-  ok(page.url().endsWith('#/grownups') || page.url().endsWith('#/home'), 'placement: "Do this later" leaves the check');
-  await made.ctx.close();
-
-  // early "Not yet" x3 stops and suggests that lesson: m a known, then s i t not yet
-  made = await startPlacement(browser, url); page = made.page;
-  const sh = await letters(page, 'yynnnyyy');
-  ok(sh.join('') === 'masit', `placement early stop: the letters shown stop after the third Not yet in a row (${sh.join('')})`);
-  const ws = await wordsShown(page, 'yyyy');
-  ok(ws.length >= 1 && ws.every((w) => [...w].every((c) => 'ma'.includes(c))), `placement early stop: the words use only m and a (${ws})`);
-  r = await resultOf(page);
-  ok(r.n === 3 && r.sound === 's' && r.head === 'Suggested start: Lesson 3 (sound s)', `placement early stop: suggests Lesson 3 (${r.head})`);
-  ok(/Your child knows m a and can blend/.test(r.why), `placement early stop: the why line (${r.why})`);
-  ok((await store(page)) === made.before, 'placement early stop: nothing written');
-  await made.ctx.close();
-
-  // scattered "Not yet" never stops: n y n y n n y ... runs to the end; the suggestion is the first Not yet
-  made = await startPlacement(browser, url); page = made.page;
-  const sc = await letters(page, 'nynynnynnyyyy');
-  ok(sc.length === ORDER.length && (await phaseOf(page)) === 'words', `placement scattered: two Not yet in a row do not stop it (${sc.length} letters, then ${await phaseOf(page)})`);
-  const kn = ORDER.filter((_, i) => 'nynynnynnyyyy'[i] === 'y');
-  const sw = await wordsShown(page, 'yyyy');
-  ok(sw.every((w) => [...w].every((c) => kn.includes(c))), `placement scattered: words use only known sounds (${sw})`);
-  r = await resultOf(page);
-  ok(r.n === 1 && r.sound === 'm', `placement scattered: the first Not yet is Lesson 1 (${r.head})`);
-  await made.ctx.close();
-
-  // nothing known: Lesson 1 and Sound play first
-  made = await startPlacement(browser, url); page = made.page;
-  await letters(page, 'nnn');
-  r = await resultOf(page);
-  ok(r.n === 1 && r.sound === 'm' && /Sound play/.test((await text(page, '.pc-pad')) || '') && (await sel(page, '.pc-playbtn').count()) === 1, `placement nothing known: Lesson 1 and Sound play first (${r.head})`);
-  await shotOf(page, '20e-placement-nothing');
-  await tapEl(page, sel(page, '.pc-playbtn')); await page.waitForSelector('.proto-play-intro');
-  ok(page.url().endsWith('#/proto/play'), 'placement nothing known: the button opens Sound play');
-  await made.ctx.close();
-
-  // only m known: not enough to blend, so no words
-  made = await startPlacement(browser, url); page = made.page;
-  await letters(page, 'ynnn');
-  r = await resultOf(page);
-  ok(r.n === 2 && /Not enough sounds yet to try blending/.test(r.why), `placement one sound: no words, suggests Lesson 2 (${r.head}; ${r.why})`);
-  await made.ctx.close();
-
-  // blending misses cap the suggestion: all letters known, then two misses stop it
-  made = await startPlacement(browser, url); page = made.page;
-  await letters(page, 'y'.repeat(ORDER.length));
-  const w2 = await wordsShown(page, 'nyn');
-  ok(w2.length === 3 && preview.w.slice(0, 3).join() === w2.join(), `placement misses: it stops after two misses (${w2})`);
-  r = await resultOf(page);
-  const cap = Math.min(...[w2[0], w2[2]].map(levelOf));
-  ok(r.n === cap && r.n < ORDER.length, `placement misses: the suggestion is capped at Lesson ${cap} (${r.head})`);
-  ok(/but blending/.test(r.why) && /can blend/.test(r.why), `placement misses: the why line names the misses (${r.why})`);
-  ok(r.n === levelOf(w2[0]) || r.n === levelOf(w2[2]), 'placement misses: the cap is the lesson that teaches a missed word\'s newest sound');
-  await made.ctx.close();
-
-  // first word missed: the cap is that word's newest sound even with every letter known, and a Not yet letter also limits
-  made = await startPlacement(browser, url); page = made.page;
-  await letters(page, 'yyynnn');
-  const w3 = await wordsShown(page, 'nn');
-  r = await resultOf(page);
-  ok(r.n === Math.min(4, ...w3.map(levelOf)), `placement misses and a Not yet: the lower of the two wins (${r.head}; words ${w3})`);
-  await made.ctx.close();
-  ok(preview.mid.length >= 1 && preview.mid.every((w) => [...w].every((c) => 'mas'.includes(c))) && preview.one.length === 0, `pickWords: only known sounds (${preview.mid}); none for m alone`);
-}
-
 // ---- reduced motion ----
 async function reducedRun({ browser, url, ok }) {
   let made = await open(browser, url, PHONE, '#/proto/play/1/task/0', { reduced: true, settings: { playSounds: false } });
@@ -416,12 +276,7 @@ async function reducedRun({ browser, url, ok }) {
   }
   await page.waitForFunction(() => document.querySelector('.proto.pick').dataset.state === 'done', null, { timeout: 3000 });
   ok(true, 'reduced motion: First sounds reaches done');
-  await made.ctx.close();
-  made = await startPlacement(browser, url, PHONE, { reduced: true }); page = made.page;
-  await letters(page, 'nnn');
-  const r = await resultOf(page);
-  ok(r.n === 1 && (await page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running' && a.effect.getComputedTiming().duration > 0).length)) === 0, 'reduced motion: placement runs and ends with no running animation');
-  ok(errors.length === 0 && made.errors.length === 0, 'reduced motion: errors');
+  ok(errors.length === 0, 'reduced motion: errors ' + errors.join(' | '));
   await made.ctx.close();
 }
 
@@ -453,23 +308,6 @@ async function sizes({ browser, url, ok }) {
       if (name === '1.2') { await shotOf(page, '12c-first-sounds-landscape'); }
       await made.ctx.close();
     }
-    made = await startPlacement(browser, url, vp); page = made.page;
-    let bad = await fit(page, ['.pc-welcome', '.pc-begin', '.pc-later']);
-    ok(bad.length === 0, `${tag} placement welcome: fits (${bad.join('; ')})`);
-    await tapEl(page, sel(page, '.pc-begin')); await page.waitForSelector('.rc-card'); await page.waitForTimeout(500);
-    bad = await fit(page, ['.rc-card', '.judge-btn', '.pc-later']);
-    ok(bad.length === 0, `${tag} placement letter: fits (${bad.join('; ')})`);
-    await judge(page, true); await judge(page, true);
-    if (tag !== '915x412') { /* the card for 'a' etc. */ }
-    for (let k = 2; k < ORDER.length; k++) { if ((await phaseOf(page)) !== 'letters') break; await judge(page, true); }
-    await page.waitForSelector('.pc-word');
-    bad = await fit(page, ['.pc-word', '.judge-btn', '.pc-later']);
-    ok(bad.length === 0, `${tag} placement word: fits (${bad.join('; ')})`);
-    await wordsShown(page, 'yyyy');
-    await resultOf(page);
-    bad = await fit(page, ['.pc-result', '.pc-start', '.pc-later']);
-    ok(bad.length === 0, `${tag} placement result: fits (${bad.join('; ')})`);
-    if (vp === LAND) await shotOf(page, '20f-placement-result-landscape');
     await made.ctx.close();
   }
 }
@@ -485,7 +323,6 @@ export async function run() {
   await walkLessons(browser, url, ok, 'recordings');
   ok(allTts.length > 20 && allTts.every((t) => !SOUNDY(t)), `the phone's voice never said a sound or a stretched word (${allTts.length} lines; bad: ${allTts.filter(SOUNDY).join(' | ')})`);
   await tips({ browser, url, ok });
-  await placement({ browser, url, ok });
   await reducedRun({ browser, url, ok });
   await sizes({ browser, url, ok });
   await browser.close(); server.close();
