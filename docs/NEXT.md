@@ -67,6 +67,9 @@ Nothing in this list gets built until the owner has picked an option and approve
    word), and for each one an image-generation prompt in one shared house style (soft flat illustration, warm palette,
    single object centred on a plain light background, no text, square), so the set can be recreated and swapped in at
    the same file paths.
+7b. **Idle life on the railway (new heat rule).** Build the one shared low-rate ticker (≤ 10 fps, stops when hidden, after
+   2 minutes without a touch, under reduced motion), change test/train.mjs heatChecks to the new budget, then add small
+   idle life: chimney smoke puffs, Pip blinking and glancing, flowers/trees swaying gently, the portal glow shimmering.
 8. **Easter egg: Fishing with Pip (owner request, not urgent; owner left the design to the planner).** Three quick
    taps on a river on the 3D Home (within about 1.5 s) open a small fishing game. Nothing about it is preloaded: the
    game is a separate module loaded with import() on the third tap, and its files are not in the precache (they cache on
@@ -98,7 +101,14 @@ owner approves that plan.
 - The phone's voice never says letter sounds. Parent voice or recordings only.
 - No privacy or recording warnings in the app UI.
 - Never change the YouTube links. Do not touch the jingle cut-off.
-- No JS animation loops while idle (the phone overheated once). Small CSS animations are fine.
+- Heat rule (owner, 2026-10-07; replaces "no JS animation loops while idle"): small idle animation is welcome if it is
+  cheap. (1) CSS/WAAPI animations of transform and opacity only may loop forever (no layout, box-shadow, filter or blur
+  animation). (2) The 3D Home may animate while idle at most 10 frames per second, through ONE shared low-rate ticker
+  (no second loop), for small things (smoke puffs, flowers swaying, Pip blinking, the portal glow). (3) It stops when the
+  page is hidden, after 2 minutes without a touch (until the next tap), and under reduced motion. (4) Full frame rate
+  only while something real happens (the train moving, a celebration, a drag). (5) Tests enforce the budget: idle at
+  most ~10 fps (about 32 frames in 3 s), 0 frames while hidden, 0 after the 2-minute rest. The old one-off overheating
+  came from a continuous 60 fps full-scene render.
 - Plans by Opus, building by Sonnet, to save credits. Commit and push to main after each phase.
 - Run each phase's own suites; run the full `npm test` (about 40 to 60 minutes) once at the end of a session.
 - Read the execution rules at the top of docs/PLAN-v1.9.md before building.

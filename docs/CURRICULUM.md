@@ -536,7 +536,7 @@ word"; (6) a Stage 1 sound-play lesson and the placement check.
 phone's voice may read whole words, sentences and instructions; it never says an isolated sound (rule 8). A hired voice
 can replace the owner's recordings later at the same file paths.
 
-**Standing rules that still apply:** no JavaScript animation loops while idle (heat); no privacy or recording warnings;
+**Standing rules that still apply:** the heat rule in docs/NEXT.md (cheap idle animation allowed: CSS transform/opacity loops, 3D idle at most 10 fps through one shared ticker, stopping when hidden, after 2 minutes without a touch and under reduced motion); no privacy or recording warnings;
 the YouTube links and the jingle cut-off stay as they are; plans by Opus, building by Sonnet.
 
 **What changed from the source program.** The source's core ideas are all kept (short vowels first, digraphs before
