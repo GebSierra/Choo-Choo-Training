@@ -55,7 +55,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
       const onDark = color === 'violet' || color === 'coral', light = color === 'violet'; // the speaker is violet with a white icon, white with a violet icon only on a violet stage
       const speaker = speakButton({ speech, getParts: () => current.parts(), label: 'Hear this again' });
       if (light) speaker.classList.add('light');
-      const scriptParts = () => scriptToParts(current.script(), soundKeys, { quiet: !store.settings.playSounds });
+      const scriptParts = () => (current.scriptParts ? current.scriptParts() : scriptToParts(current.script(), soundKeys, { quiet: !store.settings.playSounds })); // scriptParts(): a task that must control exactly what the phone says
       const mkScriptSpeaker = () => { const b = speakButton({ speech, getParts: scriptParts, label: 'Hear the parent script' }); b.classList.add('small'); return b; };
       const speakers = [mkScriptSpeaker()];
 

@@ -54,6 +54,9 @@ async function boot() {
     // Prototype 4: one lesson in the new eight-step loop (Grownups > Previews). Loaded on demand; its files are precached.
     { re: /^\/proto\/f$/, screen: (...a) => import('./screens/proto-lesson.js').then((m) => m.protoIntro(...a)) },
     { re: /^\/proto\/f\/task\/(\d+)$/, screen: (...a) => import('./screens/proto-lesson.js').then((m) => m.protoTask(...a)) },
+    // Prototype 5: a heart-word step for "the" (Grownups > Previews). Loaded on demand; its files are precached.
+    { re: /^\/proto\/heart$/, screen: (...a) => import('./screens/proto-heart.js').then((m) => m.protoHeart(...a)) },
+    { re: /^\/proto\/heart\/done$/, screen: (...a) => import('./screens/proto-heart.js').then((m) => m.protoHeartDone(...a)) },
     // Debug routes for development and the smoke test. Loaded on demand and not precached by sw.js.
     { re: /^\/lab$/, screen: (...a) => import('./screens/lab.js').then((m) => m.labScreen(...a)) },
     { re: /^\/glyphs$/, screen: (...a) => import('./screens/glyphs-debug.js').then((m) => m.glyphsDebug(...a)) },

@@ -165,7 +165,18 @@ export function createSpeech({ store, curriculum }) {
           if (states.every((st) => st === 'missing')) missingBlend.add(part.blend);
           else if (states.includes('played')) missingBlend.delete(part.blend);
         } else if (part.src !== undefined) {
-          await playAudio(part.src, null);
+          if (part.key) {
+            // A named recording outside the sounds table (the heart-word preview): the file, then its webm twin; none playing marks the key missing.
+            const states = [];
+            for (const url of [part.src, part.src.replace(/\.mp3$/, '.webm')]) {
+              if (run !== runId) return;
+              const st = await playAudio(url, null);
+              states.push(st);
+              if (st !== 'missing') break;
+              if (url === part.src.replace(/\.mp3$/, '.webm')) break;
+            }
+            if (states.every((st) => st === 'missing')) { if (!missing.has(part.key)) { missing.add(part.key); emit(); } } else if (states.includes('played') && missing.delete(part.key)) emit();
+          } else await playAudio(part.src, null);
         } else if (part.pause !== undefined) {
           await wait(part.pause);
         }
