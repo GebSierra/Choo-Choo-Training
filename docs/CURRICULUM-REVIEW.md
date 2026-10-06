@@ -166,3 +166,10 @@ on that device, and files download as, for example, `sound-m.webm` and `blend-ma
 4. A heart-word lesson ("the"), with "fix the word".
 5. A Stage 1 sound-play lesson, and the placement check.
 6. The recording studio (its list comes from the approved plan).
+
+## Owner decisions, round 2 (2026-10-06)
+- 10A: worlds with a tunnel gateway and a journey board at milestones.
+- Prototype order: (1) the corrected plan, docs/CURRICULUM.md; (2) the world gateway, loading card, journey board and
+  grouped Grownups list; (3) the recording studio; (4) one lesson in the new daily loop (f); (5) a heart-word step
+  ("the"); (6) a Stage 1 sound-play lesson and the placement check.
+- Prototype 1 delivered: docs/CURRICULUM.md (v0.9), with every research figure fact-checked and corrected.

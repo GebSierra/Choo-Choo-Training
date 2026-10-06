@@ -22,9 +22,10 @@ Last session finished every item of the previous handoff. Full `npm test` result
 
 ## Master plan status (2026-10-06) — read this first
 - The owner's master plan is docs/CURRICULUM-DRAFT.md; the review, the owner's decisions and the prototype order are in
-  docs/CURRICULUM-REVIEW.md. Owner picked 1A 2A 3C 4A 5A 6A 7B 8A 9A; decision 10 (progression overview) is open.
+  docs/CURRICULUM-REVIEW.md. Owner picked 1A 2A 3C 4A 5A 6A 7B 8A 9A 10A.
 - Prototypes first: each new kind of screen is built once and approved by the owner before it is copied to every lesson.
-- Next step: the corrected plan (one document, internal parts marked), then the prototypes in the review's order.
+- Decision 10A (worlds + journey board). Prototype order: plan, world gateway, recording studio, f lesson, heart word,
+  Stage 1 + placement. Prototype 1 is docs/CURRICULUM.md v0.9, waiting for the owner's approval.
 - Art: Pip and the child were redrawn (1.9.7, 1.9.7.1); the 3D Pip's temple tufts were removed (1.9.7.2).
 
 ## Pick up here, in this order (owner direction, 2026-10-06)
