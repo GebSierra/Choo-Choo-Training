@@ -407,7 +407,7 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   ok(saved.voiceURI === 'g-us' && saved.rate === 1.05 && saved.autoSpeak === false, 'voice, rate and auto-speak persist ' + JSON.stringify(saved));
   // "The thinking behind this app", "Recorded sounds" and "All the sounds" start closed (so Reset is within reach); a tap opens one, and "Test voice" sits right under Speed.
   const folds = page.locator('.gu-fold');
-  ok((await folds.count()) === 4 && (await folds.evaluateAll((l) => l.every((b) => b.getAttribute('aria-expanded') === 'false' && document.getElementById(b.getAttribute('aria-controls')).hidden))), 'Grownups: the four reference cards start closed');
+  ok((await folds.count()) === 5 && (await folds.evaluateAll((l) => l.every((b) => b.getAttribute('aria-expanded') === 'false' && document.getElementById(b.getAttribute('aria-controls')).hidden))), 'Grownups: the four reference cards and Previews start closed');
   ok(await page.evaluate(() => { const r = document.querySelector('[aria-label="Speaking speed"]').closest('label'); return r.nextElementSibling && r.nextElementSibling.textContent.includes('Test voice'); }), 'Grownups: Test voice sits directly under Speed');
   ok((await page.locator('[aria-label="Play sounds"]').count()) === 1, 'Grownups: the sound-effects switch is labelled "Play sounds"');
   const recorded = page.locator('.gu-fold', { hasText: 'Recorded sounds' });
@@ -592,8 +592,8 @@ for (const [name, raw] of [
   ok(images.length > 0 && images.every((f) => listed.has(f)), 'every image in curriculum.json is precached; missing: ' + images.filter((f) => !listed.has(f)).join(', '));
   const listedImages = [...listed].filter((f) => f.startsWith('assets/images/'));
   ok(listedImages.length === images.length && listedImages.every((f) => images.includes(f)), 'sw precaches exactly the picture tiles the curriculum uses; extra: ' + listedImages.filter((f) => !images.includes(f)).join(', '));
-  // Recorded letter sounds are optional (OPTIONAL_FILES in sw.js): one that is not recorded yet counts as 0 bytes.
-  const optional = (f) => f.startsWith('assets/audio/sounds/') && !fs.existsSync(path.join(ROOT, f));
+  // Recorded letter sounds and blend models are optional (OPTIONAL_FILES in sw.js): one that is not recorded yet counts as 0 bytes.
+  const optional = (f) => (f.startsWith('assets/audio/sounds/') || f.startsWith('assets/audio/blends/')) && !fs.existsSync(path.join(ROOT, f));
   const precacheBytes = [...listed].reduce((n, f) => n + (optional(f) ? 0 : fs.statSync(path.join(ROOT, f)).size), 0);
   ok(precacheBytes < 8 * 1024 * 1024, `the precache stays well under 8 MB (${(precacheBytes / 1048576).toFixed(1)} MB of assets and code)`);
   ok(![...listed].some((f) => f.includes('/ipa/') || f.endsWith('.png') && f.includes('mentava/') && !f.includes('/web/')), 'sw does not precache ipa recordings or the PNG originals');

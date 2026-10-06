@@ -1,0 +1,109 @@
+{
+  "_note": "Prototype 4: one lesson in the new eight-step daily loop, for the sound f. Not part of curriculum.json; the 13 real lessons are unchanged. Scripts may hold {blend:fit} (the stretched word, built by slowSounds), {blend:@} (the word on screen) and {sound:f} (soundText). Tips are CURRICULUM.md section 13, verbatim.",
+  "id": "f",
+  "title": "New lesson: f",
+  "sound": "f",
+  "known": ["m", "a", "s", "i", "t", "p"],
+  "heart": ["a", "I", "is", "the"],
+  "pictures": {
+    "sat": { "image": "assets/images/mentava/web/i/sit.webp" },
+    "map": { "image": "assets/images/mentava/web/m/map.webp" },
+    "mat": { "art": "mat" },
+    "sip": { "emoji": "🥤" }
+  },
+  "steps": [
+    { "id": "warmup", "name": "Sound Warm-up", "color": "sky", "about": "Blend sounds into a word, then break a word into sounds.", "tip": "Sound games work noticeably better when letters are involved. Say \"sun,\" then have your child find the letter that makes the first sound." },
+    { "id": "recall", "name": "Quick Review", "color": "mint", "about": "Say old sounds and read old words before hearing the answer.", "tip": "Children learn best by seeing or hearing it done first. If your child is stuck on a sound, say it first, then invite them: \"You try!\"" },
+    { "id": "newsound", "name": "New Sound: f", "color": "violet", "about": "Meet f: the flower picture, the mouth, then say it and trace it.", "tip": "Say /m/ as \"mmm,\" not \"muh.\" Extra \"uh\" sounds make blending harder: \"buh-a-tuh\" doesn't sound like \"bat.\" Keep stop sounds short and crisp, like a tiny hiccup." },
+    { "id": "blend", "name": "Blend It", "color": "sun", "about": "I do, then we do: blend fit, fat and if together.", "tip": "Children blend better when sounds are stretched together (\"mmmaaat\") than chopped apart (\"m... a... t\"). Chopping makes them forget the first sound by the time they reach the last." },
+    { "id": "read", "name": "Read It", "color": "lilac", "about": "Your child reads six words alone; you judge each one.", "tip": "How you correct matters. Point to the exact letter, say its sound, and have your child reread the word. That works better than a general \"try again.\"" },
+    { "id": "build", "name": "Build It", "color": "blue", "about": "Spell with letter tiles, then change one letter at a time.", "tip": "Spelling practice makes children better readers, not just better spellers. Say \"map\" and have your child build it with magnet letters." },
+    { "id": "story", "name": "Read a Story", "color": "coral", "about": "A three-line story with only the sounds your child knows.", "tip": "Rereading the same short story builds fluency. Read a page aloud first, then let your child read it 3 or 4 times over a few days." },
+    { "id": "celebrate", "name": "Celebrate", "color": "sun", "about": "A reward moment, then rest.", "tip": "" }
+  ],
+  "warmup": {
+    "blend": ["sat", "map"],
+    "break": ["mat", "sip"],
+    "scripts": {
+      "a": "Play the blend, or say it yourself: {blend:@}. Your child slides a finger along under the letters while saying it, smooth and joined with no gaps. Then ask: \"What word?\"",
+      "aGist": "Say {blend:@}. Child slides.",
+      "b": "Say the word slowly: {blend:@}. Your child taps a box for each sound, and the letters appear one by one.",
+      "bGist": "Say {blend:@}. Child taps."
+    }
+  },
+  "recall": {
+    "letters": ["p", "t", "i", "m"],
+    "words": ["sat", "tip"],
+    "wagonSound": "p",
+    "scripts": {
+      "letters": "Your child says the sound before hearing it. Tap Got it, or Help if they are stuck: you say the sound, your child says it back, and the card comes back once at the end. Keep p and t quick and crisp, with no uh.",
+      "lettersGist": "Child says the sound first.",
+      "words": "Your child sounds out the word and says it. Tap Got it, or Help: tap the letter that was tricky, play its sound, then the whole word, and your child blends it again.",
+      "wordsGist": "Child reads the word.",
+      "wagons": "Say: \"Say the sound first, then find it!\" Your child says the sound of the letter on the card, then taps every wagon with that letter.",
+      "wagonsGist": "Say it first, then find it."
+    }
+  },
+  "newsound": {
+    "word": "flower",
+    "scripts": {
+      "meet": "This is f. The stem, the two leaves and the drooping flower head make the letter. Tap Hear it, then say {sound:f} together, a long breath through your teeth.",
+      "meetGist": "This is f. Say {sound:f}.",
+      "mouth": "Say: \"Top teeth on your bottom lip, and blow: {sound:f}. Not fuh.\" Let your child try it, and feel the air on a hand.",
+      "mouthGist": "Top teeth on bottom lip.",
+      "say": "Your child says the sound three times. Tap a dot after each one. Tap Hear it for the recording.",
+      "sayGist": "Child says it 3 times.",
+      "trace": "Say: \"Start at the dot. Follow the arrow.\" Move your finger with theirs and say {sound:f} as you trace.",
+      "traceGist": "Start at the dot."
+    },
+    "mouthLine": "Top teeth on your bottom lip, and blow: {sound:f}. Not fuh."
+  },
+  "blend": {
+    "words": ["fit", "fat", "if"],
+    "scripts": {
+      "ido": "I do. Say the word slowly and smoothly while the letters light up: {blend:@}. Your child watches and listens.",
+      "idoGist": "I do: say {blend:@}.",
+      "wedo": "We do. Slide your fingers along the letters together and say it together: {blend:@}. Then say the whole word fast, and ask: \"What word?\"",
+      "wedoGist": "We do: slide and say it."
+    }
+  },
+  "read": {
+    "words": ["fit", "sat", "if", "map", "fat", "sip"],
+    "scripts": {
+      "read": "Your child reads the word. Tap Got it, or Help. Help: tap the letter that was tricky, play its sound, then the whole word, and your child blends it again. A missed word comes back once at the end.",
+      "readGist": "Child reads. You judge."
+    }
+  },
+  "build": {
+    "first": "fat",
+    "chain": ["fit", "sit", "sip", "tip"],
+    "scripts": {
+      "first": "The phone says the word. Say it slowly with your child: {blend:@}. Your child taps tiles to fill the boxes from left to right. Tap a filled box to send its tile back.",
+      "firstGist": "Say {blend:@}. Child spells.",
+      "chain": "Say: \"Change one letter to make @.\" Do not point to the letter: your child listens for the sound that changed. Children often read the first letter and guess the rest, so this game trains them to look at every letter.",
+      "chainGist": "Change one letter to make @."
+    }
+  },
+  "story": {
+    "title": "Sam and the map",
+    "lines": [
+      { "text": "Sam sat at a map.", "scene": "sam-sat" },
+      { "text": "It is a fat map!", "scene": "fat-map" },
+      { "text": "Sis sat at the map.", "scene": "sis-sat" }
+    ],
+    "question": { "say": "What is fat?", "choices": ["map", "Sam", "mat"], "answer": "map", "line": 1, "right": "Yes! It is a fat map.", "wrong": "Let's look again." },
+    "scripts": {
+      "line": "Your child reads the line aloud. Tap Got it, or Help: tap the tricky word, play its sounds (you say a heart word whole), then your child reads the whole line again.",
+      "lineGist": "Child reads the line.",
+      "page": "Your child can read the whole story again, a little faster. Tap Hear the story to hear it read smoothly first, then reread. Tap Next for a question.",
+      "pageGist": "Reread, a little faster.",
+      "question": "Ask: \"What is fat?\" Your child taps a picture. This checks meaning, not reading.",
+      "questionGist": "What is fat?"
+    }
+  },
+  "celebrate": {
+    "heading": "You read your first f words!",
+    "words": ["fit", "fat", "if"],
+    "didYouKnow": "Short, spaced practice beats long sessions. Ten to fifteen minutes a day works better than an hour on the weekend."
+  }
+}

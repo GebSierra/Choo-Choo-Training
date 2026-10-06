@@ -1,14 +1,16 @@
 // Service worker: precache the app shell and everything the three lessons use, then serve cache-first.
 // Bump CACHE_VERSION whenever any file below changes, or installed copies keep the old files.
-const CACHE_VERSION = 'reading-v1.9.7.2';
+const CACHE_VERSION = 'reading-v1.9.9';
 
 const APP_FILES = [
   './', 'index.html', 'manifest.webmanifest',
   'css/app.css',
   'js/app.js', 'js/dom.js', 'js/router.js', 'js/store.js', 'js/order.js', 'js/speech.js', 'js/glyphs.js', 'js/theme.js', 'js/letters.js', 'js/lessons.js', 'js/scripts.js', 'js/version.js', 'js/platform.js', 'js/art.js', 'js/sfx.js', 'js/guide.js',
-  'js/components/grown-gate.js', 'js/components/slide-track.js', 'js/components/trace-pad.js', 'js/components/hold-button.js', 'js/components/fullscreen-button.js', 'js/components/speak-button.js', 'js/components/sound-card.js', 'js/components/sparkle.js', 'js/components/letter-face.js', 'js/components/game-kit.js', 'js/components/picture.js', 'js/components/slide-blend.js', 'js/components/welcome-card.js', 'js/art/pip.js', 'js/art/train2d.js', 'js/games-data.js', 'js/components/say-sound.js',
+  'js/components/grown-gate.js', 'js/components/slide-track.js', 'js/components/trace-pad.js', 'js/components/hold-button.js', 'js/components/fullscreen-button.js', 'js/components/speak-button.js', 'js/components/sound-card.js', 'js/components/sparkle.js', 'js/components/letter-face.js', 'js/components/game-kit.js', 'js/components/picture.js', 'js/components/slide-blend.js', 'js/components/welcome-card.js', 'js/art/pip.js', 'js/art/train2d.js', 'js/games-data.js', 'js/components/say-sound.js', 'js/components/judge-bar.js', 'js/components/reading-item.js', 'js/art/proto-art.js', 'js/screens/proto-lesson.js',
   'js/screens/home.js', 'js/screens/lesson.js', 'js/screens/task.js', 'js/screens/shell.js', 'js/screens/sack.js', 'js/screens/checkpoint.js', 'js/screens/book.js', 'js/screens/ride.js', 'js/blend-detect.js', 'js/mic.js', 'js/screens/finish.js', 'js/screens/grownups.js',
   'js/screens/tasks/review.js', 'js/screens/tasks/new-letter.js', 'js/screens/tasks/story.js', 'js/screens/tasks/words.js', 'js/screens/tasks/sounds.js', 'js/screens/tasks/writing.js', 'js/screens/tasks/hunt.js', 'js/screens/tasks/hunt-deal.js', 'js/screens/tasks/signals.js', 'js/screens/tasks/wagons.js', 'js/screens/tasks/board.js', 'js/screens/tasks/practice.js', 'js/screens/tasks/check.js',
+  // Prototype 4: the eight-step lesson for f (Grownups > Previews)
+  'js/screens/tasks/proto/kit.js', 'js/screens/tasks/proto/warmup.js', 'js/screens/tasks/proto/recall.js', 'js/screens/tasks/proto/new-sound.js', 'js/screens/tasks/proto/blend-it.js', 'js/screens/tasks/proto/read-it.js', 'js/screens/tasks/proto/build-it.js', 'js/screens/tasks/proto/read-story.js', 'data/proto-lesson-f.json',
   // the train world: the 3D Home and three.js (MIT, vendor/three/LICENSE)
   'js/screens/home3d.js', 'js/train/world.js', 'js/train/scene.js', 'js/train/track.js', 'js/train/scenery.js', 'js/train/stations.js', 'js/train/train.js', 'js/train/tunnel.js', 'js/levels.js', 'js/components/star-board.js', 'js/components/level-banner.js', 'js/art/cars2d.js', 'js/train/pip3d.js', 'js/train/camera.js', 'js/train/overlay.js',
   'vendor/three/three.module.min.js', 'vendor/three/RoundedBoxGeometry.js',
@@ -45,6 +47,8 @@ const APP_FILES = [
 ];
 // Recorded sounds are optional: a missing file must not stop the install.
 const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3', 'assets/audio/sounds/s.mp3', 'assets/audio/sounds/i.mp3', 'assets/audio/sounds/t.mp3', 'assets/audio/sounds/p.mp3', 'assets/audio/sounds/n.mp3', 'assets/audio/sounds/f.mp3', 'assets/audio/sounds/d.mp3', 'assets/audio/sounds/h.mp3', 'assets/audio/sounds/g.mp3', 'assets/audio/sounds/b.mp3', 'assets/audio/sounds/l.mp3'];
+// Connected blend models for the f lesson prototype ("fffiiit"), recorded by the grown-up, are optional too.
+OPTIONAL_FILES.push('assets/audio/blends/sat.mp3', 'assets/audio/blends/map.mp3', 'assets/audio/blends/mat.mp3', 'assets/audio/blends/sip.mp3', 'assets/audio/blends/fit.mp3', 'assets/audio/blends/fat.mp3', 'assets/audio/blends/if.mp3', 'assets/audio/blends/tip.mp3', 'assets/audio/blends/sam.mp3', 'assets/audio/blends/at.mp3', 'assets/audio/blends/it.mp3', 'assets/audio/blends/sis.mp3');
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
