@@ -1561,6 +1561,8 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
   .pc-pad { gap: 8px; } .pc-welcome h2 { font-size: 25px; } .pc-note { font-size: 14px; }
   .pc-word { --cap: clamp(56px, 12dvh, 90px); padding: 12px; }
   .pc-result { padding: 26px 14px 12px; } .pc-suggest { font-size: 21px; } .pc-why { font-size: 16px; }
+}
+
 /* PROTOTYPE 5: a heart-word step for "the" (js/screens/tasks/proto/heart.js, js/screens/proto-heart.js) */
 .proto.heart { --tile: clamp(58px, 17.5vw, 74px); --lt: clamp(76px, 25vw, 96px); align-items: stretch; gap: 10px; }
 .hw-host { width: 100%; flex: 1; display: flex; flex-direction: column; }
