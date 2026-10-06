@@ -1542,6 +1542,20 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .pc-play { text-align: center; }
 .pc-start { align-self: stretch; flex-direction: column; gap: 2px; padding: 8px 16px; } .pc-start small { font-size: 14px; font-weight: 700; }
 .pc-pad .pc-playbtn { align-self: center; }
+.pc-quick { align-self: center; min-height: 48px; }
+.pc-fine { margin: 0; text-align: center; font-size: 15px; font-weight: 700; color: rgba(30,33,64,.7); }
+.pc-teachbox { position: relative; width: 100%; padding: 22px 14px 12px; border-radius: 18px; background: #FFF8EC; box-shadow: 0 3px 0 #D9C8A4; }
+.pc-teach { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 700; text-align: center; }
+.pc-go, .pc-pad .pc-hear { align-self: stretch; }
+.pc-pad .pc-hear { align-self: center; }
+.pc-scene { width: 100%; display: flex; justify-content: center; align-items: center; gap: 12px; padding: 14px 10px; border-radius: 28px; background: #fff; box-shadow: var(--shadow); }
+.pc-pic { display: grid; place-items: center; width: clamp(80px, 17dvh, 130px); height: clamp(80px, 17dvh, 130px); font-size: clamp(56px, 12dvh, 92px); line-height: 1; border-radius: 22px; background: #F4F1FF; }
+.pc-three .pc-pic { width: clamp(64px, 24vw, 100px); height: clamp(64px, 24vw, 100px); font-size: clamp(44px, 15vw, 66px); }
+.pc-sentence { margin: 0; width: 100%; padding: 22px 14px; border-radius: 28px; background: #fff; box-shadow: var(--shadow); text-align: center; font: 700 clamp(26px, 7.2vw, 36px)/1.3 'Andika', 'Nunito', system-ui, sans-serif; color: var(--ink); }
+.pc-line { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.3; }
+.pc-skip { font-size: 15px; color: rgba(30,33,64,.75); }
+.pc-notes { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; text-align: left; font-size: 16px; font-weight: 700; line-height: 1.3; }
+.pc-notes li { padding-left: 18px; position: relative; } .pc-notes li::before { content: ''; position: absolute; left: 4px; top: .55em; width: 7px; height: 7px; border-radius: 50%; background: var(--violet); }
 .pc-start[disabled] { opacity: 1; background: #fff; color: rgba(30,33,64,.62); box-shadow: inset 0 0 0 2px rgba(30,33,64,.2); }
 
 @media (orientation: landscape) and (max-height: 520px) {
@@ -1553,6 +1567,8 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
   .pc-word { --cap: clamp(48px, 16dvh, 70px); padding: 10px 12px; }
   .pc-result { padding: 24px 14px 10px; gap: 4px; } .pc-suggest { font-size: 20px; } .pc-why { font-size: 15px; }
   .pc-start { padding: 4px 16px; min-height: 56px; }
+  .pc-teach { font-size: 16px; } .pc-teachbox { padding: 20px 12px 8px; } .pc-scene { padding: 8px; } .pc-pic { width: clamp(52px, 22dvh, 84px); height: clamp(52px, 22dvh, 84px); font-size: clamp(36px, 15dvh, 56px); } .pc-three .pc-pic { width: clamp(52px, 22dvh, 84px); height: clamp(52px, 22dvh, 84px); font-size: clamp(36px, 15dvh, 56px); }
+  .pc-sentence { padding: 12px; font-size: 26px; } .pc-notes, .pc-line, .pc-skip { font-size: 14px; } .pc-fine { font-size: 14px; }
 }
 @media (max-height: 700px) and (orientation: portrait) {
   .proto.pick { --o: min(28vw, 118px, 19dvh); }
@@ -1561,6 +1577,8 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
   .pc-pad { gap: 8px; } .pc-welcome h2 { font-size: 25px; } .pc-note { font-size: 14px; }
   .pc-word { --cap: clamp(56px, 12dvh, 90px); padding: 12px; }
   .pc-result { padding: 26px 14px 12px; } .pc-suggest { font-size: 21px; } .pc-why { font-size: 16px; }
+  .pc-teach { font-size: 17px; } .pc-pic { width: clamp(64px, 14dvh, 96px); height: clamp(64px, 14dvh, 96px); font-size: clamp(44px, 9dvh, 64px); }
+  .pc-sentence { padding: 14px 12px; } .pc-notes, .pc-line, .pc-skip { font-size: 14px; } .pc-result { gap: 6px; }
 }
 
 /* PROTOTYPE 5: a heart-word step for "the" (js/screens/tasks/proto/heart.js, js/screens/proto-heart.js) */

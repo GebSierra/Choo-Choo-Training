@@ -278,8 +278,14 @@ through the open-vowel words (he, me, go, no, so, we, my) in units 2.9 to 3.1, a
 
 - **Levels are labels, not gates.** Children move by mastery, not by age. A 4-year-old can be at the Kindergarten level
   and a 7-year-old at Pre-K; the app never shows a child a "below grade level" message.
-- **Placement check (coming).** A short check on first use (letter sounds, blending, a few words at each level) starts the
-  child at the right unit; it can be retaken from Grownups.
+- **Placement check (coming).** A calm check of under five minutes, led by the grown-up while the child answers aloud and it
+  feels like a game ("Let's see what you already know!"). It adapts in four steps and starts the child at the right
+  lesson; it can be retaken from Grownups. (1) Letter sounds, one at a time, in the order the lessons teach them; a sound
+  the child does not know yet gets a quick teach card and comes back once, to see how fast the child learns. (2) For
+  beginners who know fewer than four sounds: first sounds in words and blending spoken sounds into words, with no letters.
+  (3) For children who know ten or more sounds: made-up words, which show real sounding out and not memory. (4) For strong
+  readers: a few real words and one short sentence. A quick re-check of letter sounds alone (about a minute) can be run
+  every few weeks to see growth.
 - **Grown-up view.** The level label, the current unit, and the grade benchmark appear only in Grownups.
 - **Fluency targets start in Grade 1,** where national norms begin; earlier levels use accuracy only.
 - **Rereading for meaning is allowed, guessing is not.** From Grade 1, after the child has sounded out a word, the app may
@@ -539,6 +545,24 @@ word"; (6) a Stage 1 sound-play lesson and the placement check.
 **Voice.** Recordings for every letter sound and connected blend (the recording studio lists them from this plan). The
 phone's voice may read whole words, sentences and instructions; it never says an isolated sound (rule 8). A hired voice
 can replace the owner's recordings later at the same file paths.
+
+**Placement check (prototype, `js/screens/proto-placement.js`).** Stop rules and branches:
+- Step 1, letter sounds: the lessons' sounds in teaching order (`curriculum.lessons[].sound`); stop after 3 "Not yet" in a row or at
+  the end. Teach-and-retest: the first "Not yet" opens a teach card ("Say: mmm. Ask your child to say it with you.", the
+  recording if one exists, else the prompt, never the phone's voice); that letter is asked once more 2 letters later, or at the end
+  of step 1 if it stopped first. The retest never changes the start; it only adds a note ("Learned m quickly — a good sign.").
+- Step 2, only if fewer than 4 sounds were known: three first-sound items and three oral blending items (emoji pictures); 2 or fewer
+  of 6 right adds "Start with Sound play" and a link. Steps 3 and 4 are skipped.
+- Step 3, only if 10 or more sounds were known: three CVC made-up words from known sounds, seeded per check (`makeUpWords`), never in
+  WORD_BANK, `REAL_CVC` or `BLOCKED` (rude or unfortunate combinations, over-excluded on purpose), consonants chosen so the word reads
+  one way (no s, h, j, v, z, l or r at the end; no soft g). "Reads it" means the whole word was blended.
+- Step 4, only if 2 of the 3 made-up words were read: up to four real VC/CVC words from WORD_BANK, then one decodable sentence from
+  known sounds and the heart words a, I, is, the (`pickSentence`). Stop after 2 word misses (no sentence).
+- Result: the start is the lesson of the first sound not known (the last lesson when all are known). If 1 or fewer of the 3 made-up
+  words were read, the start moves back to the first lesson whose sound is in a missed made-up word, with "Practise blending first".
+  One plain line says why; notes carry the retest and sound-awareness advice. The real version will unlock earlier lessons and keep
+  the first lesson's review step.
+- "Quick re-check: letter sounds only" runs step 1 alone and shows how many of the sounds are known.
 
 **Standing rules that still apply:** the heat rule in docs/NEXT.md (cheap idle animation allowed: CSS transform/opacity loops, 3D idle at most 10 fps through one shared ticker, stopping when hidden, after 2 minutes without a touch and under reduced motion); no privacy or recording warnings;
 the YouTube links and the jingle cut-off stay as they are; plans by Opus, building by Sonnet.
