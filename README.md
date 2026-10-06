@@ -10,7 +10,9 @@ The app speaks but never listens. It never asks for the microphone. Only `tools/
 
 GitHub Pages serves this repo from `main` at the root. After you enable Pages (Settings, Pages, Branch: main, Folder: / (root)) the app is at:
 
-    https://gebsierra.github.io/Choo-Choo-Training/
+    https://choochootraining.com/
+
+The custom domain is set in the CNAME file at the repo root (GitHub adds it when the domain is set in Settings, Pages); keep it there. The recording studio is at https://choochootraining.com/tools/studio.html.
 
 (Check the exact address on the Pages settings page.)
 

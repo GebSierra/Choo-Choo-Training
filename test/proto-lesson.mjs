@@ -571,10 +571,10 @@ async function entry({ browser, url, ok }) {
   ok(await page.evaluate(() => { const cards = [...document.querySelectorAll('.gu-body > .gu-card')]; return cards[cards.length - 1].textContent.includes('Previews'); }), 'Grownups: Previews is the last card');
   await head.click(); await page.waitForTimeout(300);
   ok((await text(page, '#gu-fold-previews .gu-note')) === 'Try new screens before they go live.', 'Grownups: the note under Previews');
-  const pb = await sel(page, '#gu-fold-previews .preview-btn').boundingBox();
-  ok(pb.height >= 48 && (await text(page, '#gu-fold-previews .preview-btn')) === 'New lesson: f (eight steps)', `Grownups: the button is 48 px or more (${Math.round(pb.height)})`);
+  const pb = await sel(page, '#gu-fold-previews .preview-btn[data-preview="proto-f"]').boundingBox();
+  ok(pb.height >= 48 && (await text(page, '#gu-fold-previews .preview-btn[data-preview="proto-f"]')) === 'New lesson: f (eight steps)', `Grownups: the button is 48 px or more (${Math.round(pb.height)})`);
   await shotOf(page, '00-grownups-previews');
-  await tapEl(page, sel(page, '#gu-fold-previews .preview-btn')); await page.waitForSelector('.proto-intro');
+  await tapEl(page, sel(page, '#gu-fold-previews .preview-btn[data-preview="proto-f"]')); await page.waitForSelector('.proto-intro');
   ok(page.url().endsWith('#/proto/f'), 'Grownups: the button opens the overview');
   ok(errors.length === 0, 'overview: errors ' + errors.join(' | '));
   await made.ctx.close();
