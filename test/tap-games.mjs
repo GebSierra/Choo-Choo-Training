@@ -239,6 +239,13 @@ export async function wagonChecks({ browser, url, ok, CUR }) {
     const frames = (await page.evaluate(() => window.__raf)) - f0;
     ok(frames <= 2, `Wagon Parade: no frames between parades (${frames})`);
     ok((await roundOf(page, 'wagons')) === 1, 'Wagon Parade: three right taps finish the parade');
+    ok(await page.evaluate(() => [...document.querySelectorAll('.parade-wagon[style*="pointer-events"]')].every((b) => b.parentElement.classList.contains('left'))), 'Wagon Parade: a wagon that leaves takes its coupler bar with it');
+    // the parade's star flies from the train to its slot, then lands with a soft chime
+    const starAt = await page.evaluate(() => (document.querySelector('.star-fly') ? 1 : 0) + Number(document.querySelector('.star-row').dataset.filled) * 10);
+    ok(starAt !== 10, `Wagon Parade: the star is not in its slot the moment the third wagon is tapped (${starAt})`);
+    await page.waitForFunction(() => document.querySelector('.star-row').dataset.filled === '1', null, { timeout: 3000 }).catch(() => {});
+    ok(await page.evaluate(() => document.querySelector('.star-row').dataset.filled === '1' && !document.querySelector('.star-fly')), 'Wagon Parade: the flying star lands in the first slot');
+    ok(await page.evaluate(() => window.__audioNotes().some((n) => n.event === 'star')), 'Wagon Parade: a soft star chime plays when the star lands');
     // the other two parades
     for (let p = 2; p <= 3; p++) {
       await page.waitForFunction((k) => Number(document.querySelector('.wagons').dataset.round) === k - 1 && !document.querySelector('.parade-wagon[style*="pointer-events"]'), p, { timeout: 5000 }).catch(() => {});

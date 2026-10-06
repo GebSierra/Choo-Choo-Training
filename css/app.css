@@ -1095,6 +1095,9 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .parade { left: 0; right: 0; bottom: 119px; height: 104px; z-index: 2; }
 .parade .pw { position: absolute; left: 0; bottom: 0; width: 104px; height: 104px; will-change: transform; }
 .parade .pw::after { content: ''; position: absolute; left: -16px; bottom: 19px; width: 18px; height: 5px; border-radius: 3px; background: #2B2D5C; pointer-events: none; }
+.parade .pw.left::after { display: none; } /* a wagon that has left takes its coupler bar with it */
+.wagons { position: relative; }
+.star-fly { position: absolute; width: 30px; height: 30px; z-index: 30; pointer-events: none; }
 .parade-wagon { position: absolute; inset: 0; padding: 0; border: 0; background: none; cursor: pointer; touch-action: manipulation; display: block; }
 .parade-wagon .wagon-art { position: absolute; left: 0; bottom: 0; width: 100%; height: auto; overflow: visible; }
 .parade-wagon .wagon-lid { display: none; }

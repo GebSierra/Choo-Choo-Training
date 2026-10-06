@@ -8,11 +8,12 @@ import { timers, watchSize, findCard, starRow, idleHints, pulseCard } from '../.
 import { roundsFor, otherLetters, parade } from '../../games-data.js';
 import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
+import { starSvg } from '../../art.js';
 
 const INK = '#1E2140';
 const TRAIN_W = 116, WAGON_W = 104, CW = 62, GAP = 16, SIZE = 8, HITS = 3, SPEED = 80; // px and px per second
 const SLOT = WAGON_W + GAP, LOOP = SIZE * SLOT, OFF = 120; // a wagon is drawn from -OFF to LOOP - OFF, so it wraps out of sight
-const NEXT_MS = 1700, FIRST_MS = 400, FLY_MS = 900; // NEXT_MS leaves time to see the last wagon couple before the train uncouples
+const NEXT_MS = 1900, FIRST_MS = 400, FLY_MS = 900, STAR_MS = 750; // NEXT_MS leaves time to see the last wagon couple before the train uncouples
 // Soft wagon colours that are never tied to which letter is the target.
 const PAINT = [{ body: '#D65A4A', rib: '#B8463A' }, { body: '#5AA7DD', rib: '#3F86BD' }, { body: '#4FB783', rib: '#3A9568' }, { body: '#9B7FE0', rib: '#7B5FC0' }];
 const CROSS = 'M6 6 L26 26 M26 6 L6 26';
@@ -28,7 +29,7 @@ export function build(ctx) {
   const rounds = roundsFor(lesson, 'wagons');
   const others = otherLetters(curriculum, lesson.number, target, 3);
   const T = timers();
-  let round = 0, hitsLeft = 0, hitsDone = 0, locked = true, done = false, rolling = false, W = 0, H = 0, offset = 0, raf = 0, last = 0, wagons = [], endAnims = [], coupled = [], serial = 0, still = reduced();
+  let gen = 0, round = 0, hitsLeft = 0, hitsDone = 0, locked = true, done = false, rolling = false, W = 0, H = 0, offset = 0, raf = 0, last = 0, wagons = [], endAnims = [], coupled = [], serial = 0, still = reduced();
 
   const prompt = sayPrompt();
   const card = findCard(target);
@@ -170,13 +171,15 @@ export function build(ctx) {
     sparkle(scene, r.left - o.left + r.width / 2, r.top - o.top + r.height / 3, { count: 9, size: [10, 20], reach: [30, 62] });
     setPip('cheer'); T.later(() => setPip('idle'), 900);
     w.btn.style.pointerEvents = 'none';
+    // its coupler bar leaves with it, and so does the bar of the wagon behind it, which reached to it
+    w.pos.classList.add('left'); wagons[(w.i + 1) % wagons.length].pos.classList.add('left');
     fly(couple(w));
     if (hitsLeft > 0) return;
     // the parade is over: the wagons stop rolling, the star fills, the next parade follows
     locked = true;
     stop();
     round++;
-    stars.fill(round - 1);
+    earnStar(round - 1);
     el.dataset.round = String(round);
     if (round >= rounds) { done = true; hints.stop(); T.later(ending, NEXT_MS); return; }
     T.later(() => {
@@ -184,6 +187,35 @@ export function build(ctx) {
       coupled.forEach((c) => { settle(c, false); animate(c.car, [{ opacity: 1, transform: 'translateX(0)' }, { opacity: 0, transform: 'translateX(-24px)' }], { duration: 280, fill: 'forwards' }); }); // uncouple
     }, NEXT_MS - 300);
     T.later(newParade, NEXT_MS);
+  }
+
+  // The parade's star: once the third wagon has coupled, a gold star lifts off the bottom train and flies into its slot
+  // in the star row, where it lands with a sparkle and a soft chime. Reduced motion: the star fills with the chime.
+  function earnStar(i) {
+    const mine = gen; // Again starts a new generation; the next parade does not, so a star in the air always lands
+    const land = () => {
+      if (mine !== gen || !el.isConnected) return;
+      stars.fill(i);
+      sfx.play('star');
+      const s = stars.el.children[i].getBoundingClientRect(), o = el.getBoundingClientRect();
+      sparkle(el, s.left - o.left + s.width / 2, s.top - o.top + s.height / 2, { count: 10, size: [8, 16], reach: [22, 46] });
+    };
+    if (still || reduced()) { land(); return; }
+    T.later(() => {
+      if (mine !== gen || !el.isConnected) return;
+      const from = (cars.lastElementChild || trainHop).getBoundingClientRect(), to = stars.el.children[i].getBoundingClientRect(), o = el.getBoundingClientRect();
+      const star = starSvg('star-fly');
+      Object.assign(star.style, { left: from.left - o.left + from.width / 2 - 15 + 'px', top: from.top - o.top + from.height / 2 - 15 + 'px' });
+      el.append(star);
+      const dx = to.left - from.left + (to.width - from.width) / 2, dy = to.top - from.top + (to.height - from.height) / 2;
+      const a = star.animate([
+        { transform: 'translate(0,0) scale(.4) rotate(0deg)', opacity: 0 },
+        { transform: `translate(${dx * 0.35}px,${dy * 0.35 - 90}px) scale(2.2) rotate(140deg)`, opacity: 1, offset: 0.45 },
+        { transform: `translate(${dx}px,${dy}px) scale(1) rotate(360deg)`, opacity: 1 }], { duration: STAR_MS, easing: 'cubic-bezier(.4,0,.3,1)' });
+      endAnims.push(a);
+      const done = () => { star.remove(); land(); };
+      a.finished.then(done).catch(() => star.remove());
+    }, FLY_MS);
   }
 
   function wrong(w) {
@@ -210,7 +242,7 @@ export function build(ctx) {
   });
 
   function again() {
-    T.clear(); stop();
+    gen++; T.clear(); stop(); el.querySelectorAll('.star-fly').forEach((x) => x.remove());
     endAnims.forEach((a) => a.cancel()); endAnims = [];
     hints.arm();
     round = 0; done = false; still = reduced();
