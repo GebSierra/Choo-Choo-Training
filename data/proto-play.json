@@ -1,0 +1,89 @@
+{
+  "_note": "Prototype 6: Stage 1 sound play (CURRICULUM.md section 11). Not part of curriculum.json. No letters are shown to the child in Stage 1. Pictures are emoji. Scripts may hold {first} (the target word with its first sound held, built by firstSoundOut), {stretch} (the word sound by sound, built by soundText from the word's own sounds list), {word} and {sound:m} (soundText). The phone's voice says only whole words and instructions, never a stretched word or a sound. Tips are CURRICULUM.md section 13, verbatim.",
+  "title": "Sound play (Stage 1)",
+  "intro": "Three short lessons for before letters. Your child listens, taps and plays with sounds. It is a try-out: it does not change your child's progress.",
+  "pictures": {
+    "milk": "🥛", "moon": "🌙", "sun": "☀️", "sock": "🧦", "fish": "🐟", "fox": "🦊", "apple": "🍎", "ant": "🐜",
+    "dog": "🐶", "pig": "🐷", "cat": "🐱", "bus": "🚌", "hat": "🎩", "map": "🗺️", "egg": "🥚", "up": "⬆️"
+  },
+  "lessons": [
+    {
+      "id": "1", "unit": "1.1", "name": "Left to right", "color": "sky",
+      "about": "Tap the pictures of a tiny story in order, from left to right.",
+      "tip": "Children learn best by seeing or hearing it done first. If your child is stuck on a sound, say it first, then invite them: \"You try!\"",
+      "steps": [
+        {
+          "kind": "story", "name": "Pip's morning",
+          "pics": [["🌅", "Pip wakes up."], ["🥣", "Pip eats breakfast."], ["🚂", "Pip rides the train."], ["👋", "Pip waves goodbye."]],
+          "script": "Reading goes left to right. Point and tap in order. Slide your finger under the row from left to right first, then let your child tap each picture, starting on the left.",
+          "gist": "Reading goes left to right. Point and tap in order."
+        },
+        {
+          "kind": "story", "name": "The little seed",
+          "pics": [["🌱", "Pip plants a seed."], ["💧", "Pip waters it."], ["🌻", "It grows tall."], ["🐝", "A bee says hello."]],
+          "script": "Reading goes left to right. Point and tap in order. Start at the left again, and touch each picture as your child taps it.",
+          "gist": "Reading goes left to right. Point and tap in order."
+        }
+      ]
+    },
+    {
+      "id": "2", "unit": "1.2", "name": "First sounds", "color": "mint",
+      "about": "Which picture starts with the sound the grown-up says?",
+      "tip": "Say /m/ as \"mmm,\" not \"muh.\" Extra \"uh\" sounds make blending harder: \"buh-a-tuh\" doesn't sound like \"bat.\" Keep stop sounds short and crisp, like a tiny hiccup.",
+      "steps": [
+        {
+          "kind": "first", "name": "Starts with mmm", "sound": "m",
+          "rounds": [{ "target": "milk", "options": ["dog", "milk", "pig"] }, { "target": "moon", "options": ["moon", "cat", "bus"] }],
+          "script": "Say: \"Where is {first}?\" Hold the first sound, {sound:m}, without stopping. Your child taps the picture that starts with {sound:m}. If your child taps another one, just say it again.",
+          "gist": "Say: \"Where is {first}?\" Hold the first sound."
+        },
+        {
+          "kind": "first", "name": "Starts with sss", "sound": "s",
+          "rounds": [{ "target": "sun", "options": ["pig", "hat", "sun"] }, { "target": "sock", "options": ["dog", "sock", "cat"] }],
+          "script": "Say: \"Where is {first}?\" Hold the first sound, {sound:s}, without stopping. Your child taps the picture that starts with {sound:s}.",
+          "gist": "Say: \"Where is {first}?\" Hold the first sound."
+        },
+        {
+          "kind": "first", "name": "Starts with fff", "sound": "f",
+          "rounds": [{ "target": "fish", "options": ["cat", "bus", "fish"] }, { "target": "fox", "options": ["fox", "hat", "dog"] }],
+          "script": "Say: \"Where is {first}?\" Hold the first sound, {sound:f}, without stopping. Your child taps the picture that starts with {sound:f}.",
+          "gist": "Say: \"Where is {first}?\" Hold the first sound."
+        },
+        {
+          "kind": "first", "name": "Starts with aaa", "sound": "a",
+          "rounds": [{ "target": "apple", "options": ["dog", "apple", "bus"] }, { "target": "ant", "options": ["pig", "cat", "ant"] }],
+          "script": "Say: \"Where is {first}?\" Hold the first sound, {sound:a} as in apple, without stopping. Your child taps the picture that starts with {sound:a}.",
+          "gist": "Say: \"Where is {first}?\" Hold the first sound."
+        }
+      ]
+    },
+    {
+      "id": "3", "unit": "1.3", "name": "Smooth words", "color": "sun",
+      "about": "Hear a word said smoothly and pick its picture, then tap a dot for each sound.",
+      "tip": "Children blend better when sounds are stretched together (\"mmmaaat\") than chopped apart (\"m... a... t\"). Chopping makes them forget the first sound by the time they reach the last.",
+      "steps": [
+        {
+          "kind": "hear", "name": "Hear the word",
+          "rounds": [
+            { "target": "sun", "sounds": ["s", "u", "n"], "options": ["pig", "sun", "cat"] },
+            { "target": "map", "sounds": ["m", "a", "p"], "options": ["map", "pig", "sun"] },
+            { "target": "pig", "sounds": ["p", "i", "g"], "options": ["cat", "sun", "pig"] }
+          ],
+          "script": "Say the word smoothly, with no stops: \"{stretch}\". Your child taps the picture. Slide the sounds together; never chop them apart.",
+          "gist": "Say it smoothly: \"{stretch}\". No stops."
+        },
+        {
+          "kind": "break", "name": "Break it apart",
+          "rounds": [
+            { "target": "egg", "sounds": ["e", "g"] },
+            { "target": "up", "sounds": ["u", "p"] },
+            { "target": "map", "sounds": ["m", "a", "p"] },
+            { "target": "pig", "sounds": ["p", "i", "g"] }
+          ],
+          "script": "Say the word slowly: \"{stretch}\". Your child taps one dot for each sound. Say the sounds again as each dot lights up.",
+          "gist": "Say it slowly: \"{stretch}\". One dot for each sound."
+        }
+      ]
+    }
+  ]
+}

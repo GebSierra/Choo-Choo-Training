@@ -19,7 +19,7 @@ export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA 
 export const WHISTLE_CREDIT = 'The train whistle sound is a toy train whistle from Pixabay (Pixabay licence: free to use in apps, no credit required).';
 
 // The screens the owner can try before they go live (prototype 2): route key and button label.
-const PREVIEWS = [['tip', 'Did you know? card'], ['board', 'Journey board'], ['gateway', 'World gateway'], ['proto-f', 'New lesson: f (eight steps)']];
+const PREVIEWS = [['tip', 'Did you know? card'], ['board', 'Journey board'], ['gateway', 'World gateway'], ['proto-f', 'New lesson: f (eight steps)'], ['proto-play', 'Sound play (Stage 1)'], ['proto-placement', 'Placement check']];
 
 // Parent area. Reached only through the hold gate on Home (ctx.gate), and expires after ten minutes.
 const folds = {}; // which reference cards are open, for this page session only
@@ -132,7 +132,7 @@ export function grownupsScreen(ctx) {
         h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.alphabetSongUrl); } }, icon('external', 20), 'Alphabet song')),
       ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),
       sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),
-      fold('Previews', h('p', { class: 'gu-note' }, 'Try new screens before they go live.'), h('div', { class: 'gu-previews' }, ...PREVIEWS.map(([key, label]) => h('button', { class: 'btn small preview-btn', type: 'button', dataset: { preview: key }, onclick: () => router.go(key === 'proto-f' ? '/proto/f' : '/preview/' + key) }, label)))),
+      fold('Previews', h('p', { class: 'gu-note' }, 'Try new screens before they go live.'), h('div', { class: 'gu-previews' }, ...PREVIEWS.map(([key, label]) => h('button', { class: 'btn small preview-btn', type: 'button', dataset: { preview: key }, onclick: () => router.go(key === 'proto-f' ? '/proto/f' : key === 'proto-play' ? '/proto/play' : key === 'proto-placement' ? '/proto/placement' : '/preview/' + key) }, label)))),
       h('p', { class: 'gu-version' }, `Choo Choo Training version ${APP_VERSION}`)));
   root.cleanup = () => clearTimeout(voiceTimer);
   return root;
