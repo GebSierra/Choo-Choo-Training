@@ -73,7 +73,7 @@ async function welcomeChecks(ok, browser, url) {
     await page.addInitScript(SPEECH_STUB);
     await page.addInitScript(`if (!localStorage.getItem('reading.v1')) localStorage.setItem('reading.v1', ${JSON.stringify(JSON.stringify({ schema: 1, lessons: {}, settings: {}, firstRunDone: false, meetDue: true }))})`);
     await page.goto(url + '#/home'); await page.waitForSelector('.welcome'); await page.waitForTimeout(800);
-    await page.click('.wc-next'); await page.waitForTimeout(450); await page.click('.wc-next'); await page.waitForTimeout(450); await page.click('.wc-next');
+    await page.click('.wc-next'); await page.waitForTimeout(450); await page.click('.wc-next'); await page.waitForTimeout(450); await page.click('.wc-next'); await page.waitForTimeout(450); await page.click('.wc-next');
     await page.waitForSelector('.cp'); await page.waitForTimeout(600);
     ok((await page.locator('.cp h2').innerText()) === 'Who is riding with Pip?', 'after the welcome\'s Start the character creator asks "Who is riding with Pip?"');
     await page.click('.meet-later'); await page.waitForTimeout(500);
