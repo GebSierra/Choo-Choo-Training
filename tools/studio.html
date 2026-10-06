@@ -13,7 +13,7 @@
   body { margin: 0; font: 18px/1.4 Andika, system-ui, Roboto, sans-serif; background: var(--cream); color: var(--ink); padding: 16px 16px 60px; }
   main { max-width: 640px; margin: 0 auto; display: grid; gap: 14px; }
   h1 { margin: 0; font-size: 22px; line-height: 1.2; }
-  .howto { margin: 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .howto { margin: 2px 0 0; color: var(--muted); font-size: 15px; }
   .card { background: #fff; border-radius: 20px; padding: 16px; box-shadow: 0 6px 20px rgba(60,40,20,.12); display: grid; gap: 10px; min-width: 0; }
   .progress { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .progress strong { font-size: 20px; }
@@ -26,7 +26,7 @@
   .chip.cur { border-color: var(--violet); background: #EEEBFF; }
   .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #B8BCD3; background: transparent; flex: none; }
   .chip.done .dot { background: var(--green); border-color: var(--green); }
-  .show { font-size: 76px; line-height: 1.1; font-weight: 700; text-align: center; color: var(--violet); margin: 4px 0; overflow-wrap: anywhere; }
+  .show { font-size: 68px; line-height: 1; font-weight: 700; text-align: center; color: var(--violet); margin: 0; overflow-wrap: anywhere; }
   .show.long { font-size: 56px; }
   .where { text-align: center; color: var(--muted); font-size: 15px; margin: 0; }
   .badge { justify-self: center; background: #EEEBFF; color: var(--violet); border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 16px; text-align: center; }
@@ -56,12 +56,8 @@
 <body>
 <main>
   <header>
-    <h1>Choo Choo Training · Recording studio</h1>
-    <ul class="howto">
-      <li>Find a quiet room.</li>
-      <li>Hold the phone about 20 cm from your mouth.</li>
-      <li>Say it the way the card says.</li>
-    </ul>
+    <h1>Recording studio</h1>
+    <p class="howto">Quiet room · phone about 20 cm from your mouth · say it the way the card says.</p>
   </header>
 
   <section class="card" aria-label="Progress">

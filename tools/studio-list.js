@@ -15,26 +15,26 @@ export const GROUPS = [
 
 const A = [
   sound('m', 'm', 'Hold it about 2 seconds: mmm. Lips together, hum.', 'Not "muh". Not "em".', 'Lips closed. You can feel a buzz on your lips.', 'as in mmmoon', 'stretchy'),
-  sound('a', 'a', 'The sound at the start of "apple": aaa. Mouth open wide, held about 2 seconds.', 'Not "ay" (the letter name). Not "uh".', 'Open wide, like the dentist is looking at your teeth.', 'as in aaapple', 'stretchy'),
+  sound('a', 'a', 'The sound at the start of "apple": aaa. Mouth open wide, held about 2 seconds.', 'Not "ay" (the letter name). Not "uh".', 'Open wide, like the dentist is looking at your teeth.', 'as in "apple" and "at"', 'stretchy'),
   sound('s', 's', 'Hold it about 2 seconds: sss. Push air out like a snake.', 'Not "suh". Not "ess".', 'Teeth close together. No buzz in your throat.', 'as in sssun', 'stretchy'),
-  sound('i', 'i', 'The sound at the start of "it": iii. Held about 2 seconds, mouth only a little open.', 'Not "eye" (the letter name). Not "ee".', 'Smile a tiny bit and keep your tongue low.', 'as in iiit', 'stretchy'),
+  sound('i', 'i', 'The sound at the start of "it" and "igloo": ih, held about 2 seconds, mouth only a little open.', 'Not "eye" (the letter name). Not "ee".', 'Smile a tiny bit and keep your tongue low.', 'as in "it" and "igloo"', 'stretchy'),
   sound('t', 't', 'A quick tap of the tongue: t. Short and clipped.', 'Not "tuh". Not "tee".', 'Tongue taps the bumpy spot behind your top teeth. Nothing in your throat. It is the quiet partner of d.', 'as in the end of "cat"', 'bouncy'),
   sound('p', 'p', 'A quick puff of air: p. Short and clipped.', 'Not "puh". Not "pee".', 'Hold your hand near your lips and feel the puff. No buzz in your throat. It is the quiet partner of b.', 'as in the start of "pig"', 'bouncy')
 ];
 
 const B = [
   sound('f', 'f', 'Hold it about 2 seconds: fff. Top teeth on your bottom lip, blow.', 'Not "fuh". Not "eff".', 'Quiet partner of v: touch your throat, fff has no buzz.', 'as in fffish', 'stretchy'),
-  sound('o', 'o', 'The sound in "mop": ooo. Mouth round and open, held about 2 seconds.', 'Not "oh" (the letter name). Not "aw".', 'Drop your jaw, like saying "ah" with a rounder mouth.', 'as in oooctopus', 'stretchy'),
+  sound('o', 'o', 'The sound in "mop" and "octopus": ah, with a round open mouth, held about 2 seconds.', 'Not "oh" (the letter name). Not "oo" as in moon.', 'Drop your jaw, like saying "ah" with a rounder mouth.', 'as in "octopus" and "mop"', 'stretchy'),
   sound('n', 'n', 'Hold it about 2 seconds: nnn. Hum through your nose.', 'Not "nuh". Not "en".', 'Tongue touches behind your top teeth. Pinch your nose and the sound stops.', 'as in nnnest', 'stretchy'),
   sound('d', 'd', 'A quick voiced pop: d. Short and clipped, no uh.', 'Not "duh". Not "dee".', 'Same mouth as t, but your voice buzzes. Touch your throat: d buzzes, t does not.', 'as in the start of "dog"', 'bouncy'),
   sound('k', 'c k', 'A quick pop from the back of your throat: k. This one sound is spelled c and k.', 'Not "kuh". Not "see" or "kay".', 'Quiet partner of g: touch your throat, k has no buzz.', 'as in the start of "cat" and "kid"', 'bouncy'),
   sound('h', 'h', 'Just a breath: h. Like fogging a mirror. Very short.', 'Not "huh". Not "aitch".', 'Put your hand in front of your mouth and feel warm air. There is no voice at all.', 'as in the start of "hat"', 'bouncy'),
-  sound('u', 'u', 'The sound in "fun": uuu. Relaxed mouth, held about 2 seconds.', 'Not "you" (the letter name). Not "oo".', 'Let your jaw go loose and lazy, like a little grunt.', 'as in uuumbrella', 'stretchy'),
+  sound('u', 'u', 'The sound in "fun" and "up": uh, with a relaxed mouth, held about 2 seconds.', 'Not "you" (the letter name). Not "oo".', 'Let your jaw go loose and lazy, like a little grunt.', 'as in "up" and "umbrella"', 'stretchy'),
   sound('g', 'g', 'A quick voiced pop: g, the hard sound. Short and clipped, no uh.', 'Not "guh". Not "gee". Not the j sound.', 'Same mouth as k, but your voice buzzes. Touch your throat: g buzzes, k does not.', 'as in the start of "gum"', 'bouncy'),
   sound('l', 'l', 'Hold it about 2 seconds: lll. Tongue tip up behind your top teeth.', 'Not "luh". Not "el".', 'Smile with your tongue tip up and let the sound flow out the sides.', 'as in llllip', 'stretchy'),
   sound('r', 'r', 'Hold it about 2 seconds: rrr. Lips a bit round, tongue pulled back.', 'Not "ruh". Not "ar".', 'Growl softly like a little lion. Your tongue does not touch the roof of your mouth.', 'as in rrrug', 'stretchy'),
   sound('b', 'b', 'A quick voiced pop: b. Short and clipped, no uh.', 'Not "buh". Not "bee".', 'Same mouth as p, but your voice buzzes. Touch your throat: b buzzes, p does not.', 'as in the start of "bat"', 'bouncy'),
-  sound('e', 'e', 'The sound in "bed": eee. Mouth halfway open, held about 2 seconds.', 'Not "ee" (the letter name). Not "ay".', 'Keep it flat, like a sheep saying "eh".', 'as in eeegg', 'stretchy'),
+  sound('e', 'e', 'The sound in "bed" and "egg": eh, mouth halfway open, held about 2 seconds.', 'Not "ee" (the letter name). Not "ay".', 'Keep it flat, like a sheep saying "eh".', 'as in "egg" and "bed"', 'stretchy'),
   sound('j', 'j', 'A quick voiced pop: j. Short and clipped, no uh.', 'Not "juh". Not "jay".', 'Lips a little round. Your voice buzzes: touch your throat.', 'as in the start of "jam"', 'bouncy'),
   sound('w', 'w', 'Lips round, then open: ww, as in "wet". Hold it only a moment.', 'Not "double-u". Not "wuh". Not "d".', 'Make a small circle with your lips, like blowing out a candle, then let go.', 'as in wwwet', 'stretchy'),
   sound('v', 'v', 'Hold it about 2 seconds: vvv. Top teeth on your bottom lip, buzz.', 'Not "vuh". Not "vee".', 'Buzzing partner of f: touch your throat and feel it buzz. Your lip tickles.', 'as in vvvan', 'stretchy'),
