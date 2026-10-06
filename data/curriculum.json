@@ -2589,6 +2589,21 @@
         "i"
       ],
       "after": 4
+    },
+    {
+      "id": "b2",
+      "kind": "book",
+      "title": "Story 2",
+      "book": "book-2",
+      "needs": [
+        "m",
+        "a",
+        "s",
+        "i",
+        "t",
+        "p"
+      ],
+      "after": 6
     }
   ],
   "gameDistractors": [

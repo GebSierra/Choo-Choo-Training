@@ -204,7 +204,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
       art.append(track);
       mid.push(art);
     } else if (kind === 'review') {
-      const tiles = h('div', { class: 'book-tiles' }, page.words.map((w) => {
+      const tiles = h('div', { class: 'book-tiles' + (page.words.length > 6 ? ' is-many' : '') }, page.words.map((w) => {
         const svg = wordSvg(w, { color: INK, label: w, all: true });
         svg.style.width = `calc(var(--tile-cap, 60px) * ${Number(svg.dataset.width) / Number(svg.dataset.height)})`;
         svg.style.maxWidth = '100%';

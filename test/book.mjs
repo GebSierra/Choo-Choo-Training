@@ -1,4 +1,4 @@
-// The book reader and Story 1: pages, the child's name, the slider, taps, the train drag, the sound page, the review,
+// The book reader and every book stop (Story 1, Story 2): pages, the child's name, the slider, taps, the train drag, the sound page, the review,
 // the finish, silence (nothing spoken, the name never sent), the landscape fit and heat.
 // Run alone with `node test/book.mjs`.
 import fs from 'node:fs';
@@ -7,14 +7,21 @@ import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN } from './lib.mjs';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
-const ck = CUR.checkpoints.find((k) => k.kind === 'book');
-const BOOK = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/books', `${ck.book}.json`), 'utf8'));
+const BOOKS = CUR.checkpoints.filter((k) => k.kind === 'book');
 const NAME = 'Lily';
+let ck, BOOK, TITLE, seedScript;
+// Every check below runs once per book stop; this points the module at one of them.
+function useBook(k) {
+  ck = k;
+  BOOK = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/books', `${k.book}.json`), 'utf8'));
+  TITLE = BOOK.title.replaceAll('{name}', NAME);
+  seedScript = mkSeed();
+}
 const RAF_COUNTER = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
 const TIMER_COUNTER = () => { window.__timerCalls = 0; for (const k of ['setTimeout', 'setInterval']) { const o = window[k].bind(window); window[k] = (...a) => { window.__timerCalls++; return o(...a); }; } };
 const PROPS = () => document.getAnimations().filter((a) => a.playState === 'running').map((a) => ({ props: [...new Set(a.effect ? a.effect.getKeyframes().flatMap((k) => Object.keys(k)) : [])].filter((p) => !['offset', 'easing', 'composite', 'computedOffset'].includes(p)), inf: a.effect && a.effect.getTiming().iterations === Infinity }));
 const done = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it' }]));
-const seedScript = `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: done(ck.after), settings: { seenScripts: SEEN }, firstRunDone: true, character: { name: NAME } })})); }`;
+const mkSeed = () => `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: done(ck.after), settings: { seenScripts: SEEN }, firstRunDone: true, character: { name: NAME } })})); }`;
 
 export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = null }) {
   const made = await newPage(browser, vp);
@@ -46,16 +53,16 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
 
   // The closed book, then open it.
   ok((await page.locator('.book[data-state="closed"]').count()) === 1 && (await page.locator('.book-cover').isVisible()), `${tag}: the book starts closed with its cover`);
-  ok((await page.locator('.cover-title').innerText()) === `Pip Meets ${NAME}`, `${tag}: the cover title carries the name`);
-  ok((await page.locator('.book-cover').getAttribute('aria-label')) === `Open the book: Pip Meets ${NAME}`, `${tag}: the cover says how to open it`);
+  ok((await page.locator('.cover-title').innerText()) === TITLE, `${tag}: the cover title carries the name`);
+  ok((await page.locator('.book-cover').getAttribute('aria-label')) === `Open the book: ${TITLE}`, `${tag}: the cover says how to open it`);
   if (shot) await shot(page, 'book-cover');
   await page.locator('.book-cover').click();
   await page.waitForSelector('.book[data-state="open"]', { timeout: 1500 });
   ok(!(await page.locator('.book-cover').isVisible()), `${tag}: the cover is gone once the book is open`);
 
-  ok((await page.locator('.dots .dot').count()) === BOOK.pages.length && BOOK.pages.length === 11, `${tag}: the dots show ${BOOK.pages.length} pages`);
-  ok((await page.locator('.task-head h1').innerText()) === 'Story 1', `${tag}: titled Story 1`);
-  ok((await page.locator('.book-title').innerText()) === `Pip Meets ${NAME}`, `${tag}: the title carries the name`);
+  ok((await page.locator('.dots .dot').count()) === BOOK.pages.length, `${tag}: the dots show ${BOOK.pages.length} pages`);
+  ok((await page.locator('.task-head h1').innerText()) === ck.title, `${tag}: titled ${ck.title}`);
+  ok((await page.locator('.book-title').innerText()) === TITLE, `${tag}: the title carries the name`);
   ok((await page.locator('.book[data-spread="0"]').count()) === 1 && (await page.locator('.book-sheet.is-live').count()) === 1, `${tag}: portrait shows one page`);
   ok((await page.evaluate(() => { const f = getComputedStyle(document.querySelector('.book-read')).fontFamily; return f.startsWith('Andika') && document.fonts.check('20px Andika'); })), `${tag}: the grown-up's text is set in Andika`);
   ok((await page.evaluate(() => getComputedStyle(document.querySelector('.book-block'), '::after').width)) === '7px', `${tag}: the book has a page edge`);
@@ -88,7 +95,7 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
   await touchDrag(page, { x: sb.x + sb.width * 0.5, y }, { x: sb.x + sb.width * 0.4, y }, { steps: 40 });
   await page.waitForTimeout(1000);
   ok((await pageNo()) === 1 && (await page.locator('.book-leaf').count()) === 0 && (await page.locator('.book[data-state="open"]').count()) === 1, `${tag}: a short slow drag springs back, page ${await pageNo() + 1}`);
-  ok((await page.locator('.book-read').count()) === 1 && /station/.test(await page.locator('.book-read').innerText()), `${tag}: the page is whole after a spring back`);
+  ok((await page.locator('.book-read').count()) === 1 && (await page.locator('.book-read').innerText()).includes(BOOK.pages[1].read.slice(0, 14)), `${tag}: the page is whole after a spring back`);
 
   // Corners.
   await page.locator('.book-corner.next').click();
@@ -106,31 +113,32 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
   await page.waitForFunction(() => Number(document.querySelector('.book-stage').dataset.page) === 0); await settled();
   await page.evaluate(() => window.__audioClear && window.__audioClear());
 
+  const firstSlider = BOOK.pages.findIndex((p) => p.slider);
   const lens = [];
   for (let n = 0; n < BOOK.pages.length; n++) {
     const pg = BOOK.pages[n];
     ok((await pageNo()) === n, `${tag}: on page ${n + 1}`);
     const body = await page.evaluate(() => document.body.innerText);
     ok(!body.includes('{name}'), `${tag} page ${n + 1}: no {name} left in the text`);
-    if (n === 1) ok(/Lily/.test(await page.locator('.book-read').innerText()), `${tag}: page 2 says Lily`);
+    if (/\{name\}/.test(pg.read)) ok(/Lily/.test(await page.locator('.book-read').innerText()), `${tag}: page ${n + 1} says Lily`);
     if (pg.child) {
       const want = [...pg.child.replace(/ /g, '')].length;
       lens.push(await page.locator('.book-child .glyph-letter').count());
       ok(lens[lens.length - 1] === want, `${tag} page ${n + 1}: ${want} drawn letters in "${pg.child}" (${lens[lens.length - 1]})`);
     }
     if (pg.sound) {
-      ok(/Your child says: mmmm|Your child says: sssss/.test(await page.locator('.book-read').innerText()), `${tag} page ${n + 1}: the parent text shows the sound`);
+      ok((await page.locator('.book-read').innerText()).includes(`Your child says: ${pg.sound}`), `${tag} page ${n + 1}: the parent text shows the sound`);
       ok((await page.locator('.book-child').count()) === 0, `${tag} page ${n + 1}: a sound page shows only the picture`);
     }
     if (pg.slider) {
       ok((await page.locator('.slide-band').count()) === 1, `${tag} page ${n + 1}: the slide band is there`);
-      if (n === 2) await idle('page 3 (the slider)');
+      if (n === firstSlider) await idle(`page ${n + 1} (the slider)`);
       const row = (await page.locator('.book-word[data-slider="1"]').boundingBox());
       let lit = 0;
       await touchDrag(page, { x: row.x + 2, y: row.y + row.height / 2 }, { x: row.x + row.width + 30, y: row.y + row.height / 2 }, { steps: 14, during: async () => { lit = await page.locator('.glyph-letter.lit').count(); } });
       ok(lit > 0, `${tag} page ${n + 1}: sliding a finger across the word lights its letters (${lit})`);
       ok((await pageNo()) === n, `${tag} page ${n + 1}: sliding across the word does not turn the page`);
-      if (n === 2 && shot) { await page.waitForTimeout(400); await shot(page, 'book-page-3-slider'); }
+      if (n === firstSlider && shot) { await page.waitForTimeout(400); await shot(page, `book-page-${n + 1}-slider`); }
     }
     if (n === 0) {
       await page.evaluate(() => window.__audioClear && window.__audioClear());
@@ -334,11 +342,15 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const ok = (c, m) => { checks++; if (!c) { failures++; console.error('FAIL: ' + m); } };
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
-  await bookChecks({ browser, url, ok });
-  await bookLandscape({ browser, url, ok });
-  await bookFit({ browser, url, ok, shot: async (pg, n) => { if (n === 'fit-346x690-page-4') await pg.screenshot({ path: path.join(ROOT, 'docs/screenshots/v185/book-346x690-page-4.png') }); } });
-  await bookIntro({ browser, url, ok, shotDir: path.join(ROOT, 'docs/screenshots/v185') });
-  await bookReduced({ browser, url, ok });
+  for (const [bi, k] of BOOKS.entries()) {
+    useBook(k);
+    const first = bi === 0; // the v185 screenshots are only re-rendered for the first book
+    await bookChecks({ browser, url, ok });
+    await bookLandscape({ browser, url, ok });
+    await bookFit({ browser, url, ok, shot: first ? async (pg, n) => { if (n === 'fit-346x690-page-4') await pg.screenshot({ path: path.join(ROOT, 'docs/screenshots/v185/book-346x690-page-4.png') }); } : null });
+    await bookIntro({ browser, url, ok, shotDir: first ? path.join(ROOT, 'docs/screenshots/v185') : null });
+    await bookReduced({ browser, url, ok });
+  }
   await browser.close(); server.close();
   console.log(`book: ${checks - failures}/${checks} checks passed`);
   process.exit(failures ? 1 : 0);

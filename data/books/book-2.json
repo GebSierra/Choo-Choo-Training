@@ -1,0 +1,20 @@
+{
+  "id": "book-2",
+  "title": "Pip and the Map",
+  "needs": ["m", "a", "s", "i", "t", "p"],
+  "sight": ["is", "I"],
+  "pages": [
+    { "read": "Toot toot! The little train is back. Pip, {name}, Sam and Sis climb on board.", "art": { "train": true, "pip": "wave" }, "tap": { "on": "train", "anim": "toot", "label": "Pip's whistle" } },
+    { "read": "Pip holds up a big paper with lines and a red X. \"Look!\" says Pip. \"It is a ...\"", "child": "map", "slider": "map", "art": { "emoji": ["🗺️"] }, "tap": { "on": "emoji", "anim": "giggle", "label": "the map" } },
+    { "read": "The red X is at the very top of the hill, right at the ...", "child": "tip", "after": "\"Tip-top!\" says Pip.", "art": { "emoji": ["⛰️"] } },
+    { "read": "Sis is tired. She wants to ...", "child": "sit", "slider": "sit", "art": { "emoji": ["👧"] } },
+    { "read": "Sis sits down on a soft ...", "child": "mat", "art": { "emoji": ["👧"] }, "tap": { "on": "emoji", "anim": "bounce", "label": "Sis" } },
+    { "kind": "drag", "read": "Off they go! Up, up, up the big hill." },
+    { "read": "A puppy runs next to the track. Sam gives it a gentle ...", "child": "pat", "art": { "emoji": ["🐶"] }, "tap": { "on": "emoji", "anim": "giggle", "label": "the puppy" } },
+    { "read": "At the top they find a picnic! Pip takes a big bite. It is so good. Pip says ...", "sound": "mmmm", "art": { "emoji": ["🧺"] } },
+    { "read": "Pip pours a cup of cold water. {name} takes a little ...", "child": "sip", "art": { "emoji": ["🥤"] }, "tap": { "on": "emoji", "anim": "bounce", "label": "the cup" } },
+    { "read": "Sam wants to play a game. Sam runs to {name} and gives a soft ...", "child": "tap", "after": "\"You are it!\" Everyone laughs.", "art": { "friend": true }, "tap": { "on": "friend", "anim": "wave", "label": "{name}" } },
+    { "read": "The sun goes down. Everyone climbs back on the train. Pip asks, \"Who was the best helper today?\" Sam says ...", "child": "It is", "after": "... {name}! The end. Toot toot!", "art": { "train": true, "pip": "cheer", "friend": true } },
+    { "kind": "review", "read": "Read them all!", "words": ["map", "tip", "sit", "mat", "pat", "sip", "tap", "It is"] }
+  ]
+}

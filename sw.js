@@ -1,6 +1,6 @@
 // Service worker: precache the app shell and everything the three lessons use, then serve cache-first.
 // Bump CACHE_VERSION whenever any file below changes, or installed copies keep the old files.
-const CACHE_VERSION = 'reading-v1.9.5';
+const CACHE_VERSION = 'reading-v1.9.6';
 
 const APP_FILES = [
   './', 'index.html', 'manifest.webmanifest',
@@ -12,7 +12,7 @@ const APP_FILES = [
   // the train world: the 3D Home and three.js (MIT, vendor/three/LICENSE)
   'js/screens/home3d.js', 'js/train/world.js', 'js/train/scene.js', 'js/train/track.js', 'js/train/scenery.js', 'js/train/stations.js', 'js/train/train.js', 'js/train/tunnel.js', 'js/levels.js', 'js/components/star-board.js', 'js/components/level-banner.js', 'js/art/cars2d.js', 'js/train/pip3d.js', 'js/train/camera.js', 'js/train/overlay.js',
   'vendor/three/three.module.min.js', 'vendor/three/RoundedBoxGeometry.js',
-  'data/curriculum.json', 'data/books/book-1.json',
+  'data/curriculum.json', 'data/books/book-1.json', 'data/books/book-2.json',
   'assets/fonts/nunito-latin.woff2', 'assets/fonts/andika-latin-400-normal.woff2', 'assets/fonts/andika-latin-700-normal.woff2', 'js/components/page-turn.js', 'js/character.js', 'js/art/kid.js', 'js/train/kid3d.js', 'js/sequence.js', 'js/components/character-picker.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',
   // picture tiles curriculum.json uses (node tools/precache-images.mjs prints this list; the smoke test checks it)

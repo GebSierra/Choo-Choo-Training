@@ -174,6 +174,16 @@ export async function mapUpgradeChecks({ browser, url, ok }) {
     ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
+  // Story 2 sits on the path right after lesson 6 (the stop that needs m a s i t p).
+  {
+    const k = CUR.checkpoints.find((x) => x.id === 'b2');
+    const { ctx, page } = await open(browser, url, VIEWPORTS[0], seed(6, {}));
+    await page.waitForTimeout(1500);
+    const labels = await page.locator('.stone').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label') || ''));
+    const a = labels.findIndex((l) => l.startsWith('Lesson 6')), b = labels.findIndex((l) => l.startsWith(k ? k.title : 'Story 2'));
+    ok(!!k && k.after === 6 && a >= 0 && b >= 0 && Math.abs(a - b) === 1, `Story 2 is the stop right after lesson 6 (after ${k && k.after}; stones ${a} and ${b})`);
+    await ctx.close();
+  }
   // A new child starts at the start of the path.
   const { ctx, page } = await open(browser, url, VIEWPORTS[0], `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{},settings:{seenScripts:${JSON.stringify(SEEN)},trainWorld:false},firstRunDone:true}))`);
   await page.waitForTimeout(1800);
