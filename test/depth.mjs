@@ -63,8 +63,7 @@ export async function depthChecks({ browser, url, ok }) {
   ok(r.near >= 2, `camera near plane is at least 2 (${r.near})`);
   ok(r.brows === 2, `Pip has exactly two eyebrows (${r.brows})`);
   ok(r.brows === 2 && Math.abs(r.browSum) < 1e-6 && r.browYZ[0][0] === r.browYZ[1][0] && r.browYZ[0][1] === r.browYZ[1][1], 'the two brows are mirrored (x sums to 0, same y and z)');
-  const hx = r.hair.map((p) => p[0]);
-  ok(r.hair.length >= 2 && r.hair.length % 2 === 0 && r.hair.every((p) => r.hair.some((q) => Math.abs(q[0] + p[0]) < 1e-6 && q[1] === p[1] && q[2] === p[2])), `the hair tufts come in mirrored pairs (${hx.join(', ')})`);
+  ok(r.hair.length === 0, `Pip has no hair tufts at the temples, which read as sideburns in 3D (${r.hair.length})`);
   ok(r.rims > 0 && r.skullMin !== null && r.skullMin > r.rimTop + 0.02, `Pip's skull is above the cab rim (${r.skullMin} vs ${r.rimTop})`);
   ok(r.shirtMin !== null && r.shirtMin > r.rimTop, `Pip's shirt is above the cab rim (${r.shirtMin} vs ${r.rimTop})`);
   ok(errors.length === 0, 'depth: console errors ' + errors.join(' | '));

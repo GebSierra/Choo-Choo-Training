@@ -20,6 +20,13 @@ Last session finished every item of the previous handoff. Full `npm test` result
   he/she in a line with the child's name). Review tiles shrink when a review has more than six words.
 - Test fix: smoke's precache size check counts an unrecorded optional letter sound as 0 bytes.
 
+## Master plan status (2026-10-06) — read this first
+- The owner's master plan is docs/CURRICULUM-DRAFT.md; the review, the owner's decisions and the prototype order are in
+  docs/CURRICULUM-REVIEW.md. Owner picked 1A 2A 3C 4A 5A 6A 7B 8A 9A; decision 10 (progression overview) is open.
+- Prototypes first: each new kind of screen is built once and approved by the owner before it is copied to every lesson.
+- Next step: the corrected plan (one document, internal parts marked), then the prototypes in the review's order.
+- Art: Pip and the child were redrawn (1.9.7, 1.9.7.1); the 3D Pip's temple tufts were removed (1.9.7.2).
+
 ## Pick up here, in this order (owner direction, 2026-10-06)
 Nothing in this list gets built until the owner has picked an option and approved the written plan (rule below).
 1. **Wording first.** Many grown-up explanations and scripts are off. Get every line perfect on the existing

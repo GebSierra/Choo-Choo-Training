@@ -125,3 +125,44 @@ redo; the file is named after the sound; stop anywhere and come back with the pl
 tools/record.html (one card per letter, record, download as <k>.webm). The studio extends it: the list comes from the
 approved plan (sounds, then connected blends, then heart words if decision 5 says so), progress is kept in the browser
 on that device, and files download as, for example, `sound-m.webm` and `blend-mat.webm`, ready to upload into the chat.
+
+---
+
+## Owner decisions (2026-10-06)
+- 1A: one sound per lesson, in the plan's order; lessons 1 to 6 unchanged.
+- 2A: Stage 1 sound play (3 short lessons) and a placement check (first run, retakable in Grownups).
+- 3C: story taps stay; Rule 6 is softened in the plan to "taps never replace reading; the child reads the word first".
+- 4A: tap games stay as warm-ups with a say-it-first step; production tasks carry the lesson.
+- 5A: the owner records the key sounds (and connected blends); the phone's voice reads whole words and sentences.
+- 6A: the grown-up judges reading for now; speech recognition is listed as planned, not claimed.
+- 7B: one document, with the internal (builder-only) parts clearly marked.
+- 8A: a "Did you know?" card while the app opens and between the lesson finish and the railway, plus the matching tip in
+  the activity's "Say this" sheet.
+- 9A: a celebration at the end of each stage; grade labels only in the grown-up view.
+- **Prototypes first:** before the plan is replicated across lessons, each new kind of screen is built once as a
+  prototype and approved by the owner ("yes, that is how it should look"). Only then is it copied to every lesson.
+- **Progression overview (open, three options below):** a board like Mentava's, but not after every lesson; the train
+  goes through a tunnel into a new world at major section breaks, with a loading screen, and only the current world's
+  track is built.
+
+## Decision 10. How children and parents see the whole journey
+- **A (recommended). Worlds with a gateway, and a journey board at milestones.** Each world is one stretch of track: the
+  Pre-K starter (m a s i t p, where the level-one tunnel already is), then one world per stage (Stage 2 after p is
+  long, so it may split once more at unit 2.7). The 3D Home builds only the current world's stations. At a world's end
+  the level tunnel becomes the gateway: the train rolls in, a short loading card shows a "Did you know?" tip (decision
+  8), and the train rolls out into the new world. The journey board (a row of world badges, the current one open to
+  show its units as stations with ticks) appears only after a unit is finished and at a world's end, never after
+  every lesson. Grownups shows the full list grouped by world and unit (this also fixes the too-long lesson list).
+- B. A Mentava-style grid per grade level (one square per lesson), shown after every unit rather than every lesson.
+- C. No board for the child: the gateway only. The full board lives in Grownups for parents.
+
+## Prototypes to approve, in this order (proposed)
+1. The corrected plan itself (one document, decisions above folded in, errors fixed, internal parts marked).
+2. World gateway: the tunnel into a new world, the loading card with a tip, the journey board, and the Grownups list
+   grouped by world and unit.
+3. One lesson in the new daily loop, for one new sound (the first lesson after p in the new order, f): sound warm-up
+   with tiles, quick review, new sound, blend with "demonstrate then imitate", read alone, build it (spelling with
+   tiles), read real text with one meaning question, celebrate.
+4. A heart-word lesson ("the"), with "fix the word".
+5. A Stage 1 sound-play lesson, and the placement check.
+6. The recording studio (its list comes from the approved plan).

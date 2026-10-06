@@ -85,11 +85,10 @@ export function buildPip(bag) {
   const ebox = (w, h, x, y) => { const m = new THREE.Mesh(bag.geo(`pe${w},${h}`, () => new THREE.BoxGeometry(w, h, 0.012)), mat(PIP.cap)); m.position.set(x, y, 0); engine.add(m); };
   ebox(0.06, 0.03, -0.012, -0.004); ebox(0.034, 0.056, 0.03, 0.008); ebox(0.014, 0.026, -0.028, 0.024);
   const top = sph(0.035, PIP.capLight, 10); top.position.set(0, 0.26, -0.04); cap.add(top);
-  // two eyebrows and a tuft of hair at each temple, mirrored (as on the 2D Pip)
+  // two eyebrows, mirrored. No hair tufts at the temples: in 3D they read as brown sideburns (owner, 1.9.7.2).
   for (const side of [-1, 1]) {
     const brow = new THREE.Mesh(bag.geo('brow', () => new THREE.CapsuleGeometry(0.016, 0.07, 3, 8)), mat(PIP.hair));
     brow.name = 'pip-brow'; brow.rotation.z = Math.PI / 2 - side * 0.12; brow.position.set(side * 0.12, 0.1, 0.295); head.add(brow);
-    const tuft = sph(0.06, PIP.hair, 10); tuft.name = 'pip-hair'; tuft.scale.set(0.8, 1.2, 0.8); tuft.position.set(side * 0.28, 0.06, 0.14); head.add(tuft);
   }
   shadowy(group);
 
