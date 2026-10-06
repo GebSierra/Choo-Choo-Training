@@ -15,12 +15,13 @@ import { INK, fadeIn, dotRow } from './tasks/proto/kit.js';
 // Nothing is written: no progress, no setting. "Start here" is switched off in this preview.
 export const NOT_YET_RUN = 3, MISS_LIMIT = 2, WORD_COUNT = 4;
 
-// Up to four words (2 to 4 letters, from WORD_BANK, js/games-data.js) built only from known sounds. The first is the easiest; the
+// Up to four words (VC or CVC only, from WORD_BANK, js/games-data.js) built only from known sounds. The first is the easiest; the
 // rest each bring in as many not-yet-used sounds as they can, newest lesson first; shown from the easiest to the hardest.
 export function pickWords(sounds, known) {
   const at = (c) => sounds.indexOf(c) + 1; // the lesson that teaches c
   const level = (w) => Math.max(...[...w].map(at));
-  const pool = [...new Set(WORD_BANK)].filter((w) => w.length <= 4 && [...w].every((c) => known.has(c)));
+  // Only VC and CVC words (am, sat): blends and doubled letters (band, miss) come in later worlds, so they would not be fair here.
+  const pool = [...new Set(WORD_BANK)].filter((w) => /^[^aeiou]?[aeiou][^aeiou]$/.test(w) && [...w].every((c) => known.has(c)));
   if (!pool.length) return [];
   const byEase = [...pool].sort((a, b) => a.length - b.length || level(a) - level(b) || pool.indexOf(a) - pool.indexOf(b));
   const picked = [byEase[0]], seen = new Set(byEase[0]);
