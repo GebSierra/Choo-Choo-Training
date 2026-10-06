@@ -173,3 +173,18 @@ on that device, and files download as, for example, `sound-m.webm` and `blend-ma
   grouped Grownups list; (3) the recording studio; (4) one lesson in the new daily loop (f); (5) a heart-word step
   ("the"); (6) a Stage 1 sound-play lesson and the placement check.
 - Prototype 1 delivered: docs/CURRICULUM.md (v0.9), with every research figure fact-checked and corrected.
+
+## Placement check research (owner-supplied summary, 2026-10-07; citations [1]–[10] to be listed by the owner)
+- Letter-sound knowledge is the best single predictor of later word reading in at-risk kindergartners, ahead of letter
+  naming and phoneme segmentation [1]; fall letter sounds correlated r = .57 with spring words read [5].
+- Phonological awareness, letter-sound knowledge and rapid naming predict grade 1–2 reading; vocabulary and perceptual
+  skills add little [6]; letter identification, phonological awareness and rapid naming predicted reading to grade 4 [7].
+- Weak kindergarten letter knowledge or phonological awareness: 4–5 times the risk of dyslexia in grade 1 [4].
+- Letter sounds and phonemic awareness classified at-risk children well all year (Spanish kindergarten study) [9].
+- Phoneme segmentation adds less than letter sounds when both are given [1][8].
+- Short teach-and-retest ("dynamic") items predict later reading beyond a one-off test [2][10].
+Design adopted (owner): letter sounds first (decides the start; stop after 3 misses in a row), sound awareness only for
+children with few sounds, made-up CVC words only from about 10 known sounds, real words and a sentence only if made-up
+words go well; start at the first unknown sound, skip mastered lessons but keep their review; re-check every few weeks
+with letter sounds alone. Being built in the placement prototype (2026-10-07).
+Before any public use: the owner to send the 10 paper titles so the white paper can cite them.
