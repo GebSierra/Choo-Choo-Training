@@ -56,3 +56,5 @@ owner approves that plan.
 - Plans by Opus, building by Sonnet, to save credits. Commit and push to main after each phase.
 - Run each phase's own suites; run the full `npm test` (about 40 to 60 minutes) once at the end of a session.
 - Read the execution rules at the top of docs/PLAN-v1.9.md before building.
+
+Full `npm test` on 1.9.6 (2026-10-06): all 23 suites pass, EXIT 0 (about 85 minutes).
