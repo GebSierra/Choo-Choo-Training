@@ -20,9 +20,13 @@ const ring = (n, a0, a1, rad, cx = 60, cy = 58) => Array.from({ length: n }, (_,
 
 // Hair: { back, front } as arrays of elements, from the colour and its shade.
 function hairParts(style, col, shade, skinC) {
-  const blob = (cx, cy, r, fill = col) => h('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r, fill });
+  const blob = (cx, cy, r, fill = col) => fill === col
+    ? h('g', {}, h('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r, fill }), h('path', { d: `M${(cx - r * 0.55).toFixed(1)} ${(cy - r * 0.2).toFixed(1)} Q${(cx - r * 0.3).toFixed(1)} ${(cy - r * 0.62).toFixed(1)} ${(cx + r * 0.2).toFixed(1)} ${(cy - r * 0.62).toFixed(1)}`, fill: 'none', stroke: '#fff', 'stroke-width': 1.1, 'stroke-linecap': 'round', opacity: 0.12 }))
+    : h('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r, fill });
   const band = (cx, cy) => h('ellipse', { cx, cy, rx: 4, ry: 3, fill: OUTFIT.band });
-  const cap = (d) => [h('path', { d, fill: col }), h('path', { d: 'M40 30 Q60 24 82 32', fill: 'none', stroke: '#fff', 'stroke-width': 2.2, 'stroke-linecap': 'round', opacity: 0.18 })];
+  const cap = (d) => [h('path', { d, fill: col }),
+    h('path', { d: 'M46 30 Q49 32.5 50 35.5 M58 26.5 Q60 29.5 59.6 33 M70 29 Q68.6 31.6 68.4 34.6', fill: 'none', stroke: shade, 'stroke-width': 1.5, 'stroke-linecap': 'round', opacity: 0.55 }),
+    h('path', { d: 'M40 30 Q60 24 82 32', fill: 'none', stroke: '#fff', 'stroke-width': 2.2, 'stroke-linecap': 'round', opacity: 0.2 })];
   if (style === 'curly') {
     return {
       back: [[27, 62, 8], [25, 72, 7.5], [93, 62, 8], [95, 72, 7.5]].map(([x, y, r]) => blob(x, y, r, shade)),
@@ -127,7 +131,11 @@ export function kidSvg({ skin = 2, hair = 'short', hairColor = 1, outfit = 'star
   const arm = ([d, hx, hy], side) => h('g', { class: `kid-arm kid-arm-${side}` },
     h('path', { d, fill: 'none', stroke: teeD, 'stroke-width': 13, 'stroke-linecap': 'round' }),
     h('path', { d, fill: 'none', stroke: topC, 'stroke-width': 10.5, 'stroke-linecap': 'round' }),
-    h('circle', { cx: hx, cy: hy, r: 6.5, fill: skinC }));
+    h('path', { d, fill: 'none', stroke: '#fff', 'stroke-width': 2.6, 'stroke-linecap': 'round', opacity: 0.22, transform: 'translate(-1.8 -1.2)' }),
+    h('circle', { cx: hx, cy: hy, r: 6.5, fill: skinC }),
+    h('path', { d: `M${hx - 4.6} ${hy + 2.2} Q${hx} ${hy + 6.4} ${hx + 4.6} ${hy + 2.2}`, fill: 'none', stroke: skinD, 'stroke-width': 1.4, 'stroke-linecap': 'round', opacity: 0.55 }),
+    h('ellipse', { cx: hx + (hy < 100 ? (side === 'r' ? -5.4 : 5.4) : (side === 'r' ? -4.2 : 4.2)), cy: hy - (hy < 100 ? 0.5 : 2.4), rx: 2.4, ry: 3.2, fill: skinC, stroke: skinD, 'stroke-width': 0.8, transform: `rotate(${side === 'r' ? -25 : 25} ${hx} ${hy})` }),
+    h('ellipse', { cx: hx - 1.8, cy: hy - 2.2, rx: 2, ry: 1.3, fill: '#fff', opacity: 0.28 }));
   const attrs = { class: `kid pose-${pose}${still ? ' still' : ''}`, viewBox: '0 0 120 150', dataset: { pose } };
   if (label) { attrs.role = 'img'; attrs['aria-label'] = label; } else attrs['aria-hidden'] = 'true';
   return h('svg', attrs,
@@ -136,19 +144,37 @@ export function kidSvg({ skin = 2, hair = 'short', hairColor = 1, outfit = 'star
       h('g', { class: 'kid-hair-back' }, ...hp.back),
       h('g', { class: 'kid-wear-back' }, ...wear.back),
       h('rect', { x: 47, y: 116, width: 11, height: 24, rx: 5, fill: legC }), h('rect', { x: 62, y: 116, width: 11, height: 24, rx: 5, fill: legC }),
+      h('rect', { x: 54.5, y: 118, width: 3, height: 19, rx: 1.5, fill: '#000', opacity: 0.1 }), h('rect', { x: 62.5, y: 118, width: 3, height: 19, rx: 1.5, fill: '#000', opacity: 0.1 }),
+      o.legs ? h('path', { d: 'M47 133 L58 133 M62 133 L73 133', stroke: mixHex(legC, '#000000', 0.25), 'stroke-width': 2, opacity: 0.55 }) : null,
       h('ellipse', { cx: 52, cy: 141, rx: 9, ry: 5, fill: OUTFIT.shoe }), h('ellipse', { cx: 68, cy: 141, rx: 9, ry: 5, fill: OUTFIT.shoe }),
+      h('ellipse', { cx: 48.5, cy: 139.2, rx: 3.6, ry: 1.8, fill: '#fff', opacity: 0.9 }), h('ellipse', { cx: 64.5, cy: 139.2, rx: 3.6, ry: 1.8, fill: '#fff', opacity: 0.9 }),
+      h('path', { d: 'M51 138 L55 138.6 M51.4 140 L55.4 140.6 M67 138 L71 138.6 M67.4 140 L71.4 140.6', stroke: '#A9B1C6', 'stroke-width': 1, 'stroke-linecap': 'round' }),
       h('path', { d: 'M43.5 143.5 Q52 146.5 60.5 143.5 M59.5 143.5 Q68 146.5 76.5 143.5', fill: 'none', stroke: OUTFIT.sole, 'stroke-width': 2, 'stroke-linecap': 'round' }),
       h('g', { class: 'kid-fig' },
-        ...wear.front),
+        ...wear.front,
+        h('path', { d: 'M76 92.5 Q84 94 83 104 L82 120 Q78 121.4 74 122 Q78 108 76 92.5 Z', fill: '#000', opacity: 0.08 }),
+        h('path', { d: 'M43 95 Q40 104 41 114', fill: 'none', stroke: '#fff', 'stroke-width': 2.4, 'stroke-linecap': 'round', opacity: 0.2 })),
       arm(ARMS[pose][0], 'l'), arm(ARMS[pose][1], 'r'),
       h('rect', { x: 53, y: 82, width: 14, height: 14, rx: 5, fill: skinD }),
+      h('path', { d: 'M53 83 Q60 90 67 83 L67 82 L53 82 Z', fill: mixHex(skinC, '#000000', 0.3), opacity: 0.45 }),
       h('circle', { cx: 30, cy: 60, r: 6, fill: skinC }), h('circle', { cx: 90, cy: 60, r: 6, fill: skinC }),
       h('circle', { cx: 30.5, cy: 60.5, r: 3, fill: skinD, opacity: 0.6 }), h('circle', { cx: 89.5, cy: 60.5, r: 3, fill: skinD, opacity: 0.6 }),
       h('circle', { class: 'kid-head', cx: 60, cy: 58, r: 30, fill: skinC }),
+      // a soft shade under the jaw and a little light on the cheek
+      h('path', { d: 'M31.1 66 A30 30 0 0 0 88.9 66 Q60 83 31.1 66 Z', fill: skinD, opacity: 0.32 }),
+      h('ellipse', { cx: 40, cy: 64, rx: 3.6, ry: 2, fill: '#fff', opacity: skin < 3 ? 0.16 : 0.07, transform: 'rotate(-20 40 64)' }),
+      h('path', { d: 'M43.2 50.6 Q49 47.6 54.6 50.1 M65.4 50.1 Q71 47.6 76.8 50.6', fill: 'none', stroke: mixHex(hairC, '#000000', 0.15), 'stroke-width': 2.1, 'stroke-linecap': 'round' }),
       h('g', { class: 'kid-eyes' },
-        h('ellipse', { cx: 49, cy: 60, rx: 3.4, ry: 4.2, fill: EYE }), h('ellipse', { cx: 71, cy: 60, rx: 3.4, ry: 4.2, fill: EYE }),
-        h('circle', { cx: 50.2, cy: 58.2, r: 1.3, fill: '#fff' }), h('circle', { cx: 72.2, cy: 58.2, r: 1.3, fill: '#fff' })),
-      h('ellipse', { cx: 42, cy: 70, rx: 5.4, ry: 3.6, fill: CHEEK, opacity: 0.55 }), h('ellipse', { cx: 78, cy: 70, rx: 5.4, ry: 3.6, fill: CHEEK, opacity: 0.55 }),
-      h('path', { d: 'M52 71 Q60 78.5 68 71', fill: 'none', stroke: MOUTH, 'stroke-width': 2.4, 'stroke-linecap': 'round' }),
+        h('ellipse', { cx: 49, cy: 60.6, rx: 5.5, ry: 6.7, fill: EYE }), h('ellipse', { cx: 71, cy: 60.6, rx: 5.5, ry: 6.7, fill: EYE }),
+        h('ellipse', { cx: 49.3, cy: 62, rx: 3.8, ry: 4.7, fill: '#4A3024' }), h('ellipse', { cx: 71.3, cy: 62, rx: 3.8, ry: 4.7, fill: '#4A3024' }),
+        h('ellipse', { cx: 49.3, cy: 62.2, rx: 2.2, ry: 2.9, fill: EYE }), h('ellipse', { cx: 71.3, cy: 62.2, rx: 2.2, ry: 2.9, fill: EYE }),
+        h('circle', { cx: 51.3, cy: 57.6, r: 2.3, fill: '#fff' }), h('circle', { cx: 73.3, cy: 57.6, r: 2.3, fill: '#fff' }),
+        h('circle', { cx: 47.2, cy: 63.8, r: 1, fill: '#fff', opacity: 0.85 }), h('circle', { cx: 69.2, cy: 63.8, r: 1, fill: '#fff', opacity: 0.85 })),
+      h('ellipse', { cx: 41.5, cy: 70, rx: 5.4, ry: 3.6, fill: CHEEK, opacity: 0.55 }), h('ellipse', { cx: 78.5, cy: 70, rx: 5.4, ry: 3.6, fill: CHEEK, opacity: 0.55 }),
+      h('path', { d: 'M57.6 68.2 Q60 70.4 62.4 68.2', fill: 'none', stroke: skinD, 'stroke-width': 1.8, 'stroke-linecap': 'round' }),
+      ...(pose === 'cheer'
+        ? [h('path', { d: 'M52.5 72 Q60 83 67.5 72 Q60 74.8 52.5 72 Z', fill: '#8A2F2A' }), h('ellipse', { cx: 60, cy: 78.4, rx: 3.2, ry: 1.7, fill: '#F08080' })]
+        : [h('path', { d: 'M52.5 72 Q60 79 67.5 72', fill: 'none', stroke: MOUTH, 'stroke-width': 2.4, 'stroke-linecap': 'round' }),
+          h('path', { d: 'M51.6 71.2 Q51.9 72.6 53 73 M68.4 71.2 Q68.1 72.6 67 73', fill: 'none', stroke: MOUTH, 'stroke-width': 1.2, 'stroke-linecap': 'round', opacity: 0.6 })]),
       h('g', { class: 'kid-hair-front' }, ...hp.front)));
 }
