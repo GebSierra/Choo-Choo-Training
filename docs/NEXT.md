@@ -48,6 +48,19 @@ Nothing in this list gets built until the owner has picked an option and approve
    word), and for each one an image-generation prompt in one shared house style (soft flat illustration, warm palette,
    single object centred on a plain light background, no text, square), so the set can be recreated and swapped in at
    the same file paths.
+8. **Easter egg: Fishing with Pip (owner request, not urgent; owner left the design to the planner).** Three quick
+   taps on a river on the 3D Home (within about 1.5 s) open a small fishing game. Nothing about it is preloaded: the
+   game is a separate module loaded with import() on the third tap, and its files are not in the precache (they cache on
+   first use), so it costs the phone nothing until found. Planner's design:
+   - Pip sits on the riverbank with a little rod; letter fish (the sounds the child has learned) swim slowly across a
+     simple 2D river scene (DOM/SVG with CSS transforms, finite animations, no rAF loop while idle).
+   - A card at the top shows one letter ("Catch the fish that says mmm": the grown-up prompt or the recorded sound,
+     never the phone's voice). The child taps a matching fish: the line drops, the fish is reeled in with a splash and
+     drops into Pip's bucket. A wrong fish just wiggles and swims on (no red cross, no penalty, nothing timed).
+   - Five catches fill the bucket: Pip cheers, a short splash celebration, then "Fish again" or back to the railway.
+   - Retrieval first: the child says the sound out loud before tapping (the card says "Say it, then catch it!").
+   - Not counted as a lesson and never required; reduced motion: fish hold still; works in 2D Home too only if a
+     river exists there (otherwise 3D only). Back button and the Android back return to the railway.
 
 ## How to plan (owner rule)
 When the owner gives a plan or a problem: for each problem give **three options** with trade-offs and a
