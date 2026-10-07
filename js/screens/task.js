@@ -24,7 +24,7 @@ export function taskScreen(ctx, n, idx) {
   const tasks = lesson ? tasksFor(lesson) : [];
   const index = Number(idx);
   const task = tasks.find((t) => t.index === index);
-  if (!lesson || !task || !store.isUnlocked(lesson.number)) { queueMicrotask(() => router.replace(lesson && store.isUnlocked(lesson.number) ? `/lesson/${n}` : '/home')); return h('div'); }
+  if (!lesson || !task || !store.isUnlocked(lesson.number) || store.isResting(lesson.number)) { queueMicrotask(() => router.replace(lesson && store.isUnlocked(lesson.number) ? `/lesson/${n}` : '/home')); return h('div'); }
   const sound = curriculum.sounds[lesson.sound];
   const pos = tasks.indexOf(task);
   const isLast = pos === tasks.length - 1;

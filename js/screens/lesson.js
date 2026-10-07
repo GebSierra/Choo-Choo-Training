@@ -30,9 +30,12 @@ function illustration(task, lesson, curriculum) {
   return wrap;
 }
 
-export function lessonScreen({ store, router, curriculum, speech }, n) {
+export function lessonScreen(ctx, n) {
+  const { store, router, curriculum, speech } = ctx;
   const lesson = lessonByNumber(curriculum, n);
   if (!lesson || !store.isUnlocked(lesson.number)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
+  // A new lesson that is resting today (the pace limit) goes back Home, which shows the friendly card.
+  if (store.isResting(lesson.number)) { ctx.restCard = lesson.number; queueMicrotask(() => router.replace('/home')); return h('div'); }
   const sound = curriculum.sounds[lesson.sound];
   const tasks = tasksFor(lesson);
   const done = store.lesson(lesson.number).tasksDone;

@@ -96,8 +96,39 @@ export function grownupsScreen(ctx) {
       earned ? h('button', { class: 'btn small level-replay', type: 'button', 'data-level': v.id, 'aria-label': `Play ${name} again`, onclick: () => { ctx.replayLevel = v.id; router.go('/home'); } }, 'Play again') : null);
   });
 
-  const fsBtn = fullscreenButton({ label: true, className: 'btn small fs-row' });
   const sec = (title, ...kids) => h('section', { class: 'gu-card' }, h('h2', {}, title), ...kids);
+
+  // ---- pace: how many new lessons a day (settings.perDay) ----
+  const PACE = [[1, '1'], [2, '2'], [3, '3'], [0, 'No limit']];
+  const paceBtns = PACE.map(([v, label]) => h('button', { class: 'btn small ghost', type: 'button', dataset: { perday: String(v) }, 'aria-pressed': String(store.settings.perDay === v), onclick: () => { store.setSetting('perDay', v); paceBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.perday === String(v)))); } }, label));
+
+  // ---- developer mode: tap the version line 7 times within 3 s (the owner's switch; hidden from everyone else) ----
+  let taps = [];
+  const toast = (msg) => { const t = h('div', { class: 'gu-toast', role: 'status' }, msg); document.body.append(t); setTimeout(() => t.remove(), 2200); };
+  const devSwitch = (key, label) => {
+    const b = h('button', { class: 'gu-switch', type: 'button', role: 'switch', 'aria-checked': String(!!store.settings[key]), 'aria-label': label, dataset: { dev: key }, onclick: () => { store.setSetting(key, !store.settings[key]); b.setAttribute('aria-checked', String(!!store.settings[key])); } }, h('i'));
+    return b;
+  };
+  const devBox = h('div', { class: 'gu-devbox' });
+  const paintDev = () => {
+    // The box joins the page only while developer mode is on, so the page is exactly as before when it is off.
+    if (store.settings.dev !== true) { devBox.remove(); return; }
+    if (!devBox.isConnected && bodyEl) bodyEl.prepend(devBox);
+    devBox.replaceChildren(sec('Developer',
+      h('div', { class: 'gu-field inline' }, h('span', {}, 'Open every lesson'), devSwitch('devOpenAll', 'Open every lesson')),
+      h('div', { class: 'gu-field inline' }, h('span', {}, 'Ignore daily limit'), devSwitch('devNoLimit', 'Ignore daily limit')),
+      h('p', { class: 'gu-note' }, 'Progress is not changed by these. Lessons finished now are still recorded.'),
+      h('h3', { class: 'gu-h3' }, 'Look at a world'),
+      h('div', { class: 'gu-devworlds' }, ...(curriculum.worlds || []).map((w) => h('button', { class: 'btn small ghost', type: 'button', dataset: { world: w.id }, onclick: () => router.go(`/world/${w.id}`) }, w.id))),
+      h('button', { class: 'btn small ghost dev-off', type: 'button', onclick: () => { store.setSetting('dev', false); paintDev(); toast('Developer mode off'); } }, 'Turn off developer mode')));
+  };
+  const versionLine = h('p', { class: 'gu-version', onclick: () => {
+    const now = Date.now(); taps = [...taps.filter((t) => now - t < 3000), now];
+    if (taps.length >= 7) { taps = []; store.setSetting('dev', store.settings.dev !== true); paintDev(); toast(`Developer mode ${store.settings.dev ? 'on' : 'off'}`); }
+  } }, `Choo Choo Training version ${APP_VERSION}`);
+  let bodyEl = null;
+
+  const fsBtn = fullscreenButton({ label: true, className: 'btn small fs-row' });
   // The two long reference cards start closed, so Reset is within reach; each stays as the grown-up left it until the page closes.
   const fold = (title, ...kids) => {
     const id = 'gu-fold-' + title.toLowerCase().replace(/\W+/g, '-');
@@ -124,6 +155,7 @@ export function grownupsScreen(ctx) {
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Music'), musicSwitch),
         h('p', { class: 'gu-note' }, 'The theme song plays once when the railway opens.'),
         h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a train at its station, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),
+      sec('Pace', h('div', { class: 'gu-field' }, h('span', {}, 'New lessons per day'), h('div', { class: 'gu-choices', role: 'group', 'aria-label': 'New lessons per day' }, ...paceBtns)), h('p', { class: 'gu-note' }, 'Short, daily practice works better than long sessions.')),
       fold('The thinking behind this app', ...WELCOME.slice(1).flatMap((pg) => [h('h3', { class: 'gu-h3' }, pg.title), ...pg.body.map((t) => h('p', { class: 'gu-para' }, t))])),
       fold('Recorded sounds', clipList, h('p', { class: 'gu-note' }, 'Isolated sounds play from recordings, never from the phone voice. A sound with no recording shows a line for you to say instead ("Say: mmm"). To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT), h('p', { class: 'gu-credit' }, WHISTLE_CREDIT)),
       fold('Levels', h('p', { class: 'gu-note' }, 'Each level adds a special car to the train and a gold star.'), h('div', { class: 'gu-list' }, ...levelRows)),
@@ -133,7 +165,9 @@ export function grownupsScreen(ctx) {
       ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),
       sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),
       fold('Previews', h('p', { class: 'gu-note' }, 'Try new screens before they go live.'), h('div', { class: 'gu-previews' }, ...PREVIEWS.map(([key, label]) => h('button', { class: 'btn small preview-btn', type: 'button', dataset: { preview: key }, onclick: () => router.go(key === 'proto-f' ? '/proto/f' : key === 'proto-heart' ? '/proto/heart' : key === 'proto-play' ? '/proto/play' : key === 'proto-placement' ? '/proto/placement' : '/preview/' + key) }, label)))),
-      h('p', { class: 'gu-version' }, `Choo Choo Training version ${APP_VERSION}`)));
+      versionLine));
+  bodyEl = root.querySelector('.gu-body');
+  paintDev();
   root.cleanup = () => clearTimeout(voiceTimer);
   return root;
 }

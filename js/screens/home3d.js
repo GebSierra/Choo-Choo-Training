@@ -28,6 +28,7 @@ import { dueLevel, builtLevels, earnedLevels } from '../levels.js';
 import { worldAfter, nextWorld, worldDone, lessonsIn } from '../worlds.js';
 import { starBoard } from '../components/star-board.js';
 import { levelBanner } from '../components/level-banner.js';
+import { restCard, moonBadge, devPill, whenShown } from '../components/rest-card.js';
 
 const ARRIVE_MS = 2400, TAP_SLOP = 8;
 const TOOT_LEAD_MS = 500, HOP_MS = 650, SEAT = new THREE.Vector3(-0.4, 0.95, -0.95), SEAT_SCALE = 0.82; // the sequence: toot, hop on, ride, hop off
@@ -42,20 +43,20 @@ export function stopsOf(curriculum, store, worldId = null) {
   const total = curriculum.lessons.length;
   const current = store.currentLesson(total);
   const cks = (curriculum.checkpoints || []).filter((k) => !worldId || k.world === worldId);
-  const pending = cks.find((k) => !store.isCheckpointDone(k.id) && store.isCheckpointUnlocked(k));
+  const pending = cks.find((k) => !store.isCheckpointDone(k) && store.isCheckpointUnlocked(k));
   const nodes = curriculum.lessons.filter((l) => !worldId || l.world === worldId).flatMap((l) => [{ lesson: l }, ...cks.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   let currentIndex = -1;
   const stops = nodes.map((n, i) => {
     if (n.checkpoint) {
       const c = n.checkpoint;
-      const state = store.isCheckpointDone(c.id) ? 'done' : !store.isCheckpointUnlocked(c) ? 'locked' : current === null && pending && pending.id === c.id ? 'current' : 'open';
+      const state = store.isCheckpointDone(c) ? 'done' : !store.isCheckpointUnlocked(c) ? 'locked' : current === null && pending && pending.id === c.id ? 'current' : 'open';
       if (state === 'current') currentIndex = i;
       return { kind: 'depot', checkpoint: c, state, title: c.title, icon: c.kind === 'book' ? 'book' : c.kind === 'ride' ? 'gauge' : 'crate' };
     }
     const l = n.lesson;
     const state = store.isDone(l.number) ? 'done' : !store.isUnlocked(l.number) ? 'locked' : l.number === current ? 'current' : 'open';
     if (l.number === current) currentIndex = i;
-    return { kind: 'lesson', lesson: l, number: l.number, glyph: l.sound, accent: accentOf(l.sound), state };
+    return { kind: 'lesson', lesson: l, number: l.number, glyph: l.sound, accent: accentOf(l.sound), state, resting: state === 'current' && store.isResting(l.number) }; // resting: today's pace limit is reached
   });
   if (currentIndex < 0) currentIndex = stops.length - 1;
   return { stops, currentIndex };
@@ -110,7 +111,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const doneLessons = parked ? [] : worldLessons;
   const asCar = (l) => ({ glyph: l.sound, accent: accentOf(l.sound) });
   const cur0 = built[currentIndex];
-  if (cur0 && stops[currentIndex].state === 'current') cur0.faceMat.emissiveIntensity = 0.22; // a steady soft glow (no idle animation)
+  if (cur0 && stops[currentIndex].state === 'current' && !stops[currentIndex].resting) cur0.faceMat.emissiveIntensity = 0.22; // a steady soft glow (no idle animation)
   // the child's figure waits on the platform of the current stop (it adds no frames: it moves only when it waves)
   const kid = buildKid(bag, store.character());
   const KID_SCALE = kid.group.scale.x;
@@ -176,17 +177,18 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const tap = (fn) => (btn, e) => { if (dragged) { dragged = false; return; } fn(btn, e); };
   const overlayStops = stops.map((s, i) => {
     const name = s.kind === 'lesson' ? `Lesson ${s.number}` : s.title;
-    const cls = s.kind === 'lesson' ? (s.state === 'open' ? 'current' : s.state) : (s.state === 'open' ? 'unlocked' : s.state);
+    const cls = (s.kind === 'lesson' ? (s.state === 'open' ? 'current' : s.state) : (s.state === 'open' ? 'unlocked' : s.state)) + (s.resting ? ' is-resting' : '');
     return {
-      kind: s.kind, cls, anchor: built[i].sign,
-      label: `${name}${s.state === 'locked' ? ', locked' : s.state === 'done' ? ', done' : ''}`,
+      kind: s.kind, cls, anchor: built[i].sign, badge: s.resting ? moonBadge() : null,
+      label: `${name}${s.state === 'locked' ? ', locked' : s.state === 'done' ? ', done' : s.resting ? ', resting until tomorrow' : ''}`,
       onTap: tap(() => {
         if (s.state === 'locked') { wobbles.set(i, performance.now()); wake(); return; }
+        if (s.resting) { openRest(s.number); return; }
         router.go(s.kind === 'lesson' ? `/lesson/${s.number}` : `/checkpoint/${s.checkpoint.id}`);
       }),
     };
   });
-  const overlay = createOverlay(overlayStops, { bubbleIndex: stops[currentIndex].state === 'current' ? currentIndex : -1, onBubble: () => speech.say([{ tts: 'Tap to start' }]) });
+  const overlay = createOverlay(overlayStops, { bubbleIndex: stops[currentIndex].state === 'current' && !stops[currentIndex].resting ? currentIndex : -1, onBubble: () => speech.say([{ tts: 'Tap to start' }]) });
   // Keyboard focus on a stop brings it into view.
   overlay.buttons.forEach((b, i) => b.addEventListener('focus', () => { if (b.dataset.shown !== '1') { rig.glideTo(stopS[i], 700, performance.now()); wake(); } }));
 
@@ -194,9 +196,12 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const fs = fullscreenButton({ className: 'home-fs' });
   canvas.classList.add('train-canvas');
   canvas.setAttribute('aria-hidden', 'true');
-  const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, grown, stars.el), ...(fs ? [fs] : []));
+  const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, grown, stars.el, devPill(store)), ...(fs ? [fs] : []));
 
   firstRunOverlay({ store, root });
+  // The pace limit's card: a tap on the resting station, or a lesson opened by its address (js/screens/lesson.js leaves ctx.restCard).
+  const openRest = (n) => restCard({ host: root, store, onOpenAnyway: () => router.go(`/lesson/${n}`) });
+  if (ctx.restCard) { const n = ctx.restCard; ctx.restCard = null; whenShown(root, () => openRest(n)); }
 
   // ---- state shown to tests (read only) ----
   const debug = { stopS, engineAt: ENGINE_AT, frames: 0, idleFrames: 0, trainS: train.at, focus: rig.focus, arriving, fromIndex, currentIndex, tootAt: null, running: false, disposed: false, glideIn, reduced: reduced(), soft };

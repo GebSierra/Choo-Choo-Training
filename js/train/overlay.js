@@ -10,7 +10,7 @@ const MIN = 64;
 export function createOverlay(stops, { bubbleIndex, onBubble }) {
   const layer = h('div', { class: 'train-overlay' });
   const buttons = stops.map((s, i) => {
-    const b = h('button', { class: `stone station-btn is-${s.cls}`, type: 'button', 'aria-label': s.label, 'aria-disabled': s.cls === 'locked' ? 'true' : null, dataset: { index: String(i), kind: s.kind }, onclick: (e) => s.onTap(b, e) });
+    const b = h('button', { class: `stone station-btn is-${s.cls}`, type: 'button', 'aria-label': s.label, 'aria-disabled': s.cls === 'locked' ? 'true' : null, dataset: { index: String(i), kind: s.kind }, onclick: (e) => s.onTap(b, e) }, s.badge || null);
     b.style.visibility = 'hidden';
     layer.append(b);
     return b;
