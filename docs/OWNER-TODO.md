@@ -8,8 +8,8 @@ with the date.
 - [ ] **Turn on accounts (Supabase), about 10 minutes.** Full guide: docs/BACKEND.md.
   1. Create a free project at supabase.com.
   2. SQL Editor: paste all of `supabase/schema.sql`, press Run.
-  3. Authentication settings: Email provider on, email confirmation on, Site URL `https://choochootraining.com`, add it
-     to Redirect URLs, minimum password length 8.
+  3. Authentication settings: Email provider on, email confirmation on, Site URL `https://app.choochootraining.com`, add it
+     to Redirect URLs (keep `https://choochootraining.com/` there too for a few weeks), minimum password length 8.
   4. Project Settings > API: send Claude the Project URL and the "anon public" key (never the "service_role" key).
      Claude puts them in js/config.js and releases; from then on sign-in is required (except developer mode).
 - [ ] **Your own email sender for Supabase (custom SMTP)** before real families sign up: the built-in sender allows only a
@@ -17,6 +17,7 @@ with the date.
 - [ ] **Check Supabase pricing/limits** on supabase.com (a free project can pause after a stretch without use).
 
 ## Move the website to Netlify (owner decision 2026-10-07)
+- **Update:** the app now gets its own address, app.choochootraining.com. Follow docs/DOMAIN-MOVE.md part A instead of steps 5 to 7 below (they use the main address, which is going to the marketing website).
 - [ ] 1. netlify.com > Sign up > "Sign up with GitHub" (use the GitHub account that owns Choo-Choo-Training).
 - [ ] 2. "Add new site" > "Import an existing project" > GitHub > allow access > pick **Choo-Choo-Training**.
 - [ ] 3. Settings screen: Branch to deploy **main**; Build command **empty**; Publish directory **.** (a single dot).
@@ -36,7 +37,7 @@ with the date.
   so Claude's work-in-progress gets its own preview link you can try before it goes live.
 
 ## Content and recordings
-- [ ] **Record the letter sounds** in the recording studio: https://choochootraining.com/tools/studio.html (47 items;
+- [ ] **Record the letter sounds** in the recording studio: https://app.choochootraining.com/tools/studio.html (47 items;
   stops and resumes where you left off). Until a sound is recorded, the app shows a "Say: mmm" prompt for the grown-up.
 - [ ] Optional: the heart-word clips ("th" buzzing, the "uh" in "the") and the blend models, also in the studio.
 - [ ] Consider a hired voice actor for the sounds before selling.

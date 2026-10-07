@@ -12,11 +12,16 @@ import { finishScreen, checkpointFinishScreen } from './screens/finish.js';
 import { checkpointScreen } from './screens/checkpoint.js';
 import { createAccount } from './account.js';
 import { signinScreen } from './screens/signin.js';
+import { handoffOut, handoffIn } from './handoff.js';
+import { initMember } from './member.js';
 
 async function boot() {
+  if (handoffOut()) return; // an old address: the page is being sent to the app address with the progress
   const root = document.getElementById('app');
   const store = createStore();
+  handoffIn(store); // arriving from an old address: take its progress (before sign-in and sync)
   const account = createAccount({ store });
+  initMember({ store, account }); // the shared cct_member cookie for the marketing website (js/member.js)
   // Accounts (off until js/config.js is filled in): renew the session and pull, then ask for sign-in if nobody is in.
   if (account.configured) {
     const hash = new URLSearchParams(location.hash.replace(/^#\/?/, '').replace(/^.*?(?=access_token|error)/, ''));

@@ -11,6 +11,9 @@ export const authStore = {
   clear() { try { localStorage.removeItem(AUTH_KEY); } catch { /* storage unavailable */ } },
 };
 
+// The raw saved progress string, for the move to the app address (js/handoff.js). Null when there is none or storage is unavailable.
+export const readRawProgress = () => { try { return localStorage.getItem(KEY); } catch { return null; } };
+
 const fresh = () => ({
   schema: 1,
   order: ORDER, // the lesson order this state was saved under (js/order.js)

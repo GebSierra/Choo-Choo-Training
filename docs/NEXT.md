@@ -54,7 +54,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   approves the f lesson.
 
 ## Since 1.9.6 (2026-10-06/07)
-- Live at https://choochootraining.com (CNAME file at the repo root; keep it). Plan approved: docs/CURRICULUM.md (v0.9,
+- Live at https://app.choochootraining.com (moving from choochootraining.com; see docs/DOMAIN-MOVE.md; set HANDOFF_LIVE = true in js/config.js once the app address works; the CNAME file is unused on Netlify, kept). Plan approved: docs/CURRICULUM.md (v0.9,
   research fact-checked) is the authority; docs/CURRICULUM-REVIEW.md holds every owner decision.
 - Built and live: recording studio (tools/studio.html, 47 items, files named sound-<key> / blend-<word>); Wagon Parade
   star flight; Pip and child redrawn with bigger eyes (2D + 3D); 3 hats (Baseball cap, Pink cap, Cowboy hat); theme
