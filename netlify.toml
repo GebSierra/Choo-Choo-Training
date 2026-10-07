@@ -1,0 +1,14 @@
+# Netlify hosting (owner decision 2026-10-07). The app is plain files: no build step, the whole repo root is the site.
+[build]
+  publish = "."
+  command = ""
+
+# The service worker and the page shell must always be checked for updates, so a new version reaches families quickly.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
