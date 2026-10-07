@@ -221,7 +221,7 @@ export async function browserChecks({ browser, url, ok }) {
     await v.click();
     ok(await until(page, () => /Developer mode on/.test(document.querySelector('.gu-toast') ? document.querySelector('.gu-toast').textContent : ''), null, 2000), 'dev: the seventh tap shows "Developer mode on"');
     ok((await stored(page)).settings.dev === true, 'dev: stored on');
-    ok(await page.locator('.gu-devbox h2').innerText() === 'Developer', 'dev: the Developer section shows at the top');
+    ok(await page.locator('.gu-devbox > .gu-card:first-child h2').innerText() === 'Developer' && await page.evaluate(() => document.querySelector('.gu-devbox').nextElementSibling.classList.contains('gu-startover')), 'dev: the Developer section shows after the help folds, above Start over (Polish A moved it from the top)');
     ok(await page.locator('.gu-devbox [data-dev="devOpenAll"]').count() === 1 && await page.locator('.gu-devbox [data-dev="devNoLimit"]').count() === 1, 'dev: both switches are there');
     ok(await page.locator('.gu-devworlds [data-world]').count() === CUR.worlds.length && await page.locator('[data-world="W11"]').count() >= 1, 'dev: one "Look at a world" button for each world');
     ok(await page.getByText('Turn off developer mode').count() === 1, 'dev: a "Turn off developer mode" button');

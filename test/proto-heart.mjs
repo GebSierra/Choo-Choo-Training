@@ -278,7 +278,7 @@ async function entry({ browser, url, ok }) {
   const made = await newPage(browser, PHONE);
   const { page, errors } = made;
   await page.addInitScript(SPEECH_STUB);
-  await page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: {}, settings: { seenScripts: SEEN }, firstRunDone: true, meetDue: false })}))`);
+  await page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: {}, settings: { seenScripts: SEEN, dev: true }, firstRunDone: true, meetDue: false })}))`);
   await page.goto(url + '#/home');
   await page.waitForSelector('.pill-hold'); await page.waitForTimeout(900);
   const gb = await page.locator('.pill-hold').boundingBox();

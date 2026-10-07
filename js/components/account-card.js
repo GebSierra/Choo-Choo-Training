@@ -1,4 +1,4 @@
-import { h } from '../dom.js';
+import { h, icon } from '../dom.js';
 
 // Grownups > Account: who is signed in, Sync now, Sign out, Delete account. Only when accounts are configured
 // (js/config.js). The whole page is behind the Grownups hold gate. Sign out and delete reload the app, which then
@@ -45,5 +45,5 @@ export function accountCard(account, store) {
   }
   paint();
   account.on((t) => { if (t === 'sync' && box.isConnected && !busy && !confirming) paint(); });
-  return h('section', { class: 'gu-card', dataset: { section: 'account' } }, h('h2', {}, 'Account'), box);
+  return h('section', { class: 'gu-card', dataset: { section: 'account' } }, h('h2', { class: 'gu-h2' }, h('span', { class: 'gu-ic', 'aria-hidden': 'true' }, icon('adult', 22)), h('span', { class: 'gu-title' }, 'Account')), box);
 }

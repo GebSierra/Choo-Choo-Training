@@ -545,7 +545,7 @@ async function entry({ browser, url, ok }) {
   const made = await newPage(browser, PHONE);
   const { page, errors } = made;
   await page.addInitScript(SPEECH_STUB);
-  await page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: {}, settings: { seenScripts: SEEN }, firstRunDone: true, meetDue: false })}))`);
+  await page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: {}, settings: { seenScripts: SEEN, dev: true }, firstRunDone: true, meetDue: false })}))`);
   await page.goto(url + '#/home');
   await page.waitForTimeout(600);
   await page.evaluate(() => { location.hash = '#/proto/f'; });
@@ -567,8 +567,8 @@ async function entry({ browser, url, ok }) {
   await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await page.mouse.down(); await page.waitForTimeout(2400); await page.mouse.up();
   await page.waitForSelector('.grownups'); await page.waitForTimeout(500);
   const head = page.locator('.gu-fold', { hasText: 'Previews' });
-  ok((await head.count()) === 1 && (await head.getAttribute('aria-expanded')) === 'false', 'Grownups: a closed "Previews" fold');
-  ok(await page.evaluate(() => { const cards = [...document.querySelectorAll('.gu-body > .gu-card')]; return cards[cards.length - 1].textContent.includes('Previews'); }), 'Grownups: Previews is the last card');
+  ok((await head.count()) === 1 && (await head.getAttribute('aria-expanded')) === 'false', 'Grownups: a closed "Previews" fold (developer mode)');
+  ok(await page.evaluate(() => { const dev = document.querySelector('.gu-body > .gu-devbox'); return !!dev && dev.lastElementChild.textContent.includes('Previews') && dev.nextElementSibling.classList.contains('gu-startover'); }), 'Grownups: in developer mode Previews is the last card of the Developer group, above Start over');
   await head.click(); await page.waitForTimeout(300);
   ok((await text(page, '#gu-fold-previews .gu-note')) === 'Try new screens before they go live.', 'Grownups: the note under Previews');
   const pb = await sel(page, '#gu-fold-previews .preview-btn[data-preview="proto-f"]').boundingBox();

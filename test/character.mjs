@@ -48,6 +48,15 @@ export async function characterChecks({ browser, url, ok }) {
     ok((await page.locator('.cp-preview .kid-head').getAttribute('fill')) === SKINS[3], 'first run: the figure follows the picks');
     ok((await page.locator('.cp-skin button').nth(3).getAttribute('aria-pressed')) === 'true' && (await page.locator('.cp-skin button').nth(2).getAttribute('aria-pressed')) === 'false', 'first run: the picked swatch is marked');
     ok((await page.locator('.cp-note').count()) === 0, 'first run: no privacy note (owner choice)');
+    // Polish A: a big live preview (it follows every choice and the typed name), the new labels, chips that show they scroll
+    { const before = await page.locator('.cp-preview').innerHTML(); await page.locator('.cp-hair button').nth(4).click(); await page.waitForTimeout(100);
+      ok((await page.locator('.cp-preview').innerHTML()) !== before, 'first run: the big preview changes when a hair style is picked');
+      const pb = await page.locator('.cp-preview').boundingBox(); ok(pb.height >= 80, `first run: the preview figure is big (${Math.round(pb.height)} px high)`);
+      ok((await page.locator('.cp-plate').innerText()) === 'Lily', 'first run: the stage shows the typed name');
+      ok((await page.locator('.cp-field > span').innerText()) === "Child's first name" && (await page.locator('.cp-name').getAttribute('aria-label')) === "Child's first name", 'first run: the name label reads "Child\'s first name"');
+      ok(JSON.stringify(await page.locator('.cp-label').allInnerTexts()) === JSON.stringify(['Skin tone', 'Hair style', 'Hair color', 'Clothes']), 'first run: the section labels read Skin tone, Hair style, Hair color, Clothes');
+      ok(await page.locator('.cp-hair .cp-scroll').evaluate((e) => e.scrollWidth > e.clientWidth && (e.classList.contains('more') || e.scrollLeft > 0)), 'first run: the long hair row scrolls sideways and shows a fade at its edge');
+      await page.locator('.cp-hair button').nth(2).click(); }
     await page.click('.cp-done');
     await page.waitForTimeout(500);
     ok((await page.locator('.first-run').count()) === 0, 'first run: All aboard closes the creator');

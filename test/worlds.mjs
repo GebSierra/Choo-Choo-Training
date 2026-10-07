@@ -101,7 +101,7 @@ const tipTexts = new Set(TIPS.map((t) => t.text));
 
 export async function previewChecks({ browser, url, ok, vp }) {
   const tag = vp.name;
-  const { ctx, page, errors } = await openHome(browser, url, vp, seed(4), { init: [RAF_COUNT] });
+  const { ctx, page, errors } = await openHome(browser, url, vp, seed(4, { dev: true }), { init: [RAF_COUNT] }); // Polish A: the Previews fold shows only in developer mode
   await until(page, () => window.__train && window.__train.frames > 0);
   ok(await page.evaluate(() => window.__train.world === 'W1' && window.__train.stopCount === 9 && window.__train.lessonCount === 6 && window.__train.checkpointCount === 3 && window.__train.portal && window.__train.signText === 'Green Valley'), `${tag}: the real Home builds only world 1 (9 stops) with a portal and a signpost to Green Valley`);
   await gate(page);
@@ -127,12 +127,13 @@ export async function previewChecks({ browser, url, ok, vp }) {
   ok(l3.length === 0, `${tag} list: fold heads fit and are big enough (${l3.join(' | ')})`);
 
   ok((await page.locator('.grownups [aria-label="Train world"], .grownups [aria-label="Play recorded letter sounds"]').count()) === 0, `${tag} Grownups: no Train world or Play recorded letter sounds switch`);
-  ok(await page.evaluate(() => { const b = document.querySelector('.gu-body'); return b.children[0].querySelector('h2').textContent.trim() === 'Progress' && b.children[1].querySelector('h2').textContent === 'Lessons' && b.children[1].querySelector('.gu-reset') && b.children[2].classList.contains('gu-grouped'); }), `${tag} list: Lessons heading and Reset progress sit above the grouped list`);
+  // Polish A: the header card, Progress (open), the Lessons heading and the grouped list; Reset is no longer up here but in the "Start over" card at the bottom
+  ok(await page.evaluate(() => { const b = document.querySelector('.gu-body'); return b.children[0].classList.contains('gu-hero') && b.children[1].querySelector('h2').textContent.trim() === 'Progress' && b.children[2].querySelector('h2').textContent === 'Lessons' && b.children[3].classList.contains('gu-grouped') && !b.children[2].querySelector('.gu-reset') && !b.children[3].querySelector('.gu-reset'); }), `${tag} list: the header card, Progress, the Lessons heading and the grouped list come first, with no Reset among them`);
 
   // ---- the Previews fold ----
   const fold = page.locator('.gu-fold', { hasText: 'Previews' });
   ok((await fold.count()) === 1 && (await fold.getAttribute('aria-expanded')) === 'false', `${tag}: Grownups has a closed Previews fold`);
-  ok(await page.evaluate(() => { const b = document.querySelector('.gu-body'), k = b.children; return k[k.length - 1].classList.contains('gu-version') && k[k.length - 2].textContent.startsWith('Previews'); }), `${tag}: the Previews fold is the last card, just above the version line`);
+  ok(await page.evaluate(() => { const b = document.querySelector('.gu-body'), k = b.children; const dev = b.querySelector('.gu-devbox'); return k[k.length - 1].classList.contains('gu-version') && k[k.length - 2].classList.contains('gu-startover') && dev.lastElementChild.textContent.startsWith('Previews') && dev.nextElementSibling === k[k.length - 2]; }), `${tag}: in developer mode the Previews fold ends the Developer group, just above the Start over card and the version line`);
   await fold.click();
   ok((await page.locator('.grownups .gu-fold-body:not([hidden]) .gu-note', { hasText: 'Try new screens before they go live.' }).count()) === 1, `${tag}: the Previews note is shown`);
   const btns = await page.locator('.preview-btn').evaluateAll((l) => l.map((b) => { const r = b.getBoundingClientRect(); return { key: b.dataset.preview, h: r.height, w: r.width }; }));
@@ -253,7 +254,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
 // The flat map: the same card between two flat maps, no WebGL involved.
 export async function flatChecks({ browser, url, ok }) {
   const vp = SHOT_VIEWPORTS[0];
-  const { ctx, page, errors } = await openHome(browser, url, vp, seed(4, { trainWorld: false, migrated1912: true }));
+  const { ctx, page, errors } = await openHome(browser, url, vp, seed(4, { trainWorld: false, migrated1912: true, dev: true }));
   await page.waitForSelector('.stone');
   await gate(page);
   await openPreview(page, 'gateway');
@@ -273,7 +274,7 @@ export async function flatChecks({ browser, url, ok }) {
 // Reduced motion: the card, the board and the gateway show without motion.
 export async function reducedChecks({ browser, url, ok }) {
   const vp = SHOT_VIEWPORTS[0];
-  const { ctx, page, errors } = await openHome(browser, url, vp, seed(4), { extra: { reducedMotion: 'reduce' } });
+  const { ctx, page, errors } = await openHome(browser, url, vp, seed(4, { dev: true }), { extra: { reducedMotion: 'reduce' } });
   await until(page, () => window.__train && window.__train.frames > 0);
   await gate(page);
   await openPreview(page, 'tip');

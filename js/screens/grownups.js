@@ -14,6 +14,8 @@ import { soundPhrase } from '../lessons.js';
 import { starSvg } from '../art.js';
 import { NUMBER_WORDS, earnedLevels } from '../levels.js';
 import { accountCard } from '../components/account-card.js';
+import { kidSvg } from '../art/kid.js';
+import { currentWorld } from '../worlds.js';
 import { progressBody } from '../components/progress-card.js';
 
 export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA vowel and consonant chart recordings, CC BY-SA 3.0, obtained via github.com/joshstephenson/PhoneticFlashCards, trimmed and loudness-normalized.";
@@ -24,7 +26,7 @@ export const WHISTLE_CREDIT = 'The train whistle sound is a toy train whistle fr
 const PREVIEWS = [['tip', 'Did you know? card'], ['gateway', 'World gateway'], ['proto-f', 'New lesson: f (eight steps)'], ['proto-play', 'Sound play (Stage 1)'], ['proto-placement', 'Placement check'], ['proto-heart', 'Heart word: the']];
 
 // Parent area. Reached only through the hold gate on Home (ctx.gate), and expires after ten minutes.
-const folds = {}; // which reference cards are open, for this page session only
+const folds = {}; // which reference cards are open, for this page session only (Progress starts open)
 
 export function grownupsScreen(ctx) {
   const { store, router, curriculum, speech } = ctx;
@@ -35,7 +37,7 @@ export function grownupsScreen(ctx) {
   // ---- lessons and checkpoints, grouped by world then unit, only the current world open (js/components/lesson-list.js) ----
   const lessonsBox = lessonList({ store, curriculum, grouped: true }).el;
 
-  // ---- reset ----
+  // ---- reset (its own "Start over" card at the very bottom) ----
   const resetBox = h('div', { class: 'gu-reset' });
   const paintReset = (confirming) => {
     resetBox.replaceChildren(confirming
@@ -49,7 +51,7 @@ export function grownupsScreen(ctx) {
   paintReset(false);
 
   // ---- the child's figure and name (the character creator) ----
-  const picker = characterPicker({ store, mode: 'grownups' });
+  const picker = characterPicker({ store, mode: 'grownups', onSave: () => paintHero() });
 
   // ---- voice ----
   const select = h('select', { class: 'gu-select', 'aria-label': 'Voice', onchange: () => { store.setSetting('voiceURI', select.value); } });
@@ -98,7 +100,20 @@ export function grownupsScreen(ctx) {
       earned ? h('button', { class: 'btn small level-replay', type: 'button', 'data-level': v.id, 'aria-label': `Play ${name} again`, onclick: () => { ctx.replayLevel = v.id; router.go('/home'); } }, 'Play again') : null);
   });
 
-  const sec = (title, ...kids) => h('section', { class: 'gu-card' }, h('h2', {}, title), ...kids);
+  // Every card title carries a small round icon (js/dom.js). Group headings (Lessons, Help) sit between cards.
+  const ICONS = { Progress: 'chart', Lessons: 'lessons', 'Your child': 'child', 'Sound and voice': 'speaker', Pace: 'clock', Account: 'adult', Developer: 'code', Previews: 'eye', 'Start over': 'redo', Links: 'external', Screen: 'expand', Install: 'download', 'The thinking behind this app': 'help', 'Recorded sounds': 'speaker', Levels: 'star', 'All the sounds': 'lessons', 'Help and the thinking behind the app': 'help' };
+  const titled = (title) => [h('span', { class: 'gu-ic', 'aria-hidden': 'true' }, icon(ICONS[title] || 'help', 22)), h('span', { class: 'gu-title' }, title)];
+  const sec = (title, ...kids) => h('section', { class: 'gu-card' }, h('h2', { class: 'gu-h2' }, ...titled(title)), ...kids);
+  const group = (title, note) => h('div', { class: 'gu-group' }, h('h2', { class: 'gu-h2' }, ...titled(title)), note ? h('p', { class: 'gu-note' }, note) : null);
+
+  // ---- the header card: the child's figure, name and where they are ----
+  const hero = h('section', { class: 'gu-hero', 'aria-label': 'Your child' });
+  function paintHero() {
+    const ch = store.character(), total = curriculum.lessons.length, n = store.currentLesson(total), w = currentWorld(store, curriculum), stars = earnedLevels(curriculum, store).length;
+    const summary = [n ? `Lesson ${n} of ${total}` : `All ${total} lessons done`, w && w.name, stars ? `${stars} gold star${stars === 1 ? '' : 's'}` : 'No gold stars yet'].filter(Boolean).join(' · ');
+    hero.replaceChildren(h('div', { class: 'gu-hero-fig' }, kidSvg({ ...ch, pose: 'wave', still: true })), h('div', { class: 'gu-hero-text' }, h('strong', {}, ch.name || 'Your child'), h('span', { class: 'gu-hero-sum' }, summary)));
+  }
+  paintHero();
 
   // ---- pace: how many new lessons a day (settings.perDay) ----
   const PACE = [[1, '1'], [2, '2'], [3, '3'], [4, '4'], [0, 'No limit']];
@@ -115,14 +130,15 @@ export function grownupsScreen(ctx) {
   const paintDev = () => {
     // The box joins the page only while developer mode is on, so the page is exactly as before when it is off.
     if (store.settings.dev !== true) { devBox.remove(); return; }
-    if (!devBox.isConnected && bodyEl) bodyEl.prepend(devBox);
+    if (!devBox.isConnected && bodyEl) bodyEl.querySelector('.gu-startover').before(devBox);
     devBox.replaceChildren(sec('Developer',
       h('div', { class: 'gu-field inline' }, h('span', {}, 'Open every lesson'), devSwitch('devOpenAll', 'Open every lesson')),
       h('div', { class: 'gu-field inline' }, h('span', {}, 'Ignore daily limit'), devSwitch('devNoLimit', 'Ignore daily limit')),
       h('p', { class: 'gu-note' }, 'Progress is not changed by these. Lessons finished now are still recorded.'),
       h('h3', { class: 'gu-h3' }, 'Look at a world'),
       h('div', { class: 'gu-devworlds' }, ...(curriculum.worlds || []).map((w) => h('button', { class: 'btn small ghost', type: 'button', dataset: { world: w.id }, onclick: () => router.go(`/world/${w.id}`) }, w.id))),
-      h('button', { class: 'btn small ghost dev-off', type: 'button', onclick: () => { store.setSetting('dev', false); paintDev(); toast('Developer mode off'); } }, 'Turn off developer mode')));
+      h('button', { class: 'btn small ghost dev-off', type: 'button', onclick: () => { store.setSetting('dev', false); paintDev(); toast('Developer mode off'); } }, 'Turn off developer mode')),
+      previewsFold()); // the prototypes are for the owner: they show only in developer mode
   };
   const versionLine = h('p', { class: 'gu-version', onclick: () => {
     const now = Date.now(); taps = [...taps.filter((t) => now - t < 3000), now];
@@ -131,7 +147,8 @@ export function grownupsScreen(ctx) {
   let bodyEl = null;
 
   const fsBtn = fullscreenButton({ label: true, className: 'btn small fs-row' });
-  // The two long reference cards start closed, so Reset is within reach; each stays as the grown-up left it until the page closes.
+  // The long reference cards start closed; each stays as the grown-up left it until the page closes. Progress starts open.
+  if (!('Progress' in folds)) folds.Progress = true;
   const fold = (title, ...kids) => {
     const id = 'gu-fold-' + title.toLowerCase().replace(/\W+/g, '-');
     const body = h('div', { class: 'gu-fold-body', id, hidden: !folds[title] }, ...kids);
@@ -139,36 +156,43 @@ export function grownupsScreen(ctx) {
       folds[title] = !folds[title];
       head.setAttribute('aria-expanded', String(folds[title]));
       body.hidden = !folds[title];
-    } }, h('span', {}, title), icon('chevronDown', 24));
-    return h('section', { class: 'gu-card' }, h('h2', {}, head), body);
+    } }, h('span', { class: 'gu-fold-title' }, ...titled(title)), icon('chevronDown', 24));
+    return h('section', { class: 'gu-card' }, h('h2', { class: 'gu-h2' }, head), body);
   };
+  const previewsFold = () => fold('Previews', h('p', { class: 'gu-note' }, 'Try new screens before they go live.'), h('div', { class: 'gu-previews' }, ...PREVIEWS.map(([key, label]) => h('button', { class: 'btn small preview-btn', type: 'button', dataset: { preview: key }, onclick: () => router.go(key === 'proto-f' ? '/proto/f' : key === 'proto-heart' ? '/proto/heart' : key === 'proto-play' ? '/proto/play' : key === 'proto-placement' ? '/proto/placement' : '/preview/' + key) }, label))));
   const root = h('div', { class: 'grownups' },
     h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to the path', onclick: () => router.go('/home') }, icon('back', 28)), h('h1', {}, 'Grownups')),
     h('div', { class: 'gu-body' },
+      hero,
       fold('Progress', ...progressBody({ curriculum, store })), // the journey board and a short summary for each world
-      sec('Lessons', resetBox), lessonsBox, // Reset first: with the lessons below it, it would be buried at the bottom
-      sec('Your child', picker,
-        h('p', { class: 'gu-note' }, "The name is used only inside the stories on this device. It is never sent anywhere and never spoken by the phone's voice.")),
-      sec('Voice', h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate), test,
+      group('Lessons', 'Each station opens when the one before it is finished. Unlock opens a lesson early.'), lessonsBox,
+      sec('Your child', picker),
+      sec('Sound and voice',
+        h('h3', { class: 'gu-h3' }, 'Voice'),
+        h('label', { class: 'gu-field' }, h('span', {}, 'Voice (US English)'), select), h('label', { class: 'gu-field' }, h('span', {}, 'Speed ', rateOut), rate), test,
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Speak automatically'), toggle),
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Always show full instructions'), fullSwitch),
         h('p', { class: 'gu-note' }, 'Off: the "Say this" line is one tidy bar that opens when you tap it. On: the full words are always shown, which leaves the activity less room.'),
-        h('p', { class: 'gu-note' }, speech.hasSynth ? 'The voice comes from your phone. If a voice sounds robotic, pick another one here.' : 'This browser has no text to speech.')),
-      sec('Sound effects', h('div', { class: 'gu-field inline' }, h('span', {}, 'Play sounds'), sfxSwitch), h('label', { class: 'gu-field' }, h('span', {}, 'Volume ', sfxOut), sfxRange), sfxTest,
+        h('p', { class: 'gu-note' }, speech.hasSynth ? 'The voice comes from your phone. If a voice sounds robotic, pick another one here.' : 'This browser has no text to speech.'),
+        h('h3', { class: 'gu-h3 gu-h3-gap' }, 'Sounds and music'),
+        h('div', { class: 'gu-field inline' }, h('span', {}, 'Play sounds'), sfxSwitch), h('label', { class: 'gu-field' }, h('span', {}, 'Volume ', sfxOut), sfxRange), sfxTest,
         h('div', { class: 'gu-field inline' }, h('span', {}, 'Music'), musicSwitch),
         h('p', { class: 'gu-note' }, 'The theme song plays once when the railway opens.'),
         h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a train at its station, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),
       sec('Pace', h('div', { class: 'gu-field' }, h('span', {}, 'New lessons per day'), h('div', { class: 'gu-choices', role: 'group', 'aria-label': 'New lessons per day' }, ...paceBtns)), h('p', { class: 'gu-note' }, 'Short, daily practice works better than long sessions.')),
+      ...[accountCard(ctx.account, store)].filter(Boolean),
+      group('Help and the thinking behind the app'),
+      sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),
+      ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),
+      sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.playlistUrl); } }, icon('external', 20), 'Sound story playlist'),
+        h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.alphabetSongUrl); } }, icon('external', 20), 'Alphabet song')),
       fold('The thinking behind this app', ...WELCOME.slice(1).flatMap((pg) => [h('h3', { class: 'gu-h3' }, pg.title), ...pg.body.map((t) => h('p', { class: 'gu-para' }, t))])),
       fold('Recorded sounds', clipList, h('p', { class: 'gu-note' }, 'Isolated sounds play from recordings, never from the phone voice. A sound with no recording shows a line for you to say instead ("Say: mmm"). To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT), h('p', { class: 'gu-credit' }, WHISTLE_CREDIT)),
       fold('Levels', h('p', { class: 'gu-note' }, 'Each level adds a special car to the train and a gold star.'), h('div', { class: 'gu-list' }, ...levelRows)),
       fold('All the sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
-      ...[accountCard(ctx.account, store)].filter(Boolean),
-      sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.playlistUrl); } }, icon('external', 20), 'Sound story playlist'),
-        h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.alphabetSongUrl); } }, icon('external', 20), 'Alphabet song')),
-      ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),
-      sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),
-      fold('Previews', h('p', { class: 'gu-note' }, 'Try new screens before they go live.'), h('div', { class: 'gu-previews' }, ...PREVIEWS.map(([key, label]) => h('button', { class: 'btn small preview-btn', type: 'button', dataset: { preview: key }, onclick: () => router.go(key === 'proto-f' ? '/proto/f' : key === 'proto-heart' ? '/proto/heart' : key === 'proto-play' ? '/proto/play' : key === 'proto-placement' ? '/proto/placement' : '/preview/' + key) }, label)))),
+      // Developer and Previews join here, in developer mode only (paintDev)
+      h('section', { class: 'gu-card gu-startover' }, h('h2', { class: 'gu-h2' }, ...titled('Start over')),
+        h('p', { class: 'gu-note' }, "Takes every lesson back to the beginning. Your settings and your child's figure stay."), resetBox),
       versionLine));
   bodyEl = root.querySelector('.gu-body');
   paintDev();

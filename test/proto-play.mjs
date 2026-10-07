@@ -87,7 +87,7 @@ const redX = (page) => page.evaluate(() => {
 
 // ---- the Previews fold: both entries, reached from Grownups ----
 async function entry({ browser, url, ok }) {
-  const made = await open(browser, url, PHONE, '#/home', {});
+  const made = await open(browser, url, PHONE, '#/home', { settings: { dev: true } }); // Previews show only in developer mode (Polish A)
   const { page, errors } = made;
   await page.waitForSelector('.pill-hold'); await page.waitForTimeout(900);
   const gb = await page.locator('.pill-hold').boundingBox();
