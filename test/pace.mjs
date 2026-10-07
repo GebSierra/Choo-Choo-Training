@@ -14,7 +14,7 @@ const HOUR = 3600 * 1000;
 const noonDaysAgo = (n) => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - n, 12).getTime(); };
 // A seed with lessons done: results only (like an old save), or with doneAt stamps.
 const lessonsWith = (nums, doneAt) => Object.fromEntries(nums.map((n) => [n, { tasksDone: [], result: 'got-it', ...(doneAt ? { doneAt } : {}) }]));
-const seed = (nums, doneAt, settings = {}) => state(0, { migrated1912: true, ...settings }, { lessons: lessonsWith(nums, doneAt) });
+const seed = (nums, doneAt, settings = {}) => state(0, { migrated1912: true, pace4: true, perDay: 2, ...settings }, { lessons: lessonsWith(nums, doneAt) });
 
 // ---- the store, no browser ----
 export async function storeChecks(ok) {
@@ -22,7 +22,7 @@ export async function storeChecks(ok) {
   globalThis.localStorage = { getItem: (k) => (mem.has(k) ? mem.get(k) : null), setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k) };
   const { createStore, cleanSettings } = await import('../js/store.js');
   const open = (saved) => { mem.clear(); if (saved) mem.set('reading.v1', JSON.stringify(saved)); return createStore(); };
-  const save = (lessons, settings = {}) => ({ schema: 1, order: undefined, lessons, checkpoints: {}, settings: { migrated1912: true, ...settings }, firstRunDone: true });
+  const save = (lessons, settings = {}) => ({ schema: 1, order: undefined, lessons, checkpoints: {}, settings: { migrated1912: true, pace4: true, perDay: 2, ...settings }, firstRunDone: true }); // most checks use a limit of 2 (default is 4)
   let s = open(save({ 5: { tasksDone: [], result: 'got-it' } }));
   ok([1, 2, 3, 4, 5].every((n) => s.isDone(n)) && !s.isDone(6), 'store: lesson 5 got-it makes lessons 1 to 5 done, not 6');
   ok(s.isUnlocked(6) && !s.isUnlocked(7) && s.currentLesson(13) === 6, 'store: lesson 6 is open and current, 7 is locked');
@@ -44,7 +44,16 @@ export async function storeChecks(ok) {
   // settings
   const d = { perDay: 2, restOverride: null, dev: false, devOpenAll: false, devNoLimit: false, rate: 0.9, sfxVolume: 0.6 };
   const c = (x) => cleanSettings({ ...d, ...x }, d);
-  ok(c({ perDay: 7 }).perDay === 2 && c({ perDay: '3' }).perDay === 2 && c({ perDay: 0 }).perDay === 0 && c({ perDay: 3 }).perDay === 3, 'settings: perDay allows 0, 1, 2, 3 and falls back to 2');
+  ok(c({ perDay: 7 }).perDay === 2 && c({ perDay: '3' }).perDay === 2 && c({ perDay: 0 }).perDay === 0 && c({ perDay: 3 }).perDay === 3, 'settings: perDay allows 0, 1, 2, 3 and falls back to the default');
+  ok(c({ perDay: 4 }).perDay === 4, 'settings: perDay allows 4');
+  s = open({ schema: 1, lessons: {}, settings: { migrated1912: true }, firstRunDone: true });
+  ok(s.settings.perDay === 4, 'pace: the default is 4 new lessons a day');
+  s = open({ schema: 1, lessons: {}, settings: { migrated1912: true, perDay: 2 }, firstRunDone: true });
+  ok(s.settings.perDay === 4 && s.settings.pace4 === true, 'pace: a save on the old default of 2 moves to 4 once');
+  s = open({ schema: 1, lessons: {}, settings: { migrated1912: true, perDay: 3 }, firstRunDone: true });
+  ok(s.settings.perDay === 3, 'pace: a chosen 3 is kept');
+  s = open(save({}, { perDay: 2 }));
+  ok(s.settings.perDay === 2, 'pace: a 2 chosen after the change is kept');
   ok(c({ dev: 'yes' }).dev === false && c({ devOpenAll: 1 }).devOpenAll === false && c({ devNoLimit: true }).devNoLimit === true, 'settings: dev flags are booleans');
   ok(c({ restOverride: 'today' }).restOverride === null && c({ restOverride: '2026-10-07' }).restOverride === '2026-10-07', 'settings: restOverride is a date string or null');
   // pace
@@ -180,12 +189,12 @@ export async function browserChecks({ browser, url, ok }) {
   }
   {
     // 3. Grownups: the pace row
-    const { ctx, page } = await openHome(browser, url, vp, seed([1]));
+    const { ctx, page } = await openHome(browser, url, vp, seed([1], undefined, { perDay: undefined })); // no saved choice: the default shows
     await settle(page);
     await gate(page);
     const row = page.locator('[aria-label="New lessons per day"][role=group]');
-    ok((await row.innerText()).replace(/\s+/g, ' ').trim() === '1 2 3 No limit', 'grownups: the row offers 1, 2, 3, No limit');
-    ok(await row.locator('[aria-pressed=true]').innerText() === '2', 'grownups: 2 is the default');
+    ok((await row.innerText()).replace(/\s+/g, ' ').trim() === '1 2 3 4 No limit', 'grownups: the row offers 1, 2, 3, 4, No limit');
+    ok(await row.locator('[aria-pressed=true]').innerText() === '4', 'grownups: 4 is the default');
     ok(await page.getByText('Short, daily practice works better than long sessions.').count() === 1, 'grownups: the help line shows');
     await row.locator('[data-perday="0"]').click();
     ok((await stored(page)).settings.perDay === 0, 'grownups: No limit is saved as 0');

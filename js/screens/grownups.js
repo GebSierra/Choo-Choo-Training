@@ -99,7 +99,7 @@ export function grownupsScreen(ctx) {
   const sec = (title, ...kids) => h('section', { class: 'gu-card' }, h('h2', {}, title), ...kids);
 
   // ---- pace: how many new lessons a day (settings.perDay) ----
-  const PACE = [[1, '1'], [2, '2'], [3, '3'], [0, 'No limit']];
+  const PACE = [[1, '1'], [2, '2'], [3, '3'], [4, '4'], [0, 'No limit']];
   const paceBtns = PACE.map(([v, label]) => h('button', { class: 'btn small ghost', type: 'button', dataset: { perday: String(v) }, 'aria-pressed': String(store.settings.perDay === v), onclick: () => { store.setSetting('perDay', v); paceBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.perday === String(v)))); } }, label));
 
   // ---- developer mode: tap the version line 7 times within 3 s (the owner's switch; hidden from everyone else) ----
