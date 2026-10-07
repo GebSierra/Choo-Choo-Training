@@ -111,7 +111,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const stopS = stops.map((_, i) => line.stop(i));
   const renderer = createRenderer(canvas, gl, soft);
   const { scene, camera, aimLight } = createScene(soft, theme);
-  const scenery = buildScenery(bag, line, [...stopS, ...(nextW ? [stopS[stopS.length - 1] + SIGN_AT, stopS[stopS.length - 1] + TUNNEL_AT + 1.2, stopS[stopS.length - 1] + TUNNEL_AT + 4.4] : []), ...(hasStart ? [stopS[0] - START_MOUTH - HILL / 2, stopS[0] - START_MOUTH - HILL] : []), ...(parked ? [-7, -3.5, 0, 3.5].map((d) => stopS[stopS.length - 1] + d) : [])], theme, stopS.length); // the portal and its signpost keep the trees away
+  const scenery = buildScenery(bag, line, [...stopS, ...(nextW ? [stopS[stopS.length - 1] + SIGN_AT, stopS[stopS.length - 1] + TUNNEL_AT + 1.2, stopS[stopS.length - 1] + TUNNEL_AT + 4.4] : []), ...(hasStart ? [stopS[0] - START_MOUTH - HILL / 2, stopS[0] - START_MOUTH - HILL] : []), ...(parked ? [-7, -3.5, 0, 3.5].map((d) => stopS[stopS.length - 1] + d) : [])], theme, stopS.length, stops.map((s) => s.kind)); // the portal and its signpost keep the trees away
   scene.add(scenery.group, scenery.clouds);
   const built = stops.map((s, i) => { const b = buildStop(bag, line, s, stopS[i], s.state); scene.add(b.group); return b; });
   // The one place that decides which wagons the train pulls. The owner's rule: only this world's letter wagons (they grow again from
@@ -230,6 +230,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   debug.fogHex ='#' + scene.fog.color.getHexString(); // a world's look, for the tests
   debug.skyOverride = !!theme.skyCss;
   debug.theme = theme.id;
+  debug.details = scenery.details ? { tris: scenery.details.tris } : null; // Starter Station's extra props (world 1 only)
   debug.region = region;
   debug.placeholder = placeholder;
   debug.nextWorld = nextW ? nextW.id : null;

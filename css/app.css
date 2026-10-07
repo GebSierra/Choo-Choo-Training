@@ -1778,3 +1778,92 @@ button.hw-tile:active { transform: translateY(3px) scale(.97); }
 .gu-devworlds { display: flex; gap: 8px; flex-wrap: wrap; }
 .gu-devworlds .btn { min-height: 44px; }
 .gu-toast { white-space: nowrap; position: fixed; left: 50%; bottom: calc(24px + var(--sab, 0px)); transform: translateX(-50%); z-index: 1100; background: #1E2140; color: #fff; padding: 12px 18px; border-radius: 14px; font-weight: 700; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+
+/* ---------- polish B: overview, tasks, finish ---------- */
+/* Lesson overview: the steps first, the big Start button, then the optional song as a small row at the very bottom. */
+.lesson-overview { background: #FFFCF6; }
+.cards-wrap { position: relative; flex: 1 1 auto; min-height: 0; display: flex; }
+.cards-wrap .cards-scroll { flex: 1; min-width: 0; padding-bottom: 16px; }
+.cards-fade { position: absolute; top: 0; right: 0; bottom: 0; width: 72px; pointer-events: none; background: linear-gradient(to right, rgba(255,252,246,0), rgba(255,252,246,.7) 55%, #FFFCF6 100%); transition: opacity var(--t-base); }
+.cards-wrap.at-end .cards-fade { opacity: 0; }
+.lo-foot { gap: 10px; background: linear-gradient(to top, #FFFCF6 72%, rgba(255,252,246,0)); }
+.lo-foot .start-btn { min-height: 72px; font-size: 24px; border-radius: 999px; box-shadow: 0 7px 0 rgba(30,33,64,.22), 0 12px 26px rgba(60,40,20,.18); }
+.lo-foot .start-btn:active { box-shadow: 0 3px 0 rgba(30,33,64,.22), var(--shadow); }
+.lo-foot .song-row { margin: 0 auto; width: 100%; max-width: 520px; grid-template-columns: 40px 1fr auto; gap: 8px; padding: 6px 8px; border-radius: 18px; background: #F4F1FF; }
+.lo-foot .song-thumb { width: 40px; height: 40px; border-radius: 12px; }
+.lo-foot .song-thumb .icon { width: 20px; height: 20px; }
+.lo-foot .song-text { display: flex; align-items: baseline; gap: 0 8px; flex-wrap: wrap; min-width: 0; }
+.lo-foot .song-text strong { font-size: 16px; white-space: nowrap; }
+.song-opt { font-size: 14px; font-weight: 800; color: var(--muted); }
+.lo-foot .song-row .parent-note { display: none; }
+.lo-foot .song-hold.hold-btn { min-height: 48px; padding: 0 12px 0 4px; }
+.cards-wrap .task-card { height: clamp(300px, calc(100dvh - 300px), 500px); min-height: 300px; }
+@media (max-width: 380px) { .lo-foot .song-text strong { font-size: 15px; } .lo-foot .song-hold .hold-cap { display: none; } .lo-foot .song-hold .hold-label { font-size: 17px; } }
+@media (max-width: 420px) { .lo-foot .song-row { grid-template-columns: 40px 1fr auto; } .lo-foot .song-row .hold-wrap { grid-column: auto; justify-self: end; } }
+@media (orientation: landscape) {
+  .cards-wrap .task-card { height: 118px; min-height: 0; }
+  .cards-wrap .cards-scroll { padding-bottom: 88px; }
+  .cards-fade { display: none; }
+  .lo-foot { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 12px; }
+  .lo-foot .start-btn { order: 2; min-height: 60px; max-width: none; font-size: 22px; }
+  .lo-foot .song-row { order: 1; margin: 0; max-width: none; }
+}
+
+/* The coloured task card: a little texture (dots), a soft light from the top left and a settled edge, all static. */
+.task-stage {
+  background-image:
+    radial-gradient(120% 70% at 18% 0%, rgba(255,255,255,.34), rgba(255,255,255,0) 60%),
+    radial-gradient(rgba(30,33,64,.07) 1.6px, transparent 1.9px),
+    linear-gradient(to top, rgba(30,33,64,.09), rgba(30,33,64,0) 26%);
+  background-size: auto, 22px 22px, auto;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.22), inset 0 24px 40px -28px rgba(255,255,255,.55);
+}
+.task-stage.on-dark { background-image:
+    radial-gradient(120% 70% at 18% 0%, rgba(255,255,255,.22), rgba(255,255,255,0) 60%),
+    radial-gradient(rgba(255,255,255,.14) 1.6px, transparent 1.9px),
+    linear-gradient(to top, rgba(20,15,60,.16), rgba(20,15,60,0) 26%); }
+/* The content sits in the middle of the card, not at the top; with a lot of content the auto margins are 0 and it scrolls as before. */
+.task-activity > :first-child:last-child { margin-block: auto; }
+.task-head h1 { text-shadow: 0 2px 0 rgba(0,0,0,.18); }
+.task-foot { background: linear-gradient(to bottom, #2A2063, var(--night)); }
+
+/* Finish: the letter on a wagon ticket, a gold star, one confetti burst that settles (finite), warm light behind. */
+.finish { position: relative; overflow: hidden; background: radial-gradient(120% 70% at 50% 18%, #FFF0B8 0%, #FFF6DD 34%, #FFF8EC 62%, #FFEBD2 100%); }
+.finish > * { position: relative; z-index: 1; }
+.finish .finish-glyph { --sc: 1; background: transparent; box-shadow: none; overflow: visible; }
+.finish .finish-glyph::before { content: ''; position: absolute; left: 50%; top: 50%; width: 640px; height: 640px; margin: -320px 0 0 -320px; z-index: -2; pointer-events: none;
+  background: repeating-conic-gradient(from 4deg, rgba(255,198,76,.26) 0 7deg, rgba(255,198,76,0) 7deg 20deg); -webkit-mask-image: radial-gradient(circle, #000 12%, transparent 62%); mask-image: radial-gradient(circle, #000 12%, transparent 62%); }
+.finish-wagon { position: absolute; inset: 0 0 14px; border-radius: 30px; background: #fff; display: grid; place-items: center; z-index: 1;
+  box-shadow: inset 0 14px 0 var(--accent), 0 0 0 5px color-mix(in srgb, var(--accent) 22%, #fff), 0 10px 0 rgba(30,33,64,.12), var(--shadow); }
+.finish-wagon::before, .finish-wagon::after { content: ''; position: absolute; bottom: -22px; width: 34px; height: 34px; border-radius: 50%; background: #2B2D5C; border: 6px solid #F3E6CF; box-shadow: 0 3px 0 rgba(30,33,64,.18); }
+.finish-wagon::before { left: 26px; } .finish-wagon::after { right: 26px; }
+.finish .finish-glyph .glyph { width: 58%; margin-top: 14px; }
+.finish .finish-glyph .sack-art, .finish .finish-glyph .crate-art, .finish .finish-glyph .book-art, .finish .finish-glyph .gauge-art { width: 56%; margin-top: 14px; }
+.finish .finish-ring { border-radius: 34px; inset: -8px -8px 6px; z-index: 0; }
+.finish-pip, .finish-kid { z-index: 2; }
+.finish-star { position: absolute; right: -14px; top: -26px; width: 56px; height: 56px; z-index: 3; transform: rotate(14deg); filter: drop-shadow(0 3px 0 rgba(168,110,20,.28)); pointer-events: none; }
+.finish-star svg { width: 100%; height: 100%; display: block; }
+.confetti { position: absolute; left: 50%; top: 50%; width: 0; height: 0; z-index: 0; pointer-events: none; }
+.confetti i { position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; background: var(--c); border-radius: 3px; opacity: .95; transform: translate(calc(var(--tx) * var(--sc)), calc(var(--ty) * var(--sc))) rotate(var(--r)); }
+.confetti .dot { border-radius: 50%; width: 13px; height: 13px; }
+.confetti .bar { width: 7px; height: 19px; border-radius: 3px; }
+.confetti .tri { width: 0; height: 0; background: none; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 14px solid var(--c); border-radius: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .confetti i { animation: confetti-burst 1.5s cubic-bezier(.15,.7,.25,1) both; animation-delay: calc(480ms + var(--d)); }
+  .finish-star { animation: star-pop 640ms var(--ease-spring) 380ms both; }
+  .finish-pip, .finish-kid { animation: cheer-hop 520ms ease-out 2 700ms; }
+  .finish-wagon::before, .finish-wagon::after { animation: wheel-spin 900ms ease-out 1 both; }
+}
+@keyframes confetti-burst { 0% { transform: translate(0, 0) rotate(0) scale(.3); opacity: 0; } 12% { opacity: 1; } 100% { transform: translate(calc(var(--tx) * var(--sc)), calc(var(--ty) * var(--sc))) rotate(calc(var(--r) + 300deg)) scale(1); opacity: .95; } }
+@keyframes star-pop { 0% { transform: rotate(-30deg) scale(0); opacity: 0; } 100% { transform: rotate(14deg) scale(1); opacity: 1; } }
+@keyframes cheer-hop { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-9px); } }
+@keyframes wheel-spin { from { transform: rotate(-280deg); } to { transform: rotate(0); } }
+.finish-card { box-shadow: 0 10px 0 rgba(30,33,64,.06), var(--shadow); }
+.finish h1 { text-shadow: 0 2px 0 rgba(255,255,255,.7); }
+@media (orientation: landscape) and (max-height: 520px) {
+  .finish .finish-glyph { --sc: .6; }
+  .finish-wagon { border-radius: 22px; inset: 0 0 10px; box-shadow: inset 0 10px 0 var(--accent), 0 0 0 4px color-mix(in srgb, var(--accent) 22%, #fff), 0 8px 0 rgba(30,33,64,.12), var(--shadow); }
+  .finish-wagon::before, .finish-wagon::after { width: 24px; height: 24px; bottom: -16px; border-width: 4px; } .finish-wagon::before { left: 16px; } .finish-wagon::after { right: 16px; }
+  .finish-star { width: 40px; height: 40px; right: -10px; top: -18px; }
+  .finish .finish-glyph::before { width: 420px; height: 420px; margin: -210px 0 0 -210px; }
+}
