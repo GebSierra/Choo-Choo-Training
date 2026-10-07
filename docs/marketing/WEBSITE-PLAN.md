@@ -4,7 +4,7 @@ Written for the session that will build the site. Read this whole file before st
 
 ## Owner decisions (2026-10-07)
 
-- **Direction: `previews/chosen-night-train.html`.** Theme and golden ticket from Night Train (B), wording from Sunny Line (A), the Founding Families progress bar from Timetable (C). Build from that file; the other previews are reference only. Where this plan says **[DIRECTION]**, follow the chosen file.
+- **Direction: `previews/chosen-night-train.html`.** Theme and golden ticket from Night Train (B), wording from Sunny Line (A), the Founding Families progress bar from Timetable (C) inside the golden ticket only. No seat bar at the top of the page. Build from that file; the other previews are reference only. Where this plan says **[DIRECTION]**, follow the chosen file.
 - Use the line **"Tonight, your child reads you their bedtime story."** (closing section in the chosen file).
 - **Only new train-theme visuals.** No screenshots from `docs/screenshots/` (old stone path / barn theme). Use `previews/media/` (cut from the owner's screen recordings) or new captures of the current app.
 - **No Mentava picture cards** anywhere (map, milk, moon and the like). Check every frame and screenshot.
@@ -62,7 +62,7 @@ In priority order:
 
 - Never use `docs/screenshots/` (old theme, some Mentava picture cards). Use `previews/media/` or fresh captures of the current train theme with no picture cards.
 - Copy media into `site/assets/` as resized JPG/WebP (360–390 px wide, about 40 KB each). Never link into `docs/` or the app's folders.
-- Don't reuse the in-app copy "built on studies from Harvard, NIH, the U.S. Department of Education" or the "cotton candy" paragraph: it reads like Reading.com's wording, and the site must not claim specific institutions unless the owner can cite the studies. Cite real papers instead (see `LAUNCH-PLAN.md`).
+- **Use the app's own research copy** on the site: "Loved by kids, built on research" (studies from Harvard, the National Institutes of Health, the U.S. Department of Education) and the "cotton candy" welcome paragraph. Owner-approved, and the owner has the studies. Add a "See the research" section listing them; ask the owner for the list and link each study.
 - Fonts from Google Fonts, or self-hosted in `site/assets/fonts/`. The app's Nunito is fine to reuse.
 - Pip the Conductor: `previews/media/pip.png` is a small crop from an owner screenshot (on white, so it sits in a white circle). Ask the owner for the original Pip artwork with a transparent background before launch.
 
