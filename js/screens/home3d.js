@@ -96,7 +96,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const stopS = stops.map((_, i) => line.stop(i));
   const renderer = createRenderer(canvas, gl, soft);
   const { scene, camera, aimLight } = createScene(soft);
-  const scenery = buildScenery(bag, line, [...stopS, ...(nextW ? [stopS[stopS.length - 1] + SIGN_AT] : []), ...(parked ? [-7, -3.5, 0, 3.5].map((d) => stopS[stopS.length - 1] + d) : [])]); // the portal and its signpost keep the trees away
+  const scenery = buildScenery(bag, line, [...stopS, ...(nextW ? [stopS[stopS.length - 1] + SIGN_AT, stopS[stopS.length - 1] + TUNNEL_AT + 1.2, stopS[stopS.length - 1] + TUNNEL_AT + 4.4] : []), ...(hasStart ? [stopS[0] - START_MOUTH - HILL / 2, stopS[0] - START_MOUTH - HILL] : []), ...(parked ? [-7, -3.5, 0, 3.5].map((d) => stopS[stopS.length - 1] + d) : [])]); // the portal and its signpost keep the trees away
   scene.add(scenery.group, scenery.clouds);
   const built = stops.map((s, i) => { const b = buildStop(bag, line, s, stopS[i], s.state); scene.add(b.group); return b; });
   // The one place that decides which wagons the train pulls. The owner's rule: only this world's letter wagons (they grow again from
@@ -220,7 +220,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   debug.gate = { mode: gw ? gw.mode : null, phase: '' };
   debug.crossing = debug.gate;
   // Brings stop i into view (keyboard focus does the same for a stop that is on screen); tests use it to reach a stop.
-  debug.show = (i) => { rig.jump(stopS[Math.max(0, Math.min(stopS.length - 1, i))]); render(); wake(); };
+  debug.show = (i) => { rig.jump(i < 0 ? stopS[0] + i : stopS[Math.min(stopS.length - 1, i)]); render(); wake(); };
   // Where the portal's mouth and the signpost's board are on the screen (CSS px), for the tests.
   const screenOf = (v) => { camera.updateMatrixWorld(); camera.matrixWorldInverse.copy(camera.matrixWorld).invert(); v.project(camera); return { x: (v.x + 1) / 2 * W, y: (1 - v.y) / 2 * H }; };
   debug.portalSpot = () => (portal ? screenOf(portal.group.localToWorld(new THREE.Vector3(0, 0.9, -HILL / 2))) : null);
@@ -236,6 +236,16 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
       const q = {}; line.at(train.at, q);
       camera.position.set(q.x - q.nx * 4.4 - q.dx * 2.0, 3.0, q.z - q.nz * 4.4 - q.dz * 2.0);
       camera.lookAt(q.x, 1.2, q.z);
+    } else rig.apply();
+    render();
+  };
+  // Screenshot helper: the camera moves in close in front of the portal (true), or goes back to its place (false).
+  debug.portalClose = (on = true, start = false) => {
+    const target = start ? startTunnel : portal;
+    if (on && target) {
+      const g = target.group, k = start ? -1 : 1; g.updateMatrixWorld(true);
+      const a = g.localToWorld(new THREE.Vector3(1.4 * k, 3.6, -12.5 * k)), b = g.localToWorld(new THREE.Vector3(0, 2.3, 0));
+      camera.position.copy(a); camera.lookAt(b);
     } else rig.apply();
     render();
   };
