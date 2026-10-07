@@ -4,6 +4,7 @@
 import { THREE, PAL, rng, block } from './world.js';
 import { DEFAULT_THEME } from './themes.js';
 import { REGION_BUILDERS } from './regions.js';
+import { buildStarterDetails } from './starter.js';
 
 function noiseTexture(bag) {
   const c = document.createElement('canvas');
@@ -22,7 +23,7 @@ function noiseTexture(bag) {
 // stops: the distances of the stations along the line (scenery keeps clear of them).
 // theme (js/train/themes.js): the ground and patch colours, and for a themed world (decor) its own props instead of the default
 // hills, river, trees, flowers, water tower and windmill. W1 and W2 use the default theme: the same island as ever.
-export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCount = stops.length) {
+export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCount = stops.length, kinds = []) {
   const group = new THREE.Group();
   const R = rng(11), p = {};
   const zNear = 30, zFar = -line.end - 50, W = 80;
@@ -54,8 +55,11 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
   patches.receiveShadow = true;
   group.add(patches);
 
-  let blades = null;
+  let blades = null, details = null;
   if (!theme.decor) {
+  // Starter Station's extras (world 1): built first, so the trees and flowers keep out of their spots
+  if (theme.details === 'starter') details = buildStarterDetails({ bag, line, stops: stops.slice(0, stationCount), kinds, group });
+  const clearOf = (x, z) => !!details && details.clear.some((c) => Math.hypot(x - c.x, z - c.z) < c.r);
   // rounded hills, away from the line
   const hillGeo = bag.geo('hill', () => new THREE.SphereGeometry(1, 28, 16, 0, Math.PI * 2, 0, Math.PI / 2));
   for (let i = 0; i < 16; i++) {
@@ -106,6 +110,7 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
       if (Math.abs(off) < 7 && nearStop(s, 3.2)) continue;
       const [x, z] = sideOf(s, off);
       if (Math.abs(z - riverZ - Math.sin(x * 0.12) * 2.2 + Math.sin(riverX * 0.12) * 2.2) < 3.2) continue;
+      if (clearOf(x, z)) continue;
       spots.push([x, z, R()]);
     }
   }
@@ -137,7 +142,8 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
     const cluster = Math.floor(i / 5), s = line.start + 4 + (cluster / 52) * (line.end - line.start - 8);
     const off = (cluster % 2 ? 1 : -1) * (3.6 + ((cluster * 37) % 11));
     const [x, z] = sideOf(s, off);
-    flowers.setMatrixAt(i, m.compose(v.set(x + (R() - 0.5) * 1.4, 0.1, z + (R() - 0.5) * 1.4), q.identity(), sc.set(1, 0.7, 1)));
+    const fx = x + (R() - 0.5) * 1.4, fz = z + (R() - 0.5) * 1.4, gone = clearOf(fx, fz); // (a flower in a pond or a bed is squashed to nothing)
+    flowers.setMatrixAt(i, m.compose(v.set(fx, 0.1, fz), q.identity(), gone ? sc.set(0, 0, 0) : sc.set(1, 0.7, 1)));
     flowers.setColorAt(i, col.set(flowerCols[cluster % flowerCols.length]));
   }
   group.add(flowers);
@@ -179,5 +185,5 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
     clouds.add(c);
   }
   if (theme.decor) REGION_BUILDERS[theme.decor]({ bag, line, stops, stationCount, group, sky: clouds, R: rng(23), W });
-  return { group, clouds, blades };
+  return { group, clouds, blades, details };
 }

@@ -279,8 +279,8 @@ export async function layoutChecks({ browser, url, ok, vp }) {
     const { ctx, page } = await open(browser, url, vp, '#/lesson/2/finish');
     await page.waitForSelector('.finish');
     await page.waitForTimeout(700);
-    const f = await page.evaluate(() => { const g = document.querySelector('.finish-glyph').getBoundingClientRect(), c = document.querySelector('.finish-card').getBoundingClientRect(), bk = document.querySelector('.back-path').getBoundingClientRect(), h1 = document.querySelector('.finish h1').getBoundingClientRect(), p = document.querySelector('.btn.practice'); return { g, c, bk, h1, label: document.querySelector('.finish-for').textContent, pw: p.scrollWidth > p.clientWidth, ph: p.getBoundingClientRect().height, shadow: getComputedStyle(document.querySelector('.finish-glyph')).boxShadow, scroll: document.documentElement.scrollHeight - innerHeight }; });
-    ok(f.label === 'For the grown-up' && f.shadow.includes('0.12') || f.shadow.includes('rgba') , `${tag} finish: the card is labelled "For the grown-up" and the glyph sits on a tinted panel`);
+    const f = await page.evaluate(() => { const g = document.querySelector('.finish-glyph').getBoundingClientRect(), c = document.querySelector('.finish-card').getBoundingClientRect(), bk = document.querySelector('.back-path').getBoundingClientRect(), h1 = document.querySelector('.finish h1').getBoundingClientRect(), p = document.querySelector('.btn.practice'); return { g, c, bk, h1, label: document.querySelector('.finish-for').textContent, pw: p.scrollWidth > p.clientWidth, ph: p.getBoundingClientRect().height, shadow: getComputedStyle(document.querySelector('.finish-wagon')).boxShadow, scroll: document.documentElement.scrollHeight - innerHeight }; });
+    ok(f.label === 'For the grown-up' && f.shadow.includes('0.12') || f.shadow.includes('rgba') , `${tag} finish: the card is labelled "For the grown-up" and the letter sits on its wagon with a tinted rim (polish B: was the tinted panel)`);
     ok(!f.pw && f.ph < 80, `${tag} finish: "Not yet, practice again" fits on one line (${Math.round(f.ph)} px tall)`);
     if (land) ok(f.g.right <= f.c.left && f.h1.right <= f.c.left + 1 && f.bk.left >= f.c.left - 1 && f.bk.top >= f.c.bottom && f.scroll <= 1, `${tag} finish: glyph and heading left, card and back button right, no scrolling`);
     await ctx.close();
@@ -293,7 +293,7 @@ export async function layoutChecks({ browser, url, ok, vp }) {
     const o = await page.evaluate(() => ({ note: getComputedStyle(document.querySelector('.song-row .parent-note')).display, p: getComputedStyle(document.querySelector('.lo-title p')).fontSize, pad: getComputedStyle(document.querySelector('.cards-scroll')).paddingBottom, cols: getComputedStyle(document.querySelector('.cards')).gridTemplateColumns.split(' ').length, h: document.querySelector('.task-card').getBoundingClientRect().height }));
     ok(o.p === '16px', `${tag} overview: the subtitle is 16 px`);
     if (small) ok(o.note === 'none', `${tag} overview: the alphabet song description is hidden at 360`);
-    if (!land) ok(o.pad === '96px', `${tag} overview: the cards leave 96 px under them`);
+    if (!land) ok(o.pad === '16px', `${tag} overview: the cards leave 16 px under them (polish B: the footer is in the flow now, with the song row under Start; was 96 px)`);
     if (land) ok(o.cols === 5 && o.h < 125 && o.h > 110, `${tag} overview: five columns of about 118 px (${o.cols}, ${Math.round(o.h)})`);
     await ctx.close();
   }

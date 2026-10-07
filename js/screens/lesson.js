@@ -72,10 +72,18 @@ export function lessonScreen(ctx, n) {
   const songHold = holdButton({ label: 'Play', caption: 'Hold to open', hint: 'Press and hold', className: 'song-hold', leading: icon('external', 16), onComplete: openSong });
   const song = h('section', { class: 'song-row', 'aria-label': 'Alphabet song' },
     h('span', { class: 'song-thumb' }, icon('play', 26)),
-    h('div', { class: 'song-text' }, h('strong', {}, 'Alphabet song'), h('p', { class: 'parent-note' }, 'Optional: play the alphabet song together, then start the lesson.')),
+    h('div', { class: 'song-text' }, h('strong', {}, 'Alphabet song'), h('span', { class: 'song-opt' }, 'Optional'), h('p', { class: 'parent-note' }, 'Optional: play the alphabet song together, before or after the lesson.')),
     songHold);
 
-  const root = h('div', { class: 'lesson-overview' }, header, song, h('div', { class: 'cards-scroll' }, h('div', { class: 'cards' }, cards)), h('footer', { class: 'lo-foot' }, start));
+  // The lesson itself comes first: the steps, then the big Start button, and the optional song as a small row at the very bottom.
+  // The steps are a row that scrolls sideways: a soft fade on the right edge shows there is more, and goes away at the end.
+  const scroller = h('div', { class: 'cards-scroll' }, h('div', { class: 'cards' }, cards));
+  const fade = h('span', { class: 'cards-fade', 'aria-hidden': 'true' });
+  const wrap = h('div', { class: 'cards-wrap' }, scroller, fade);
+  const edge = () => { wrap.classList.toggle('at-end', scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 8 || scroller.scrollWidth <= scroller.clientWidth + 8); };
+  scroller.addEventListener('scroll', edge, { passive: true });
+  requestAnimationFrame(edge);
+  const root = h('div', { class: 'lesson-overview' }, header, wrap, h('footer', { class: 'lo-foot' }, start, song));
   root.cleanup = songHold.cleanup;
   cards.forEach((c, i) => animate(c, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 140 + i * 40 }));
   return root;

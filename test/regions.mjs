@@ -27,11 +27,38 @@ const keys = (page) => page.evaluate(() => Object.keys(localStorage).sort().join
 
 // Pure checks on the data.
 export function dataChecks(ok) {
-  ok(THEMES.W1 === DEFAULT_THEME && THEMES.W2 === DEFAULT_THEME && themeOf('W2') === DEFAULT_THEME && themeOf('W9') === DEFAULT_THEME, 'themes: W1, W2 and any world without a theme use the default (the look they always had)');
+  // polish B (deliberate): world 1 is the default look plus its extra props (id starter-station, details 'starter'); W2 and any world without a theme stay exactly DEFAULT_THEME
+  ok(THEMES.W2 === DEFAULT_THEME && themeOf('W2') === DEFAULT_THEME && themeOf('W9') === DEFAULT_THEME && DEFAULT_THEME.details === null && DEFAULT_THEME.decor === null, 'themes: W2 and any world without a theme use the default (the look they always had, no extra props)');
+  const w1 = themeOf('W1');
+  ok(w1 === THEMES.W1 && w1.id === 'starter-station' && w1.details === 'starter' && w1.decor === null && ['ground', 'patch', 'bed', 'fog', 'fogNear', 'fogFar', 'hemiSky', 'hemiGround', 'sun', 'skyCss'].every((k) => w1[k] === DEFAULT_THEME[k]) && w1.mountain === DEFAULT_THEME.mountain, 'themes: W1 is the default look (same colours, fog, light, sky, mountain) plus the Starter Station details');
   ok(themeOf('W3').id === 'sunny-hills' && themeOf('W4').id === 'digraph-docks' && themeOf('W3').decor === 'sunny' && themeOf('W4').decor === 'docks', 'themes: W3 and W4 have their own');
   ok(DEFAULT_THEME.ground === '#4FC97E' && DEFAULT_THEME.fog === '#FFF6E5' && DEFAULT_THEME.mountain.low === '#62C34C' && DEFAULT_THEME.skyCss === null, 'themes: the default is exactly the original colours (grass, fog, mountain) and the page sky');
   ok(worldSounds(CUR, 'W3').join() === WANT.W3.sounds.join() && worldSounds(CUR, 'W4').join() === WANT.W4.sounds.join() && worldSounds(CUR, 'W1').length > 0, 'themes: the placeholder sounds (W3 from units 2.9 to 2.11, W4 listed)');
   ok(CUR.lessons.every((l) => l.world === 'W1' || l.world === 'W2'), 'data: still no lessons beyond world 2 (the regions are only worlds, no lessons were built)');
+}
+
+// polish B: the Starter Station props are baked into at most two meshes (one solid, one water): at most 2 draw calls, 3 with the shadow pass, far under the 8 allowed.
+export async function starterChecks(ok) {
+  const { THREE, makeLine, makeBag } = await import('../js/train/world.js');
+  const { buildStarterDetails } = await import('../js/train/starter.js');
+  const line = makeLine(9), bag = makeBag(), group = new THREE.Group();
+  const stops = Array.from({ length: 9 }, (_, i) => line.stop(i));
+  const kinds = ['lesson', 'lesson', 'lesson', 'depot', 'lesson', 'lesson', 'lesson', 'lesson', 'lesson'];
+  const r = buildStarterDetails({ bag, line, stops, kinds, group });
+  ok(group.children.length <= 2 && group.children.every((m) => m.isMesh), `starter: the extra props are ${group.children.length} meshes (at most 2 draw calls)`);
+  ok(r.tris > 1000 && r.tris < 40000 && r.clear.length >= 4, `starter: ${r.tris} triangles, ${r.clear.length} clear zones for trees and flowers`);
+  // nothing is built beside a sign: every piece keeps off the sign posts (local x -3.05, z +1.25 of each stop) by at least 0.45
+  const pos = group.children[0].geometry.getAttribute('position');
+  let worst = 9;
+  for (const s of stops) {
+    const p = line.at(s, {}), c = Math.cos(p.heading), sn = Math.sin(p.heading);
+    for (let i = 0; i < pos.count; i += 7) {
+      const dx = pos.getX(i) - p.x, dz = pos.getZ(i) - p.z, lx = c * dx - sn * dz, lz = sn * dx + c * dz;
+      if (pos.getY(i) > 1.6 && Math.hypot(lx + 3.05, lz - 1.25) < worst) worst = Math.hypot(lx + 3.05, lz - 1.25);
+    }
+  }
+  ok(worst > 0.45, `starter: nothing high is built within 0.45 of a sign post (closest ${worst.toFixed(2)})`);
+  bag.dispose();
 }
 
 const preview = async (browser, url, vp, world, { st = seed(4), init = [], extra, hq = false } = {}) => {
@@ -51,6 +78,7 @@ export async function regionChecks({ browser, url, ok, vp }) {
     baseCalls = w2.calls;
     ok(w2.theme === 'default' && w2.fogHex === '#fff6e5' && w2.skyOverride === false && w2.world === 'W2' && w2.region === true && w2.placeholder === false, `${tag} W2: still the default theme (fog ${w2.fogHex}, the page's own sky)`);
     ok(w2.stopCount === 7 && w2.startTunnel && w2.portal && w2.signText === 'Sunny Hills', `${tag} W2: shows its real stops with the start tunnel and the portal to Sunny Hills (${w2.stopCount} stops)`);
+    ok(w2.details === null, `${tag} W2: no Starter Station props (world 2 is unchanged)`);
     ok(errors.length === 0, `${tag} W2: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
@@ -104,8 +132,9 @@ export async function otherChecks({ browser, url, ok }) {
     const { ctx, page, errors } = await preview(browser, url, vp, 'W1', { st: seed(4) });
     const a = await store(page);
     const cls = await page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => b.className.match(/is-(\w+)/)[1]));
-    const d = await page.evaluate(() => ({ theme: window.__train.theme, stops: window.__train.stopCount, placeholder: window.__train.placeholder }));
-    ok(d.theme === 'default' && d.stops === 9 && !d.placeholder && cls.filter((c) => c === 'done').length >= 4, `W1 preview: its real nine stops and progress (${cls.join(' ')})`);
+    const d = await page.evaluate(() => ({ theme: window.__train.theme, stops: window.__train.stopCount, placeholder: window.__train.placeholder, details: window.__train.details }));
+    ok(d.theme === 'starter-station' && d.stops === 9 && !d.placeholder && cls.filter((c) => c === 'done').length >= 4, `W1 preview: its real nine stops and progress (${cls.join(' ')})`);
+    ok(d.details && d.details.tris > 1000, `W1 preview: Starter Station's extra props are built (${d.details && d.details.tris} triangles)`);
     await page.evaluate(() => window.__train.show(4)); await page.waitForTimeout(300);
     const hash0 = await page.evaluate(() => location.hash);
     const shown = page.locator('.station-btn[data-shown="1"]').first();
@@ -160,6 +189,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   let failures = 0, checks = 0;
   const ok = (cond, msg) => { checks++; if (!cond) { failures++; console.error('FAIL: ' + msg); } };
   dataChecks(ok);
+  await starterChecks(ok);
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
   for (const vp of VPS) await regionChecks({ browser, url, ok, vp });
