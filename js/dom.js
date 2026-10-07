@@ -52,6 +52,15 @@ export function icon(name, size = 24) {
     external: 'M14 4h6v6 M20 4l-9 9 M18 14v5H5V6h5',
     expand: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
     shrink: 'M9 4v5H4 M15 4v5h5 M9 20v-5H4 M15 20v-5h5',
+    chart: 'M5 20v-7 M12 20V5 M19 20v-10',
+    lessons: 'M5 6h14 M5 12h14 M5 18h9',
+    child: 'M12 3a9 9 0 100 18 9 9 0 000-18z M8.5 14a4.5 4 0 007 0 M9 9.5v.5 M15 9.5v.5',
+    clock: 'M12 4a8 8 0 100 16 8 8 0 000-16z M12 8v4l3 2',
+    help: 'M12 3a9 9 0 100 18 9 9 0 000-18z M9.5 9.5a2.5 2.5 0 114 1.8c-.9.7-1.5 1.1-1.5 2.2 M12 17v.2',
+    code: 'M9 7l-5 5 5 5 M15 7l5 5-5 5',
+    eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z M12 9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5z',
+    download: 'M12 4v11 M7 11l5 5 5-5 M5 20h14',
+    star: 'M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.4 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z',
   };
   const svg = h('svg', { viewBox: '0 0 24 24', width: size, height: size, fill: 'none', stroke: 'currentColor', 'stroke-width': name === 'back' ? 3 : 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true', class: 'icon' });
   for (const d of paths[name].split(' M').map((s, i) => (i ? 'M' + s : s))) svg.append(h('path', { d }));

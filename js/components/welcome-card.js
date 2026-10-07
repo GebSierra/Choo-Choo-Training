@@ -1,13 +1,19 @@
 import { h, animate } from '../dom.js';
-import { pipSvg } from '../art/pip.js';
+import { WELCOME_ART, WELCOME_SKY } from '../art/welcome-art.js';
 import { characterPicker } from './character-picker.js';
 import { WELCOME } from '../guide.js';
 
-// The first-run card: a few short pages for the grown-up, one at a time. All pages sit in the same grid cell, so the
-// card keeps one size and nothing jumps when the page changes. Nothing here is spoken. Pip waves hello at the top.
+// The first-run card: a few short pages for the grown-up, one at a time. Each page has a little scene on top (js/art/welcome-art.js)
+// that grows to fill whatever room the longest page leaves, so the card keeps one size, has no empty gap and nothing jumps when
+// the page changes. A page slides in (CSS transform and opacity only). Nothing here is spoken.
 export function welcomeCard({ pages, onDone }) {
   let i = 0;
-  const els = pages.map((p, k) => h('section', { class: 'wc-page' + (k === 0 ? ' on' : ''), 'aria-hidden': String(k !== 0) }, h('h2', {}, p.title), ...p.body.map((t) => h('p', {}, t))));
+  // the brand name never breaks across two lines (the text itself is unchanged)
+  const title = (t) => { const n = 'Choo Choo Training', at = t.indexOf(n); return at < 0 ? [t] : [t.slice(0, at), h('span', { class: 'nb' }, n), t.slice(at + n.length)]; };
+  const scene = (k) => { const f = WELCOME_ART[k % WELCOME_ART.length]; return f ? f() : null; };
+  const els = pages.map((p, k) => h('section', { class: 'wc-page' + (k === 0 ? ' on' : ''), 'aria-hidden': String(k !== 0) },
+    h('div', { class: 'wc-art', 'aria-hidden': 'true', style: { '--sky-a': WELCOME_SKY[k % WELCOME_SKY.length][0], '--sky-b': WELCOME_SKY[k % WELCOME_SKY.length][1] } }, scene(k)),
+    h('div', { class: 'wc-text' }, h('h2', {}, ...title(p.title)), ...p.body.map((t) => h('p', {}, t)))));
   const dots = pages.map((_, k) => h('i', { class: 'wc-dot' + (k === 0 ? ' on' : '') }));
   const back = h('button', { class: 'wc-back', type: 'button', onclick: () => go(i - 1) }, 'Back');
   const nextText = h('span', {}, 'Next');
@@ -15,10 +21,15 @@ export function welcomeCard({ pages, onDone }) {
   const skip = h('button', { class: 'wc-skip', type: 'button', onclick: onDone }, 'Skip');
   let actions = null;
   const go = (k) => {
+    const prev = i;
     i = Math.max(0, Math.min(pages.length - 1, k));
+    if (prev !== i) { // the page leaving slides out while the new one slides in
+      const left = els[prev]; left.classList.add('out'); setTimeout(() => left.classList.remove('out'), 280);
+      els[i].style.setProperty('--dx', i > prev ? '28px' : '-28px'); left.style.setProperty('--dx', i > prev ? '-28px' : '28px');
+    }
     if (actions) actions.classList.toggle('first', i === 0); // the first page has only Next, centred
     els.forEach((e, n) => { e.classList.toggle('on', n === i); e.setAttribute('aria-hidden', String(n !== i)); });
-    dots.forEach((d, n) => d.classList.toggle('on', n === i));
+    dots.forEach((d, n) => { d.classList.toggle('on', n === i); d.classList.toggle('past', n < i); });
     nextText.textContent = i === pages.length - 1 ? 'Start' : 'Next';
     back.style.visibility = i === 0 ? 'hidden' : 'visible';
     skip.style.visibility = i === pages.length - 1 ? 'hidden' : 'visible';
@@ -26,7 +37,6 @@ export function welcomeCard({ pages, onDone }) {
   actions = h('div', { class: 'wc-actions' }, back, next);
   go(0);
   return h('div', { class: 'first-card welcome' },
-    h('div', { class: 'wc-pip' }, pipSvg({ pose: 'wave' })),
     h('div', { class: 'wc-pages', 'aria-live': 'polite' }, ...els),
     h('div', { class: 'wc-dots', 'aria-hidden': 'true' }, ...dots),
     actions,

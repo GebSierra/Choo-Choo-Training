@@ -235,11 +235,12 @@ export async function journeyChecks({ browser, url, ok }) {
     const { ctx, page, errors } = await openHome(browser, url, v, seed(7));
     await settle(page);
     await gate(page);
-    const first = await page.evaluate(() => document.querySelector('.gu-body').firstElementChild.querySelector('h2').textContent.trim());
-    ok(first === 'Progress', `${v.name} Progress: the first card of Grownups is Progress (${first})`);
+    await page.waitForTimeout(700); // Progress is open as the page arrives (Polish A): let the screen finish sliding in before measuring
+    // Polish A: the header card comes first, then Progress, and Progress starts open
+    const first = await page.evaluate(() => { const k = document.querySelector('.gu-body').children; return k[0].className + '|' + k[1].querySelector('h2').textContent.trim(); });
+    ok(first === 'gu-hero|Progress', `${v.name} Progress: the header card, then Progress (${first})`);
     const fold = page.locator('.gu-fold', { hasText: 'Progress' });
-    ok((await fold.getAttribute('aria-expanded')) === 'false', `${v.name} Progress: a fold, closed like the others`);
-    await fold.click();
+    ok((await fold.getAttribute('aria-expanded')) === 'true', `${v.name} Progress: a fold that starts open`);
     const p = await page.evaluate(() => ({
       worlds: [...document.querySelectorAll('.gp-world')].map((w) => ({ id: w.dataset.world, state: w.dataset.state, text: w.querySelector('.gp-text').innerText.replace(/\n/g, ' | ') })),
       badges: [...document.querySelectorAll('.gp-map .jb-badge')].map((b) => b.dataset.state), have: document.querySelector('.gp-map .jb-stars-n').textContent, later: document.querySelector('.gp-later') && document.querySelector('.gp-later').textContent,
@@ -250,7 +251,7 @@ export async function journeyChecks({ browser, url, ok }) {
     ok(p.worlds[1].text === 'Green Valley · you are here | 1 of 7 lessons done | Now: unit 2.4, sounds f o | Level two star: not yet | Last lesson finished: Oct 7, 2026', `${v.name} Progress: world 2 summary (${p.worlds[1].text})`);
     ok(p.badges.length === 11 && p.badges[0] === 'done' && p.badges[1] === 'current' && p.have === '1 of 2', `${v.name} Progress: the board is there with the stars (${p.badges.join()} ${p.have})`);
     ok(/9 more worlds are coming later/.test(p.later || ''), `${v.name} Progress: the worlds still to come are one quiet line (${p.later})`);
-    ok(!p.previews.includes('board') && p.previews.length === 6, `${v.name} Progress: Previews no longer lists the journey board (${p.previews.length} buttons)`);
+    ok(p.previews.length === 0, `${v.name} Progress: no Previews buttons outside developer mode (${p.previews.length})`);
     const fit = await page.evaluate(() => { const g = document.querySelector('.grownups'), bad = [...document.querySelectorAll('.gp-map .jb-badge, .gp-world, .gp-map .jb-stars')].filter((e) => { const r = e.getBoundingClientRect(); return r.left < 0 || r.right > innerWidth + 0.5; }).length; return { bad, hs: document.scrollingElement.scrollWidth > innerWidth + 1 }; });
     ok(fit.bad === 0 && !fit.hs, `${v.name} Progress: fits the screen, no sideways scroll`);
     await page.locator('.gu-fold', { hasText: 'Progress' }).scrollIntoViewIfNeeded();
@@ -264,8 +265,7 @@ export async function journeyChecks({ browser, url, ok }) {
     const { ctx, page, errors } = await openHome(browser, url, vp, seed(0));
     await settle(page);
     await gate(page);
-    await page.locator('.gu-fold', { hasText: 'Progress' }).click();
-    const t = await page.locator('.gp-world[data-world="W1"] .gp-text').innerText();
+    const t = await page.locator('.gp-world[data-world="W1"] .gp-text').innerText(); // Progress starts open (Polish A)
     ok(/0 of 6 lessons done/.test(t) && /No lesson finished here yet/.test(t) && /Level one star: not yet/.test(t), `Progress with nothing done (${t.replace(/\n/g, ' | ')})`);
     ok(errors.length === 0, `Progress with nothing done: errors ${errors.join(' | ')}`);
     await ctx.close();
