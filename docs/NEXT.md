@@ -1,4 +1,4 @@
-# Handoff: where Choo Choo Training stands (version 1.9.19)
+# Handoff: where Choo Choo Training stands (version 1.9.20)
 
 Repo: GebSierra/Choo-Choo-Training (the old name KDDash is retired everywhere). Work on `main`.
 Last session finished every item of the previous handoff. Full `npm test` result: see the last line of this file.
@@ -20,7 +20,33 @@ Last session finished every item of the previous handoff. Full `npm test` result
   he/she in a line with the child's name). Review tiles shrink when a review has more than six words.
 - Test fix: smoke's precache size check counts an unrecorded optional letter sound as 0 bytes.
 
-## Since 1.9.6 (2026-10-06/07) — read this first
+## ROADMAP (owner-approved 2026-10-07) — read this first if the session was cut off
+Owner: implement all of these without asking, then report the decisions made. Commit + push to main after each phase.
+- [x] 1.9.20 pace limit default 4 a day (Grownups 1, 2, 3, 4, No limit).
+- [ ] **Owner fixes batch** (builder running on a worktree branch; merge, bump, test, push):
+  tip cards close only manually ("Got it"; the crossing card waits for "Let's go!" while a tip shows); heart hint 'Try the
+  other sound for the letter e. The real word is "the".'; more space + a tray between the built word and the letter
+  jumble in Spell it; Find-it chip "Read the sentence together, then tap the heart word"; one grown-up "read it" script
+  everywhere a teaching step asks the child to read ("Ask your child to read it. If they know some of the letters, sound
+  it out together. Still stuck? Read it yourself, then have your child say it after you."; NOT in the placement check);
+  drawing step: "Draw it first while your child watches, then let them try ... It's fine if it doesn't look right yet:
+  your child can still move on." Send the owner the before/after wording list.
+- [ ] **Journey board everywhere (owner picked A + B + C):** A) a map button REPLACES the star board at the top left of
+  the Home (3D and 2D) and opens the journey board (stars/levels shown inside it); B) the board shows on the world-crossing
+  loading card; C) a progress page in Grownups (the board plus a per-world summary for the grown-up).
+- [ ] **Accounts (owner approved): email + password only, grown-up accounts, sign-in REQUIRED except developer mode.**
+  Supabase (Auth + one `progress` table with row-level security), called with fetch (no SDK, no remote script: the
+  platform no-remote test stays green). Sign-in/sign-up/forgot-password behind the grown-up hold; offline-first sync of
+  the whole reading.v1 state (local stays the source while offline, push on change, pull on sign-in; newer wins, with a
+  fresh device taking the cloud copy); in-app "Delete account" (Apple 5.1.1(v)) via a security-definer RPC; "Sign out".
+  Developer mode bypass: 7 taps on the version line of the sign-in screen. Until the owner creates the Supabase project and
+  puts its URL + anon key in js/config.js, the app runs exactly as today (no sign-in screen). Setup steps + SQL in
+  docs/BACKEND.md. Later: several children per account, subscriptions.
+- [ ] Owner's item "5)" was cut off in the message: ask for it.
+- Then the older list below (7 Mentava images, 7b idle life, 8 fishing egg), and the lesson rebuild after the owner
+  approves the f lesson.
+
+## Since 1.9.6 (2026-10-06/07)
 - Live at https://choochootraining.com (CNAME file at the repo root; keep it). Plan approved: docs/CURRICULUM.md (v0.9,
   research fact-checked) is the authority; docs/CURRICULUM-REVIEW.md holds every owner decision.
 - Built and live: recording studio (tools/studio.html, 47 items, files named sound-<key> / blend-<word>); Wagon Parade
