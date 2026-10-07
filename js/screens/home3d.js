@@ -154,7 +154,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const lastAt = Number.isInteger(settings.trainAt) ? settings.trainAt : null;
   let prevLesson = -1;
   for (let i = currentIndex - 1; i >= 0; i--) if (stops[i].kind === 'lesson') { prevLesson = i; break; }
-  const finished = preview ? -1 : finishedStop(store, stops.map((s) => (s.state === 'done' ? (s.kind === 'lesson' ? store.lesson(s.number).completedAt : store.checkpoint(s.checkpoint.id).completedAt) || null : false)), currentIndex);
+  const finished = preview ? -1 : finishedStop(store, stops.map((s) => { const own = s.kind === 'lesson' ? store.lesson(s.number) : store.checkpoint(s.checkpoint.id); return s.state === 'done' && own.result === 'got-it' ? own.completedAt || null : false; }), currentIndex); // only stops the child finished: ones a later lesson completed never start a ride
   const arriving = !preview && !arrive && ((lastAt !== null && lastAt < currentIndex && prevLesson >= 0) || finished >= 0);
   const fromIndex = finished >= 0 ? finished : arriving ? Math.max(lastAt, prevLesson) : currentIndex;
   if (!preview && settings.trainAt !== currentIndex) store.setSetting('trainAt', currentIndex);
