@@ -1,4 +1,4 @@
-# Handoff: where Choo Choo Training stands (version 1.9.20)
+# Handoff: where Choo Choo Training stands (version 1.9.21)
 
 Repo: GebSierra/Choo-Choo-Training (the old name KDDash is retired everywhere). Work on `main`.
 Last session finished every item of the previous handoff. Full `npm test` result: see the last line of this file.
@@ -34,7 +34,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
 - [ ] **Journey board everywhere (owner picked A + B + C):** A) a map button REPLACES the star board at the top left of
   the Home (3D and 2D) and opens the journey board (stars/levels shown inside it); B) the board shows on the world-crossing
   loading card; C) a progress page in Grownups (the board plus a per-world summary for the grown-up).
-- [ ] **Accounts (owner approved): email + password only, grown-up accounts, sign-in REQUIRED except developer mode.**
+- [x] **Accounts (owner approved; built in 1.9.21, off until the owner fills js/config.js — steps in docs/BACKEND.md): email + password only, grown-up accounts, sign-in REQUIRED except developer mode.**
   Supabase (Auth + one `progress` table with row-level security), called with fetch (no SDK, no remote script: the
   platform no-remote test stays green). Sign-in/sign-up/forgot-password behind the grown-up hold; offline-first sync of
   the whole reading.v1 state (local stays the source while offline, push on change, pull on sign-in; newer wins, with a
