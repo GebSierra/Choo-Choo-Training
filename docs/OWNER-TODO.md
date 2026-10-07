@@ -38,9 +38,9 @@ with the date.
 ## Domain move: app to app.choochootraining.com, website on choochootraining.com (2026-10-07)
 - [x] A. (Details: docs/DOMAIN-MOVE.md.) Porkbun CNAME `app` -> choochootraining.netlify.app; Netlify app project: domain alias app.choochootraining.com
   (works, checked in a private window).
-- [ ] B. (Claude) Release the switch: the old address moves families to app.… with their progress; the app sets a
+- [x] B. (Done in 1.9.24.) (Claude) Release the switch: the old address moves families to app.… with their progress; the app sets a
   `cct_member` cookie so the website can send app users straight to the app.
-- [ ] C. (Claude) Give the owner the exact text for the website chat (old-app cleanup /sw.js, redirect members and old
+- [x] C. (Given 2026-10-07; it is part D of docs/DOMAIN-MOVE.md.) (Claude) Give the owner the exact text for the website chat (old-app cleanup /sw.js, redirect members and old
   links with the handoff, "Log in" + "Start reading" buttons, `?site` lets members see the website).
 - [ ] D. **Owner, only after B and C are done and the website includes them — Claude will remind you:** create the
   website's own Netlify project (same repo, Base directory `site`); in the APP project remove choochootraining.com and

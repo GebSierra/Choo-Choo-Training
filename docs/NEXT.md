@@ -1,4 +1,4 @@
-# Handoff: where Choo Choo Training stands (version 1.9.21)
+# Handoff: where Choo Choo Training stands (version 1.9.24)
 
 Repo: GebSierra/Choo-Choo-Training (the old name KDDash is retired everywhere). Work on `main`.
 Last session finished every item of the previous handoff. Full `npm test` result: see the last line of this file.
