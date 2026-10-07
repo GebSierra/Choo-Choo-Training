@@ -4,91 +4,90 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Choo Choo Training: Hear your child read their first word</title>
-<meta name="description" content="Ten minutes a day with a train that only moves when your child reads the next sound. Start the first 5 lessons free.">
+<meta name="description" content="Ten minutes a day with a train that only moves when your child reads the next sound. You sit beside them; the app shows you what to say. Start the first 5 lessons free.">
+<meta name="theme-color" content="#1A1440">
+<!-- TODO(owner): once the site has its final domain, make og:image an absolute URL (https://<domain>/assets/og.jpg) and add og:url -->
 <meta property="og:title" content="Choo Choo Training">
-<meta property="og:description" content="Hear your child read their first word this week. First 5 lessons free.">
-<meta property="og:image" content="/assets/og.jpg">
+<meta property="og:description" content="Hear your child read their first word this week. The first 5 lessons are free.">
+<meta property="og:image" content="assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Nunito:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="/styles.css">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/bowlby-one-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
-<a class="skip" href="#how">Skip to content</a>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top" id="top"><nav class="wrap">
+  <a class="logo" href="#top" aria-label="Choo Choo Training, back to top"><img src="icon.svg" alt="" width="32" height="32">Choo Choo Training</a>
+  <div class="links"><a href="#how">How it works</a><a href="#secret">For parents</a><a href="#research">Research</a><a href="#faq">FAQ</a><a class="btn btn-sm" data-app data-track="start" href="https://choochootraining.com/">Start free</a></div>
+</nav></header>
+
 <div class="sky">
 <canvas id="stars" aria-hidden="true"></canvas>
-<header class="wrap"><nav>
-  <div class="logo">Choo Choo Training</div>
-  <div class="links"><a href="#how">How it works</a><a href="#research">Research</a><a href="#faq">FAQ</a><a class="btn" data-app data-track="start" href="https://choochootraining.com/">Start free</a></div>
-</nav></header>
 <div class="wrap hero">
   <div>
     <h1>Hear your child read their <span>first word</span> this week.</h1>
     <p>Ten minutes a day with a train that only moves when your child reads the next sound. You sit beside them, and the app tells you exactly what to say.</p>
-    <div class="cta"><a class="btn" data-app data-track="start" href="https://choochootraining.com/">Start the first 5 lessons free</a><small>No card. Works on any phone.</small></div>
+    <div class="cta"><a class="btn" id="hero-cta" data-app data-track="start" href="https://choochootraining.com/">Start the first 5 lessons free</a><small>No card. Works on any phone.</small></div>
+    <ul class="facts">
+      <li><b>1</b> sound per lesson</li>
+      <li><b>10</b> minutes a day</li>
+      <li><b>0</b> microphones</li>
+    </ul>
   </div>
-  <div class="phone"><video autoplay muted loop playsinline poster="assets/railway.jpg" aria-label="The app: the train rides past letter stations, then balloon letter hunt and letter tracing"><source src="assets/hero.mp4" type="video/mp4"></video></div>
+  <div class="phone"><video autoplay muted loop playsinline preload="auto" poster="assets/poster.jpg" width="360" height="778" aria-label="The app in motion: the train rides past letter stations, then a balloon letter hunt, a wagon parade and letter tracing"><source src="assets/hero.mp4" type="video/mp4"></video></div>
+</div>
+<div class="rail" aria-hidden="true">
+  <svg class="loco" viewBox="0 0 120 56" width="120" height="56"><g fill="#FFD15C"><rect x="4" y="6" width="34" height="36" rx="5"/><rect x="32" y="18" width="66" height="24" rx="8"/><rect x="78" y="4" width="12" height="16" rx="3"/><path d="M98 34 L116 42 L98 42 Z"/><rect x="0" y="2" width="42" height="7" rx="3"/></g><rect x="11" y="13" width="20" height="13" rx="3" fill="#1A1440"/><g fill="#1A1440" stroke="#FFD15C" stroke-width="4"><circle cx="22" cy="44" r="8"/><circle cx="52" cy="44" r="8"/><circle cx="78" cy="44" r="8"/></g><g class="puff" fill="#F3F0FF"><circle cx="84" cy="0" r="4"/><circle cx="76" cy="-6" r="3"/></g></svg>
 </div>
 </div>
 
-<section class="band"><div class="wrap">
+<main id="main">
+<section class="band"><div class="wrap reveal">
   <h2>Most reading apps are like cotton candy.</h2>
   <p>Enjoyable, but they have no substance; in fact, they're bad for you! If your child uses them, there's a risk they will struggle to develop the deep reading skills they need.</p>
 </div></section>
 
 <section><div class="wrap row">
-  <div>
+  <div class="reveal">
     <div class="eyebrow">Why Choo Choo</div>
     <h2>One sound at a time, the way reading specialists teach it.</h2>
     <p>Each lesson teaches one letter sound, then puts it to work in real words. No guessing from pictures. When your child holds “mmm” and slides into “a”, they're reading, and the train rolls on.</p>
+    <ol class="stations" aria-label="The first stations">
+      <li><span>m</span>Station 1</li>
+      <li><span>a</span>Station 2</li>
+      <li><span>s</span>Station 3</li>
+    </ol>
   </div>
-  <img class="shot" src="/assets/first-track.jpg" alt="The first track: the train at station 1, the letter m, with a and s waiting ahead, one sound per station" width="390" height="844">
+  <img class="shot reveal" src="assets/first-track.jpg" alt="The first track: the train at station 1, the letter m, with a and s waiting ahead, one sound per station" width="390" height="844" loading="lazy">
 </div></section>
 
 <section id="how"><div class="wrap">
   <div class="eyebrow">How it works</div>
   <h2>Ten minutes between dinner and bath.</h2>
-  <div class="steps">
-    <div class="step"><img src="assets/balloons.jpg" alt="Letter Hunt: pop the balloons with m"><div class="n">1</div><h3>Learn a sound</h3><p>Your child meets a new letter and hunts for it in the sky.</p></div>
-    <div class="step"><img src="assets/trace.jpg" alt="Track Tracing: tracing the letter m"><div class="n">2</div><h3>Play with it</h3><p>Trace it, find it, load it on the train. Short games for that one sound.</p></div>
-    <div class="step"><img src="assets/wagons.jpg" alt="Wagon Parade: wagons carrying m, s, m"><div class="n">3</div><h3>Read a word</h3><p>Blend sounds into real words, and watch the train pull into the next station.</p></div>
-  </div>
+  <ol class="steps">
+    <li class="step reveal"><img src="assets/balloons.jpg" alt="Letter Hunt: balloons with letters, find the m" width="360" height="778" loading="lazy"><div class="n" aria-hidden="true">1</div><h3>Learn a sound</h3><p>Your child meets a new letter and hunts for it in the sky.</p></li>
+    <li class="step reveal"><img src="assets/trace.jpg" alt="Track Tracing: tracing the letter m along numbered arrows" width="360" height="778" loading="lazy"><div class="n" aria-hidden="true">2</div><h3>Play with it</h3><p>Trace it, find it, load it on the train. Short games for that one sound.</p></li>
+    <li class="step reveal"><img src="assets/blend.jpg" alt="Saying Sounds: the word sam, with the grown-up card reading sssaaammm, then sam" width="390" height="844" loading="lazy"><div class="n" aria-hidden="true">3</div><h3>Read a word</h3><p>Slide the sounds together, sssaaammm, and out comes “sam”. The train pulls into the next station.</p></li>
+  </ol>
 </div></section>
 
-<section><div class="wrap row">
-  <img class="shot" src="assets/trace.jpg" alt="A lesson screen with the Say this card for the grown-up">
-  <div>
-    <div class="pip"><img src="assets/pip.png" alt="Pip the Conductor"><div class="eyebrow">Our secret</div></div>
+<section id="secret"><div class="wrap row">
+  <figure class="callout reveal">
+    <img class="shot" src="assets/check.jpg" alt="Ticket Check: the child hears the grown-up and touches the letter; the Say this card reads Ask: which says sss?" width="390" height="844" loading="lazy">
+    <figcaption><b>Say this</b> Ask: which says sss?</figcaption>
+  </figure>
+  <div class="reveal">
+    <div class="pip"><img src="assets/pip.png" alt="Pip the Conductor, waving" width="223" height="294" loading="lazy"><div class="eyebrow">Our secret</div></div>
     <h2>You're the teacher. We hand you the script.</h2>
     <p>The app never talks over you and never listens to your child. A small “Say this” card shows you what to say, so yours is the voice your child hears learning to read.</p>
-  </div>
-</div></section>
-
-<section><div class="wrap">
-  <div class="eyebrow">Families riding with us</div>
-  <h2>What parents say</h2>
-  <div class="quotes">
-    <div class="quote"><p>“She asked to do more reading tonight.”</p><span>Parent of a 5‑year‑old</span></div>
-    <div class="quote"><p>“Blending finally clicked on lesson 3.”</p><span>Parent of a 6‑year‑old</span></div>
-    <div class="quote"><p>“I finally know what to say when he's stuck.”</p><span>Parent of a 4‑year‑old</span></div>
-  </div>
-  <p class="note">Placeholder quotes for layout. Real ones come from Founding Families.</p>
-</div></section>
-
-<section id="founding"><div class="wrap">
-  <div class="ticket">
-    <div>
-      <h2>Founding Family ticket</h2>
-      <p>Lifetime access for the first 100 families, plus 3 golden tickets to give your child's best friends. Tickets stop working at Winter Break.</p>
-      <a class="btn" data-app data-track="founding-seat" href="https://choochootraining.com/">Claim a seat</a>
-    </div>
-    <div class="side">
-      <div class="count"><span data-left>63</span><small>seats left of 100</small></div>
-      <div class="bar"><i data-fill style="width:37%"></i></div>
-    </div>
   </div>
 </div></section>
 
@@ -98,31 +97,62 @@
   <p>Choo Choo Training is a program your kids will love, but it's built on decades of research. We designed the app first to educate, and second to entertain.</p>
   <p>Behind each lesson are academic studies from Harvard, the National Institutes of Health, the U.S. Department of Education, and more. “What's an example?” you might ask. Here are five, with links so you can read them yourself.</p>
   <div class="studies">
-    <div class="study"><h3>Phonics taught step by step</h3><p>The National Reading Panel (2000) found that systematic, explicit phonics beats unsystematic or no phonics (average effect 0.44).</p><a href="https://apps.asha.org/EvidenceMaps/Articles/ArticleSummary/286a03c7-4785-4862-90de-62437ed45f82" rel="noopener">Read the summary</a></div>
-    <div class="study"><h3>Sounds tied to letters</h3><p>Across 52 studies, Ehri and colleagues (2001) found that sound awareness helps reading more when children see the letters too.</p><a href="https://eric.ed.gov/?id=EJ629253" rel="noopener">Read the study</a></div>
-    <div class="study"><h3>Spelling helps reading</h3><p>Graham and Santangelo (2014), 53 studies: spelling instruction improved reading and sound awareness.</p><a href="https://link.springer.com/doi/10.1007/s11145-014-9517-0" rel="noopener">Read the study</a></div>
-    <div class="study"><h3>Short sessions, spaced out</h3><p>Vlach and Sandhofer (2012) confirmed that practice spread over time helps 5- to 7-year-olds remember (tested with science concepts, not reading).</p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3399982" rel="noopener">Read the study</a></div>
-    <div class="study"><h3>Reading apps can help</h3><p>Kim and colleagues (2021), a Harvard Reach Every Reader review of 36 studies, found reading and math apps help modestly (+0.31). We say modestly because that is what the evidence shows.</p><a href="https://reacheveryreader.gse.harvard.edu/?p=1896" rel="noopener">Read the review</a></div>
+    <article class="study reveal"><h3>Phonics taught step by step</h3><p>The National Reading Panel (2000) found that systematic, explicit phonics beats unsystematic or no phonics (average effect 0.44).</p><a href="https://apps.asha.org/EvidenceMaps/Articles/ArticleSummary/286a03c7-4785-4862-90de-62437ed45f82" target="_blank" rel="noopener">Read the summary<span class="sr"> (National Reading Panel)</span></a></article>
+    <article class="study reveal"><h3>Sounds tied to letters</h3><p>Across 52 studies, Ehri and colleagues (2001) found that sound awareness helps reading more when children see the letters too.</p><a href="https://eric.ed.gov/?id=EJ629253" target="_blank" rel="noopener">Read the study<span class="sr"> (Ehri and colleagues, 2001)</span></a></article>
+    <article class="study reveal"><h3>Spelling helps reading</h3><p>Graham and Santangelo (2014), 53 studies: spelling instruction improved reading and sound awareness.</p><a href="https://link.springer.com/doi/10.1007/s11145-014-9517-0" target="_blank" rel="noopener">Read the study<span class="sr"> (Graham and Santangelo, 2014)</span></a></article>
+    <article class="study reveal"><h3>Short sessions, spaced out</h3><p>Vlach and Sandhofer (2012) confirmed that practice spread over time helps 5- to 7-year-olds remember (tested with science concepts, not reading).</p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3399982" target="_blank" rel="noopener">Read the study<span class="sr"> (Vlach and Sandhofer, 2012)</span></a></article>
+    <article class="study reveal"><h3>Reading apps can help</h3><p>Kim and colleagues (2021), a Harvard Reach Every Reader review of 36 studies, found reading and math apps help modestly (+0.31). We say modestly because that is what the evidence shows.</p><a href="https://reacheveryreader.gse.harvard.edu/?p=1896" target="_blank" rel="noopener">Read the review<span class="sr"> (Harvard Reach Every Reader)</span></a></article>
   </div>
 </div></section>
 
-<section id="faq"><div class="wrap">
+<section><div class="wrap">
+  <div class="eyebrow">Families riding with us</div>
+  <h2>What parents say</h2>
+  <div class="quotes">
+    <blockquote class="quote reveal"><p>“She asked to do more reading tonight.”</p><span>Parent of a 5‑year‑old</span></blockquote>
+    <blockquote class="quote reveal"><p>“Blending finally clicked on lesson 3.”</p><span>Parent of a 6‑year‑old</span></blockquote>
+    <blockquote class="quote reveal"><p>“I finally know what to say when he's stuck.”</p><span>Parent of a 4‑year‑old</span></blockquote>
+  </div>
+  <p class="note">Placeholder quotes for layout. Real ones come from Founding Families.</p><!-- TODO(owner): replace with real Founding Family posts -->
+</div></section>
+
+<section id="founding"><div class="wrap">
+  <div class="ticket reveal">
+    <div>
+      <div class="admit">Admit one family · Lifetime</div>
+      <h2>Founding Family ticket</h2>
+      <p>Lifetime access for the first 100 families, plus 3 golden tickets to give your child's best friends. Tickets stop working at Winter Break.</p>
+      <a class="btn" data-app data-track="founding-seat" href="https://choochootraining.com/">Claim a seat</a>
+    </div>
+    <div class="side">
+      <div class="count"><span data-left>63</span><small>seats left of <span data-total>100</span></small></div>
+      <div class="bar" role="progressbar" aria-label="Founding Family seats taken" aria-valuemin="0" aria-valuemax="100" aria-valuenow="37"><i data-fill style="width:37%"></i></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="faq"><div class="wrap narrow">
   <h2>Questions parents ask</h2>
   <details open><summary>What age is it for?</summary><p>Children who are starting to learn letter sounds, usually ages 4 to 6, and older children who are stuck on blending.</p></details>
   <details><summary>Is it really free?</summary><p>The first 5 lessons are always free. The first 100 families get lifetime access.</p></details>
+  <details><summary>How much screen time is it?</summary><p>About ten minutes a day, with you sitting beside your child. Each lesson has a clear finish, so it ends on a win instead of a feed of more games.</p></details>
   <details><summary>Does it use the microphone?</summary><p>No. The app speaks but never listens. You listen to your child.</p></details>
   <details><summary>Do I need to download anything?</summary><p>No. Open it in Chrome or Safari and add it to your home screen.</p></details>
 </div></section>
 
-<section class="close"><div class="wrap">
+<section class="close"><div class="wrap reveal">
+  <img class="close-pip" src="assets/pip.png" alt="" width="223" height="294" loading="lazy">
   <h2>Tonight, your child reads you their bedtime story.</h2>
   <p>It starts with one sound. Ten minutes, side by side.</p>
   <a class="btn" data-app data-track="start" href="https://choochootraining.com/">All aboard, free</a>
 </div></section>
+</main>
 
-<footer><div class="wrap"><span>© Choo Choo Training</span><span><a href="/privacy">Privacy</a> · <a href="mailto:hellopip@choochootraining.com">Contact</a></span></div></footer>
+<footer><div class="wrap"><span>© Choo Choo Training</span><span><a href="privacy.html">Privacy</a> · <a href="mailto:hellopip@choochootraining.com">Contact</a></span></div></footer>
 
-<script defer src="/main.js"></script>
+<div class="dock" id="dock" aria-hidden="true"><a class="btn" data-app data-track="start-dock" href="https://choochootraining.com/" tabindex="-1">Start the first 5 lessons free</a></div>
+
+<script defer src="main.js"></script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
