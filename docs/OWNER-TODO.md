@@ -42,7 +42,7 @@ with the date.
   `cct_member` cookie so the website can send app users straight to the app.
 - [x] C. (Given 2026-10-07; it is part D of docs/DOMAIN-MOVE.md.) (Claude) Give the owner the exact text for the website chat (old-app cleanup /sw.js, redirect members and old
   links with the handoff, "Log in" + "Start reading" buttons, `?site` lets members see the website).
-- [ ] D. **Owner, only after B and C are done and the website includes them — Claude will remind you:** create the
+- [ ] D. **Owner — READY NOW (website confirmed done and tested 2026-10-07; Claude checked its tests and code):** create the
   website's own Netlify project (same repo, Base directory `site`); in the APP project remove choochootraining.com and
   www and make app.choochootraining.com the primary domain; add choochootraining.com + www to the WEBSITE project
   (the Porkbun ALIAS to apex-loadbalancer.netlify.com already points at Netlify). Then check both addresses.

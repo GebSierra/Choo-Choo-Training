@@ -47,6 +47,10 @@ Owner: implement all of these without asking, then report the decisions made. Co
   and appearance), the tools' appearance, how the app looks while the child practises (lesson/task screens, games), and a
   few extra details + sharper looks on the first world (Starter Station). Owner: "take it to the next level".
 - Owner's own to-do list (setup, recordings, reviews, legal): **docs/OWNER-TODO.md** — keep it current.
+- [ ] **Golden tickets (from the website plan, docs/marketing/TECH.md on the website branch):** decided 2026-10-07: ticket
+  links live on the app as `https://app.choochootraining.com/t/CODE` (a Netlify redirect rule in the app's netlify.toml
+  sends `/t/:code` to `/#/ticket/:code`); the website forwards its own `/t/*` to the same app address so old or mistyped
+  links still work. The ticket screen itself is not built yet (needs accounts + the licence tables).
 - [ ] **Placement check ending (owner, later — not now):** better wording on the result screen at the end of the check, and
   "Start here" must actually open the recommended lesson (today it is a disabled preview button), skipping the mastered
   lessons but keeping their review.
