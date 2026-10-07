@@ -46,9 +46,12 @@ const APP_FILES = [
   'assets/images/mentava/web/x/fox.webp', 'assets/images/mentava/web/y/yarn.webp',
 ];
 // Recorded sounds are optional: a missing file must not stop the install.
-const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3', 'assets/audio/sounds/s.mp3', 'assets/audio/sounds/i.mp3', 'assets/audio/sounds/t.mp3', 'assets/audio/sounds/p.mp3', 'assets/audio/sounds/n.mp3', 'assets/audio/sounds/f.mp3', 'assets/audio/sounds/d.mp3', 'assets/audio/sounds/h.mp3', 'assets/audio/sounds/g.mp3', 'assets/audio/sounds/b.mp3', 'assets/audio/sounds/l.mp3', 'assets/audio/sounds/th-buzz.mp3', 'assets/audio/heart/the-e.mp3'];
+const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3', 'assets/audio/sounds/s.mp3', 'assets/audio/sounds/i.mp3', 'assets/audio/sounds/t.mp3', 'assets/audio/sounds/p.mp3', 'assets/audio/sounds/n.mp3', 'assets/audio/sounds/f.mp3', 'assets/audio/sounds/d.mp3', 'assets/audio/sounds/h.mp3', 'assets/audio/sounds/g.mp3', 'assets/audio/sounds/b.mp3', 'assets/audio/sounds/l.mp3'];
 // Connected blend models for the f lesson prototype ("fffiiit"), recorded by the grown-up, are optional too.
 OPTIONAL_FILES.push('assets/audio/blends/sat.mp3', 'assets/audio/blends/map.mp3', 'assets/audio/blends/mat.mp3', 'assets/audio/blends/sip.mp3', 'assets/audio/blends/fit.mp3', 'assets/audio/blends/fat.mp3', 'assets/audio/blends/if.mp3', 'assets/audio/blends/tip.mp3', 'assets/audio/blends/sam.mp3', 'assets/audio/blends/at.mp3', 'assets/audio/blends/it.mp3', 'assets/audio/blends/sis.mp3');
+
+// The heart word "the" (prototype 5): the grown-up's recording of the buzzing th and the heart part ("uh") are optional too.
+OPTIONAL_FILES.push('assets/audio/sounds/th-buzz.mp3', 'assets/audio/heart/the-e.mp3');
 
 // Stage 1 sound play (prototype 6): the grown-up's stretched recordings of its picture words are optional too.
 OPTIONAL_FILES.push(...['milk', 'moon', 'sun', 'sock', 'fish', 'fox', 'apple', 'ant', 'pig', 'egg', 'up'].map((w) => `assets/audio/blends/${w}.mp3`));

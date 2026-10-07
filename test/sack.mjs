@@ -115,7 +115,7 @@ export async function renameChecks({ browser, url, ok, CUR }) {
   const m = await open(browser, url, VIEWPORTS[0], `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:{},settings:{seenScripts:${JSON.stringify(SEEN)},trainWorld:false, migrated1912: true},firstRunDone:true}))`, '#/home');
   await m.page.waitForSelector('.stone', { state: 'attached' });
   await m.page.waitForTimeout(800);
-  ok((await m.page.locator('.stone').count()) === CUR.lessons.length + CUR.checkpoints.length && (await m.page.locator('.stone-sack .crate-art').count()) === 0, `the 2D Home has ${CUR.lessons.length + CUR.checkpoints.length} stones (lessons and story stops) and no sound station crate`);
+  ok((await m.page.locator('.stone').count()) === WORLD1 && (await m.page.locator('.stone-sack .crate-art').count()) === 0, `the 2D Home has ${WORLD1} stones (only the current world since 1.9.14) (lessons and story stops) and no sound station crate`);
   ok(m.errors.length === 0, `rename home: errors ${m.errors.join(' | ')}`);
   await m.ctx.close();
 }
