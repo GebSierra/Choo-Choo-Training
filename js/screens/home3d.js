@@ -16,6 +16,7 @@ import { buildKid } from '../train/kid3d.js';
 import { buildTrain, buildParked } from '../train/train.js';
 import { buildTunnel, buildSignpost, TUNNEL_AT, IN, SIGN_AT, HILL } from '../train/tunnel.js';
 import { createRig } from '../train/camera.js';
+import { themeOf, worldSounds } from '../train/themes.js';
 import { createOverlay } from '../train/overlay.js';
 import { h, animate, reduced } from '../dom.js';
 import { holdButton } from '../components/hold-button.js';
@@ -62,13 +63,23 @@ export function stopsOf(curriculum, store, worldId = null) {
   return { stops, currentIndex };
 }
 
+// A world with no lessons yet, shown by the region preview (#/world/<id>, js/screens/region.js): one locked placeholder station for
+// each sound (or group of sounds) the world will teach, its sign showing the spelling.
+const PLACEHOLDER_ACCENTS = ['#3B7DD8', '#E5484D', '#2FB37A', '#D57C1C', '#14A3A8', '#8A5CF0', '#E0559C', '#B9770E'];
+function placeholderStops(curriculum, worldId) {
+  const stops = worldSounds(curriculum, worldId).map((sp, i) => ({ kind: 'lesson', placeholder: true, glyph: sp, accent: PLACEHOLDER_ACCENTS[i % PLACEHOLDER_ACCENTS.length], state: 'locked' }));
+  return { stops, currentIndex: 0 };
+}
+
 // The Home builds only one world: plan.world (js/worlds.js planHome; the current world, or the world just finished while its
 // crossing is due). The end of the line is a permanent tunnel portal with a signpost naming the next world (none in the last
 // world); a later world starts at a tunnel too. plan.cross = { to, gate, onEnter }: after the station-complete ride and any level
 // party the train rolls into the portal and calls onEnter (js/screens/crossing.js shows the loading card). plan.arrive = { gate,
 // onDone }: the next world's Home, the train waits inside the start tunnel and rolls out when root.gatewayGo() is called.
 // gate.active keeps the theme song waiting. preview (Grownups > Previews, the world gateway): { world, mode: 'out' | 'in', onEnter }
-// does the same without touching the store.
+// does the same without touching the store. preview.mode 'region' ({ world, mode: 'region' }): the world as a read-only look (the
+// region preview): its theme, the train at the start, no Grownups button, a tap on a station only wobbles its sign; a world without
+// lessons gets placeholder stations.
 export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, plan = null }) {
   const { store, router, curriculum, speech } = ctx;
   const bag = makeBag();
@@ -78,11 +89,14 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const gateHold = cross || arrive ? (cross || arrive).gate : null;
   const inMode = !!gw && gw.mode === 'in';
   const worldId = preview ? preview.world : plan && plan.world ? plan.world.id : null;
+  const region = !!preview && preview.mode === 'region';
+  const theme = themeOf(worldId);
+  const placeholder = region && !!worldId && !lessonsIn(curriculum, worldId).length;
   const nextW = worldId ? worldAfter(curriculum, worldId) : null; // the portal names the world that follows, built or not
   const hasStart = !!worldId && (curriculum.worlds || []).filter((w) => lessonsIn(curriculum, w.id).length)[0].id !== worldId;
-  const stopsInfo = stopsOf(curriculum, store, worldId);
+  const stopsInfo = placeholder ? placeholderStops(curriculum, worldId) : stopsOf(curriculum, store, worldId);
   const { stops } = stopsInfo;
-  const currentIndex = preview ? (preview.mode === 'in' ? 0 : stops.length - 1) : stopsInfo.currentIndex;
+  const currentIndex = region ? stopsInfo.currentIndex : preview ? (preview.mode === 'in' ? 0 : stops.length - 1) : stopsInfo.currentIndex;
   // A level earned since Home was last open (or one the parent replays from Grownups) celebrates once, after the arrival.
   const replayId = preview ? null : ctx.replayLevel || null;
   if (!preview) ctx.replayLevel = null;
@@ -96,8 +110,8 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const line = makeLine(stops.length);
   const stopS = stops.map((_, i) => line.stop(i));
   const renderer = createRenderer(canvas, gl, soft);
-  const { scene, camera, aimLight } = createScene(soft);
-  const scenery = buildScenery(bag, line, [...stopS, ...(nextW ? [stopS[stopS.length - 1] + SIGN_AT, stopS[stopS.length - 1] + TUNNEL_AT + 1.2, stopS[stopS.length - 1] + TUNNEL_AT + 4.4] : []), ...(hasStart ? [stopS[0] - START_MOUTH - HILL / 2, stopS[0] - START_MOUTH - HILL] : []), ...(parked ? [-7, -3.5, 0, 3.5].map((d) => stopS[stopS.length - 1] + d) : [])]); // the portal and its signpost keep the trees away
+  const { scene, camera, aimLight } = createScene(soft, theme);
+  const scenery = buildScenery(bag, line, [...stopS, ...(nextW ? [stopS[stopS.length - 1] + SIGN_AT, stopS[stopS.length - 1] + TUNNEL_AT + 1.2, stopS[stopS.length - 1] + TUNNEL_AT + 4.4] : []), ...(hasStart ? [stopS[0] - START_MOUTH - HILL / 2, stopS[0] - START_MOUTH - HILL] : []), ...(parked ? [-7, -3.5, 0, 3.5].map((d) => stopS[stopS.length - 1] + d) : [])], theme, stopS.length); // the portal and its signpost keep the trees away
   scene.add(scenery.group, scenery.clouds);
   const built = stops.map((s, i) => { const b = buildStop(bag, line, s, stopS[i], s.state); scene.add(b.group); return b; });
   // The one place that decides which wagons the train pulls. The owner's rule: only this world's letter wagons (they grow again from
@@ -126,10 +140,10 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   // the portal at the end of the line (the next world's glow, a signpost beside it) and, in a later world, the tunnel the train
   // came out of: a long hill that swallows the wagons that do not fit on the straight before the first stop
   const lastS = stopS[stops.length - 1], tmpP = {};
-  const portal = nextW ? buildTunnel(bag, line, lastS + TUNNEL_AT, false, { glow: nextW.color }) : null;
+  const portal = nextW ? buildTunnel(bag, line, lastS + TUNNEL_AT, false, { glow: nextW.color, theme }) : null;
   const signpost = nextW ? buildSignpost(bag, line, lastS + SIGN_AT, nextW) : null;
   const mouthS = stopS[0] - START_MOUTH;
-  const startTunnel = hasStart ? buildTunnel(bag, line, mouthS - HILL / 2, true, { rear: true }) : null;
+  const startTunnel = hasStart ? buildTunnel(bag, line, mouthS - HILL / 2, true, { rear: true, theme }) : null;
   if (startTunnel) {
     // the train belongs inside the tunnel behind its mouth: whatever is behind the mouth is not drawn, so a long train never shows
     // wagons sticking out of the hill's back (a clipping plane across the line at the mouth, on the train's own materials)
@@ -143,9 +157,9 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
     scene.add(buildSiding(bag, line, { from: lastS - 12, to: lastS + 5.4, off: -3.4, curve: 5 }));
     scene.add(buildParked(bag, line, worldLessons.map(asCar), lastS + 4.0, -3.4));
   }
-  scene.add(buildTrack(bag, line, { from: startTunnel ? mouthS - HILL + 0.4 : line.start + 1, to: portal ? lastS + TUNNEL_AT + 1.5 : line.end - 1, bufferStart: !startTunnel, bufferEnd: !portal }));
+  scene.add(buildTrack(bag, line, { from: startTunnel ? mouthS - HILL + 0.4 : line.start + 1, to: portal ? lastS + TUNNEL_AT + 1.5 : line.end - 1, bufferStart: !startTunnel, bufferEnd: !portal, bed: theme.bed }));
   // the level party's tunnel is the world portal when the train stands at the end of its line, else one built just for the party
-  const tunnel = portal && currentIndex === stops.length - 1 ? portal : due && !stillNow ? buildTunnel(bag, line, stopS[currentIndex] + TUNNEL_AT) : null;
+  const tunnel = portal && currentIndex === stops.length - 1 ? portal : due && !stillNow ? buildTunnel(bag, line, stopS[currentIndex] + TUNNEL_AT, false, { theme }) : null;
   if (tunnel && tunnel !== portal) scene.add(tunnel.group);
   const stars = starBoard(curriculum, store, { hold: due && !replayId && !stillNow ? due.id : null });
 
@@ -165,7 +179,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
 
   // ---- the camera ----
   const min = stopS[0] - (startTunnel ? 9 : 2), max = lastS + (portal ? 3 : 1); // the end clamp shows the portal and its signpost
-  const rig = createRig(camera, line, { min, max, side: parked ? -0.7 : undefined }); // a finished world looks toward its siding on the far side
+  const rig = createRig(camera, line, { min, max, side: parked ? -0.7 : undefined, sidePortrait: theme.sidePortrait, across: theme.across }); // a finished world looks toward its siding on the far side
   const firstVisit = !preview && !arrive && !settings.trainIntroDone;
   if (firstVisit) store.setSetting('trainIntroDone', true);
   const glideIn = firstVisit && currentIndex > 0 && !reduced();
@@ -176,13 +190,13 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const wobbles = new Map(); // sign wobble on a locked tap: index -> start time
   const tap = (fn) => (btn, e) => { if (dragged) { dragged = false; return; } fn(btn, e); };
   const overlayStops = stops.map((s, i) => {
-    const name = s.kind === 'lesson' ? `Lesson ${s.number}` : s.title;
+    const name = s.placeholder ? `Sound ${s.glyph}` : s.kind === 'lesson' ? `Lesson ${s.number}` : s.title;
     const cls = (s.kind === 'lesson' ? (s.state === 'open' ? 'current' : s.state) : (s.state === 'open' ? 'unlocked' : s.state)) + (s.resting ? ' is-resting' : '');
     return {
       kind: s.kind, cls, anchor: built[i].sign, badge: s.resting ? moonBadge() : null,
       label: `${name}${s.state === 'locked' ? ', locked' : s.state === 'done' ? ', done' : s.resting ? ', resting until tomorrow' : ''}`,
       onTap: tap(() => {
-        if (s.state === 'locked') { wobbles.set(i, performance.now()); wake(); return; }
+        if (s.state === 'locked' || region) { wobbles.set(i, performance.now()); wake(); return; } // the region preview only wobbles
         if (s.resting) { openRest(s.number); return; }
         router.go(s.kind === 'lesson' ? `/lesson/${s.number}` : `/checkpoint/${s.checkpoint.id}`);
       }),
@@ -196,12 +210,13 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const fs = fullscreenButton({ className: 'home-fs' });
   canvas.classList.add('train-canvas');
   canvas.setAttribute('aria-hidden', 'true');
-  const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, grown, stars.el, devPill(store)), ...(fs ? [fs] : []));
+  const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, ...(region ? [] : [grown]), stars.el, region ? null : devPill(store)), ...(fs ? [fs] : []));
+  if (theme.skyCss) root.style.background = theme.skyCss;
 
-  firstRunOverlay({ store, root });
+  if (!region) firstRunOverlay({ store, root });
   // The pace limit's card: a tap on the resting station, or a lesson opened by its address (js/screens/lesson.js leaves ctx.restCard).
   const openRest = (n) => restCard({ host: root, store, onOpenAnyway: () => router.go(`/lesson/${n}`) });
-  if (ctx.restCard) { const n = ctx.restCard; ctx.restCard = null; whenShown(root, () => openRest(n)); }
+  if (!region && ctx.restCard) { const n = ctx.restCard; ctx.restCard = null; whenShown(root, () => openRest(n)); }
 
   // ---- state shown to tests (read only) ----
   const debug = { stopS, engineAt: ENGINE_AT, frames: 0, idleFrames: 0, trainS: train.at, focus: rig.focus, arriving, fromIndex, currentIndex, tootAt: null, running: false, disposed: false, glideIn, reduced: reduced(), soft };
@@ -210,6 +225,12 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   debug.tunnel = !!tunnel;
   // which world is built, how many stops it has, and its portals; the crossing's phase is debug.gate.phase (also debug.crossing)
   debug.world = worldId;
+  debug.scene = scene; // read only, for the tests (draw-call profile)
+  debug.fogHex ='#' + scene.fog.color.getHexString(); // a world's look, for the tests
+  debug.skyOverride = !!theme.skyCss;
+  debug.theme = theme.id;
+  debug.region = region;
+  debug.placeholder = placeholder;
   debug.nextWorld = nextW ? nextW.id : null;
   debug.signText = nextW ? nextW.name : null;
   debug.portal = !!portal;
@@ -547,7 +568,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
     }
   } else if (preview || arrive) {
     // the gateway preview: leaving a world starts by itself; arriving (preview or the real next world) waits for gatewayGo() (the loading card is still showing)
-    if (preview && preview.mode === 'out') { if (!still) { train.pip.wave(true, 0); waveUntil = 1.4; } gateTimer = setTimeout(() => startGate('out'), still ? 900 : 1100); }
+    if (region) { if (!still) { train.pip.wave(true, 0); waveUntil = 2.2; } } else if (preview && preview.mode === 'out') { if (!still) { train.pip.wave(true, 0); waveUntil = 1.4; } gateTimer = setTimeout(() => startGate('out'), still ? 900 : 1100); }
   } else if (!still) {
     // Pip waves hello when Home opens
     train.pip.wave(true, 0); waveUntil = 2.2;

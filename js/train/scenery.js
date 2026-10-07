@@ -2,6 +2,8 @@
 // flowers, a river under a wooden bridge, a water tower, a windmill and a few slow clouds.
 // Everything repeated is instanced, and everything is placed from a seeded random, so the island never changes.
 import { THREE, PAL, rng, block } from './world.js';
+import { DEFAULT_THEME } from './themes.js';
+import { REGION_BUILDERS } from './regions.js';
 
 function noiseTexture(bag) {
   const c = document.createElement('canvas');
@@ -18,7 +20,9 @@ function noiseTexture(bag) {
 }
 
 // stops: the distances of the stations along the line (scenery keeps clear of them).
-export function buildScenery(bag, line, stops) {
+// theme (js/train/themes.js): the ground and patch colours, and for a themed world (decor) its own props instead of the default
+// hills, river, trees, flowers, water tower and windmill. W1 and W2 use the default theme: the same island as ever.
+export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCount = stops.length) {
   const group = new THREE.Group();
   const R = rng(11), p = {};
   const zNear = 30, zFar = -line.end - 50, W = 80;
@@ -30,7 +34,7 @@ export function buildScenery(bag, line, stops) {
   shape.quadraticCurveTo(x0, zNear, x0, zNear - r); shape.lineTo(x0, zFar + r); shape.quadraticCurveTo(x0, zFar, x0 + r, zFar);
   const slabGeo = bag.add(new THREE.ExtrudeGeometry(shape, { depth: 2, bevelEnabled: true, bevelThickness: 0.8, bevelSize: 0.8, bevelSegments: 3, curveSegments: 6 }));
   slabGeo.rotateX(Math.PI / 2); // the shape's y becomes z, and the slab hangs below y = 0
-  const slab = new THREE.Mesh(slabGeo, bag.add(new THREE.MeshStandardMaterial({ color: PAL.grass, roughness: 0.9, metalness: 0, map: noiseTexture(bag) })));
+  const slab = new THREE.Mesh(slabGeo, bag.add(new THREE.MeshStandardMaterial({ color: theme.ground, roughness: 0.9, metalness: 0, map: noiseTexture(bag) })));
   slab.position.y = -0.8; // the bevel's top sits at y = 0
   slab.receiveShadow = true;
   group.add(slab);
@@ -40,7 +44,7 @@ export function buildScenery(bag, line, stops) {
 
   // two-tone grass patches
   const patchGeo = bag.geo('patch', () => new THREE.CircleGeometry(1, 28).rotateX(-Math.PI / 2));
-  const patches = new THREE.InstancedMesh(patchGeo, bag.paint(PAL.grassDark, { roughness: 0.95, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }), 60);
+  const patches = new THREE.InstancedMesh(patchGeo, bag.paint(theme.patch, { roughness: 0.95, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }), 60);
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3(), e = new THREE.Euler();
   for (let i = 0; i < 60; i++) {
     const s = line.start + (i / 60) * (line.end - line.start), off = (R() < 0.5 ? -1 : 1) * (3 + R() * 18);
@@ -50,6 +54,8 @@ export function buildScenery(bag, line, stops) {
   patches.receiveShadow = true;
   group.add(patches);
 
+  let blades = null;
+  if (!theme.decor) {
   // rounded hills, away from the line
   const hillGeo = bag.geo('hill', () => new THREE.SphereGeometry(1, 28, 16, 0, Math.PI * 2, 0, Math.PI / 2));
   for (let i = 0; i < 16; i++) {
@@ -148,12 +154,14 @@ export function buildScenery(bag, line, stops) {
   const mill = new THREE.Group();
   const millBody = new THREE.Mesh(bag.geo('mill', () => new THREE.CylinderGeometry(0.7, 1.1, 3, 16)), bag.paint('#FFF3E0')); millBody.position.y = 1.5; millBody.castShadow = true; mill.add(millBody);
   const millCap = new THREE.Mesh(bag.geo('millcap', () => new THREE.ConeGeometry(0.95, 1, 16)), bag.paint(PAL.red)); millCap.position.y = 3.5; millCap.castShadow = true; mill.add(millCap);
-  const blades = new THREE.Group(); blades.position.set(0, 3.0, 0.85);
-  for (let k = 0; k < 4; k++) { const b = block(bag, 0.36, 1.7, 0.06, '#FFFFFF', { r: 0.03 }); b.position.y = 0.95; const arm = new THREE.Group(); arm.rotation.z = k * Math.PI / 2 + 0.4; arm.add(b); blades.add(arm); }
-  const hubBall = new THREE.Mesh(bag.geo('hubball', () => new THREE.SphereGeometry(0.16, 10, 8)), bag.paint(PAL.sun)); blades.add(hubBall);
-  mill.add(blades);
+  const mblades = new THREE.Group(); mblades.position.set(0, 3.0, 0.85);
+  for (let k = 0; k < 4; k++) { const b = block(bag, 0.36, 1.7, 0.06, '#FFFFFF', { r: 0.03 }); b.position.y = 0.95; const arm = new THREE.Group(); arm.rotation.z = k * Math.PI / 2 + 0.4; arm.add(b); mblades.add(arm); }
+  const hubBall = new THREE.Mesh(bag.geo('hubball', () => new THREE.SphereGeometry(0.16, 10, 8)), bag.paint(PAL.sun)); mblades.add(hubBall);
+  mill.add(mblades);
   mill.position.copy(landmark(9, -6));
   group.add(mill);
+  blades = mblades;
+  }
 
   // clouds: a few puffy white lumps floating low over the island to either side of the line (the screen keeps them
   // beside the camera's look point), drifting very slowly to and fro in their own lane, so they never cover the track
@@ -170,5 +178,6 @@ export function buildScenery(bag, line, stops) {
     c.scale.set(1, 0.8, 0.8);
     clouds.add(c);
   }
+  if (theme.decor) REGION_BUILDERS[theme.decor]({ bag, line, stops, stationCount, group, sky: clouds, R: rng(23), W });
   return { group, clouds, blades };
 }

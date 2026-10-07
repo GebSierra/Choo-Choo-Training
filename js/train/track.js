@@ -32,9 +32,10 @@ function ribbon(line, from, to, { width, off = 0, y, height = 0, step = 0.5 }) {
 
 // opts.from / opts.to: where the track starts and ends along the line (a world's tunnels swallow its ends); opts.bufferStart /
 // opts.bufferEnd: whether that end has a buffer stop (a world with a tunnel there has none).
-export function buildTrack(bag, line, { from = line.start + 1, to = line.end - 1, bufferStart = true, bufferEnd = true } = {}) {
+// opts.bed: the colour of the bed under the sleepers (a theme's ground, js/train/themes.js).
+export function buildTrack(bag, line, { from = line.start + 1, to = line.end - 1, bufferStart = true, bufferEnd = true, bed: bedColor = PAL.cream } = {}) {
   const group = new THREE.Group();
-  const bed = new THREE.Mesh(bag.add(ribbon(line, from, to, { width: 2.5, y: 0.02, height: 0.06 })), bag.paint(PAL.cream, { roughness: 0.8 }));
+  const bed = new THREE.Mesh(bag.add(ribbon(line, from, to, { width: 2.5, y: 0.02, height: 0.06 })), bag.paint(bedColor, { roughness: 0.8 }));
   bed.receiveShadow = true;
   group.add(bed);
   // Sleepers: one instanced mesh.

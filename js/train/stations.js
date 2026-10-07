@@ -34,6 +34,40 @@ export function drawGlyph(g, ch, cx, cy, size, color) {
   g.restore();
 }
 
+// A spelling for a region's placeholder sign (the preview of a world with no lessons yet): one letter, a digraph such as sh or qu,
+// or a group of spellings separated by spaces ("ff ll ss zz", in two rows). Letters we have strokes for are drawn from them, side
+// by side at one size on a shared baseline; the others (e, j, w ... have no strokes yet) are set in Andika, a reading font.
+export function drawSpelling(g, text, cx, cy, size, color) {
+  const toks = String(text).split(' ').filter(Boolean);
+  if (toks.length === 1 && [...toks[0]].length === 1 && GLYPHS[toks[0]]) { drawGlyph(g, toks[0], cx, cy, size, color); return; }
+  const word = (w, x, y, boxW, boxH) => {
+    const letters = [...w];
+    if (letters.every((ch) => GLYPHS[ch])) {
+      const defs = letters.map((ch) => GLYPHS[ch]), half = STROKE_WIDTH / 2, gap = 6;
+      const ws = defs.map((d) => d.maxX - d.minX + 2 * half), total = ws.reduce((a, b) => a + b, 0) + gap * (defs.length - 1);
+      const minY = Math.min(...defs.map((d) => d.minY)) - half, maxY = Math.max(...defs.map((d) => d.maxY)) + half;
+      const k = Math.min(boxW / total, boxH / (maxY - minY));
+      g.save();
+      g.translate(x, y - ((minY + maxY) / 2) * k); g.scale(k, k);
+      g.strokeStyle = color; g.lineWidth = STROKE_WIDTH; g.lineCap = 'round'; g.lineJoin = 'round';
+      let at = -total / 2;
+      defs.forEach((d, i) => { g.save(); g.translate(at + half - d.minX, 0); for (const s of d.strokes) g.stroke(new Path2D(s.d)); g.restore(); at += ws[i] + gap; });
+      g.restore();
+    } else {
+      let px = Math.min(boxH * 1.15, 190);
+      g.font = `700 ${px}px Andika, Nunito, system-ui, sans-serif`;
+      while (px > 20 && g.measureText(w).width > boxW) { px -= 4; g.font = `700 ${px}px Andika, Nunito, system-ui, sans-serif`; }
+      g.fillStyle = color; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+      g.fillText(w, x, y + px * 0.3);
+    }
+  };
+  if (toks.length === 1) word(toks[0], cx, cy, size * 0.95, size * 0.8);
+  else {
+    const cols = 2, rows = Math.ceil(toks.length / cols);
+    toks.forEach((t, i) => word(t, cx + ((i % cols) - 0.5) * size * 0.5, cy + (Math.floor(i / cols) - (rows - 1) / 2) * size * 0.42, size * 0.42, size * 0.34));
+  }
+}
+
 // A wooden crate seen from the front, for the depot signs.
 export function drawCrate(g, cx, cy, size, color = '#B9874C') {
   const s = size, x = cx - s / 2, y = cy - s / 2, r = s * 0.12;
@@ -80,7 +114,7 @@ function signTexture(bag, { glyph, accent, locked, icon }) {
     if (icon === 'gauge') drawGauge(g, 128, 128, 140, locked);
     else if (icon === 'book') drawBook(g, 128, 130, 138, locked ? '#C4BBAE' : '#E5484D');
     else if (icon === 'crate') drawCrate(g, 128, 132, 118, locked ? '#C4BBAE' : '#B9874C');
-    else drawGlyph(g, glyph, 128, 128, 170, locked ? '#B3ACA1' : accent);
+    else drawSpelling(g, glyph, 128, 128, 170, locked ? '#B3ACA1' : accent);
   });
 }
 
@@ -207,7 +241,7 @@ export function buildStop(bag, line, node, s, state) {
     }
   }
   const tex = signTexture(bag, { glyph: node.glyph, accent: node.accent || '#B9874C', locked, icon: node.kind === 'lesson' ? null : node.icon || 'crate' });
-  const plate = node.kind === 'lesson' ? plateTexture(bag, String(node.number)) : null;
+  const plate = node.kind === 'lesson' && node.number ? plateTexture(bag, String(node.number)) : null; // a region's placeholder station has no lesson number
   const sp = signPost(bag, { tex, plate, state, rim: locked ? '#DDD6CA' : '#FFFFFF' });
   sp.post.position.set(o * 3.05, 0, 1.25);
   sp.post.rotation.y = -p.heading;          // the sign faces the camera, whatever way the line turns
