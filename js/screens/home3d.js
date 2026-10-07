@@ -225,7 +225,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   debug.tunnel = !!tunnel;
   // which world is built, how many stops it has, and its portals; the crossing's phase is debug.gate.phase (also debug.crossing)
   debug.world = worldId;
-  debug.scene = scene; // read only, for the tests (draw-call profile)
+  Object.defineProperty(debug, 'scene', { value: scene, enumerable: false }); // read only, for the tests (draw-call profile); not enumerable, so a test copying the debug object stays fast
   debug.fogHex ='#' + scene.fog.color.getHexString(); // a world's look, for the tests
   debug.skyOverride = !!theme.skyCss;
   debug.theme = theme.id;
