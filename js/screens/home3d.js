@@ -27,7 +27,7 @@ import { sfx } from '../sfx.js';
 import { music } from '../music.js';
 import { dueLevel, builtLevels, earnedLevels } from '../levels.js';
 import { worldAfter, nextWorld, worldDone, lessonsIn } from '../worlds.js';
-import { starBoard } from '../components/star-board.js';
+import { mapButton, openJourney } from '../components/map-button.js';
 import { levelBanner } from '../components/level-banner.js';
 import { restCard, moonBadge, devPill, whenShown } from '../components/rest-card.js';
 
@@ -161,7 +161,8 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   // the level party's tunnel is the world portal when the train stands at the end of its line, else one built just for the party
   const tunnel = portal && currentIndex === stops.length - 1 ? portal : due && !stillNow ? buildTunnel(bag, line, stopS[currentIndex] + TUNNEL_AT, false, { theme }) : null;
   if (tunnel && tunnel !== portal) scene.add(tunnel.group);
-  const stars = starBoard(curriculum, store, { hold: due && !replayId && !stillNow ? due.id : null });
+  // the map button (journey board) at the top left; the gold level stars are inside the board. Held, a level being celebrated is not counted until its star lights.
+  const mapBtn = mapButton(curriculum, store, { hold: due && !replayId && !stillNow ? due.id : null, onOpen: () => openJourney({ host: root, curriculum, store, returnFocus: mapBtn.el }) });
 
   // ---- where the train comes from ----
   const settings = store.settings;
@@ -210,7 +211,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const fs = fullscreenButton({ className: 'home-fs' });
   canvas.classList.add('train-canvas');
   canvas.setAttribute('aria-hidden', 'true');
-  const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, ...(region ? [] : [grown]), stars.el, region ? null : devPill(store)), ...(fs ? [fs] : []));
+  const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, ...(region ? [] : [grown, mapBtn.el]), region ? null : devPill(store)), ...(fs ? [fs] : []));
   if (theme.skyCss) root.style.background = theme.skyCss;
 
   if (!region) firstRunOverlay({ store, root });
@@ -284,7 +285,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   // ---- the loop ----
   let raf = 0, last = 0, disposed = false, W = 0, H = 0, blockers = [];
   // The Grownups pill and the full screen button, with a margin: no stop button or bubble goes under them.
-  const measureBlockers = () => { const o = root.getBoundingClientRect(); blockers = [...root.querySelectorAll('.home-top .hold-btn, .home-top .level-stars, .home-fs')].map((e) => { const r = e.getBoundingClientRect(); return { x: r.x - o.x - 6, y: r.y - o.y - 6, w: r.width + 12, h: r.height + 12 }; }); };
+  const measureBlockers = () => { const o = root.getBoundingClientRect(); blockers = [...root.querySelectorAll('.home-top .hold-btn, .home-top .map-btn, .home-fs')].map((e) => { const r = e.getBoundingClientRect(); return { x: r.x - o.x - 6, y: r.y - o.y - 6, w: r.width + 12, h: r.height + 12 }; }); };
   const t0 = performance.now();
   let arrival = null, waveUntil = 0;
   const still = reduced();
@@ -370,7 +371,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
     if (still) {
       // reduced motion: no ride, no dance, no confetti; the banner, the star and one soft sound
       levelBanner({ level: due, host: root, reducedMotion: true });
-      stars.pop(levelIndex());
+      mapBtn.pop(levelIndex());
       sfx.play('star');
       render();
       celebrationOver();
@@ -401,7 +402,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
       }
     } else if (lvl.phase === 'party') {
       const k = Math.min(1, e / LEVEL_PARTY_MS), g = train.pip.group;
-      if (!lvl.bannered && e >= BANNER_AT_MS) { lvl.bannered = true; levelBanner({ level: due, host: root }); stars.pop(levelIndex()); }
+      if (!lvl.bannered && e >= BANNER_AT_MS) { lvl.bannered = true; levelBanner({ level: due, host: root }); mapBtn.pop(levelIndex()); }
       train.place(to, t); // the new car glides to its place
       g.position.y = lvl.pipY + Math.abs(Math.sin(k * Math.PI * 4)) * 0.12;
       g.rotation.z = Math.sin(k * Math.PI * 4) * 0.15;

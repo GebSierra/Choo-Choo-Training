@@ -1232,18 +1232,62 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 @media (orientation: landscape) and (max-height: 520px) { .wg-panel { width: min(820px, 100%); grid-template-columns: 0.8fr 1.2fr; align-items: center; gap: 18px; padding: 16px 20px; } .wg-more { text-align: left; } .wg-badge { width: 60px; height: 60px; font-size: 32px; } .wg-name { font-size: 30px; } }
 
 /* the journey board */
+.map-btn { position: relative; width: 52px; height: 52px; padding: 0; border: 0; border-radius: 50%; background: #fff; box-shadow: var(--shadow); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; transition: transform var(--t-fast) var(--ease-out); }
+.map-btn:active { transform: scale(.94); }
+.map-icon { width: 36px; height: 36px; display: block; }
+.map-stars { position: absolute; right: -7px; top: -7px; min-width: 26px; height: 24px; padding: 0 6px 0 3px; box-sizing: border-box; border-radius: 999px; background: #fff; box-shadow: 0 1px 4px rgba(30,33,64,.28); display: inline-flex; align-items: center; justify-content: center; gap: 1px; }
+.map-stars[hidden] { display: none; }
+.map-stars .gold-star { width: 18px; height: 18px; flex: none; }
+.map-stars-n { font-size: 14px; font-weight: 800; line-height: 1; color: #7A5200; }
+.jb-x { position: absolute; top: calc(8px + var(--sat)); right: calc(8px + var(--sar)); z-index: 3; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; background: #fff; color: var(--ink); box-shadow: var(--shadow); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; }
+.jb-head { margin: auto 0 4px; text-align: center; font-size: 28px; font-weight: 800; }
+.jb-badges { list-style: none; margin: 0; padding: 42px 0 4px; display: grid; grid-template-columns: repeat(6, 1fr); row-gap: 40px; }
+.jb-badge { position: relative; height: 56px; display: grid; place-items: center; }
+.jb-badge::before, .jb-badge::after { content: ''; position: absolute; top: 50%; width: 50%; height: 12px; margin-top: -6px; background-image: linear-gradient(#8A6E5A, #8A6E5A), repeating-linear-gradient(90deg, #C9A57A 0 4px, transparent 4px 10px); background-size: 100% 4px, 100% 12px; background-position: center, center; background-repeat: no-repeat; }
+.jb-badge::before { left: 0; } .jb-badge::after { right: 0; }
+.jb-badge.is-future::before, .jb-badge.is-future::after, .jb-badge.is-current::after { opacity: .3; }
+.jb-badge:nth-child(6n+1)::before, .jb-badge:nth-child(6n)::after, .jb-badge:last-child::after { display: none; }
+.jb-stop { position: relative; z-index: 1; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--wc); color: var(--ink); font-size: 20px; font-weight: 800; box-shadow: 0 3px 0 rgba(30,33,64,.18); }
+.jb-badge.is-current .jb-stop { width: 54px; height: 54px; font-size: 24px; box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--ink), 0 4px 0 7px rgba(30,33,64,.2); }
+.jb-badge.is-future .jb-stop { background: rgba(255,255,255,.7); border: 3px dashed #B7BCD6; color: #8A8FAE; box-shadow: none; box-sizing: border-box; }
+.jb-train { position: absolute; z-index: 2; left: 50%; top: -38px; width: 60px; margin-left: -30px; pointer-events: none; }
+.jb-train-art { width: 100%; height: auto; display: block; }
+.jb-stars { margin: 18px 0 auto; padding: 10px 14px; border-radius: 24px; background: #fff; box-shadow: var(--shadow); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 12px; }
+.jb-stars-title { margin: 0; font-size: 18px; font-weight: 800; }
+.jb-stars .level-stars { background: transparent; box-shadow: none; padding: 0; }
+.jb-stars .level-star, .jb-stars .level-star svg { width: 36px; height: 36px; }
+.jb-stars-n { margin: 0; font-size: 16px; font-weight: 700; color: var(--muted); }
+.jb-here { margin: 0 0 6px; text-align: center; }
+.jb-here-pill { display: inline-block; padding: 3px 14px; border-radius: 999px; background: var(--violet); color: #fff; font-size: 15px; font-weight: 800; }
+.jb-more { margin: 8px 0 0; text-align: center; font-size: 16px; font-weight: 700; color: var(--muted); }
+.jb-world { min-width: 0; margin: 20px 0 0; padding: 14px 10px 18px; border-radius: 28px; background: #fff; border-top: 10px solid var(--wc); box-shadow: var(--shadow); }
+/* the compact railway on the world-crossing card */
+.jm-mini { padding: 2px 0 0; }
+.jm-lane { position: relative; height: 30px; }
+.jm-train { position: absolute; left: 0; bottom: -2px; width: calc(100% / var(--n)); display: flex; justify-content: center; transform: translateX(calc(var(--at) * 100%)); }
+.jm-train .jb-train-art { width: 46px; flex: none; }
+.jm-rail { position: relative; list-style: none; margin: 0; padding: 0; height: 34px; display: grid; grid-template-columns: repeat(var(--n), 1fr); align-items: center; }
+.jm-rail::before { content: ''; position: absolute; left: calc(50% / var(--n)); right: calc(50% / var(--n)); top: 50%; height: 12px; margin-top: -6px; background-image: linear-gradient(#8A6E5A, #8A6E5A), repeating-linear-gradient(90deg, #C9A57A 0 4px, transparent 4px 10px); background-size: 100% 4px, 100% 12px; background-position: center, center; background-repeat: no-repeat; }
+.jm-stn { position: relative; z-index: 1; justify-self: center; width: 14px; height: 14px; box-sizing: border-box; border-radius: 50%; background: var(--wc); display: grid; place-items: center; }
+.jm-stn.is-later { background: #fff; border: 3px dashed #B7BCD6; }
+.jm-stn.big { width: 30px; height: 30px; border: 3px solid #fff; box-shadow: 0 2px 0 rgba(30,33,64,.22); }
+.jm-stn.is-next.big { box-shadow: 0 0 0 3px var(--ink), 0 2px 0 3px rgba(30,33,64,.2); }
+.jm-n { font-size: 15px; font-weight: 800; color: var(--ink); line-height: 1; }
+/* Grownups > Progress */
+.gp-map { margin-bottom: 6px; }
+.gp-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+.gp-world { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; padding: 10px 12px; border-radius: 16px; background: #F4F5FB; border-left: 8px solid var(--wc); }
+.gp-world.is-soon { opacity: .7; }
+.gp-dot { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--wc); color: var(--ink); font-size: 20px; font-weight: 800; }
+.gp-text { display: grid; gap: 2px; font-size: 16px; line-height: 1.3; min-width: 0; }
+.gp-text strong { font-size: 18px; } .gp-text em { font-style: normal; font-weight: 700; color: var(--muted); }
+.gp-later { margin-top: 10px; }
 .jb { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; background: linear-gradient(to bottom, #BFE8FF 0%, #FFF6E5 60%); padding: var(--sat) var(--sar) var(--sab) var(--sal); opacity: 1; transition: opacity 250ms ease; }
 .jb.closing { opacity: 0; pointer-events: none; } .jb.still { transition: none; }
 .jb-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; box-sizing: border-box; width: 100%; max-width: 760px; margin: 0 auto; padding: 18px 16px 8px; }
-.jb-head { margin: auto 0 12px; text-align: center; font-size: 28px; font-weight: 800; }
-.jb-badges { list-style: none; margin: 0; padding: 6px 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-.jb-badge { position: relative; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--wc); color: var(--ink); font-size: 20px; font-weight: 800; box-shadow: 0 3px 0 rgba(30,33,64,.18); }
-.jb-badge.is-current { width: 54px; height: 54px; font-size: 24px; margin: 0 2px; box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--ink), 0 4px 0 7px rgba(30,33,64,.2); }
-.jb-badge.is-future { background: rgba(255,255,255,.55); border: 3px dashed #B7BCD6; color: #8A8FAE; box-shadow: none; box-sizing: border-box; }
 .jb-badge-mark { position: absolute; right: -5px; top: -5px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; box-shadow: 0 2px 0 rgba(30,33,64,.2); }
 .jb-badge-mark.gold { background: var(--sun); } .jb-badge-mark.gold .jb-tick { width: 15px; height: 15px; } .jb-badge-mark.gold .jb-tick path { stroke: #7A5200; }
-.jb-badge-mark.lock { background: #fff; color: #8A8FAE; top: auto; bottom: -5px; box-shadow: 0 1px 0 rgba(30,33,64,.15); }
-.jb-world { min-width: 0; margin: 28px 0 auto; padding: 16px 10px 18px; border-radius: 28px; background: #fff; border-top: 10px solid var(--wc); box-shadow: var(--shadow); }
+.jb-badge-mark.lock { background: #fff; color: #8A8FAE; top: auto; right: -9px; bottom: -8px; width: 20px; height: 20px; box-shadow: 0 1px 0 rgba(30,33,64,.15); }
 .jb-world-n { margin: 0; text-align: center; font-weight: 700; color: var(--muted); }
 .jb-world-name { margin: 0 0 4px; text-align: center; font-size: 26px; font-weight: 800; }
 .jb-track { position: relative; list-style: none; margin: 0; padding: 66px 8px 6px; display: flex; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding: 0 8px; }
@@ -1265,12 +1309,16 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .jb-foot { display: grid; justify-items: center; padding: 8px 16px 16px; }
 .jb-go { width: min(340px, 100%); }
 @media (orientation: landscape) and (max-height: 520px) {
-  .jb-scroll { max-width: 900px; display: grid; grid-template-columns: 290px 1fr; grid-template-areas: "head world" "badges world"; align-content: start; column-gap: 18px; padding-top: 10px; }
-  .jb-head { grid-area: head; font-size: 24px; margin: 0 0 4px; text-align: left; }
-  .jb-badges { grid-area: badges; justify-content: flex-start; align-content: flex-start; gap: 8px; }
-  .jb-badge { width: 42px; height: 42px; font-size: 18px; } .jb-badge.is-current { width: 48px; height: 48px; font-size: 22px; }
+  .jb-scroll { max-width: 960px; display: grid; grid-template-columns: 340px 1fr; grid-template-areas: "head world" "map world" "stars world"; grid-template-rows: auto auto 1fr; align-content: start; column-gap: 18px; padding-top: 10px; }
+  .jb-head { grid-area: head; font-size: 24px; margin: 0 0 2px; text-align: left; }
+  .jb-map { grid-area: map; }
+  .jb-badges { padding-top: 34px; row-gap: 32px; }
+  .jb-badge { height: 46px; } .jb-stop { width: 40px; height: 40px; font-size: 18px; } .jb-badge.is-current .jb-stop { width: 46px; height: 46px; font-size: 21px; }
+  .jb-train { top: -33px; width: 50px; margin-left: -25px; }
+  .jb-stars { grid-area: stars; margin: 12px 0 0; align-self: start; }
   .jb-world { grid-area: world; margin: 0; padding: 12px 10px; align-self: start; }
   .jb-world-name { font-size: 24px; }
+  .jb-x { top: 6px; }
   .jb-foot { padding: 6px 16px 10px; } .jb-go { min-height: 56px; }
 }
 @media (prefers-reduced-motion: reduce) { .world-card, .tip-card, .jb { transition: none; } }

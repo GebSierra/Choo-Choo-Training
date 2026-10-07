@@ -1,6 +1,7 @@
 // Hash router with directional screen transitions.
 import { h, animate, reduced } from './dom.js';
 import { isNative } from './platform.js';
+import { closeTopSheet } from './components/back-sheet.js';
 
 const depthOf = (path) => {
   if (path === '/home') return 0;
@@ -69,5 +70,5 @@ export function createRouter(root, routes, ctx) {
 export function watchBackButton(router) {
   const app = isNative && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
   if (!app || typeof app.addListener !== 'function') return;
-  app.addListener('backButton', () => { if (router.path !== '/home') router.back(); });
+  app.addListener('backButton', () => { if (closeTopSheet()) return; if (router.path !== '/home') router.back(); });
 }

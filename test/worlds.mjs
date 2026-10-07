@@ -90,6 +90,7 @@ const layout = (page, sel, { vertical = true } = {}) => page.evaluate(([s, vert]
   return out;
 }, [sel, vertical]);
 const openPreview = async (page, key) => {
+  if (key === 'board') { await page.evaluate(() => { location.hash = '#/preview/board'; }); return; } // no longer listed in Previews (1.9.21); the route stays for these checks
   const fold = page.locator('.gu-fold', { hasText: 'Previews' });
   if ((await fold.getAttribute('aria-expanded')) !== 'true') await fold.click();
   await page.locator(`.preview-btn[data-preview="${key}"]`).click();
@@ -126,7 +127,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
   ok(l3.length === 0, `${tag} list: fold heads fit and are big enough (${l3.join(' | ')})`);
 
   ok((await page.locator('.grownups [aria-label="Train world"], .grownups [aria-label="Play recorded letter sounds"]').count()) === 0, `${tag} Grownups: no Train world or Play recorded letter sounds switch`);
-  ok(await page.evaluate(() => { const b = document.querySelector('.gu-body'); return b.children[0].querySelector('h2').textContent === 'Lessons' && b.children[0].querySelector('.gu-reset') && b.children[1].classList.contains('gu-grouped'); }), `${tag} list: Lessons heading and Reset progress sit above the grouped list`);
+  ok(await page.evaluate(() => { const b = document.querySelector('.gu-body'); return b.children[0].querySelector('h2').textContent.trim() === 'Progress' && b.children[1].querySelector('h2').textContent === 'Lessons' && b.children[1].querySelector('.gu-reset') && b.children[2].classList.contains('gu-grouped'); }), `${tag} list: Lessons heading and Reset progress sit above the grouped list`);
 
   // ---- the Previews fold ----
   const fold = page.locator('.gu-fold', { hasText: 'Previews' });
@@ -135,7 +136,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
   await fold.click();
   ok((await page.locator('.grownups .gu-fold-body:not([hidden]) .gu-note', { hasText: 'Try new screens before they go live.' }).count()) === 1, `${tag}: the Previews note is shown`);
   const btns = await page.locator('.preview-btn').evaluateAll((l) => l.map((b) => { const r = b.getBoundingClientRect(); return { key: b.dataset.preview, h: r.height, w: r.width }; }));
-  ok(btns.length === 7 && btns.every((b) => b.h >= 48 && b.w >= 120), `${tag}: seven preview buttons, each at least 48 px tall (${JSON.stringify(btns.map((b) => b.key + ':' + Math.round(b.h)))})`);
+  ok(btns.length === 6 && btns.every((b) => b.h >= 48 && b.w >= 120), `${tag}: six preview buttons (the journey board moved to the Home, 1.9.21), each at least 48 px tall (${JSON.stringify(btns.map((b) => b.key + ':' + Math.round(b.h)))})`);
   await page.locator('.gu-version').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
   await shot(page, 'previews-fold', tag);
