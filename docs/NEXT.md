@@ -84,6 +84,13 @@ Nothing in this list gets built until the owner has picked an option and approve
    - Not counted as a lesson and never required; reduced motion: fish hold still; works in 2D Home too only if a
      river exists there (otherwise 3D only). Back button and the Android back return to the railway.
 
+9. **Owner requests 2026-10-07 (in progress):** (a) finishing a lesson counts every earlier lesson and checkpoint as done
+   (derived in store.isDone, nothing overwritten); (b) a pace limit: 2 new lessons a day by default (Grownups: 1, 2, 3 or
+   no limit), the next station "rests" with a friendly card and a grown-up hold "Open it anyway"; (c) a hidden developer
+   mode (tap the version line in Grownups 7 times): open every lesson without changing progress, ignore the daily limit,
+   look at any world (`#/world/<id>`); (d) the next two regions' environments, Sunny Hills (golden farmland) and Digraph
+   Docks (a harbour), with placeholder stations and no lessons.
+
 ## How to plan (owner rule)
 When the owner gives a plan or a problem: for each problem give **three options** with trade-offs and a
 recommendation. The owner picks one per problem; write the approved choices into a plan; build only after the
