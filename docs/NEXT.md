@@ -42,7 +42,9 @@ Owner: implement all of these without asking, then report the decisions made. Co
   Developer mode bypass: 7 taps on the version line of the sign-in screen. Until the owner creates the Supabase project and
   puts its URL + anon key in js/config.js, the app runs exactly as today (no sign-in screen). Setup steps + SQL in
   docs/BACKEND.md. Later: several children per account, subscriptions.
-- [ ] Owner's item "5)" was cut off in the message: ask for it.
+- [ ] **Placement check ending (owner, later — not now):** better wording on the result screen at the end of the check, and
+  "Start here" must actually open the recommended lesson (today it is a disabled preview button), skipping the mastered
+  lessons but keeping their review.
 - Then the older list below (7 Mentava images, 7b idle life, 8 fishing egg), and the lesson rebuild after the owner
   approves the f lesson.
 
