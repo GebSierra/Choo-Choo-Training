@@ -12,6 +12,7 @@ import { dueLevel, builtLevels } from '../levels.js';
 import { starBoard } from '../components/star-board.js';
 import { levelBanner } from '../components/level-banner.js';
 import { planHome, worldAfter } from '../worlds.js';
+import { restCard, moonBadge, devPill, whenShown } from '../components/rest-card.js';
 
 // The path is a long winding trail that scrolls: up the screen in portrait (lesson 1 at the bottom, the newest stone at the top),
 // along it in landscape (lesson 1 at the left). Every stone, the trail and the scenery are placed from the data and the sizes
@@ -139,7 +140,7 @@ function scenery(g, next = null) {
 }
 
 // A stone on the path. A lesson shows its letter and number; a checkpoint ({title}) shows a small crate instead.
-function stone(g, i, what, state, onTap, speech, character) {
+function stone(g, i, what, state, onTap, speech, character, resting = false) {
   const sound = what.sound;
   const accent = sound ? `var(--${sound.glyph})` : '#C99A5B';
   const name = sound ? `Lesson ${what.number}` : what.title;
@@ -148,13 +149,13 @@ function stone(g, i, what, state, onTap, speech, character) {
     : h('span', { class: 'stone-top stone-sack' }, stopIcon(what));
   const badge = state === 'done'
     ? h('span', { class: 'stone-badge done' }, h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, 'aria-hidden': 'true' }, h('path', { d: 'M5 12.5l4.5 4.5L19 7.5', class: 'tick', fill: 'none', stroke: '#fff', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })))
-    : state === 'locked' ? h('span', { class: 'stone-badge lock' }, icon('lock', 16)) : null;
-  const btn = h('button', { class: `stone is-${state}`, type: 'button', style: { '--accent': accent }, 'aria-label': `${name}${state === 'locked' ? ', locked' : state === 'done' ? ', done' : ''}`, 'aria-disabled': state === 'locked' ? 'true' : null, onclick: () => onTap(btn, state) },
-    state === 'current' ? h('span', { class: 'stone-ring' }) : null, h('span', { class: 'stone-base' }), top, badge,
+    : state === 'locked' ? h('span', { class: 'stone-badge lock' }, icon('lock', 16)) : resting ? moonBadge() : null;
+  const btn = h('button', { class: `stone is-${state}${resting ? ' is-resting' : ''}`, type: 'button', style: { '--accent': accent }, 'aria-label': `${name}${state === 'locked' ? ', locked' : state === 'done' ? ', done' : resting ? ', resting until tomorrow' : ''}`, 'aria-disabled': state === 'locked' ? 'true' : null, onclick: () => onTap(btn, state) },
+    state === 'current' && !resting ? h('span', { class: 'stone-ring' }) : null, h('span', { class: 'stone-base' }), top, badge,
     state === 'current' && character ? h('span', { class: 'stone-kid', 'aria-hidden': 'true' }, kidSvg({ ...character, pose: 'wave' })) : null);
   const p = g.stones[i];
   const wrap = h('div', { class: 'stone-wrap', style: { '--px': p.px + '%', '--py': p.py + 'px', '--lx': p.lx + 'px', '--ly': p.ly + '%' } });
-  if (state === 'current') {
+  if (state === 'current' && !resting) {
     // Above its stone, or below it when the stone is near the top of the scene (the Grownups pill sits there) and always below in landscape.
     wrap.append(h('button', { class: 'bubble' + (p.py < BUBBLE_FLIP_Y ? ' below' : ''), type: 'button', onclick: () => speech.say([{ tts: 'Tap to start' }]) }, icon('speaker', 18), h('span', {}, 'Tap to start')));
   }
@@ -249,26 +250,27 @@ export function mapScreen(ctx, preview = null, plan = null) {
     if (node.checkpoint) {
       const c = node.checkpoint;
       // With every lesson done, the first sack not yet done is the current stone (one bubble, not one for each).
-      const pending = (curriculum.checkpoints || []).find((k) => !store.isCheckpointDone(k.id) && store.isCheckpointUnlocked(k));
-      const state = store.isCheckpointDone(c.id) ? 'done' : (!store.isCheckpointUnlocked(c) ? 'locked' : (current === null && pending && pending.id === c.id ? 'current' : 'open'));
+      const pending = (curriculum.checkpoints || []).find((k) => !store.isCheckpointDone(k) && store.isCheckpointUnlocked(k));
+      const state = store.isCheckpointDone(c) ? 'done' : (!store.isCheckpointUnlocked(c) ? 'locked' : (current === null && pending && pending.id === c.id ? 'current' : 'open'));
       if (state === 'current') { currentIndex = i; found = true; }
       return stone(g, i, c, state === 'open' ? 'unlocked' : state, tap((btn, st) => { if (st === 'locked') wobble(btn); else router.go(`/checkpoint/${c.id}`); }), speech, store.character());
     }
     const l = node.lesson;
     const state = store.isDone(l.number) ? 'done' : (!store.isUnlocked(l.number) ? 'locked' : (l.number === current ? 'current' : 'open'));
     if (l.number === current) { currentIndex = i; found = true; }
+    const resting = state === 'current' && store.isResting(l.number); // today's pace limit is reached
     return stone(g, i, { sound: curriculum.sounds[l.sound], number: l.number }, state === 'open' ? 'current' : state, tap((btn, st) => {
-      if (st === 'locked') wobble(btn); else router.go(`/lesson/${l.number}`);
-    }), speech, store.character());
+      if (st === 'locked') wobble(btn); else if (resting) openRest(l.number); else router.go(`/lesson/${l.number}`);
+    }), speech, store.character(), resting);
   });
   if (!found) currentIndex = nodes.length - 1;
   if (preview) currentIndex = preview.mode === 'in' ? 0 : nodes.length - 1; // a previewed world opens at its start (arriving) or its end (leaving)
   stones.forEach((s) => scene.append(s));
   // A station was just finished: the figure rides to the next stone (the simple version of the 3D sequence).
-  const fromStop = preview ? -1 : finishedStop(store, nodes.map((n) => (n.checkpoint ? (store.isCheckpointDone(n.checkpoint.id) && (store.checkpoint(n.checkpoint.id).completedAt || null)) : (store.isDone(n.lesson.number) && (store.lesson(n.lesson.number).completedAt || null)))).map((d) => (d === false || d === undefined ? false : d)), currentIndex);
+  const fromStop = preview ? -1 : finishedStop(store, nodes.map((n) => (n.checkpoint ? (store.isCheckpointDone(n.checkpoint) && (store.checkpoint(n.checkpoint.id).completedAt || null)) : (store.isDone(n.lesson.number) && (store.lesson(n.lesson.number).completedAt || null)))).map((d) => (d === false || d === undefined ? false : d)), currentIndex);
 
   const grown = holdButton({ label: 'Grownups · hold', caption: null, hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
-  const top = h('div', { class: 'home-top' }, grown, stars.el);
+  const top = h('div', { class: 'home-top' }, grown, stars.el, devPill(store));
   const fs = fullscreenButton({ className: 'home-fs' });
   const root = h('div', { class: 'home' }, scroller, top, ...(fs ? [fs] : []));
   // The theme song waits for the ride and the level banner to finish (it starts at once when neither is due).
@@ -288,6 +290,9 @@ export function mapScreen(ctx, preview = null, plan = null) {
   if (!preview) music.enterHome({ hold: () => celebrating || !!(gateHold && gateHold.active) });
 
   firstRunOverlay({ store, root });
+  // The pace limit's card: a tap on the resting stone, or a lesson opened by its address (js/screens/lesson.js leaves ctx.restCard).
+  function openRest(n) { restCard({ host: root, store, onOpenAnyway: () => router.go(`/lesson/${n}`) }); }
+  if (ctx.restCard) { const n = ctx.restCard; ctx.restCard = null; whenShown(root, () => openRest(n)); }
 
   // Open with the path's start in view, then glide to the current stone (at once if it is already in view or motion is reduced).
   // Only the stones that will be on screen rise into place, one after another; the rest simply stand there.

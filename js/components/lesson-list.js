@@ -29,11 +29,12 @@ export function lessonList({ store, curriculum, grouped = false }) {
     }
     const st = r.lesson ? store.lesson(r.lesson.number) : store.checkpoint(r.checkpoint.id);
     const unlocked = r.lesson ? store.isUnlocked(r.lesson.number) : store.isCheckpointUnlocked(r.checkpoint);
-    const status = st.result === 'got-it' ? `Got it${st.completedAt ? ' on ' + fmt(st.completedAt) : ''}` : st.result === 'practice-again' ? `Practice again${st.completedAt ? ' (' + fmt(st.completedAt) + ')' : ''}` : (unlocked ? 'Open, not finished' : 'Locked');
+    const doneNow = r.lesson ? store.isDone(r.lesson.number) : store.isCheckpointDone(r.checkpoint); // finishing a lesson completes everything before it
+    const status = doneNow && st.result !== 'got-it' ? 'Done (a later lesson is finished)' : st.result === 'got-it' ? `Got it${st.completedAt ? ' on ' + fmt(st.completedAt) : ''}` : st.result === 'practice-again' ? `Practice again${st.completedAt ? ' (' + fmt(st.completedAt) + ')' : ''}` : (unlocked ? 'Open, not finished' : 'Locked');
     return h('div', { class: 'gu-row' },
       h('span', { class: 'gu-glyph' }, r.lesson ? glyphSvg(r.lesson.sound, { color: accentOf(r.lesson.sound), label: name }) : stopIcon(r.checkpoint)),
       h('div', { class: 'gu-row-text' }, h('strong', {}, r.lesson ? `Lesson ${r.lesson.number}` : r.checkpoint.title), h('span', { class: 'gu-sub' }, status)),
-      unlocked ? h('span', { class: 'gu-open' }, st.result === 'got-it' ? icon('check', 20) : '') : h('button', { class: 'btn ghost small', type: 'button', 'aria-label': `Unlock ${name}`, onclick: () => { unlocking = r.key; paint(); } }, 'Unlock'));
+      unlocked ? h('span', { class: 'gu-open' }, doneNow ? icon('check', 20) : '') : h('button', { class: 'btn ghost small', type: 'button', 'aria-label': `Unlock ${name}`, onclick: () => { unlocking = r.key; paint(); } }, 'Unlock'));
   };
 
   const worldFold = (w) => {

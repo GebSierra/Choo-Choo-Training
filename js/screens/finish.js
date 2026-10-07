@@ -55,7 +55,7 @@ export function finishScreen({ store, router, curriculum, speech }, n) {
     armedNote: 'Tap again to go back to the path.',
     onContinue: () => { store.setResult(num, 'got-it'); router.go('/home'); },
     onPractice: () => {
-      if (store.lesson(num).result !== 'got-it') store.setResult(num, 'practice-again'); // keep the best result
+      if (!store.isDone(num)) store.setResult(num, 'practice-again'); // keep the best result
       store.resetLessonTasks(num);
       router.go(`/lesson/${num}`);
     },
@@ -75,7 +75,7 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
     armedNote: 'Tap again to go back to the path.',
     onContinue: () => { store.setCheckpointResult(ck.id, 'got-it'); router.go('/home'); },
     onPractice: () => {
-      if (store.checkpoint(ck.id).result !== 'got-it') store.setCheckpointResult(ck.id, 'practice-again'); // keep the best result
+      if (!store.isCheckpointDone(ck)) store.setCheckpointResult(ck.id, 'practice-again'); // keep the best result
       router.go(`/checkpoint/${ck.id}`);
     },
   });

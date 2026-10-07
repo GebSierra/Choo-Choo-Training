@@ -8,7 +8,7 @@ const fresh = () => ({
   order: ORDER, // the lesson order this state was saved under (js/order.js)
   lessons: {},
   checkpoints: {}, // bonus review games between lessons, by id: {result, completedAt, unlocked}
-  settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: true, sfx: true, music: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {}, tipsSeen: [], migrated1912: true },
+  settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: true, sfx: true, music: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {}, tipsSeen: [], migrated1912: true, perDay: 2, restOverride: null, dev: false, devOpenAll: false, devNoLimit: false },
   character: cleanCharacter({}), // the child's figure and name (js/character.js): on this device only
   meetDue: true, // the character creator shows once, after the welcome card
   firstRunDone: false,
@@ -22,6 +22,9 @@ export function cleanSettings(s, d) {
   const num = (v, lo, hi, dflt) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : dflt);
   const out = { ...s, rate: num(s.rate, 0.7, 1.1, d.rate), sfxVolume: num(s.sfxVolume, 0, 1, d.sfxVolume) };
   for (const k of ['autoSpeak', 'playSounds', 'sfx', 'music', 'fullInstructions', 'trainWorld', 'migrated1912']) if (typeof s[k] !== 'boolean') out[k] = d[k];
+  for (const k of ['dev', 'devOpenAll', 'devNoLimit']) if (typeof s[k] !== 'boolean') out[k] = d[k];
+  if (![0, 1, 2, 3].includes(s.perDay)) out.perDay = d.perDay; // new lessons per day: 1, 2, 3, or 0 for no limit
+  if (typeof s.restOverride !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s.restOverride)) out.restOverride = null; // the local date a grown-up opened a resting lesson
   if (s.voiceURI !== null && typeof s.voiceURI !== 'string') out.voiceURI = d.voiceURI;
   if (!s.seenScripts || typeof s.seenScripts !== 'object' || Array.isArray(s.seenScripts)) out.seenScripts = {};
   if (!Array.isArray(s.tipsSeen) || !s.tipsSeen.every((x) => Number.isInteger(x))) out.tipsSeen = [];
@@ -41,6 +44,9 @@ export function cleanLevels(v) {
 export function cleanWorlds(v) {
   return v && typeof v === 'object' && !Array.isArray(v) && typeof v.seen === 'string' && v.seen ? { seen: v.seen } : { seen: null };
 }
+
+// Today's local date as YYYY-MM-DD (the pace limit rolls over at local midnight).
+export const dayKey = (t = Date.now()) => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 
 export function createStore() {
   let migrated = false;
@@ -87,15 +93,26 @@ export function createStore() {
     get state() { return state; },
     get settings() { return state.settings; },
     lesson,
-    isUnlocked(n) {
-      if (n === 1) return true;
-      return lesson(n).unlocked === true || lesson(n - 1).result === 'got-it';
-    },
-    isDone: (n) => lesson(n).result === 'got-it',
+    // Finishing a lesson completes everything before it: a lesson counts as done when its own result is got-it or a later lesson's is.
+    // This is derived, never written, so the saved results stay exactly as the child earned them.
+    isDone(n) { return Object.entries(state.lessons).some(([k, l]) => Number(k) >= n && l && l.result === 'got-it'); },
+    // Open by the rules of the path (the lesson before it is done, or a grown-up unlocked it), ignoring developer mode.
+    isNaturallyUnlocked(n) { return n === 1 || lesson(n).unlocked === true || this.isDone(n - 1); },
+    isUnlocked(n) { return this.devOpenAll || this.isNaturallyUnlocked(n); },
+    get devOpenAll() { return state.settings.dev === true && state.settings.devOpenAll === true; },
     currentLesson(total) {
-      for (let n = 1; n <= total; n++) if (this.isUnlocked(n) && lesson(n).result !== 'got-it') return n;
+      for (let n = 1; n <= total; n++) if (this.isNaturallyUnlocked(n) && !this.isDone(n)) return n;
       return null;
     },
+    // ---- the pace limit (settings.perDay): lessons first finished today count; the next new lesson then rests until tomorrow ----
+    doneToday() { const k = dayKey(); return Object.values(state.lessons).filter((l) => l && l.result === 'got-it' && typeof l.doneAt === 'number' && dayKey(l.doneAt) === k).length; },
+    paceActive() { const s = state.settings; return s.perDay > 0 && !(s.dev === true && (s.devOpenAll || s.devNoLimit)); },
+    // The next new lesson is resting when today's limit is reached, unless a grown-up opened it for today. Done lessons, and lessons a grown-up unlocked, never rest.
+    isResting(n) {
+      if (!this.paceActive() || this.isDone(n) || !(n === 1 || this.isDone(n - 1)) || lesson(n).unlocked === true) return false;
+      return state.settings.restOverride !== dayKey() && this.doneToday() >= state.settings.perDay;
+    },
+    allowToday() { this.setSetting('restOverride', dayKey()); },
     markTask(n, i) {
       const l = { ...lesson(n) };
       if (!l.tasksDone.includes(i)) l.tasksDone = [...l.tasksDone, i];
@@ -103,6 +120,7 @@ export function createStore() {
     },
     setResult(n, result) {
       const l = { ...lesson(n), result, completedAt: new Date().toISOString() };
+      if (result === 'got-it' && !this.isDone(n)) l.doneAt = Date.now(); // first time done (a lesson already completed by a later one does not count as new)
       state.lessons[n] = l; save();
     },
     resetLessonTasks(n) {
@@ -111,8 +129,13 @@ export function createStore() {
     unlock(n) { state.lessons[n] = { ...lesson(n), unlocked: true }; save(); },
     checkpoint,
     // A checkpoint opens once the lesson it follows is done, or when the parent unlocks it in Grownups.
-    isCheckpointUnlocked(ck) { return checkpoint(ck.id).unlocked === true || this.isDone(ck.after); },
-    isCheckpointDone: (id) => checkpoint(id).result === 'got-it',
+    isCheckpointUnlocked(ck) { return this.devOpenAll || checkpoint(ck.id).unlocked === true || this.isDone(ck.after); },
+    // Done by its own result, or when any lesson after the one it follows is done. Pass the checkpoint (it knows `after`); a bare id only has its own result.
+    isCheckpointDone(c) {
+      const id = typeof c === 'string' ? c : c.id;
+      if (checkpoint(id).result === 'got-it') return true;
+      return typeof c === 'object' && c !== null && this.isDone(c.after + 1);
+    },
     setCheckpointResult(id, result) { state.checkpoints[id] = { ...checkpoint(id), result, completedAt: new Date().toISOString() }; save(); },
     unlockCheckpoint(id) { state.checkpoints[id] = { ...checkpoint(id), unlocked: true }; save(); },
     levels: () => state.levels,
