@@ -53,3 +53,8 @@ export function scriptToParts(text, soundKeys, { quiet = false } = {}) {
   flush();
   return parts;
 }
+
+// The one grown-up script for every teaching activity that asks the child to read a word or a sentence (owner decision):
+// try it first, sound it out together if some letters are known, and only then model it for the child to imitate. It says no
+// letter sounds, so the phone's voice can read it. (Not used in the placement check: that is an assessment, no help is given.)
+export const READ_HELP = 'Ask your child to read it. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you.';

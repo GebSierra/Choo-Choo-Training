@@ -19,7 +19,7 @@ const LAND = { name: '915x412', width: 915, height: 412, deviceScaleFactor: 2 };
 const SENTENCE = 'Sam sat at the map.';
 const TH_PROMPT = 'Say: th (buzzing, tongue between your teeth)';
 // Everything the phone's voice may say on this screen: the whole word, the sentence and instructions.
-const ALLOWED_TTS = new Set(['the', SENTENCE, 'Look at the word. Can you read it?', 'Tap each part of the word.', 'What is the real word?', 'Find the word the.', 'Good job.']);
+const ALLOWED_TTS = new Set(['the', SENTENCE, 'Look at the word. Can you read it?', 'Tap each part of the word.', 'What is the real word?', 'Read the sentence together, then tap the heart word.', 'Good job.']);
 
 const RAF_COUNT = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
 const tapEl = async (page, loc) => { const b = await loc.first().boundingBox(); await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2); };
@@ -145,6 +145,7 @@ async function walk(browser, url, ok, mode) {
   await tapEl(page, sel(page, '.judge-btn.help')); await page.waitForTimeout(400);
   ok(await visible(page, '.ri-panel'), T('Help shows a hint with the real word'));
   await tapEl(page, sel(page, '.ri-panel .px-hear')); await page.waitForTimeout(300);
+  ok((await text(page, '.hw-hint .ri-text')) === 'Try the other sound for the letter e. The real word is "the".', T('the Fix-it hint says "the letter e" (no "thee" typo)'));
   await shotOf(page, '03b-fix-help');
   await got(page);
   await toDone(page); ok(true, T('Fix the word reaches done'));
@@ -156,6 +157,8 @@ async function walk(browser, url, ok, mode) {
   ok(tray === 'aehmst', T(`the tray holds t h e and taught letters (${tray})`));
   ok((await sel(page, '.bi-slot').count()) === 3, T('three boxes'));
   await shotOf(page, '04a-spell');
+  const gap = await page.evaluate(() => { const a = document.querySelector('.bi-slots').getBoundingClientRect(), t = document.querySelector('.bi-tray').getBoundingClientRect(), tile = document.querySelector('.bi-tile').getBoundingClientRect(); return { gap: t.top - a.bottom, tileH: tile.height, tileW: tile.width, bg: getComputedStyle(document.querySelector('.bi-tray')).backgroundColor }; });
+  ok(gap.gap >= 24 && gap.tileH >= 48 && gap.tileW >= 48 && gap.bg !== 'rgba(0, 0, 0, 0)', T(`Spell it: the answer row and the tile tray are clearly apart (${Math.round(gap.gap)} px gap, tinted tray, 48 px tiles)`));
   for (const ch of 'sem') await tapEl(page, sel(page, `.bi-tile[data-letter="${ch}"]`));
   await page.waitForTimeout(500);
   ok((await dset(page, '.proto.heart', 'wrong')) === '1', T('a wrong spelling is counted'));
@@ -177,6 +180,9 @@ async function walk(browser, url, ok, mode) {
   ok((await sel(page, '.hw-w').count()) === 5, T('the sentence as five big word tiles'));
   const words = await page.evaluate(() => [...document.querySelectorAll('.hw-w')].map((b) => b.dataset.word).join(' '));
   ok(words === 'sam sat at the map', T(`the words (${words})`));
+  ok((await text(page, '.px-chip')) === 'Read the sentence together, then tap the heart word', T('Find it: the first chip reads "Read the sentence together, then tap the heart word"'));
+  const fscript = await page.evaluate(() => document.querySelector('.script-sheet .sheet-body').textContent);
+  ok(fscript.includes('Read the sentence together, then your child taps the heart word') && fscript.includes('Ask your child to read it. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you.'), T('Find it: the grown-up script matches the chip and has the read-it help'));
   await shotOf(page, '05a-find');
   if (!red) await idleCheck(page, ok, T('find'));
   for (const w of ['sam', 'at', 'map']) { await tapEl(page, sel(page, `.hw-w[data-word="${w}"]`)); await page.waitForTimeout(250); }
@@ -231,7 +237,13 @@ async function sizes({ browser, url, ok }) {
       if (phase === 'map') { await tapEl(page, sel(page, '.hw-tile.th')); await tapEl(page, sel(page, '.hw-tile.e')); await page.waitForTimeout(500); await slide(page); await page.waitForTimeout(500); }
       if (phase === 'fix') { await tapEl(page, sel(page, '.judge-btn.help')); await page.waitForTimeout(400); }
       if (phase === 'spell') { for (const ch of 'sem') await tapEl(page, sel(page, `.bi-tile[data-letter="${ch}"]`)); await page.waitForTimeout(500); }
-      if (phase === 'find') { await tapEl(page, sel(page, '.hw-w[data-word="the"]')); await page.waitForTimeout(600); }
+      if (phase === 'find') {
+        // the long first chip (two lines at most) must fit before anything is tapped
+        await page.waitForTimeout(500);
+        const c = await page.evaluate(() => { const e = document.querySelector('.hw-find-chip'), q = e.getBoundingClientRect(), a = document.querySelector('.task-activity'); return { l: q.left, r: q.right, w: innerWidth, lines: Math.round((q.height - parseFloat(getComputedStyle(e).paddingTop) - parseFloat(getComputedStyle(e).paddingBottom)) / parseFloat(getComputedStyle(e).lineHeight)), scroll: a.scrollHeight - a.clientHeight, over: e.scrollWidth > e.clientWidth + 1 }; });
+        ok(c.l >= 0 && c.r <= c.w && c.lines <= 2 && c.scroll <= 1 && !c.over, `${vp.name} find: the first chip fits (${JSON.stringify(c)})`);
+        await tapEl(page, sel(page, '.hw-w[data-word="the"]')); await page.waitForTimeout(600);
+      }
       await page.waitForTimeout(500);
       const tag = `${vp.name} ${phase}`;
       const r = await page.evaluate(() => {

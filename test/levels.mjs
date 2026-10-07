@@ -12,7 +12,7 @@ const done = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 
 // arrival, then level one in the world's tunnel portal, then (1.9.14) the crossing into world 2.
 const six = (settings = {}, extra = {}) => state(6, { trainAt: iL(6), trainDone: 5, ...settings }, { lessons: done(6), levels: { seen: 0, earned: {} }, worlds: { seen: 'W1' }, character: CHARACTER, meetDue: false, ...extra });
 // The crossing after the party has finished: world 2's Home is up and still.
-const crossed = (page) => until(page, () => { const h = document.querySelector('.gateway-host'); return h && h.dataset.phase === 'done' && window.__train && window.__train.world === 'W2' && !window.__train.running; }, null, 40000);
+const crossed = (page) => until(page, () => { const go = document.querySelector('.world-card .wg-go'); if (go && !go.disabled) go.click(); /* a tip waits for "Let's go!" */ const h = document.querySelector('.gateway-host'); return h && h.dataset.phase === 'done' && window.__train && window.__train.world === 'W2' && !window.__train.running; }, null, 40000);
 const PHASES = () => { window.__phases = []; setInterval(() => { const p = window.__train && window.__train.level && window.__train.level.phase; if (p !== undefined && window.__phases[window.__phases.length - 1] !== p) window.__phases.push(p); }, 16); };
 const stored = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')));
 const idle = async (page) => {

@@ -148,7 +148,7 @@ export async function musicChecks({ browser, url, ok }) {
     ok(await until(page, () => window.__train && window.__train.gate.mode === 'out', null, 15000), 'crossing: Home shows world 1 with its crossing due');
     let first = null, early = 0;
     for (let i = 0; i < 300 && !first; i++) {
-      const r = await page.evaluate(() => { const h = document.querySelector('.gateway-host'); return { plays: window.__media.filter((m) => m.op === 'play' && m.src === 'theme.mp3').length, phase: h ? h.dataset.phase : null, card: !!document.querySelector('.world-card'), run: window.__train ? window.__train.running : null }; });
+      const r = await page.evaluate(() => { const go = document.querySelector('.world-card .wg-go'); if (go && !go.disabled) go.click(); const h = document.querySelector('.gateway-host'); return { plays: window.__media.filter((m) => m.op === 'play' && m.src === 'theme.mp3').length, phase: h ? h.dataset.phase : null, card: !!document.querySelector('.world-card'), run: window.__train ? window.__train.running : null }; });
       if (r.plays > 0) first = r; else if (r.phase === 'card' || r.phase === 'arrive') early++;
       if (!first) await page.waitForTimeout(150);
     }

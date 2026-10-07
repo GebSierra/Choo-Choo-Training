@@ -38,8 +38,8 @@
     "scripts": {
       "letters": "Your child says the sound before hearing it. Tap Got it, or Help if they are stuck: you say the sound, your child says it back, and the card comes back once at the end. Keep p and t quick and crisp, with no uh.",
       "lettersGist": "Child says the sound first.",
-      "words": "Your child sounds out the word and says it. Tap Got it, or Help: tap the letter that was tricky, play its sound, then the whole word, and your child blends it again.",
-      "wordsGist": "Child reads the word.",
+      "words": "Ask your child to read the word. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you. Tap Got it, or Help: tap the letter that was tricky, play its sound, then the whole word, and your child blends it again.",
+      "wordsGist": "Read it together.",
       "wagons": "Say: \"Say the sound first, then find it!\" Your child says the sound of the letter on the card, then taps every wagon with that letter.",
       "wagonsGist": "Say it first, then find it."
     }
@@ -53,8 +53,8 @@
       "mouthGist": "Top teeth on bottom lip.",
       "say": "Your child says the sound three times. Tap a dot after each one. Tap Hear it for the recording.",
       "sayGist": "Child says it 3 times.",
-      "trace": "Say: \"Start at the dot. Follow the arrow.\" Move your finger with theirs and say {sound:f} as you trace.",
-      "traceGist": "Start at the dot."
+      "trace": "Draw it first while your child watches, then let them try. Start at the dot and follow the arrow. Say {sound:f} as you trace. It's fine if it doesn't look right yet: your child can still move on.",
+      "traceGist": "Draw it, then they try."
     },
     "mouthLine": "Top teeth on your bottom lip, and blow: {sound:f}. Not fuh."
   },
@@ -70,8 +70,8 @@
   "read": {
     "words": ["fit", "sat", "if", "map", "fat", "sip"],
     "scripts": {
-      "read": "Your child reads the word. Tap Got it, or Help. Help: tap the letter that was tricky, play its sound, then the whole word, and your child blends it again. A missed word comes back once at the end.",
-      "readGist": "Child reads. You judge."
+      "read": "Ask your child to read the word. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you. Tap Got it, or Help. Help: tap the letter that was tricky, play its sound, then the whole word, and your child blends it again. A missed word comes back once at the end.",
+      "readGist": "Read it together."
     }
   },
   "build": {
@@ -93,8 +93,8 @@
     ],
     "question": { "say": "What is fat?", "choices": ["map", "Sam", "mat"], "answer": "map", "line": 1, "right": "Yes! It is a fat map.", "wrong": "Let's look again." },
     "scripts": {
-      "line": "Your child reads the line aloud. Tap Got it, or Help: tap the tricky word, play its sounds (you say a heart word whole), then your child reads the whole line again.",
-      "lineGist": "Child reads the line.",
+      "line": "Ask your child to read the line. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you. Tap Got it, or Help: tap the tricky word, play its sounds (you say a heart word whole), then your child reads the whole line again.",
+      "lineGist": "Read it together.",
       "page": "Your child can read the whole story again, a little faster. Tap Hear the story to hear it read smoothly first, then reread. Tap Next for a question.",
       "pageGist": "Reread, a little faster.",
       "question": "Ask: \"What is fat?\" Your child taps a picture. This checks meaning, not reading.",

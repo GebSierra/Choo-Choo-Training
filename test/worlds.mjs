@@ -151,18 +151,22 @@ export async function previewChecks({ browser, url, ok, vp }) {
   ok(l1.length === 0, `${tag} tip: fits the screen (${l1.join(' | ')})`);
   ok(await page.evaluate(() => !!document.querySelector('.station-btn') && document.elementFromPoint(innerWidth / 2, 60) !== null), `${tag} tip: it does not block Home (the stations are still there)`);
   await shot(page, 'tip-card', tag);
-  await page.locator('.tip-card').click();
-  ok(await until(page, () => !document.querySelector('.tip-card'), null, 3000), `${tag} tip: a tap closes it`);
+  ok(await page.evaluate(() => { const b = document.querySelector('.tip-card .tip-ok'); const r = b.getBoundingClientRect(); return b.textContent === 'Got it' && r.height >= 48; }), `${tag} tip: it has a "Got it" button (48 px high)`);
+  await page.waitForTimeout(11000);
+  ok(await page.evaluate(() => !!document.querySelector('.tip-card.in')), `${tag} tip: still open after 10 s (no timeout)`);
+  await page.locator('.tip-card .tip-text').click();
+  await page.waitForTimeout(500);
+  ok(await page.evaluate(() => !!document.querySelector('.tip-card.in')), `${tag} tip: a tap on the text does not close it`);
+  await page.locator('.tip-card .tip-ok').click();
+  ok(await until(page, () => !document.querySelector('.tip-card'), null, 3000), `${tag} tip: "Got it" closes it`);
   await backToGrownups(page);
-  // the same card closes by itself after about 4.5 s (one timeout, a CSS fade)
+  // the X closes it too
   await openPreview(page, 'tip');
   ok(await until(page, () => !!document.querySelector('.tip-card.in'), null, 15000), `${tag} tip: it shows again`);
   const second = await page.evaluate(() => document.querySelector('.tip-card').dataset.tip);
   ok(second === '2', `${tag} tip: the rotation moved on to the next tip (${second})`);
-  const t0 = Date.now();
-  ok(await until(page, () => !document.querySelector('.tip-card'), null, 9000), `${tag} tip: it closes by itself`);
-  const took = Date.now() - t0;
-  ok(took > 2500 && took < 7000, `${tag} tip: after about 4.5 s (${took} ms left)`);
+  await page.locator('.tip-card .tip-close').click();
+  ok(await until(page, () => !document.querySelector('.tip-card'), null, 3000), `${tag} tip: the X closes it`);
   await backToGrownups(page);
 
   // ---- the journey board ----
@@ -213,7 +217,14 @@ export async function previewChecks({ browser, url, ok, vp }) {
   await shot(page, 'loading-card', tag);
   const t1 = Date.now();
   ok(await until(page, () => document.querySelector('.world-card') && document.querySelector('.world-card').dataset.ready === '1', null, 20000), `${tag} gateway: the next world is built behind the card`);
-  await page.locator('.world-card').click(); // a tap goes on at once (not waiting the 3 s)
+  // a tip is on the card: it does NOT move on by itself, however long it waits (owner decision), and a tap on the card body does nothing
+  await page.waitForTimeout(4500);
+  ok(await page.evaluate(() => !!document.querySelector('.world-card') && !document.querySelector('.world-card .wg-go').disabled), `${tag} gateway: with a tip the card is still there after 4.5 s, waiting for "Let's go!"`);
+  await page.locator('.world-card .wg-tip').click();
+  await page.waitForTimeout(500);
+  ok(await page.evaluate(() => !!document.querySelector('.world-card')), `${tag} gateway: tapping the card body does not move on`);
+  ok(await page.evaluate(() => { const b = document.querySelector('.world-card .wg-go'); const r = b.getBoundingClientRect(); return b.textContent === "Let's go!" && r.height >= 48 && r.width >= 48; }), `${tag} gateway: the button reads "Let's go!" and is a 48 px target`);
+  await page.locator('.world-card .wg-go').click();
   ok(await until(page, () => !document.querySelector('.world-card'), null, 5000), `${tag} gateway: a tap ends the card (${Date.now() - t1} ms)`);
   ok(await until(page, () => window.__train && window.__train.world === 'W2' && window.__train.frames > 0, null, 20000), `${tag} gateway: the second world's Home is up`);
   const w2 = await page.evaluate(() => ({ stops: window.__train.stopCount, l: window.__train.lessonCount, c: window.__train.checkpointCount, tunnel: window.__train.startTunnel, btns: document.querySelectorAll('.station-btn').length, mode: window.__train.gate.mode, kinds: [...document.querySelectorAll('.station-btn')].map((b) => b.getAttribute('aria-label')).join() }));
@@ -252,7 +263,7 @@ export async function flatChecks({ browser, url, ok }) {
   await page.waitForTimeout(700);
   await shot(page, 'loading-card-flat', 'portrait');
   ok(await until(page, () => document.querySelector('.world-card') && document.querySelector('.world-card').dataset.ready === '1', null, 10000), 'flat gateway: the second map is built behind it');
-  await page.locator('.world-card').click();
+  await page.locator('.world-card .wg-go').click();
   ok(await until(page, () => !document.querySelector('.world-card') && document.querySelectorAll('.stone').length === 7, null, 8000), 'flat gateway: then the second world shows its seven stones');
   ok(errors.length === 0, `flat gateway: errors ${errors.join(' | ')}`);
   await ctx.close();
@@ -268,8 +279,8 @@ export async function reducedChecks({ browser, url, ok }) {
   ok(await until(page, () => !!document.querySelector('.tip-card.in'), null, 10000), 'reduced: the tip card shows');
   const c = await page.evaluate(() => { const e = document.querySelector('.tip-card'); const cs = getComputedStyle(e); return { still: e.classList.contains('still'), op: cs.opacity, tr: cs.transitionDuration, anim: e.getAnimations().length }; });
   ok(c.still && c.op === '1' && parseFloat(c.tr) < 0.001 && c.anim === 0, `reduced: the tip card is simply there, no transition, no animation (${JSON.stringify(c)})`);
-  await page.locator('.tip-card').click();
-  ok(await until(page, () => !document.querySelector('.tip-card'), null, 2000), 'reduced: and closes on a tap');
+  await page.locator('.tip-card .tip-ok').click();
+  ok(await until(page, () => !document.querySelector('.tip-card'), null, 2000), 'reduced: and closes on "Got it"');
   await backToGrownups(page);
   await openPreview(page, 'board');
   await page.waitForSelector('.jb');
@@ -282,7 +293,7 @@ export async function reducedChecks({ browser, url, ok }) {
   await openPreview(page, 'gateway');
   ok(await until(page, () => !!document.querySelector('.world-card'), null, 30000), 'reduced: the gateway still reaches the loading card');
   ok(await until(page, () => document.querySelector('.world-card') && document.querySelector('.world-card').dataset.ready === '1', null, 20000), 'reduced: the next world is built behind it');
-  await page.locator('.world-card').click();
+  await page.locator('.world-card .wg-go').click();
   ok(await until(page, () => window.__train && window.__train.world === 'W2' && window.__train.gate.phase === 'done' && !window.__train.running, null, 20000), 'reduced: the second world is simply there, the train at its first station');
   ok(await page.evaluate(() => Math.abs(window.__train.trainS - (window.__train.stopS[0] + window.__train.engineAt)) < 0.05), 'reduced: the train rests at the first stop with no roll');
   ok(errors.length === 0, `reduced: errors ${errors.join(' | ')}`);
@@ -368,8 +379,10 @@ export async function liveCrossingChecks({ browser, url, ok, vp }) {
   ok(card.next === 'Next stop:' && card.name === 'Green Valley' && card.color === '#3dd68c' && tipTexts.has(card.tip) && !card.back, `${tag} crossing: "Next stop: Green Valley" in its colour with a tip from the rotation (${card.name})`);
   await liveShot(page, 'crossing-loading-card', tag);
   ok(await until(page, () => document.querySelector('.world-card') && document.querySelector('.world-card').dataset.ready === '1', null, 20000), `${tag} crossing: world 2 is built behind the card`);
-  const t0 = Date.now();
-  ok(await until(page, () => !document.querySelector('.world-card'), null, 9000), `${tag} crossing: the card ends by itself after about 3 s (${Date.now() - t0} ms more)`);
+  await page.waitForTimeout(5000);
+  ok(await page.evaluate(() => !!document.querySelector('.world-card') && !document.querySelector('.world-card .wg-go').disabled), `${tag} crossing: with a tip the card waits (still there 5 s after the next world is ready)`);
+  await page.locator('.world-card .wg-go').click();
+  ok(await until(page, () => !document.querySelector('.world-card'), null, 9000), `${tag} crossing: "Let's go!" ends the card`);
   ok(await until(page, () => window.__train && window.__train.world === 'W2' && window.__train.gate.phase === 'in', null, 10000), `${tag} crossing: world 2's train rolls out of a tunnel`);
   await page.waitForTimeout(900);
   await liveShot(page, 'crossing-rolling-out', tag);
@@ -433,7 +446,7 @@ export async function liveOtherChecks({ browser, url, ok }) {
     const c = await page.evaluate(() => { const e = document.querySelector('.world-card'); const cs = getComputedStyle(e); return { op: cs.opacity, tr: cs.transitionDuration, name: e.querySelector('.wg-name').textContent }; });
     ok(c.name === 'Green Valley' && c.op === '1' && parseFloat(c.tr) < 0.001, `reduced crossing: the card is simply there (${JSON.stringify(c)})`);
     ok(await until(page, () => document.querySelector('.world-card') && document.querySelector('.world-card').dataset.ready === '1', null, 10000), 'reduced crossing: world 2 is built behind it');
-    await page.locator('.world-card').click();
+    await page.locator('.world-card .wg-go').click();
     ok(await until(page, () => window.__train && window.__train.world === 'W2' && window.__train.gate.phase === 'done' && !window.__train.running, null, 15000), 'reduced crossing: world 2 is simply there');
     ok(await page.evaluate(() => Math.abs(window.__train.trainS - (window.__train.stopS[0] + window.__train.engineAt)) < 0.05), 'reduced crossing: the train rests at the first stop, no roll');
     await page.waitForTimeout(800);
@@ -533,7 +546,7 @@ export async function liveFlatChecks({ browser, url, ok, vp }) {
     await page.waitForTimeout(500);
     await liveShot(page, 'map-loading-card', vp.name);
     ok(await until(page, () => document.querySelector('.world-card') && document.querySelector('.world-card').dataset.ready === '1', null, 10000), `${tag} crossing: world 2's map is built behind it`);
-    await page.locator('.world-card').click();
+    await page.locator('.world-card .wg-go').click();
     ok(await until(page, () => !document.querySelector('.world-card') && document.querySelectorAll('.stone').length === 7, null, 8000), `${tag} crossing: then world 2 shows only its seven stones`);
     const t = await page.evaluate(() => ({ world: document.querySelector('.scene-tunnel').dataset.world, labels: [...document.querySelectorAll('.stone')].map((s) => s.getAttribute('aria-label')) }));
     ok(t.world === 'W3' && t.labels[0].startsWith('Lesson 7') && !t.labels.some((l) => /Lesson [1-6]\b/.test(l)), `${tag} crossing: world 2's map ends in a tunnel icon to Sunny Hills`);

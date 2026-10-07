@@ -2,6 +2,7 @@
 // to a loading card ("Next stop: <world>", the world's colour, a tip), the next world's Home is built behind it, and its train
 // rolls out of a tunnel at the start. The same host plays the preview in Grownups > Previews (real: false: nothing is saved).
 // Without the 3D railway the same card shows between two flat maps. Nothing here loops: a few timers, then stillness.
+// With a tip on the card the card never moves on by itself: the grown-up reads at their own pace and taps "Let's go!".
 import { h, reduced } from '../dom.js';
 import { homeScreen } from './home.js';
 import { tipCard, nextTip, loadTips } from '../components/tip-card.js';
@@ -46,8 +47,9 @@ export async function worldHost(ctx, { from, to, real, back = null }) {
           h('h2', { class: 'wg-name' }, to.name)),
         h('div', { class: 'wg-more' },
           tip ? h('div', { class: 'wg-tip' }, h('strong', {}, 'Did you know?'), h('p', {}, tip.text)) : null,
-          h('p', { class: 'wg-hint' }, 'Tap to go'))));
-    card.addEventListener('click', () => dismiss());
+          tip ? h('button', { class: 'btn big wg-go', type: 'button', disabled: true, onclick: (e) => { e.stopPropagation(); dismiss(); } }, 'Let\'s go!') : h('p', { class: 'wg-hint' }, 'Tap to go'))));
+    if (!tip) card.addEventListener('click', () => dismiss());
+    else card.style.cursor = 'default';
     host.append(card);
     void card.offsetWidth;
     card.classList.add('in');
@@ -59,7 +61,9 @@ export async function worldHost(ctx, { from, to, real, back = null }) {
       if (disposed) { dispose(nextHome); return; }
       host.insertBefore(nextHome, card);
       card.dataset.ready = '1';
-      later(() => dismiss(), Math.max(0, CARD_MIN_MS - (performance.now() - shownAt)));
+      const go = card.querySelector('.wg-go');
+      if (go) go.disabled = false; // a tip is on the card: it waits for the grown-up, whatever the motion setting
+      else later(() => dismiss(), Math.max(0, CARD_MIN_MS - (performance.now() - shownAt)));
     }, still ? 60 : CARD_FADE_MS);
   };
 

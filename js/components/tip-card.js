@@ -1,30 +1,29 @@
-// "Did you know?": a calm, non-blocking tip card for the grown-up (data/tips.json). It fades in, and closes on a tap or
-// after `ms` (one setTimeout, then a CSS opacity fade; no loop). The card is the only part that takes touches, so
-// whatever is under it stays usable. Returns { el, close }.
+// "Did you know?": a calm, non-blocking tip card for the grown-up (data/tips.json). It fades in and STAYS until the grown-up
+// closes it with "Got it" or the X (owner decision: no timeout, a grown-up needs time to read). No timer, no loop. The card is
+// the only part that takes touches, so whatever is under it stays usable. Returns { el, close }.
 import { h, icon, reduced } from '../dom.js';
 import { pipSvg } from '../art/pip.js';
 
-export const TIP_MS = 4500, TIP_FADE_MS = 300;
+export const TIP_FADE_MS = 300;
 
-export function tipCard({ host, tip, title = 'Did you know?', onClose, ms = TIP_MS }) {
-  let closed = false, timer = 0;
+export function tipCard({ host, tip, title = 'Did you know?', onClose }) {
+  let closed = false;
   const still = reduced();
   const el = h('div', { class: 'tip-card' + (still ? ' still' : ''), role: 'status', dataset: { tip: String(tip.id) } },
     h('div', { class: 'tip-pip', 'aria-hidden': 'true' }, pipSvg({ pose: 'point', still: true })),
-    h('div', { class: 'tip-body' }, h('strong', { class: 'tip-title' }, title), h('p', { class: 'tip-text' }, tip.text)),
-    h('button', { class: 'tip-close', type: 'button', 'aria-label': 'Close the tip', onclick: (e) => { e.stopPropagation(); close(); } }, icon('close', 22)));
+    h('div', { class: 'tip-body' }, h('strong', { class: 'tip-title' }, title), h('p', { class: 'tip-text' }, tip.text),
+      h('button', { class: 'btn small tip-ok', type: 'button', onclick: () => close() }, 'Got it')),
+    h('button', { class: 'tip-close', type: 'button', 'aria-label': 'Close the tip', onclick: () => close() }, icon('close', 22)));
   function close() {
     if (closed) return;
-    closed = true; clearTimeout(timer);
+    closed = true;
     el.classList.add('closing');
     setTimeout(() => { el.remove(); if (onClose) onClose(); }, still ? 0 : TIP_FADE_MS);
   }
-  el.addEventListener('click', close);
   host.append(el);
   // The fade in is a CSS transition (under reduced motion it is simply shown).
   void el.offsetWidth; // flush the starting style, so the transition runs
   el.classList.add('in');
-  timer = setTimeout(close, ms);
   return { el, close };
 }
 
