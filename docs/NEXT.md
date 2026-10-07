@@ -1,4 +1,4 @@
-# Handoff: where Choo Choo Training stands (version 1.9.14)
+# Handoff: where Choo Choo Training stands (version 1.9.19)
 
 Repo: GebSierra/Choo-Choo-Training (the old name KDDash is retired everywhere). Work on `main`.
 Last session finished every item of the previous handoff. Full `npm test` result: see the last line of this file.
@@ -84,7 +84,7 @@ Nothing in this list gets built until the owner has picked an option and approve
    - Not counted as a lesson and never required; reduced motion: fish hold still; works in 2D Home too only if a
      river exists there (otherwise 3D only). Back button and the Android back return to the railway.
 
-9. **Owner requests 2026-10-07 (in progress):** (a) finishing a lesson counts every earlier lesson and checkpoint as done
+9. **Owner requests 2026-10-07 (DONE in 1.9.19, waiting for the owner's review):** (a) finishing a lesson counts every earlier lesson and checkpoint as done
    (derived in store.isDone, nothing overwritten); (b) a pace limit: 2 new lessons a day by default (Grownups: 1, 2, 3 or
    no limit), the next station "rests" with a friendly card and a grown-up hold "Open it anyway"; (c) a hidden developer
    mode (tap the version line in Grownups 7 times): open every lesson without changing progress, ignore the daily limit,
@@ -122,4 +122,6 @@ owner approves that plan.
 - Keep the white paper current (owner): every study the app relies on (in code, design notes or parent text) goes into
   docs/CURRICULUM.md (research table and Sources), fact-checked against the paper before it is stated publicly.
 
-Full `npm test` on 1.9.6 (2026-10-06): all 23 suites pass, EXIT 0 (about 85 minutes).
+Full `npm test` on 1.9.19 (2026-10-07): all 31 suites pass (train, regions and smoke re-run after two test fixes).
+Since 1.9.14: 1.9.16 heart word prototype, 1.9.17 research-based placement check, 1.9.18 portal mountain redesign, 1.9.19
+regions W3/W4 (`#/world/<id>`), pace limit, developer mode, finishing a lesson completes the earlier ones.
