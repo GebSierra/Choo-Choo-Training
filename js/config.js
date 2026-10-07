@@ -3,4 +3,9 @@
 export const SUPABASE_URL = ''; // like https://abcdefgh.supabase.co
 export const SUPABASE_ANON_KEY = '';
 // Where the password reset email sends the grown-up (must also be in Supabase > Authentication > URL Configuration).
-export const SITE_URL = 'https://choochootraining.com/';
+export const SITE_URL = 'https://app.choochootraining.com/';
+// The app lives at APP_ORIGIN. Progress is saved per address, so a visit to an old address carries it over (js/handoff.js, docs/DOMAIN-MOVE.md).
+export const APP_ORIGIN = 'https://app.choochootraining.com';
+export const OLD_HOSTS = ['choochootraining.com', 'www.choochootraining.com'];
+// Off until app.choochootraining.com is set up: only then may the old address send visitors over.
+export const HANDOFF_LIVE = true;

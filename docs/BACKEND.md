@@ -14,8 +14,9 @@ family from phone to phone and survives a lost phone. It uses Supabase. Nothing 
    - Sign In / Providers: **Email** on. Leave every other provider (Google, Apple, ...) off.
    - Email confirmation ("Confirm email"): **recommended on**. The app handles both. With it on, "Create account" shows a
      "Check your email" card and the grown-up signs in after tapping the link.
-   - URL Configuration: **Site URL** `https://choochootraining.com`. **Redirect URLs**: add `https://choochootraining.com/`
-     (and `http://localhost:8080/` if you test locally).
+   - URL Configuration: **Site URL** `https://app.choochootraining.com`. **Redirect URLs**: add `https://app.choochootraining.com/`
+     and keep the old `https://choochootraining.com/` for a few weeks (old reset emails; the old address forwards them to the app address), plus
+     `http://localhost:8080/` if you test locally.
    - Password: minimum length 8 or more (the app asks for at least 8).
    - Optional: write your own wording in Authentication > Emails (confirm signup, reset password). Keep the default links.
      Supabase's built-in email sender is rate limited and meant for testing; before real families use it, set up your own
@@ -29,9 +30,9 @@ family from phone to phone and survives a lost phone. It uses Supabase. Nothing 
 
 - **Sign-in is required** on a device with no session, except in developer mode (7 taps within 3 seconds on the version line at
   the bottom of the sign-in screen; the same switch as in Grownups). The sign-in screen is meant for the grown-up.
-- **Sign up, sign in, forgot password.** The reset email link opens the app itself (`https://choochootraining.com/#access_token=...&type=recovery`),
+- **Sign up, sign in, forgot password.** The reset email link opens the app itself (`https://app.choochootraining.com/#access_token=...&type=recovery`),
   which shows a "Choose a new password" form, then asks the grown-up to sign in. On the phone apps the link opens in the
-  browser at choochootraining.com; the grown-up sets the password there and returns to the app to sign in. (No deep link
+  browser at app.choochootraining.com; the grown-up sets the password there and returns to the app to sign in. (No deep link
   setup is needed for this.)
 - **Local first.** Progress is always saved on the device first (`reading.v1`). The session is saved under a separate key,
   `reading.auth`. When signed in and online, a change is pushed about 2 seconds after the last one. Offline changes are

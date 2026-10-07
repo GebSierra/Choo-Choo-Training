@@ -8,8 +8,8 @@ with the date.
 - [ ] **Turn on accounts (Supabase), about 10 minutes.** Full guide: docs/BACKEND.md.
   1. Create a free project at supabase.com.
   2. SQL Editor: paste all of `supabase/schema.sql`, press Run.
-  3. Authentication settings: Email provider on, email confirmation on, Site URL `https://choochootraining.com`, add it
-     to Redirect URLs, minimum password length 8.
+  3. Authentication settings: Email provider on, email confirmation on, Site URL `https://app.choochootraining.com`, add it
+     to Redirect URLs (keep `https://choochootraining.com/` there too for a few weeks), minimum password length 8.
   4. Project Settings > API: send Claude the Project URL and the "anon public" key (never the "service_role" key).
      Claude puts them in js/config.js and releases; from then on sign-in is required (except developer mode).
 - [ ] **Your own email sender for Supabase (custom SMTP)** before real families sign up: the built-in sender allows only a
@@ -36,7 +36,7 @@ with the date.
   so Claude's work-in-progress gets its own preview link you can try before it goes live.
 
 ## Domain move: app to app.choochootraining.com, website on choochootraining.com (2026-10-07)
-- [x] A. Porkbun CNAME `app` -> choochootraining.netlify.app; Netlify app project: domain alias app.choochootraining.com
+- [x] A. (Details: docs/DOMAIN-MOVE.md.) Porkbun CNAME `app` -> choochootraining.netlify.app; Netlify app project: domain alias app.choochootraining.com
   (works, checked in a private window).
 - [ ] B. (Claude) Release the switch: the old address moves families to app.… with their progress; the app sets a
   `cct_member` cookie so the website can send app users straight to the app.
@@ -50,7 +50,7 @@ with the date.
   Redirect URLs for a few weeks).
 
 ## Content and recordings
-- [ ] **Record the letter sounds** in the recording studio: https://choochootraining.com/tools/studio.html (47 items;
+- [ ] **Record the letter sounds** in the recording studio: https://app.choochootraining.com/tools/studio.html (47 items;
   stops and resumes where you left off). Until a sound is recorded, the app shows a "Say: mmm" prompt for the grown-up.
 - [ ] Optional: the heart-word clips ("th" buzzing, the "uh" in "the") and the blend models, also in the studio.
 - [ ] Consider a hired voice actor for the sounds before selling.
