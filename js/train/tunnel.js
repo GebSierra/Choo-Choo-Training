@@ -6,6 +6,7 @@
 // Everything is made through the scene's bag (disposed with Home), nothing in it moves and no light is added (the glow is
 // emissive and unlit), so it adds no frames of its own. About 20 draw calls for one portal.
 import { THREE, PAL, rng, block } from './world.js';
+import { DEFAULT_THEME } from './themes.js';
 
 export const TUNNEL_AT = 4.8; // the mountain's middle, this far past the current stop's middle
 export const IN = 4.6;        // how far the engine rolls in from its resting place
@@ -20,7 +21,12 @@ const SUN = PAL.sun, SKY = '#6EC6FF', PINK = '#FF9EC4';
 
 // ---- helpers ----
 const clamp01 = (x) => Math.max(0, Math.min(1, x));
-const gradient = (out, y, top, low, high, shade = 1) => out.copy(low).lerp(high, Math.pow(clamp01(y / top), 0.85)).multiplyScalar(shade);
+// cap (a theme's grass top, e.g. W4's headland): above cap.from of the height the colour blends to cap.color.
+const gradient = (out, y, top, low, high, shade = 1, cap = null) => {
+  out.copy(low).lerp(high, Math.pow(clamp01(y / top), 0.85));
+  if (cap) out.lerp(cap.color, clamp01((y / top - cap.from) / 0.14));
+  return out.multiplyScalar(shade);
+};
 
 function geoFrom(bag, pos, col) {
   const g = bag.add(new THREE.BufferGeometry());
@@ -33,7 +39,7 @@ function geoFrom(bag, pos, col) {
 // A faceted peak: a low-detail icosahedron pulled into a mountain (pointed top, wide foot), its vertices jittered by a seeded
 // random so it looks hand-made, painted by height from `low` to `high`. Its triangles go into `acc` (merged into one mesh).
 function addPeak(acc, o) {
-  const { cx, cz, rx, ry, rz, yaw = 0, seed, jit = 0.22, low, high, fix } = o;
+  const { cx, cz, rx, ry, rz, yaw = 0, seed, jit = 0.22, low, high, fix, cap = null } = o;
   const R = rng(seed), cache = new Map();
   const g = new THREE.IcosahedronGeometry(1, 1), pa = g.getAttribute('position');
   const jitter = (x, y, z) => { const k = `${x.toFixed(3)},${y.toFixed(3)},${z.toFixed(3)}`; let j = cache.get(k); if (!j) { j = [R() - 0.5, R() - 0.5, R() - 0.5]; cache.set(k, j); } return j; };
@@ -51,7 +57,7 @@ function addPeak(acc, o) {
   const c = new THREE.Color(), a = new THREE.Vector3(), b = new THREE.Vector3(), n = new THREE.Vector3();
   for (let t = 0; t < pts.length; t += 3) {
     const shade = 0.93 + R() * 0.14, [p0, p1, p2] = [pts[t], pts[t + 1], pts[t + 2]];
-    for (const p of [p0, p1, p2]) { gradient(c, p[1], ry * 0.85, low, high, shade); acc.pos.push(p[0], p[1], p[2]); acc.col.push(c.r, c.g, c.b); }
+    for (const p of [p0, p1, p2]) { gradient(c, p[1], ry * 0.85, low, high, shade, cap); acc.pos.push(p[0], p[1], p[2]); acc.col.push(c.r, c.g, c.b); }
     a.set(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]); b.set(p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]); n.crossVectors(a, b).normalize();
     acc.faces.push({ p0, p1, p2, n: n.clone(), top: ry });
   }
@@ -68,7 +74,7 @@ const inPoly = (poly, x, y) => { let inside = false; for (let i = 0, j = poly.le
 
 // The cliff the arch is set in: a faceted hill-spur cut straight along the line, with the arch-shaped tunnel through it. The
 // outside is painted like the mountain; the tunnel's walls go into `inner` (drawn emissive, amber at the mouth, glowing at the far end).
-function buildSpur(bag, L, R, low, high) {
+function buildSpur(bag, L, R, low, high, cap = null) {
   const outline = [[-3.3, -0.6], [-3.5, 0.4], [-3.1, 1.4], [-2.4, 2.3], [-1.4, 2.9], [-0.2, 3.2], [1.0, 3.0], [2.0, 2.5], [2.9, 1.7], [3.5, 0.6], [3.3, -0.6]]
     .map(([x, y]) => [x + (y > -0.5 ? (R() - 0.5) * 0.25 : 0), y + (y > -0.5 ? (R() - 0.5) * 0.25 : 0)]);
   const shape = new THREE.Shape(outline.map(([x, y]) => new THREE.Vector2(x, y)));
@@ -90,7 +96,7 @@ function buildSpur(bag, L, R, low, high) {
     const shade = 0.95 + R() * 0.1;
     for (const p of v) {
       if (isInner) { const k = Math.pow(clamp01((p[2] - ZF) / L), 0.9); c.copy(amber).lerp(light, k); inner.pos.push(...p); inner.col.push(c.r, c.g, c.b); }
-      else { gradient(c, p[1], 3.2, low, high, shade); outer.pos.push(...p); outer.col.push(c.r, c.g, c.b); }
+      else { gradient(c, p[1], 3.2, low, high, shade, cap); outer.pos.push(...p); outer.col.push(c.r, c.g, c.b); }
     }
     if (!isInner) {
       a.set(v[1][0] - v[0][0], v[1][1] - v[0][1], v[1][2] - v[0][2]); b.set(v[2][0] - v[0][0], v[2][1] - v[0][1], v[2][2] - v[0][2]); n.crossVectors(a, b).normalize();
@@ -120,9 +126,9 @@ function haloCanvas() {
 
 // One end of the portal, built facing -z with its mouth plane at z = ZF; the other end (a start tunnel's camera side) is this
 // group turned half way round. L: how deep the golden tunnel runs. Returns { group, samples } (spots for flowers).
-function buildEnd(bag, { L, soft, tint, seed, low, high }) {
+function buildEnd(bag, { L, soft, tint, seed, low, high, cap = null }) {
   const R = rng(seed), group = new THREE.Group(), samples = [];
-  const spur = buildSpur(bag, L, R, low, high);
+  const spur = buildSpur(bag, L, R, low, high, cap);
   const outer = new THREE.Mesh(spur.outer, bag.paint('#ffffff', { roughness: 0.9, vertexColors: true, flatShading: true }));
   outer.castShadow = true; outer.receiveShadow = true;
   const inner = new THREE.Mesh(spur.inner, bag.add(new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, side: THREE.DoubleSide })));
@@ -203,8 +209,11 @@ export function buildTunnel(bag, line, s, flip = false, opts = {}) {
   group.name = 'tunnel';
   const p = line.at(s);
   const rear = !!opts.rear;
-  const low = new THREE.Color('#62C34C'), high = new THREE.Color('#D2EC68');
-  const lowS = new THREE.Color('#58BE55'), highS = new THREE.Color('#A9DE5E');
+  // the mountain's colours come from the world's theme (js/train/themes.js; the default is the green one every world had)
+  const T = (opts.theme && opts.theme.mountain) || DEFAULT_THEME.mountain;
+  const cap = T.cap ? { from: T.cap.from, color: new THREE.Color(T.cap.color) } : null;
+  const low = new THREE.Color(T.low), high = new THREE.Color(T.high);
+  const lowS = new THREE.Color(T.lowS), highS = new THREE.Color(T.highS);
   // the mountain and its shoulders, merged into one mesh. Where the golden tunnel runs in, the mountain's foot is held back
   // behind the glowing disc, so nothing covers it.
   // (eased out over a wide margin, so no big triangle can swing across the mouth)
@@ -214,7 +223,7 @@ export function buildTunnel(bag, line, s, flip = false, opts = {}) {
     : (v) => { if (v[2] < 0.55) v[2] += (0.55 - v[2]) * hold(v); };
   const acc = { pos: [], col: [], faces: [] };
   const cz = rear ? 0 : 0.7, back = rear ? -1 : 1; // (the camera's end of a start tunnel is +z, so its far shoulders go the other way)
-  addPeak(acc, { cx: 0, cz, rx: 3.7, ry: 6.3, rz: rear ? 2.9 : 2.8, seed: 5, low, high, fix });
+  addPeak(acc, { cx: 0, cz, rx: 3.7, ry: 6.3, rz: rear ? 2.9 : 2.8, seed: 5, low, high, fix, cap });
   const sh = { pos: [], col: [], faces: [] };
   const side = [
     { cx: -5.0, cz: cz - 0.3, rx: 2.6, ry: 3.1, rz: 2.3, seed: 21, yaw: 0.4 },
@@ -223,35 +232,45 @@ export function buildTunnel(bag, line, s, flip = false, opts = {}) {
     { cx: 3.4, cz: cz + 2.4 * back, rx: 2.3, ry: 3.0, rz: 2.0, seed: 59, yaw: 0.9 },
     { cx: -7.4, cz: cz + 0.4, rx: 2.2, ry: 1.7, rz: 2.0, seed: 71, yaw: 0.1 },
   ];
-  for (const o of side) addPeak(acc, { ...o, low: lowS, high: highS, fix });
+  for (const o of side) addPeak(acc, { ...o, low: lowS, high: highS, fix, cap });
   const hill = new THREE.Mesh(geoFrom(bag, acc.pos, acc.col), bag.paint('#ffffff', { roughness: 0.9, vertexColors: true, flatShading: true }));
   hill.castShadow = true; hill.receiveShadow = true;
   group.add(hill);
 
   const R = rng(97), samples = [];
   // flowers on the slopes (faces that look toward the camera or up, clear of the cliff the arch is set in)
-  const cand = acc.faces.filter((f) => f.n.y > 0.25 && f.n.z < 0.7 && f.p0[1] + f.p1[1] + f.p2[1] > 1.0 && (f.p0[1] + f.p1[1] + f.p2[1]) / 3 < 0.78 * f.top
+  const cand = acc.faces.filter((f) => f.n.y > 0.25 && f.n.z < 0.7 && f.p0[1] + f.p1[1] + f.p2[1] > (cap ? cap.from * 3 * f.top : 1.0) && (f.p0[1] + f.p1[1] + f.p2[1]) / 3 < (cap ? 0.97 : 0.78) * f.top
     && !(Math.abs((f.p0[0] + f.p1[0] + f.p2[0]) / 3) < 3.4 && (f.p0[2] + f.p1[2] + f.p2[2]) / 3 < 0.7 && (f.p0[1] + f.p1[1] + f.p2[1]) / 3 < 3.4));
   const want = 34;
   for (let k = 0; k < want && cand.length; k++) { const f = cand[Math.floor(R() * cand.length)]; const o = onFace(R, f, 0.06); samples.push({ ...o, slope: true }); }
 
   const ends = rear ? [-1, 1] : [-1];
   for (const end of ends) {
-    const e = buildEnd(bag, { L: rear ? 0.5 : 2.4, soft: rear, tint: opts.glow, seed: end < 0 ? 13 : 17, low, high });
+    const e = buildEnd(bag, { L: rear ? 0.5 : 2.4, soft: rear, tint: opts.glow, seed: end < 0 ? 13 : 17, low, high, cap });
     if (end > 0) { e.group.rotation.y = Math.PI; for (const sp of e.samples) { sp.x = -sp.x; sp.z = -sp.z; } }
     group.add(e.group);
     samples.push(...e.samples);
   }
 
   // the flowers: one instanced mesh per colour, little clusters of three
-  const cols = [SUN, '#FFFFFF', SKY, PINK], lists = cols.map(() => []);
+  const cols = T.flowers === 'thrift' ? ['#FFFFFF', PINK, '#FFE08A', '#FFFFFF'] : [SUN, '#FFFFFF', SKY, PINK], lists = cols.map(() => []);
   samples.forEach((sp, i) => {
     const k = i % 4;
     const n = sp.slope ? 3 : sp.roof ? 2 : 2;
     for (let j = 0; j < n; j++) lists[(k + j) % 4].push([sp.x + (j ? (R() - 0.5) * 0.34 : 0), sp.y + (sp.slope && j ? (R() - 0.3) * 0.12 : 0), sp.z + (j ? (R() - 0.5) * 0.3 : 0), 0.8 + R() * 0.5]);
   });
   const mm = new THREE.Matrix4(), qq = new THREE.Quaternion(), vv = new THREE.Vector3(), ss = new THREE.Vector3();
-  cols.forEach((c, k) => {
+  if (T.flowers === 'sunflowers') {
+    // sunflowers: a yellow flat head with a brown centre facing the camera's side (W3)
+    const all = lists.flat(), dz = flip ? 1 : -1;
+    const heads = new THREE.InstancedMesh(bag.geo('portalsunhead', () => new THREE.IcosahedronGeometry(0.1, 0)), bag.paint('#FFC531', { roughness: 0.6, emissive: '#FFB400', emissiveIntensity: 0.25, flatShading: true }), all.length);
+    const hearts = new THREE.InstancedMesh(bag.geo('portalsunheart', () => new THREE.IcosahedronGeometry(0.06, 0)), bag.paint('#7A4A24', { roughness: 0.9, flatShading: true }), all.length);
+    all.forEach(([x, y, z, sc], i) => {
+      heads.setMatrixAt(i, mm.compose(vv.set(x, y, z), qq.identity(), ss.set(sc * 2.0, sc * 2.0, sc * 0.75)));
+      hearts.setMatrixAt(i, mm.compose(vv.set(x, y, z + dz * 0.04 * sc), qq.identity(), ss.set(sc * 1.3, sc * 1.3, sc * 0.8)));
+    });
+    group.add(heads, hearts);
+  } else cols.forEach((c, k) => {
     if (!lists[k].length) return;
     const mesh = new THREE.InstancedMesh(bag.geo('portalflower', () => new THREE.IcosahedronGeometry(0.1, 0)), bag.paint(c, { roughness: 0.6, emissive: c, emissiveIntensity: 0.3, flatShading: true }), lists[k].length);
     lists[k].forEach(([x, y, z, sc], i) => mesh.setMatrixAt(i, mm.compose(vv.set(x, y, z), qq.identity(), ss.set(sc * 1.4, sc * 1.2, sc * 1.4))));

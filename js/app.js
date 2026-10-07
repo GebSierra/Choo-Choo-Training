@@ -47,6 +47,8 @@ async function boot() {
     { re: /^\/checkpoint\/([\w-]+)$/, screen: checkpointScreen },
     { re: /^\/checkpoint\/([\w-]+)\/finish$/, screen: checkpointFinishScreen },
     { re: /^\/grownups$/, screen: grownupsScreen },
+    // A read-only look at one world (W1 .. W11), linked from Grownups. Loaded on demand; its files are precached.
+    { re: /^\/world\/(W\d+)$/, screen: (...a) => import('./screens/region.js').then((m) => m.regionScreen(...a)) },
     // Prototype 2 previews (Grownups > Previews). Loaded on demand; nothing in the child's flow leads here.
     { re: /^\/preview\/tip$/, screen: (...a) => import('./screens/previews.js').then((m) => m.tipPreview(...a)) },
     { re: /^\/preview\/board$/, screen: (...a) => import('./screens/previews.js').then((m) => m.boardPreview(...a)) },

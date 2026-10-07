@@ -202,6 +202,8 @@ export async function homeScreen(ctx) {
       }
     }
   }
+  // the region preview (#/world/<id>) is 3D only: there is no 2D version of a themed world
+  if (preview && preview.mode === 'region') return h('div', { class: 'retry-card' }, h('p', {}, 'This preview needs 3D.'));
   return mapScreen(ctx, preview, plan);
 }
 

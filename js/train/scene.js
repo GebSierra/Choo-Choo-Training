@@ -1,7 +1,8 @@
 // The renderer, the scene and its light: a warm key light from the upper left with soft shadows that follow the camera,
 // a cool sky fill, ACES tone mapping and a gentle warm fog toward the far end of the line. The sky itself is the page's
 // CSS gradient behind a transparent canvas.
-import { THREE, PAL } from './world.js';
+import { THREE } from './world.js';
+import { DEFAULT_THEME } from './themes.js';
 
 // soft: a software renderer (see isSoftware in js/screens/home.js): one pixel per CSS pixel and no shadow map.
 export const PIXEL_RATIO_MAX = 1.5;
@@ -21,12 +22,13 @@ export function createRenderer(canvas, gl, soft = false) {
   return renderer;
 }
 
-export function createScene(soft = false) {
+// theme (js/train/themes.js): the fog and the light colours of the world being shown (the default is the original look).
+export function createScene(soft = false, theme = DEFAULT_THEME) {
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(PAL.horizon, 34, 78);
-  const hemi = new THREE.HemisphereLight('#CFEFFF', '#8BCF9A', 1.1);
+  scene.fog = new THREE.Fog(theme.fog, theme.fogNear, theme.fogFar);
+  const hemi = new THREE.HemisphereLight(theme.hemiSky, theme.hemiGround, 1.1);
   scene.add(hemi);
-  const sun = new THREE.DirectionalLight('#FFF1D6', 2.2);
+  const sun = new THREE.DirectionalLight(theme.sun, 2.2);
   sun.castShadow = true;
   sun.shadow.mapSize.set(512, 512);
   const sc = sun.shadow.camera;
