@@ -5,6 +5,7 @@
 import { h, reduced } from '../dom.js';
 import { homeScreen } from './home.js';
 import { tipCard, nextTip, loadTips } from '../components/tip-card.js';
+import { journeyMini } from '../components/journey-board.js';
 
 export const CARD_MIN_MS = 3000, CARD_FADE_MS = 380;
 
@@ -45,6 +46,7 @@ export async function worldHost(ctx, { from, to, real, back = null }) {
           h('p', { class: 'wg-next' }, 'Next stop:'),
           h('h2', { class: 'wg-name' }, to.name)),
         h('div', { class: 'wg-more' },
+          journeyMini({ curriculum: ctx.curriculum, from, to }), // the little railway: the train rolls from the finished world to the next
           tip ? h('div', { class: 'wg-tip' }, h('strong', {}, 'Did you know?'), h('p', {}, tip.text)) : null,
           h('p', { class: 'wg-hint' }, 'Tap to go'))));
     card.addEventListener('click', () => dismiss());

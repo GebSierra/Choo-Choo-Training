@@ -9,7 +9,7 @@ import { sfx } from '../sfx.js';
 import { music } from '../music.js';
 import { kidSvg } from '../art/kid.js';
 import { dueLevel, builtLevels } from '../levels.js';
-import { starBoard } from '../components/star-board.js';
+import { mapButton, openJourney } from '../components/map-button.js';
 import { levelBanner } from '../components/level-banner.js';
 import { planHome, worldAfter } from '../worlds.js';
 import { restCard, moonBadge, devPill, whenShown } from '../components/rest-card.js';
@@ -223,7 +223,8 @@ export function mapScreen(ctx, preview = null, plan = null) {
   const replayId = preview ? null : ctx.replayLevel || null;
   if (!preview) ctx.replayLevel = null;
   const due = preview ? null : replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
-  const stars = starBoard(curriculum, store, { hold: due && !replayId && !reduced() ? due.id : null });
+  // the map button (journey board) replaces the old star board; the gold level stars are inside the board
+  const mapBtn = mapButton(curriculum, store, { hold: due && !replayId && !reduced() ? due.id : null, onOpen: () => openJourney({ host: root, curriculum, store, returnFocus: mapBtn.el }) });
   const timers = new Set();
   const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); };
   const total = curriculum.lessons.length;
@@ -272,7 +273,7 @@ export function mapScreen(ctx, preview = null, plan = null) {
   const fromStop = preview ? -1 : finishedStop(store, nodes.map((n) => { const own = n.checkpoint ? store.checkpoint(n.checkpoint.id) : store.lesson(n.lesson.number); return own.result === 'got-it' ? own.completedAt || null : false; }), currentIndex);
 
   const grown = holdButton({ label: 'Grownups · hold', caption: null, hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
-  const top = h('div', { class: 'home-top' }, grown, stars.el, devPill(store));
+  const top = h('div', { class: 'home-top' }, grown, mapBtn.el, devPill(store));
   const fs = fullscreenButton({ className: 'home-fs' });
   const root = h('div', { class: 'home' }, scroller, top, ...(fs ? [fs] : []));
   // The theme song waits for the ride and the level banner to finish (it starts at once when neither is due).
@@ -285,7 +286,7 @@ export function mapScreen(ctx, preview = null, plan = null) {
     later(over, reduced() ? 1500 : 3000);
     const i = builtLevels(curriculum).findIndex((v) => v.id === due.id);
     levelBanner({ level: due, host: root, reducedMotion: reduced() });
-    stars.pop(i);
+    mapBtn.pop(i);
     sfx.play(reduced() ? 'star' : 'checkpoint');
   };
   root.cleanup = () => { grown.cleanup(); timers.forEach(clearTimeout); timers.clear(); if (!preview) music.leaveHome(); };

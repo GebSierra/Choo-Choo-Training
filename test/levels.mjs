@@ -46,7 +46,7 @@ export async function levelChecks({ browser, url, ok }) {
     ok(await until(page, () => !!document.querySelector('.level-banner'), null, 3000), 'level one: the banner shows');
     ok((await page.locator('.level-banner').first().innerText()).trim() === 'Level one complete!', 'level one: the banner reads "Level one complete!"');
     ok((await page.locator('.level-banner .car-icon').count()) === 1 && (await page.locator('.level-banner .gold-star').count()) === 1, 'level one: the banner shows the star and the new car');
-    ok(await until(page, () => document.querySelector('.level-stars') && document.querySelector('.level-stars').dataset.count === '1', null, 3000), 'level one: the star board shows one gold star');
+    ok(await until(page, () => document.querySelector('.map-btn') && document.querySelector('.map-btn').dataset.stars === '1', null, 3000), 'level one: the map button counts one gold star (1.9.21: the star board moved into the journey board)');
     ok((await page.evaluate(() => window.__train.specials)).includes('caboose'), 'level one: the caboose is on the train');
     ok(await page.evaluate(() => window.__audioNotes().some((n) => n.event === 'checkpoint')), 'level one: the checkpoint jingle plays');
     ok(await page.evaluate(() => window.__train.world === 'W1' && window.__train.portal), 'level one: it plays in world 1, whose tunnel portal is the tunnel (one tunnel, not two)');
@@ -64,7 +64,7 @@ export async function levelChecks({ browser, url, ok }) {
     await until(page, () => window.__train && window.__train.frames > 0);
     await page.waitForTimeout(5000);
     ok((await page.evaluate(() => window.__train.level.id)) === null && (await page.locator('.level-banner').count()) === 0, 'next visit: no celebration and no banner');
-    ok((await page.locator('.level-stars[data-count="1"]').count()) === 1, 'next visit: the star board still shows 1');
+    ok((await page.locator('.map-btn[data-stars="1"]').count()) === 1, 'next visit: the map button still counts 1');
     ok((await page.evaluate(() => window.__train.specials)).includes('caboose'), 'next visit: the caboose is still on the train');
 
     // 6. Replay from Grownups
@@ -92,8 +92,10 @@ export async function levelChecks({ browser, url, ok }) {
     let r = await openHome(browser, url, vp, state(5, { trainAt: iL(6) }, { lessons: done(5), levels: { seen: 0, earned: {} }, character: CHARACTER, meetDue: false }));
     await until(r.page, () => window.__train && window.__train.frames > 0 && !window.__train.running, null, 20000);
     await r.page.waitForTimeout(2500);
-    ok((await r.page.evaluate(() => window.__train.level.id)) === null && (await r.page.locator('.level-banner').count()) === 0 && (await r.page.locator('.level-stars[data-count="0"]').count()) === 1, 'before the threshold: five lessons, no celebration, no stars');
-    ok((await r.page.locator('.level-star').count()) === 2 && (await r.page.locator('.level-star.on').count()) === 0, 'before the threshold: two empty star outlines (the built levels)');
+    ok((await r.page.evaluate(() => window.__train.level.id)) === null && (await r.page.locator('.level-banner').count()) === 0 && (await r.page.locator('.map-btn[data-stars="0"]').count()) === 1, 'before the threshold: five lessons, no celebration, no stars');
+    await r.page.locator('.map-btn').click(); await r.page.waitForSelector('.jb .level-star');
+    ok((await r.page.locator('.jb .level-star').count()) === 2 && (await r.page.locator('.jb .level-star.on').count()) === 0, 'before the threshold: two empty star outlines (the built levels), now inside the journey board');
+    await r.page.locator('.jb-x').click();
     ok((await stored(r.page)).levels.seen === 0, 'before the threshold: seen stays 0');
     ok(r.errors.length === 0, 'before the threshold: errors ' + r.errors.join(' | '));
     await r.ctx.close();
@@ -104,7 +106,7 @@ export async function levelChecks({ browser, url, ok }) {
     ok((await r.page.evaluate(() => window.__train.level.id)) === null && (await r.page.locator('.level-banner').count()) === 0, 'first look: six lessons and no record, no celebration');
     const st = await stored(r.page);
     ok(st.levels.seen === 1 && typeof st.levels.earned.L1 === 'string', 'first look: the count is recorded (seen 1)');
-    ok((await r.page.locator('.level-stars[data-count="1"]').count()) === 1, 'first look: the earned level already shows its star');
+    ok((await r.page.locator('.map-btn[data-stars="1"]').count()) === 1, 'first look: the earned level already counts on the map button');
     await r.ctx.close();
   }
   {
@@ -117,7 +119,7 @@ export async function levelChecks({ browser, url, ok }) {
     ok((await page.evaluate(() => window.__phases.filter(Boolean).length)) === 0, 'reduced motion: no ride (the phase never leaves empty)');
     ok(await page.evaluate(() => window.__train.world === 'W1'), 'reduced motion: world 1 is on screen for the banner');
     ok(await page.evaluate(() => window.__audioNotes().some((n) => n.event === 'star')), 'reduced motion: one soft star sound');
-    ok((await page.locator('.level-stars[data-count="1"]').count()) === 1 && (await page.evaluate(() => window.__train.specials)).includes('caboose'), 'reduced motion: the star is filled and the caboose is on the train');
+    ok((await page.locator('.map-btn[data-stars="1"]').count()) === 1 && (await page.evaluate(() => window.__train.specials)).includes('caboose'), 'reduced motion: the star is counted and the caboose is on the train');
     ok(await page.evaluate(() => document.querySelectorAll('.spark').length) === 0, 'reduced motion: no confetti');
     ok(await crossed(page), 'reduced motion: the card shows still, then world 2 is simply there');
     await page.waitForTimeout(800);
@@ -133,7 +135,7 @@ export async function levelChecks({ browser, url, ok }) {
     await page.evaluate(async () => (await import('/js/sfx.js')).sfx.unlock());
     ok(await until(page, () => !!document.querySelector('.level-banner .car-icon'), null, 12000), '2D: after the ride the banner shows the new car');
     ok((await page.locator('.level-banner').first().innerText()).trim() === 'Level one complete!', '2D: it reads "Level one complete!"');
-    ok((await page.locator('.level-stars[data-count="1"]').count()) === 1, '2D: the star board shows 1');
+    ok((await page.locator('.map-btn[data-stars="1"]').count()) === 1, '2D: the map button counts 1');
     ok(await until(page, () => !document.querySelector('.level-banner'), null, 7000), '2D: the banner is gone after a few seconds');
     ok(errors.length === 0, `2D: errors ${errors.join(' | ')}`);
     await ctx.close();
@@ -148,7 +150,7 @@ export async function levelChecks({ browser, url, ok }) {
     ok(await until(page, () => !!document.querySelector('.level-banner'), null, 20000), 'level two: the banner shows');
     ok((await page.locator('.level-banner').first().innerText()).trim() === 'Level two complete!', 'level two: it reads "Level two complete!"');
     ok((await page.evaluate(() => window.__train.specials.join())) === 'coach', 'level two: the coach is the newest car and the only special car (the owner\'s wagon rule)');
-    ok(await until(page, () => document.querySelector('.level-stars') && document.querySelector('.level-stars').dataset.count === '2', null, 3000), 'level two: two gold stars');
+    ok(await until(page, () => document.querySelector('.map-btn') && document.querySelector('.map-btn').dataset.stars === '2', null, 3000), 'level two: two gold stars');
     ok(await until(page, () => window.__train.level.phase === '' && !window.__train.running, null, 20000), 'level two: ends');
     ok(errors.length === 0, `level two: errors ${errors.join(' | ')}`);
     await ctx.close();

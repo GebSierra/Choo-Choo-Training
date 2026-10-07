@@ -62,3 +62,22 @@ export function planHome(store, curriculum) {
   }
   return { world, cross };
 }
+
+// What a grown-up wants to know about one world (Grownups > Progress): lessons done of total, the state, the gold level stars
+// the world holds (a level belongs to the world of the lesson it comes after), the date of the last lesson finished there, and,
+// for the current world, the unit the child is on and its sounds. `lastDone` is an ISO date string or null.
+export function worldSummary(store, curriculum, worldId) {
+  const ls = lessonsIn(curriculum, worldId);
+  const done = ls.filter((l) => store.isDone(l.number));
+  const cur = currentWorld(store, curriculum);
+  const levels = (curriculum.levels || []).filter((v) => v.after !== null && ls.some((l) => l.number === v.after)).map((v) => ({ id: v.id, n: v.n, earned: store.isDone(v.after) }));
+  const dates = ls.map((l) => store.lesson(l.number)).filter((o) => o.result === 'got-it' && typeof o.completedAt === 'string').map((o) => o.completedAt).sort();
+  const finished = ls.length > 0 && done.length === ls.length;
+  const unit = cur && cur.id === worldId ? currentUnit(store, curriculum, worldId) : null;
+  return {
+    total: ls.length, done: done.length, built: ls.length > 0,
+    state: finished ? 'done' : cur && cur.id === worldId ? 'current' : ls.length ? 'later' : 'soon',
+    levels, lastDone: dates.length ? dates[dates.length - 1] : null,
+    unit: unit ? { id: unit.id, sounds: unit.sounds } : null,
+  };
+}

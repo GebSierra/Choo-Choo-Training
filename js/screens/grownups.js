@@ -13,13 +13,14 @@ import { richText } from '../letters.js';
 import { soundPhrase } from '../lessons.js';
 import { starSvg } from '../art.js';
 import { NUMBER_WORDS, earnedLevels } from '../levels.js';
+import { progressBody } from '../components/progress-card.js';
 
 export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA vowel and consonant chart recordings, CC BY-SA 3.0, obtained via github.com/joshstephenson/PhoneticFlashCards, trimmed and loudness-normalized.";
 
 export const WHISTLE_CREDIT = 'The train whistle sound is a toy train whistle from Pixabay (Pixabay licence: free to use in apps, no credit required).';
 
 // The screens the owner can try before they go live (prototype 2): route key and button label.
-const PREVIEWS = [['tip', 'Did you know? card'], ['board', 'Journey board'], ['gateway', 'World gateway'], ['proto-f', 'New lesson: f (eight steps)'], ['proto-play', 'Sound play (Stage 1)'], ['proto-placement', 'Placement check'], ['proto-heart', 'Heart word: the']];
+const PREVIEWS = [['tip', 'Did you know? card'], ['gateway', 'World gateway'], ['proto-f', 'New lesson: f (eight steps)'], ['proto-play', 'Sound play (Stage 1)'], ['proto-placement', 'Placement check'], ['proto-heart', 'Heart word: the']];
 
 // Parent area. Reached only through the hold gate on Home (ctx.gate), and expires after ten minutes.
 const folds = {}; // which reference cards are open, for this page session only
@@ -143,6 +144,7 @@ export function grownupsScreen(ctx) {
   const root = h('div', { class: 'grownups' },
     h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to the path', onclick: () => router.go('/home') }, icon('back', 28)), h('h1', {}, 'Grownups')),
     h('div', { class: 'gu-body' },
+      fold('Progress', ...progressBody({ curriculum, store })), // the journey board and a short summary for each world
       sec('Lessons', resetBox), lessonsBox, // Reset first: with the lessons below it, it would be buried at the bottom
       sec('Your child', picker,
         h('p', { class: 'gu-note' }, "The name is used only inside the stories on this device. It is never sent anywhere and never spoken by the phone's voice.")),
