@@ -15,7 +15,7 @@ One static page, no build step. Plan: `docs/marketing/WEBSITE-PLAN.md`.
 cd site
 python3 -m http.server 8000     # open http://localhost:8000
 node tools/check.mjs            # phone, small phone, desktop and reduced motion; screenshots in _shots/
-node tools/check-redirect.mjs   # the redirect, the handoff format and sw.js
+node tools/check-redirect.mjs   # the old-link forward and sw.js
 node tools/og.mjs               # rebuilds assets/og.jpg from tools/og.html
 ```
 
@@ -32,9 +32,8 @@ caches `/sw.js`. `404.html` is the not-found page. Go-live steps: `docs/marketin
 
 Until the move, `choochootraining.com` served the app, so this page also cleans up after it:
 - `sw.js` removes the old app's service worker and caches from phones and browsers.
-- The inline script at the top of `index.html` sends anyone who already uses the app (cookie `cct_member`, saved progress,
-  an app link like `#/lesson/3`, or a reset-password link) to `https://app.choochootraining.com/`, carrying progress in the
-  address fragment. Add `?site` to see the website anyway.
+- Nobody is redirected just for visiting. Only an old app link (`#/lesson/3`) or a password-reset link opened on this
+  address is forwarded, unchanged, to `https://app.choochootraining.com/`.
 - `node tools/check-redirect.mjs` tests all of it.
 
 ## Media

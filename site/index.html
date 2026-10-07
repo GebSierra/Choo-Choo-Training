@@ -4,34 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script>
-/* Send people who already use the app to app.choochootraining.com before anything paints.
-   Rules and handoff format: docs/DOMAIN-MOVE.md (part D) on main. Mirrors js/handoff.js in the app.
-   ?site skips it, so members can still read this page. Never touches reading.auth; progress travels in the fragment only. */
+/* Old app links only: an app route (#/lesson/3) or a password-reset link (#access_token=...) opened on this address goes to
+   the app, unchanged. Everyone else stays on the website; members use "Log in" or app.choochootraining.com themselves. */
 (function () {
   try {
-    var APP = "https://app.choochootraining.com/", MAX = 200 * 1024, loc = location, hash = loc.hash;
-    if (/[?&]site(=|&|$)/.test(loc.search)) return;
-    var member = /(?:^|;\s*)cct_member=/.test(document.cookie), raw = null;
-    try { raw = localStorage.getItem("reading.v1"); } catch (e) {}
-    if (!(member || raw !== null || hash.indexOf("#/") === 0 || /access_token/.test(hash))) return;
-    var tail = hash; // a reset-password or error link is forwarded exactly as it came
-    if (!/access_token|type=recovery|error/.test(hash)) {
-      var data = "";
-      if (raw) {
-        try {
-          var bytes = new TextEncoder().encode(raw), p = JSON.parse(raw);
-          if (bytes.length <= MAX && p && typeof p === "object" && !Array.isArray(p) && p.schema === 1 && p.lessons && typeof p.lessons === "object" && !Array.isArray(p.lessons)) {
-            var bin = "";
-            for (var i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-            data = btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-          }
-        } catch (e) { /* corrupt or too big: no handoff */ }
-      }
-      var route = hash.replace(/^#/, "");
-      tail = data ? "#handoff=" + data + (hash.indexOf("#/") === 0 ? "&route=" + encodeURIComponent(route) : "") : hash;
-    }
-    loc.replace(APP + loc.search + tail);
-  } catch (e) { /* never block the page */ }
+    var h = location.hash;
+    if (h.indexOf("#/") === 0 || /access_token|type=recovery|[#&]error=/.test(h)) location.replace("https://app.choochootraining.com/" + location.search + h);
+  } catch (e) {}
 })();
 </script>
 <title>Choo Choo Training: Hear your child read their first word</title>
@@ -72,7 +51,6 @@
     <ul class="facts">
       <li><b>1</b> sound per lesson</li>
       <li><b>10</b> minutes a day</li>
-      <li><b>0</b> microphones</li>
     </ul>
   </div>
   <div class="phone"><video autoplay muted loop playsinline preload="auto" poster="assets/poster.jpg" width="360" height="778" aria-label="The app in motion: the train rides past letter stations, then a balloon letter hunt, a wagon parade and letter tracing"><source src="assets/hero.mp4" type="video/mp4"></video></div>
@@ -166,7 +144,7 @@
 
 <section id="faq"><div class="wrap narrow">
   <h2>Questions parents ask</h2>
-  <details open><summary>What age is it for?</summary><p>Children who are starting to learn letter sounds, usually ages 4 to 6, and older children who are stuck on blending.</p></details>
+  <details open><summary>What age is it for?</summary><p>Children who are starting to learn letter sounds, usually ages 4 to 6, and older children who are stuck on blending. Some children have had success as young as two and a half.</p></details>
   <details><summary>Is it really free?</summary><p>The first 5 lessons are always free. The first 100 families get lifetime access.</p></details>
   <details><summary>How much screen time is it?</summary><p>About ten minutes a day, with you sitting beside your child. Each lesson has a clear finish, so it ends on a win instead of a feed of more games.</p></details>
   <details><summary>Does it use the microphone?</summary><p>No. The app speaks but never listens. You listen to your child.</p></details>
@@ -176,7 +154,6 @@
 <section class="close"><div class="wrap reveal">
   <img class="close-pip" src="assets/pip.png" alt="" width="223" height="294" loading="lazy">
   <h2>Tonight, your child reads you their bedtime story.</h2>
-  <p>It starts with one sound. Ten minutes, side by side.</p>
   <a class="btn" data-app href="https://app.choochootraining.com/">All aboard, free</a>
 </div></section>
 </main>

@@ -39,10 +39,10 @@ A one-page marketing site for Choo Choo Training whose single job is to get a pa
 
 ## Before the website takes the main address
 
-The old app is installed on families' phones and its service worker keeps answering for `choochootraining.com`. Built, and tested by `site/tools/check-redirect.mjs` (33 checks):
+The old app is installed on families' phones and its service worker keeps answering for `choochootraining.com`. Built, and tested by `site/tools/check-redirect.mjs`:
 
 1. **`/sw.js`** deletes every cache, unregisters itself and reloads open windows. Served with `Cache-Control: no-cache` (`netlify.toml`), so old installs find it at once. Tested by installing a stand-in old worker with a cache, then serving the real file.
-2. **Inline `<head>` script** (before the first stylesheet, so nothing paints) sends people to the app with `location.replace` when the `cct_member` cookie is present, or `localStorage['reading.v1']` exists, or the hash starts with `#/`, or it contains `access_token`. `?site` skips it. Progress travels in the fragment only: `#handoff=<base64url UTF-8 of reading.v1>&route=<encoded old hash>`, sent only if it parses, has `schema` 1, a `lessons` object and is at most 200 KB. Reset-password and error hashes are forwarded unchanged and never become a handoff. `reading.auth` is never read. It mirrors the app's own `js/handoff.js`. `privacy.html` and `404.html` never redirect.
+2. **No automatic redirect (owner decision, 2026-10-07).** App users go to the app themselves: the "Log in" button or `app.choochootraining.com`. The only forward is for links that can only mean the app: an old app route (`#/...`) or a password-reset/auth-error link (`#access_token=...`, `type=recovery`, `#error=...`), sent to the app unchanged. No cookie or saved-progress check and no progress handoff (no families used the old address).
 3. **Buttons** "Log in" (header) and "Start reading" (main), see above.
 4. **Absolute `og:image`, `og:url`, canonical and `twitter:image`** on `https://choochootraining.com/`.
 

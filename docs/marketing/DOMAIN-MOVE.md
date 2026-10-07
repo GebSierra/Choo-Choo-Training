@@ -2,33 +2,25 @@
 
 The source of truth is **`docs/DOMAIN-MOVE.md` on `main`** (written by the app chat). This file only tracks the website's part.
 
-Situation: the app is live at `https://app.choochootraining.com` (Netlify project 1, repo root, `main`, DNS at Porkbun). The old address
-`choochootraining.com` still serves the app until the owner moves it to the website.
+Situation (2026-10-07): the app is live at `https://app.choochootraining.com` (Netlify project 1, primary domain). The owner has
+added `choochootraining.com` (primary) and `www` to the website's Netlify project 2. No families were using the old address.
 
 ## Website checklist (part D) and where it is
 
 | Requirement | Status | Where / how it is checked |
 |---|---|---|
 | Own `/sw.js`: delete every cache, unregister, reload open windows | Built, tested | `site/sw.js`; `tools/check-redirect.mjs` installs a stand-in old worker with a cache, serves the real file, and checks caches are gone, it is unregistered and the window reloaded |
-| Inline `<head>` redirect before first paint (cookie `cct_member`, `reading.v1`, `#/`, `access_token`; skip on `?site`) | Built, tested | `site/index.html`; 33 checks in `tools/check-redirect.mjs` |
-| Handoff in the fragment only (`#handoff=<base64url>&route=<encoded>`), validation (JSON, schema 1, `lessons` object, at most 200 KB), reset/error hashes unchanged, never `reading.auth` | Built, tested | same; the test decodes the fragment the way the app's `js/handoff.js` does, including UTF-8 |
+| No automatic redirect (owner decision): only old app links (`#/...`) and reset/auth-error links are forwarded to the app, unchanged; no cookie or progress check, no handoff | Built, tested | `site/index.html`; `tools/check-redirect.mjs` |
 | "Log in" header button and "Start reading" main button to `https://app.choochootraining.com/` | Built | `site/index.html`, `APP_URL` in `site/main.js` |
 | Absolute `og:image` and `og:url` | Built | `site/index.html` (also canonical and `twitter:image`) |
 | Hosting: second Netlify project, Base directory `site` | Config ready, owner creates the project | `site/netlify.toml` |
 
-## Owner: go live (after the app chat's part B has been live for a few weeks)
+## Owner: after the switch
 
-1. Netlify > Add new site > Import from GitHub > `Choo-Choo-Training`. **Base directory `site`.** Production branch **`claude/choochoo-marketing-chat-mjzg8m`**
-   (see `WEBSITE-PLAN.md` for why). The build command and publish directory come from `site/netlify.toml`.
-2. Open the project's `*.netlify.app` address and try it before touching the domain:
-   - the page loads as a new visitor in a private window;
-   - `/?site` stays on the website even if you already use the app;
-   - in a normal window where you use the app, the plain address sends you to the app.
-3. Follow part C of `docs/DOMAIN-MOVE.md` on `main`: in the **app** project remove `choochootraining.com` and `www`, make `app.choochootraining.com`
-   primary; in the **website** project add both. Keep the Porkbun `app` CNAME.
-4. After the switch, open `https://choochootraining.com/sw.js` and check it shows the cleanup code (cache headers `no-cache`).
+1. In a private window, `choochootraining.com` shows the website and "Log in" opens the app.
+2. `https://choochootraining.com/sw.js` shows the cleanup code.
 
 ## Open items
 
-- Golden-ticket links in `TECH.md` use `choochootraining.com/t/CODE`. That path would now reach the website. Decide before any ticket is sent whether tickets live on `app.`.
+- Golden tickets: the owner has a way to track them; links like `choochootraining.com/t/CODE` would reach the website. A later task.
 - Supabase URL settings are the app chat's part E.
