@@ -94,5 +94,26 @@ check(s.settings.trainWorld === true && s.settings.playSounds === true && s.sett
 mem.clear(); s = createStore();
 check(s.settings.trainWorld === true && s.settings.playSounds === true && s.settings.migrated1912 === true, 'migration: a new install is on, flag set');
 
+// Account sync seam (1.9.x accounts): savedAt, subscribe, isFresh, adopt, clearLocal. Old saves load with savedAt 0.
+mem.clear(); s = createStore();
+check(s.state.savedAt === 0 && s.isFresh(), 'sync: a fresh store has savedAt 0 and is fresh');
+let heard = 0; const off = s.subscribe(() => { heard++; });
+s.touch();
+check(s.state.savedAt === 0 && heard === 0, 'sync: opening the app (touch) does not move savedAt or notify');
+s.setResult(1, 'got-it');
+check(s.state.savedAt > 0 && heard === 1 && JSON.parse(mem.get('reading.v1')).savedAt === s.state.savedAt && !s.isFresh(), 'sync: a real change sets savedAt, notifies and is saved');
+off(); s.setSetting('rate', 1); check(heard === 1, 'sync: unsubscribe stops notifications');
+const cloud = { schema: 1, lessons: { 2: { tasksDone: [1], result: 'got-it' } }, settings: {}, firstRunDone: true, savedAt: 12345 };
+s.adopt(cloud);
+check(s.state.savedAt === 12345 && s.isDone(2) && JSON.parse(mem.get('reading.v1')).savedAt === 12345 && heard === 1, 'sync: adopt takes the other copy, keeps its savedAt, saves, does not notify');
+s.adopt({ junk: true });
+check(s.isFresh() && s.state.savedAt === 0, 'sync: adopting garbage gives a fresh state');
+s.setResult(1, 'got-it'); s.clearLocal();
+check(s.isFresh() && !mem.has('reading.v1'), 'sync: clearLocal forgets everything on the device');
+s = open(old({ order: ORDER }));
+check(s.state.savedAt === 0 && !s.isFresh(), 'sync: an older save loads with savedAt 0 and is not fresh');
+mem.set('reading.auth', '{"x":1}'); s.resetAll();
+check(mem.get('reading.auth') === '{"x":1}', 'sync: the account session key is never touched by the store');
+
 console.log(`store: ${n - bad}/${n} checks passed`);
 process.exit(bad ? 1 : 0);

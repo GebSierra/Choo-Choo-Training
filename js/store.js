@@ -2,6 +2,14 @@
 import { ORDER } from './order.js';
 import { cleanCharacter } from './character.js';
 const KEY = 'reading.v1';
+const AUTH_KEY = 'reading.auth'; // the grown-up account session (js/account.js). Never part of reading.v1.
+
+// The account session lives next to the progress, behind the same seam (the platform test allows storage only in this file).
+export const authStore = {
+  read() { try { const v = JSON.parse(localStorage.getItem(AUTH_KEY)); return v && typeof v === 'object' && !Array.isArray(v) ? v : null; } catch { return null; } },
+  write(v) { try { localStorage.setItem(AUTH_KEY, JSON.stringify(v)); } catch { /* storage unavailable */ } },
+  clear() { try { localStorage.removeItem(AUTH_KEY); } catch { /* storage unavailable */ } },
+};
 
 const fresh = () => ({
   schema: 1,
@@ -15,6 +23,7 @@ const fresh = () => ({
   worlds: { seen: null }, // the world the child last saw on Home (js/worlds.js planHome): a crossing plays once, then this moves on
   levels: { seen: null, earned: {} }, // milestones (js/levels.js): how many were earned when Home last opened, and when each was
   lastOpened: null,
+  savedAt: 0, // ms timestamp of the last real change (account sync: the later copy wins). Opening the app does not move it.
 });
 
 // A saved setting of the wrong type (a rate that is "fast", say) falls back to its default; numbers are clamped.
@@ -50,14 +59,20 @@ export const dayKey = (t = Date.now()) => { const d = new Date(t); return `${d.g
 
 export function createStore() {
   let migrated = false;
+  const listeners = new Set(); // called after each real change (account sync pushes from here)
   let state = load();
-  if (migrated) save();
+  if (migrated) save(false);
 
   function load() {
     try {
       const raw = localStorage.getItem(KEY);
       if (!raw) return fresh();
-      const p = JSON.parse(raw);
+      return parse(JSON.parse(raw));
+    } catch { return fresh(); }
+  }
+  // Turn saved JSON (from this device or the cloud) into a clean state. Anything wrong starts fresh.
+  function parse(p) {
+    try {
       if (!p || p.schema !== 1 || !p.lessons || typeof p.lessons !== 'object' || Array.isArray(p.lessons)) return fresh();
       const f = fresh();
       // v1.8.1 changed the sound order: a real install (it has been opened, so it has lastOpened) saved under another order starts its lessons again once. Settings, seen task scripts, the name and the welcome stay.
@@ -82,11 +97,17 @@ export function createStore() {
       if (p.checkpoints && typeof p.checkpoints === 'object' && !Array.isArray(p.checkpoints)) {
         for (const [id, c] of Object.entries(reorder ? {} : p.checkpoints)) if (c && typeof c === 'object' && !Array.isArray(c)) checkpoints[id] = c;
       }
-      return { ...f, ...p, order: ORDER, lessons, checkpoints, character: cleanCharacter(p.character), levels: cleanLevels(p.levels), worlds: cleanWorlds(p.worlds), meetDue: typeof p.meetDue === 'boolean' ? p.meetDue : typeof p.lastOpened === 'string', settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
+      return { ...f, ...p, savedAt: Number.isFinite(p.savedAt) && p.savedAt > 0 ? p.savedAt : 0, order: ORDER, lessons, checkpoints, character: cleanCharacter(p.character), levels: cleanLevels(p.levels), worlds: cleanWorlds(p.worlds), meetDue: typeof p.meetDue === 'boolean' ? p.meetDue : typeof p.lastOpened === 'string', settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
     } catch { return fresh(); }
   }
-  function save() {
+  function write() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage unavailable: stay in memory */ }
+  }
+  // bump=false for housekeeping (opening the app) that must not make this copy look newer than the cloud's.
+  function save(bump = true) {
+    if (bump) state.savedAt = Date.now();
+    write();
+    if (bump) for (const fn of listeners) { try { fn(state); } catch { /* a listener must never break saving */ } }
   }
   const lesson = (n) => state.lessons[n] || { tasksDone: [], result: null, completedAt: null };
   const checkpoint = (id) => state.checkpoints[id] || { result: null, completedAt: null };
@@ -150,7 +171,15 @@ export function createStore() {
     finishMeet(patch = {}) { state.character = cleanCharacter({ ...state.character, ...patch, made: true }); state.meetDue = false; save(); },
     setSetting(k, v) { state.settings = { ...state.settings, [k]: v }; save(); },
     setFirstRunDone() { state.firstRunDone = true; save(); },
-    touch() { state.lastOpened = new Date().toISOString(); save(); },
+    touch() { state.lastOpened = new Date().toISOString(); save(false); },
+    // ---- account sync seam (js/account.js) ----
+    subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+    // Nothing earned yet on this device: no lesson or checkpoint result and the welcome not finished.
+    isFresh() { return !state.firstRunDone && !Object.values(state.lessons).some((l) => l && l.result) && !Object.values(state.checkpoints).some((c) => c && c.result); },
+    // Take another copy of the state (the cloud's). Cleaned like a saved one; keeps its own savedAt; does not notify.
+    adopt(data) { state = parse(data); write(); },
+    // Forget everything on this device (sign out, delete account). Does not notify.
+    clearLocal() { state = fresh(); try { localStorage.removeItem(KEY); } catch { /* storage unavailable */ } },
     // Progress only: the parent's voice settings and the child's name are kept.
     resetAll() { const { settings, character, meetDue } = state; state = { ...fresh(), settings, character, meetDue }; save(); },
   };

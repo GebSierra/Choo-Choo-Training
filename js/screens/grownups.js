@@ -13,6 +13,7 @@ import { richText } from '../letters.js';
 import { soundPhrase } from '../lessons.js';
 import { starSvg } from '../art.js';
 import { NUMBER_WORDS, earnedLevels } from '../levels.js';
+import { accountCard } from '../components/account-card.js';
 
 export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA vowel and consonant chart recordings, CC BY-SA 3.0, obtained via github.com/joshstephenson/PhoneticFlashCards, trimmed and loudness-normalized.";
 
@@ -160,6 +161,7 @@ export function grownupsScreen(ctx) {
       fold('Recorded sounds', clipList, h('p', { class: 'gu-note' }, 'Isolated sounds play from recordings, never from the phone voice. A sound with no recording shows a line for you to say instead ("Say: mmm"). To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT), h('p', { class: 'gu-credit' }, WHISTLE_CREDIT)),
       fold('Levels', h('p', { class: 'gu-note' }, 'Each level adds a special car to the train and a gold star.'), h('div', { class: 'gu-list' }, ...levelRows)),
       fold('All the sounds', ...Object.values(curriculum.sounds).map((s) => soundCard(s))),
+      ...[accountCard(ctx.account, store)].filter(Boolean),
       sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.playlistUrl); } }, icon('external', 20), 'Sound story playlist'),
         h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.alphabetSongUrl); } }, icon('external', 20), 'Alphabet song')),
       ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),
