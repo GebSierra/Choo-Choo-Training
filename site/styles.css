@@ -45,7 +45,7 @@ section p{color:var(--dim);max-width:34em;font-size:1.1rem}
 .step .n{font:400 1.8rem var(--display);color:var(--gold)}
 .step p{margin:0;font-size:1rem}
 .pip{display:flex;gap:18px;align-items:center;margin-bottom:10px}
-.pip img{width:84px;height:84px;object-fit:cover;object-position:top;border-radius:50%;background:#fff;border:3px solid var(--gold)}
+.pip img{width:auto;height:110px;object-fit:contain}
 .quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .quote{border:2px dashed var(--violet);border-radius:20px;padding:22px}
 .quote p{margin:0 0 .6em;font-weight:700;color:var(--star);font-size:1.05rem}
