@@ -267,6 +267,11 @@ export async function layoutChecks({ browser, url, ok, vp }) {
     ok(b.length === 2 && b.every((x) => x.ws === 'nowrap' && !x.wrap && x.h < 60) && Math.abs(b[0].w - b[1].w) < 1.5, `${tag} Writing: both buttons on one line and equal (${JSON.stringify(b)})`);
     const tp = await page.evaluate(() => ({ h: document.querySelector('.trace-pad').getBoundingClientRect().height, vh: innerHeight }));
     ok(tp.h <= tp.vh * 0.7 + 1, `${tag} Writing: the trace pad is at most 70vh (${Math.round(tp.h)} of ${tp.vh})`);
+    // owner fix: the script tells the grown-up to draw first and that an imperfect drawing is fine, and Next never waits for a drawing
+    const ws = await page.evaluate(() => (document.querySelector('.script-sheet .sheet-body') || {}).textContent || '');
+    ok(ws.includes("Draw it first while your child watches, then let them try. Start at the dot and follow the arrow. It's fine if it doesn't look right yet: your child can still move on."), `${tag} Writing: the script says draw first, and that it is fine if it does not look right`);
+    await page.waitForTimeout(1200);
+    ok(await page.evaluate(() => !document.querySelector('.btn.next').disabled), `${tag} Writing: Next is open with nothing drawn (a child who cannot draw it yet can move on)`);
     await ctx.close();
   }
   // 21: the finish screen: two columns in landscape, the label for the grown-up, a one-line practice button at 360.

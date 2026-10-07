@@ -93,7 +93,7 @@ export function build(env) {
         sparkle(el, r.left - o.left + r.width / 2, r.top - o.top + r.height / 2, { count: 12, size: [10, 22], reach: [40, 84], sound: 'star' });
       }
     } else {
-      pad = tracePad({ letter: key, onStroke: () => { strokes++; el.dataset.strokes = String(strokes); if (strokes >= 2) setDone(true); } });
+      pad = tracePad({ letter: key, onStroke: () => { strokes++; el.dataset.strokes = String(strokes); /* never setDone here: no auto-advance, so a grown-up can draw first while the child watches */ } });
       strokes = 0; el.dataset.strokes = '0';
       const showBtn = h('button', { class: 'btn ghost small', type: 'button', onclick: async () => { showBtn.disabled = true; await pad.showMe(); showBtn.disabled = false; } }, icon('play', 20), 'Show me');
       const clearBtn = h('button', { class: 'btn ghost small', type: 'button', onclick: () => { pad.clear(); strokes = 0; el.dataset.strokes = '0'; } }, icon('eraser', 20), 'Clear');

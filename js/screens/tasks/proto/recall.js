@@ -81,7 +81,7 @@ export function build(env) {
     T.clear();
     if (!item) item = readingItem(env, { kind: 'word', onGot: nextWord, onHelped: (t) => { if (!wReturned.has(t)) { wq.push(t); wReturned.add(t); } nextWord(); } });
     wordDots = dotRow(S.words.length);
-    host.replaceChildren(h('div', { class: 'rc-pad' }, wordDots.el, h('p', { class: 'px-chip' }, 'Read the word'), item.el));
+    host.replaceChildren(h('div', { class: 'rc-pad' }, wordDots.el, h('p', { class: 'px-chip' }, 'Read it together'), item.el));
     showWord();
   }
   let wordDots = null;

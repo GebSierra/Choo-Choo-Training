@@ -7,6 +7,7 @@ import { sparkle } from '../../../components/sparkle.js';
 import { shake, timers } from '../../../components/game-kit.js';
 import { sfx } from '../../../sfx.js';
 import { INK, hearBtn, fadeIn, pop } from './kit.js';
+import { READ_HELP } from '../../../scripts.js';
 
 // PROTOTYPE 5: a heart-word step for "the" (unit 2.3). Five sub-steps in the task shell (its dots count them):
 //   meet   the word as big tiles: "th" is ONE linked tile (two letters, one sound), "e" has a small red heart above it
@@ -29,11 +30,11 @@ export const SOUND = {
 const TRAY = ['s', 'e', 'm', 'h', 'a', 't']; // t h e and the taught letters m a s, shuffled once
 // say: the words on the grown-up's sheet. speak: what the sheet's speaker reads aloud (whole sentences, never a sound or "thee").
 const SCRIPTS = {
-  meet: { say: 'This is a heart word. Most of it sounds out, but one part is tricky: here, the e says \'uh\'. We learn that part by heart. Let your child try to read it first; then tap "Hear it".', gist: 'Heart word: the. Child tries it first.', speak: 'This is a heart word. Most of it sounds out, but one part is tricky. We learn that part by heart. Let your child try to read it first; then tap Hear it.' },
-  map: { say: 'Your child taps th and says its sound (buzzing, tongue between the teeth), then taps the heart: the e says \'uh\'. Then slide a finger under the whole word and say it together: the.', gist: 'Tap th, tap the heart, slide, say it.', speak: 'Your child taps each part, then slides a finger under the whole word and says it.' },
+  meet: { say: 'This is a heart word. Most of it sounds out, but one part is tricky: here, the letter e says \'uh\'. We learn that part by heart. ' + READ_HELP + ' Then tap "Hear it".', gist: 'Heart word: the. Read it together.', speak: 'This is a heart word. Most of it sounds out, but one part is tricky. We learn that part by heart. ' + READ_HELP + ' Then tap Hear it.' },
+  map: { say: 'Your child taps th and says its sound (buzzing, tongue between the teeth), then taps the heart: the letter e says \'uh\'. Then slide a finger under the whole word and say it together: the.', gist: 'Tap th, tap the heart, slide, say it.', speak: 'Your child taps each part, then slides a finger under the whole word and says it.' },
   fix: { say: 'Say it the way it\'s spelled: thee. Ask: what\'s the real word? Your child says the. This builds flexible reading: when a word sounds odd, try the other sound.', gist: 'Say it as spelled. Ask: what\'s the real word?', speak: 'Say it the way it\'s spelled, then ask: what\'s the real word? This builds flexible reading: when a word sounds odd, try the other sound.' },
   spell: { say: 'The phone says the word. Your child taps the tiles to fill the boxes from left to right. Tap a filled box to send its tile back. A wrong tile only shakes: we never fix it for them.', gist: 'Child spells the word.', speak: 'The phone says the word. Your child taps the tiles to fill the boxes from left to right.' },
-  find: { say: 'Your child finds the heart word "the" in the sentence, then reads the whole sentence aloud. Tap Got it if it went smoothly, or Help to read it together one word at a time.', gist: 'Find "the", then read the sentence.', speak: 'Your child finds the heart word in the sentence, then reads the whole sentence aloud.' },
+  find: { say: 'Read the sentence together, then your child taps the heart word "the". ' + READ_HELP + ' Tap Got it if it went smoothly, or Help to read it together one word at a time.', gist: 'Read it together, tap "the".', speak: 'Read the sentence together, then your child taps the heart word. ' + READ_HELP + ' Tap Got it if it went smoothly, or Help to read it together one word at a time.' },
 };
 const HINT = ['first', 'middle', 'last'];
 const LIGHT_MS = 650;
@@ -184,7 +185,7 @@ export function build(env) {
       h('p', { class: 'hw-fix-line' }, 'Say it the way it\'s spelled: ', h('strong', {}, 'thee'), '.'),
       h('p', { class: 'hw-fix-ask' }, 'Ask: what\'s the real word?'),
       h('p', { class: 'hw-fix-note' }, 'This builds flexible reading: when a word sounds odd, try the other sound.'));
-    const hint = h('div', { class: 'ri-panel hw-hint', hidden: true, role: 'status' }, h('p', { class: 'ri-text' }, 'Try the other sound for the e. The real word is "the".'), hearBtn('Hear it', () => say(WORD), { compact: true }));
+    const hint = h('div', { class: 'ri-panel hw-hint', hidden: true, role: 'status' }, h('p', { class: 'ri-text' }, 'Try the other sound for the letter e. The real word is "the".'), hearBtn('Hear it', () => say(WORD), { compact: true }));
     const judge = judgeBar({ onGot: () => got(), onHelp: () => help() });
     const msg = h('p', { class: 'px-chip' }, 'Say the real word');
     function got() { judge.hide(); hint.hidden = true; msg.textContent = 'Yes! The real word is "the".'; pop(tiles.el, 360); burst(tiles.el); T.later(() => { if (g === gen) say(WORD); }, 350); finish(g, 1500); }
@@ -244,7 +245,7 @@ export function build(env) {
   function find(g) {
     const words = SENTENCE.split(' ');
     let found = false;
-    const chip = h('p', { class: 'px-chip' }, 'Find the heart word');
+    const chip = h('p', { class: 'px-chip hw-find-chip' }, 'Read the sentence together, then tap the heart word');
     const bare = (w) => w.replace(/[^A-Za-z]/g, '');
     const tiles = words.map((w, i) => h('button', { class: 'ri-tile wtile hw-w', type: 'button', 'aria-label': bare(w), dataset: { word: bare(w).toLowerCase(), i: String(i) }, onclick: () => pick(i) },
       h('span', { class: 'hw-wheart', 'aria-hidden': 'true' }, heartSvg('small')), faceOf(w)));
@@ -269,7 +270,7 @@ export function build(env) {
       sfx.play('star');
       if (!reduced()) popAnim(t);
       burst(t, { count: 8 });
-      chip.textContent = 'Read the sentence'; msg.textContent = '';
+      chip.textContent = 'Read it together'; msg.textContent = '';
       judge.show(); fadeIn(judge.el);
     }
     function got() {
@@ -282,12 +283,12 @@ export function build(env) {
     // Help: read it together, one word at a time, each word lighting in turn; then the child reads it again.
     function help() {
       judge.hide(); el.dataset.help = '1';
-      chip.textContent = 'Read it together';
+      chip.textContent = 'Say it after your grown-up';
       tiles.forEach((t) => t.classList.remove('lit'));
       tiles.forEach((t, i) => T.later(() => { if (g === gen) tiles.forEach((x, k) => x.classList.toggle('lit', k === i)); }, i * LIGHT_MS));
       T.later(() => { if (g !== gen) return; tiles.forEach((x) => x.classList.remove('lit')); chip.textContent = 'Now read it again'; judge.show(); fadeIn(judge.el); }, tiles.length * LIGHT_MS + 200);
     }
-    return { el: h('div', { class: 'hw-col' }, chip, line, msg, slot, judge.el), parts: () => [{ tts: 'Find the word the.' }] };
+    return { el: h('div', { class: 'hw-col' }, chip, line, msg, slot, judge.el), parts: () => [{ tts: 'Read the sentence together, then tap the heart word.' }] };
   }
 
   show();

@@ -17,7 +17,7 @@ export function build(env) {
   let pos = 0, finished = false;
   const q = [...S.words], firstTry = [], helped = [];
   const dots = dotRow(total);
-  const chip = h('p', { class: 'px-chip' }, 'Read the word');
+  const chip = h('p', { class: 'px-chip' }, 'Read it together');
   const holder = h('div', { class: 'rd-holder' });
   const el = h('div', { class: 'proto readit', dataset: { pos: '0', state: 'reading', word: q[0] } }, dots.el, chip, holder);
   const item = readingItem(env, {
@@ -29,7 +29,7 @@ export function build(env) {
 
   function show() {
     const back = pos >= total;
-    chip.textContent = back ? 'One more try' : 'Read the word';
+    chip.textContent = back ? 'One more try' : 'Read it together';
     el.dataset.pos = String(pos); el.dataset.word = q[pos]; el.dataset.back = back ? '1' : '0';
     dots.set(Math.min(pos, total - 1));
     item.show(q[pos]);

@@ -113,7 +113,7 @@ export function readingItem(ctx, { kind = 'word', heart = [], onGot, onHelped })
     setPhase('blend');
     const g = gen, w = bare(text);
     const model = () => { lightLetters(); return sayBlend(ctx, w, prompt, { stale: stale(g) }); };
-    setPanel('Now your child blends the whole word again.',
+    setPanel('Now say the whole word, then have your child say it after you.',
       btn('Hear it again', () => { model(); }),
       btn('Hear the word', () => speech.say([{ tts: w }])),
       btn('Done', () => complete(), 'ghost go'));
