@@ -3,17 +3,50 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script>
+/* Send people who already use the app to app.choochootraining.com before anything paints.
+   Rules and handoff format: docs/DOMAIN-MOVE.md (part D) on main. Mirrors js/handoff.js in the app.
+   ?site skips it, so members can still read this page. Never touches reading.auth; progress travels in the fragment only. */
+(function () {
+  try {
+    var APP = "https://app.choochootraining.com/", MAX = 200 * 1024, loc = location, hash = loc.hash;
+    if (/[?&]site(=|&|$)/.test(loc.search)) return;
+    var member = /(?:^|;\s*)cct_member=/.test(document.cookie), raw = null;
+    try { raw = localStorage.getItem("reading.v1"); } catch (e) {}
+    if (!(member || raw !== null || hash.indexOf("#/") === 0 || /access_token/.test(hash))) return;
+    var tail = hash; // a reset-password or error link is forwarded exactly as it came
+    if (!/access_token|type=recovery|error/.test(hash)) {
+      var data = "";
+      if (raw) {
+        try {
+          var bytes = new TextEncoder().encode(raw), p = JSON.parse(raw);
+          if (bytes.length <= MAX && p && typeof p === "object" && !Array.isArray(p) && p.schema === 1 && p.lessons && typeof p.lessons === "object" && !Array.isArray(p.lessons)) {
+            var bin = "";
+            for (var i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+            data = btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+          }
+        } catch (e) { /* corrupt or too big: no handoff */ }
+      }
+      var route = hash.replace(/^#/, "");
+      tail = data ? "#handoff=" + data + (hash.indexOf("#/") === 0 ? "&route=" + encodeURIComponent(route) : "") : hash;
+    }
+    loc.replace(APP + loc.search + tail);
+  } catch (e) { /* never block the page */ }
+})();
+</script>
 <title>Choo Choo Training: Hear your child read their first word</title>
 <meta name="description" content="Ten minutes a day with a train that only moves when your child reads the next sound. You sit beside them; the app shows you what to say. Start the first 5 lessons free.">
 <meta name="theme-color" content="#1A1440">
-<!-- TODO(owner): once the site has its final domain, make og:image an absolute URL (https://<domain>/assets/og.jpg) and add og:url -->
 <meta property="og:title" content="Choo Choo Training">
 <meta property="og:description" content="Hear your child read their first word this week. The first 5 lessons are free.">
-<meta property="og:image" content="assets/og.jpg">
+<link rel="canonical" href="https://choochootraining.com/">
+<meta property="og:url" content="https://choochootraining.com/">
+<meta property="og:image" content="https://choochootraining.com/assets/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://choochootraining.com/assets/og.jpg">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="assets/fonts/bowlby-one-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -26,7 +59,7 @@
 
 <header class="top" id="top"><nav class="wrap">
   <a class="logo" href="#top" aria-label="Choo Choo Training, back to top"><img src="icon.svg" alt="" width="32" height="32">Choo Choo Training</a>
-  <div class="links"><a href="#how">How it works</a><a href="#secret">For parents</a><a href="#research">Research</a><a href="#faq">FAQ</a><a class="btn btn-sm" data-app data-track="start" href="https://choochootraining.com/">Start free</a></div>
+  <div class="links"><a href="#how">How it works</a><a href="#secret">For parents</a><a href="#research">Research</a><a href="#faq">FAQ</a><a class="btn btn-sm btn-ghost" data-app href="https://app.choochootraining.com/">Log in</a></div>
 </nav></header>
 
 <div class="sky">
@@ -35,7 +68,7 @@
   <div>
     <h1>Hear your child read their <span>first word</span> this week.</h1>
     <p>Ten minutes a day with a train that only moves when your child reads the next sound. You sit beside them, and the app tells you exactly what to say.</p>
-    <div class="cta"><a class="btn" id="hero-cta" data-app data-track="start" href="https://choochootraining.com/">Start the first 5 lessons free</a><small>No card. Works on any phone.</small></div>
+    <div class="cta"><a class="btn" id="hero-cta" data-app href="https://app.choochootraining.com/">Start reading</a><small>First 5 lessons free. No card. Works on any phone.</small></div>
     <ul class="facts">
       <li><b>1</b> sound per lesson</li>
       <li><b>10</b> minutes a day</li>
@@ -122,7 +155,7 @@
       <div class="admit">Admit one family · Lifetime</div>
       <h2>Founding Family ticket</h2>
       <p>Lifetime access for the first 100 families, plus 3 golden tickets to give your child's best friends. Tickets stop working at Winter Break.</p>
-      <a class="btn" data-app data-track="founding-seat" href="https://choochootraining.com/">Claim a seat</a>
+      <a class="btn" data-app href="https://app.choochootraining.com/">Claim a seat</a>
     </div>
     <div class="side">
       <div class="count"><span data-left>63</span><small>seats left of <span data-total>100</span></small></div>
@@ -144,15 +177,14 @@
   <img class="close-pip" src="assets/pip.png" alt="" width="223" height="294" loading="lazy">
   <h2>Tonight, your child reads you their bedtime story.</h2>
   <p>It starts with one sound. Ten minutes, side by side.</p>
-  <a class="btn" data-app data-track="start" href="https://choochootraining.com/">All aboard, free</a>
+  <a class="btn" data-app href="https://app.choochootraining.com/">All aboard, free</a>
 </div></section>
 </main>
 
 <footer><div class="wrap"><span>© Choo Choo Training</span><span><a href="privacy.html">Privacy</a> · <a href="mailto:hellopip@choochootraining.com">Contact</a></span></div></footer>
 
-<div class="dock" id="dock" aria-hidden="true"><a class="btn" data-app data-track="start-dock" href="https://choochootraining.com/" tabindex="-1">Start the first 5 lessons free</a></div>
+<div class="dock" id="dock" aria-hidden="true"><a class="btn" data-app href="https://app.choochootraining.com/" tabindex="-1">Start reading</a></div>
 
 <script defer src="main.js"></script>
-<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

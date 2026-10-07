@@ -1,0 +1,24 @@
+# Netlify project 2 of 2: the marketing website. Import the repo with Base directory = site (this file is read from there).
+# The app is a separate Netlify project (repo root, branch main).
+[build]
+  command = "rm -rf dist && mkdir dist && cp -r index.html privacy.html 404.html styles.css main.js sw.js icon.svg apple-touch-icon.png assets dist/"
+  publish = "dist"
+
+# Hashed-by-content media never changes under the same name
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The worker file must never be cached: that is how old installs find it and clean themselves up
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, max-age=0, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

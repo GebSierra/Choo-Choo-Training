@@ -15,17 +15,27 @@ One static page, no build step. Plan: `docs/marketing/WEBSITE-PLAN.md`.
 cd site
 python3 -m http.server 8000     # open http://localhost:8000
 node tools/check.mjs            # phone, small phone, desktop and reduced motion; screenshots in _shots/
+node tools/check-redirect.mjs   # the redirect, the handoff format and sw.js
 node tools/og.mjs               # rebuilds assets/og.jpg from tools/og.html
 ```
 
 `check.mjs` fails on console errors, failed requests, horizontal overflow, dead local links or anchors, images without
 alt text, a start button below the fold on a phone, or a mobile start bar that covers another start button.
 
-## Deploy (Vercel, later)
+## Deploy (Netlify)
 
-Import the repo, Root Directory `site`, Framework Other, no build command. `vercel.json` sets clean URLs and long caching
-for `/assets/*`; `404.html` is the not-found page. Turn on Web Analytics in the Vercel project to get the click events
-(`start`, `start-dock`, `founding-seat`).
+A second Netlify project from this repo: **Base directory `site`**, production branch `claude/choochoo-marketing-chat-mjzg8m`.
+`netlify.toml` copies the deployable files into `dist/` (so `tools/` is not served), caches `/assets/*` for a year and never
+caches `/sw.js`. `404.html` is the not-found page. Go-live steps: `docs/marketing/DOMAIN-MOVE.md`.
+
+## Old app visitors
+
+Until the move, `choochootraining.com` served the app, so this page also cleans up after it:
+- `sw.js` removes the old app's service worker and caches from phones and browsers.
+- The inline script at the top of `index.html` sends anyone who already uses the app (cookie `cct_member`, saved progress,
+  an app link like `#/lesson/3`, or a reset-password link) to `https://app.choochootraining.com/`, carrying progress in the
+  address fragment. Add `?site` to see the website anyway.
+- `node tools/check-redirect.mjs` tests all of it.
 
 ## Media
 

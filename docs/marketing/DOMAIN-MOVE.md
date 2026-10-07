@@ -1,72 +1,34 @@
-# Domain move: website on choochootraining.com, app on app.choochootraining.com
+# Domain move: website status and go-live (website chat's side)
 
-The owner decided this in `WEBSITE-PLAN.md`. Do the steps in order, so that the app never goes offline.
+The source of truth is **`docs/DOMAIN-MOVE.md` on `main`** (written by the app chat). This file only tracks the website's part.
 
-## Short version
+Situation: the app is live at `https://app.choochootraining.com` (Netlify project 1, repo root, `main`, DNS at Porkbun). The old address
+`choochootraining.com` still serves the app until the owner moves it to the website.
 
-**The app does not move any files.** It keeps the repo root on `main`, and GitHub Pages keeps serving it. The app
-switches to its own address, `app.choochootraining.com`. The marketing website (`site/`) is deployed on Vercel and takes
-over `choochootraining.com`.
+## Website checklist (part D) and where it is
 
-## Step 1. App session (on `main`)
+| Requirement | Status | Where / how it is checked |
+|---|---|---|
+| Own `/sw.js`: delete every cache, unregister, reload open windows | Built, tested | `site/sw.js`; `tools/check-redirect.mjs` installs a stand-in old worker with a cache, serves the real file, and checks caches are gone, it is unregistered and the window reloaded |
+| Inline `<head>` redirect before first paint (cookie `cct_member`, `reading.v1`, `#/`, `access_token`; skip on `?site`) | Built, tested | `site/index.html`; 33 checks in `tools/check-redirect.mjs` |
+| Handoff in the fragment only (`#handoff=<base64url>&route=<encoded>`), validation (JSON, schema 1, `lessons` object, at most 200 KB), reset/error hashes unchanged, never `reading.auth` | Built, tested | same; the test decodes the fragment the way the app's `js/handoff.js` does, including UTF-8 |
+| "Log in" header button and "Start reading" main button to `https://app.choochootraining.com/` | Built | `site/index.html`, `APP_URL` in `site/main.js` |
+| Absolute `og:image` and `og:url` | Built | `site/index.html` (also canonical and `twitter:image`) |
+| Hosting: second Netlify project, Base directory `site` | Config ready, owner creates the project | `site/netlify.toml` |
 
-1. `CNAME`: change the contents from `choochootraining.com` to `app.choochootraining.com`.
-2. `js/config.js`: `SITE_URL = 'https://app.choochootraining.com/'`. Sign-up, confirm and password-reset emails link
-   here, and so does the native app's reset link.
-3. Bump the app version and `CACHE_VERSION` in `sw.js`, as for any release.
-4. Update the docs that name the old address:
-   - `README.md`: the live URL, the studio at `https://app.choochootraining.com/tools/studio.html`, and the CNAME note
-     ("keep it" now means keep `app.choochootraining.com`)
-   - `docs/BACKEND.md`: Site URL and Redirect URLs, plus the reset-link example
-   - `docs/NEXT.md`: the live URL
-5. Nothing else needs to change. The app uses relative paths throughout: the manifest `start_url` and `scope` are
-   `./`, the service worker is registered as `sw.js`, and there are no absolute links.
-6. Merge and deploy steps 1–4 together, in a single release.
+## Owner: go live (after the app chat's part B has been live for a few weeks)
 
-## Step 2. Owner: DNS, Supabase, GitHub (about 15 minutes)
+1. Netlify > Add new site > Import from GitHub > `Choo-Choo-Training`. **Base directory `site`.** Production branch **`claude/choochoo-marketing-chat-mjzg8m`**
+   (see `WEBSITE-PLAN.md` for why). The build command and publish directory come from `site/netlify.toml`.
+2. Open the project's `*.netlify.app` address and try it before touching the domain:
+   - the page loads as a new visitor in a private window;
+   - `/?site` stays on the website even if you already use the app;
+   - in a normal window where you use the app, the plain address sends you to the app.
+3. Follow part C of `docs/DOMAIN-MOVE.md` on `main`: in the **app** project remove `choochootraining.com` and `www`, make `app.choochootraining.com`
+   primary; in the **website** project add both. Keep the Porkbun `app` CNAME.
+4. After the switch, open `https://choochootraining.com/sw.js` and check it shows the cleanup code (cache headers `no-cache`).
 
-Do this right after step 1 is merged.
+## Open items
 
-1. **DNS** at the domain registrar: add a `CNAME` record from `app` to `gebsierra.github.io`.
-2. **GitHub**: repo Settings > Pages > Custom domain should read `app.choochootraining.com`. The CNAME file sets it.
-   Wait for the certificate, then tick **Enforce HTTPS**.
-3. **Supabase**: Authentication > URL Configuration:
-   - set **Site URL** to `https://app.choochootraining.com`
-   - add `https://app.choochootraining.com/` to **Redirect URLs**
-   - keep the old `https://choochootraining.com/` there for a few weeks, so emails already sent still work
-4. Check that the app opens, signs in and resets a password at `https://app.choochootraining.com/`.
-
-## Step 3. Marketing session (on `claude/choochoo-marketing-chat-mjzg8m`)
-
-Do this before the website goes live.
-
-1. `site/main.js`: `APP_URL = "https://app.choochootraining.com/"`.
-2. **Forward old app links.** Installed home-screen icons open `/index.html#/home`, and old emails open
-   `/#access_token=...`. The website forwards any visit with a `#/...` route or an `access_token` in the address to
-   the same path and hash on `app.choochootraining.com`.
-3. **Retire the old service worker.** Phones that used the app at `choochootraining.com` still have its service worker,
-   and it would keep showing the cached app instead of the website. Browsers keep an old worker when its update
-   returns 404. So the website serves its own `/sw.js` that clears the caches, unregisters itself and reloads the page.
-4. Make `og:image` an absolute URL (`https://choochootraining.com/assets/og.jpg`) and add `og:url`.
-
-## Step 4. Owner: Vercel and the main domain
-
-1. Vercel: import the GitHub repo, set **Root Directory** to `site`, **Framework** to Other, and leave the build
-   command empty.
-2. Choose the production branch: either the marketing branch, or `main` once `site/` has been merged there.
-3. Add the domains `choochootraining.com` and `www.choochootraining.com` in Vercel.
-4. DNS:
-   - set the apex `A` record to the value Vercel shows (today `76.76.21.21`)
-   - delete the four GitHub Pages `A` records (`185.199.108.153`, `.109`, `.110`, `.111`)
-   - point `www` to Vercel as it says
-   - leave the `app` record alone
-5. Turn on Web Analytics in the Vercel project.
-
-## What families notice
-
-- **Signed-in families:** their progress comes back from the cloud when they sign in at the new address.
-- **Progress saved only on the phone:** this stays with the old address (browser storage is tied to the address), so it
-  does not carry over. This only affects devices that were never signed in, such as developer mode.
-- **Home-screen icons:** old icons still work, because the website forwards them (step 3.2). Families can re-add the app
-  from `app.choochootraining.com` whenever they like.
-- **Native app:** its files are bundled, so nothing changes apart from the reset link (step 1.2).
+- Golden-ticket links in `TECH.md` use `choochootraining.com/t/CODE`. That path would now reach the website. Decide before any ticket is sent whether tickets live on `app.`.
+- Supabase URL settings are the app chat's part E.

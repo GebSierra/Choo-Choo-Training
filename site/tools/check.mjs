@@ -60,7 +60,7 @@ for (const [name, opts] of runs) {
     else { const r = await page.request.get(new URL(raw, base + "/").href); if (!r.ok()) fail(`dead link ${raw}`); }
   }
   const appLinks = await page.$$eval("[data-app]", as => as.map(a => a.href));
-  if (!appLinks.every(h => h === "https://choochootraining.com/")) fail(`${name}: a start button does not point at APP_URL`);
+  if (!appLinks.every(h => h === "https://app.choochootraining.com/")) fail(`${name}: a start button does not point at APP_URL`);
 
   await page.screenshot({ path: `${SITE}_shots/${name}-top.png` });
 

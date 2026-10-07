@@ -8,10 +8,12 @@ Written for the session that will build the site. Read this whole file before st
 - Use the line **"Tonight, your child reads you their bedtime story."** (closing section in the chosen file).
 - **Only new train-theme visuals.** No screenshots from `docs/screenshots/` (old stone path / barn theme). Use `previews/media/` (cut from the owner's screen recordings) or new captures of the current app.
 - **No Mentava picture cards** anywhere (map, milk, moon and the like). Check every frame and screenshot.
-- **Domain stays as is.** The app keeps `choochootraining.com` for now; it moves to `app.choochootraining.com` later, done by the app session, not us.
-- **Domain move steps:** see `DOMAIN-MOVE.md` (who does what, in which order).
+- **Domains (updated 2026-10-07, after the app moved).** The app is live at `https://app.choochootraining.com` (app 1.9.24). The website takes `choochootraining.com` and `www`, **only after everything in "Before the website takes the main address" below is built and tested.** The owner moves the domains; we tell the owner when it is ready.
+- **Hosting: Netlify, not Vercel** (Vercel's free plan is non-commercial). The website is a **second Netlify project** from the same repo with **Base directory `site`**; the app is the first project (repo root, `main`). DNS stays at Porkbun.
+- **Which branch deploys the website: `claude/choochoo-marketing-chat-mjzg8m`** (set it as the website project's production branch). Reason: `site/` stays out of `main`, so the app project and its tests never see it, and the website does not depend on any app file. When the owner wants a tidier name, rename or merge later; nothing else changes.
 - **Contact email: `hellopip@choochootraining.com`.** Used in the site footer and `site/privacy.html`.
-- **No Vercel yet.** Build so it can drop onto Vercel later (Root Directory = `site`), but don't depend on it now.
+- **Buttons (app session's request).** A small header button **"Log in"** and the main button **"Start reading"**, both to the app (`APP_URL` in `site/main.js`). The line "First 5 lessons free. No card." sits under the main button, so the offer is still said once, next to the button.
+- Full app-side requirements and the order of the move: `docs/DOMAIN-MOVE.md` on `main` (part D is ours). Our status and checklist: `DOMAIN-MOVE.md` in this folder.
 
 ## Goal
 
@@ -29,11 +31,22 @@ A one-page marketing site for Choo Choo Training whose single job is to get a pa
 
 ## Where it lives and how it deploys
 
-- Code: `site/` at the repo root. Fully self-contained: its own `index.html`, `styles.css`, `main.js`, `assets/`, and a `vercel.json`.
-- Plain static HTML/CSS/JS, no build step, no framework. Matches the app and deploys to Vercel as-is.
-- Vercel: import the GitHub repo, set **Root Directory = `site`**, Framework = Other, no build command. Every push to the branch gets a preview URL.
-- Domain: today `choochootraining.com` serves the app from GitHub Pages and stays that way. Later the website takes `choochootraining.com` (Vercel) and the app moves to `app.choochootraining.com`. Every "Start free" button points to the app through one constant in `main.js` (`APP_URL`, now `https://choochootraining.com/`), so that move is a one-line change.
-- Until Vercel exists, preview the site locally (`python3 -m http.server` in `site/`) and send the owner screenshots. Nothing on this branch is served publicly.
+- Code: `site/` at the repo root. Fully self-contained: `index.html`, `privacy.html`, `404.html`, `styles.css`, `main.js`, `sw.js`, `assets/` (fonts self-hosted), `netlify.toml`, `tools/` (checks, not deployed).
+- Plain static HTML/CSS/JS. The only build step is `netlify.toml` copying the deployable files into `dist/`, so `tools/` and the README are not served.
+- Netlify: Add new site > Import from GitHub > this repo, **Base directory = `site`**, production branch `claude/choochoo-marketing-chat-mjzg8m`. Build command and publish directory come from `site/netlify.toml`. Every push gets a deploy; other branches and pull requests get preview URLs.
+- Domain: until the owner moves `choochootraining.com` and `www` to this project, nothing here is public except the project's own `*.netlify.app` address. Every start/log-in button points at the app through one constant in `main.js` (`APP_URL = https://app.choochootraining.com/`).
+- Preview locally: `python3 -m http.server` in `site/`. Note that on `localhost` a visitor with old app progress or the member cookie is sent to the app; add `?site` to the address to stay on the website.
+
+## Before the website takes the main address
+
+The old app is installed on families' phones and its service worker keeps answering for `choochootraining.com`. Built, and tested by `site/tools/check-redirect.mjs` (33 checks):
+
+1. **`/sw.js`** deletes every cache, unregisters itself and reloads open windows. Served with `Cache-Control: no-cache` (`netlify.toml`), so old installs find it at once. Tested by installing a stand-in old worker with a cache, then serving the real file.
+2. **Inline `<head>` script** (before the first stylesheet, so nothing paints) sends people to the app with `location.replace` when the `cct_member` cookie is present, or `localStorage['reading.v1']` exists, or the hash starts with `#/`, or it contains `access_token`. `?site` skips it. Progress travels in the fragment only: `#handoff=<base64url UTF-8 of reading.v1>&route=<encoded old hash>`, sent only if it parses, has `schema` 1, a `lessons` object and is at most 200 KB. Reset-password and error hashes are forwarded unchanged and never become a handoff. `reading.auth` is never read. It mirrors the app's own `js/handoff.js`. `privacy.html` and `404.html` never redirect.
+3. **Buttons** "Log in" (header) and "Start reading" (main), see above.
+4. **Absolute `og:image`, `og:url`, canonical and `twitter:image`** on `https://choochootraining.com/`.
+
+Open items for the owner and the app session: golden-ticket links in `TECH.md` use `choochootraining.com/t/CODE`, which will land on the website; decide whether they live on `app.` instead before any ticket is sent.
 
 ## Page sections (Detach's rhythm, our content)
 
@@ -70,23 +83,23 @@ In priority order:
 
 ## Conversion details
 
-- One primary action everywhere: "Start the first 5 lessons free" → `APP_URL`.
+- One primary action everywhere: **"Start reading"** → `APP_URL`, with "First 5 lessons free. No card." beside it. The header carries a small "Log in" to the same address.
 - Seat counter: `SEATS_TOTAL = 100`, `SEATS_TAKEN = <owner sets>` in `main.js`; text and progress bar read from those.
 - Above the fold on a 390 px phone: headline, one line of support, the button. Test it.
 - Meta: `<title>`, description, Open Graph and Twitter image (1200×630, made from the hero), favicon from `icons/icon.svg` copied into `site/`.
-- Analytics: Vercel Web Analytics (free tier, no cookie banner needed). Track clicks on the start button and the Founding seat button.
+- Analytics: none in the page (no cookies, no third-party scripts, so no banner). Use Netlify Analytics (server-side, paid) if numbers are wanted; the privacy page says the site has no trackers, so update it first if that changes.
 - Privacy page: one short page, `site/privacy.html`, stating parent email only, nothing about the child, no microphone.
 - Performance target: Lighthouse mobile 90+ for Performance and Accessibility; total page under 1.5 MB before the video.
 
 ## Build steps
 
-1. Create `site/` with `index.html`, `styles.css`, `main.js`, `vercel.json` (clean URLs, long cache for `/assets/*`).
+1. Create `site/` with `index.html`, `styles.css`, `main.js`, `netlify.toml` (long cache for `/assets/*`, no cache for `/sw.js`).
 2. Port the chosen preview from `docs/marketing/previews/` into `site/` (split CSS and JS out, keep the tokens).
 3. Fill all sections with copy from `COPY.md`; owner-only placeholders marked `TODO(owner)`.
 4. Add the phone video (option 1, 2 or 3 above).
-5. Add meta tags, OG image, favicon, privacy page, analytics.
-6. Test: run `python3 -m http.server` in `site/`, then a Playwright script in `site/tools/check.mjs` that loads the page at 390×844 and 1280×800, fails on console errors or horizontal overflow, checks every link and button target, and saves screenshots to `site/_shots/` (git-ignored inside `site/`).
-7. Commit in small steps, push to the branch, report the preview URL and screenshots to the owner.
+5. Add meta tags, OG image, favicon, privacy page, `sw.js`, the inline redirect.
+6. Test: run `node tools/check.mjs` (loads the page at 390×844, 360×640 and 1280×800 and with reduced motion; fails on console errors, failed requests, horizontal overflow, dead links, missing alt text, a hidden start button; saves screenshots to `site/_shots/`, git-ignored) and `node tools/check-redirect.mjs` (the redirect and `sw.js`).
+7. Commit in small steps, push to the branch, report the Netlify deploy URL and screenshots to the owner.
 
 ## Phase 2 (not now)
 

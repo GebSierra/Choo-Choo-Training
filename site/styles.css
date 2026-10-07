@@ -26,6 +26,9 @@ a:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offs
 .btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--gold-deep)}
 .btn:focus-visible{outline:3px solid var(--star);outline-offset:3px}
 .btn-sm{padding:.6em 1.1em;font-size:.95rem}
+.btn-ghost{background:transparent;color:var(--gold);box-shadow:inset 0 0 0 2px var(--gold)}
+.btn-ghost:hover{background:rgba(255,209,92,.12);box-shadow:inset 0 0 0 2px var(--gold)}
+.btn-ghost:active{box-shadow:inset 0 0 0 2px var(--gold)}
 
 /* Nav */
 .top{position:sticky;top:0;z-index:20;transition:background .25s,box-shadow .25s}

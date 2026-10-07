@@ -1,7 +1,7 @@
 // One place to edit: seats and the app address
 const SEATS_TOTAL = 100;
 const SEATS_TAKEN = 37; // TODO(owner): set the real number by hand
-const APP_URL = "https://choochootraining.com/";
+const APP_URL = "https://app.choochootraining.com/";
 
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const $$ = (s) => document.querySelectorAll(s);
@@ -17,11 +17,6 @@ $$("[data-fill]").forEach(e => {
   bar.setAttribute("aria-valuenow", SEATS_TAKEN);
 });
 $$("[data-app]").forEach(e => e.href = APP_URL);
-
-// Analytics: Vercel Web Analytics custom events (no-op until the site runs on Vercel)
-$$("[data-track]").forEach(e => e.addEventListener("click", () => {
-  if (typeof window.va === "function") window.va("event", { name: e.dataset.track });
-}));
 
 if (reduced) $$("video").forEach(v => { v.removeAttribute("autoplay"); v.pause(); });
 
