@@ -82,13 +82,15 @@ export async function polishBChecks({ browser, url, ok }) {
         const q = (s) => document.querySelector(s), pieces = [...document.querySelectorAll('.confetti i')];
         const all = document.getAnimations();
         const endless = all.filter((a) => a.playState === 'running' && a.effect && a.effect.getComputedTiming().endTime === Infinity).length;
-        const running = all.filter((a) => a.playState === 'running' && a.effect && a.effect.target && a.effect.target.closest && a.effect.target.closest('.confetti, .finish-star, .finish-wagon, .finish-glyph > .finish-ring') && !a.effect.target.closest('.pip, .kid')).length; // (Pip's own idle loops are older and finite)
+        const running = all.filter((a) => a.playState === 'running' && a.effect && a.effect.target && a.effect.target.closest && a.effect.target.closest('.confetti, .finish-star, .finish-wagon, .fw-wheel, .finish-glyph > .finish-ring') && !a.effect.target.closest('.pip, .kid')).length; // (Pip's own idle loops are older and finite)
         const inView = pieces.filter((p) => { const r = p.getBoundingClientRect(); return r.right > 0 && r.left < innerWidth && r.bottom > 0 && r.top < innerHeight; }).length;
         const btns = [...document.querySelectorAll('.finish button')].map((b) => { const r = b.getBoundingClientRect(); return { h: r.height, dis: b.disabled, b: r.bottom }; });
         const g = q('.finish-glyph').getBoundingClientRect(), wag = q('.finish-wagon').getBoundingClientRect(), gl = q('.finish-wagon .glyph').getBoundingClientRect();
-        return { n: pieces.length, inView, star: !!q('.finish-star'), wagon: !!q('.finish-wagon'), letter: wag.left <= gl.left && gl.right <= wag.right, endless, running, btns, sw: document.documentElement.scrollWidth - innerWidth, g: { w: g.width }, figures: !!q('.finish-pip .pip') && !!q('.finish-kid .kid'), op: getComputedStyle(pieces[0]).opacity, anim: getComputedStyle(pieces[0]).animationName };
+        const wheels = [...document.querySelectorAll('.fw-wheel')].map((w) => { const r = w.getBoundingClientRect(); return (r.top + r.bottom) / 2 - wag.bottom; });
+        return { wheels, n: pieces.length, inView, star: !!q('.finish-star'), wagon: !!q('.finish-wagon'), letter: wag.left <= gl.left && gl.right <= wag.right, endless, running, btns, sw: document.documentElement.scrollWidth - innerWidth, g: { w: g.width }, figures: !!q('.finish-pip .pip') && !!q('.finish-kid .kid'), op: getComputedStyle(pieces[0]).opacity, anim: getComputedStyle(pieces[0]).animationName };
       });
       ok(f.n >= 18 && f.inView >= 14 && f.star && f.wagon && f.letter && f.figures, `${t}: confetti (${f.n}, ${f.inView} on screen), a gold star, the letter on its wagon, and both figures`);
+      ok(f.wheels.length === 2 && f.wheels.every((d) => d > 4), `${t}: both wheels hang below the wagon card (centres ${f.wheels.map((d) => d.toFixed(0)).join(', ')} px under its bottom edge)`);
       ok(f.endless === 0, `${t}: nothing loops forever (${f.endless} endless animations)`);
       if (reduce) ok(f.running === 0 && f.anim === 'none' && Number(f.op) > 0.5, `${t}: static (${f.running} running animations, confetti animation "${f.anim}", still visible at ${f.op})`);
       else ok(f.running === 0, `${t}: the burst is over after 3.6 s (${f.running} still running)`);

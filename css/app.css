@@ -1835,8 +1835,9 @@ button.hw-tile:active { transform: translateY(3px) scale(.97); }
   background: repeating-conic-gradient(from 4deg, rgba(255,198,76,.26) 0 7deg, rgba(255,198,76,0) 7deg 20deg); -webkit-mask-image: radial-gradient(circle, #000 12%, transparent 62%); mask-image: radial-gradient(circle, #000 12%, transparent 62%); }
 .finish-wagon { position: absolute; inset: 0 0 14px; border-radius: 30px; background: #fff; display: grid; place-items: center; z-index: 1;
   box-shadow: inset 0 14px 0 var(--accent), 0 0 0 5px color-mix(in srgb, var(--accent) 22%, #fff), 0 10px 0 rgba(30,33,64,.12), var(--shadow); }
-.finish-wagon::before, .finish-wagon::after { content: ''; position: absolute; bottom: -22px; width: 34px; height: 34px; border-radius: 50%; background: #2B2D5C; border: 6px solid #F3E6CF; box-shadow: 0 3px 0 rgba(30,33,64,.18); }
-.finish-wagon::before { left: 26px; } .finish-wagon::after { right: 26px; }
+.finish-chassis { position: absolute; left: 14px; right: 14px; bottom: 0; height: 8px; border-radius: 4px; background: #2B2D5C; z-index: 0; } /* the wagon's chassis bar; the wheels hang mostly below the card */
+.fw-wheel { position: absolute; top: -10px; width: 32px; height: 32px; border-radius: 50%; background: #2B2D5C; border: 6px solid #F3E6CF; box-shadow: 0 3px 0 rgba(30,33,64,.18); }
+.fw-wheel:first-child { left: 14px; } .fw-wheel:last-child { right: 14px; }
 .finish .finish-glyph .glyph { width: 58%; margin-top: 14px; }
 .finish .finish-glyph .sack-art, .finish .finish-glyph .crate-art, .finish .finish-glyph .book-art, .finish .finish-glyph .gauge-art { width: 56%; margin-top: 14px; }
 .finish .finish-ring { border-radius: 34px; inset: -8px -8px 6px; z-index: 0; }
@@ -1852,7 +1853,7 @@ button.hw-tile:active { transform: translateY(3px) scale(.97); }
   .confetti i { animation: confetti-burst 1.5s cubic-bezier(.15,.7,.25,1) both; animation-delay: calc(480ms + var(--d)); }
   .finish-star { animation: star-pop 640ms var(--ease-spring) 380ms both; }
   .finish-pip, .finish-kid { animation: cheer-hop 520ms ease-out 2 700ms; }
-  .finish-wagon::before, .finish-wagon::after { animation: wheel-spin 900ms ease-out 1 both; }
+  .fw-wheel { animation: wheel-spin 900ms ease-out 1 both; }
 }
 @keyframes confetti-burst { 0% { transform: translate(0, 0) rotate(0) scale(.3); opacity: 0; } 12% { opacity: 1; } 100% { transform: translate(calc(var(--tx) * var(--sc)), calc(var(--ty) * var(--sc))) rotate(calc(var(--r) + 300deg)) scale(1); opacity: .95; } }
 @keyframes star-pop { 0% { transform: rotate(-30deg) scale(0); opacity: 0; } 100% { transform: rotate(14deg) scale(1); opacity: 1; } }
@@ -1863,7 +1864,7 @@ button.hw-tile:active { transform: translateY(3px) scale(.97); }
 @media (orientation: landscape) and (max-height: 520px) {
   .finish .finish-glyph { --sc: .6; }
   .finish-wagon { border-radius: 22px; inset: 0 0 10px; box-shadow: inset 0 10px 0 var(--accent), 0 0 0 4px color-mix(in srgb, var(--accent) 22%, #fff), 0 8px 0 rgba(30,33,64,.12), var(--shadow); }
-  .finish-wagon::before, .finish-wagon::after { width: 24px; height: 24px; bottom: -16px; border-width: 4px; } .finish-wagon::before { left: 16px; } .finish-wagon::after { right: 16px; }
+  .finish-chassis { height: 6px; left: 10px; right: 10px; } .fw-wheel { width: 24px; height: 24px; top: -8px; border-width: 4px; } .fw-wheel:first-child { left: 8px; } .fw-wheel:last-child { right: 8px; }
   .finish-star { width: 40px; height: 40px; right: -10px; top: -18px; }
   .finish .finish-glyph::before { width: 420px; height: 420px; margin: -210px 0 0 -210px; }
 }

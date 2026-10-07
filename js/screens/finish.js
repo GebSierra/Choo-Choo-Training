@@ -44,7 +44,7 @@ function finishView({ speech, router, character, heading, badge, accent, armedLa
   const back = h('button', { class: 'btn secondary back-path', type: 'button', disabled: true, onclick: () => router.go('/home') }, 'Back to path');
   const ring = h('span', { class: 'finish-ring', style: { '--accent': accent } });
   const root = h('div', { class: 'finish' },
-    h('div', { class: 'finish-glyph', style: { '--accent': accent } }, confetti(), ring, h('span', { class: 'finish-wagon' }, badge), goldStar(), h('span', { class: 'finish-pip' }, pipSvg({ pose: 'cheer' })), h('span', { class: 'finish-kid', 'aria-hidden': 'true' }, kidSvg({ ...character, pose: 'cheer' }))),
+    h('div', { class: 'finish-glyph', style: { '--accent': accent } }, confetti(), ring, h('span', { class: 'finish-chassis', 'aria-hidden': 'true' }, h('i', { class: 'fw-wheel' }), h('i', { class: 'fw-wheel' })), h('span', { class: 'finish-wagon' }, badge), goldStar(), h('span', { class: 'finish-pip' }, pipSvg({ pose: 'cheer' })), h('span', { class: 'finish-kid', 'aria-hidden': 'true' }, kidSvg({ ...character, pose: 'cheer' }))),
     h('h1', {}, heading),
     h('section', { class: 'finish-card' }, h('p', { class: 'finish-for' }, 'For the grown-up'), h('p', { class: 'finish-q' }, 'Did your child get it?'), h('div', { class: 'finish-choices' }, gotIt, again), note),
     back);

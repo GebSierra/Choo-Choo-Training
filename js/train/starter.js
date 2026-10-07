@@ -1,7 +1,7 @@
-// Starter Station's little extras (world 1 only; theme.details === 'starter', js/train/themes.js): bunting strung between the
-// station roofs, lamp posts at the platforms, a duck pond with two ducks and a lily pad, a bench and a mailbox at the first
+// Starter Station's little extras (world 1 only; theme.details === 'starter', js/train/themes.js): a short swag of bunting on each
+// station roof, lamp posts at the platforms, a duck pond with two ducks and a lily pad, a bench and a mailbox at the first
 // station, and two raised flower beds near the start. Everything still is baked into ONE vertex-coloured mesh plus one water
-// mesh, so it costs 2 draw calls (and 1 more in the shadow pass). Nothing moves and nothing is drawn unless something else asks
+// mesh, so it costs 2 draw calls in all. Nothing moves and nothing is drawn unless something else asks
 // for a frame. The pieces keep clear of every station sign (the signs stand at local x -3.05, z +1.25 on the platform side).
 import { THREE, PAL, rng } from './world.js';
 
@@ -58,21 +58,19 @@ export function buildStarterDetails({ bag, line, stops, kinds = [], group }) {
   const frames = stops.slice(0, n).map(frameAt);
   const cyP = (f, x, y, z, rt, rb, h, color, seg) => B.add(cyl(rt, rb, seg), { frame: f, p: [x, y, z], s: [1, h, 1], color });
 
-  // ---- bunting between two neighbouring station roofs (lesson stations only: a depot has no roof to tie it to) ----
-  for (let i = 0; i + 1 < n; i++) {
-    if (kinds[i] !== 'lesson' || kinds[i + 1] !== 'lesson') continue;
-    const A = worldOf(frames[i], -1.2, 1.97, 1.58), Z = worldOf(frames[i + 1], -1.2, 1.97, -1.58);
-    const count = 9, sag = 0.4, up = new THREE.Vector3(0, 1, 0);
+  // ---- a short swag of pennants on the front eave of each lesson station's roof (the end toward the camera; the far end would hide behind the roof) ----
+  // The string runs across the roof's end, so the camera, which looks along the line, sees it face-on, tied to the roof at both ends.
+  for (let i = 0; i < n; i++) {
+    if (kinds[i] !== 'lesson') continue;
+    const f = frames[i], A = worldOf(f, -1.1, 2.04, -1.62), Z = worldOf(f, -2.8, 1.87, -1.62), count = 6, sag = 0.3;
     const at = (t) => new THREE.Vector3().lerpVectors(A, Z, t).setY(A.y + (Z.y - A.y) * t - Math.sin(Math.PI * t) * sag);
-    const dir = new THREE.Vector3().subVectors(Z, A).setY(0).normalize(), side = new THREE.Vector3().crossVectors(dir, up);
-    // the string: a thin flat ribbon in twelve pieces
-    for (let k = 0; k < 12; k++) {
-      const a = at(k / 12), b = at((k + 1) / 12), w = side.clone().multiplyScalar(0.035);
+    const side = new THREE.Vector3().subVectors(Z, A).setY(0).normalize();
+    for (let k = 0; k < 10; k++) { // the string: a thin ribbon
+      const a = at(k / 10), b = at((k + 1) / 10), w = new THREE.Vector3(0, 0.025, 0);
       B.tri(a.clone().add(w), b.clone().add(w), b.clone().sub(w), '#7A5C3E'); B.tri(a.clone().add(w), b.clone().sub(w), a.clone().sub(w), '#7A5C3E');
     }
     for (let k = 0; k < count; k++) {
-      // each pennant hangs face-on to the camera (the camera looks along the line, so a flag lying along the string would be edge-on)
-      const c = at((k + 0.5) / count), half = side.clone().multiplyScalar(0.27), apex = c.clone().add(new THREE.Vector3(0, -0.62, 0));
+      const c = at((k + 0.5) / count), half = side.clone().multiplyScalar(0.15), apex = c.clone().add(new THREE.Vector3(0, -0.42, 0));
       B.tri(c.clone().sub(half), apex, c.clone().add(half), FLAG_COLS[(k + i) % FLAG_COLS.length]);
     }
   }
@@ -125,36 +123,31 @@ export function buildStarterDetails({ bag, line, stops, kinds = [], group }) {
     { const w = worldOf(frameAt(line.stop(0) - 1.0), 2.9, 0, 0); clear.push({ x: w.x, z: w.z, r: 1.7 }); }
   }
 
-  // ---- the duck pond, right of the line (the side the platforms are on, which the phone frames best) between the first two stations: water, a stony rim, a lily pad, two ducks ----
-  const pondS = n > 1 ? line.stop(0) + 6.1 : line.stop(0) + 4.5, pf = frameAt(pondS), PX = -4.0, RX = 1.15, RZ = 0.9;
-  B.add(cyl(1, 1, 36), { frame: pf, p: [PX, 0.025, 0], s: [RX + 0.34, 0.05, RZ + 0.3], color: '#D9C79B' });
-  for (let k = 0; k < 11; k++) {
-    const a = (k / 11) * TAU + 0.2, rs = 0.12 + R() * 0.06;
-    B.add(sph('stone', 8, 6), { frame: pf, p: [PX + Math.cos(a) * (RX + 0.3), 0.07, Math.sin(a) * (RZ + 0.27)], s: [rs * 1.5, rs, rs * 1.2], r: [0, a, 0], color: k % 2 ? '#B8B2A6' : '#CFC9BD' });
+  // ---- the duck pond: open grass on the far side of the track (left), just before the river, with a stony rim, cattails, a lily pad and two small ducks ----
+  const pondS = n > 2 ? line.stop(2) + 0.2 : line.stop(0) + 4.5, pf = frameAt(pondS), PX = 3.0, RX = 1.05, RZ = 1.55;
+  B.add(cyl(1, 1, 36), { frame: pf, p: [PX, 0.025, 0], s: [RX + 0.32, 0.05, RZ + 0.3], color: '#D9C79B' });
+  for (let k = 0; k < 13; k++) {
+    const a = (k / 13) * TAU + 0.2, rs = 0.12 + R() * 0.06;
+    B.add(sph('stone', 8, 6), { frame: pf, p: [PX + Math.cos(a) * (RX + 0.28), 0.07, Math.sin(a) * (RZ + 0.26)], s: [rs * 1.5, rs, rs * 1.2], r: [0, a, 0], color: k % 2 ? '#B8B2A6' : '#CFC9BD' });
   }
-  // cattails at the far edge
-  for (const [dx, dz, h] of [[-1.5, -0.55, 0.95], [-1.62, -0.38, 0.78], [-1.4, -0.7, 0.7]]) {
-    B.add(cyl(0.022, 0.022, 5), { frame: pf, p: [PX + dx, h / 2, dz - 0.5], s: [1, h, 1], color: '#4FA35E' });
-    B.add(cyl(0.06, 0.06, 8), { frame: pf, p: [PX + dx, h + 0.1, dz - 0.5], s: [1, 0.26, 1], color: '#7A4A2B' });
+  for (const [dx, dz, h] of [[1.15, 0.9, 0.95], [1.28, 1.06, 0.78], [1.1, 1.12, 0.7]]) { // cattails at the far corner
+    B.add(cyl(0.022, 0.022, 5), { frame: pf, p: [PX + dx, h / 2, dz], s: [1, h, 1], color: '#4FA35E' });
+    B.add(cyl(0.06, 0.06, 8), { frame: pf, p: [PX + dx, h + 0.1, dz], s: [1, 0.26, 1], color: '#7A4A2B' });
   }
-  const duck = (x, z, ry, k) => {
-    const o = { frame: pf, p: [PX + x, 0, z], r: [0, ry, 0] };
-    const at = (dx, dy, dz) => [PX + x + Math.cos(ry) * dx + Math.sin(ry) * dz, dy, z - Math.sin(ry) * dx + Math.cos(ry) * dz];
+  const duck = (x, z, ry, k) => { // k scales the whole duck (body about 0.9 k long)
+    const at = (dx, dy, dz) => [PX + x + Math.cos(ry) * dx * k + Math.sin(ry) * dz * k, dy * k, z - Math.sin(ry) * dx * k + Math.cos(ry) * dz * k];
     B.add(sph('duckBody', 14, 10), { frame: pf, p: at(0, 0.2, 0), r: [0, ry, 0], s: [0.33 * k, 0.24 * k, 0.46 * k], color: '#FFD84D' });
-    B.add(sph('duckTail', 8, 6), { frame: pf, p: at(0, 0.32, -0.4 * k), r: [0.5, ry, 0], s: [0.12 * k, 0.1 * k, 0.17 * k], color: '#FFD84D' });
-    B.add(sph('duckWing', 10, 8), { frame: pf, p: at(0.27 * k, 0.26, -0.03 * k), r: [0, ry, 0.1], s: [0.06 * k, 0.15 * k, 0.28 * k], color: '#F2B92E' });
-    B.add(sph('duckWing', 10, 8), { frame: pf, p: at(-0.27 * k, 0.26, -0.03 * k), r: [0, ry, -0.1], s: [0.06 * k, 0.15 * k, 0.28 * k], color: '#F2B92E' });
-    B.add(sph('duckHead', 12, 10), { frame: pf, p: at(0, 0.53 * k, 0.33 * k), s: [0.21 * k, 0.21 * k, 0.21 * k], color: '#FFD84D' });
-    B.add(box(0.2 * k, 0.07 * k, 0.17 * k, 0.03), { frame: pf, p: at(0, 0.5 * k, 0.55 * k), r: [0, ry, 0], color: '#FF8A2B' });
-    for (const sx of [-1, 1]) B.add(sph('duckEye', 6, 4), { frame: pf, p: at(sx * 0.1 * k, 0.6 * k, 0.45 * k), s: [0.035 * k, 0.035 * k, 0.035 * k], color: PAL.ink });
-    return o;
+    B.add(sph('duckTail', 8, 6), { frame: pf, p: at(0, 0.32, -0.4), r: [0.5, ry, 0], s: [0.12 * k, 0.1 * k, 0.17 * k], color: '#FFD84D' });
+    for (const sx of [-1, 1]) B.add(sph('duckWing', 10, 8), { frame: pf, p: at(sx * 0.27, 0.26, -0.03), r: [0, ry, sx * 0.1], s: [0.06 * k, 0.15 * k, 0.28 * k], color: '#F2B92E' });
+    B.add(sph('duckHead', 12, 10), { frame: pf, p: at(0, 0.53, 0.33), s: [0.21 * k, 0.21 * k, 0.21 * k], color: '#FFD84D' });
+    B.add(box(0.2 * k, 0.07 * k, 0.17 * k, 0.03 * k), { frame: pf, p: at(0, 0.5, 0.55), r: [0, ry, 0], color: '#FF8A2B' });
+    for (const sx of [-1, 1]) B.add(sph('duckEye', 6, 4), { frame: pf, p: at(sx * 0.1, 0.6, 0.45), s: [0.035 * k, 0.035 * k, 0.035 * k], color: PAL.ink });
   };
-  duck(-0.45, 0.1, 0.9, 1.15);
-  duck(0.55, -0.3, -2.3, 0.85);
-  // a lily pad with a pink bloom
-  B.add(cyl(1, 1, 18), { frame: pf, p: [PX + 0.75, 0.065, 0.55], s: [0.34, 0.025, 0.3], color: '#3FAE62' });
-  B.add(sph('lily', 8, 6), { frame: pf, p: [PX + 0.75, 0.13, 0.55], s: [0.1, 0.07, 0.1], color: '#FF8AB5' });
-  { const w = worldOf(pf, PX, 0, 0); clear.push({ x: w.x, z: w.z, r: 2.3 }); }
+  duck(-0.2, 0.45, 0.8, 0.62);
+  duck(0.25, -0.5, -2.4, 0.48);
+  B.add(cyl(1, 1, 18), { frame: pf, p: [PX + 0.38, 0.065, -0.05], s: [0.3, 0.025, 0.27], color: '#3FAE62' }); // a lily pad with a pink bloom
+  B.add(sph('lily', 8, 6), { frame: pf, p: [PX + 0.38, 0.13, -0.05], s: [0.09, 0.06, 0.09], color: '#FF8AB5' });
+  { const w = worldOf(pf, PX, 0, 0); clear.push({ x: w.x, z: w.z, r: 2.4 }); }
 
   group.add(B.mesh(bag));
   // the water: one smooth, shiny ellipse over the pond's sand
