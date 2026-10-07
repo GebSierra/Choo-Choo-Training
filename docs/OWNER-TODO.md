@@ -30,7 +30,7 @@ with the date.
 - [x] 6. Wait (usually under an hour, sometimes up to a day). Netlify then turns on the padlock (HTTPS) by itself;
   check Domain management > HTTPS says it's active.
 - [x] 7. Open https://choochootraining.com on your phone and check the app loads (reload once if you see the old one).
-- [ ] 8. Tell Claude it's done. Claude then turns off GitHub Pages (or you can: GitHub > Choo-Choo-Training > Settings >
+- [x] 8. (Done: GitHub Pages unpublished 2026-10-07.) Tell Claude it's done. Claude then turns off GitHub Pages (or you can: GitHub > Choo-Choo-Training > Settings >
   Pages > Unpublish) so only Netlify serves the site. Supabase needs no change (same domain).
 - Optional: Site configuration > Build & deploy > Branches > add **claude/kind-lovelace-av8kz3** as a branch deploy,
   so Claude's work-in-progress gets its own preview link you can try before it goes live.
