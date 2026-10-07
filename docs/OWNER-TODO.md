@@ -35,6 +35,20 @@ with the date.
 - Optional: Site configuration > Build & deploy > Branches > add **claude/kind-lovelace-av8kz3** as a branch deploy,
   so Claude's work-in-progress gets its own preview link you can try before it goes live.
 
+## Domain move: app to app.choochootraining.com, website on choochootraining.com (2026-10-07)
+- [x] A. Porkbun CNAME `app` -> choochootraining.netlify.app; Netlify app project: domain alias app.choochootraining.com
+  (works, checked in a private window).
+- [ ] B. (Claude) Release the switch: the old address moves families to app.… with their progress; the app sets a
+  `cct_member` cookie so the website can send app users straight to the app.
+- [ ] C. (Claude) Give the owner the exact text for the website chat (old-app cleanup /sw.js, redirect members and old
+  links with the handoff, "Log in" + "Start reading" buttons, `?site` lets members see the website).
+- [ ] D. **Owner, only after B and C are done and the website includes them — Claude will remind you:** create the
+  website's own Netlify project (same repo, Base directory `site`); in the APP project remove choochootraining.com and
+  www and make app.choochootraining.com the primary domain; add choochootraining.com + www to the WEBSITE project
+  (the Porkbun ALIAS to apex-loadbalancer.netlify.com already points at Netlify). Then check both addresses.
+- [ ] E. When accounts are turned on: Supabase Site URL https://app.choochootraining.com (keep the old address in
+  Redirect URLs for a few weeks).
+
 ## Content and recordings
 - [ ] **Record the letter sounds** in the recording studio: https://choochootraining.com/tools/studio.html (47 items;
   stops and resumes where you left off). Until a sound is recorded, the app shows a "Say: mmm" prompt for the grown-up.
