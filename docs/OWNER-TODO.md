@@ -42,12 +42,16 @@ with the date.
   `cct_member` cookie so the website can send app users straight to the app.
 - [x] C. (Given 2026-10-07; it is part D of docs/DOMAIN-MOVE.md.) (Claude) Give the owner the exact text for the website chat (old-app cleanup /sw.js, redirect members and old
   links with the handoff, "Log in" + "Start reading" buttons, `?site` lets members see the website).
-- [ ] D. **Owner — READY NOW (website confirmed done and tested 2026-10-07; Claude checked its tests and code):** create the
+- [x] D. (DONE 2026-10-07: choochootraining.com = website project choochootrainingwebsite, app.choochootraining.com = app project appchoochootraining; checked by Claude.) **Owner — READY NOW (website confirmed done and tested 2026-10-07; Claude checked its tests and code):** create the
   website's own Netlify project (same repo, Base directory `site`); in the APP project remove choochootraining.com and
   www and make app.choochootraining.com the primary domain; add choochootraining.com + www to the WEBSITE project
   (the Porkbun ALIAS to apex-loadbalancer.netlify.com already points at Netlify). Then check both addresses.
 - [ ] E. When accounts are turned on: Supabase Site URL https://app.choochootraining.com (keep the old address in
   Redirect URLs for a few weeks).
+
+- [ ] F. **Porkbun tidy-up (2 minutes, after the Netlify project renames):** the `app` and `www` CNAME records still point
+  to the old name `choochootraining.netlify.app` (it works for now because Netlify routes by domain, but the old name could
+  be reused later). Edit `app` -> **appchoochootraining.netlify.app** and `www` -> **choochootrainingwebsite.netlify.app**.
 
 ## Content and recordings
 - [ ] **Record the letter sounds** in the recording studio: https://app.choochootraining.com/tools/studio.html (47 items;
