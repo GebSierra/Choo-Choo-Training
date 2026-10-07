@@ -16,20 +16,20 @@ with the date.
   few emails an hour (sign-up confirmations and password resets).
 - [ ] **Check Supabase pricing/limits** on supabase.com (a free project can pause after a stretch without use).
 
-## Move the website to Netlify (owner decision 2026-10-07)
-- [ ] 1. netlify.com > Sign up > "Sign up with GitHub" (use the GitHub account that owns Choo-Choo-Training).
-- [ ] 2. "Add new site" > "Import an existing project" > GitHub > allow access > pick **Choo-Choo-Training**.
-- [ ] 3. Settings screen: Branch to deploy **main**; Build command **empty**; Publish directory **.** (a single dot).
+## Move the website to Netlify (owner decision 2026-10-07; LIVE on Netlify 2026-10-07, DNS at Porkbun: ALIAS to apex-loadbalancer.netlify.com, www CNAME to choochootraining.netlify.app)
+- [x] 1. netlify.com > Sign up > "Sign up with GitHub" (use the GitHub account that owns Choo-Choo-Training).
+- [x] 2. "Add new site" > "Import an existing project" > GitHub > allow access > pick **Choo-Choo-Training**.
+- [x] 3. Settings screen: Branch to deploy **main**; Build command **empty**; Publish directory **.** (a single dot).
   (The repo's netlify.toml already says this, so Netlify may fill it in.) Press **Deploy**.
-- [ ] 4. Wait about a minute, open the address Netlify shows (something.netlify.app) and check the app works.
-- [ ] 5. Site configuration > Domain management > "Add a domain" > type **choochootraining.com** > Verify > Add domain.
+- [x] 4. Wait about a minute, open the address Netlify shows (something.netlify.app) and check the app works.
+- [x] 5. Site configuration > Domain management > "Add a domain" > type **choochootraining.com** > Verify > Add domain.
   Netlify will say the domain is registered elsewhere and show the exact records to set. Easiest choice: "Set up Netlify
   DNS" and copy the 4 "name servers" Netlify shows into the place you bought the domain (its "Nameservers" or "DNS"
   page, choose "custom nameservers"). The other choice: keep your registrar's DNS and change the records Netlify lists
   (an A record for the bare domain and a CNAME for www). Use exactly the values Netlify shows.
-- [ ] 6. Wait (usually under an hour, sometimes up to a day). Netlify then turns on the padlock (HTTPS) by itself;
+- [x] 6. Wait (usually under an hour, sometimes up to a day). Netlify then turns on the padlock (HTTPS) by itself;
   check Domain management > HTTPS says it's active.
-- [ ] 7. Open https://choochootraining.com on your phone and check the app loads (reload once if you see the old one).
+- [x] 7. Open https://choochootraining.com on your phone and check the app loads (reload once if you see the old one).
 - [ ] 8. Tell Claude it's done. Claude then turns off GitHub Pages (or you can: GitHub > Choo-Choo-Training > Settings >
   Pages > Unpublish) so only Netlify serves the site. Supabase needs no change (same domain).
 - Optional: Site configuration > Build & deploy > Branches > add **claude/kind-lovelace-av8kz3** as a branch deploy,
