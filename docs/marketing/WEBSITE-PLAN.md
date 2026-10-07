@@ -9,6 +9,7 @@ Written for the session that will build the site. Read this whole file before st
 - **Only new train-theme visuals.** No screenshots from `docs/screenshots/` (old stone path / barn theme). Use `previews/media/` (cut from the owner's screen recordings) or new captures of the current app.
 - **No Mentava picture cards** anywhere (map, milk, moon and the like). Check every frame and screenshot.
 - **Domain stays as is.** The app keeps `choochootraining.com` for now; it moves to `app.choochootraining.com` later, done by the app session, not us.
+- **Contact email: `hellopip@choochootraining.com`.** Used in the site footer and `site/privacy.html`.
 - **No Vercel yet.** Build so it can drop onto Vercel later (Root Directory = `site`), but don't depend on it now.
 
 ## Goal
