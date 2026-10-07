@@ -25,10 +25,10 @@ const SUNNY = {
   decor: 'sunny',
   skyCss: 'linear-gradient(to bottom, #B8E1FF 0%, #E3F0EE 28%, #FFF1CC 60%, #FFF1CC 100%)',
   fog: '#FFF1CC',
-  hemiSky: '#E6F2FF', hemiGround: '#D8D676', sun: '#FFE6B0', across: 9.6, sidePortrait: 1.8,
+  hemiSky: '#E6F2FF', hemiGround: '#A9D183', sun: '#FFEBC4', across: 9.6, sidePortrait: 1.8,
   ground: '#BADA52', patch: '#B1D44C', bed: '#F6E9CC',
   // a golden-ochre mountain with sunflowers on its slopes
-  mountain: { low: '#C58F2E', high: '#F6E08A', lowS: '#B9C94E', highS: '#E6DC7A', cap: null, flowers: 'sunflowers' },
+  mountain: { low: '#4DB043', high: '#7FCB4C', lowS: '#5BBA48', highS: '#96D04F', cap: { from: 0.8, color: '#F3D562' }, flowers: 'sunflowers', stripe: { from: 0.1, to: 0.5, n: 9, c1: '#E2C650', c2: '#86C94D' } },
 };
 
 const DOCKS = {

@@ -127,7 +127,7 @@ function sunnyHills({ bag, line, stops, stationCount, group, sky, R }) {
   const real = stops.length; void real;
 
   // rolling hills, far and near, in a few golden greens
-  const lows = ['#9CCB45', '#8CC24A', '#A8CE4C', '#93C84B'], highs = ['#EBDC6A', '#E0DB68', '#F2E074', '#E6DA66'];
+  const lows = ['#6DBE48', '#5FB646', '#7BC44A', '#68BC47'], highs = ['#BCD95A', '#AED45A', '#CADB62', '#B6D65C'];
   let hills = 0;
   for (let i = 0; i < 34 && hills < 22; i++) {
     const far = i % 2 === 0, s = L0 - 4 + (i / 34) * (span + 8) + R() * 3, off = (far ? -1 : 1) * (far ? 10 + R() * 9 : 11 + R() * 10);
@@ -465,30 +465,73 @@ function docks({ bag, line, stops, stationCount, group, sky, R, W }) {
     m.castShadow = false;
     group.add(m);
   }
-  // the landward side: low sand dunes, a few grey-blue rocks, crates and barrels between the stations, a rowing boat pulled up on the sand
+  // the landward side: a little harbour village on the stations' side, one thing in each gap between stations (beyond the signs):
+  // four colourful cottages, a fish shack with a striped awning, buoys, lobster pots and a net-drying rack, a beach umbrella and a rowing boat
   {
     const rock = blobGeo(bag, 'rockblob', 733, { detail: 1, jit: 0.3 });
-    const dune = blobGeo(bag, 'duneblob', 521, { detail: 1, jit: 0.2 });
-    for (let i = 0; i < 12; i++) {
-      const s = L0 - 4 + (i / 12) * (span + 8) + R() * 3, off = (i % 3 === 0 ? 8.5 : 11.5) + R() * 8, f = frame(s, off);
-      if (nearExtra(s, 7) && off < 18) continue;
-      const k = 0.8 + R() * 0.6;
-      bake.add(dune, { p: [f.x, -0.22, f.z], r: [0, R() * 3, 0], s: [3.4 * k, 0.9 * k, 2.4 * k], colorFn: (c) => lerpHex('#EBCF8A', '#F7E3A6', Math.max(0, (c.y + 0.2) / (0.9 * k))) });
+    const TRIM = '#FFF8EC';
+    // a local frame at the middle of gap i: +x points at the track, +z along the line
+    const gap = (i, off) => { const s = stops[Math.min(i, stationCount - 1)] + 4.5; if (i >= stationCount - 1 || nearExtra(s, 6)) return null; const f = frame(s, off), c = Math.cos(f.heading), sn = Math.sin(f.heading); return { f, hd: f.heading, lp: (lx, ly, lz) => [f.x + lx * c + lz * sn, ly, f.z - lx * sn + lz * c] }; };
+    const cottage = (g, wall, roof, door) => {
+      const { lp, hd } = g, R0 = [0, hd, 0], D = 2.0, W = 2.2, H = 1.35;
+      bake.add(box(bag, D, H, W), { p: lp(0, H / 2, 0), r: R0, color: wall });
+      bake.add(box(bag, D + 0.04, 0.14, W + 0.04), { p: lp(0, 0.07, 0), r: R0, color: '#B7A98F' });
+      bake.add(prism(bag, W + 0.45, 0.95, D + 0.5), { p: lp(0, H, 0), r: [0, hd + Math.PI / 2, 0], color: roof });
+      bake.add(box(bag, 0.08, 0.1, 0.1), { p: lp(0, 0, 0), r: R0, color: roof });
+      bake.add(box(bag, 0.3, 0.55, 0.3), { p: lp(-0.5, H + 0.7, -0.5), r: R0, color: '#9A6B4A' }); // chimney
+      bake.add(box(bag, 0.07, 0.92, 0.52), { p: lp(D / 2 + 0.03, 0.46, -0.45), r: R0, color: door });
+      bake.add(box(bag, 0.07, 0.5, 0.5), { p: lp(D / 2 + 0.03, 0.82, 0.55), r: R0, color: TRIM });
+      bake.add(box(bag, 0.09, 0.36, 0.36), { p: lp(D / 2 + 0.05, 0.82, 0.55), r: R0, color: '#8FD0F0' });
+      bake.add(box(bag, 0.09, 0.05, 0.62), { p: lp(D / 2 + 0.05, 0.56, 0.55), r: R0, color: roof }); // sill
+      bake.add(box(bag, 0.5, 0.5, 0.07), { p: lp(0.1, 0.8, W / 2 + 0.03), r: R0, color: TRIM });
+      bake.add(box(bag, 0.36, 0.36, 0.09), { p: lp(0.1, 0.8, W / 2 + 0.05), r: R0, color: '#8FD0F0' });
+    };
+    [['#F9B8C6', '#B9484C', '#4F86C6'], ['#9FD8DD', '#3F6E9A', '#F2B94B'], ['#FFE08A', '#C0594A', '#3C9C8A'], ['#B8E3A2', '#8A4F7D', '#E5484D']].forEach((c, i) => { const g = gap(i, 5.7); if (g) cottage(g, ...c); });
+    // the fish shack: weathered blue boards, a counter, a red-and-white striped awning, a sign
+    {
+      const g = gap(4, 5.6);
+      if (g) {
+        const { lp, hd } = g, R0 = [0, hd, 0];
+        bake.add(box(bag, 1.7, 1.2, 2.4), { p: lp(0, 0.6, 0), r: R0, color: '#8FB4C9' });
+        bake.add(box(bag, 1.95, 0.12, 2.65), { p: lp(0.05, 1.28, 0), r: [0, hd, 0.0], color: '#6B7F93' });
+        for (let k = -3; k <= 3; k++) bake.add(box(bag, 0.5, 0.06, 0.34), { p: lp(1.2, 1.12 - 0.0, k * 0.34), r: [0, hd, -0.5], color: k % 2 ? '#FFFFFF' : '#E5484D' });
+        bake.add(box(bag, 0.6, 0.12, 2.2), { p: lp(1.05, 0.62, 0), r: R0, color: '#C99A5B' });
+        bake.add(box(bag, 0.06, 0.4, 1.2), { p: lp(0.86, 0.92, 0), r: R0, color: TRIM });
+        bake.add(box(bag, 0.5, 0.4, 0.5), { p: lp(1.3, 0.2, 0.7), r: R0, color: '#B98B55' });
+        for (const z of [-0.3, 0.1]) bake.add(ball(bag, 8, 6), { p: lp(1.3, 0.45, z + 0.7), s: [0.2, 0.08, 0.1], color: '#9FB6C8', smooth: true });
+      }
+    }
+    // buoys, lobster pots and a net-drying rack
+    {
+      const g = gap(5, 5.4);
+      if (g) {
+        const { lp, hd } = g, R0 = [0, hd, 0];
+        [[0.3, 0.3], [1.0, 0.5], [0.6, 1.0]].forEach(([u, v], i) => { const col = i === 1 ? '#FFFFFF' : '#E5484D'; bake.add(ball(bag, 12, 8), { p: lp(u, 0.3, v), s: [0.3, 0.3, 0.3], color: col, smooth: true }); bake.add(cyl(bag, 0.305, 0.305, 0.1, 12), { p: lp(u, 0.3, v), color: i === 1 ? '#E5484D' : '#FFFFFF', smooth: true }); });
+        for (const [u, v] of [[0.0, -0.9], [0.6, -1.0]]) { bake.add(box(bag, 0.55, 0.38, 0.45), { p: lp(u, 0.19, v), r: R0, color: '#B98B55' }); bake.add(box(bag, 0.6, 0.05, 0.5), { p: lp(u, 0.4, v), r: R0, color: '#8A5A35' }); }
+        for (const z of [-0.5, 1.9]) bake.add(cyl(bag, 0.06, 0.06, 1.6, 6), { p: lp(-1.2, 0.8, z), color: '#8A5A35' });
+        bake.add(box(bag, 0.07, 0.07, 2.6), { p: lp(-1.2, 1.55, 0.7), r: R0, color: '#8A5A35' });
+        bake.add(box(bag, 0.05, 0.9, 2.2), { p: lp(-1.2, 1.05, 0.7), r: R0, color: '#6FB1C8' });
+        for (let k = 0; k < 4; k++) bake.add(box(bag, 0.07, 0.9, 0.04), { p: lp(-1.2, 1.05, -0.3 + k * 0.6), r: R0, color: '#4E8FA8' });
+        for (let k = 0; k < 3; k++) bake.add(box(bag, 0.07, 0.04, 2.2), { p: lp(-1.2, 0.8 + k * 0.25, 0.7), r: R0, color: '#4E8FA8' });
+      }
+    }
+    // a striped beach umbrella and a rowing boat pulled up on the sand
+    {
+      const g = gap(6, 5.6);
+      if (g) {
+        const { lp } = g;
+        bake.add(cyl(bag, 0.04, 0.04, 1.7, 6), { p: lp(0, 0.85, 0), r: [0, 0, 0.12], color: '#F4F0E6' });
+        bake.add(bag.geo('umbr', () => new THREE.ConeGeometry(1.0, 0.45, 8)), { p: lp(-0.1, 1.75, 0), color: '#E5484D', smooth: false, colorFn: (c, t) => (t % 4 < 2 ? '#E5484D' : '#FFFFFF') });
+        bake.add(box(bag, 0.7, 0.03, 1.4), { p: lp(0.9, 0.03, 0.3), r: [0, g.hd + 0.3, 0], color: '#5AC8FA' });
+        boat(g.f, 1.6, -2.0, 0.5, 'row');
+      }
     }
     for (let i = 0; i < 8; i++) {
-      const s = L0 + R() * span, off = 5.0 + R() * 4, f = frame(s, off);
-      if (nearStop(s, 3.2) || nearExtra(s, 6)) continue;
+      const s = L0 + R() * span, off = 8.0 + R() * 4, f = frame(s, off);
+      if (nearExtra(s, 6)) continue;
       const k = 0.4 + R() * 0.45;
       bake.add(rock, { p: [f.x, k * 0.2, f.z], r: [0, R() * 3, 0], s: [k * 1.2, k * 0.75, k], color: ['#B8C2CC', '#C8CFD6', '#A9B6C3'][i % 3] });
     }
-    for (const i of [0, 2, 4, 6]) {
-      const sA = stops[Math.min(i, stationCount - 1)] + 4.6;
-      if (nearExtra(sA, 6)) continue;
-      const g3 = frame(sA, 5.0);
-      crate(g3, 0, 0, 0, 0.6, 0.2, '#C99A5B'); crate(g3, 0.7, 0.2, 0, 0.5, -0.3, '#D4A769'); crate(g3, 0.25, 0.1, 0.6, 0.46, 0.5, '#B98B55'); barrel(g3, -0.7, 0.3, '#B77A4A');
-    }
-    const sB = stops[Math.min(3, stationCount - 1)] + 4.5;
-    if (!nearExtra(sB, 6)) boat(frame(sB, 0), 0, -6.4, 0.5, 'row');
   }
   bake.finish(group);
 
