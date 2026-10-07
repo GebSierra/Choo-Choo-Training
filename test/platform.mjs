@@ -20,8 +20,12 @@ for (const f of jsFiles) {
   ok(!/localStorage|sessionStorage|indexedDB/.test(read(f)), `${f} does not touch browser storage (use js/store.js)`);
 }
 
-// 3. No remote files: the only web addresses are the two YouTube links and the SVG namespace (a name, not a download).
-const ALLOWED = [/^https:\/\/m\.youtube\.com\/playlist\?list=/, /^https:\/\/youtu\.be\//, /^http:\/\/www\.w3\.org\/2000\/svg$/];
+// 3. No remote files: the only web addresses are the two YouTube links, the SVG namespace (a name, not a download), the app's own
+// site (the password reset redirect) and, once the owner fills in js/config.js, that one Supabase project address (js/config.js only).
+const ALLOWED = [/^https:\/\/m\.youtube\.com\/playlist\?list=/, /^https:\/\/youtu\.be\//, /^http:\/\/www\.w3\.org\/2000\/svg$/, /^https:\/\/choochootraining\.com\/?$/];
+const cfgSrc = read('js/config.js');
+ok(/SUPABASE_URL = ''|SUPABASE_URL = 'https:\/\/[a-z0-9-]+\.supabase\.co'/.test(cfgSrc), 'js/config.js holds no address or one Supabase project address');
+ALLOWED.push(/^https:\/\/[a-z0-9-]+\.supabase\.co$/);
 const scan = [...jsFiles, ...walk('css', ['.css']), ...walk('data', ['.json']), 'index.html', 'manifest.webmanifest', 'sw.js'];
 let urls = 0;
 for (const f of scan) {

@@ -10,10 +10,22 @@ import { grownupsScreen } from './screens/grownups.js';
 import { taskScreen } from './screens/task.js';
 import { finishScreen, checkpointFinishScreen } from './screens/finish.js';
 import { checkpointScreen } from './screens/checkpoint.js';
+import { createAccount } from './account.js';
+import { signinScreen } from './screens/signin.js';
 
 async function boot() {
   const root = document.getElementById('app');
   const store = createStore();
+  const account = createAccount({ store });
+  // Accounts (off until js/config.js is filled in): renew the session and pull, then ask for sign-in if nobody is in.
+  if (account.configured) {
+    const hash = new URLSearchParams(location.hash.replace(/^#\/?/, '').replace(/^.*?(?=access_token|error)/, ''));
+    const resetToken = hash.get('type') === 'recovery' ? hash.get('access_token') : null;
+    const linkError = hash.get('error_code') || hash.get('error') ? 'That link has expired. Please ask for a new one.' : '';
+    if (resetToken || linkError) history.replaceState(null, '', location.pathname + location.search);
+    await Promise.race([account.start(), new Promise((r) => setTimeout(r, 2500))]);
+    if (resetToken || linkError || account.required()) await new Promise((done) => root.append(signinScreen({ account, store, onDone: done, mode: resetToken ? 'reset' : 'signin', resetToken, notice: linkError })));
+  }
   let curriculum;
   try {
     const res = await fetch('data/curriculum.json');
@@ -35,7 +47,8 @@ async function boot() {
   store.touch();
   sfx.init({ store, speech });
   music.init({ store, speech, sfx });
-  const ctx = { store, curriculum, speech, router: null };
+  const ctx = { store, curriculum, speech, router: null, account };
+  account.on((t) => { if (t === 'adopted' && ctx.router && /^#?\/?(home)?$/.test(location.hash)) ctx.router.go('/home'); }); // the cloud copy arrived late: show it
   // Browsers only allow speech after a completed tap, so the first pointerup (or click) unlocks it for this page session.
   for (const type of ['pointerup', 'click']) addEventListener(type, () => { speech.unlock(); sfx.unlock(); music.unlock(); }, { capture: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) speech.cancel(); });

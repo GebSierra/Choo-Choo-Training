@@ -544,6 +544,37 @@ body.night { background: var(--night); }
 .btn.danger { background: var(--a); }
 .grownups .sound-card { box-shadow: none; background: #F7F8FD; margin-bottom: 0; }
 
+/* ---------- sign-in (grown-up accounts, js/screens/signin.js) ---------- */
+.signin { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: calc(16px + var(--sat)) calc(16px + var(--sar)) calc(16px + var(--sab)) calc(16px + var(--sal)); background: var(--cream); }
+.si-wrap { width: 100%; max-width: 440px; display: grid; gap: 12px; }
+.si-intro { display: grid; justify-items: center; gap: 4px; text-align: center; }
+.si-pip .pip { height: 92px; width: auto; }
+.si-intro h1 { font-size: 26px; font-weight: 800; line-height: 1.2; }
+.si-main { display: grid; gap: 12px; }
+.si-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; display: grid; gap: 12px; }
+.si-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #F3F4FB; border-radius: 999px; padding: 4px; }
+.si-tab { min-height: 48px; border: 0; border-radius: 999px; background: transparent; font-weight: 800; color: var(--muted); cursor: pointer; touch-action: manipulation; }
+.si-tab[aria-selected="true"] { background: #fff; color: var(--ink); box-shadow: 0 2px 6px rgba(30,33,64,.15); }
+.si-form { display: grid; gap: 12px; }
+.si-input { width: 100%; min-width: 0; min-height: 48px; }
+.si-go { width: 100%; min-height: 56px; font-size: 20px; padding: 0 16px; }
+.si-sub { font-size: 22px; font-weight: 800; }
+.si-text, .si-hint { color: var(--muted); font-size: 16px; font-weight: 600; }
+.si-error { color: #B3262C; font-weight: 700; font-size: 16px; } .si-error:empty { display: none; }
+.si-ok { color: #167A50; font-weight: 700; font-size: 16px; }
+.si-note { display: grid; gap: 8px; }
+.si-link { min-height: 48px; background: none; border: 0; color: var(--violet); font-weight: 700; text-decoration: underline; cursor: pointer; touch-action: manipulation; }
+.si-version { text-align: center; color: var(--muted); font-size: 16px; min-height: 48px; display: grid; place-items: center; user-select: none; -webkit-user-select: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .si-wrap { max-width: 860px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: center; gap: 20px; }
+  .si-pip .pip { height: 84px; } .si-intro h1 { font-size: 24px; }
+  .si-card { padding: 12px; gap: 8px; } .si-form { gap: 6px; } .si-field { gap: 2px; } .si-hint { display: none; } .si-tabs { padding: 3px; }
+  .si-go { min-height: 48px; }
+}
+.gu-account { display: grid; gap: 12px; justify-items: start; } .gu-account .gu-confirm, .gu-account .gu-field { justify-self: stretch; }
+.gu-acct-actions { flex-wrap: wrap; } .gu-acct-email { word-break: break-all; }
+.btn.danger-text { color: var(--a); white-space: normal; text-align: center; }
+
 .retry-card { min-height: 100dvh; display: grid; place-content: center; gap: 20px; text-align: center; padding: 24px; font-weight: 700; font-size: 20px; }
 .retry-card .btn { justify-self: center; }
 /* No long-press menus on child surfaces. */

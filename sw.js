@@ -7,7 +7,7 @@ const APP_FILES = [
   'css/app.css',
   'js/app.js', 'js/dom.js', 'js/router.js', 'js/store.js', 'js/order.js', 'js/speech.js', 'js/glyphs.js', 'js/theme.js', 'js/letters.js', 'js/lessons.js', 'js/scripts.js', 'js/version.js', 'js/platform.js', 'js/art.js', 'js/sfx.js', 'js/music.js', 'assets/audio/music/theme.mp3', 'assets/audio/sfx/whistle.mp3', 'js/guide.js',
   'js/components/grown-gate.js', 'js/components/slide-track.js', 'js/components/trace-pad.js', 'js/components/hold-button.js', 'js/components/fullscreen-button.js', 'js/components/speak-button.js', 'js/components/sound-card.js', 'js/components/sparkle.js', 'js/components/letter-face.js', 'js/components/game-kit.js', 'js/components/picture.js', 'js/components/slide-blend.js', 'js/components/welcome-card.js', 'js/art/pip.js', 'js/art/train2d.js', 'js/games-data.js', 'js/components/say-sound.js', 'js/components/judge-bar.js', 'js/components/reading-item.js', 'js/art/proto-art.js', 'js/screens/proto-lesson.js', 'js/screens/proto-heart.js',
-  'js/screens/home.js', 'js/screens/lesson.js', 'js/screens/task.js', 'js/screens/shell.js', 'js/screens/sack.js', 'js/screens/checkpoint.js', 'js/screens/book.js', 'js/screens/ride.js', 'js/blend-detect.js', 'js/mic.js', 'js/screens/finish.js', 'js/screens/grownups.js',
+  'js/screens/home.js', 'js/screens/lesson.js', 'js/screens/task.js', 'js/screens/shell.js', 'js/screens/sack.js', 'js/screens/checkpoint.js', 'js/screens/book.js', 'js/screens/ride.js', 'js/blend-detect.js', 'js/mic.js', 'js/screens/finish.js', 'js/screens/grownups.js', 'js/config.js', 'js/account.js', 'js/screens/signin.js', 'js/components/account-card.js',
   'js/screens/tasks/review.js', 'js/screens/tasks/new-letter.js', 'js/screens/tasks/story.js', 'js/screens/tasks/words.js', 'js/screens/tasks/sounds.js', 'js/screens/tasks/writing.js', 'js/screens/tasks/hunt.js', 'js/screens/tasks/hunt-deal.js', 'js/screens/tasks/signals.js', 'js/screens/tasks/wagons.js', 'js/screens/tasks/board.js', 'js/screens/tasks/practice.js', 'js/screens/tasks/check.js',
   // Prototype 4: the eight-step lesson for f (Grownups > Previews)
   'js/screens/tasks/proto/kit.js', 'js/screens/tasks/proto/warmup.js', 'js/screens/tasks/proto/recall.js', 'js/screens/tasks/proto/new-sound.js', 'js/screens/tasks/proto/blend-it.js', 'js/screens/tasks/proto/read-it.js', 'js/screens/tasks/proto/build-it.js', 'js/screens/tasks/proto/read-story.js', 'data/proto-lesson-f.json', 'js/screens/proto-play.js', 'js/screens/proto-placement.js', 'js/screens/tasks/proto/play.js', 'data/proto-play.json', 'js/screens/tasks/proto/heart.js',
@@ -81,7 +81,8 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== self.origin && url.origin !== location.origin) return; // never touch other origins
+  if (url.origin !== self.origin && url.origin !== location.origin) return; // never touch other origins (this includes the Supabase account server: network only, never cached)
+  if (/^\/(auth|rest)\/v1\//.test(url.pathname)) return; // and never cache account calls, even through a same-origin proxy
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_VERSION);
     // Content: network first (2.5 s, then the cache), so edits show up when online and a bad connection does not hang.
