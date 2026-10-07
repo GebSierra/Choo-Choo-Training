@@ -195,6 +195,8 @@ export async function journeyChecks({ browser, url, ok }) {
     const t1 = await page.evaluate(() => { const m = document.querySelector('.jm-mini'), t = m && m.querySelector('.jm-train').getBoundingClientRect(), n2 = m && m.querySelector('.jm-stn[data-world="W2"]').getBoundingClientRect(), p = document.querySelector('.wg-panel').getBoundingClientRect(); return m ? { x: t.x, cx: t.x + t.width / 2, sx: n2.x + n2.width / 2, inside: t.left >= p.left - 1 && t.right <= p.right + 1 && m.getBoundingClientRect().right <= p.right + 1, moved: getComputedStyle(m.querySelector('.jm-train')).transitionDuration } : null; });
     ok(t1 && t1.x > t0.x + 8 && Math.abs(t1.cx - t1.sx) < 6, `crossing: it has rolled to the next world's station (${t0.x.toFixed(0)} to ${t1 && t1.x.toFixed(0)}, centre off by ${t1 && Math.abs(t1.cx - t1.sx).toFixed(1)})`);
     ok(t1 && t1.inside, 'crossing: the board fits inside the card');
+    // with a tip on the card it waits for "Let's go!" (owner: tips close by hand), as a grown-up would tap it
+    if (await until(page, () => { const b = document.querySelector('.world-card .wg-go'); return b && !b.disabled && b.textContent === "Let's go!"; }, null, 8000)) await page.locator('.world-card .wg-go').click();
     ok(await until(page, () => { const h = document.querySelector('.gateway-host'); return h && h.dataset.phase === 'done' && window.__train && window.__train.world === 'W2' && !window.__train.running; }, null, 40000), 'crossing: it still ends on world 2\'s Home');
     ok((await page.locator('.map-btn').getAttribute('data-stars')) === '1', 'crossing: world 2\'s Home keeps the star on the map button');
     await page.waitForTimeout(800);

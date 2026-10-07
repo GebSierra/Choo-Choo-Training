@@ -208,8 +208,9 @@ let backend;
   ok((await d.page.locator('.signin').count()) === 0, 'sign in: the app opens');
   const auth = await d.lsJson('reading.auth');
   ok(auth && auth.user.email === 'mum@example.com' && auth.access_token && auth.refresh_token && auth.expires_at > Date.now() / 1000, 'sign in: session saved under reading.auth');
+  for (let t = 0; t < 50 && !b.rows[uidOf(b, 'mum@example.com')]; t++) await d.page.waitForTimeout(100); // the upload lands within a few seconds (a routine debounced save may follow it)
   const rowsUp = b.calls(/POST \/rest\/v1\/progress/);
-  ok(rowsUp.length === 1 && b.rows[uidOf(b, 'mum@example.com')].data.lessons[4].result === 'got-it', 'first sign-in with progress and an empty cloud uploads it');
+  ok(rowsUp.length >= 1 && b.rows[uidOf(b, 'mum@example.com')].data.lessons[4].result === 'got-it', 'first sign-in with progress and an empty cloud uploads it');
   ok(JSON.stringify((await d.lsJson('reading.v1')).lessons) === JSON.stringify(SEEDED.lessons), 'upload leaves reading.v1 lessons as they were');
   await d.page.waitForTimeout(100);
   ok(d.bad().length === 0, 'sign up/in: no errors ' + d.bad().join('|'));
@@ -309,6 +310,7 @@ let backend;
   ok(b.rows[uid] && !b.rows[uid].data.lessons[5], 'sync: the cloud starts with the uploaded progress (4 lessons)');
   // a lesson result through the real finish screen
   await A.page.goto(url + '#/lesson/5/finish'); await A.page.waitForSelector('.finish .got:not([disabled])', { timeout: 6000 });
+  await A.page.waitForTimeout(2600); // let any push still pending from opening the finish screen go out first
   const pushesBefore = b.calls(/POST \/rest\/v1\/progress/).length;
   await A.page.click('.finish .got'); await A.page.waitForSelector('.finish .got:not([disabled])', { timeout: 6000 }); await A.page.click('.finish .got');
   await A.page.waitForSelector('.screen:not(.leaving) .path, .home, .screen', { timeout: 6000 });
