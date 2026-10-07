@@ -1,6 +1,15 @@
 # Marketing website: build plan
 
-Written for the session that will build the site. Read this whole file before starting. The owner picks a direction from `previews/` first; this plan says **[DIRECTION]** wherever that choice matters.
+Written for the session that will build the site. Read this whole file before starting.
+
+## Owner decisions (2026-10-07)
+
+- **Direction: `previews/chosen-night-train.html`.** Theme and golden ticket from Night Train (B), wording from Sunny Line (A), the Founding Families progress bar from Timetable (C). Build from that file; the other previews are reference only. Where this plan says **[DIRECTION]**, follow the chosen file.
+- Use the line **"Tonight, your child reads you their bedtime story."** (closing section in the chosen file).
+- **Only new train-theme visuals.** No screenshots from `docs/screenshots/` (old stone path / barn theme). Use `previews/media/` (cut from the owner's screen recordings) or new captures of the current app.
+- **No Mentava picture cards** anywhere (map, milk, moon and the like). Check every frame and screenshot.
+- **Domain stays as is.** The app keeps `choochootraining.com` for now; it moves to `app.choochootraining.com` later, done by the app session, not us.
+- **No Vercel yet.** Build so it can drop onto Vercel later (Root Directory = `site`), but don't depend on it now.
 
 ## Goal
 
@@ -21,7 +30,8 @@ A one-page marketing site for Choo Choo Training whose single job is to get a pa
 - Code: `site/` at the repo root. Fully self-contained: its own `index.html`, `styles.css`, `main.js`, `assets/`, and a `vercel.json`.
 - Plain static HTML/CSS/JS, no build step, no framework. Matches the app and deploys to Vercel as-is.
 - Vercel: import the GitHub repo, set **Root Directory = `site`**, Framework = Other, no build command. Every push to the branch gets a preview URL.
-- Domain (**owner decision, not for the builder**): today `choochootraining.com` serves the app from GitHub Pages. The likely end state is the website on `choochootraining.com` (Vercel) and the app on `app.choochootraining.com`. Moving the app means changing its `CNAME`, which belongs to the app session. Until the owner decides, the site runs on its Vercel preview URL and every "Start free" button points to the app's current address, kept in one constant in `main.js` (`APP_URL`).
+- Domain: today `choochootraining.com` serves the app from GitHub Pages and stays that way. Later the website takes `choochootraining.com` (Vercel) and the app moves to `app.choochootraining.com`. Every "Start free" button points to the app through one constant in `main.js` (`APP_URL`, now `https://choochootraining.com/`), so that move is a one-line change.
+- Until Vercel exists, preview the site locally (`python3 -m http.server` in `site/`) and send the owner screenshots. Nothing on this branch is served publicly.
 
 ## Page sections (Detach's rhythm, our content)
 
@@ -43,16 +53,18 @@ A one-page marketing site for Choo Choo Training whose single job is to get a pa
 ## The phone "video"
 
 In priority order:
+0. **Already done:** `previews/media/hero.mp4` (360×778, ~19 s, 400 KB, no sound) is cut from the owner's recordings: Blend Bay railway, Letter Hunt balloons, Wagon Parade, Track Tracing. Use it unless the owner sends a better one.
 1. **Owner's screen recording** if provided: export to MP4 (H.264) and WebM, under 2 MB each, 390×844-ish, 10–15 s loop, no sound. `<video autoplay muted loop playsinline poster="...">`.
 2. **Record it ourselves**: the repo has Playwright and Chromium. Write a script under `site/tools/` that opens the app at a 390×844 viewport with `recordVideo`, taps through the home map, a lesson, tracing and a game, and saves a WebM. Convert/trim with ffmpeg if installed; otherwise ship the WebM.
 3. **Fallback** (what the previews use): cross-fade 4 screenshots every ~2.6 s; respect `prefers-reduced-motion`.
 
 ## Assets and licensing
 
-- Screenshots in `docs/screenshots/` show some pictures that may come from Mentava / Reading.com (for example the map, milk and moon cards). The README says that material isn't cleared for commercial use. For the public site, prefer screens without those pictures (railway map, trace pad, games), or blur them, until the owner confirms rights.
-- Copy screenshots into `site/assets/` as resized JPG/WebP (390 px wide, about 40 KB each). Never link into `docs/` or the app's folders.
+- Never use `docs/screenshots/` (old theme, some Mentava picture cards). Use `previews/media/` or fresh captures of the current train theme with no picture cards.
+- Copy media into `site/assets/` as resized JPG/WebP (360–390 px wide, about 40 KB each). Never link into `docs/` or the app's folders.
+- Don't reuse the in-app copy "built on studies from Harvard, NIH, the U.S. Department of Education" or the "cotton candy" paragraph: it reads like Reading.com's wording, and the site must not claim specific institutions unless the owner can cite the studies. Cite real papers instead (see `LAUNCH-PLAN.md`).
 - Fonts from Google Fonts, or self-hosted in `site/assets/fonts/`. The app's Nunito is fine to reuse.
-- Pip the Conductor: no artwork exists yet in the repo. Do not generate or invent a mascot; leave a slot the owner can fill.
+- Pip the Conductor: `previews/media/pip.png` is a small crop from an owner screenshot (on white, so it sits in a white circle). Ask the owner for the original Pip artwork with a transparent background before launch.
 
 ## Conversion details
 

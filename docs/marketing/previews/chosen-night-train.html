@@ -1,0 +1,187 @@
+<title>Choo Choo · Night Train</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Nunito:wght@400;700;800&display=swap">
+<style>
+/* Layout: B's night-indigo world, A's wording and section order, C's Founding Families progress bar; the phone plays the real train app */
+:root{
+  --night:#1A1440; --night-2:#2A2160; --violet:#5B4BD6; --gold:#FFD15C; --gold-deep:#C9971F; --star:#F3F0FF; --dim:#B4AEE0; --grass:#3DD68C;
+  --display:"Bowlby One","Arial Black",Impact,sans-serif; --body:"Nunito",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--night);color:var(--star);font:17px/1.65 var(--body);margin:0}
+.wrap{max-width:1100px;margin:0 auto;padding-inline:20px}
+h1,h2{font-family:var(--display);font-weight:400;line-height:1.04;text-wrap:balance;margin:0;letter-spacing:.01em}
+h3{font:800 1.25rem var(--body);margin:0 0 .3em}
+.btn{display:inline-block;background:var(--gold);color:var(--night);font:800 1.05rem var(--body);padding:.95em 1.5em;border-radius:14px;text-decoration:none;box-shadow:0 5px 0 var(--gold-deep)}
+.btn:hover{transform:translateY(-1px)} .btn:focus-visible{outline:3px solid var(--star);outline-offset:3px}
+nav{display:flex;justify-content:space-between;align-items:center;padding-block:20px;gap:12px;flex-wrap:wrap}
+.logo{font:400 1.35rem var(--display);color:var(--gold)}
+.links{display:flex;gap:22px;align-items:center;font-weight:800}
+.links a{color:var(--star);text-decoration:none}
+.links .btn{padding:.6em 1.1em;font-size:.95rem}
+.sky{position:relative;overflow:hidden}
+canvas#stars{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;padding-block:24px 80px}
+.hero h1{font-size:clamp(2.5rem,6vw,4.4rem)}
+.hero h1 span{color:var(--gold)}
+.hero p{color:var(--dim);font-size:1.2rem;max-width:31em}
+.cta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:24px}
+.cta small{color:var(--dim);font-weight:700}
+.seats{max-width:400px;margin-bottom:22px}
+.seats .lbl{display:flex;justify-content:space-between;font-weight:800;font-size:.9rem;gap:10px}
+.seats .lbl b{color:var(--gold)}
+.bar{height:10px;border-radius:5px;background:var(--night-2);overflow:hidden;margin-top:6px;box-shadow:inset 0 0 0 1px var(--violet)}
+.bar i{display:block;height:100%;background:var(--gold);border-radius:5px}
+.phone{width:min(300px,78vw);aspect-ratio:360/778;border-radius:44px;background:#0D0A26;padding:11px;margin:0 auto;box-shadow:0 0 0 2px var(--violet),0 40px 80px -20px #000;max-width:100%}
+.phone video,.phone img{width:100%;height:100%;object-fit:cover;border-radius:34px;display:block;background:var(--night-2)}
+section{padding-block:80px;border-top:1px solid var(--night-2)}
+.eyebrow{font-weight:800;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-size:.82rem}
+section h2{font-size:clamp(1.9rem,4.4vw,3rem);margin:.25em 0 .45em}
+section p{color:var(--dim);max-width:34em;font-size:1.1rem}
+.band{text-align:center}
+.band p{margin-inline:auto}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.shot{width:min(260px,100%);border-radius:26px;display:block;margin:0 auto;box-shadow:0 0 0 8px var(--night-2)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:30px}
+.step{background:var(--night-2);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.step img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:top;border-radius:14px}
+.step .n{font:400 1.8rem var(--display);color:var(--gold)}
+.step p{margin:0;font-size:1rem}
+.pip{display:flex;gap:18px;align-items:center;margin-bottom:10px}
+.pip img{width:84px;height:84px;object-fit:cover;object-position:top;border-radius:50%;background:#fff;border:3px solid var(--gold)}
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.quote{border:2px dashed var(--violet);border-radius:20px;padding:22px}
+.quote p{margin:0 0 .6em;font-weight:700;color:var(--star);font-size:1.05rem}
+.quote span{color:var(--dim);font-size:.9rem}
+.note{font-size:.85rem!important;margin-top:16px}
+.ticket{position:relative;background:var(--gold);color:var(--night);border-radius:22px;padding:34px 40px;display:grid;grid-template-columns:1fr minmax(0,240px);gap:28px;align-items:center;box-shadow:0 20px 50px -15px rgba(255,209,92,.35);transform:rotate(-1.5deg)}
+.ticket .count{font:400 3.8rem var(--display);line-height:1;text-align:center}
+.ticket .count small{display:block;font:800 .8rem var(--body);letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:34px;height:34px;border-radius:50%;background:var(--night);transform:translateY(-50%)}
+.ticket::before{left:-17px}.ticket::after{right:-17px}
+.ticket h2{font-size:clamp(1.8rem,4vw,2.6rem);margin:0}
+.ticket p{color:#4A3A10;font-weight:700;margin:.5em 0 0}
+.ticket .side{border-left:3px dashed var(--gold-deep);padding-left:28px}
+.ticket .bar{background:#E8B940;box-shadow:none;height:12px}
+.ticket .bar i{background:var(--night)}
+.ticket .btn{background:var(--night);color:var(--gold);box-shadow:0 5px 0 #000;margin-top:18px}
+details{border-bottom:1px solid var(--night-2);padding-block:16px}
+summary{font:800 1.12rem var(--body);cursor:pointer}
+details p{margin:.5em 0 0}
+.close{text-align:center}
+.close h2{font-size:clamp(2.2rem,6vw,3.8rem)}
+.close p{margin-inline:auto}
+footer{padding-block:30px;color:var(--dim);font-size:.9rem;border-top:1px solid var(--night-2)}
+footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:820px){.hero,.row,.steps,.quotes,.ticket{grid-template-columns:1fr}.ticket{transform:none}.ticket .side{border-left:0;border-top:3px dashed var(--gold-deep);padding:20px 0 0}.links a:not(.btn){display:none}.row .shot{order:2}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="sky">
+<canvas id="stars" aria-hidden="true"></canvas>
+<header class="wrap"><nav>
+  <div class="logo">Choo Choo Training</div>
+  <div class="links"><a href="#how">How it works</a><a href="#faq">FAQ</a><a class="btn" href="#founding">Start free</a></div>
+</nav></header>
+<div class="wrap hero">
+  <div>
+    <div class="seats">
+      <div class="lbl"><span>Founding Families</span><span><b data-left>63</b> of 100 seats left</span></div>
+      <div class="bar"><i data-fill style="width:37%"></i></div>
+    </div>
+    <h1>Hear your child read their <span>first word</span> this week.</h1>
+    <p>Ten minutes a day with a train that only moves when your child reads the next sound. You sit beside them, and the app tells you exactly what to say.</p>
+    <div class="cta"><a class="btn" data-app href="https://choochootraining.com/">Start the first 5 lessons free</a><small>No card. Works on any phone.</small></div>
+  </div>
+  <div class="phone"><video autoplay muted loop playsinline poster="media/railway.jpg" aria-label="The app: the train rides past letter stations, then balloon letter hunt and letter tracing"><source src="media/hero.mp4" type="video/mp4"></video></div>
+</div>
+</div>
+
+<section class="band"><div class="wrap">
+  <h2>Too many apps. Too little reading.</h2>
+  <p>Most kids' apps are flashy games with a letter stuck on top. Your child taps, gets a sticker, and still can't blend m‑a‑t.</p>
+</div></section>
+
+<section><div class="wrap row">
+  <div>
+    <div class="eyebrow">Why Choo Choo</div>
+    <h2>One sound at a time, the way reading specialists teach it.</h2>
+    <p>Each lesson teaches one letter sound, then puts it to work in real words. No guessing from pictures. When your child holds “mmm” and slides into “a”, they're reading, and the train rolls on.</p>
+  </div>
+  <img class="shot" src="media/railway.jpg" alt="The train on its track passing letter stations at Blend Bay">
+</div></section>
+
+<section id="how"><div class="wrap">
+  <div class="eyebrow">How it works</div>
+  <h2>Ten minutes between dinner and bath.</h2>
+  <div class="steps">
+    <div class="step"><img src="media/balloons.jpg" alt="Letter Hunt: pop the balloons with m"><div class="n">1</div><h3>Learn a sound</h3><p>Your child meets a new letter and hunts for it in the sky.</p></div>
+    <div class="step"><img src="media/trace.jpg" alt="Track Tracing: tracing the letter m"><div class="n">2</div><h3>Play with it</h3><p>Trace it, find it, load it on the train. Short games for that one sound.</p></div>
+    <div class="step"><img src="media/wagons.jpg" alt="Wagon Parade: wagons carrying m, s, m"><div class="n">3</div><h3>Read a word</h3><p>Blend sounds into real words, and watch the train pull into the next station.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap row">
+  <img class="shot" src="media/trace.jpg" alt="A lesson screen with the Say this card for the grown-up">
+  <div>
+    <div class="pip"><img src="media/pip.png" alt="Pip the Conductor"><div class="eyebrow">Our secret</div></div>
+    <h2>You're the teacher. We hand you the script.</h2>
+    <p>The app never talks over you and never listens to your child. A small “Say this” card shows you what to say, so yours is the voice your child hears learning to read.</p>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">Families riding with us</div>
+  <h2>What parents say</h2>
+  <div class="quotes">
+    <div class="quote"><p>“She asked to do more reading tonight.”</p><span>Parent of a 5‑year‑old</span></div>
+    <div class="quote"><p>“Blending finally clicked on lesson 3.”</p><span>Parent of a 6‑year‑old</span></div>
+    <div class="quote"><p>“I finally know what to say when he's stuck.”</p><span>Parent of a 4‑year‑old</span></div>
+  </div>
+  <p class="note">Placeholder quotes for layout. Real ones come from Founding Families.</p>
+</div></section>
+
+<section id="founding"><div class="wrap">
+  <div class="ticket">
+    <div>
+      <h2>Founding Family ticket</h2>
+      <p>Lifetime access for the first 100 families, plus 3 golden tickets to give your child's best friends. Tickets stop working at Winter Break.</p>
+      <a class="btn" data-app href="https://choochootraining.com/">Claim a seat</a>
+    </div>
+    <div class="side">
+      <div class="count"><span data-left>63</span><small>seats left of 100</small></div>
+      <div class="bar"><i data-fill style="width:37%"></i></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+  <h2>Questions parents ask</h2>
+  <details open><summary>What age is it for?</summary><p>Children who are starting to learn letter sounds, usually ages 4 to 6, and older children who are stuck on blending.</p></details>
+  <details><summary>Is it really free?</summary><p>The first 5 lessons are always free. The first 100 families get lifetime access.</p></details>
+  <details><summary>Does it use the microphone?</summary><p>No. The app speaks but never listens. You listen to your child.</p></details>
+  <details><summary>Do I need to download anything?</summary><p>No. Open it in Chrome or Safari and add it to your home screen.</p></details>
+</div></section>
+
+<section class="close"><div class="wrap">
+  <h2>Tonight, your child reads you their bedtime story.</h2>
+  <p>It starts with one sound. Ten minutes, side by side.</p>
+  <a class="btn" data-app href="https://choochootraining.com/">All aboard, free</a>
+</div></section>
+
+<footer><div class="wrap"><span>© Choo Choo Training</span><span>Privacy · Contact</span></div></footer>
+
+<script>
+// One place to edit: seats and the app address
+const SEATS_TOTAL=100, SEATS_TAKEN=37, APP_URL="https://choochootraining.com/";
+document.querySelectorAll('[data-fill]').forEach(e=>e.style.width=(SEATS_TAKEN/SEATS_TOTAL*100)+'%');
+document.querySelectorAll('[data-left]').forEach(e=>e.textContent=SEATS_TOTAL-SEATS_TAKEN);
+document.querySelectorAll('[data-taken]').forEach(e=>e.textContent=SEATS_TAKEN);
+document.querySelectorAll('[data-app]').forEach(e=>e.href=APP_URL);
+if(matchMedia('(prefers-reduced-motion: reduce)').matches)document.querySelectorAll('video').forEach(v=>{v.removeAttribute('autoplay');v.pause()});
+(function(){const c=document.getElementById('stars'),x=c.getContext('2d');
+function draw(){const r=c.getBoundingClientRect();c.width=r.width;c.height=r.height;
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+for(let i=0;i<140;i++){x.globalAlpha=.25+rnd()*.6;x.fillStyle='#F3F0FF';x.beginPath();x.arc(rnd()*c.width,rnd()*c.height,rnd()*1.4+.3,0,7);x.fill()}}
+draw();addEventListener('resize',draw)})();
+</script>
