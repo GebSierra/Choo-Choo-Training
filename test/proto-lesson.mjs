@@ -52,7 +52,7 @@ export async function open(browser, url, vp, { step = 0, settings = {}, reduced 
     for (const k of ['f', 'i', 't', 'p']) await page.route(`**/assets/audio/sounds/${k}.mp3`, (r) => r.fulfill({ status: 200, contentType: 'audio/wav', body: silentWav() }));
     await page.route('**/assets/audio/blends/*', (r) => r.fulfill({ status: 200, contentType: 'audio/wav', body: silentWav() }));
   }
-  await page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: {}, settings: { seenScripts: unseen ? {} : SEEN, ...settings }, firstRunDone: true, meetDue: false })}))`);
+  await page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: {}, settings: { seenScripts: unseen ? {} : SEEN, autoSpeak: true, speak0: true, ...settings }, firstRunDone: true, meetDue: false })}))`);
   await page.goto(url + '#/home');
   await page.waitForTimeout(500);
   await page.mouse.click(3, 300);
