@@ -19,7 +19,7 @@ const fresh = () => ({
   order: ORDER, // the lesson order this state was saved under (js/order.js)
   lessons: {},
   checkpoints: {}, // bonus review games between lessons, by id: {result, completedAt, unlocked}
-  settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: true, sfx: true, music: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {}, tipsSeen: [], migrated1912: true, pace4: true, perDay: 4, restOverride: null, dev: false, devOpenAll: false, devNoLimit: false, newPractice: false },
+  settings: { voiceURI: null, rate: 0.9, autoSpeak: true, playSounds: true, sfx: true, music: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {}, tipsSeen: [], migrated1912: true, pace4: true, perDay: 4, restOverride: null, dev: false, devOpenAll: false, devNoLimit: false, newPractice: true },
   character: cleanCharacter({}), // the child's figure and name (js/character.js): on this device only
   meetDue: true, // the character creator shows once, after the welcome card
   firstRunDone: false,

@@ -1,4 +1,4 @@
-// The world-themed practice look (developer-mode preview, settings.newPractice). Off: every task screen is exactly as before (the navy
+// The world-themed practice look (the default; settings.newPractice, off in Developer, gives the old look). Off: every task screen is exactly as before (the navy
 // frame, the dots). On: .practice-world + data-world, a train for the progress, a paper ticket card, the conductor's note, chunky buttons,
 // fit at four sizes, no looping animation, no transitions under reduced motion. The Developer switch exists only in developer mode.
 // Run alone with `node test/practice-world.mjs`; SHOTS=dir saves a few screenshots.
@@ -28,7 +28,7 @@ export async function practiceWorldChecks({ browser, url, ok }) {
 
   // ---- switch off: the old look, byte for byte in what a test can see ----
   for (const type of ['review', 'words', 'check']) {
-    const { ctx, page, errors } = await open(VPS[1], `#/lesson/4/task/${idxOf(tasks4, type)}`, {});
+    const { ctx, page, errors } = await open(VPS[1], `#/lesson/4/task/${idxOf(tasks4, type)}`, { newPractice: false });
     await page.waitForSelector('.task-stage'); await page.waitForTimeout(500);
     const o = await page.evaluate(() => { const r = document.querySelector('.task-screen'); return { cls: r.className, world: r.dataset.world || null, bg: getComputedStyle(r).backgroundColor, dots: document.querySelectorAll('.dots .dot').length, pill: document.querySelectorAll('.dot-pill').length, tk: document.querySelectorAll('.tk, .tk-engine, .pw-land, .pw-sky').length, radius: getComputedStyle(document.querySelector('.task-stage')).borderBottomLeftRadius, next: getComputedStyle(document.querySelector('.btn.next')).backgroundColor }; });
     ok(o.cls === 'task-screen' && o.world === null && o.bg === 'rgb(34, 26, 85)' && o.tk === 0, `off ${type}: the frame is the old navy (${o.cls}, ${o.bg}, world ${o.world})`);
@@ -38,7 +38,7 @@ export async function practiceWorldChecks({ browser, url, ok }) {
   }
   // a wrong-typed saved value is cleaned to false
   { const { cleanSettings, newStore } = await import('../js/store.js').then((m) => ({ cleanSettings: m.cleanSettings, newStore: m })).catch(() => ({})); void newStore;
-    if (cleanSettings) ok(cleanSettings({ newPractice: 'yes' }, { newPractice: false }).newPractice === false && cleanSettings({ newPractice: true }, { newPractice: false }).newPractice === true, 'settings: newPractice is cleaned to a boolean, default false'); }
+    if (cleanSettings) ok(cleanSettings({ newPractice: 'yes' }, { newPractice: true }).newPractice === true && cleanSettings({}, { newPractice: true }).newPractice === true && cleanSettings({ newPractice: false }, { newPractice: true }).newPractice === false, 'settings: newPractice is cleaned to a boolean, missing means on'); }
 
   // ---- the Developer switch exists only in developer mode ----
   for (const dev of [false, true]) {
@@ -52,9 +52,9 @@ export async function practiceWorldChecks({ browser, url, ok }) {
     else {
       ok(n === 1 && (await page.evaluate(() => { const f = [...document.querySelectorAll('.gu-field')].map((e) => e.textContent.trim()); return f.indexOf('Open every lesson') >= 0 && f.indexOf('New practice look') > f.indexOf('Open every lesson'); })), 'Grownups, developer mode: the "New practice look" switch is there, after "Open every lesson"');
       const sw = page.locator('[data-dev="newPractice"]');
-      ok((await sw.getAttribute('aria-checked')) === 'false', 'the switch starts off');
+      ok((await sw.getAttribute('aria-checked')) === 'true', 'the switch starts on (the new look is the default)');
       await sw.scrollIntoViewIfNeeded(); await sw.click();
-      ok((await sw.getAttribute('aria-checked')) === 'true' && (await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.newPractice)) === true, 'turning it on saves settings.newPractice');
+      ok((await sw.getAttribute('aria-checked')) === 'false' && (await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.newPractice)) === false, 'turning it off saves settings.newPractice = false');
     }
     await ctx.close();
   }
@@ -65,7 +65,7 @@ export async function practiceWorldChecks({ browser, url, ok }) {
     const tag = `${w} ${vp.name}`, land = vp.width > vp.height;
     for (const type of ['newLetter', 'words', 'check']) {
       const t = tasks.find((x) => x.type === type), pos = tasks.indexOf(t);
-      const { ctx, page, errors } = await open(vp, `#/lesson/${n}/task/${t.index}`, { newPractice: true }, undefined, done);
+      const { ctx, page, errors } = await open(vp, `#/lesson/${n}/task/${t.index}`, {}, undefined, done);
       await page.waitForSelector('.task-stage'); await page.waitForTimeout(900);
       const o = await page.evaluate(() => {
         const r = document.querySelector('.task-screen'), q = (s) => document.querySelector(s), rect = (s) => { const b = q(s).getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height, r: b.right, b: b.bottom }; };
@@ -96,7 +96,7 @@ export async function practiceWorldChecks({ browser, url, ok }) {
   // ---- behaviour: Say this expands, Again and Next work, the engine moves, no looping animation ----
   for (const vp of [VPS[1], VPS[3]]) {
     const tag = vp.name, t = tasks4.find((x) => x.type === 'words'), pos = tasks4.indexOf(t);
-    const { ctx, page, errors } = await open(vp, `#/lesson/4/task/${t.index}`, { newPractice: true }, undefined, 3);
+    const { ctx, page, errors } = await open(vp, `#/lesson/4/task/${t.index}`, {}, undefined, 3);
     await page.waitForSelector('.task-stage'); await page.waitForTimeout(900);
     await page.locator('.script-toggle').click(); await page.waitForTimeout(400);
     ok((await page.locator('.script-toggle').getAttribute('aria-expanded')) === 'true' && (await page.locator('.script-sheet').isVisible()), `${tag}: tapping the conductor's note opens it`);
@@ -120,14 +120,14 @@ export async function practiceWorldChecks({ browser, url, ok }) {
 
   // ---- reduced motion: no transitions on the train ----
   { const t = tasks4.find((x) => x.type === 'words');
-    const { ctx, page } = await open(VPS[1], `#/lesson/4/task/${t.index}`, { newPractice: true }, { reducedMotion: 'reduce' }, 3);
+    const { ctx, page } = await open(VPS[1], `#/lesson/4/task/${t.index}`, {}, { reducedMotion: 'reduce' }, 3);
     await page.waitForSelector('.tk-engine'); await page.waitForTimeout(700);
     const o = await page.evaluate(() => [...document.querySelectorAll('.tk-engine, .tk-car, .tk-tie')].map((e) => parseFloat(getComputedStyle(e).transitionDuration)).every((d) => d < 0.01));
     ok(o, 'reduced motion: the engine, wagons and sleepers have no transitions');
     await ctx.close(); }
 
   // ---- the old frame is still what a non-lesson screen (checkpoint, prototype) gets while the switch is on ----
-  { const { ctx, page } = await open(VPS[1], '#/proto/f/task/1', { newPractice: true, dev: true }, undefined, 13);
+  { const { ctx, page } = await open(VPS[1], '#/proto/f/task/1', { dev: true }, undefined, 13);
     await page.waitForTimeout(800);
     const cls = await page.evaluate(() => (document.querySelector('.task-screen') || {}).className || 'none');
     ok(!cls.includes('practice-world'), `prototypes keep their own frame while the switch is on (${cls})`);

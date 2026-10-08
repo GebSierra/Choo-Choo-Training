@@ -2016,12 +2016,14 @@ button.hw-tile:active { transform: translateY(3px) scale(.97); }
 .practice-world .btn.next:active { transform: translateY(4px); box-shadow: 0 1px 0 #B87A10, inset 0 2px 0 rgba(255,255,255,.5); }
 .practice-world .btn.next[disabled] { opacity: .55; }
 @media (orientation: landscape) and (max-height: 520px) {
-  .practice-world .task-stage { margin: calc(10px + var(--sat)) 6px 10px 14px; }
+  .practice-world .task-stage { margin: calc(4px + var(--sat)) 0 4px 12px; box-shadow: 0 0 0 2px #FFF8E8, 0 0 0 4px rgba(168,122,69,.55), 0 8px 18px rgba(30,60,40,.3); }
   .practice-world .task-head h1 { justify-self: start; font-size: 20px; padding: 5px 16px 6px; }
   .practice-world .task-head h1::before, .practice-world .task-head h1::after { display: none; }
   .practice-world .dots.train { padding: 12px 0 6px; }
   .practice-world > .pw-land { height: 42%; }
   .practice-world .task-foot { padding: 6px 12px 10px; }
   .practice-world .script-toggle { padding-left: 30px; }
+  .practice-world .script-sheet { max-height: 48dvh; }
 }
+@media (max-width: 380px) { .practice-world .script-toggle { padding-left: 14px; gap: 6px; grid-template-columns: minmax(0, 1fr) 24px; } .practice-world .script-toggle .script-ic { width: 30px; height: 30px; top: -16px; } .practice-world .script-peek .script-tag { display: none; } }
 @media (prefers-reduced-motion: reduce) { .tk-engine, .tk-car, .tk-tie { transition: none; } }

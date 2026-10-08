@@ -66,7 +66,8 @@ export async function polishBChecks({ browser, url, ok }) {
         const small = [...document.querySelectorAll('.task-foot button, .task-stage > .speak-btn, .task-head button')].filter((b) => b.offsetParent && !b.closest('[hidden]')).map((b) => { const r = b.getBoundingClientRect(); return Math.min(r.width, r.height); }).filter((v) => v < 47.5);
         return { img: cs.backgroundImage, radius: cs.borderTopLeftRadius, top: kid.top - ab.top, bottom: ab.bottom - kid.bottom, sw: document.documentElement.scrollWidth - innerWidth, small };
       });
-      ok(/radial-gradient/.test(m.img) && m.img.split('radial-gradient').length >= 3, `${tag} ${type}: the coloured card has its texture and soft light`);
+      ok(/radial-gradient/.test(m.img) && (m.img.split('radial-gradient').length >= 3 || /repeating-linear-gradient/.test(m.img)), // old frame: two soft lights; world look: one soft light plus the paper grain
+         `${tag} ${type}: the coloured card has its texture and soft light`);
       ok(m.small.length === 0 && m.sw <= 0, `${tag} ${type}: 48 px targets and no sideways scroll (${m.small.join(',')})`);
       if (!land && type === 'words') ok(Math.abs(m.top - m.bottom) < 80, `${tag} ${type}: the content sits in the middle of the card (${Math.round(m.top)} above, ${Math.round(m.bottom)} below)`);
       ok(errors.length === 0, `${tag} ${type}: errors ${errors.join(' | ')}`);
