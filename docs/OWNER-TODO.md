@@ -69,9 +69,19 @@ with the date.
   to the old name `choochootraining.netlify.app` (it works for now because Netlify routes by domain, but the old name could
   be reused later). Edit `app` -> **appchoochootraining.netlify.app** and `www` -> **choochootrainingwebsite.netlify.app**.
 
-- [ ] **Turn on the welcome email (about 5 minutes) (2026-10-08).** Every new grown-up, Google sign-ins included, gets a welcome
-  email. Steps in docs/BACKEND.md, section "Welcome email": make a Resend "Sending access" key, store it once in Supabase
-  Vault, run `supabase/welcome-email.sql`, then test with a new account. Preview or edit the wording in docs/emails/welcome.html.
+- [ ] **Turn on the welcome email (about 5 minutes, 2026-10-08).** Every new parent (Google or email) then gets the
+  welcome email (preview: docs/emails/welcome.html).
+  1. resend.com > **API Keys** > **Create API key**: name "Welcome email", permission **Sending access**, domain
+     **choochootraining.com**. Copy the key (starts with `re_`; shown only once).
+  2. Supabase > **SQL Editor** > **New query**: paste this line with your key in place of `re_your_key_here` (keep the
+     quote marks), press **Run**, expect "Success":
+     `select vault.create_secret('re_your_key_here', 'resend_api_key');`
+  3. Open https://github.com/GebSierra/Choo-Choo-Training/blob/claude/kind-lovelace-av8kz3/supabase/welcome-email.sql,
+     click the copy icon (top right of the file). Supabase > **SQL Editor** > **New query** > paste > **Run** (confirm
+     the "destructive operations" warning if it appears; it is safe).
+  4. Test: sign in with a Google account you haven't used with the app, or create an account with a different email.
+     The welcome email should arrive within a minute. If not, send Claude a screenshot of the error or of Resend >
+     **Emails**.
 - [ ] **Test the real sign-up (2026-10-08):** on your phone open app.choochootraining.com: Create account with your email,
   confirm from the email (from hello@choochootraining.com via Resend), sign in; then sign out and try "Continue with Google".
   Tell Claude what happened.
