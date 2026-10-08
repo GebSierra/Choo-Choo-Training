@@ -68,7 +68,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
     (review + Ticket Check). A "watch my mouth" step in every lesson (below). The middle practice is mixed from lesson
     to lesson.
   - Activities the owner likes (keep as options): New Sound, Letter Review ("love"), Saying Sounds, Track Tracing,
-    Letter Hunt (balloons), Green Light, "Scene" (owner: "scene great" — confirm which activity this is), Ticket Check,
+    Letter Hunt (balloons), Green Light, Station Board (owner confirmed 2026-10-08), Ticket Check,
     Wagon Parade. Word Cars: check against the white paper and keep only if the research supports it.
   - REMOVE every outside YouTube link from the lessons (the Alphabet song row and the "Sound Story" playlist step).
     This supersedes the old standing rule "never change the YouTube links".
