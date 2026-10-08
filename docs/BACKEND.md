@@ -40,6 +40,54 @@ there is a signed-in user (the user's access token, which PostgREST needs). An o
    rules in `schema.sql` are what protect the data. Never put the `service_role` key anywhere in this repo.
 5. Commit and deploy as usual. Bump the version and `CACHE_VERSION` in `sw.js` so installed copies pick up the new files.
 
+## Welcome email
+
+Every new grown-up gets a welcome email from "Choo Choo Training <hello@choochootraining.com>", including people who sign
+in with Google (Supabase sends them no confirmation email). It all runs inside Supabase; the app is not involved and no
+version change is needed. How it works: a database trigger on `auth.users` fires when an account is created already
+confirmed (Google) or when an email sign-up confirms (the grown-up taps the link in the confirmation email). It calls
+Resend's HTTP API through Supabase's `pg_net` extension, using a Resend API key kept in Supabase Vault, and records the
+user in `public.welcome_sent` so nobody is welcomed twice. Any problem (no key, no email address, Resend unreachable) is
+skipped quietly and never blocks sign-up.
+
+Owner steps (about 5 minutes):
+
+1. **Resend key.** resend.com > API Keys > Create API Key, permission "Sending access", domain choochootraining.com. (You may
+   reuse the key already used for Supabase SMTP instead.) Copy it; it starts with `re_` and is shown only once.
+2. **Store it in Supabase Vault, once.** Supabase > SQL Editor > New query, paste this with your real key, Run, then close the
+   tab without saving the query (so the key is not kept in a saved snippet):
+
+   ```sql
+   select vault.create_secret('re_YOUR_KEY_HERE', 'resend_api_key');
+   ```
+
+   To replace the key later, run `select vault.update_secret(id, 're_NEW_KEY') from vault.secrets where name = 'resend_api_key';`.
+   The key is never in this repo.
+3. **Run the setup.** New query, paste the whole of `supabase/welcome-email.sql`, Run. It is safe to run again.
+4. **Test.** Create a new account (email: confirm from the email, then the welcome arrives; or "Continue with Google" with a
+   Google account that has not signed in before: the welcome arrives right away). If nothing arrives in a few minutes, look
+   in Resend > Emails (a row with a status shows whether Resend got the request; no row means the trigger skipped it, most
+   often because the Vault key is missing or named differently), and check the spam folder. Supabase > Database > Extensions
+   should show `pg_net` enabled.
+5. **Change the wording.** The subject, HTML and plain text are inside `supabase/welcome-email.sql` (the HTML is also kept
+   in `docs/emails/welcome.html`, which you can open in a browser to preview). Edit the SQL, paste it in the SQL Editor and
+   Run again; it replaces the function. Keep the HTML and the plain-text version saying the same thing.
+
+Notes:
+
+- People who already have an account (including you) do not get one retroactively. To send one to yourself (optional), run
+  this with your own email (it does nothing if you were already welcomed; to resend, first run
+  `delete from public.welcome_sent where user_id = (select id from auth.users where email = 'you@example.com');`):
+
+  ```sql
+  select public.send_welcome_email((select id from auth.users where email = 'you@example.com'));
+  ```
+
+- `public.welcome_sent` has row-level security on and no policies, so the app cannot read it. The two functions cannot be
+  called from the app either (execute is revoked from the public, signed-out and signed-in roles).
+- Replies go to hello@choochootraining.com's inbox, so make sure that address is read by someone (set it up at your email host).
+- The email sends one message per new account; Resend's free plan has daily and monthly sending limits (check resend.com/pricing).
+
 ## How it behaves
 
 - **Continue with Google.** The sign-in screen shows a Google button (above the email form, with an "or use your email" divider)

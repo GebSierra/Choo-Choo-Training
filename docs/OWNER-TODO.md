@@ -69,6 +69,9 @@ with the date.
   to the old name `choochootraining.netlify.app` (it works for now because Netlify routes by domain, but the old name could
   be reused later). Edit `app` -> **appchoochootraining.netlify.app** and `www` -> **choochootrainingwebsite.netlify.app**.
 
+- [ ] **Turn on the welcome email (about 5 minutes) (2026-10-08).** Every new grown-up, Google sign-ins included, gets a welcome
+  email. Steps in docs/BACKEND.md, section "Welcome email": make a Resend "Sending access" key, store it once in Supabase
+  Vault, run `supabase/welcome-email.sql`, then test with a new account. Preview or edit the wording in docs/emails/welcome.html.
 - [ ] **Test the real sign-up (2026-10-08):** on your phone open app.choochootraining.com: Create account with your email,
   confirm from the email (from hello@choochootraining.com via Resend), sign in; then sign out and try "Continue with Google".
   Tell Claude what happened.
