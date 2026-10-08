@@ -71,8 +71,8 @@ Lessons now have 7 to 9 tasks (they had 9 to 11). Green Light needs a second sou
 words, so it starts in lesson 5. No two neighbouring lessons share a middle (checked by `test/check-content.mjs` and
 `test/lesson-rebuild.mjs`).
 
-A small note on saved progress: a lesson that was half done keeps its saved task numbers, which now point at different tasks. A
-lesson that is finished stays finished. Nothing else is touched.
+Saved progress: task numbers changed, so a one-time migration (`settings.layoutA`, in `js/store.js`) clears the saved task ticks of
+every lesson that is not finished (result is not got-it). Finished lessons and all results are untouched.
 
 ## 4. What was removed, and why
 
@@ -102,7 +102,7 @@ not touched.
 - After: "I do: say mmm. We do: slide a finger under the letter and say it together. You do: your child slides under the letter and says it alone."
 - Gist before: "Say mmm. Child slides." After: "I do: say mmm."
 
-**Letter Review**
+**Letter Review** (the answer now stays hidden: the card shows the big letter and the slide track, and a "Show the sound" button for the grown-up; the sound card and the recording appear only when it is tapped, or with Again. The phone only asks "What sound does this letter make?")
 - Before: "Say mmm. Now you try. Slide the letter."
 - After: "Ask your child to say the sound of this letter. Your child can slide a finger under it. If they are stuck, say the sound together. Still stuck? Say it yourself, then have your child say it after you."
 - Gist before: "Say mmm. Child slides." After: "Child says the sound first."

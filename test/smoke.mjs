@@ -41,7 +41,7 @@ for (const vp of VIEWPORTS) {
 }
 
 // Home and lesson overview (step 6).
-const SEED = (lessons, settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${JSON.stringify(lessons)},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
+const SEED = (lessons, settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${JSON.stringify(lessons)},settings:${JSON.stringify({ seenScripts: SEEN, layoutA: true, ...settings })},firstRunDone:true}))`;
 for (const vp of VIEWPORTS) {
   const { ctx, page, errors } = await newPage(browser, vp);
   await page.addInitScript(SPEECH_STUB);

@@ -145,5 +145,21 @@ check(nm(pickVoice([V('eSpeak English'), V('Google US English')], 'eSpeak Englis
 check(nm(pickVoice([V('Fred'), V('Google US English')], 'gone')) === 'Google US English', 'voice: a saved choice that is gone falls back to the ranking');
 check(pickVoice([]) === null && pickVoice(null) === null && pickVoice([V('Google UK English', 'en-GB')]) === null, 'voice: nothing usable gives null');
 
+// Lesson rebuild A (layoutA): task lists changed, so a half-finished lesson starts its tasks again once; finished lessons are untouched.
+{
+  const saved = { schema: 1, order: ORDER, lastOpened: '2026-10-01T00:00:00Z', firstRunDone: true, settings: { migrated1912: true, pace4: true, speak0: true },
+    lessons: { 1: { tasksDone: [0, 1, 2], result: 'got-it' }, 2: { tasksDone: [0, 1, 2, 3], result: null }, 3: { tasksDone: [0], result: 'practice' } } };
+  let t = open(saved);
+  check(t.state.lessons[1].tasksDone.join() === '0,1,2' && t.state.lessons[2].tasksDone.length === 0 && t.state.lessons[3].tasksDone.length === 0, 'layoutA: unfinished lessons lose their old task numbers, finished ones keep them');
+  check(t.state.lessons[3].result === 'practice' && t.settings.layoutA === true && JSON.parse(mem.get('reading.v1')).settings.layoutA === true, 'layoutA: results kept, the flag is saved');
+  t.markTask(2, 4);
+  t = createStore();
+  check(t.state.lessons[2].tasksDone.join() === '4', 'layoutA: it runs once; progress made afterwards is kept');
+  t = open({ ...saved, settings: { ...saved.settings, layoutA: true } });
+  check(t.state.lessons[2].tasksDone.length === 4, 'layoutA: a save already on the new layout is left alone');
+  mem.clear(); t = createStore();
+  check(t.settings.layoutA === true, 'layoutA: a new install starts on the new layout');
+}
+
 console.log(`store: ${n - bad}/${n} checks passed`);
 process.exit(bad ? 1 : 0);

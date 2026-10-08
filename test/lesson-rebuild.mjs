@@ -115,6 +115,26 @@ for (const [label, settings] of [['recordings on', { seenScripts: SEEN, autoSpea
   await ctx.close();
 }
 
+// Retrieval first: Letter Review hides the answer until the grown-up taps "Show the sound"; New Sound shows it at once.
+for (const L of [CUR.lessons[1], CUR.lessons[7]]) {
+  const { ctx, page, errors } = await open(`#/lesson/${L.number}/task/0`, { seenScripts: SEEN, autoSpeak: true, speak0: true, playSounds: true });
+  await page.waitForSelector('.review .letter-card');
+  await page.waitForTimeout(900);
+  ok((await page.locator('.review .sound-card').count()) === 0 && (await page.locator('.review .review-help').isVisible()), `lesson ${L.number} Letter Review: the sound card is hidden until the help button is tapped`);
+  await page.click('.review .review-help');
+  await page.waitForSelector('.review .sound-card');
+  ok((await page.locator('.review .review-help').count()) === 0 && (await page.locator('.review .sound-card').isVisible()), `lesson ${L.number} Letter Review: tapping the help button shows the sound card`);
+  await page.click('.btn.again');
+  await page.waitForSelector('.review .sound-card');
+  ok(true, `lesson ${L.number} Letter Review: Again shows the sound`);
+  ok(errors.length === 0, `lesson ${L.number} Letter Review: no errors ${errors.join(' | ')}`);
+  await ctx.close();
+  const n = await open(`#/lesson/${L.number}/task/1`);
+  await n.page.waitForSelector('.new-letter');
+  ok((await n.page.locator('.new-letter .sound-card').isVisible()), `lesson ${L.number} New Sound: the sound card shows at once (the sound is new)`);
+  await n.ctx.close();
+}
+
 // The lesson overview: the frame as cards, no alphabet song row, no outside link.
 for (const L of [CUR.lessons[0], CUR.lessons[1], CUR.lessons[12]]) {
   const { ctx, page, errors } = await open(`#/lesson/${L.number}`);
