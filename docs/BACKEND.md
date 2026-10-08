@@ -4,6 +4,18 @@ The app has grown-up accounts (email + password) and saves the child's progress 
 family from phone to phone and survives a lost phone. It uses Supabase. Nothing happens until you do steps 1 to 4: while
 `js/config.js` is empty the app runs exactly as before, with no sign-in screen.
 
+## Status: live (2026-10-08)
+
+The Supabase project exists and `js/config.js` points at it: `https://nwlfjqcynfoyjnepiuze.supabase.co` with the **publishable**
+key `sb_publishable_...` (Supabase's new name for the anon key; it is not a JWT). Both values are public by design and live in
+the repo; row-level security protects the data. The **secret key** (and the old `service_role` key) must never be shared, pasted
+into a chat or committed. Switched on in the dashboard: **Email** sign-in, **Google** sign-in, and **Resend** as the custom SMTP
+sender. **Apple sign-in is deferred** until the Apple Developer Program is joined (steps stay in docs/OWNER-TODO.md); add
+`'apple'` to `OAUTH_PROVIDERS` and a button then.
+
+With the new key format, the app sends the key in the `apikey` header only. `Authorization: Bearer <token>` is sent only when
+there is a signed-in user (the user's access token, which PostgREST needs). An old-style anon JWT works the same way.
+
 ## Set up (about 15 minutes)
 
 1. **Create a project.** Sign up at supabase.com (free plan is fine to start), choose New project, pick a name and a region
@@ -11,22 +23,34 @@ family from phone to phone and survives a lost phone. It uses Supabase. Nothing 
 2. **Create the table and the delete function.** Supabase dashboard > SQL Editor > New query. Paste the whole of
    `supabase/schema.sql` from this repo and press Run. It is safe to run again.
 3. **Auth settings** (dashboard > Authentication):
-   - Sign In / Providers: **Email** on. Leave every other provider (Google, Apple, ...) off.
+   - Sign In / Providers: **Email** on. **Google** on (Client ID and secret from Google Cloud; the Google redirect URI is the
+     Supabase callback URL). Apple stays off for now.
    - Email confirmation ("Confirm email"): **recommended on**. The app handles both. With it on, "Create account" shows a
      "Check your email" card and the grown-up signs in after tapping the link.
    - URL Configuration: **Site URL** `https://app.choochootraining.com`. **Redirect URLs**: add `https://app.choochootraining.com/`
      and keep the old `https://choochootraining.com/` for a few weeks (old reset emails; the old address forwards them to the app address), plus
-     `http://localhost:8080/` if you test locally.
+     `http://localhost:8080/` if you test locally. Google sign-in returns to `https://app.choochootraining.com/`, so that
+     address must be in the list.
    - Password: minimum length 8 or more (the app asks for at least 8).
    - Optional: write your own wording in Authentication > Emails (confirm signup, reset password). Keep the default links.
      Supabase's built-in email sender is rate limited and meant for testing; before real families use it, set up your own
      SMTP sender (Authentication > SMTP Settings).
 4. **Put two values in the app.** Dashboard > Project Settings > API: copy the **Project URL** and the **anon public** key
-   into `js/config.js` (`SUPABASE_URL`, `SUPABASE_ANON_KEY`). The anon key is designed to be public; the row-level security
+   into `js/config.js` (`SUPABASE_URL`, `SUPABASE_ANON_KEY`; the new dashboards call it the publishable key). It is designed to be public; the row-level security
    rules in `schema.sql` are what protect the data. Never put the `service_role` key anywhere in this repo.
 5. Commit and deploy as usual. Bump the version and `CACHE_VERSION` in `sw.js` so installed copies pick up the new files.
 
 ## How it behaves
+
+- **Continue with Google.** The sign-in screen shows a Google button (above the email form, with an "or use your email" divider)
+  for every provider in `OAUTH_PROVIDERS` (js/config.js). Tapping it makes a PKCE code verifier (random, base64url) and its
+  S256 challenge, keeps the verifier (`reading.pkce`, through js/store.js), and goes to
+  `SUPABASE_URL/auth/v1/authorize?provider=google&redirect_to=<SITE_URL>&code_challenge=...&code_challenge_method=s256`.
+  Back at the app with `?code=...`, boot (before the sign-in gate) trades it at `/auth/v1/token?grant_type=pkce` for a session,
+  saves it exactly like a password sign-in (then the normal sync rules), and removes `code` from the address bar. An
+  `error` / `error_description` in the query or hash shows "Google sign-in didn't finish. Please try again." (an expired
+  reset link keeps its own wording). The older implicit return (`#access_token=...&refresh_token=...` without
+  `type=recovery`) is also accepted. Google accounts show "Signed in with Google" in Grownups > Account and have no password.
 
 - **Sign-in is required** on a device with no session, except in developer mode (7 taps within 3 seconds on the version line at
   the bottom of the sign-in screen; the same switch as in Grownups). The sign-in screen is meant for the grown-up.
@@ -69,8 +93,9 @@ Each account is one small row (a few KB).
 - Account deletion inside the app (Apple 5.1.1(v), Google Play account deletion policy): done (Grownups > Account > Delete
   account). Google Play also asks for a web page where a person can request deletion; **TODO** when listing: use a page that
   tells them to open the app, or add an email address for requests.
-- Sign in with Apple is only required when an app offers other third-party social logins. The app has none (email + password
-  only). VERIFY against the current App Store guidelines before submitting.
+- Sign in with Apple is generally required when an app offers other third-party social logins, and the app now offers Google.
+  Apple sign-in is deferred until the Apple Developer Program; **it must be added before an iOS submission** (or Google removed
+  on iOS). VERIFY against the current App Store guidelines.
 
 ## TODO before real families use it (owner / lawyer)
 
@@ -85,9 +110,12 @@ Each account is one small row (a few KB).
 
 ## For developers
 
-- Test hook: on `localhost` / `127.0.0.1` only, `window.__config = { url, key }` set before the page loads overrides `js/config.js`
-  (used by `test/account.mjs`, which fakes every Supabase endpoint with Playwright route interception; no real network).
+- Test hooks, on `localhost` / `127.0.0.1` only (production ignores them): accounts are **off by default** there, even though
+  `js/config.js` is filled in, so every test suite and local session runs without the sign-in gate. Turn them on with
+  `window.__config = { url, key, providers }` set before the page loads (a fake project; used by `test/account.mjs`, which fakes
+  every Supabase endpoint with Playwright route interception; no real network), or open the app with `?accounts=1` to use the
+  real `js/config.js` values.
 - Code: `js/account.js` (session, calls, sync), `js/screens/signin.js` (screen), `js/components/account-card.js` (Grownups
   section), `js/store.js` (`authStore`, `savedAt`, `subscribe`, `isFresh`, `adopt`, `clearLocal`).
-- Endpoints used: `/auth/v1/signup`, `/auth/v1/token?grant_type=password`, `/auth/v1/token?grant_type=refresh_token`,
+- Endpoints used: `/auth/v1/authorize` (a page navigation), `/auth/v1/token?grant_type=pkce`, `/auth/v1/user` (GET, implicit return), `/auth/v1/signup`, `/auth/v1/token?grant_type=password`, `/auth/v1/token?grant_type=refresh_token`,
   `/auth/v1/recover`, `/auth/v1/user` (PUT, reset), `/auth/v1/logout`, `/rest/v1/progress`, `/rest/v1/rpc/delete_my_account`.

@@ -99,7 +99,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
 - [ ] **(see 7, paused) Build the next 3 worlds' environments (owner, 2026-10-08), ready for lessons:** W5 Blend Bay, W6 Endings Junction,
   W7 Silent E Summit (themes + landmarks + placeholder stations, same quality bar as Sunny Hills / Digraph Docks).
 - Owner (2026-10-08): launch everything after Claude's own review and tests, without asking, then report what was done.
-- [ ] **Google and Apple sign-in (owner, 2026-10-08; changes the earlier email-only decision):** add "Continue with Google"
+- [~] **Google sign-in DONE (2026-10-08, no version change, see README Decisions "Accounts on with Google"); Apple sign-in still to do** once the Apple Developer Program is joined (needed before an iOS submission). Original item (Google and Apple, owner, 2026-10-08; changes the earlier email-only decision): add "Continue with Google"
   and "Continue with Apple" buttons to the sign-in screen next to email + password, using Supabase OAuth (redirect to
   `/auth/v1/authorize?provider=google|apple&redirect_to=https://app.choochootraining.com/`, PKCE flow, tokens handled by
   js/account.js like the reset-link flow), buttons shown only for providers listed in js/config.js (e.g.

@@ -2,17 +2,25 @@
 // offline-first copy of the whole progress state in one cloud row. Inert until js/config.js is filled in.
 // Local progress (reading.v1) stays the source of truth; the cloud is a copy. Auth code never writes reading.v1:
 // only sync does (store.adopt on a pull). Details and setup: docs/BACKEND.md.
-import { SUPABASE_URL, SUPABASE_ANON_KEY, SITE_URL } from './config.js';
-import { authStore } from './store.js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY, SITE_URL, OAUTH_PROVIDERS } from './config.js';
+import { authStore, pkceStore } from './store.js';
 import { isNative } from './platform.js';
 
-// Tests may inject a config before load, on localhost only (window.__config = { url, key }). Production ignores it.
+// Test hooks, on localhost only (production ignores them all). Accounts are OFF on localhost by default, so the test suites and
+// local work run without the sign-in gate even though js/config.js is filled in. Turn them on with either
+//   window.__config = { url, key, providers? }  (set before load; a fake project, as test/account.mjs does), or
+//   ?accounts=1 in the address (the real js/config.js values).
 const local = ['localhost', '127.0.0.1'].includes(location.hostname);
 export const getConfig = () => {
-  const t = local && window.__config && typeof window.__config === 'object' ? window.__config : null;
-  const url = String((t ? t.url : SUPABASE_URL) || '').replace(/\/+$/, '');
-  const key = String((t ? t.key : SUPABASE_ANON_KEY) || '');
-  return url && key ? { url, key } : null;
+  let t = null, real = !local;
+  if (local) {
+    if (window.__config && typeof window.__config === 'object') t = window.__config;
+    else { try { real = new URLSearchParams(location.search).get('accounts') === '1'; } catch { real = false; } }
+  }
+  const url = String((t ? t.url : real ? SUPABASE_URL : '') || '').replace(/\/+$/, '');
+  const key = String((t ? t.key : real ? SUPABASE_ANON_KEY : '') || '');
+  const providers = (t && Array.isArray(t.providers) ? t.providers : OAUTH_PROVIDERS).filter((p) => p === 'google');
+  return url && key ? { url, key, providers } : null;
 };
 
 const PUSH_DELAY = 2000; // ms after the last change
@@ -31,6 +39,7 @@ const MESSAGES = {
   rate_limit: 'Too many tries. Please wait a minute and try again.',
   bad_email: 'Please check the email address.',
   generic: 'Something went wrong. Please try again.',
+  oauth: "Google sign-in didn't finish. Please try again.",
 };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -50,7 +59,8 @@ export function createAccount({ store, fetchImpl } = {}) {
   async function api(path, { method = 'GET', body, token: bearer, headers = {} } = {}) {
     let res;
     try {
-      res = await doFetch(cfg.url + path, { method, headers: { apikey: cfg.key, Authorization: 'Bearer ' + (bearer || cfg.key), 'Content-Type': 'application/json', Accept: 'application/json', ...headers }, body: body === undefined ? undefined : JSON.stringify(body) });
+      // Only a signed-in call carries Authorization (the user's token). The new publishable keys are not JWTs, so they go in apikey alone.
+      res = await doFetch(cfg.url + path, { method, headers: { apikey: cfg.key, ...(bearer ? { Authorization: 'Bearer ' + bearer } : {}), 'Content-Type': 'application/json', Accept: 'application/json', ...headers }, body: body === undefined ? undefined : JSON.stringify(body) });
     } catch { throw new AccountError('offline', MESSAGES.offline); }
     let data = null;
     const text = await res.text().catch(() => '');
@@ -74,7 +84,9 @@ export function createAccount({ store, fetchImpl } = {}) {
   // ---- the session ----
   function setSession(tok) {
     const expiresAt = tok.expires_at && tok.expires_at > 1e9 ? tok.expires_at : Math.floor(Date.now() / 1000) + (Number(tok.expires_in) || 3600);
-    session = { access_token: tok.access_token, refresh_token: tok.refresh_token, expires_at: expiresAt, user: { id: tok.user && tok.user.id, email: tok.user && tok.user.email } };
+    const u = tok.user || {};
+    const provider = (u.app_metadata && u.app_metadata.provider) || u.provider || null;
+    session = { access_token: tok.access_token, refresh_token: tok.refresh_token, expires_at: expiresAt, user: { id: u.id, email: u.email, ...(provider ? { provider } : {}) } };
     persist();
     scheduleRefresh();
   }
@@ -138,6 +150,36 @@ export function createAccount({ store, fetchImpl } = {}) {
     setSession(tok);
     await afterSignIn();
     return { state: 'signed-in' };
+  }
+  // ---- Sign in with Google (Supabase OAuth, PKCE) ----
+  const b64url = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  // Make a verifier + S256 challenge, keep the verifier for the return trip, and go to Supabase, which sends the grown-up to Google.
+  async function signInWithProvider(provider) {
+    if (!cfg.providers.includes(provider)) throw new AccountError('generic', MESSAGES.generic);
+    const verifier = b64url(crypto.getRandomValues(new Uint8Array(48)));
+    const challenge = b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier))));
+    pkceStore.write(verifier);
+    location.assign(`${cfg.url}/auth/v1/authorize?provider=${encodeURIComponent(provider)}&redirect_to=${encodeURIComponent(SITE_URL)}&code_challenge=${challenge}&code_challenge_method=s256`);
+  }
+  // Back from Google: ?code=... (PKCE) is traded for a session. Throws if it cannot be (the caller shows the friendly message).
+  async function completeOAuthCode(code) {
+    const verifier = pkceStore.read();
+    pkceStore.clear();
+    if (!verifier || !code) throw new AccountError('oauth', MESSAGES.oauth);
+    let tok;
+    try { tok = await api('/auth/v1/token?grant_type=pkce', { method: 'POST', body: { auth_code: code, code_verifier: verifier } }); } catch (e) { throw e.code === 'offline' ? e : new AccountError('oauth', MESSAGES.oauth); }
+    if (!tok || !tok.access_token) throw new AccountError('oauth', MESSAGES.oauth);
+    setSession(tok);
+    await afterSignIn();
+  }
+  // The older implicit return: tokens in the address hash. The user is looked up with the new access token.
+  async function completeOAuthTokens({ access_token, refresh_token, expires_in, expires_at }) {
+    if (!access_token || !refresh_token) throw new AccountError('oauth', MESSAGES.oauth);
+    let user;
+    try { user = await api('/auth/v1/user', { token: access_token }); } catch (e) { throw e.code === 'offline' ? e : new AccountError('oauth', MESSAGES.oauth); }
+    if (!user || !user.id) throw new AccountError('oauth', MESSAGES.oauth);
+    setSession({ access_token, refresh_token, expires_in, expires_at: Number(expires_at) || 0, user });
+    await afterSignIn();
   }
   async function afterSignIn() {
     watchStore(); emit('session');
@@ -224,7 +266,7 @@ export function createAccount({ store, fetchImpl } = {}) {
   async function start() {
     if (!cfg) return;
     addEventListener('online', () => { if (session) { if (dirty) schedulePush(0); else pull().catch(() => {}); } });
-    const saved = authStore.read();
+    const saved = session ? null : authStore.read(); // a session already made by the Google return needs no restore
     if (saved && saved.access_token && saved.refresh_token && saved.user && saved.user.id) {
       session = { access_token: saved.access_token, refresh_token: saved.refresh_token, expires_at: saved.expires_at || 0, user: saved.user };
       meta.lastSync = saved.lastSync || null;
@@ -239,11 +281,13 @@ export function createAccount({ store, fetchImpl } = {}) {
     required: () => !!cfg && !session && store.settings.dev !== true,
     get signedIn() { return !!session; },
     get email() { return session ? session.user.email : null; },
+    get provider() { return session && session.user.provider ? session.user.provider : null; },
+    providers: cfg ? cfg.providers : [],
     get lastSync() { return meta.lastSync; },
     get syncing() { return syncing; },
     get dirty() { return dirty; },
     get lastError() { return lastError; },
     on(fn) { listeners.add(fn); return () => listeners.delete(fn); },
-    start, signUp, signIn, forgot, resetPassword, signOut, deleteAccount, syncNow, refresh,
+    start, signUp, signIn, signInWithProvider, completeOAuthCode, completeOAuthTokens, forgot, resetPassword, signOut, deleteAccount, syncNow, refresh,
   };
 }

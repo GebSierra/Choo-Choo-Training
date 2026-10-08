@@ -15,6 +15,8 @@ import { signinScreen } from './screens/signin.js';
 import { handoffOut, handoffIn } from './handoff.js';
 import { initMember } from './member.js';
 
+const GOOGLE_ERROR = "Google sign-in didn't finish. Please try again.";
+
 async function boot() {
   if (handoffOut()) return; // an old address: the page is being sent to the app address with the progress
   const root = document.getElementById('app');
@@ -24,12 +26,27 @@ async function boot() {
   initMember({ store, account }); // the shared cct_member cookie for the marketing website (js/member.js)
   // Accounts (off until js/config.js is filled in): renew the session and pull, then ask for sign-in if nobody is in.
   if (account.configured) {
+    // Returns to the app address: a reset link (#access_token&type=recovery), a Google return (?code= with PKCE, or tokens in the
+    // hash as the older fallback), or an error in the query or hash. The app host only; the handoff above never sees these.
+    const query = new URLSearchParams(location.search);
     const hash = new URLSearchParams(location.hash.replace(/^#\/?/, '').replace(/^.*?(?=access_token|error)/, ''));
     const resetToken = hash.get('type') === 'recovery' ? hash.get('access_token') : null;
-    const linkError = hash.get('error_code') || hash.get('error') ? 'That link has expired. Please ask for a new one.' : '';
-    if (resetToken || linkError) history.replaceState(null, '', location.pathname + location.search);
+    const oauthTokens = !resetToken && hash.get('access_token') && hash.get('refresh_token') ? Object.fromEntries(hash) : null;
+    const code = query.get('code');
+    const hashErr = hash.get('error_code') || hash.get('error'), queryErr = query.get('error') || query.get('error_code');
+    const expiredLink = hashErr && /otp_expired|expired|invalid/i.test((hash.get('error_code') || '') + ' ' + (hash.get('error_description') || ''));
+    const linkError = expiredLink ? 'That link has expired. Please ask for a new one.' : '';
+    let oauthError = !expiredLink && (hashErr || queryErr) ? GOOGLE_ERROR : '';
+    if (resetToken || oauthTokens || hashErr || code || queryErr) {
+      for (const k of ['code', 'error', 'error_code', 'error_description']) query.delete(k);
+      const qs = query.toString();
+      history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
+    }
+    if (code || oauthTokens) {
+      try { await Promise.race([code ? account.completeOAuthCode(code) : account.completeOAuthTokens(oauthTokens), new Promise((_, no) => setTimeout(() => no(new Error('slow')), 12000))]); } catch (e) { oauthError = e && e.code === 'offline' ? e.message : GOOGLE_ERROR; }
+    }
     await Promise.race([account.start(), new Promise((r) => setTimeout(r, 2500))]);
-    if (resetToken || linkError || account.required()) await new Promise((done) => root.append(signinScreen({ account, store, onDone: done, mode: resetToken ? 'reset' : 'signin', resetToken, notice: linkError })));
+    if (resetToken || linkError || oauthError || account.required()) await new Promise((done) => root.append(signinScreen({ account, store, onDone: done, mode: resetToken ? 'reset' : 'signin', resetToken, notice: linkError, error: oauthError })));
   }
   let curriculum;
   try {

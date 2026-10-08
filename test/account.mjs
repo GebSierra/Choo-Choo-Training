@@ -1,9 +1,11 @@
 // Grown-up accounts (docs/BACKEND.md): sign-in screen, sign up / in / forgot / reset, session refresh, offline-first sync,
 // sign out, delete account, developer bypass. Every Supabase endpoint is faked with Playwright route interception: no real
-// network. Config is injected with window.__config = { url, key } before load (honoured on localhost / 127.0.0.1 only).
+// network. Config is injected with window.__config = { url, key, providers } before load (honoured on localhost / 127.0.0.1 only;
+// without it, or ?accounts=1, accounts are OFF on localhost even though js/config.js is filled in).
 // Run alone with `node test/account.mjs [--shots]`.
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { startServer, loadPlaywright, launch, newPage, ROOT, doneThrough } from './lib.mjs';
 
 const SHOTS = process.argv.includes('--shots');
@@ -13,15 +15,16 @@ const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const SB = 'https://fake-project.supabase.test';
-const CONFIG = `window.__config = { url: '${SB}', key: 'anon-key-for-tests' };`;
+const CONFIG = (providers) => `window.__config = { url: '${SB}', key: 'anon-key-for-tests', providers: ${JSON.stringify(providers)} };`;
+const b64url = (buf) => buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const VP = { name: 'phone', width: 390, height: 844, deviceScaleFactor: 2 };
 
 // ---- the fake Supabase: users, one progress row each, and a log of every call ----
 function makeBackend({ confirm = false, ttl = 3600 } = {}) {
-  const b = { users: {}, rows: {}, tokens: {}, refresh: {}, log: [], confirm, ttl, offline: false, n: 0, other: [], rejectRefresh: false };
+  const b = { users: {}, rows: {}, tokens: {}, refresh: {}, log: [], confirm, ttl, offline: false, n: 0, other: [], rejectRefresh: false, authorize: [], codes: {} };
   b.calls = (re) => b.log.filter((l) => re.test(l.method + ' ' + l.path));
-  b.addUser = (email, password, confirmed = true) => { b.users[email] = { id: 'user-' + (++b.n), email, password, confirmed }; return b.users[email]; };
-  b.issue = (u) => { const at = 'at-' + (++b.n), rt = 'rt-' + b.n; b.tokens[at] = { id: u.id, exp: Date.now() / 1000 + b.ttl }; b.refresh[rt] = u.id; return { access_token: at, refresh_token: rt, expires_in: b.ttl, token_type: 'bearer', user: { id: u.id, email: u.email } }; };
+  b.addUser = (email, password, confirmed = true, provider = 'email') => { b.users[email] = { id: 'user-' + (++b.n), email, password, confirmed, provider }; return b.users[email]; };
+  b.issue = (u) => { const at = 'at-' + (++b.n), rt = 'rt-' + b.n; b.tokens[at] = { id: u.id, exp: Date.now() / 1000 + b.ttl }; b.refresh[rt] = u.id; return { access_token: at, refresh_token: rt, expires_in: b.ttl, token_type: 'bearer', user: { id: u.id, email: u.email, app_metadata: { provider: u.provider || 'email' } } }; };
   return b;
 }
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, apikey, content-type, accept, prefer', 'access-control-allow-methods': 'GET, POST, PUT, OPTIONS', 'access-control-allow-private-network': 'true' };
@@ -37,6 +40,7 @@ async function attach(ctx, b, appOrigin) {
     b.log.push(entry);
     if (b.offline) return route.abort('internetdisconnected');
     const p = u.pathname;
+    if (p === '/auth/v1/authorize') { b.authorize.push(req.url()); b.authorizeNav = req.isNavigationRequest(); return route.fulfill({ status: 200, headers: { 'content-type': 'text/html' }, body: '<!doctype html><title>Google</title>fake google' }); }
     const who = () => { const t = b.tokens[(entry.auth || '').replace('Bearer ', '')]; return t && t.exp > Date.now() / 1000 ? t.id : null; };
     if (p === '/auth/v1/signup') {
       const ex = b.users[body.email];
@@ -54,6 +58,17 @@ async function attach(ctx, b, appOrigin) {
       const id = b.refresh[body.refresh_token];
       if (!id || b.rejectRefresh) return json(400, { code: 400, error_code: 'refresh_token_not_found', msg: 'Invalid Refresh Token' });
       return json(200, b.issue(Object.values(b.users).find((x) => x.id === id)));
+    }
+    if (p === '/auth/v1/token' && u.searchParams.get('grant_type') === 'pkce') {
+      const us = b.codes[body.auth_code];
+      if (!us || !body.code_verifier) return json(400, { code: 400, error_code: 'bad_code_verifier', msg: 'invalid flow state' });
+      delete b.codes[body.auth_code];
+      return json(200, b.issue(us));
+    }
+    if (p === '/auth/v1/user' && req.method() === 'GET') {
+      const id = who(); if (!id) return json(401, { msg: 'bad token' });
+      const us = Object.values(b.users).find((x) => x.id === id);
+      return json(200, { id: us.id, email: us.email, app_metadata: { provider: us.provider || 'email' } });
     }
     if (p === '/auth/v1/recover') return json(200, {});
     if (p === '/auth/v1/logout') return json(204);
@@ -89,10 +104,10 @@ const SEEDED = { schema: 1, lessons: doneThrough(4), settings: {}, firstRunDone:
 const seedScript = (obj) => `if (!localStorage.getItem('reading.v1') && !sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', ${JSON.stringify(JSON.stringify(obj))}); }`;
 
 // A device: its own browser context (own storage), the fake backend attached, config injected or not.
-async function device(b, { config = true, seed = null, vp = VP } = {}) {
+async function device(b, { config = true, seed = null, vp = VP, providers = [] } = {}) {
   const d = await newPage(browser, vp);
   await attach(d.ctx, b, origin);
-  if (config) await d.page.addInitScript(CONFIG);
+  if (config) await d.page.addInitScript(CONFIG(providers));
   if (seed) await d.page.addInitScript(seedScript(seed));
   d.bad = () => d.errors.filter((e) => !/Failed to load resource/.test(e)); // the browser logs every faked 400 and aborted call itself
   d.ls = (k) => d.page.evaluate((key) => localStorage.getItem(key), k);
@@ -184,7 +199,7 @@ let backend;
   const note = await d.page.textContent('.si-note');
   ok(/Check your email/.test(note) && note.includes('mum@example.com'), 'sign up: the Check your email card names the address');
   const su = b.calls(/POST \/auth\/v1\/signup/);
-  ok(su.length === 1 && su[0].apikey === 'anon-key-for-tests' && su[0].auth === 'Bearer anon-key-for-tests' && su[0].body.password === 'correct-horse', 'sign up: one signup call with the anon key');
+  ok(su.length === 1 && su[0].apikey === 'anon-key-for-tests' && su[0].auth === undefined && su[0].body.password === 'correct-horse', 'sign up: one signup call with the key in apikey and no Authorization header');
   ok((await d.ls('reading.auth')) === null && (await d.ls('reading.v1')) === before, 'sign up (confirm on): no session and reading.v1 untouched');
   if (SHOTS) { fs.mkdirSync(SHOT_DIR, { recursive: true }); await d.page.screenshot({ path: path.join(SHOT_DIR, 'check-your-email-390x844.png') }); }
   await d.page.click('.si-go'); // Back to sign in
@@ -476,12 +491,132 @@ let backend;
   ok(backend.other.length === 0, 'configured runs: no request left for any other origin ' + backend.other.join(','));
 }
 
+// ---- 9. Sign in with Google (Supabase OAuth, PKCE) ----
+{
+  const email = 'mum@gmail.example';
+  const mk = () => { const b = makeBackend(); b.addUser(email, null, true, 'google'); return b; };
+  const configSrc = fs.readFileSync(path.join(ROOT, 'js/config.js'), 'utf8');
+  ok(/OAUTH_PROVIDERS = \['google'\]/.test(configSrc), 'config: OAUTH_PROVIDERS lists google');
+  ok(!/sb_secret_|eyJ[A-Za-z0-9_-]{20,}/.test(configSrc) && /SUPABASE_ANON_KEY = 'sb_publishable_/.test(configSrc), 'config: a publishable key and no secret key');
+
+  // the button shows only for providers that are listed
+  {
+    const b = mk();
+    const none = await device(b, { providers: [] });
+    await none.open('#/home');
+    ok((await none.page.locator('.si-google').count()) === 0 && (await none.page.locator('.si-or').count()) === 0, 'google: no button and no divider when google is not in the providers');
+    await none.ctx.close();
+    const g = await device(b, { providers: ['google'], seed: SEEDED });
+    await g.open('#/home');
+    const info = await g.page.evaluate(() => {
+      const btn = document.querySelector('.si-google'), r = btn.getBoundingClientRect(), form = document.querySelector('.si-form');
+      return { text: btn.textContent.trim(), h: r.height, w: r.width, bg: getComputedStyle(btn).backgroundColor, paths: btn.querySelectorAll('svg path').length, fills: [...btn.querySelectorAll('svg path')].map((x) => x.getAttribute('fill')).join(), before: !!(btn.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING), or: document.querySelector('.si-or').textContent.trim(), off: r.left < 0 || r.right > innerWidth };
+    });
+    ok(info.text === 'Continue with Google' && info.h >= 48 && info.bg === 'rgb(255, 255, 255)' && info.paths === 4 && info.fills === '#EA4335,#4285F4,#FBBC05,#34A853' && info.before && info.or === 'or use your email' && !info.off, 'google: white 48 px+ button, four-colour G, text, above the form with the divider ' + JSON.stringify(info));
+    await g.mode('signup');
+    ok((await g.page.locator('.si-google').count()) === 1, 'google: the button is also on the Create account tab');
+    await g.mode('signin');
+    ok((await g.page.locator('.si-link[data-mode=forgot]').count()) === 1, 'google: the email form is still there');
+
+    // tap: PKCE verifier stored, navigation to the authorize URL
+    await g.page.click('.si-google');
+    for (let t = 0; t < 50 && !b.authorize.length; t++) await g.page.waitForTimeout(100);
+    ok(b.authorize.length === 1, 'google tap: navigated to the authorize endpoint');
+    const au = new URL(b.authorize[0]);
+    const challenge = au.searchParams.get('code_challenge');
+    ok(au.pathname === '/auth/v1/authorize' && au.searchParams.get('provider') === 'google' && au.searchParams.get('redirect_to') === 'https://app.choochootraining.com/' && au.searchParams.get('code_challenge_method') === 's256' && /^[A-Za-z0-9_-]{43}$/.test(challenge), 'google tap: provider, redirect_to, S256 challenge ' + b.authorize[0]);
+    ok(b.authorizeNav === true && b.log.find((l) => l.path.startsWith('/auth/v1/authorize')).auth === undefined, 'google tap: a top-level page navigation, not a fetch');
+    await g.page.goto(url + '?probe=1'); await g.page.waitForSelector('.signin');
+    const verifier = await g.page.evaluate(() => sessionStorage.getItem('reading.pkce'));
+    ok(verifier && /^[A-Za-z0-9_-]{43,128}$/.test(verifier) && b64url(crypto.createHash('sha256').update(verifier).digest()) === challenge, 'google tap: the stored verifier hashes to the challenge');
+
+    // the return: ?code=X is exchanged with that verifier, the session saved, the address cleaned, the app opened, progress uploaded
+    b.codes['good-code'] = b.users[email];
+    b.log.length = 0;
+    await g.page.goto(url + '?code=good-code');
+    await g.page.waitForSelector('.screen'); await g.page.waitForTimeout(800);
+    const px = b.calls(/POST \/auth\/v1\/token\?grant_type=pkce/);
+    ok(px.length === 1 && px[0].body.auth_code === 'good-code' && px[0].body.code_verifier === verifier && px[0].auth === undefined && px[0].apikey === 'anon-key-for-tests', 'google return: one pkce exchange with the code and the stored verifier, no Authorization header');
+    ok(!g.page.url().includes('code='), 'google return: code removed from the address bar ' + g.page.url());
+    const auth = await g.lsJson('reading.auth');
+    ok(auth && auth.user.email === email && auth.user.provider === 'google' && auth.access_token && auth.refresh_token, 'google return: session saved with the google provider');
+    ok((await g.page.evaluate(() => sessionStorage.getItem('reading.pkce') || localStorage.getItem('reading.pkce'))) === null, 'google return: the verifier is cleared');
+    ok((await g.page.locator('.signin').count()) === 0, 'google return: the app opens');
+    for (let t = 0; t < 50 && !b.rows[b.users[email].id]; t++) await g.page.waitForTimeout(100);
+    ok(b.calls(/GET \/rest\/v1\/progress/).length >= 1 && !!b.rows[b.users[email].id] && b.rows[b.users[email].id].data.lessons[4].result === 'got-it', 'google return: the sync ran and uploaded progress to the empty cloud');
+    ok(b.calls(/\/rest\/v1\//).every((l) => /^Bearer at-/.test(l.auth)), 'google return: data calls carry the user token');
+
+    // Grownups
+    await g.grownups();
+    const sec = g.page.locator('[data-section=account]');
+    const txt = await sec.textContent();
+    ok(/Signed in with Google/.test(txt) && txt.includes(email) && !/password/i.test(txt) && (await sec.locator('[data-acct=signout]').count()) === 1 && (await sec.locator('[data-acct=delete]').count()) === 1, 'Grownups: Signed in with Google, no password options, Sign out and Delete there');
+    if (SHOTS) { await sec.scrollIntoViewIfNeeded(); await g.page.screenshot({ path: path.join(SHOT_DIR, 'grownups-google-390x844.png') }); }
+    // the provider survives a reload (restored session) and a token refresh
+    await g.page.reload(); await g.grownups();
+    ok(/Signed in with Google/.test(await g.page.locator('[data-section=account]').textContent()), 'Grownups: still Signed in with Google after a reload');
+    ok(g.bad().length === 0, 'google: no errors ' + g.bad().join('|'));
+    await g.ctx.close();
+  }
+
+  // errors on the way back
+  for (const [label, suffix] of [['query error', '?error=access_denied&error_code=bad_oauth_callback&error_description=Unable+to+exchange'], ['hash error', '#error=server_error&error_description=oops'], ['bad code', '?code=never-issued'], ['code but no verifier', '?code=orphan']]) {
+    const b = mk();
+    const d = await device(b, { providers: ['google'], seed: SEEDED });
+    if (label === 'bad code') { await d.open(''); await d.page.evaluate(() => sessionStorage.setItem('reading.pkce', 'v'.repeat(43))); }
+    await d.page.goto(url + suffix); await d.page.waitForSelector('.signin');
+    const msg = (await d.page.textContent('.si-gerror')).trim();
+    ok(msg === "Google sign-in didn't finish. Please try again.", `google ${label}: friendly message (${msg})`);
+    ok(!/error|code=/.test(d.page.url()) && (await d.ls('reading.auth')) === null && (await d.page.locator('.si-google').count()) === 1, `google ${label}: address cleaned, no session, button still there ${d.page.url()}`);
+    ok(d.bad().length === 0, `google ${label}: no errors ` + d.bad().join('|'));
+    await d.ctx.close();
+  }
+
+  // an expired reset link keeps its own message
+  {
+    const b = mk();
+    const d = await device(b, { providers: ['google'] });
+    await d.page.goto(url + '#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired'); await d.page.waitForSelector('.signin');
+    ok(/link has expired/i.test(await d.page.textContent('.si-ok')) && (await d.page.textContent('.si-gerror')).trim() === '', 'an expired reset link still says the link expired');
+    await d.ctx.close();
+  }
+
+  // the implicit fallback: tokens in the hash, not a recovery link
+  {
+    const b = mk();
+    const us = b.users[email];
+    b.tokens['at-implicit'] = { id: us.id, exp: Date.now() / 1000 + 3600 };
+    const d = await device(b, { providers: ['google'], seed: SEEDED });
+    await d.page.goto(url + '#access_token=at-implicit&refresh_token=rt-implicit&expires_in=3600&token_type=bearer');
+    await d.page.waitForSelector('.screen'); await d.page.waitForTimeout(600);
+    const auth = await d.lsJson('reading.auth');
+    ok(auth && auth.access_token === 'at-implicit' && auth.refresh_token === 'rt-implicit' && auth.user.email === email && auth.user.provider === 'google', 'implicit hash: the session is saved with the looked-up user');
+    ok(!d.page.url().includes('access_token') && (await d.page.locator('.signin').count()) === 0 && b.calls(/PUT \/auth\/v1\/user/).length === 0, 'implicit hash: tokens removed from the address, app opens, not treated as a password reset');
+    ok(b.calls(/GET \/auth\/v1\/user/).length === 1 && b.calls(/GET \/auth\/v1\/user/)[0].auth === 'Bearer at-implicit', 'implicit hash: the user is read with the new token');
+    ok(d.bad().length === 0, 'implicit hash: no errors ' + d.bad().join('|'));
+    await d.ctx.close();
+  }
+
+  // accounts stay OFF on localhost unless a test turns them on (so every other suite runs without the sign-in gate)
+  {
+    const b = mk();
+    const d = await device(b, { config: false, seed: SEEDED });
+    await d.open('#/home');
+    ok((await d.page.locator('.signin').count()) === 0 && b.log.length === 0, 'localhost: the real config is ignored by default (accounts off)');
+    await d.ctx.close();
+    const e = await device(b, { config: false });
+    await e.page.goto(url + '?accounts=1'); await e.page.waitForSelector('.signin');
+    ok((await e.page.locator('.si-google').count()) === 1, 'localhost: ?accounts=1 turns the real config on (sign-in gate and Google button)');
+    await e.ctx.close();
+  }
+}
+
 // ---- screenshots (--shots) ----
 if (SHOTS) {
   fs.mkdirSync(SHOT_DIR, { recursive: true });
   for (const vp of [{ name: '390x844', width: 390, height: 844 }, { name: '915x412', width: 915, height: 412 }]) {
     const b = makeBackend({ confirm: true });
-    const d = await device(b, { vp: { ...vp, deviceScaleFactor: 2 } });
+    const d = await device(b, { providers: ['google'], vp: { ...vp, deviceScaleFactor: 2 } });
     await d.open('#/home'); await d.page.waitForTimeout(500);
     await d.page.screenshot({ path: path.join(SHOT_DIR, `sign-in-${vp.name}.png`) });
     await d.mode('signup'); await d.fill('email', 'mum@example.com'); await d.fill('password', 'correct-horse'); await d.fill('confirm', 'correct-horse');

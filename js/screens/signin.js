@@ -5,10 +5,22 @@ import { APP_VERSION } from '../version.js';
 // The grown-up sign-in screen. Shown at boot when accounts are configured, nobody is signed in and developer mode is off.
 // Modes: signin, signup, forgot, check-email (after Create account or an unconfirmed sign-in), sent (reset email sent),
 // reset (the password reset link brought the grown-up here). onDone() runs once the grown-up is in (or developer mode is on).
-export function signinScreen({ account, store, onDone, mode = 'signin', resetToken = null, notice = '' }) {
+// Google's multicolour "G" (their brand guidelines: the standard logo on a white button).
+const googleLogo = () => {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', '0 0 48 48'); svg.setAttribute('width', '22'); svg.setAttribute('height', '22'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('class', 'si-glogo');
+  for (const [fill, d] of [['#EA4335', 'M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z'], ['#4285F4', 'M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z'], ['#FBBC05', 'M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z'], ['#34A853', 'M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z']]) {
+    const p = document.createElementNS(ns, 'path'); p.setAttribute('fill', fill); p.setAttribute('d', d); svg.append(p);
+  }
+  return svg;
+};
+
+export function signinScreen({ account, store, onDone, mode = 'signin', resetToken = null, notice = '', error = '' }) {
   const root = h('div', { class: 'signin' });
   let taps = [];
   let busy = false;
+  let firstError = error; // a Google return that failed: shown once, under the Google button
 
   const versionLine = h('p', { class: 'si-version', onclick: () => {
     const now = Date.now(); taps = [...taps.filter((t) => now - t < 3000), now];
@@ -30,6 +42,15 @@ export function signinScreen({ account, store, onDone, mode = 'signin', resetTok
     const tabs = h('div', { class: 'si-tabs', role: 'tablist' },
       ...[['signin', 'Sign in'], ['signup', 'Create account']].map(([m, label]) => h('button', { class: 'si-tab', type: 'button', role: 'tab', 'aria-selected': String(m === mode), dataset: { mode: m }, onclick: () => paint(m, { email: root.querySelector('.si-email') ? root.querySelector('.si-email').value : '' }) }, label)));
     let body;
+    const hasGoogle = (mode === 'signin' || mode === 'signup') && (account.providers || []).includes('google');
+    const gerr = h('p', { class: 'si-gerror', role: 'alert', 'aria-live': 'polite' }, firstError);
+    firstError = '';
+    const google = hasGoogle ? [h('button', { class: 'si-google', type: 'button', dataset: { provider: 'google' }, onclick: async (ev) => {
+      if (busy) return;
+      const btn = ev.currentTarget;
+      busy = true; btn.disabled = true; gerr.textContent = '';
+      try { await account.signInWithProvider('google'); } catch { gerr.textContent = "Google sign-in didn't finish. Please try again."; busy = false; btn.disabled = false; }
+    } }, googleLogo(), h('span', {}, 'Continue with Google')), gerr, h('div', { class: 'si-or', role: 'separator' }, h('span', {}, 'or use your email'))] : [];
 
     const run = (btn, work) => async (e) => {
       e.preventDefault();
@@ -54,7 +75,7 @@ export function signinScreen({ account, store, onDone, mode = 'signin', resetTok
         finish();
       }) }, e.el, p.el, c ? c.el : null, mode === 'signup' ? h('p', { class: 'si-hint' }, 'At least 8 characters.') : null, err, go,
       mode === 'signin' ? h('button', { class: 'si-link', type: 'button', dataset: { mode: 'forgot' }, onclick: () => paint('forgot', { email: e.input.value }) }, 'Forgot password?') : null);
-      body = [tabs, form];
+      body = [...google, tabs, form];
     } else if (mode === 'forgot') {
       const e = field('Email', { class: 'gu-name si-input si-email', type: 'email', name: 'email', autocomplete: 'email', inputmode: 'email', autocapitalize: 'none', autocorrect: 'off', spellcheck: 'false', value: email, required: true });
       const go = h('button', { class: 'btn big si-go', type: 'submit' }, 'Send reset email');

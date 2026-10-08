@@ -21,11 +21,13 @@ for (const f of jsFiles) {
 }
 
 // 3. No remote files: the only web addresses are the two YouTube links, the SVG namespace (a name, not a download), the app's own
-// site (the password reset redirect) and, once the owner fills in js/config.js, that one Supabase project address (js/config.js only).
+// site (the password reset and Google sign-in redirect) and the one Supabase project address (js/config.js only).
 const ALLOWED = [/^https:\/\/m\.youtube\.com\/playlist\?list=/, /^https:\/\/youtu\.be\//, /^http:\/\/www\.w3\.org\/2000\/svg$/, /^https:\/\/(app\.)?choochootraining\.com\/?$/];
 const cfgSrc = read('js/config.js');
-ok(/SUPABASE_URL = ''|SUPABASE_URL = 'https:\/\/[a-z0-9-]+\.supabase\.co'/.test(cfgSrc), 'js/config.js holds no address or one Supabase project address');
-ALLOWED.push(/^https:\/\/[a-z0-9-]+\.supabase\.co$/);
+const SB_ORIGIN = 'https://nwlfjqcynfoyjnepiuze.supabase.co';
+ok(cfgSrc.includes(`SUPABASE_URL = '${SB_ORIGIN}'`), 'js/config.js holds the one Supabase project address');
+ok(!jsFiles.some((f) => /sb_secret_|eyJ[A-Za-z0-9_-]{20,}/.test(read(f))), 'no secret key or JWT-style key anywhere in js/');
+ALLOWED.push(new RegExp('^' + SB_ORIGIN.replace(/\./g, '\\.') + '$'));
 const scan = [...jsFiles, ...walk('css', ['.css']), ...walk('data', ['.json']), 'index.html', 'manifest.webmanifest', 'sw.js'];
 let urls = 0;
 for (const f of scan) {
@@ -113,6 +115,31 @@ const CAP = `window.__backs = []; window.Capacitor = { isNativePlatform: () => t
   for (let k = 0; k < 12; k++) { await page.locator('.gu-link').first().click(); await page.waitForSelector('.gg-card'); seen.add(await page.getAttribute('.gg-card', 'data-target')); await page.click('.gg-cancel'); }
   ok(seen.size >= 3, `the target number is random (${[...seen]})`);
   ok(errors.length === 0, 'gate: no errors ' + errors.join('|'));
+  await ctx.close();
+}
+
+// 7. The only remote origin the app may contact is the configured Supabase project (accounts on, via ?accounts=1 on localhost).
+// The Google sign-in is a top-level navigation to that same origin, not a fetch.
+{
+  const { ctx, page, errors } = await newPage(browser, VP);
+  const remote = [], navs = [];
+  await ctx.route('**/*', (route) => {
+    const req = route.request(), u = new URL(req.url());
+    if (u.origin === new URL(url).origin || u.protocol === 'data:' || u.protocol === 'blob:') return route.continue();
+    remote.push(u.origin);
+    if (req.isNavigationRequest()) navs.push(req.url());
+    return route.fulfill({ status: req.isNavigationRequest() ? 200 : 400, headers: { 'content-type': 'text/html' }, body: '<!doctype html><title>stub</title>' });
+  });
+  await page.addInitScript(SEED);
+  await page.goto(url + '#/home'); await page.waitForSelector('.screen'); await page.waitForTimeout(800);
+  ok(remote.length === 0, `accounts off (default on localhost): the app contacts no remote origin (${[...new Set(remote)]})`);
+  await page.goto(url + '?accounts=1'); await page.waitForSelector('.signin'); await page.waitForTimeout(800);
+  ok(remote.every((o) => o === SB_ORIGIN), `accounts on: every remote origin is the Supabase project (${[...new Set(remote)]})`);
+  await page.click('.si-google');
+  for (let t = 0; t < 40 && !navs.length; t++) await page.waitForTimeout(100);
+  ok(navs.length === 1 && navs[0].startsWith(SB_ORIGIN + '/auth/v1/authorize?provider=google&redirect_to=https%3A%2F%2Fapp.choochootraining.com%2F&code_challenge='), 'Google sign-in navigates to the Supabase authorize URL ' + navs[0]);
+  ok(remote.every((o) => o === SB_ORIGIN), 'still only the Supabase origin after tapping Google');
+  ok(errors.filter((e) => !/Failed to load resource/.test(e)).length === 0, 'remote origin check: no errors ' + errors.join('|'));
   await ctx.close();
 }
 

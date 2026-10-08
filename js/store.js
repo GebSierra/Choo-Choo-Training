@@ -11,6 +11,15 @@ export const authStore = {
   clear() { try { localStorage.removeItem(AUTH_KEY); } catch { /* storage unavailable */ } },
 };
 
+// The one-time PKCE code verifier of a Sign in with Google in progress (js/account.js). It must survive the trip to Google and back
+// in this tab, so it goes in sessionStorage (and a localStorage copy for browsers that open the return link in a fresh tab).
+const PKCE_KEY = 'reading.pkce';
+export const pkceStore = {
+  write(v) { try { sessionStorage.setItem(PKCE_KEY, v); } catch { /* storage unavailable */ } try { localStorage.setItem(PKCE_KEY, v); } catch { /* storage unavailable */ } },
+  read() { try { const v = sessionStorage.getItem(PKCE_KEY); if (v) return v; } catch { /* storage unavailable */ } try { return localStorage.getItem(PKCE_KEY); } catch { return null; } },
+  clear() { try { sessionStorage.removeItem(PKCE_KEY); } catch { /* storage unavailable */ } try { localStorage.removeItem(PKCE_KEY); } catch { /* storage unavailable */ } },
+};
+
 // The raw saved progress string, for the move to the app address (js/handoff.js). Null when there is none or storage is unavailable.
 export const readRawProgress = () => { try { return localStorage.getItem(KEY); } catch { return null; } };
 

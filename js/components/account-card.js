@@ -26,6 +26,7 @@ export function accountCard(account, store) {
       return;
     }
     kids.push(h('div', { class: 'gu-field' }, h('span', {}, 'Signed in as'), h('strong', { class: 'gu-acct-email' }, account.email)),
+      ...(account.provider === 'google' ? [h('p', { class: 'gu-note gu-acct-provider' }, 'Signed in with Google')] : []),
       h('p', { class: 'gu-note gu-synced' }, `Last synced: ${when()}`),
       h('div', { class: 'gu-actions gu-acct-actions' },
         h('button', { class: 'btn small', type: 'button', disabled: busy, dataset: { acct: 'sync' }, onclick: () => act(() => account.syncNow(), 'Synced.') }, busy ? 'Working...' : 'Sync now'),
