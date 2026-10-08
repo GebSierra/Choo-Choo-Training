@@ -59,7 +59,27 @@ Owner: implement all of these without asking, then report the decisions made. Co
   landscape matching the current world, progress dots become a little train on a track at the top, the "Say this" bar a
   conductor's note card. Built first as a developer-mode preview ("New practice look" switch in Developer) for the owner
   to try on the phone; becomes the default only after approval.
-- [ ] **Parent instructions pass (owner, 2026-10-08; do AFTER the practice look is built):** go through every grown-up
+### ORDER (owner, 2026-10-08): 1 practice look → 2 world-preview bug fix → 3 parent instructions + lesson rebuild →
+### 4 train stops at story/ride stations → 5 storybook pages → 6 Smooth Ride decision → 7 worlds W5–W7 → later items
+- [ ] **3. Lesson rebuild + parent instructions (owner, 2026-10-08; after the practice look; BEFORE W5–W7):**
+  - Model: the f-lesson prototype (its activities are evidence-based and engaging). Rebuild lesson 1 onward (m a s i t
+    p ...) in the curriculum's new order with tools/gen-lessons.mjs.
+  - Same frame every lesson so the child knows what to expect: the SAME opening (Letter Review) and the SAME ending
+    (review + Ticket Check). A "watch my mouth" step in every lesson (below). The middle practice is mixed from lesson
+    to lesson.
+  - Activities the owner likes (keep as options): New Sound, Letter Review ("love"), Saying Sounds, Track Tracing,
+    Letter Hunt (balloons), Green Light, "Scene" (owner: "scene great" — confirm which activity this is), Ticket Check,
+    Wagon Parade. Word Cars: check against the white paper and keep only if the research supports it.
+  - REMOVE every outside YouTube link from the lessons (the Alphabet song row and the "Sound Story" playlist step).
+    This supersedes the old standing rule "never change the YouTube links".
+  - "Watch my mouth" step instead of a mouth animation per sound: one illustration of a grown-up with a finger at the
+    side of the mouth; grown-up text: "It helps your child to see someone else make the sound. Put a finger at the side
+    of your mouth (this draws their eyes to your mouth) and ask your child to look at your mouth. Make the sound, then
+    have them say it after you." Plus an optional "How to make this sound" panel per sound (lips, teeth, tongue, voice
+    on/off; from docs/CURRICULUM.md pronunciation notes).
+  - Fix: the story text font in the f-lesson prototype looks funky and uneven in boldness — use one clean, even weight.
+  - Parent text rules (below) apply to every line.
+- [ ] **(part of 3) Parent instructions pass (owner, 2026-10-08; do AFTER the practice look is built):** go through every grown-up
   text on every lesson, game and prototype step ("Say this" lines, full scripts, tips, prompts, judge questions) and polish
   it: clear and simple, short sentences, one action at a time, the white paper's principles (docs/CURRICULUM.md: explicit
   teaching, letter sounds not names, clipped stop sounds, connected blending, the grown-up judges, no guessing from
@@ -76,7 +96,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   levels; investigate the real flow Home > Grownups > world button: a 3D failure on a real GPU, or a leftover GL context,
   falls back to the 2D message). Fix: retry once with a fresh context, never mark 3D as broken for the whole session from
   a preview, and show the actual error in developer mode.
-- [ ] **Build the next 3 worlds' environments (owner, 2026-10-08), ready for lessons:** W5 Blend Bay, W6 Endings Junction,
+- [ ] **(see 7, paused) Build the next 3 worlds' environments (owner, 2026-10-08), ready for lessons:** W5 Blend Bay, W6 Endings Junction,
   W7 Silent E Summit (themes + landmarks + placeholder stations, same quality bar as Sunny Hills / Digraph Docks).
 - Owner (2026-10-08): launch everything after Claude's own review and tests, without asking, then report what was done.
 - [ ] **Google and Apple sign-in (owner, 2026-10-08; changes the earlier email-only decision):** add "Continue with Google"
@@ -85,6 +105,16 @@ Owner: implement all of these without asking, then report the decisions made. Co
   js/account.js like the reset-link flow), buttons shown only for providers listed in js/config.js (e.g.
   `OAUTH_PROVIDERS = ['google','apple']`), behind the same grown-up screen; Apple's button follows Apple's style rules;
   fake-endpoint tests. Owner sets up the providers (steps in docs/OWNER-TODO.md).
+- [ ] **4. Train stops at story / Smooth Ride stations (bug, owner 2026-10-08):** after a lesson, the ride skips over a
+  following Story or Smooth Ride station, so they look like scenery. The train should stop there (the child's figure can
+  get off and stand beside it), so grown-ups notice them. Keep the station building as is if a redesign is hard.
+- [ ] **5. Storybook as real pages (owner, 2026-10-08):** the owner expected the storybook to look like an immersive
+  real book page; check the current book screen against that and make it feel like a picture book page.
+- [ ] **6. Smooth Ride: overhaul, replace or remove (owner, 2026-10-08):** it was built around recording the child,
+  which the app no longer does. Offer the owner three options (e.g. replace with a grown-up-judged read-along / repeated
+  reading activity from the white paper, fold it into lessons, or remove it).
+- [ ] **7. Worlds W5–W7 (Blend Bay, Endings Junction, Silent E Summit):** resume after 3–6 (paused 2026-10-08; any
+  partial work is on the branch worktree-agent-a901920b65f056c35).
 - [ ] **Better voice:** owner to choose A (best phone voice, done in the welcome-fit release), B (pre-recorded natural AI
   voice files, recommended) or C (voice actor).
 - [ ] **Golden tickets (from the website plan, docs/marketing/TECH.md on the website branch):** decided 2026-10-07: ticket
@@ -184,7 +214,7 @@ owner approves that plan.
 ## Standing rules (owner)
 - The phone's voice never says letter sounds. Parent voice or recordings only.
 - No privacy or recording warnings in the app UI.
-- Never change the YouTube links. Do not touch the jingle cut-off.
+- YouTube links: being REMOVED in the lesson rebuild (owner, 2026-10-08). Do not touch the jingle cut-off.
 - Heat rule (owner, 2026-10-07; replaces "no JS animation loops while idle"): small idle animation is welcome if it is
   cheap. (1) CSS/WAAPI animations of transform and opacity only may loop forever (no layout, box-shadow, filter or blur
   animation). (2) The 3D Home may animate while idle at most 10 frames per second, through ONE shared low-rate ticker
