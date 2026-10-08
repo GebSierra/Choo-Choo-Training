@@ -51,6 +51,14 @@ Owner: implement all of these without asking, then report the decisions made. Co
   landscape matching the current world, progress dots become a little train on a track at the top, the "Say this" bar a
   conductor's note card. Built first as a developer-mode preview ("New practice look" switch in Developer) for the owner
   to try on the phone; becomes the default only after approval.
+- [ ] **Parent instructions pass (owner, 2026-10-08; do AFTER the practice look is built):** go through every grown-up
+  text on every lesson, game and prototype step ("Say this" lines, full scripts, tips, prompts, judge questions) and polish
+  it: clear and simple, short sentences, one action at a time, the white paper's principles (docs/CURRICULUM.md: explicit
+  teaching, letter sounds not names, clipped stop sounds, connected blending, the grown-up judges, no guessing from
+  pictures, short daily practice), and the owner's rule that a grown-up may first have to demonstrate before the child can
+  imitate: new sounds and skills follow "I do, we do, you do" (grown-up models, then together, then the child); practice
+  and review follow "child tries first; if stuck, sound it out together; still stuck, the grown-up says it and the child
+  says it after". Placement check excluded (it is an assessment). Deliver a before/after wording list for the owner.
 - [ ] **Better voice:** owner to choose A (best phone voice, done in the welcome-fit release), B (pre-recorded natural AI
   voice files, recommended) or C (voice actor).
 - [ ] **Golden tickets (from the website plan, docs/marketing/TECH.md on the website branch):** decided 2026-10-07: ticket
