@@ -194,6 +194,10 @@ owner approves that plan.
   most ~10 fps (about 32 frames in 3 s), 0 frames while hidden, 0 after the 2-minute rest. The old one-off overheating
   came from a continuous 60 fps full-scene render.
 - Plans by Opus, building by Sonnet, to save credits. Commit and push to main after each phase.
+- Token savings (owner, 2026-10-08): always use the cheapest model that can do the job well. Opus only for planning,
+  reviewing screenshots/quality and tricky decisions; Sonnet for building features and fixing code; Haiku (latest:
+  Haiku 4.5) for simple, mechanical work: running test suites and reporting results, taking screenshots, updating docs and
+  to-do lists, small text edits, searching the code. Do not use Opus for work a smaller model can do.
 - Run each phase's own suites; run the full `npm test` (about 40 to 60 minutes) once at the end of a session.
 - Read the execution rules at the top of docs/PLAN-v1.9.md before building.
 - Keep the white paper current (owner): every study the app relies on (in code, design notes or parent text) goes into
