@@ -20,6 +20,14 @@ Last session finished every item of the previous handoff. Full `npm test` result
   he/she in a line with the child's name). Review tiles shrink when a review has more than six words.
 - Test fix: smoke's precache size check counts an unrecorded optional letter sound as 0 bytes.
 
+## HOSTING (2026-10-08) — read before pushing
+- The APP is served by **GitHub Pages** again (free, unlimited releases): repo Settings > Pages, branch main, root,
+  custom domain app.choochootraining.com; Porkbun CNAME `app` -> gebsierra.github.io. A push to `main` = a release.
+- Netlify: the app project (appchoochootraining) has builds STOPPED (it charged 15 credits per production deploy and the
+  month's credits were used up by small pushes). The WEBSITE (choochootrainingwebsite, branch
+  claude/choochoo-marketing-chat-mjzg8m, folder site/) stays on Netlify; save its credits for real launches.
+- Still batch releases: only push to main when a release is ready (docs-only changes can ride along with the next one).
+
 ## ROADMAP (owner-approved 2026-10-07) — read this first if the session was cut off
 Owner: implement all of these without asking, then report the decisions made. Commit + push to main after each phase.
 - [x] 1.9.20 pace limit default 4 a day (Grownups 1, 2, 3, 4, No limit).
@@ -186,6 +194,11 @@ owner approves that plan.
   most ~10 fps (about 32 frames in 3 s), 0 frames while hidden, 0 after the 2-minute rest. The old one-off overheating
   came from a continuous 60 fps full-scene render.
 - Plans by Opus, building by Sonnet, to save credits. Commit and push to main after each phase.
+- Token savings (owner, 2026-10-08): always use the cheapest model that can do the job well. Opus only for planning,
+  reviewing screenshots/quality and tricky decisions; Sonnet for building features and fixing code; Haiku (always the newest
+  version available; owner 2026-10-08: Haiku 5.5) for simple, mechanical work: running test suites and reporting results, taking screenshots, updating docs and
+  to-do lists, small text edits, searching the code. Do not use Opus for work a smaller model can do. Always pick
+  the newest version of each model family.
 - Run each phase's own suites; run the full `npm test` (about 40 to 60 minutes) once at the end of a session.
 - Read the execution rules at the top of docs/PLAN-v1.9.md before building.
 - Keep the white paper current (owner): every study the app relies on (in code, design notes or parent text) goes into

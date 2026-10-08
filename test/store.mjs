@@ -115,5 +115,35 @@ check(s.state.savedAt === 0 && !s.isFresh(), 'sync: an older save loads with sav
 mem.set('reading.auth', '{"x":1}'); s.resetAll();
 check(mem.get('reading.auth') === '{"x":1}', 'sync: the account session key is never touched by the store');
 
+// Phone voice: speaking on a screen open is off for new installs; an old save turns off once (speak0); a later choice stays.
+s = open(old({ order: ORDER, settings: { autoSpeak: true, rate: 1 } }));
+check(s.settings.autoSpeak === false && s.settings.speak0 === true && JSON.parse(mem.get('reading.v1')).settings.autoSpeak === false, 'speak0: an old save with auto-speak on is turned off once and saved');
+s.setSetting('autoSpeak', true);
+s = open(JSON.parse(mem.get('reading.v1')));
+check(s.settings.autoSpeak === true && s.settings.speak0 === true, 'speak0: a grown-up who switched it back on keeps it on after a reload');
+s = open(old({ order: ORDER, settings: { autoSpeak: false } }));
+check(s.settings.autoSpeak === false && s.settings.speak0 === true, 'speak0: an old save with it off stays off');
+mem.clear(); s = createStore();
+check(s.settings.autoSpeak === false && s.settings.speak0 === true, 'speak0: a new install starts with auto-speak off');
+
+// pickVoice: the best en-US voice by quality; the saved choice wins; robotic ones only as a last resort.
+const { pickVoice } = await import('../js/speech.js');
+const V = (name, lang = 'en-US', voiceURI = name) => ({ name, lang, voiceURI });
+const nm = (v) => v && v.name;
+check(nm(pickVoice([V('Microsoft David'), V('Google US English'), V('Microsoft Aria Online (Natural)')])) === 'Microsoft Aria Online (Natural)', 'voice: Natural/Online beats Google and Microsoft');
+check(nm(pickVoice([V('Samantha'), V('Alex Enhanced'), V('Google US English')])) === 'Alex Enhanced', 'voice: Enhanced beats Google and plain');
+check(nm(pickVoice([V('Siri Voice 2'), V('Google US English')])) === 'Siri Voice 2', 'voice: Siri beats Google');
+check(nm(pickVoice([V('Neural Jenny'), V('Premium Zoe')])) === 'Neural Jenny', 'voice: ties keep the first');
+check(nm(pickVoice([V('Microsoft Zira'), V('Google US English'), V('Fred')])) === 'Google US English', 'voice: Google beats Microsoft and plain');
+check(nm(pickVoice([V('Fred'), V('Microsoft Zira')])) === 'Microsoft Zira', 'voice: Microsoft beats a plain voice');
+check(nm(pickVoice([V('eSpeak English'), V('Fred')])) === 'Fred', 'voice: eSpeak is never chosen over another voice');
+check(nm(pickVoice([V('English compact'), V('Fred')])) === 'Fred', 'voice: "compact" is never chosen over another voice');
+check(nm(pickVoice([V('eSpeak English'), V('English compact')])) === 'eSpeak English', 'voice: only robotic voices left, one is still picked');
+check(nm(pickVoice([V('Google UK English', 'en-GB'), V('Natural Brian', 'en-GB'), V('Google US English')])) === 'Google US English', 'voice: only en-US voices are considered');
+check(nm(pickVoice([V('Google UK English', 'en_US')])) === 'Google UK English', 'voice: en_US spelling counts as en-US');
+check(nm(pickVoice([V('eSpeak English'), V('Google US English')], 'eSpeak English')) === 'eSpeak English', 'voice: the grown-up\'s saved choice is kept, even a plain one');
+check(nm(pickVoice([V('Fred'), V('Google US English')], 'gone')) === 'Google US English', 'voice: a saved choice that is gone falls back to the ranking');
+check(pickVoice([]) === null && pickVoice(null) === null && pickVoice([V('Google UK English', 'en-GB')]) === null, 'voice: nothing usable gives null');
+
 console.log(`store: ${n - bad}/${n} checks passed`);
 process.exit(bad ? 1 : 0);
