@@ -17,6 +17,11 @@ with the date.
   Create credentials > OAuth client ID > Web application: Authorized JavaScript origins `https://app.choochootraining.com`,
   Authorized redirect URI = the "Callback URL" shown in Supabase > Authentication > Sign In / Providers > Google. Copy the
   Client ID + Client secret into that Supabase page, turn Google on, save.
+- [ ] **Google brand verification (2026-10-08)** so the Google sign-in screen says "Choo Choo Training" instead of the
+  Supabase address: console.cloud.google.com > (Choo Choo Training project) > Google Auth Platform > Branding: app name
+  Choo Choo Training, support email, logo, home page https://choochootraining.com, privacy policy
+  https://choochootraining.com/privacy.html, authorized domains choochootraining.com and supabase.co; save; then
+  Verification Center > submit for verification (Google reviews it, usually a few days).
 - [ ] **Apple sign-in — DEFERRED by the owner until the Apple Developer Program (needed for the App Store anyway):** developer.apple.com > Certificates,
   IDs & Profiles: an App ID with "Sign in with Apple"; a Services ID (this is the Client ID) with Sign in with Apple
   configured (domain = your Supabase project domain, return URL = the Supabase Apple "Callback URL"); a Key with Sign in
