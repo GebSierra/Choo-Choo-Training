@@ -71,6 +71,12 @@ Owner: implement all of these without asking, then report the decisions made. Co
 - [ ] **Build the next 3 worlds' environments (owner, 2026-10-08), ready for lessons:** W5 Blend Bay, W6 Endings Junction,
   W7 Silent E Summit (themes + landmarks + placeholder stations, same quality bar as Sunny Hills / Digraph Docks).
 - Owner (2026-10-08): launch everything after Claude's own review and tests, without asking, then report what was done.
+- [ ] **Google and Apple sign-in (owner, 2026-10-08; changes the earlier email-only decision):** add "Continue with Google"
+  and "Continue with Apple" buttons to the sign-in screen next to email + password, using Supabase OAuth (redirect to
+  `/auth/v1/authorize?provider=google|apple&redirect_to=https://app.choochootraining.com/`, PKCE flow, tokens handled by
+  js/account.js like the reset-link flow), buttons shown only for providers listed in js/config.js (e.g.
+  `OAUTH_PROVIDERS = ['google','apple']`), behind the same grown-up screen; Apple's button follows Apple's style rules;
+  fake-endpoint tests. Owner sets up the providers (steps in docs/OWNER-TODO.md).
 - [ ] **Better voice:** owner to choose A (best phone voice, done in the welcome-fit release), B (pre-recorded natural AI
   voice files, recommended) or C (voice actor).
 - [ ] **Golden tickets (from the website plan, docs/marketing/TECH.md on the website branch):** decided 2026-10-07: ticket

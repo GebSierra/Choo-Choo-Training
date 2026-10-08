@@ -12,6 +12,17 @@ with the date.
      to Redirect URLs (keep `https://choochootraining.com/` there too for a few weeks), minimum password length 8.
   4. Project Settings > API: send Claude the Project URL and the "anon public" key (never the "service_role" key).
      Claude puts them in js/config.js and releases; from then on sign-in is required (except developer mode).
+- [ ] **Google sign-in (optional, 2026-10-08):** console.cloud.google.com > new project > APIs & Services > OAuth consent
+  screen (External; app name, support email, authorized domains choochootraining.com and supabase.co) > Credentials >
+  Create credentials > OAuth client ID > Web application: Authorized JavaScript origins `https://app.choochootraining.com`,
+  Authorized redirect URI = the "Callback URL" shown in Supabase > Authentication > Sign In / Providers > Google. Copy the
+  Client ID + Client secret into that Supabase page, turn Google on, save.
+- [ ] **Apple sign-in (optional; needs the Apple Developer Program, paid yearly):** developer.apple.com > Certificates,
+  IDs & Profiles: an App ID with "Sign in with Apple"; a Services ID (this is the Client ID) with Sign in with Apple
+  configured (domain = your Supabase project domain, return URL = the Supabase Apple "Callback URL"); a Key with Sign in
+  with Apple (download the .p8, note the Key ID and your Team ID). In Supabase > Providers > Apple: turn on, enter the
+  Services ID and the secret generated from the .p8 (Supabase's docs link a generator). The Apple secret expires after
+  6 months: renew it then (Claude will remind you).
 - [ ] **Your own email sender for Supabase (custom SMTP)** before real families sign up: the built-in sender allows only a
   few emails an hour (sign-up confirmations and password resets).
 - [ ] **Check Supabase pricing/limits** on supabase.com (a free project can pause after a stretch without use).
