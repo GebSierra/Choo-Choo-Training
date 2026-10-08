@@ -17,16 +17,25 @@ const isIsolatedSound = (t) => {
 
 export function normalizeLang(l) { return (l || '').replace('_', '-').toLowerCase(); }
 
+// Rank for an en-US voice (higher is better): the natural, neural, online and premium voices first, then Google, then Microsoft,
+// then any ordinary voice. The old robotic ones (eSpeak, "compact") only when nothing else exists.
+const HQ = /natural|neural|online|premium|enhanced|siri/i;
+export function voiceRank(v) {
+  const n = v.name || '';
+  if (/espeak|compact/i.test(n)) return 0;
+  if (HQ.test(n)) return 4;
+  if (/google/i.test(n)) return 3;
+  if (/microsoft/i.test(n)) return 2;
+  return 1;
+}
 export function pickVoice(voices, savedURI) {
   if (!voices || !voices.length) return null;
   if (savedURI) {
     const saved = voices.find((v) => v.voiceURI === savedURI);
     if (saved) return saved;
   }
-  const us = voices.filter((v) => normalizeLang(v.lang) === 'en-us');
-  return us.find((v) => /google/i.test(v.name))
-    || us.find((v) => /microsoft|natural/i.test(v.name))
-    || us[0] || null;
+  const best = (list) => list.reduce((b, v) => (!b || voiceRank(v) > voiceRank(b) ? v : b), null); // the first of the best rank wins
+  return best(voices.filter((v) => normalizeLang(v.lang) === 'en-us')) || null;
 }
 
 export function createSpeech({ store, curriculum }) {

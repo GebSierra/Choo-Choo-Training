@@ -297,7 +297,7 @@ await sackGrownupsChecks({ browser, url, ok });
 {
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
   await page.addInitScript(SPEECH_STUB);
-  await page.addInitScript(SEED({}, { playSounds: false, migrated1912: true }));
+  await page.addInitScript(SEED({}, { playSounds: false, migrated1912: true, autoSpeak: true, speak0: true }));
   await ctx.route(/youtu(\.be|be\.com)/, (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>video</title>' }));
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone.is-current');
@@ -406,7 +406,7 @@ ok(allSpoken.every((t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, 
   await page.locator('[aria-label="Speaking speed"]').evaluate((el) => { el.value = 1.05; el.dispatchEvent(new Event('input', { bubbles: true })); });
   await page.click('.gu-switch');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings);
-  ok(saved.voiceURI === 'g-us' && saved.rate === 1.05 && saved.autoSpeak === false, 'voice, rate and auto-speak persist ' + JSON.stringify(saved));
+  ok(saved.voiceURI === 'g-us' && saved.rate === 1.05 && saved.autoSpeak === true, 'voice, rate and auto-speak persist (auto-speak starts off, the tap turned it on) ' + JSON.stringify(saved));
   // Polish A: Progress starts OPEN; "The thinking behind this app", "Recorded sounds", "Levels" and "All the sounds" start closed; there is no Previews fold (it shows only in developer mode); a tap opens one, and "Test voice" sits right under Speed.
   const folds = page.locator('.gu-fold:not(.gu-world-head)');
   ok((await folds.count()) === 5 && (await folds.evaluateAll((l) => l.every((b) => { const open = b.textContent.includes('Progress'); return b.getAttribute('aria-expanded') === String(open) && document.getElementById(b.getAttribute('aria-controls')).hidden === !open; }))), 'Grownups: Progress starts open, the four reference cards start closed, and there is no Previews fold');
