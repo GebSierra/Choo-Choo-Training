@@ -2,6 +2,7 @@ import { h, animate, icon, reduced } from '../dom.js';
 import { speakButton } from '../components/speak-button.js';
 import { scriptToParts } from '../scripts.js';
 import { richText } from '../letters.js';
+import { landscape, trainBar } from './practice-world.js';
 
 // The task shell shared by lesson tasks and checkpoints: header with back arrow and progress dots, the activity
 // stage with its speaker, the parent script card and Again / Next.
@@ -12,23 +13,27 @@ import { richText } from '../letters.js';
 // tip: one short grown-up reminder (js/guide.js) shown under the script, with tipKey in seenScripts: the first time, the script opens by itself for longer so it is read.
 // skipUntilDone: the last button reads "Skip" until the game says it is done (setDone(true)), then "Finish".
 // noScript: no grown-up script bar (the book gives that height to the page and has its own intro). noAgain: no Again button.
+// world: a world id ('W1'...): with the developer switch settings.newPractice on, the screen gets the world-themed look (practice-world.js, css "practice world"); without it, or without a world, nothing changes.
 // setDone(true) also pulses the button once, so a parent sees that the game is finished.
 //   const current = build({ ...env, refresh: shell.refresh, setProgress: shell.setPos });
 //   return shell.mount(current, advance);
 // current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?, lockScroll?}.
 // lockScroll: the activity never scrolls and ignores pan gestures (tasks where a finger slides across the screen).
-export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false, tip = null, tipKey = '', noScript = false, noAgain = false, autoAdvance = false }) {
+export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false, tip = null, tipKey = '', noScript = false, noAgain = false, autoAdvance = false, world = null }) {
   const { router, speech, store } = ctx;
+  const themed = !!world && store.settings.newPractice === true;
   let current = null, doneHook = () => {};
   const scriptText = h('p', { class: 'script-text' });
   const tipEl = () => (tip ? h('p', { class: 'grown-tip' }, h('strong', {}, 'Grown-up tip: '), tip) : null);
   const refresh = () => { scriptText.replaceChildren(richText(current ? current.script() : '')); };
 
   // Progress dots: the previous step's dot starts wide and the new one widens.
-  const dots = Array.from({ length: steps }, (_, i) => h('i', { class: 'dot' + (i < pos ? ' past' : '') }));
-  const pill = h('i', { class: 'dot-pill', style: { '--at': from >= 0 && from !== pos ? from : pos } });
-  const bar = h('div', { class: 'dots', role: 'progressbar', 'aria-valuemin': 1, 'aria-valuemax': steps, 'aria-valuenow': pos + 1, 'aria-label': `${stepNoun} ${pos + 1} of ${steps}` }, h('span', { class: 'dots-track' }, dots, pill));
+  const dots = themed ? [] : Array.from({ length: steps }, (_, i) => h('i', { class: 'dot' + (i < pos ? ' past' : '') }));
+  const pill = themed ? null : h('i', { class: 'dot-pill', style: { '--at': from >= 0 && from !== pos ? from : pos } });
+  const train = themed ? trainBar({ steps, pos, from, stepNoun }) : null;
+  const bar = themed ? train.bar : h('div', { class: 'dots', role: 'progressbar', 'aria-valuemin': 1, 'aria-valuemax': steps, 'aria-valuenow': pos + 1, 'aria-label': `${stepNoun} ${pos + 1} of ${steps}` }, h('span', { class: 'dots-track' }, dots, pill));
   const setPos = (i) => {
+    if (themed) { train.setPos(i); return; }
     pill.style.setProperty('--at', Math.min(i, steps - 1));
     dots.forEach((d, k) => d.classList.toggle('past', k < i));
     bar.setAttribute('aria-valuenow', String(Math.min(i, steps - 1) + 1));
@@ -133,7 +138,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
       const foot = h('footer', { class: 'task-foot' + (noScript ? ' no-script' : '') }, ...(wrap ? [wrap] : []), h('div', { class: 'task-buttons' + (noAgain ? ' solo' : '') }, ...(noAgain ? [] : [again]), next));
       refreshAll();
 
-      const root = h('div', { class: 'task-screen' + (full ? ' full-script' : '') }, head, stage, foot);
+      const root = h('div', { class: 'task-screen' + (full ? ' full-script' : '') + (themed ? ' practice-world' : ''), dataset: themed ? { world } : {} }, ...(themed ? landscape() : []), head, stage, foot);
       // Speak the child's line on entry once the screen has settled.
       // Next stays dimmed for a second so a quick double tap cannot skip the task.
       let nextTimer = 0;
