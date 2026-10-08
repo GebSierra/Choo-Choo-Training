@@ -195,9 +195,10 @@ owner approves that plan.
   came from a continuous 60 fps full-scene render.
 - Plans by Opus, building by Sonnet, to save credits. Commit and push to main after each phase.
 - Token savings (owner, 2026-10-08): always use the cheapest model that can do the job well. Opus only for planning,
-  reviewing screenshots/quality and tricky decisions; Sonnet for building features and fixing code; Haiku (latest:
-  Haiku 4.5) for simple, mechanical work: running test suites and reporting results, taking screenshots, updating docs and
-  to-do lists, small text edits, searching the code. Do not use Opus for work a smaller model can do.
+  reviewing screenshots/quality and tricky decisions; Sonnet for building features and fixing code; Haiku (always the newest
+  version available; owner 2026-10-08: Haiku 5.5) for simple, mechanical work: running test suites and reporting results, taking screenshots, updating docs and
+  to-do lists, small text edits, searching the code. Do not use Opus for work a smaller model can do. Always pick
+  the newest version of each model family.
 - Run each phase's own suites; run the full `npm test` (about 40 to 60 minutes) once at the end of a session.
 - Read the execution rules at the top of docs/PLAN-v1.9.md before building.
 - Keep the white paper current (owner): every study the app relies on (in code, design notes or parent text) goes into
