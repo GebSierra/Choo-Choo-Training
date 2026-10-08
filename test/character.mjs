@@ -245,6 +245,7 @@ export async function characterChecks({ browser, url, ok }) {
     await page.goto(url + '#/home');
     await page.waitForSelector('.welcome'); await page.waitForTimeout(700); await page.click('.wc-skip');
     await page.waitForSelector('.cp'); await page.waitForTimeout(600);
+    await page.evaluate(() => Promise.all(document.getAnimations().filter((a) => a.effect && a.effect.getTiming().iterations !== Infinity).map((a) => a.finished.catch(() => {})))); // measure the settled card, not mid-entrance
     const m = await page.evaluate(() => {
       const c = document.querySelector('.first-card'), r = c.getBoundingClientRect(), cp = document.querySelector('.cp').getBoundingClientRect();
       const smallL = [...document.querySelectorAll('.cp button')].filter((b) => { const q = b.getBoundingClientRect(); return q.width < 55.5 || q.height < 55.5; }); const small = smallL.length; window.__smallInfo = smallL.slice(0, 3).map((b) => b.className + ' ' + b.getBoundingClientRect().width + 'x' + b.getBoundingClientRect().height + ' ' + b.parentElement.className);
