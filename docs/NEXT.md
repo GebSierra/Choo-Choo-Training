@@ -47,6 +47,12 @@ Owner: implement all of these without asking, then report the decisions made. Co
   and appearance), the tools' appearance, how the app looks while the child practises (lesson/task screens, games), and a
   few extra details + sharper looks on the first world (Starter Station). Owner: "take it to the next level".
 - Owner's own to-do list (setup, recordings, reviews, legal): **docs/OWNER-TODO.md** — keep it current.
+- [ ] **Practice screens: world-themed look (owner picked A, 2026-10-08):** the dark navy task frame becomes a soft sky +
+  landscape matching the current world, progress dots become a little train on a track at the top, the "Say this" bar a
+  conductor's note card. Built first as a developer-mode preview ("New practice look" switch in Developer) for the owner
+  to try on the phone; becomes the default only after approval.
+- [ ] **Better voice:** owner to choose A (best phone voice, done in the welcome-fit release), B (pre-recorded natural AI
+  voice files, recommended) or C (voice actor).
 - [ ] **Golden tickets (from the website plan, docs/marketing/TECH.md on the website branch):** decided 2026-10-07: ticket
   links live on the app as `https://app.choochootraining.com/t/CODE` (a Netlify redirect rule in the app's netlify.toml
   sends `/t/:code` to `/#/ticket/:code`); the website forwards its own `/t/*` to the same app address so old or mistyped
