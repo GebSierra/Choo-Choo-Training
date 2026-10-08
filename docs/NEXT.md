@@ -59,6 +59,18 @@ Owner: implement all of these without asking, then report the decisions made. Co
   imitate: new sounds and skills follow "I do, we do, you do" (grown-up models, then together, then the child); practice
   and review follow "child tries first; if stuck, sound it out together; still stuck, the grown-up says it and the child
   says it after". Placement check excluded (it is an assessment). Deliver a before/after wording list for the owner.
+- **Owner direction for the lessons (2026-10-08):** the f-lesson prototype (Grownups > Previews "new lesson f", the
+  8-step loop) has the structure and wording the owner likes; it aligns with the research much better. Use it as the
+  model for the parent instructions pass and the lesson rebuild. Lessons do NOT need the exact same games every time: mix
+  activities across lessons, and keep some of the current games (the balloon game Letter Hunt and the train games Green
+  Light / Wagon Parade), but bring their wording and interactions in line with the f lesson and the white paper.
+- [ ] **"Look at a world" shows "This preview needs 3D" on the owner's phone** (works in our test browser at both quality
+  levels; investigate the real flow Home > Grownups > world button: a 3D failure on a real GPU, or a leftover GL context,
+  falls back to the 2D message). Fix: retry once with a fresh context, never mark 3D as broken for the whole session from
+  a preview, and show the actual error in developer mode.
+- [ ] **Build the next 3 worlds' environments (owner, 2026-10-08), ready for lessons:** W5 Blend Bay, W6 Endings Junction,
+  W7 Silent E Summit (themes + landmarks + placeholder stations, same quality bar as Sunny Hills / Digraph Docks).
+- Owner (2026-10-08): launch everything after Claude's own review and tests, without asking, then report what was done.
 - [ ] **Better voice:** owner to choose A (best phone voice, done in the welcome-fit release), B (pre-recorded natural AI
   voice files, recommended) or C (voice actor).
 - [ ] **Golden tickets (from the website plan, docs/marketing/TECH.md on the website branch):** decided 2026-10-07: ticket
