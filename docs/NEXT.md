@@ -90,7 +90,10 @@ Owner: implement all of these without asking, then report the decisions made. Co
   pictures, short daily practice), and the owner's rule that a grown-up may first have to demonstrate before the child can
   imitate: new sounds and skills follow "I do, we do, you do" (grown-up models, then together, then the child); practice
   and review follow "child tries first; if stuck, sound it out together; still stuck, the grown-up says it and the child
-  says it after". Placement check excluded (it is an assessment). Deliver a before/after wording list for the owner.
+  says it after".
+  OWNER REFINEMENT (2026-10-08): the grown-up models ONLY when something is completely new or after the child has tried
+  and failed; every other time the child recalls without help first (retrieval practice). Never script the answer first
+  on review or practice items. Placement check excluded (it is an assessment). Deliver a before/after wording list for the owner.
 - **Owner direction for the lessons (2026-10-08):** the f-lesson prototype (Grownups > Previews "new lesson f", the
   8-step loop) has the structure and wording the owner likes; it aligns with the research much better. Use it as the
   model for the parent instructions pass and the lesson rebuild. Lessons do NOT need the exact same games every time: mix
@@ -119,6 +122,9 @@ Owner: implement all of these without asking, then report the decisions made. Co
   reading activity from the white paper, fold it into lessons, or remove it).
 - [ ] **7. Worlds W5–W7 (Blend Bay, Endings Junction, Silent E Summit):** resume after 3–6 (paused 2026-10-08; any
   partial work is on the branch worktree-agent-a901920b65f056c35; first versions of W5–W7 are merged in 1.9.27, reachable only via developer mode, NOT yet reviewed for quality).
+- [ ] **Google sign-in screen shows the Supabase address (owner, 2026-10-08):** Google says "to continue to
+  nwlfjqcynfoyjnepiuze.supabase.co". Fix: Google brand verification (free; owner) and/or a Supabase custom domain
+  such as auth.choochootraining.com (paid add-on). Owner to choose.
 - [ ] **Better voice:** owner to choose A (best phone voice, done in the welcome-fit release), B (pre-recorded natural AI
   voice files, recommended) or C (voice actor).
 - [ ] **Golden tickets (from the website plan, docs/marketing/TECH.md on the website branch):** decided 2026-10-07: ticket
