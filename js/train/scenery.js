@@ -3,7 +3,9 @@
 // Everything repeated is instanced, and everything is placed from a seeded random, so the island never changes.
 import { THREE, PAL, rng, block } from './world.js';
 import { DEFAULT_THEME } from './themes.js';
-import { REGION_BUILDERS } from './regions.js';
+import { REGION_BUILDERS as B1 } from './regions.js';
+import { REGION_BUILDERS as B2 } from './regions2.js';
+const REGION_BUILDERS = { ...B1, ...B2 };
 import { buildStarterDetails } from './starter.js';
 
 function noiseTexture(bag) {

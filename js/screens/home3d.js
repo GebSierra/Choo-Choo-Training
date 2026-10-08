@@ -544,7 +544,13 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   addEventListener('pointercancel', onUp, true);
 
   // A lost context (the phone took the GPU away): the 2D path takes over.
-  const onLost = (e) => { if (disposed) return; e.preventDefault(); ctx.noTrain = true; queueMicrotask(() => router.go('/home')); };
+  // A region preview never marks 3D as broken for the session: it simply builds itself again (twice at most).
+  const onLost = (e) => {
+    if (disposed) return;
+    e.preventDefault();
+    if (region) { ctx.regionLost = (ctx.regionLost || 0) + 1; if (ctx.regionLost <= 2) queueMicrotask(() => router.go(router.path)); return; }
+    ctx.noTrain = true; queueMicrotask(() => router.go('/home'));
+  };
   canvas.addEventListener('webglcontextlost', onLost);
 
   // ---- the opening ----
