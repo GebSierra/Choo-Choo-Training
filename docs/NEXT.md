@@ -20,6 +20,14 @@ Last session finished every item of the previous handoff. Full `npm test` result
   he/she in a line with the child's name). Review tiles shrink when a review has more than six words.
 - Test fix: smoke's precache size check counts an unrecorded optional letter sound as 0 bytes.
 
+## HOSTING (2026-10-08) — read before pushing
+- The APP is served by **GitHub Pages** again (free, unlimited releases): repo Settings > Pages, branch main, root,
+  custom domain app.choochootraining.com; Porkbun CNAME `app` -> gebsierra.github.io. A push to `main` = a release.
+- Netlify: the app project (appchoochootraining) has builds STOPPED (it charged 15 credits per production deploy and the
+  month's credits were used up by small pushes). The WEBSITE (choochootrainingwebsite, branch
+  claude/choochoo-marketing-chat-mjzg8m, folder site/) stays on Netlify; save its credits for real launches.
+- Still batch releases: only push to main when a release is ready (docs-only changes can ride along with the next one).
+
 ## ROADMAP (owner-approved 2026-10-07) — read this first if the session was cut off
 Owner: implement all of these without asking, then report the decisions made. Commit + push to main after each phase.
 - [x] 1.9.20 pace limit default 4 a day (Grownups 1, 2, 3, 4, No limit).
@@ -48,6 +56,32 @@ Owner: implement all of these without asking, then report the decisions made. Co
   few extra details + sharper looks on the first world (Starter Station). Owner: "take it to the next level".
 - Owner's own to-do list (setup, recordings, reviews, legal): **docs/OWNER-TODO.md** — keep it current.
 - [x] **Practice screens: world-themed look (owner picked A, launched as the default 2026-10-08):** see the README Decisions bullet; the Developer switch "New practice look" turns it off to compare. Still to do if wanted: the same look on the lesson overview / finish header and checkpoints.
+- [ ] **Parent instructions pass (owner, 2026-10-08; do AFTER the practice look is built):** go through every grown-up
+  text on every lesson, game and prototype step ("Say this" lines, full scripts, tips, prompts, judge questions) and polish
+  it: clear and simple, short sentences, one action at a time, the white paper's principles (docs/CURRICULUM.md: explicit
+  teaching, letter sounds not names, clipped stop sounds, connected blending, the grown-up judges, no guessing from
+  pictures, short daily practice), and the owner's rule that a grown-up may first have to demonstrate before the child can
+  imitate: new sounds and skills follow "I do, we do, you do" (grown-up models, then together, then the child); practice
+  and review follow "child tries first; if stuck, sound it out together; still stuck, the grown-up says it and the child
+  says it after". Placement check excluded (it is an assessment). Deliver a before/after wording list for the owner.
+- **Owner direction for the lessons (2026-10-08):** the f-lesson prototype (Grownups > Previews "new lesson f", the
+  8-step loop) has the structure and wording the owner likes; it aligns with the research much better. Use it as the
+  model for the parent instructions pass and the lesson rebuild. Lessons do NOT need the exact same games every time: mix
+  activities across lessons, and keep some of the current games (the balloon game Letter Hunt and the train games Green
+  Light / Wagon Parade), but bring their wording and interactions in line with the f lesson and the white paper.
+- [ ] **"Look at a world" shows "This preview needs 3D" on the owner's phone** (works in our test browser at both quality
+  levels; investigate the real flow Home > Grownups > world button: a 3D failure on a real GPU, or a leftover GL context,
+  falls back to the 2D message). Fix: retry once with a fresh context, never mark 3D as broken for the whole session from
+  a preview, and show the actual error in developer mode.
+- [ ] **Build the next 3 worlds' environments (owner, 2026-10-08), ready for lessons:** W5 Blend Bay, W6 Endings Junction,
+  W7 Silent E Summit (themes + landmarks + placeholder stations, same quality bar as Sunny Hills / Digraph Docks).
+- Owner (2026-10-08): launch everything after Claude's own review and tests, without asking, then report what was done.
+- [ ] **Google and Apple sign-in (owner, 2026-10-08; changes the earlier email-only decision):** add "Continue with Google"
+  and "Continue with Apple" buttons to the sign-in screen next to email + password, using Supabase OAuth (redirect to
+  `/auth/v1/authorize?provider=google|apple&redirect_to=https://app.choochootraining.com/`, PKCE flow, tokens handled by
+  js/account.js like the reset-link flow), buttons shown only for providers listed in js/config.js (e.g.
+  `OAUTH_PROVIDERS = ['google','apple']`), behind the same grown-up screen; Apple's button follows Apple's style rules;
+  fake-endpoint tests. Owner sets up the providers (steps in docs/OWNER-TODO.md).
 - [ ] **Better voice:** owner to choose A (best phone voice, done in the welcome-fit release), B (pre-recorded natural AI
   voice files, recommended) or C (voice actor).
 - [ ] **Golden tickets (from the website plan, docs/marketing/TECH.md on the website branch):** decided 2026-10-07: ticket
@@ -157,6 +191,11 @@ owner approves that plan.
   most ~10 fps (about 32 frames in 3 s), 0 frames while hidden, 0 after the 2-minute rest. The old one-off overheating
   came from a continuous 60 fps full-scene render.
 - Plans by Opus, building by Sonnet, to save credits. Commit and push to main after each phase.
+- Token savings (owner, 2026-10-08): always use the cheapest model that can do the job well. Opus only for planning,
+  reviewing screenshots/quality and tricky decisions; Sonnet for building features and fixing code; Haiku (always the newest
+  version available; owner 2026-10-08: Haiku 5.5) for simple, mechanical work: running test suites and reporting results, taking screenshots, updating docs and
+  to-do lists, small text edits, searching the code. Do not use Opus for work a smaller model can do. Always pick
+  the newest version of each model family.
 - Run each phase's own suites; run the full `npm test` (about 40 to 60 minutes) once at the end of a session.
 - Read the execution rules at the top of docs/PLAN-v1.9.md before building.
 - Keep the white paper current (owner): every study the app relies on (in code, design notes or parent text) goes into

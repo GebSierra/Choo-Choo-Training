@@ -44,9 +44,9 @@ export function characterPicker({ store, mode = 'first', onDone = () => {}, onSa
 
   const kids = [];
   if (mode === 'first') kids.push(h('h2', {}, 'Who is riding with Pip?'));
-  kids.push(
+  kids.push(h('div', { class: 'cp-body' }, // the part that scrolls on a short screen; the buttons below it never do
     h('div', { class: 'cp-top' }, h('div', { class: 'cp-stage' }, preview, plate), h('label', { class: 'gu-field cp-field' }, h('span', {}, "Child's first name"), name)),
-    h('div', { class: 'cp-rows' }, skinRow, hairRow, colorRow, outfitRow));
+    h('div', { class: 'cp-rows' }, skinRow, hairRow, colorRow, outfitRow)));
   if (mode === 'first') {
     const done = h('button', { class: 'btn primary cp-done', type: 'button', onclick: () => { store.finishMeet(picks); sfx.play('toot'); onDone(); } }, 'All aboard!');
     const later = h('button', { class: 'cp-later meet-later', type: 'button', onclick: () => { store.finishMeet({}); onDone(); } }, 'Later');

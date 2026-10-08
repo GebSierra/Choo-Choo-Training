@@ -106,3 +106,17 @@ export async function showStop(page, selector) {
   await page.waitForFunction((s) => { const b = document.querySelector(s); return b && b.dataset.shown === '1'; }, selector, { timeout: 8000 }).catch(() => {});
   await page.waitForTimeout(150);
 }
+
+// First-run fit guarantee: a button is fully inside the viewport and inside its card, and a tap at its centre lands on it.
+export const buttonReachable = (page, btnSel, cardSel) => page.evaluate(([b, c]) => {
+  const el = document.querySelector(b), card = document.querySelector(c); if (!el || !card) return { missing: true };
+  const r = el.getBoundingClientRect(), k = card.getBoundingClientRect();
+  const hit = document.elementFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2);
+  const inView = r.top >= -0.5 && r.left >= -0.5 && r.bottom <= innerHeight + 0.5 && r.right <= innerWidth + 0.5;
+  const inCard = r.top >= k.top - 0.5 && r.bottom <= k.bottom + 0.5 && r.left >= k.left - 0.5 && r.right <= k.right + 0.5;
+  const cardInView = k.top >= -0.5 && k.bottom <= innerHeight + 0.5;
+  return { inView, inCard, cardInView, clickable: !!hit && (hit === el || el.contains(hit)), r: [r.top, r.bottom].map(Math.round), vh: innerHeight };
+}, [btnSel, cardSel]);
+// The phone's larger system text, simulated: the text grows 30 percent while the viewport stays the same.
+export const BIG_TEXT_CSS = '.wc-text, .cp-label, .cp-field > span, .first-card.meet h2 { zoom: 1.3; }';
+export const FIT_SIZES = [[412, 730], [360, 640], [390, 844], [915, 412]];

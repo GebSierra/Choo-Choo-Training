@@ -4,7 +4,7 @@
 import { SPEECH_STUB } from './stubs.mjs';
 import crypto from 'node:crypto';
 import { WELCOME } from '../js/guide.js';
-import { startServer, loadPlaywright, launch, newPage, SEEN_BASE as SEEN, doneThrough } from './lib.mjs';
+import { startServer, loadPlaywright, launch, newPage, SEEN_BASE as SEEN, doneThrough, buttonReachable, BIG_TEXT_CSS, FIT_SIZES } from './lib.mjs';
 
 const seed = (settings = {}, lessons = doneThrough(4), firstRunDone = true) => `if (!localStorage.getItem('reading.v1')) localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons, settings, firstRunDone })}))`;
 const NAMES_RE = /\b(em|ay)\b/i;
@@ -86,6 +86,34 @@ async function welcomeChecks(ok, browser, url) {
     ok((await page.locator('.first-run').count()) === 0, 'Later closes the creator');
     const st = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')));
     ok(st.meetDue === false && st.character.made === true, 'and remembers it: the creator does not come back');
+    await ctx.close();
+  }
+}
+
+// The owner's real phone cut the welcome card off (Next hidden below the card). At every size, normal and with larger text, on every page:
+// the card is inside the screen, Next (and Back, Skip) are fully inside the card and the screen, and a tap at the centre hits them.
+async function welcomeFitChecks(ok, browser, url) {
+  for (const [w, h] of FIT_SIZES) for (const big of [false, true]) {
+    const { ctx, page, errors } = await newPage(browser, { name: 'fit', width: w, height: h, deviceScaleFactor: 1 });
+    await page.addInitScript(SPEECH_STUB); await page.addInitScript(seed({}, {}, false));
+    await page.goto(url + '#/home'); await page.waitForSelector('.welcome');
+    if (big) await page.addStyleTag({ content: BIG_TEXT_CSS });
+    await page.waitForTimeout(900);
+    const tag = `welcome fit ${w}x${h}${big ? ' big text' : ''}`;
+    const bad = [];
+    for (let k = 0; k < 4; k++) {
+      for (const sel of k === 0 ? ['.wc-next'] : k === 3 ? ['.wc-next', '.wc-back'] : ['.wc-next', '.wc-back', '.wc-skip']) {
+        const r = await buttonReachable(page, sel, '.first-card');
+        if (r.missing || !r.inView || !r.inCard || !r.clickable || !r.cardInView) bad.push(`p${k + 1} ${sel} ${JSON.stringify(r)}`);
+      }
+      if (k < 3) { await page.click('.wc-next'); await page.waitForTimeout(450); }
+    }
+    ok(bad.length === 0, `${tag}: Next, Back and Skip are always inside the card and the screen and tappable (${bad.join(' ; ')})`);
+    ok(await page.evaluate(() => { const t = document.querySelector('.wc-page.on .wc-text'); return t.scrollHeight - t.clientHeight <= 1 || getComputedStyle(t).overflowY === 'auto'; }), `${tag}: text that does not fit scrolls inside the card`);
+    ok(!(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)), `${tag}: no sideways page scroll`);
+    await page.click('.wc-next'); await page.waitForTimeout(500);
+    ok((await page.locator('.welcome').count()) === 0, `${tag}: the real tap on Start works`);
+    ok(errors.length === 0, `${tag}: no errors ${errors.join(' | ')}`);
     await ctx.close();
   }
 }
@@ -202,6 +230,7 @@ async function grownupsChecks(ok, browser, url) {
 
 export async function guideChecks(ok, browser, url) {
   await welcomeChecks(ok, browser, url);
+  await welcomeFitChecks(ok, browser, url);
   await tipChecks(ok, browser, url);
   await grownupsChecks(ok, browser, url);
 }
