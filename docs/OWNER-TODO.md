@@ -5,7 +5,7 @@ new needs the owner, and ticks items off (or moves them to "Done") once the owne
 with the date.
 
 ## Set up (accounts and hosting)
-- [x] **Turn on accounts (Supabase), about 10 minutes.** (DONE 2026-10-08: project nwlfjqcynfoyjnepiuze; Claude is releasing.) Full guide: docs/BACKEND.md.
+- [x] **Turn on accounts (Supabase), about 10 minutes.** (DONE 2026-10-08: project nwlfjqcynfoyjnepiuze; LIVE in 1.9.29.) Full guide: docs/BACKEND.md.
   1. Create a free project at supabase.com.
   2. SQL Editor: paste all of `supabase/schema.sql`, press Run.
   3. Authentication settings: Email provider on, email confirmation on, Site URL `https://app.choochootraining.com`, add it
@@ -57,12 +57,16 @@ with the date.
   website's own Netlify project (same repo, Base directory `site`); in the APP project remove choochootraining.com and
   www and make app.choochootraining.com the primary domain; add choochootraining.com + www to the WEBSITE project
   (the Porkbun ALIAS to apex-loadbalancer.netlify.com already points at Netlify). Then check both addresses.
-- [ ] E. When accounts are turned on: Supabase Site URL https://app.choochootraining.com (keep the old address in
+- [x] E. (Done by the owner during setup.) When accounts are turned on: Supabase Site URL https://app.choochootraining.com (keep the old address in
   Redirect URLs for a few weeks).
 
 - [ ] F. **Porkbun tidy-up (2 minutes, after the Netlify project renames):** the `app` and `www` CNAME records still point
   to the old name `choochootraining.netlify.app` (it works for now because Netlify routes by domain, but the old name could
   be reused later). Edit `app` -> **appchoochootraining.netlify.app** and `www` -> **choochootrainingwebsite.netlify.app**.
+
+- [ ] **Test the real sign-up (2026-10-08):** on your phone open app.choochootraining.com: Create account with your email,
+  confirm from the email (from hello@choochootraining.com via Resend), sign in; then sign out and try "Continue with Google".
+  Tell Claude what happened.
 
 ## Content and recordings
 - [ ] **Record the letter sounds** in the recording studio: https://app.choochootraining.com/tools/studio.html (47 items;
