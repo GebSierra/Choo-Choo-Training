@@ -1,4 +1,4 @@
-# Handoff: where Choo Choo Training stands (version 1.9.24)
+# Handoff: where Choo Choo Training stands (version 1.9.25)
 
 Repo: GebSierra/Choo-Choo-Training (the old name KDDash is retired everywhere). Work on `main`.
 Last session finished every item of the previous handoff. Full `npm test` result: see the last line of this file.
@@ -42,7 +42,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   Developer mode bypass: 7 taps on the version line of the sign-in screen. Until the owner creates the Supabase project and
   puts its URL + anon key in js/config.js, the app runs exactly as today (no sign-in screen). Setup steps + SQL in
   docs/BACKEND.md. Later: several children per account, subscriptions.
-- [ ] **Polish pass "next level" (owner, after the fixes batch is live; Opus plans from screenshots, Sonnet builds):**
+- [x] **Polish pass "next level" (DONE in 1.9.25; plan and audit in docs/POLISH-PLAN.md) (owner, after the fixes batch is live; Opus plans from screenshots, Sonnet builds):**
   onboarding and every first impression (welcome card, character creator, first Home), the Grownups menu (organization
   and appearance), the tools' appearance, how the app looks while the child practises (lesson/task screens, games), and a
   few extra details + sharper looks on the first world (Starter Station). Owner: "take it to the next level".
