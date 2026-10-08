@@ -4,7 +4,7 @@ import { characterPicker } from './character-picker.js';
 import { WELCOME } from '../guide.js';
 
 // The first-run card: a few short pages for the grown-up, one at a time. Each page has a little scene on top (js/art/welcome-art.js)
-// that grows to fill whatever room the longest page leaves, so the card keeps one size, has no empty gap and nothing jumps when
+// that grows to fill whatever room the longest page leaves (and shrinks first when the screen is short), so the card keeps one size where it fits, has no empty gap and nothing jumps when
 // the page changes. A page slides in (CSS transform and opacity only). Nothing here is spoken.
 export function welcomeCard({ pages, onDone }) {
   let i = 0;
@@ -38,9 +38,8 @@ export function welcomeCard({ pages, onDone }) {
   go(0);
   return h('div', { class: 'first-card welcome' },
     h('div', { class: 'wc-pages', 'aria-live': 'polite' }, ...els),
-    h('div', { class: 'wc-dots', 'aria-hidden': 'true' }, ...dots),
-    actions,
-    skip);
+    h('div', { class: 'wc-foot' }, h('div', { class: 'wc-dots', 'aria-hidden': 'true' }, ...dots), skip),
+    actions);
 }
 
 // Both homes call this: the welcome card on the first run, then the character creator (once; also for a device that was

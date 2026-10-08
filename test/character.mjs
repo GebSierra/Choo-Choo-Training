@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
-import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, doneThrough } from './lib.mjs';
+import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, doneThrough, buttonReachable, BIG_TEXT_CSS, FIT_SIZES } from './lib.mjs';
 import { openHome, state, iL } from './train.mjs';
 import { SKINS, HAIR_STYLES, HAIR_NAMES, HAIR_COLORS, OUTFITS, OUTFIT_IDS, cleanCharacter } from '../js/character.js';
 
@@ -257,6 +257,24 @@ export async function characterChecks({ browser, url, ok }) {
     await page.locator('.cp-outfit button').last().scrollIntoViewIfNeeded();
     await page.locator('.cp-outfit button').last().click();
     ok((await page.locator('.cp-outfit button').last().getAttribute('aria-pressed')) === 'true', `fit ${w}x${hgt}: the last outfit can be reached and picked`);
+    await ctx.close();
+  }
+
+  // The owner's real phone: with larger text, "All aboard!" and "Later" must stay inside the card and the screen and tappable.
+  for (const [w, hgt] of FIT_SIZES) for (const big of [false, true]) {
+    const { ctx, page } = await newPage(browser, { name: 'fit', width: w, height: hgt, deviceScaleFactor: 1 });
+    await page.addInitScript(SPEECH_STUB);
+    await page.goto(url + '#/home');
+    await page.waitForSelector('.welcome'); await page.waitForTimeout(700); await page.click('.wc-skip');
+    await page.waitForSelector('.cp');
+    if (big) await page.addStyleTag({ content: BIG_TEXT_CSS });
+    await page.waitForTimeout(900);
+    const bad = [];
+    for (const sel of ['.cp-done', '.cp-later']) {
+      const r = await buttonReachable(page, sel, '.first-card');
+      if (r.missing || !r.inView || !r.inCard || !r.clickable || !r.cardInView) bad.push(`${sel} ${JSON.stringify(r)}`);
+    }
+    ok(bad.length === 0, `creator fit ${w}x${hgt}${big ? ' big text' : ''}: All aboard! and Later stay inside the card and the screen and tappable (${bad.join(' ; ')})`);
     await ctx.close();
   }
 
