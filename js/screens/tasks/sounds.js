@@ -79,8 +79,16 @@ export function build({ lesson, curriculum, speech, refresh }) {
     script: () => {
       const w = cur();
       // A held sound is stretched ("sss"), a clipped one is short ("t-") and never stretched.
-      if (!w.showLetters) return `Say the word slowly, ${sounds[w.word[0]] && sounds[w.word[0]].hold === false ? 'with a short first sound' : 'stretching the first sound'}: ${firstSoundOut(w.word, sounds)}. Then say it fast: ${w.word}. Then tap the picture to show the word, and slide your finger across the word as you say it slowly.`;
-      return `Slide your finger under the word as you say the sounds: ${slowSounds(w.word, sounds)}. Then say it fast: ${w.word}. Then tap the word to show it.`;
+      // Only the very first Saying Sounds (lesson 1) is new to the child: I do, we do, you do. After that the child recalls first;
+      // the grown-up steps in only after a failed try (together, then say it and have the child say it after).
+      const first = lesson.number === 1, held = sounds[w.word[0]] && sounds[w.word[0]].hold === false ? 'with a short first sound' : 'stretching the first sound';
+      const help = 'If they are stuck, sound it out together. Still stuck? Say it yourself, then have your child say it after you.';
+      if (!w.showLetters) return first
+        ? `I do: say the word slowly, ${held}: ${firstSoundOut(w.word, sounds)}. Then say it fast: ${w.word}. We do: tap the picture. Slide a finger under the word and say it together, slowly. You do: your child slides and says the word. ${help}`
+        : `Let your child try first. Tap the picture to show the word. Your child slides a finger under it and says it. ${help} (Slowly, ${held}: ${firstSoundOut(w.word, sounds)}. Then fast: ${w.word}.)`;
+      return first
+        ? `I do: slide your finger under the word and say it smooth and joined: ${slowSounds(w.word, sounds)}. Then say it fast: ${w.word}. We do: slide together and say it together. You do: your child slides and says the word. Tap the word to show it. ${help}`
+        : `Let your child try first: your child slides a finger under the word and says it. Tap the word to show it. ${help} (Smooth and joined: ${slowSounds(w.word, sounds)}. Then fast: ${w.word}.)`;
     },
     gist: () => {
       const w = cur(), stretched = w.showLetters ? slowSounds(w.word, sounds) : firstSoundOut(w.word, sounds);

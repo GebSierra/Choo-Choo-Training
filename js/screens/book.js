@@ -147,7 +147,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     const box = h('div', { class: 'book-child', 'aria-label': page.child, role: 'group' });
     let sliderSvg = null, sliderRow = null;
     const els = words.map((w) => {
-      const svg = wordSvg(w, { color: INK, label: w, all: true });
+      const svg = wordSvg(w, { color: INK, label: w, all: true, font: true });
       svg.style.width = `calc(var(--cap, 84px) * ${Number(svg.dataset.width) / Number(svg.dataset.height)})`;
       svg.style.maxWidth = '100%';
       if (page.slider && w === page.slider && !sliderSvg) {
@@ -205,7 +205,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
       mid.push(art);
     } else if (kind === 'review') {
       const tiles = h('div', { class: 'book-tiles' + (page.words.length > 6 ? ' is-many' : '') }, page.words.map((w) => {
-        const svg = wordSvg(w, { color: INK, label: w, all: true });
+        const svg = wordSvg(w, { color: INK, label: w, all: true, font: true });
         svg.style.width = `calc(var(--tile-cap, 60px) * ${Number(svg.dataset.width) / Number(svg.dataset.height)})`;
         svg.style.maxWidth = '100%';
         const tile = h('button', { class: 'book-tile', type: 'button', 'aria-label': w, dataset: { word: w } }, h('span', { class: 'glyph-row' }, svg));

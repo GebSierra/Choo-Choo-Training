@@ -25,9 +25,9 @@
     "blend": ["sat", "map"],
     "break": ["mat", "sip"],
     "scripts": {
-      "a": "Play the blend, or say it yourself: {blend:@}. Your child slides a finger along under the letters while saying it, smooth and joined with no gaps. Then ask: \"What word?\"",
+      "a": "Play the blend, or say it yourself: {blend:@}. Your child slides a finger under the letters and says it with you, smooth and joined. Then ask, \"What word?\" Let your child answer first.",
       "aGist": "Say {blend:@}. Child slides.",
-      "b": "Say the word slowly: {blend:@}. Your child taps a box for each sound, and the letters appear one by one.",
+      "b": "Say the word slowly: {blend:@}. Your child taps a box for each sound, and the letters appear one by one. Let your child try first; if they are stuck, say the sounds together.",
       "bGist": "Say {blend:@}. Child taps."
     }
   },
@@ -36,24 +36,24 @@
     "words": ["sat", "tip"],
     "wagonSound": "p",
     "scripts": {
-      "letters": "Your child says the sound before hearing it. Tap Got it, or Help if they are stuck: you say the sound, your child says it back, and the card comes back once at the end. Keep p and t quick and crisp, with no uh.",
+      "letters": "Your child tries first: they say the sound before the app plays it. Tap Got it if they know it. Stuck? Tap Help, play the sound, and say it together. Still stuck? Say it yourself, then have your child say it after you. The card comes back once at the end. Keep p and t quick, with no uh.",
       "lettersGist": "Child says the sound first.",
-      "words": "Ask your child to read the word. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you. Tap Got it, or Help: tap the letter that was tricky, play its sound, then the whole word, and your child blends it again.",
+      "words": "Ask your child to read the word. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you. Tap Got it if your child read it. Tap Help if not: tap the tricky letter, play its sound, then the whole word. Your child blends it again.",
       "wordsGist": "Read it together.",
-      "wagons": "Say: \"Say the sound first, then find it!\" Your child says the sound of the letter on the card, then taps every wagon with that letter.",
+      "wagons": "Say: \"Say the sound first, then find it!\" Your child says the sound of the letter on the card. Then your child taps every wagon with that letter. If they are stuck, say the sound together.",
       "wagonsGist": "Say it first, then find it."
     }
   },
   "newsound": {
     "word": "flower",
     "scripts": {
-      "meet": "This is f. The stem, the two leaves and the drooping flower head make the letter. Tap Hear it, then say {sound:f} together, a long breath through your teeth.",
+      "meet": "This is f. The stem, the two leaves and the flower head make the letter. I do: tap Hear it and listen. We do: say {sound:f} together, a long breath through your teeth.",
       "meetGist": "This is f. Say {sound:f}.",
-      "mouth": "Say: \"Top teeth on your bottom lip, and blow: {sound:f}. Not fuh.\" Let your child try it, and feel the air on a hand.",
+      "mouth": "I do: put your top teeth on your bottom lip and blow: {sound:f}. Not fuh. We do: do it together. You do: your child tries it alone. They can feel the air on a hand.",
       "mouthGist": "Top teeth on bottom lip.",
-      "say": "Your child says the sound three times. Tap a dot after each one. Tap Hear it for the recording.",
+      "say": "You do: your child says the sound three times. Tap a dot after each one. Tap Hear it to play the recording. If they are stuck, say it together.",
       "sayGist": "Child says it 3 times.",
-      "trace": "Draw it first while your child watches, then let them try. Start at the dot and follow the arrow. Say {sound:f} as you trace. It's fine if it doesn't look right yet: your child can still move on.",
+      "trace": "I do: draw the letter while your child watches. Say {sound:f} as you trace. We do: trace it together. You do: your child traces it alone. Start at the dot and follow the arrow. It does not have to look right yet. Your child can still move on.",
       "traceGist": "Draw it, then they try."
     },
     "mouthLine": "Top teeth on your bottom lip, and blow: {sound:f}. Not fuh."
@@ -61,16 +61,16 @@
   "blend": {
     "words": ["fit", "fat", "if"],
     "scripts": {
-      "ido": "I do. Say the word slowly and smoothly while the letters light up: {blend:@}. Your child watches and listens.",
+      "ido": "I do: say the word slowly and smoothly while the letters light up: {blend:@}. Your child watches and listens.",
       "idoGist": "I do: say {blend:@}.",
-      "wedo": "We do. Slide your fingers along the letters together and say it together: {blend:@}. Then say the whole word fast, and ask: \"What word?\"",
+      "wedo": "We do: slide your fingers along the letters together and say it together: {blend:@}. Then say the whole word fast and ask, \"What word?\"",
       "wedoGist": "We do: slide and say it."
     }
   },
   "read": {
     "words": ["fit", "sat", "if", "map", "fat", "sip"],
     "scripts": {
-      "read": "Ask your child to read the word. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you. Tap Got it, or Help. Help: tap the letter that was tricky, play its sound, then the whole word, and your child blends it again. A missed word comes back once at the end.",
+      "read": "Ask your child to read the word. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you. Tap Got it if your child read it. Tap Help if not: tap the tricky letter, play its sound, then the whole word. Your child blends it again. A missed word comes back once at the end.",
       "readGist": "Read it together."
     }
   },
@@ -78,9 +78,9 @@
     "first": "fat",
     "chain": ["fit", "sit", "sip", "tip"],
     "scripts": {
-      "first": "The phone says the word. Say it slowly with your child: {blend:@}. Your child taps tiles to fill the boxes from left to right. Tap a filled box to send its tile back.",
+      "first": "The phone says the word. Say it slowly together: {blend:@}. Then your child taps tiles to fill the boxes from left to right. To send a tile back, tap its box.",
       "firstGist": "Say {blend:@}. Child spells.",
-      "chain": "Say: \"Change one letter to make @.\" Do not point to the letter: your child listens for the sound that changed. Children often read the first letter and guess the rest, so this game trains them to look at every letter.",
+      "chain": "Say: \"Change one letter to make @.\" Do not point to the letter. Your child listens for the sound that changed. This trains children to look at every letter, not just the first.",
       "chainGist": "Change one letter to make @."
     }
   },
@@ -93,9 +93,9 @@
     ],
     "question": { "say": "What is fat?", "choices": ["map", "Sam", "mat"], "answer": "map", "line": 1, "right": "Yes! It is a fat map.", "wrong": "Let's look again." },
     "scripts": {
-      "line": "Ask your child to read the line. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you. Tap Got it, or Help: tap the tricky word, play its sounds (you say a heart word whole), then your child reads the whole line again.",
+      "line": "Ask your child to read the line. If they know some of the letters, sound it out together. Still stuck? Read it yourself, then have your child say it after you. Tap Got it if your child read the line. Tap Help if not: tap the tricky word, play its sounds (you say a heart word whole). Your child reads the whole line again.",
       "lineGist": "Read it together.",
-      "page": "Your child can read the whole story again, a little faster. Tap Hear the story to hear it read smoothly first, then reread. Tap Next for a question.",
+      "page": "Your child reads the whole story again, a little faster. Tap Hear the story first, to hear it read smoothly. Then your child rereads it. Tap Next for a question.",
       "pageGist": "Reread, a little faster.",
       "question": "Ask: \"What is fat?\" Your child taps a picture. This checks meaning, not reading.",
       "questionGist": "What is fat?"

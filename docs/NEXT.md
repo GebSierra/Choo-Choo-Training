@@ -61,7 +61,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   to try on the phone; becomes the default only after approval.
 ### ORDER (owner, 2026-10-08): 1 practice look → 2 world-preview bug fix → 3 parent instructions + lesson rebuild →
 ### 4 train stops at story/ride stations → 5 storybook pages → 6 Smooth Ride decision → 7 worlds W5–W7 → later items
-- [ ] **3. Lesson rebuild + parent instructions (owner, 2026-10-08; after the practice look; BEFORE W5–W7):**
+- [~] **3. Lesson rebuild + parent instructions (owner, 2026-10-08; after the practice look; BEFORE W5–W7). PHASE A DONE (no version change, see docs/LESSON-REBUILD.md and README Decisions): the frame, Watch My Mouth, mixed middles, Word Cars and YouTube removed, parent text pass, f story font. PHASE B (next): reorder to the new sound order and add o, c/k, u, r (js/order.js ORDER, tools/gen-lessons.mjs TABLE, MIDDLES, MOUTH).**
   - Model: the f-lesson prototype (its activities are evidence-based and engaging). Rebuild lesson 1 onward (m a s i t
     p ...) in the curriculum's new order with tools/gen-lessons.mjs.
   - Same frame every lesson so the child knows what to expect: the SAME opening (Letter Review) and the SAME ending
@@ -214,7 +214,7 @@ owner approves that plan.
 ## Standing rules (owner)
 - The phone's voice never says letter sounds. Parent voice or recordings only.
 - No privacy or recording warnings in the app UI.
-- YouTube links: being REMOVED in the lesson rebuild (owner, 2026-10-08). Do not touch the jingle cut-off.
+- YouTube links: REMOVED in lesson rebuild phase A (owner, 2026-10-08). No outside YouTube links anywhere in the app. Do not touch the jingle cut-off.
 - Heat rule (owner, 2026-10-07; replaces "no JS animation loops while idle"): small idle animation is welcome if it is
   cheap. (1) CSS/WAAPI animations of transform and opacity only may loop forever (no layout, box-shadow, filter or blur
   animation). (2) The 3D Home may animate while idle at most 10 frames per second, through ONE shared low-rate ticker

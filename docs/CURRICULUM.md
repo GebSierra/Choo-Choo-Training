@@ -103,6 +103,10 @@ hint and feedback message follows them.
 7. **Accuracy before speed.** Speed goals start only after a pattern is read accurately.
 8. **Letter sounds come from a real voice.** Every letter sound and blended sound the child hears is a recording of a
    person. The phone's synthetic voice may read whole words and sentences, never an isolated letter sound.
+9. **The grown-up models only when something is new, or after a failed try.** The first time a child meets something completely new
+   (a new sound, a new kind of word, a new activity) the grown-up shows it: "I do, we do, you do." Every other time the child
+   recalls first, without help (retrieval practice): "Let your child try first." Only if they are stuck: sound it out together;
+   still stuck: the grown-up says it and the child says it after.
 
 ## 4. How we teach blending
 
@@ -179,7 +183,9 @@ on figuring out what to do next.
 2. **Quick review (2 min).** Sounds and words from earlier lessons. The child says the sound or reads the word before
    hearing the answer.
 3. **New sound (2 min).** One new sound and spelling, taught explicitly: hear it, see the letter drawn into a picture that
-   starts with that sound, then say it. A picture of the mouth shape helps **(coming)**. One new idea per lesson.
+   starts with that sound, then say it. A **"Watch my mouth"** step follows: a grown-up with a finger at the side of the
+   mouth, so the child's eyes go to the mouth, plus an optional "How to make this sound" panel (lips, teeth, tongue, voice
+   on or off). One new idea per lesson.
 4. **Blend it together (2 min).** The app models blending ("I do"), then blends with the child ("we do"). We call it
    "demonstrate, then imitate."
 5. **Read it alone (2 min).** The child reads words with the new sound mixed with review sounds ("you do").
@@ -199,9 +205,18 @@ to 3 new words and talk-about-it questions.
 use a pattern not yet taught, and the app pre-teaches those words first. By Stages 9 and 10, children read lightly
 controlled, natural-sounding text.
 
-> **Builder notes (internal).** Today's lessons have 9 to 11 tasks (new letter, story, practicing words, sounds, writing,
-> a game slot, practice, ticket check, review). The prototype lesson (docs/CURRICULUM-REVIEW.md, prototype 4) maps them
-> onto the 8 steps; build it once, get the owner's approval, then regenerate every lesson with tools/gen-lessons.mjs.
+> **Builder notes (internal).** Lesson rebuild, phase A (owner decisions of 2026-10-08, details in docs/LESSON-REBUILD.md): every
+> one of the 13 lessons has the same frame, so the child knows what to expect. **Opening:** Letter Review (lesson 1 has nothing to
+> review and opens with New Sound), New Sound, Watch My Mouth. **Middle:** 2 to 4 of Saying Sounds (blending and reading words),
+> Track Tracing (writing), Letter Hunt, Green Light, Wagon Parade and Station Board, mixed from lesson to lesson with no two
+> neighbouring lessons the same (`MIDDLES` in js/games-data.js; `lesson.middle` in data/curriculum.json). **Ending:** Practicing
+> Words (a short review of today's sound and earlier ones), then Ticket Check, always last. The frame is `tasksFor` in js/lessons.js.
+> **Word Cars is removed from the lessons.** It blended two spoken picture words ("cat ... fish") with no letters. The white paper's
+> own finding is that sound awareness works best tied to letters, and these children are already learning letter sounds, so that
+> time goes to blending with letters (Saying Sounds). Stage 1 sound play keeps its own oral blending, where there are no letters
+> yet. **The Sound Story playlist and the Alphabet song are removed** (no outside YouTube links anywhere in the app).
+> **Parent text:** new sounds and skills follow "I do, we do, you do"; practice and review follow "the child tries first; if stuck,
+> sound it out together; still stuck, the grown-up says it and the child says it after" (`READ_HELP` in js/scripts.js).
 
 ## 8. Mastery and review
 
@@ -565,7 +580,7 @@ can replace the owner's recordings later at the same file paths.
 - "Quick re-check: letter sounds only" runs step 1 alone and shows how many of the sounds are known.
 
 **Standing rules that still apply:** the heat rule in docs/NEXT.md (cheap idle animation allowed: CSS transform/opacity loops, 3D idle at most 10 fps through one shared ticker, stopping when hidden, after 2 minutes without a touch and under reduced motion); no privacy or recording warnings;
-the YouTube links and the jingle cut-off stay as they are; plans by Opus, building by Sonnet.
+no outside YouTube links anywhere (removed in the lesson rebuild); the jingle cut-off stays as it is; plans by Opus, building by Sonnet.
 
 **What changed from the source program.** The source's core ideas are all kept (short vowels first, digraphs before
 blends, silent e, vowel teams, bossy R, sentence-length milestones, the pronunciation notes); the structure, grouping,

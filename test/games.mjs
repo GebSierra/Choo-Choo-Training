@@ -316,7 +316,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
   for (const vp of VIEWPORTS) { await huntChecks({ browser, url, ok, CUR, vp }); await dragChecks({ browser, url, ok, CUR, vp }); }
-  for (const l of CUR.lessons.filter((x) => x.number >= 2)) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo: l.number }); // every letter's Hunt
+  for (const l of CUR.lessons.filter((x) => x.number >= 2 && x.middle.includes('hunt'))) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo: l.number }); // every letter's Hunt
   await reducedChecks({ browser, url, ok, CUR });
   await dragReducedChecks({ browser, url, ok, CUR });
   await browser.close(); server.close();

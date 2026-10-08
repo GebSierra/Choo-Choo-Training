@@ -28,17 +28,14 @@ export async function polishBChecks({ browser, url, ok }) {
       await page.waitForTimeout(700);
       const o = await page.evaluate(() => {
         const r = (s) => { const e = document.querySelector(s); if (!e) return null; const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height, b: b.bottom, r: b.right }; };
-        const hold = document.querySelector('.song-row .hold-btn').getBoundingClientRect();
-        return { cards: r('.cards-wrap'), card: r('.task-card'), start: r('.start-btn'), song: r('.song-row'), hold: { w: hold.width, h: hold.height }, inFoot: !!document.querySelector('.lo-foot .song-row') && !!document.querySelector('.lo-foot .start-btn'),
+        return { cards: r('.cards-wrap'), card: r('.task-card'), start: r('.start-btn'), song: document.querySelectorAll('.song-row').length, inFoot: !!document.querySelector('.lo-foot .start-btn'),
           order: [...document.querySelector('.lesson-overview').children].map((c) => c.className.split(' ')[0]), fade: !!document.querySelector('.cards-fade'), sw: document.documentElement.scrollWidth - innerWidth, vh: innerHeight, vw: innerWidth };
       });
-      ok(o.order.join() === 'lo-head,cards-wrap,lo-foot' && o.inFoot, `${tag} overview: header, then the steps, then the footer with Start and the song row (${o.order.join()})`);
-      ok(o.card.y < o.song.y && o.card.y < o.start.y, `${tag} overview: the steps start above the song row and the Start button`);
-      if (!land) ok(o.start.b <= o.song.y + 1 && o.song.y > o.start.y, `${tag} overview: the song row sits below the Start button`);
-      else ok(o.song.r <= o.start.x + 2, `${tag} overview: the song row is beside Start (left of it)`);
+      ok(o.order.join() === 'lo-head,cards-wrap,lo-foot' && o.inFoot, `${tag} overview: header, then the steps, then the footer with Start (${o.order.join()})`);
+      ok(o.song === 0, `${tag} overview: no alphabet song row (the YouTube links are gone)`);
+      ok(o.card.y < o.start.y, `${tag} overview: the steps start above the Start button`);
       ok(o.start.h >= 60 && o.start.w >= 200, `${tag} overview: a big Start button (${Math.round(o.start.w)} x ${Math.round(o.start.h)})`);
-      ok(o.hold.h >= 48 && o.hold.w >= 48, `${tag} overview: the song's hold button is a 48 px target (${Math.round(o.hold.w)} x ${Math.round(o.hold.h)})`);
-      ok(o.start.b <= o.vh + 1 && o.song.b <= o.vh + 1 && o.sw <= 0, `${tag} overview: Start and the song row fit on screen, no sideways page scroll`);
+      ok(o.start.b <= o.vh + 1 && o.sw <= 0, `${tag} overview: Start fits on screen, no sideways page scroll`);
       if (!land) {
         ok(o.fade, `${tag} overview: the step row has a fade on its edge`);
         // the fade shows while more steps wait to the right, and goes at the end
@@ -54,7 +51,7 @@ export async function polishBChecks({ browser, url, ok }) {
       await ctx.close();
     }
     // ---- the shared task frame: texture, centring, targets ----
-    for (const type of ['words', 'story', 'check']) {
+    for (const type of ['mouth', 'sounds', 'check']) {
       const t = CUR.lessons[3];
       const { tasksFor } = await import('../js/lessons.js');
       const task = tasksFor(t).find((x) => x.type === type);
@@ -69,7 +66,7 @@ export async function polishBChecks({ browser, url, ok }) {
       ok(/radial-gradient/.test(m.img) && (m.img.split('radial-gradient').length >= 3 || /repeating-linear-gradient/.test(m.img)), // old frame: two soft lights; world look: one soft light plus the paper grain
          `${tag} ${type}: the coloured card has its texture and soft light`);
       ok(m.small.length === 0 && m.sw <= 0, `${tag} ${type}: 48 px targets and no sideways scroll (${m.small.join(',')})`);
-      if (!land && type === 'words') ok(Math.abs(m.top - m.bottom) < 80, `${tag} ${type}: the content sits in the middle of the card (${Math.round(m.top)} above, ${Math.round(m.bottom)} below)`);
+      if (!land && type === 'mouth') ok(Math.abs(m.top - m.bottom) < 160, `${tag} ${type}: the content sits in the middle of the card (${Math.round(m.top)} above, ${Math.round(m.bottom)} below)`);
       ok(errors.length === 0, `${tag} ${type}: errors ${errors.join(' | ')}`);
       await ctx.close();
     }

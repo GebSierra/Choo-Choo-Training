@@ -25,7 +25,7 @@ const route = (n, type) => `#/lesson/${n}/task/${tasksFor(CUR.lessons[n - 1]).fi
 
 // The controls each kind of task is for: all of them must sit inside the stage and the screen, unclipped.
 const PRIMARY = {
-  review: ['.slide-track'], newLetter: ['.slide-track', '.word-tile:first-child'], story: ['.hold-btn'], words: ['.parts-row', '.merged-tile', '.btn.ghost.small'],
+  review: ['.slide-track'], newLetter: ['.slide-track', '.word-tile:first-child'], mouth: ['.grownup-art', '.px-hear', '.mouth-how-btn'],
   sounds: ['.sounds-stage', '.btn.ghost.small'], writing: ['.tp-ink', '.writing-buttons .btn'], hunt: ['.sky-letter', '.train-wrap', '.star-row'],
   signals: ['.signal', '.star-row'], wagons: ['.find-card', '.train-wrap', '.star-row'], board: ['.flap-tile', '.star-row'], practice: ['.sack', '.sack-card'], check: ['.opt-card'],
 };
@@ -78,12 +78,12 @@ export async function roomChecks({ browser, url, ok }) {
     if (vp.width < vp.height) {
       const short = rows.filter((r) => r.compact - r.full < Math.min(90, r.card - 60));
       ok(short.length === 0, `${vp.name}: the compact bar gives the stage back the card's height less 56 px, at least 90 px for the tall cards (${rows.map((r) => `${r.key}:${Math.round(r.compact - r.full)}`).join(' ')})`);
-      ok(rows.filter((r) => r.key.endsWith('words') || r.key.endsWith('sounds')).every((r) => r.compact - r.full >= 60), `${vp.name}: Saying Words and Saying Sounds, which clipped, gain at least 60 px`);
+      ok(rows.filter((r) => r.key.endsWith('sounds')).every((r) => r.compact - r.full >= 60), `${vp.name}: Saying Sounds, which clipped, gain at least 60 px`);
     } else {
       ok(rows.every((r) => Math.abs(r.compact - r.full) <= 1), `${vp.name}: in landscape the stage is a column of its own and keeps its size`);
     }
   }
-  // The states that clipped on Geb's phone: a picture word and the revealed word in Saying Words.
+  // The state that clipped on Geb's phone: a revealed picture word in Saying Sounds.
   for (const vp of VIEWPORTS) {
     const { ctx, page, errors } = await open(browser, url, vp, route(1, 'sounds'));
     const b = await page.locator('.sounds-stage .pic-frame').boundingBox();
@@ -91,12 +91,6 @@ export async function roomChecks({ browser, url, ok }) {
     await page.waitForSelector('.slide-band'); await page.waitForTimeout(600);
     let bad = await controlsFit(page, ['.sounds-stage', '.btn.ghost.small', '.glyph-row'], vp);
     ok(bad.length === 0, `${vp.name}: a revealed picture word leaves Next word visible (${bad.join('; ')})`);
-    await page.goto(url + route(2, 'words')); await page.reload(); await page.waitForSelector('.merged-tile'); await page.waitForTimeout(600);
-    const m = await page.locator('.merged-tile').boundingBox();
-    await page.touchscreen.tap(m.x + m.width / 2, m.y + m.height / 2);
-    await page.waitForSelector('.slide-band'); await page.waitForTimeout(900);
-    bad = await controlsFit(page, ['.merged-tile', '.btn.ghost.small'], vp);
-    ok(bad.length === 0, `${vp.name}: the revealed Saying Words word leaves Next word visible (${bad.join('; ')})`);
     ok(errors.length === 0, `${vp.name} revealed states: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
@@ -118,18 +112,18 @@ export async function gistChecks({ browser, url, ok }) {
       await page.waitForFunction((r) => location.hash === r && document.querySelector('.screen:not(.leaving) .script-first') && !document.querySelector('.screen.leaving'), `#/lesson/${L.number}/task/${t.index}`);
       await page.waitForTimeout(150);
       const gist = await gistOf(page);
-      const want = { review: soundPhrase(CUR.sounds[L.review[0]] || CUR.sounds.m), words: L.sayingWords[0].parts[0], sounds: L.sayingSounds[0].word, writing: '', practice: 'Find the' }[t.type] ?? P;
+      const want = { review: '', mouth: '', sounds: L.sayingSounds[0].word, writing: '', practice: 'Find the' }[t.type] ?? P;
       const fits = await page.evaluate(() => { const e = document.querySelector('.screen:not(.leaving) .script-first'); return e.scrollWidth <= e.clientWidth; });
       ok(fits, `lesson ${L.number} ${t.type}: the gist "${gist}" fits the bar at 360 px without an ellipsis`);
       ok(gist.length > 0 && gist.length <= 28 && gist.includes(want), `lesson ${L.number} ${t.type}: gist "${gist}" is 1 to 28 characters and holds "${want}"`);
       seenGists++;
-      if (t.type === 'words' || t.type === 'sounds') {
-        const list = t.type === 'words' ? L.sayingWords : L.sayingSounds;
+      if (t.type === 'sounds') {
+        const list = L.sayingSounds;
         for (let k = 1; k < list.length; k++) {
           await page.click('.btn.ghost.small');
           await page.waitForTimeout(200);
           const g = await gistOf(page);
-          ok(g.length <= 28 && g.includes(t.type === 'words' ? list[k].parts[0] : list[k].word), `lesson ${L.number} ${t.type}: the gist follows the next word ("${g}")`);
+          ok(g.length <= 28 && g.includes(list[k].word), `lesson ${L.number} ${t.type}: the gist follows the next word ("${g}")`);
         }
       }
     }
@@ -206,7 +200,7 @@ export async function timerAndFirstVisitChecks({ browser, url, ok }) {
     await page.clock.install();
     await page.addInitScript(SPEECH_STUB);
     await page.addInitScript(seed({ seenScripts: SEEN }));
-    await page.goto(url + route(1, 'words'));
+    await page.goto(url + route(1, 'sounds'));
     await page.waitForSelector('.script-toggle');
     await page.clock.runFor(800);
     await page.click('.script-toggle');
@@ -245,13 +239,13 @@ export async function timerAndFirstVisitChecks({ browser, url, ok }) {
     await page.clock.runFor(2000);
     ok((await expanded(page)) === 'false', 'afterwards: it stays compact until tapped');
     // A new lesson's first task opens it again; a later task of that lesson, whose kind was seen, does not.
-    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, check: true, 'tip:2:newLetter': true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
+    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, mouth: true, sounds: true, writing: true, hunt: true, check: true, 'tip:2:newLetter': true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
     await page.goto(url + route(2, 'review'));
     await page.waitForSelector('.script-toggle');
     await page.clock.runFor(1200);
     ok((await expanded(page)) === 'true', 'a lesson seen for the first time opens its first task with the script');
     // The app keeps its settings in memory, so write the "all seen" state and reload before checking the later task.
-    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, check: true, 'lesson:2': true, 'tip:2:newLetter': true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
+    await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); s.settings.seenScripts = { review: true, newLetter: true, mouth: true, sounds: true, writing: true, hunt: true, check: true, 'lesson:2': true, 'tip:2:newLetter': true }; localStorage.setItem('reading.v1', JSON.stringify(s)); });
     await page.reload();
     await page.waitForSelector('.script-toggle');
     await page.goto(url + route(2, 'newLetter'));
@@ -282,7 +276,7 @@ export async function timerAndFirstVisitChecks({ browser, url, ok }) {
     await ctx.close();
   }
   // The games never open the sheet over the play, even on a first visit.
-  for (const r of [route(1, 'hunt'), route(1, 'wagons'), route(3, 'practice')]) {
+  for (const r of [route(1, 'hunt'), route(2, 'signals'), route(3, 'practice')]) {
     const { ctx, page, errors } = await newPage(browser, vp);
     await page.clock.install();
     await page.addInitScript(SPEECH_STUB);

@@ -263,7 +263,7 @@ export function build(ctx) {
     el, flush: true,
     parts: () => parts,
     gist: () => fit(`Tap every ${soundPhrase(sound)}.`, 'Tap every one.'),
-    script: () => `Say: 'Tap every wagon that says ${soundPhrase(sound)}.' Every tap plays the sound; say it with them.`,
+    script: () => `Say: 'Tap every wagon that says ${soundPhrase(sound)}.' Your child says the sound first, then taps. Every tap plays the sound. Say it together.`,
     again: () => { again(); speech.say(parts); },
     cleanup: () => { T.clear(); stop(); document.removeEventListener('visibilitychange', onVisible); hints.stop(); stopWatching(); endAnims.forEach((a) => a.cancel()); coupled.forEach((c) => settle(c, false)); },
   };

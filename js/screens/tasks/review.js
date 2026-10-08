@@ -30,8 +30,9 @@ export function build({ lesson, curriculum, speech, refresh }) {
   return {
     el,
     parts: () => { const s = sound(); return [{ clip: s.glyph }, { tts: s.words[0].word }]; },
-    script: () => `Say ${soundPhrase(sound())}. Now you try. Slide the letter.`,
-    gist: () => fit(`Say ${soundPhrase(sound())}. Child slides.`, `Say ${soundPhrase(sound())}.`),
+    // Review: the child tries first. Stuck: say it together. Still stuck: the grown-up says it, the child says it after.
+    script: () => 'Ask your child to say the sound of this letter. Your child can slide a finger under it. If they are stuck, say the sound together. Still stuck? Say it yourself, then have your child say it after you.',
+    gist: () => 'Child says the sound first.',
     again: () => { show(); speech.say([{ clip: sound().glyph }, { tts: sound().words[0].word }]); },
     cleanup: () => track.cleanup(),
     next: () => { if (i < keys.length - 1) { i++; show(); speech.say([{ clip: sound().glyph }, { tts: sound().words[0].word }]); return true; } return false; },

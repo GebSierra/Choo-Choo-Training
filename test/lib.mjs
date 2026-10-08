@@ -92,7 +92,7 @@ export async function touchSession(page) {
 
 // Every kind of task and lesson already seen on this device, so the parent script does not open by itself over the
 // controls a test is about to tap. (The first-visit behaviour is tested with an empty list.)
-export const SEEN_BASE = { rideIntro: true, ...Object.fromEntries(CUR_CK.filter((c) => c.kind === 'book').map((c) => ['storyIntro:' + c.id, true])), review: true, newLetter: true, story: true, words: true, sounds: true, writing: true, hunt: true, signals: true, wagons: true, board: true, practice: true, book: true, ride: true, check: true, checkpoint: true, ...Object.fromEntries(Array.from({ length: LESSON_COUNT }, (_, i) => [`lesson:${i + 1}`, true])) };
+export const SEEN_BASE = { rideIntro: true, ...Object.fromEntries(CUR_CK.filter((c) => c.kind === 'book').map((c) => ['storyIntro:' + c.id, true])), review: true, newLetter: true, mouth: true, sounds: true, writing: true, hunt: true, signals: true, wagons: true, board: true, practice: true, book: true, ride: true, check: true, checkpoint: true, ...Object.fromEntries(Array.from({ length: LESSON_COUNT }, (_, i) => [`lesson:${i + 1}`, true])) };
 // Everything the first-visit help shows, tips included: tests that are not about the help start from here.
 import { TIPS } from '../js/guide.js';
 export const SEEN = { ...SEEN_BASE, ...Object.fromEntries(Object.keys(TIPS).map((k) => { const [lesson, type] = k.split(':'); return [`tip:${lesson}:${type}`, true]; })) };

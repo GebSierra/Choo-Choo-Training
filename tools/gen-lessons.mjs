@@ -1,59 +1,50 @@
 // Builds lessons 4 to 13 (i t p n f d h g b l) into data/curriculum.json from one compact table, so ten lessons are never
-// hand-edited. Lessons 1 to 3, the sounds m a s and checkpoint c1 are left exactly as they are.
+// hand-edited. Lessons 1 to 3, the sounds m a s and checkpoint c1 keep their hand-made data; every lesson (1 to 13) then gets the
+// same treatment at the end: its `middle` task list (js/games-data.js MIDDLES), its `games`, and every sound its "Watch my mouth" panel.
 // Run: node tools/gen-lessons.mjs [last lesson, default 13]      (then: node test/check-content.mjs)
 // It also rewrites the picture list in sw.js from the data, so every tile in use is precached.
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT } from '../test/lib.mjs';
 import { usedImages } from './precache-images.mjs';
-import { boardWords, gameSlot } from '../js/games-data.js';
+import { boardWords, middleFor, TAP_GAMES } from '../js/games-data.js';
 
 const FILE = path.join(ROOT, 'data/curriculum.json');
 const tile = (folder, word) => ({ word, image: `assets/images/mentava/web/${folder}/${word}.webp` });
 const lastLesson = Number(process.argv[2] || 13);
 
 // sound, how to say it, tiles (folder/word; the word begins with the sound), letter words (only letters taught so far),
-// one picture word for Saying Sounds, four compound words (parts + one emoji each), the Quick Check and the games' distractor letters.
+// one picture word for Saying Sounds, the Quick Check and the games' distractor letters.
 const TABLE = [
   { n: 4, k: 'i', practice: ['igloo'], say: 'i', asIn: 'igloo', hold: true, not: null, how: 'Say i as in igloo. Keep your mouth small and relaxed.',
     tiles: ['i/igloo', 'i/sit', 'i/stick'], start: ['i/igloo'], words: ['sis', 'miss', 'am'], pic: 'igloo',
-    compounds: [['pine', 'apple', '🌲', '🍎'], ['spider', 'web', '🕷️', '🕸️'], ['light', 'house', '💡', '🏠'], ['drum', 'stick', '🥁', '🪵']],
     qc: { kind: 'letter', others: ['m', 's'] }, hunt: 'masonedp' },
   { n: 5, k: 't', practice: ['tiger', 'table', 'tent'], say: 't-', hold: false, not: 'tuh', how: 'Tap the tip of your tongue just behind your top teeth. Short and crisp: t-. Do not add uh.',
     tiles: ['t/tiger', 't/table', 't/tree', 'e/tent'], words: ['at', 'sit', 'mat'], pic: 'table',
-    compounds: [['tree', 'house', '🌳', '🏠'], ['tea', 'pot', '🍵', '🍲'], ['cow', 'boy', '🐄', '👦'], ['sand', 'box', '🏖️', '📦']],
     qc: { kind: 'picture', word: 'table', others: ['wagon', 'camel'] }, hunt: 'masone' },
   { n: 6, k: 'p', practice: ['pig', 'pot', 'panda'], say: 'p-', hold: false, not: 'puh', how: 'Close your lips, then let out a tiny puff of air. Short: p-. Do not add uh.',
     tiles: ['p/pig', 'p/panda', 'p/pumpkin', 'o/pot'], words: ['pat', 'tip', 'map'], pic: 'pig',
-    compounds: [['pop', 'corn', '💥', '🌽'], ['paint', 'brush', '🎨', '🖌️'], ['paper', 'clip', '📄', '📎'], ['space', 'ship', '🪐', '🚢']],
     qc: { kind: 'letter', others: ['s', 't'] }, hunt: 'mstoeifn' },
   { n: 7, k: 'n', practice: ['nose', 'nut', 'nest'], say: 'nnn', hold: true, not: 'nuh', how: 'Put your tongue behind your top teeth and hum through your nose. Hold it: nnn. Do not add uh.',
     tiles: ['n/nut', 'n/nose', 'n/necklace', 'e/nest'], words: ['man', 'pin', 'tan'], pic: 'nut',
-    compounds: [['pea', 'nut', '🫛', '🥜'], ['note', 'book', '📝', '📖'], ['moon', 'light', '🌙', '💡'], ['ant', 'hill', '🐜', '⛰️']],
     qc: { kind: 'picture', word: 'nut', others: ['window', 'chair'] }, hunt: 'astoeifd' },
   { n: 8, k: 'f', practice: ['fish', 'fan', 'fox'], say: 'fff', hold: true, not: 'fuh', how: 'Rest your top teeth on your bottom lip and blow. Hold it: fff. Do not add uh.',
     tiles: ['f/fan', 'f/fish', 'f/fork', 'x/fox'], words: ['fan', 'fit', 'fin'], pic: 'fish',
-    compounds: [['fish', 'bowl', '🐟', '🥣'], ['flower', 'pot', '🌸', '🪴'], ['fire', 'truck', '🔥', '🚚'], ['butter', 'fly', '🧈', '🪰']],
     qc: { kind: 'letter', others: ['m', 'a'] }, hunt: 'masone' },
   { n: 9, k: 'd', practice: ['duck', 'dog', 'door'], say: 'd-', hold: false, not: 'duh', how: 'Tap your tongue behind your top teeth and let your voice out. Short: d-. Do not add uh.',
     tiles: ['d/duck', 'd/deer', 'd/dog', 'd/door', 'd/dolphin'], words: ['dad', 'sad', 'dip'], pic: 'duck',
-    compounds: [['doll', 'house', '🪆', '🏠'], ['door', 'bell', '🚪', '🔔'], ['rain', 'drop', '🌧️', '💧'], ['bull', 'dog', '🐂', '🐕']],
     qc: { kind: 'picture', word: 'duck', others: ['robot', 'yarn'] }, hunt: 'mstonif' },
   { n: 10, k: 'h', practice: ['hat', 'hand', 'horse'], say: 'h-', hold: false, not: 'huh', how: 'Breathe out as if fogging a mirror. Short: h-. Do not add uh.',
     tiles: ['h/hat', 'h/hand', 'h/hippo', 'e/hen', 'or/horse'], words: ['hat', 'him', 'hid'], pic: 'hippo',
-    compounds: [['horse', 'shoe', '🐴', '👟'], ['hat', 'box', '👒', '📦'], ['bird', 'house', '🐦', '🏠'], ['ham', 'burger', '🍖', '🍔']],
     qc: { kind: 'letter', others: ['m', 's'] }, hunt: 'astoeifd' },
   { n: 11, k: 'g', practice: ['goat', 'gate'], say: 'g-', hold: false, not: 'guh', how: 'Lift the back of your tongue and let your voice out. Short: g-. Do not add uh.',
     tiles: ['g/goat', 'g/gate'], words: ['tag', 'dig', 'pig'], pic: 'goat',
-    compounds: [['gold', 'fish', '🪙', '🐟'], ['egg', 'plant', '🥚', '🌱'], ['dragon', 'fly', '🐉', '🪰'], ['dog', 'house', '🐕', '🏠']],
     qc: { kind: 'picture', word: 'goat', others: ['rabbit', 'van'] }, hunt: 'mstonif' },
   { n: 12, k: 'b', practice: ['ball', 'bus', 'banana'], say: 'b-', hold: false, not: 'buh', how: 'Close your lips, then let your voice pop out. Short: b-. Do not add uh.',
     tiles: ['b/baby', 'b/banana', 'b/ball', 'b/bear', 'b/bus'], words: ['bat', 'bad', 'big'], pic: 'ball',
-    compounds: [['basket', 'ball', '🧺', '🏀'], ['butter', 'cup', '🧈', '☕'], ['snow', 'ball', '❄️', '⚽'], ['bean', 'bag', '🫘', '👜']],
     qc: { kind: 'letter', others: ['m', 't'] }, hunt: 'mstoeifn' },
   { n: 13, k: 'l', practice: ['leaf', 'leg', 'ladder'], say: 'l-', hold: false, not: 'ull or luh', how: 'Put the tip of your tongue behind your top teeth. Say lion but stop before ion: l-. Do not add uh.',
     tiles: ['l/leaf', 'l/leg', 'l/ladder', 'ie/light'], words: ['lap', 'lip', 'lid'], pic: 'leaf',
-    compounds: [['lady', 'bug', '👩', '🐛'], ['lunch', 'box', '🥪', '📦'], ['flower', 'bed', '🌸', '🛏️'], ['sun', 'light', '☀️', '💡']],
     qc: { kind: 'picture', word: 'leaf', others: ['umbrella', 'van'] }, hunt: 'masoendp' },
 ];
 
@@ -91,6 +82,7 @@ const WORLDS = [
 ];
 
 const c = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+delete c.playlistUrl; delete c.alphabetSongUrl; // owner 2026-10-08: no outside YouTube links anywhere
 const old = { sounds: ['m', 'a', 's'], lessons: 3 };
 c.sounds = Object.fromEntries(old.sounds.map((k) => [k, c.sounds[k]]));
 c.lessons = c.lessons.slice(0, old.lessons);
@@ -127,7 +119,6 @@ for (const e of TABLE.filter((t) => t.n <= lastLesson)) {
     number: e.n, sound: e.k, review: e.n >= 3 ? [c.lessons[e.n - 3].sound, c.lessons[e.n - 2].sound] : [],
     intro: [{ tts: 'Today we learn a new sound:' }, { clip: e.k }, ...asInTail],
     introQuiet: QUIET,
-    sayingWords: e.compounds.map(([a, b, ea, eb]) => ({ parts: [a, b], word: a + b, emoji: [ea, eb] })),
     sayingSounds,
     quickCheck: {
       prompt: [{ tts: ask }, { clip: e.k }, ...qTail], promptQuiet: [{ tts: quiet }],
@@ -145,10 +136,39 @@ const taughtAt = (s) => { const i = c.lessons.findIndex((L) => L.sound === s); i
 for (const k of c.checkpoints) if (Array.isArray(k.needs)) k.after = Math.max(...k.needs.map(taughtAt));
 
 // Station Board words: for every lesson that has a full list (lessons 5 on), the proven short words of the bank.
-for (const L of c.lessons) { const b = boardWords(c.lessons.map((x) => x.sound), L.number, 4); if (b) L.board = b; else delete L.board; L.games = gameSlot(c.lessons.map((x) => x.sound), L.number); }
+for (const L of c.lessons) { const b = boardWords(c.lessons.map((x) => x.sound), L.number, 4); if (b) L.board = b; else delete L.board; }
 c.games.board = { say: 'Find the sound in the word.' };
+// "How to make this sound" for the Watch My Mouth step (docs/CURRICULUM.md section 5 and the unit notes in section 11): lips, teeth,
+// tongue and whether the voice is on, in one to three short sentences. `voice` is shown as a small badge beside the text.
+const MOUTH = {
+  m: { voice: true, text: 'Lips together. Hum through your nose. Voice on.' },
+  a: { voice: true, text: 'Open your mouth wide, with your jaw down. Keep your tongue low and flat. Voice on.' },
+  s: { voice: false, text: 'Teeth close together. Tongue behind your teeth. Blow a thin stream of air. Voice off.' },
+  i: { voice: true, text: 'Keep your mouth small and relaxed. Tongue a little forward. Voice on.' },
+  t: { voice: false, text: 'Touch your tongue tip just behind your top teeth. Let out a quick puff of air. Voice off.' },
+  p: { voice: false, text: 'Lips together, then open them with a quick puff of air. Voice off.' },
+  n: { voice: true, text: 'Tongue behind your top teeth. Hum through your nose. Voice on.' },
+  f: { voice: false, text: 'Top teeth on your bottom lip. Blow air out. Voice off.' },
+  d: { voice: true, text: 'Tap your tongue behind your top teeth, quick and light. Voice on.' },
+  h: { voice: false, text: 'Open your mouth a little. Breathe out, as if fogging a mirror. Voice off.' },
+  g: { voice: true, text: 'Lift the back of your tongue to the roof of your mouth. Let it drop quickly. Voice on.' },
+  b: { voice: true, text: 'Lips together, then pop them open. Voice on.' },
+  l: { voice: true, text: 'Touch your tongue tip behind your top teeth. Let the sound flow around it. Voice on.' },
+};
+for (const [k, m] of Object.entries(MOUTH)) if (c.sounds[k]) c.sounds[k].mouth = m;
+for (const k of Object.keys(c.sounds)) if (!MOUTH[k]) throw new Error('no Watch My Mouth text for ' + k);
+
 c.games.wagons = { say: 'Tap every wagon that has the sound.' };
 c.games.signals = { say: 'Listen. Then tap the light that makes the sound.' };
+
+// The middle of every lesson (js/games-data.js MIDDLES) and the tap games in it. The frame around it lives in js/lessons.js tasksFor.
+// Word Cars (sayingWords) is gone from the lessons: the white paper says sound awareness works best tied to letters.
+const ORDER_NOW = c.lessons.map((x) => x.sound);
+for (const L of c.lessons) {
+  delete L.sayingWords;
+  L.middle = middleFor(ORDER_NOW, L.number);
+  L.games = L.middle.filter((t) => TAP_GAMES.includes(t));
+}
 
 // Milestones (docs/PLAN-v1.9.md). A level is earned when its `after` lesson is done; after is null while a needed sound
 // is not built yet. Keep levels 5 to 15 sounds apart: when o e u are added, bring c k r in the same stretch.

@@ -1,12 +1,12 @@
 // The three tap games (Green Light, Wagon Parade, Station Board) and the lesson rotation that places them.
-// They reach a game through a routed copy of data/curriculum.json that gives one lesson a `games` list (see open()).
+// They reach a game through a routed copy of data/curriculum.json that gives one lesson a `games` list and a matching middle (see open()).
 // Run alone with `node test/tap-games.mjs`; SHOTS=1 also saves screenshots to docs/screenshots/v19/.
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB, silentWav } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, DONE_JSON } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
-import { gameSlot, order as orderOf } from '../js/games-data.js';
+import { middleFor, TAP_GAMES, order as orderOf } from '../js/games-data.js';
 
 const SHOT_DIR = path.join(ROOT, 'docs/screenshots/v19');
 const RAF_COUNT = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
@@ -27,7 +27,7 @@ export async function open(browser, url, vp, { n, type, games, settings = {}, cl
   await page.addInitScript(RAF_COUNT);
   await page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: JSON.parse(DONE_JSON), settings: { seenScripts: SEEN, ...settings }, firstRunDone: true, meetDue: false })}))`);
   const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
-  if (games) CUR.lessons[n - 1].games = games;
+  if (games) { const L = CUR.lessons[n - 1]; L.games = games; L.middle = ['sounds', ...games, 'writing']; } // the lesson's middle now holds exactly these games
   for (const [k, v] of Object.entries(clipsPatch || {})) CUR.sounds[k].clip = v;
   if (games || clipsPatch) await page.route('**/data/curriculum.json', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(CUR) }));
   // A clip patched to a path with no file behind it is given a silent stand-in, so the recorded path can be tested.
@@ -479,22 +479,23 @@ export async function boardChecks({ browser, url, ok }) {
 export async function rotationChecks({ browser, url, ok, CUR }) {
   const ord = orderOf(CUR);
   const W = 'wagons', G = 'signals', B = 'board';
-  const want = [[W], [G], [W], [G], [G, W], [W], [B, G], [G], [W, B], [B], [G, W], [W], [B, G]];
-  for (let n = 1; n <= 13; n++) ok(gameSlot(ord, n).join() === want[n - 1].join() && CUR.lessons[n - 1].games.join() === want[n - 1].join(), `rotation: lesson ${n} is ${want[n - 1].join('+')} (${gameSlot(ord, n).join('+')})`);
+  const want = [[], [G], [W], [G, W], [B], [G], [W, B], [], [G, B], [W], [B], [G, W], [B]];
+  const gamesOf = (n) => middleFor(ord, n).filter((t) => TAP_GAMES.includes(t));
+  for (let n = 1; n <= 13; n++) ok(gamesOf(n).join() === want[n - 1].join() && CUR.lessons[n - 1].games.join() === want[n - 1].join(), `rotation: lesson ${n} has ${want[n - 1].join('+') || 'no tap game'} in its middle (${gamesOf(n).join('+')})`);
   const vp = VIEWPORTS[0];
-  for (const [n, names] of [[1, ['Letter Hunt', 'Wagon Parade', 'Practicing Words']], [7, ['Letter Hunt', 'Station Board', 'Green Light', 'Practicing Words']]]) {
-    const { ctx, page, errors } = await open(browser, url, vp, { n, type: n === 1 ? 'wagons' : 'signals' });
+  for (const [n, type] of [[1, 'hunt'], [7, 'wagons']]) {
+    const { ctx, page, errors } = await open(browser, url, vp, { n, type });
     await page.goto(url + `#/lesson/${n}`);
     await page.waitForSelector('.task-card');
     const cards = await page.locator('.task-card .card-name').allInnerTexts();
-    const a = cards.indexOf('Letter Hunt'), b = cards.indexOf('Practicing Words');
-    ok(JSON.stringify(cards.slice(a, b + 1)) === JSON.stringify(names) && !cards.includes('Barn Doors'), `lesson ${n}: the cards run ${names.join(', ')} and there is no Barn Doors (${cards.join(', ')})`);
+    const names = tasksFor(CUR.lessons[n - 1]).map((t) => t.name);
+    ok(JSON.stringify(cards) === JSON.stringify(names) && !cards.includes('Barn Doors') && !cards.includes('Word Cars'), `lesson ${n}: the cards run ${names.join(', ')} (${cards.join(', ')})`);
     if (n === 7) await shotOf(page, 'lesson-7-cards');
     ok(errors.length === 0, `lesson ${n} cards: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
   {
-    const { ctx, page } = await open(browser, url, vp, { n: 7, type: 'signals' });
+    const { ctx, page } = await open(browser, url, vp, { n: 7, type: 'signals', games: ['signals', 'board'] }); // a shared slot plays the short count
     await page.waitForSelector('.signal');
     await page.waitForTimeout(600);
     for (let r = 1; r <= 3; r++) { await tapEl(page, page.locator('.signal[data-target="1"]')); await page.waitForTimeout(r < 3 ? 1100 : 300); }

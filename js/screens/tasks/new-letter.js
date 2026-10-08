@@ -23,8 +23,9 @@ export function build({ lesson, sound, speech, store }) {
   return {
     el,
     parts: () => introParts(lesson, store),
-    script: () => `Say ${soundPhrase(sound)}. Now you try. Slide the letter as you say it.`,
-    gist: () => fit(`Say ${soundPhrase(sound)}. Child slides.`, `Say ${soundPhrase(sound)}.`),
+    // I do, we do, you do: the grown-up models, then they slide together, then the child slides alone.
+    script: () => `I do: say ${soundPhrase(sound)}. We do: slide a finger under the letter and say it together. You do: your child slides under the letter and says it alone.`,
+    gist: () => fit(`I do: say ${soundPhrase(sound)}.`, `Say ${soundPhrase(sound)}.`),
     cleanup: () => track.cleanup(),
     again: () => { drawIn(g); speech.say(introParts(lesson, store)); },
   };

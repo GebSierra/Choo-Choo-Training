@@ -30,11 +30,11 @@ export const SOUND = {
 const TRAY = ['s', 'e', 'm', 'h', 'a', 't']; // t h e and the taught letters m a s, shuffled once
 // say: the words on the grown-up's sheet. speak: what the sheet's speaker reads aloud (whole sentences, never a sound or "thee").
 const SCRIPTS = {
-  meet: { say: 'This is a heart word. Most of it sounds out, but one part is tricky: here, the letter e says \'uh\'. We learn that part by heart. ' + READ_HELP + ' Then tap "Hear it".', gist: 'Heart word: the. Read it together.', speak: 'This is a heart word. Most of it sounds out, but one part is tricky. We learn that part by heart. ' + READ_HELP + ' Then tap Hear it.' },
-  map: { say: 'Your child taps th and says its sound (buzzing, tongue between the teeth), then taps the heart: the letter e says \'uh\'. Then slide a finger under the whole word and say it together: the.', gist: 'Tap th, tap the heart, slide, say it.', speak: 'Your child taps each part, then slides a finger under the whole word and says it.' },
-  fix: { say: 'Say it the way it\'s spelled: thee. Ask: what\'s the real word? Your child says the. This builds flexible reading: when a word sounds odd, try the other sound.', gist: 'Say it as spelled. Ask: what\'s the real word?', speak: 'Say it the way it\'s spelled, then ask: what\'s the real word? This builds flexible reading: when a word sounds odd, try the other sound.' },
-  spell: { say: 'The phone says the word. Your child taps the tiles to fill the boxes from left to right. Tap a filled box to send its tile back. A wrong tile only shakes: we never fix it for them.', gist: 'Child spells the word.', speak: 'The phone says the word. Your child taps the tiles to fill the boxes from left to right.' },
-  find: { say: 'Read the sentence together, then your child taps the heart word "the". ' + READ_HELP + ' Tap Got it if it went smoothly, or Help to read it together one word at a time.', gist: 'Read it together, tap "the".', speak: 'Read the sentence together, then your child taps the heart word. ' + READ_HELP + ' Tap Got it if it went smoothly, or Help to read it together one word at a time.' },
+  meet: { say: 'This is a heart word. Most of it sounds out. One part is tricky: here, the letter e says \'uh\'. We learn that part by heart. ' + READ_HELP + ' Then tap "Hear it". I do: listen to the word. We do: say it together. You do: your child says it alone.', gist: 'Heart word: the. Read it together.', speak: 'This is a heart word. Most of it sounds out, but one part is tricky. We learn that part by heart. ' + READ_HELP + ' Then tap Hear it. Say the word together, then your child says it alone.' },
+  map: { say: 'We do: your child taps th, and you say its sound together (buzzing, tongue between the teeth). Your child taps the heart, and you say it together: the letter e says \'uh\'. Then slide a finger under the whole word and say it together: the. You do: your child slides and says it again alone.', gist: 'Tap th, tap the heart, slide, say it.', speak: 'Your child taps each part, and you say it together. Then slide a finger under the whole word and say it together. Then your child does it alone.' },
+  fix: { say: 'Say it the way it is spelled: thee. Then ask, "What is the real word?" Your child says the. If they are stuck, tap Help. When a word sounds odd, we try the other sound.', gist: 'Say it as spelled. Ask: what\'s the real word?', speak: 'Say it the way it is spelled, then ask: what is the real word? When a word sounds odd, we try the other sound.' },
+  spell: { say: 'The phone says the word. Your child taps the tiles to fill the boxes from left to right. To send a tile back, tap its box. A wrong tile only shakes. Do not fix it for them: your child tries again.', gist: 'Child spells the word.', speak: 'The phone says the word. Your child taps the tiles to fill the boxes from left to right.' },
+  find: { say: 'Read the sentence together, then your child taps the heart word "the". ' + READ_HELP + ' Tap Got it if it went well. Tap Help to read it together, one word at a time.', gist: 'Read it together, tap "the".', speak: 'Read the sentence together, then your child taps the heart word. ' + READ_HELP + ' Tap Got it if it went well. Tap Help to read it together, one word at a time.' },
 };
 const HINT = ['first', 'middle', 'last'];
 const LIGHT_MS = 650;
@@ -45,7 +45,7 @@ export const heartSvg = (cls = '') => h('svg', { class: 'hw-heart ' + cls, viewB
   h('path', { d: 'M16 28 C6 20 2 14 2 9 C2 4.5 5.5 2 9 2 C12 2 14.5 3.6 16 6.4 C17.5 3.6 20 2 23 2 C26.5 2 30 4.5 30 9 C30 14 26 20 16 28 Z', fill: '#E5484D', stroke: '#B8323A', 'stroke-width': 2, 'stroke-linejoin': 'round' }),
   h('path', { d: 'M8 8.5 C8.6 6.8 10 6 11.4 6', fill: 'none', stroke: 'rgba(255,255,255,.7)', 'stroke-width': 2, 'stroke-linecap': 'round' }));
 
-export const faceOf = (txt) => { const s = wordSvg(txt, { color: INK, all: true, label: txt }); s.style.width = `calc(var(--cap, 64px) * ${Number(s.dataset.width) / Number(s.dataset.height)})`; s.style.maxWidth = '100%'; return s; };
+export const faceOf = (txt, font = false) => { const s = wordSvg(txt, { color: INK, all: true, font, label: txt }); s.style.width = `calc(var(--cap, 64px) * ${Number(s.dataset.width) / Number(s.dataset.height)})`; s.style.maxWidth = '100%'; return s; };
 
 // The word as tiles. th is one linked tile, e has the heart. interactive: the tiles are buttons (Map it).
 export function wordTiles({ interactive = false, onTh, onHeart } = {}) {
@@ -248,7 +248,7 @@ export function build(env) {
     const chip = h('p', { class: 'px-chip hw-find-chip' }, 'Read the sentence together, then tap the heart word');
     const bare = (w) => w.replace(/[^A-Za-z]/g, '');
     const tiles = words.map((w, i) => h('button', { class: 'ri-tile wtile hw-w', type: 'button', 'aria-label': bare(w), dataset: { word: bare(w).toLowerCase(), i: String(i) }, onclick: () => pick(i) },
-      h('span', { class: 'hw-wheart', 'aria-hidden': 'true' }, heartSvg('small')), faceOf(w)));
+      h('span', { class: 'hw-wheart', 'aria-hidden': 'true' }, heartSvg('small')), faceOf(w, true)));
     const line = h('div', { class: 'hw-line', role: 'group', 'aria-label': SENTENCE }, ...tiles);
     const msg = h('p', { class: 'hw-msg', role: 'status' });
     const slot = h('div', { class: 'hw-btns' });

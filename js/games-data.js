@@ -80,11 +80,34 @@ export function boardWords(order, n, rounds = 4) {
   return out;
 }
 
-export const CYCLE = [['signals'], ['wagons', 'board'], ['board'], ['signals', 'wagons'], ['wagons'], ['board', 'signals']];
-// The game slot of lesson n (Barn Doors' old place): lesson 1 has one sound, so only Wagon Parade fits.
-export function gameSlot(order, n) {
-  if (n === 1) return ['wagons'];
+// The middle of a lesson: what sits between the opening (Letter Review, New Sound, Watch My Mouth) and the ending (closing review,
+// Ticket Check). Owner-approved activities only: Saying Sounds ('sounds', the blending slide), Track Tracing ('writing'), Letter Hunt
+// ('hunt') and the three train games ('signals', 'wagons', 'board'). Every middle holds 'sounds' (blending and reading words) and
+// 'writing', and no two neighbouring lessons share the same list. A lesson past the table repeats it from the top.
+export const MIDDLES = [
+  ['writing', 'sounds', 'hunt'],
+  ['sounds', 'signals', 'writing'],
+  ['hunt', 'sounds', 'wagons', 'writing'],
+  ['signals', 'sounds', 'writing', 'wagons'],
+  ['sounds', 'board', 'writing'],
+  ['writing', 'hunt', 'sounds', 'signals'],
+  ['sounds', 'wagons', 'writing', 'board'],
+  ['hunt', 'writing', 'sounds'],
+  ['signals', 'sounds', 'board', 'writing'],
+  ['writing', 'sounds', 'wagons'],
+  ['board', 'sounds', 'hunt', 'writing'],
+  ['writing', 'signals', 'sounds', 'wagons'],
+  ['hunt', 'sounds', 'board', 'writing'],
+];
+export const TAP_GAMES = ['signals', 'wagons', 'board'];
+// The middle of lesson n: its pattern, with a game the lesson cannot hold (Green Light needs a second sound; Station Board needs
+// its words) swapped for Letter Hunt or Wagon Parade, whichever is not already there.
+export function middleFor(order, n) {
+  const pattern = MIDDLES[(n - 1) % MIDDLES.length];
   const ok = { signals: n >= 2, wagons: true, board: !!boardWords(order, n, 4) };
-  const pick = CYCLE[(n - 2) % CYCLE.length].filter((g) => ok[g]);
-  return pick.length ? pick : ['signals'];
+  const out = [];
+  for (const t of pattern) {
+    if (t in ok && !ok[t]) out.push(['hunt', 'wagons'].find((x) => !pattern.includes(x) && !out.includes(x)) || t); else out.push(t);
+  }
+  return out;
 }

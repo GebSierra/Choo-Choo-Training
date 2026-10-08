@@ -14,7 +14,7 @@ const PACE_MS = 3200; // "Again, faster": each line glows for this long, in turn
 // A sentence as big words (our own glyphs for the taught letters, so "a" is single-story).
 function lineEl(text, cls = '') {
   return h('span', { class: 'rs-line-words ' + cls, role: 'text', 'aria-label': text }, ...text.split(' ').map((w) => {
-    const s = wordSvg(w, { color: INK, all: true, label: w.replace(/[^A-Za-z]/g, '') });
+    const s = wordSvg(w, { color: INK, all: true, font: true, label: w.replace(/[^A-Za-z]/g, '') });
     s.style.width = `calc(var(--cap, 44px) * ${Number(s.dataset.width) / Number(s.dataset.height)})`;
     s.style.maxWidth = '100%';
     return h('span', { class: 'rs-w' }, s);

@@ -63,7 +63,7 @@ export function build(env) {
         nextLetter();
       } }, 'Said it again');
       panel.hidden = false;
-      panel.replaceChildren(h('p', { class: 'ri-text' }, 'Listen. Your child says it again. This card comes back once at the end.'), h('div', { class: 'ri-btns' }, send));
+      panel.replaceChildren(h('p', { class: 'ri-text' }, 'Listen. Say it together. Then your child says it alone. This card comes back once at the end.'), h('div', { class: 'ri-btns' }, send));
       fadeIn(panel, 220);
       saySound(env, key, prompt, { stale: () => g !== gen });
     }
