@@ -48,7 +48,7 @@ export function readingItem(ctx, { kind = 'word', heart = [], onGot, onHelped })
     tiles = units.map((u, i) => {
       const face = kind === 'word'
         ? centeredFace(u, INK)
-        : (() => { const s = wordSvg(u, { color: INK, all: true, label: bare(u) }); s.style.width = `calc(var(--cap, 52px) * ${Number(s.dataset.width) / Number(s.dataset.height)})`; s.style.maxWidth = '100%'; return s; })();
+        : (() => { const s = wordSvg(u, { color: INK, all: true, font: true, label: bare(u) }); s.style.width = `calc(var(--cap, 52px) * ${Number(s.dataset.width) / Number(s.dataset.height)})`; s.style.maxWidth = '100%'; return s; })();
       return h('button', { class: `ri-tile ${kind === 'word' ? 'ltile' : 'wtile'}`, type: 'button', disabled: true, 'aria-label': kind === 'word' ? `letter ${i + 1}` : bare(u), dataset: { i: String(i) }, onclick: () => pick(i) }, face);
     });
     stage.replaceChildren(...tiles);
@@ -113,7 +113,7 @@ export function readingItem(ctx, { kind = 'word', heart = [], onGot, onHelped })
     setPhase('blend');
     const g = gen, w = bare(text);
     const model = () => { lightLetters(); return sayBlend(ctx, w, prompt, { stale: stale(g) }); };
-    setPanel('Now say the whole word, then have your child say it after you.',
+    setPanel('Say the whole word. Then have your child say it after you.',
       btn('Hear it again', () => { model(); }),
       btn('Hear the word', () => speech.say([{ tts: w }])),
       btn('Done', () => complete(), 'ghost go'));
@@ -137,7 +137,7 @@ export function readingItem(ctx, { kind = 'word', heart = [], onGot, onHelped })
       T.later(() => { if (g === gen) letters.forEach((x) => x.classList.remove('current')); }, letters.length * LIGHT_MS);
       return sayBlend(ctx, w, prompt, { stale: stale(g) });
     };
-    setPanel('Your child blends the tricky word.', btn('Hear it again', () => { model(); }), btn('Read the whole line again', again, 'ghost go'));
+    setPanel('Say the tricky word together. Then your child says it alone.', btn('Hear it again', () => { model(); }), btn('Read the whole line again', again, 'ghost go'));
     model();
   }
 

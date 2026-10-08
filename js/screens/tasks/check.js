@@ -26,7 +26,7 @@ export function build({ lesson, sound, speech, store }) {
   return {
     el,
     parts: () => prompted.parts,
-    script: () => `Say: 'Which one ${q.kind === 'picture' ? 'starts with' : 'says'} ${soundPhrase(sound)}?' Let them touch one. There is no right or wrong here.`,
+    script: () => `Say: 'Which one ${q.kind === 'picture' ? 'starts with' : 'says'} ${soundPhrase(sound)}?' Your child touches one card. The app does not say right or wrong. You decide. If it was not the right one, say the sound together.`,
     gist: () => { const verb = q.kind === 'picture' ? 'starts with' : 'says'; return fit(`Ask: which ${verb} ${soundPhrase(sound)}?`, `Ask: ${soundPhrase(sound)}?`); },
     again: () => { cards.forEach((c) => { c.classList.remove('picked'); c.setAttribute('aria-pressed', 'false'); }); speech.say(prompted.parts); },
   };

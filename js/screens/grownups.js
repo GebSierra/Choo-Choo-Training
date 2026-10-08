@@ -1,4 +1,3 @@
-import { openOutside } from '../components/grown-gate.js';
 import { h, icon } from '../dom.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
 import { WELCOME } from '../guide.js';
@@ -185,8 +184,6 @@ export function grownupsScreen(ctx) {
       group('Help and the thinking behind the app'),
       sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),
       ...(fsBtn ? [sec('Screen', fsBtn, h('p', { class: 'gu-note' }, 'Full screen hides the phone bars. It stays on while you move between lessons.'))] : []),
-      sec('Links', h('a', { class: 'gu-link', href: curriculum.playlistUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.playlistUrl); } }, icon('external', 20), 'Sound story playlist'),
-        h('a', { class: 'gu-link', href: curriculum.alphabetSongUrl, target: '_blank', rel: 'noopener', onclick: (e) => { e.preventDefault(); openOutside(curriculum.alphabetSongUrl); } }, icon('external', 20), 'Alphabet song')),
       fold('The thinking behind this app', ...WELCOME.slice(1).flatMap((pg) => [h('h3', { class: 'gu-h3' }, pg.title), ...pg.body.map((t) => h('p', { class: 'gu-para' }, t))])),
       fold('Recorded sounds', clipList, h('p', { class: 'gu-note' }, 'Isolated sounds play from recordings, never from the phone voice. A sound with no recording shows a line for you to say instead ("Say: mmm"). To use your own voice, follow the recording steps.'), h('p', { class: 'gu-note' }, 'Recording steps: see README in the repo.'), h('p', { class: 'gu-credit' }, CLIP_CREDIT), h('p', { class: 'gu-credit' }, WHISTLE_CREDIT)),
       fold('Levels', h('p', { class: 'gu-note' }, 'Each level adds a special car to the train and a gold star.'), h('div', { class: 'gu-list' }, ...levelRows)),

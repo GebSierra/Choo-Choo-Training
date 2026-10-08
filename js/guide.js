@@ -22,9 +22,9 @@ export const WELCOME = [
 
 // One short reminder in the first two lessons, where the habit is formed: lesson number and task type.
 export const TIPS = {
-  '1:newLetter': 'Call this letter mmm, not “em”. When we read, we sound words out, and the name never comes into it.',
-  '1:writing': 'Lowercase first. Capital letters can wait: most of what your child will read is lowercase.',
-  '2:newLetter': 'Call this letter aaa (as in apple), not “ay”. Then ma is “maaa”, not “em-ay”.',
-  '2:sounds': 'Say ma as “maaa”, with no pause between the sounds. Letter names would make it “em-ay”, which is not a word.',
+  '1:newLetter': 'Say the sound mmm, not “em”. We read by sounding words out, so the letter name is not needed.',
+  '1:writing': 'Lowercase first. Most of what your child reads is lowercase. Capital letters can wait.',
+  '2:newLetter': 'Say the sound aaa (as in apple), not “ay”. Then ma is “maaa”, not “em-ay”.',
+  '2:sounds': 'Say ma as “maaa”, with no gap between the sounds. Letter names would make “em-ay”, which is not a word.',
 };
 export const tipFor = (lessonNumber, type) => TIPS[`${lessonNumber}:${type}`] || null;

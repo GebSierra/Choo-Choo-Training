@@ -292,7 +292,7 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
     el, flush: true,
     parts: () => say,
     gist: () => fit(`Find ${soundPhrase(sound)}. Touch it.`, `Find ${soundPhrase(sound)}.`),
-    script: () => `Say: 'Find the letter that says ${soundPhrase(sound)}. Touch it.' Then say ${soundPhrase(sound)} together.`,
+    script: () => `Say: 'Find the letter that says ${soundPhrase(sound)}.' Your child says the sound first, then touches the letter. If they are stuck, say it together.`,
     again: () => { again(); speech.say(say); },
     cleanup: () => { T.clear(); hints.stop(); sky.replaceChildren(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
   };

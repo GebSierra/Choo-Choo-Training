@@ -127,7 +127,7 @@ async function tipChecks(ok, browser, url) {
     return made;
   };
   const sheet = (page) => page.evaluate(() => { const s = document.querySelector('.script-sheet'); return s ? { shown: !s.hidden && getComputedStyle(s).opacity === '1', tip: document.querySelector('.script-sheet .grown-tip')?.textContent || null } : null; });
-  const TIPS = [['1', '0', 'newLetter', 'mmm, not “em”'], ['2', '1', 'newLetter', 'aaa (as in apple), not “ay”'], ['1', '4', 'writing', 'Lowercase first'], ['2', '4', 'sounds', 'maaa']];
+  const TIPS = [['1', '0', 'newLetter', 'mmm, not “em”'], ['2', '1', 'newLetter', 'aaa (as in apple), not “ay”'], ['1', '2', 'writing', 'Lowercase first'], ['2', '3', 'sounds', 'maaa']];
 
   // First visit with a clean device: lesson 1 New Letter opens the script by itself, tip included.
   let m = await open({}, '#/lesson/1/task/0'); await m.page.waitForTimeout(1300);
@@ -195,7 +195,7 @@ async function grownupsChecks(ok, browser, url) {
 
   // Polish A: the new order, the header card, Progress open, the quiet Start over card, no Previews or Developer, no privacy sentence
   const order = await page.evaluate(() => [...document.querySelectorAll('.gu-body > *')].map((e) => e.classList.contains('gu-hero') ? 'hero' : e.classList.contains('gu-version') ? 'version' : e.classList.contains('gu-grouped') ? 'lessons-list' : (e.querySelector('h2') || {}).textContent.trim()));
-  ok(JSON.stringify(order) === JSON.stringify(['hero', 'Progress', 'Lessons', 'lessons-list', 'Your child', 'Sound and voice', 'Pace', 'Help and the thinking behind the app', 'Install', 'Screen', 'Links', 'The thinking behind this app', 'Recorded sounds', 'Levels', 'All the sounds', 'Start over', 'version']), `Grownups: the new order (${JSON.stringify(order)})`);
+  ok(JSON.stringify(order) === JSON.stringify(['hero', 'Progress', 'Lessons', 'lessons-list', 'Your child', 'Sound and voice', 'Pace', 'Help and the thinking behind the app', 'Install', 'Screen', 'The thinking behind this app', 'Recorded sounds', 'Levels', 'All the sounds', 'Start over', 'version']), `Grownups: the new order (${JSON.stringify(order)})`);
   ok(await page.evaluate(() => { const h = document.querySelector('.gu-hero'); return h.querySelector('strong').textContent.length > 0 && /^Lesson \d+ of \d+ · .+ · (No gold stars yet|\d+ gold stars?)$/.test(h.querySelector('.gu-hero-sum').textContent) && !!h.querySelector('svg.kid'); }), 'Grownups: the header card shows the figure, the name and "Lesson N of M · world · gold stars"');
   ok((await page.locator('.gu-fold', { hasText: 'Progress' }).getAttribute('aria-expanded')) === 'true', 'Grownups: Progress is open by default');
   ok((await page.locator('.preview-btn, .gu-devbox, [data-dev]').count()) === 0 && (await page.locator('.gu-fold', { hasText: 'Previews' }).count()) === 0 && (await page.locator('h2', { hasText: 'Developer' }).count()) === 0, 'Grownups: no Previews and no Developer outside developer mode');

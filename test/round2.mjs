@@ -159,26 +159,6 @@ export async function sackFlowChecks({ browser, url, ok }) {
   }
 }
 
-// Item 15: the Sound Story play circle is a small greyed decoration that wiggles the real hold button when tapped.
-export async function storyChecks({ browser, url, ok }) {
-  for (const vp of [VIEWPORTS[0], VIEWPORTS[1]]) {
-    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'story')}`);
-    await page.waitForSelector('.story-art');
-    await page.waitForTimeout(600);
-    const play = await page.locator('.story .play').boundingBox();
-    ok(play.width <= 64 && play.height <= 64, `${vp.name} Story: the play circle is small (${Math.round(play.width)} px)`);
-    ok((await page.evaluate(() => getComputedStyle(document.querySelector('.story .play')).backgroundColor)).startsWith('rgba'), `${vp.name} Story: the play circle is a translucent, greyed disc`);
-    ok((await anims(page, '.hold-btn')) === 0, `${vp.name} Story: the hold button is still before a tap`);
-    await tap(page, page.locator('.story-art'));
-    await page.waitForTimeout(100);
-    ok((await anims(page, '.hold-btn')) >= 1, `${vp.name} Story: tapping the circle wiggles the real hold button`);
-    await page.waitForTimeout(400);
-    ok(page.url().includes('/task/') && (await page.locator('.hold-btn').count()) === 1, `${vp.name} Story: nothing opens and nothing navigates`);
-    ok(errors.length === 0, `${vp.name} Story: errors ${errors.join(' | ')}`);
-    await ctx.close();
-  }
-}
-
 // Item 16 and 17: the slide cue (a hand along the bar, in step with the sweep, ended by the first touch) and the Saying Words
 // band that covers the whole merged tile.
 export async function cueChecks({ browser, url, ok, vp = VIEWPORTS[0] }) {
@@ -215,31 +195,6 @@ export async function cueChecks({ browser, url, ok, vp = VIEWPORTS[0] }) {
     ok(errors.length === 0, `${vp.name} cue picture: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
-  // Saying Words: after the reveal a wash sweeps every 4 s with a hand along the bar; the band covers the whole tile.
-  {
-    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'words')}`);
-    await page.waitForSelector('.merged-tile');
-    await page.waitForTimeout(700);
-    ok((await page.locator('.slide-hand').count()) === 0 && (await page.locator('.tap-hint:visible').count()) === 0, `${vp.name} Words: before the reveal there is no slide cue`);
-    await tap(page, page.locator('.merged-tile'));
-    await page.waitForSelector('.slide-band');
-    await page.waitForTimeout(700);
-    const w = await page.evaluate(() => {
-      const t = document.querySelector('.merged-tile').getBoundingClientRect(), b = document.querySelector('.slide-band').getBoundingClientRect(), host = document.querySelector('.words-task').getBoundingClientRect();
-      const sw = document.querySelector('.merged-tile .sweep').getAnimations()[0], hand = document.querySelector('.slide-hand').getAnimations()[0];
-      return { tile: { t: t.top, b: t.bottom, l: t.left, r: t.right }, band: { t: b.top, b: b.bottom, l: b.left, r: b.right }, host: { l: host.left, r: host.right }, sweep: sw.effect.getTiming().duration, hand: hand.effect.getTiming().duration };
-    });
-    ok(w.band.t <= w.tile.t + 0.5 && w.band.b >= w.tile.b - 0.5 && w.band.l <= w.tile.l && w.band.r >= w.tile.r, `${vp.name} Words: the slide band covers the whole merged tile (band ${Math.round(w.band.t)}-${Math.round(w.band.b)}, tile ${Math.round(w.tile.t)}-${Math.round(w.tile.b)})`);
-    ok(Math.abs(w.band.l - w.host.l) < 1 && Math.abs(w.band.r - w.host.r) < 1, `${vp.name} Words: the band is as wide as the stage`);
-    ok(w.sweep === 4000 && w.hand === 4000, `${vp.name} Words: the wash and the hand repeat every 4 s (${w.sweep}, ${w.hand})`);
-    // A slide that starts in the picture's top area lights letters (it used to start in a 140 px strip below it).
-    const tileBox = await page.locator('.merged-tile').boundingBox();
-    const y = tileBox.y + 8, x0 = tileBox.x + 12, x1 = tileBox.x + tileBox.width - 6;
-    await touchDrag(page, { x: x0, y }, { x: x1, y }, { steps: 12, during: async () => { const lit = await page.evaluate(() => Number(document.querySelector('.slide-band').dataset.lit)); ok(lit >= 3, `${vp.name} Words: a slide from the top edge of the tile lights the letters (${lit} lit)`); } });
-    ok((await page.locator('.slide-hand').count()) === 0 && (await anims(page, '.merged-tile .sweep')) === 0, `${vp.name} Words: the first touch ends the wash and the hand`);
-    ok(errors.length === 0, `${vp.name} cue words: errors ${errors.join(' | ')}`);
-    await ctx.close();
-  }
 }
 
 // Group 4: layout and polish at the three phone sizes.
@@ -269,7 +224,7 @@ export async function layoutChecks({ browser, url, ok, vp }) {
     ok(tp.h <= tp.vh * 0.7 + 1, `${tag} Writing: the trace pad is at most 70vh (${Math.round(tp.h)} of ${tp.vh})`);
     // owner fix: the script tells the grown-up to draw first and that an imperfect drawing is fine, and Next never waits for a drawing
     const ws = await page.evaluate(() => (document.querySelector('.script-sheet .sheet-body') || {}).textContent || '');
-    ok(ws.includes("Draw it first while your child watches, then let them try. Start at the dot and follow the arrow. It's fine if it doesn't look right yet: your child can still move on."), `${tag} Writing: the script says draw first, and that it is fine if it does not look right`);
+    ok(ws.includes("I do: draw the letter while your child watches. We do: trace it together, one finger each. You do: your child traces it alone. Start at the dot and follow the arrow. It does not have to look right yet. Your child can still move on."), `${tag} Writing: the script says draw first, and that it is fine if it does not look right`);
     await page.waitForTimeout(1200);
     ok(await page.evaluate(() => !document.querySelector('.btn.next').disabled), `${tag} Writing: Next is open with nothing drawn (a child who cannot draw it yet can move on)`);
     await ctx.close();
@@ -290,32 +245,11 @@ export async function layoutChecks({ browser, url, ok, vp }) {
     const { ctx, page } = await open(browser, url, vp, '#/lesson/2');
     await page.waitForSelector('.task-card');
     await page.waitForTimeout(700);
-    const o = await page.evaluate(() => ({ note: getComputedStyle(document.querySelector('.song-row .parent-note')).display, p: getComputedStyle(document.querySelector('.lo-title p')).fontSize, pad: getComputedStyle(document.querySelector('.cards-scroll')).paddingBottom, cols: getComputedStyle(document.querySelector('.cards')).gridTemplateColumns.split(' ').length, h: document.querySelector('.task-card').getBoundingClientRect().height }));
+    const o = await page.evaluate(() => ({ p: getComputedStyle(document.querySelector('.lo-title p')).fontSize, pad: getComputedStyle(document.querySelector('.cards-scroll')).paddingBottom, cols: getComputedStyle(document.querySelector('.cards')).gridTemplateColumns.split(' ').length, h: document.querySelector('.task-card').getBoundingClientRect().height }));
     ok(o.p === '16px', `${tag} overview: the subtitle is 16 px`);
-    if (small) ok(o.note === 'none', `${tag} overview: the alphabet song description is hidden at 360`);
-    if (!land) ok(o.pad === '16px', `${tag} overview: the cards leave 16 px under them (polish B: the footer is in the flow now, with the song row under Start; was 96 px)`);
+    ok((await page.locator('.song-row').count()) === 0, `${tag} overview: no alphabet song row (the YouTube links are gone)`);
+    if (!land) ok(o.pad === '16px', `${tag} overview: the cards leave 16 px under them (polish B: the footer is in the flow now; was 96 px)`);
     if (land) ok(o.cols === 5 && o.h < 125 && o.h > 110, `${tag} overview: five columns of about 118 px (${o.cols}, ${Math.round(o.h)})`);
-    await ctx.close();
-  }
-  // 23 and 17: the compound word is two 56 px frames side by side, and Next word does not move when the tiles merge.
-  {
-    const { ctx, page } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'words')}`);
-    await page.waitForSelector('.merged-tile');
-    await page.waitForTimeout(700);
-    const before = await rect(page, '.btn.ghost.small');
-    ok((await page.locator('.part-tile .emoji-frame').count()) === 2, `${tag} Words: the part pictures sit in rounded frames`);
-    await tap(page, page.locator('.merged-tile'));
-    await page.waitForSelector('.emoji-pair');
-    await page.waitForTimeout(800);
-    const after = await rect(page, '.btn.ghost.small');
-    ok(Math.abs(after.y - before.y) < 0.5, `${tag} Words: Next word does not move when the tiles merge (${Math.round(before.y)} to ${Math.round(after.y)})`);
-    const pair = await page.evaluate(() => [...document.querySelectorAll('.emoji-pair.dim .pic-frame')].map((e) => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; }));
-    const exp = land ? 44 : 56;
-    ok(pair.length === 2 && pair.every((p) => Math.abs(p.w - exp) < 1 && Math.abs(p.h - exp) < 1) && Math.abs(pair[0].y - pair[1].y) < 1 && pair[1].x >= pair[0].x + pair[0].w, `${tag} Words: two ${exp} px picture frames side by side (${JSON.stringify(pair.map((p) => [Math.round(p.w), Math.round(p.x)]))})`);
-    ok((await page.locator('.merged-tile .stack, .merged-tile .mini').count()) === 0, `${tag} Words: no stacked overlapping emoji`);
-    // 28: the slide band keeps 24 px from the screen's edges.
-    const band = await rect(page, '.slide-band');
-    ok(band.x >= 23.5 && band.r <= vp.width - 23.5, `${tag} Words: the slide band is 24 px in from both screen edges (${Math.round(band.x)} to ${Math.round(band.r)} of ${vp.width})`);
     await ctx.close();
   }
   // 24: the art is bigger; 25: the Find this text is 16 px.
@@ -537,25 +471,6 @@ export async function reliabilityChecks({ browser, url, ok }) {
     ok(errors.length === 0, 'Review double tap: errors ' + errors.join(' | '));
     await ctx.close();
   }
-  // 37: a hold that outlives its screen opens nothing and navigates nowhere.
-  {
-    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'story')}`);
-    await page.waitForSelector('.hold-btn');
-    await page.waitForTimeout(700);
-    let popups = 0; ctx.on('page', () => { popups++; });
-    const b = await page.locator('.hold-btn').boundingBox();
-    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
-    await page.mouse.down();
-    await page.waitForTimeout(900);
-    await page.evaluate(() => { location.hash = '#/home'; });
-    await page.waitForSelector('.home');
-    await page.waitForTimeout(1800); // well past the 2 s hold
-    await page.mouse.up();
-    await page.waitForTimeout(400);
-    ok(popups === 0 && page.url().endsWith('#/home'), `hold: leaving mid-hold and keeping the finger down opens no popup (${popups}) and does not navigate (${page.url().split('#')[1]})`);
-    ok(errors.length === 0, 'hold: errors ' + errors.join(' | '));
-    await ctx.close();
-  }
   // 38: Clear pressed with a second finger mid-stroke does not throw.
   {
     const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'writing')}`);
@@ -635,8 +550,8 @@ export async function reliabilityChecks({ browser, url, ok }) {
     const made = await newPage(browser, vp);
     const { page } = made;
     await page.addInitScript(SPEECH_STUB); await page.addInitScript(SEED());
-    await page.route('**/data/curriculum.json', async (route) => { const r = await route.fetch(); const j = await r.json(); delete j.lessons[0].sayingWords; await route.fulfill({ response: r, json: j }); });
-    await page.goto(url + `#/lesson/1/task/${idx(1, 'words')}`);
+    await page.route('**/data/curriculum.json', async (route) => { const r = await route.fetch(); const j = await r.json(); delete j.lessons[0].sayingSounds; await route.fulfill({ response: r, json: j }); });
+    await page.goto(url + `#/lesson/1/task/${idx(1, 'sounds')}`);
     await page.waitForSelector('.retry-card');
     ok((await page.locator('.retry-card button').innerText()) === 'Back to the path', 'a screen that throws shows "Something went wrong." with a Back to the path button');
     await page.click('.retry-card button');
@@ -675,7 +590,6 @@ export async function reliabilityChecks({ browser, url, ok }) {
 export async function round2Checks(env) {
   await gameFlowChecks(env);
   await sackFlowChecks(env);
-  await storyChecks(env);
   for (const vp of VIEWPORTS) await cueChecks({ ...env, vp });
   for (const vp of VIEWPORTS) await layoutChecks({ ...env, vp });
   await landscapeChecks(env);

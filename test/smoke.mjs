@@ -15,7 +15,7 @@ import { roomChecks, barChecks, timerAndFirstVisitChecks, grownupsScriptChecks }
 import { round2Checks } from './round2.mjs';
 import { round3Checks } from './round3.mjs';
 import { mapAllChecks } from './map.mjs';
-import { lettersSlideChecks, pictureWordSlideChecks, wordsSlideChecks, slideReducedChecks } from './slide.mjs';
+import { lettersSlideChecks, pictureWordSlideChecks, slideReducedChecks } from './slide.mjs';
 
 const FAST = process.argv.includes('--fast');
 const OUT = path.join(ROOT, '_test');
@@ -41,7 +41,7 @@ for (const vp of VIEWPORTS) {
 }
 
 // Home and lesson overview (step 6).
-const SEED = (lessons, settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${JSON.stringify(lessons)},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
+const SEED = (lessons, settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${JSON.stringify(lessons)},settings:${JSON.stringify({ seenScripts: SEEN, layoutA: true, ...settings })},firstRunDone:true}))`;
 for (const vp of VIEWPORTS) {
   const { ctx, page, errors } = await newPage(browser, vp);
   await page.addInitScript(SPEECH_STUB);
@@ -153,7 +153,7 @@ for (const vp of VIEWPORTS) {
       const lesson = CUR.lessons[L - 1];
       const title = await page.locator('.task-head h1').innerText();
       if (title === tasksFor(CUR.lessons[L - 1])[i].name) visited++; // counted only when the screen is the task the data lists
-      const reveal = { 'Word Cars': ['.merged-tile', lesson.sayingWords.length], 'Saying Sounds': ['.sounds-stage', lesson.sayingSounds.length] }[title];
+      const reveal = { 'Saying Sounds': ['.sounds-stage', lesson.sayingSounds.length] }[title];
       if (reveal) {
         for (let w = 0; w < reveal[1]; w++) {
           await page.locator(reveal[0]).click();
@@ -250,7 +250,6 @@ for (const vp of VIEWPORTS) {
   for (const lessonNo of [2, 3, 4, 8]) await lettersSlideChecks({ browser, url, ok, vp, lessonNo });
   await pictureWordSlideChecks({ browser, url, ok, vp, lessonNo: 4 });
   await pictureWordSlideChecks({ browser, url, ok, vp, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `slide-picture-${vp.name}-${name}.png`) }) });
-  for (const lessonNo of [1, 2]) await wordsSlideChecks({ browser, url, ok, vp, lessonNo, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `slide-words-${vp.name}-L${lessonNo}-${name}.png`) }) });
 }
 await slideReducedChecks({ browser, url, ok });
 // Practicing Words (the Loading Dock inside a lesson) and the renames; the sack stop checks run only while the line has a checkpoint.
@@ -298,44 +297,23 @@ await sackGrownupsChecks({ browser, url, ok });
   const { ctx, page, errors } = await newPage(browser, VIEWPORTS[0]);
   await page.addInitScript(SPEECH_STUB);
   await page.addInitScript(SEED({}, { playSounds: false, migrated1912: true, autoSpeak: true, speak0: true }));
-  await ctx.route(/youtu(\.be|be\.com)/, (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>video</title>' }));
   await page.goto(url + '#/home');
   await page.waitForSelector('.stone.is-current');
   await page.locator('.stone.is-current').click();
   await page.waitForSelector('.lesson-overview');
-  // Optional alphabet song: behind the same hold gate, opens a popup, is not a task.
-  ok((await page.locator('.song-row').count()) === 1 && (await page.locator('.task-card').count()) === COUNT(1), 'alphabet song row exists and is not a task card');
-  await page.locator('.song-hold').scrollIntoViewIfNeeded();
-  const sb = await page.locator('.song-hold').boundingBox();
-  const [songPopup] = await Promise.all([
-    page.waitForEvent('popup', { timeout: 4000 }),
-    (async () => { await page.mouse.move(sb.x + sb.width / 2, sb.y + sb.height / 2); await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up(); await page.waitForSelector('.gg-card'); await page.click('.gg-num[data-n="' + (await page.getAttribute('.gg-card', 'data-target')) + '"]'); })(),
-  ]);
-  await songPopup.waitForLoadState('domcontentloaded');
-  ok(/qKQAQc2NEuk/.test(songPopup.url()), 'alphabet song opens its video: ' + songPopup.url());
-  await songPopup.close();
+  // The YouTube links are gone (owner, 2026-10-08): no alphabet song row, only the lesson's own task cards.
+  ok((await page.locator('.song-row').count()) === 0 && (await page.locator('.task-card').count()) === COUNT(1), 'no alphabet song row, and only task cards on the overview');
   await page.click('.start-btn');
   await page.waitForSelector('.task-screen');
   await page.waitForTimeout(800);
   let spoken = await page.evaluate(() => window.__spoken);
   ok(spoken.includes('Today we learn a new letter. Your grown up will say its sound.'), 'entry speech for New Letter (quiet): ' + JSON.stringify(spoken));
   ok(!(await page.evaluate(() => window.__events.some((e) => e.type === 'clip'))), 'with the default settings the entry speech plays no clip');
-  // Next to the Sound Story and open the playlist with a hold.
+  // Next goes to Watch My Mouth (nothing leaves the app any more).
   await page.click('.btn.next');
-  await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Sound Story');
+  await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Watch My Mouth');
   await page.waitForTimeout(500);
-  const hold = page.locator('.hold-btn');
-  // A short tap must not open it.
-  let popped = false; page.on('popup', () => { popped = true; });
-  await hold.click(); await page.waitForTimeout(400);
-  ok(!popped, 'a short tap does not open the playlist');
-  const hb = await hold.boundingBox();
-  const [popup] = await Promise.all([
-    page.waitForEvent('popup', { timeout: 4000 }),
-    (async () => { await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await page.mouse.down(); await page.waitForTimeout(2200); await page.mouse.up(); await page.waitForSelector('.gg-card'); await page.click('.gg-num[data-n="' + (await page.getAttribute('.gg-card', 'data-target')) + '"]'); })(),
-  ]);
-  ok(/youtube\.com\/playlist\?list=PL2hNdtrsO2hIINInfmEb55IpwTw0IrQZW/.test(popup.url()), 'playlist popup opened the playlist: ' + popup.url());
-  await popup.close();
+  ok((await page.locator('.hold-btn').count()) === 0 && (await page.locator('a[href^="http"]').count()) === 0, 'Watch My Mouth: no outside link or hold button');
   // Walk the remaining tasks.
   for (let k = 0; k < COUNT(1) - 2; k++) { await page.click('.btn.next'); await page.waitForTimeout(450); }
   await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Ticket Check');
@@ -674,8 +652,8 @@ for (const [name, raw] of [
   await page.waitForFunction(() => !document.querySelector('.task-stage > .speak-btn').classList.contains('is-speaking'), null, { timeout: 6000 });
   ok(Date.now() - t0 < 5800, 'speech that never starts gives up within a few seconds (' + (Date.now() - t0) + ' ms)');
   await page.click('.btn.next');
-  await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Sound Story', null, { timeout: 3000 });
-  ok((await page.locator('.task-head h1').innerText()) === 'Sound Story', 'Next works while speech never starts');
+  await page.waitForFunction(() => document.querySelector('.task-head h1')?.textContent === 'Watch My Mouth', null, { timeout: 3000 });
+  ok((await page.locator('.task-head h1').innerText()) === 'Watch My Mouth', 'Next works while speech never starts');
   ok(errors.length === 0, 'silent-speech errors ' + errors.join(' | '));
   await ctx.close();
 }
@@ -729,16 +707,16 @@ for (const [name, raw] of [
   ok((await picked()) === 1 && (await page.locator('.opt-card').nth(1).getAttribute('class')).includes('picked'), 'Quick Check: only the last pick is raised');
   await page.click('.btn.again');
   ok((await picked()) === 0 && (await page.locator('.opt-card[aria-pressed="true"]').count()) === 0, 'Quick Check: Again lowers every card');
-  // Saying Words: leave right after revealing; the word must not be spoken on the next screen.
-  await page.goto(url + '#/lesson/1/task/2');
-  await page.waitForSelector('.merged-tile');
+  // Saying Sounds: leave right after revealing; the word must not be spoken on the next screen.
+  await page.goto(url + `#/lesson/1/task/${tasksFor(CUR.lessons[0]).find((t) => t.type === 'sounds').index}`);
+  await page.waitForSelector('.sounds-stage');
   await page.waitForTimeout(700);
-  await page.locator('.merged-tile').click();
+  await page.locator('.sounds-stage').click();
   await page.evaluate(() => { location.hash = '#/lesson/1'; });
   await page.waitForSelector('.lesson-overview');
   await page.evaluate(() => { window.__spoken.length = 0; });
   await page.waitForTimeout(700);
-  ok(!(await page.evaluate(() => window.__spoken)).includes('sunhat'), 'no speech from the screen we just left (stale timer)');
+  ok(!(await page.evaluate(() => window.__spoken)).includes('moon'), 'no speech from the screen we just left (stale timer)');
   // Cancel while a clip plays: the rest of the line never plays.
   await page.evaluate(() => { window.__clipMs = 700; });
   await page.goto(url + '#/lesson/2/task/1');

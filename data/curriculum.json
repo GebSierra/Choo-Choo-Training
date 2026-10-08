@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "playlistUrl": "https://m.youtube.com/playlist?list=PL2hNdtrsO2hIINInfmEb55IpwTw0IrQZW",
-  "alphabetSongUrl": "https://youtu.be/qKQAQc2NEuk",
   "sounds": {
     "m": {
       "glyph": "m",
@@ -43,7 +41,11 @@
         "milk",
         "map",
         "moon"
-      ]
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Lips together. Hum through your nose. Voice on."
+      }
     },
     "a": {
       "glyph": "a",
@@ -83,7 +85,11 @@
       ],
       "practice": [
         "apple"
-      ]
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Open your mouth wide, with your jaw down. Keep your tongue low and flat. Voice on."
+      }
     },
     "s": {
       "glyph": "s",
@@ -133,7 +139,11 @@
         "snake",
         "sun",
         "sock"
-      ]
+      ],
+      "mouth": {
+        "voice": false,
+        "text": "Teeth close together. Tongue behind your teeth. Blow a thin stream of air. Voice off."
+      }
     },
     "i": {
       "glyph": "i",
@@ -165,7 +175,11 @@
       ],
       "practice": [
         "igloo"
-      ]
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Keep your mouth small and relaxed. Tongue a little forward. Voice on."
+      }
     },
     "t": {
       "glyph": "t",
@@ -215,7 +229,11 @@
         "tiger",
         "table",
         "tent"
-      ]
+      ],
+      "mouth": {
+        "voice": false,
+        "text": "Touch your tongue tip just behind your top teeth. Let out a quick puff of air. Voice off."
+      }
     },
     "p": {
       "glyph": "p",
@@ -265,7 +283,11 @@
         "pig",
         "pot",
         "panda"
-      ]
+      ],
+      "mouth": {
+        "voice": false,
+        "text": "Lips together, then open them with a quick puff of air. Voice off."
+      }
     },
     "n": {
       "glyph": "n",
@@ -315,7 +337,11 @@
         "nose",
         "nut",
         "nest"
-      ]
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Tongue behind your top teeth. Hum through your nose. Voice on."
+      }
     },
     "f": {
       "glyph": "f",
@@ -365,7 +391,11 @@
         "fish",
         "fan",
         "fox"
-      ]
+      ],
+      "mouth": {
+        "voice": false,
+        "text": "Top teeth on your bottom lip. Blow air out. Voice off."
+      }
     },
     "d": {
       "glyph": "d",
@@ -423,7 +453,11 @@
         "duck",
         "dog",
         "door"
-      ]
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Tap your tongue behind your top teeth, quick and light. Voice on."
+      }
     },
     "h": {
       "glyph": "h",
@@ -481,7 +515,11 @@
         "hat",
         "hand",
         "horse"
-      ]
+      ],
+      "mouth": {
+        "voice": false,
+        "text": "Open your mouth a little. Breathe out, as if fogging a mirror. Voice off."
+      }
     },
     "g": {
       "glyph": "g",
@@ -514,7 +552,11 @@
       "practice": [
         "goat",
         "gate"
-      ]
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Lift the back of your tongue to the roof of your mouth. Let it drop quickly. Voice on."
+      }
     },
     "b": {
       "glyph": "b",
@@ -572,7 +614,11 @@
         "ball",
         "bus",
         "banana"
-      ]
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Lips together, then pop them open. Voice on."
+      }
     },
     "l": {
       "glyph": "l",
@@ -622,7 +668,11 @@
         "leaf",
         "leg",
         "ladder"
-      ]
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Touch your tongue tip behind your top teeth. Let the sound flow around it. Voice on."
+      }
     }
   },
   "lessons": [
@@ -641,52 +691,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "sun",
-            "hat"
-          ],
-          "word": "sunhat",
-          "emoji": [
-            "☀️",
-            "👒"
-          ]
-        },
-        {
-          "parts": [
-            "cup",
-            "cake"
-          ],
-          "word": "cupcake",
-          "emoji": [
-            "🥤",
-            "🧁"
-          ]
-        },
-        {
-          "parts": [
-            "hand",
-            "bag"
-          ],
-          "word": "handbag",
-          "emoji": [
-            "✋",
-            "👜"
-          ]
-        },
-        {
-          "parts": [
-            "star",
-            "fish"
-          ],
-          "word": "starfish",
-          "emoji": [
-            "⭐",
-            "🐟"
-          ]
         }
       ],
       "sayingSounds": [
@@ -741,11 +745,14 @@
           }
         ]
       },
-      "games": [
-        "wagons"
-      ],
+      "games": [],
       "unit": "2.1",
-      "world": "W1"
+      "world": "W1",
+      "middle": [
+        "writing",
+        "sounds",
+        "hunt"
+      ]
     },
     {
       "number": 2,
@@ -767,52 +774,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "cat",
-            "fish"
-          ],
-          "word": "catfish",
-          "emoji": [
-            "🐈",
-            "🐟"
-          ]
-        },
-        {
-          "parts": [
-            "pan",
-            "cake"
-          ],
-          "word": "pancake",
-          "emoji": [
-            "🍳",
-            "🥞"
-          ]
-        },
-        {
-          "parts": [
-            "rain",
-            "coat"
-          ],
-          "word": "raincoat",
-          "emoji": [
-            "🌧️",
-            "🧥"
-          ]
-        },
-        {
-          "parts": [
-            "tooth",
-            "brush"
-          ],
-          "word": "toothbrush",
-          "emoji": [
-            "🦷",
-            "🪥"
-          ]
         }
       ],
       "sayingSounds": [
@@ -867,7 +828,12 @@
         "signals"
       ],
       "unit": "2.1",
-      "world": "W1"
+      "world": "W1",
+      "middle": [
+        "sounds",
+        "signals",
+        "writing"
+      ]
     },
     {
       "number": 3,
@@ -887,52 +853,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "sun",
-            "flower"
-          ],
-          "word": "sunflower",
-          "emoji": [
-            "☀️",
-            "🌻"
-          ]
-        },
-        {
-          "parts": [
-            "snow",
-            "man"
-          ],
-          "word": "snowman",
-          "emoji": [
-            "❄️",
-            "🧍"
-          ]
-        },
-        {
-          "parts": [
-            "hot",
-            "dog"
-          ],
-          "word": "hotdog",
-          "emoji": [
-            "🔥",
-            "🐕"
-          ]
-        },
-        {
-          "parts": [
-            "foot",
-            "ball"
-          ],
-          "word": "football",
-          "emoji": [
-            "🦶",
-            "⚽"
-          ]
         }
       ],
       "sayingSounds": [
@@ -988,7 +908,13 @@
         "wagons"
       ],
       "unit": "2.1",
-      "world": "W1"
+      "world": "W1",
+      "middle": [
+        "hunt",
+        "sounds",
+        "wagons",
+        "writing"
+      ]
     },
     {
       "number": 4,
@@ -1011,52 +937,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "pine",
-            "apple"
-          ],
-          "word": "pineapple",
-          "emoji": [
-            "🌲",
-            "🍎"
-          ]
-        },
-        {
-          "parts": [
-            "spider",
-            "web"
-          ],
-          "word": "spiderweb",
-          "emoji": [
-            "🕷️",
-            "🕸️"
-          ]
-        },
-        {
-          "parts": [
-            "light",
-            "house"
-          ],
-          "word": "lighthouse",
-          "emoji": [
-            "💡",
-            "🏠"
-          ]
-        },
-        {
-          "parts": [
-            "drum",
-            "stick"
-          ],
-          "word": "drumstick",
-          "emoji": [
-            "🥁",
-            "🪵"
-          ]
         }
       ],
       "sayingSounds": [
@@ -1116,8 +996,15 @@
           }
         ]
       },
+      "middle": [
+        "signals",
+        "sounds",
+        "writing",
+        "wagons"
+      ],
       "games": [
-        "signals"
+        "signals",
+        "wagons"
       ],
       "unit": "2.2",
       "world": "W1"
@@ -1140,52 +1027,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "tree",
-            "house"
-          ],
-          "word": "treehouse",
-          "emoji": [
-            "🌳",
-            "🏠"
-          ]
-        },
-        {
-          "parts": [
-            "tea",
-            "pot"
-          ],
-          "word": "teapot",
-          "emoji": [
-            "🍵",
-            "🍲"
-          ]
-        },
-        {
-          "parts": [
-            "cow",
-            "boy"
-          ],
-          "word": "cowboy",
-          "emoji": [
-            "🐄",
-            "👦"
-          ]
-        },
-        {
-          "parts": [
-            "sand",
-            "box"
-          ],
-          "word": "sandbox",
-          "emoji": [
-            "🏖️",
-            "📦"
-          ]
         }
       ],
       "sayingSounds": [
@@ -1263,9 +1104,13 @@
           "target": "s"
         }
       ],
+      "middle": [
+        "sounds",
+        "board",
+        "writing"
+      ],
       "games": [
-        "signals",
-        "wagons"
+        "board"
       ],
       "unit": "2.2",
       "world": "W1"
@@ -1288,52 +1133,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "pop",
-            "corn"
-          ],
-          "word": "popcorn",
-          "emoji": [
-            "💥",
-            "🌽"
-          ]
-        },
-        {
-          "parts": [
-            "paint",
-            "brush"
-          ],
-          "word": "paintbrush",
-          "emoji": [
-            "🎨",
-            "🖌️"
-          ]
-        },
-        {
-          "parts": [
-            "paper",
-            "clip"
-          ],
-          "word": "paperclip",
-          "emoji": [
-            "📄",
-            "📎"
-          ]
-        },
-        {
-          "parts": [
-            "space",
-            "ship"
-          ],
-          "word": "spaceship",
-          "emoji": [
-            "🪐",
-            "🚢"
-          ]
         }
       ],
       "sayingSounds": [
@@ -1408,8 +1207,14 @@
           "target": "i"
         }
       ],
+      "middle": [
+        "writing",
+        "hunt",
+        "sounds",
+        "signals"
+      ],
       "games": [
-        "wagons"
+        "signals"
       ],
       "unit": "2.3",
       "world": "W1"
@@ -1432,52 +1237,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "pea",
-            "nut"
-          ],
-          "word": "peanut",
-          "emoji": [
-            "🫛",
-            "🥜"
-          ]
-        },
-        {
-          "parts": [
-            "note",
-            "book"
-          ],
-          "word": "notebook",
-          "emoji": [
-            "📝",
-            "📖"
-          ]
-        },
-        {
-          "parts": [
-            "moon",
-            "light"
-          ],
-          "word": "moonlight",
-          "emoji": [
-            "🌙",
-            "💡"
-          ]
-        },
-        {
-          "parts": [
-            "ant",
-            "hill"
-          ],
-          "word": "anthill",
-          "emoji": [
-            "🐜",
-            "⛰️"
-          ]
         }
       ],
       "sayingSounds": [
@@ -1555,9 +1314,15 @@
           "target": "t"
         }
       ],
+      "middle": [
+        "sounds",
+        "wagons",
+        "writing",
+        "board"
+      ],
       "games": [
-        "board",
-        "signals"
+        "wagons",
+        "board"
       ],
       "unit": "2.5",
       "world": "W2"
@@ -1580,52 +1345,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "fish",
-            "bowl"
-          ],
-          "word": "fishbowl",
-          "emoji": [
-            "🐟",
-            "🥣"
-          ]
-        },
-        {
-          "parts": [
-            "flower",
-            "pot"
-          ],
-          "word": "flowerpot",
-          "emoji": [
-            "🌸",
-            "🪴"
-          ]
-        },
-        {
-          "parts": [
-            "fire",
-            "truck"
-          ],
-          "word": "firetruck",
-          "emoji": [
-            "🔥",
-            "🚚"
-          ]
-        },
-        {
-          "parts": [
-            "butter",
-            "fly"
-          ],
-          "word": "butterfly",
-          "emoji": [
-            "🧈",
-            "🪰"
-          ]
         }
       ],
       "sayingSounds": [
@@ -1700,9 +1419,12 @@
           "target": "p"
         }
       ],
-      "games": [
-        "signals"
+      "middle": [
+        "hunt",
+        "writing",
+        "sounds"
       ],
+      "games": [],
       "unit": "2.4",
       "world": "W2"
     },
@@ -1724,52 +1446,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "doll",
-            "house"
-          ],
-          "word": "dollhouse",
-          "emoji": [
-            "🪆",
-            "🏠"
-          ]
-        },
-        {
-          "parts": [
-            "door",
-            "bell"
-          ],
-          "word": "doorbell",
-          "emoji": [
-            "🚪",
-            "🔔"
-          ]
-        },
-        {
-          "parts": [
-            "rain",
-            "drop"
-          ],
-          "word": "raindrop",
-          "emoji": [
-            "🌧️",
-            "💧"
-          ]
-        },
-        {
-          "parts": [
-            "bull",
-            "dog"
-          ],
-          "word": "bulldog",
-          "emoji": [
-            "🐂",
-            "🐕"
-          ]
         }
       ],
       "sayingSounds": [
@@ -1847,8 +1523,14 @@
           "target": "n"
         }
       ],
+      "middle": [
+        "signals",
+        "sounds",
+        "board",
+        "writing"
+      ],
       "games": [
-        "wagons",
+        "signals",
         "board"
       ],
       "unit": "2.5",
@@ -1872,52 +1554,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "horse",
-            "shoe"
-          ],
-          "word": "horseshoe",
-          "emoji": [
-            "🐴",
-            "👟"
-          ]
-        },
-        {
-          "parts": [
-            "hat",
-            "box"
-          ],
-          "word": "hatbox",
-          "emoji": [
-            "👒",
-            "📦"
-          ]
-        },
-        {
-          "parts": [
-            "bird",
-            "house"
-          ],
-          "word": "birdhouse",
-          "emoji": [
-            "🐦",
-            "🏠"
-          ]
-        },
-        {
-          "parts": [
-            "ham",
-            "burger"
-          ],
-          "word": "hamburger",
-          "emoji": [
-            "🍖",
-            "🍔"
-          ]
         }
       ],
       "sayingSounds": [
@@ -1992,8 +1628,13 @@
           "target": "f"
         }
       ],
+      "middle": [
+        "writing",
+        "sounds",
+        "wagons"
+      ],
       "games": [
-        "board"
+        "wagons"
       ],
       "unit": "2.6",
       "world": "W2"
@@ -2016,52 +1657,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "gold",
-            "fish"
-          ],
-          "word": "goldfish",
-          "emoji": [
-            "🪙",
-            "🐟"
-          ]
-        },
-        {
-          "parts": [
-            "egg",
-            "plant"
-          ],
-          "word": "eggplant",
-          "emoji": [
-            "🥚",
-            "🌱"
-          ]
-        },
-        {
-          "parts": [
-            "dragon",
-            "fly"
-          ],
-          "word": "dragonfly",
-          "emoji": [
-            "🐉",
-            "🪰"
-          ]
-        },
-        {
-          "parts": [
-            "dog",
-            "house"
-          ],
-          "word": "doghouse",
-          "emoji": [
-            "🐕",
-            "🏠"
-          ]
         }
       ],
       "sayingSounds": [
@@ -2139,9 +1734,14 @@
           "target": "d"
         }
       ],
+      "middle": [
+        "board",
+        "sounds",
+        "hunt",
+        "writing"
+      ],
       "games": [
-        "signals",
-        "wagons"
+        "board"
       ],
       "unit": "2.7",
       "world": "W2"
@@ -2164,52 +1764,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "basket",
-            "ball"
-          ],
-          "word": "basketball",
-          "emoji": [
-            "🧺",
-            "🏀"
-          ]
-        },
-        {
-          "parts": [
-            "butter",
-            "cup"
-          ],
-          "word": "buttercup",
-          "emoji": [
-            "🧈",
-            "☕"
-          ]
-        },
-        {
-          "parts": [
-            "snow",
-            "ball"
-          ],
-          "word": "snowball",
-          "emoji": [
-            "❄️",
-            "⚽"
-          ]
-        },
-        {
-          "parts": [
-            "bean",
-            "bag"
-          ],
-          "word": "beanbag",
-          "emoji": [
-            "🫘",
-            "👜"
-          ]
         }
       ],
       "sayingSounds": [
@@ -2284,7 +1838,14 @@
           "target": "h"
         }
       ],
+      "middle": [
+        "writing",
+        "signals",
+        "sounds",
+        "wagons"
+      ],
       "games": [
+        "signals",
         "wagons"
       ],
       "unit": "2.8",
@@ -2308,52 +1869,6 @@
       "introQuiet": [
         {
           "tts": "Today we learn a new letter. Your grown up will say its sound."
-        }
-      ],
-      "sayingWords": [
-        {
-          "parts": [
-            "lady",
-            "bug"
-          ],
-          "word": "ladybug",
-          "emoji": [
-            "👩",
-            "🐛"
-          ]
-        },
-        {
-          "parts": [
-            "lunch",
-            "box"
-          ],
-          "word": "lunchbox",
-          "emoji": [
-            "🥪",
-            "📦"
-          ]
-        },
-        {
-          "parts": [
-            "flower",
-            "bed"
-          ],
-          "word": "flowerbed",
-          "emoji": [
-            "🌸",
-            "🛏️"
-          ]
-        },
-        {
-          "parts": [
-            "sun",
-            "light"
-          ],
-          "word": "sunlight",
-          "emoji": [
-            "☀️",
-            "💡"
-          ]
         }
       ],
       "sayingSounds": [
@@ -2431,9 +1946,14 @@
           "target": "g"
         }
       ],
-      "games": [
+      "middle": [
+        "hunt",
+        "sounds",
         "board",
-        "signals"
+        "writing"
+      ],
+      "games": [
+        "board"
       ],
       "unit": "2.7",
       "world": "W2"

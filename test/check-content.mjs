@@ -12,7 +12,8 @@ export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee'
 // Words where s says z, which a child must not learn as an s word.
 export const S_SAYS_Z = ['as', 'is', 'his', 'has', 'was', 'does', 'goes', 'hers', 'ours', 'yours'];
 // Letters that look like each other, so they never stand together in a game or a Quick Check (mirror and look-alike pairs).
-import { LOOKALIKE, boardWords, gameSlot } from '../js/games-data.js';
+import { LOOKALIKE, boardWords, middleFor, TAP_GAMES } from '../js/games-data.js';
+import { tasksFor } from '../js/lessons.js';
 export const LOOKALIKE_PAIRS = LOOKALIKE;
 export const lookAlike = (x, y) => LOOKALIKE_PAIRS.some((p) => (p[0] === x && p[1] === y) || (p[0] === y && p[1] === x));
 // Contrast of a colour on white (WCAG), so a glyph in its accent stays visible.
@@ -25,7 +26,6 @@ const nameRe = new RegExp(`\\b(${LETTER_NAMES.join('|')})\\b`, 'i');
 export const isIsolated = (t) => { const z = t.trim().toLowerCase().replace(/[^a-z]/g, ''); return z.length === 1 || (z.length > 1 && /^(.)\1+$/.test(z)); };
 // A capital is fine at the start of a sentence, nowhere else.
 const strayCaps = (s) => /[A-Z]/.test(s.replace(/(^|[.!?]\s+)[A-Z]/g, '$1'));
-const isYouTube = (u) => { try { return /^(www\.|m\.)?(youtube\.com|youtu\.be)$/.test(new URL(u).hostname); } catch { return false; } };
 
 // Every string in the curriculum that text to speech may receive.
 export function spokenStrings(c) {
@@ -33,7 +33,6 @@ export function spokenStrings(c) {
   for (const s of Object.values(c.sounds)) s.words.forEach((w) => out.push(w.word));
   for (const L of c.lessons) {
     for (const part of [...L.intro, ...L.introQuiet, ...L.quickCheck.prompt, ...L.quickCheck.promptQuiet]) if (part.tts !== undefined) out.push(part.tts);
-    L.sayingWords.forEach((w) => out.push(w.word, ...w.parts));
     L.sayingSounds.forEach((w) => out.push(w.word));
   }
   for (const g of Object.values(c.games || {})) out.push(g.say);
@@ -66,7 +65,7 @@ export function checkCurriculum(c, root = ROOT) {
 
   // No letter names in any string that could be shown or spoken (paths and URLs are not spoken).
   for (const [p, s] of strings) {
-    if (/(^|\.)(image|clip|playlistUrl|alphabetSongUrl)$/.test(p)) continue;
+    if (/(^|\.)(image|clip)$/.test(p)) continue;
     const m = s.match(nameRe);
     if (m) err(`${p}: contains letter name "${m[0]}" in "${s}"`);
   }
@@ -74,7 +73,7 @@ export function checkCurriculum(c, root = ROOT) {
   // A clipped sound (t d g p h b l ...) is short: never written stretched ("ttt") anywhere in the data.
   const clippedLetters = Object.values(c.sounds || {}).filter((x) => x.hold === false).map((x) => x.glyph);
   for (const [p, s] of strings) {
-    if (/(^|\.)(image|clip|playlistUrl|alphabetSongUrl)$/.test(p)) continue;
+    if (/(^|\.)(image|clip)$/.test(p)) continue;
     for (const k of clippedLetters) if (new RegExp(`${k}{3,}`, 'i').test(s)) err(`${p}: "${s}" stretches the clipped sound ${k}-`);
   }
   // The parent's words for the sound: "a as in apple", "i as in igloo", never a bare letter.
@@ -116,7 +115,9 @@ export function checkCurriculum(c, root = ROOT) {
     parts.forEach((part, i) => { if (part.tts === undefined) err(`${p}[${i}]: a quiet variant may only contain tts parts`); });
   };
 
-  for (const k of ['playlistUrl', 'alphabetSongUrl']) if (!isYouTube(c[k] || '') || !/^https:\/\//.test(c[k])) err(`${k} must be an https YouTube URL`);
+  // Owner 2026-10-08: no outside YouTube links anywhere (the Alphabet song and the Sound Story playlist are gone).
+  for (const [p, v] of strings) if (/youtu\.?be|https?:\/\//i.test(v)) err(`${p}: no outside links are allowed in the curriculum ("${v.slice(0, 60)}")`);
+  for (const k of ['playlistUrl', 'alphabetSongUrl']) if (k in c) err(`${k} must be gone (no outside YouTube links)`);
   const sounds = c.sounds || {};
   for (const [k, s] of Object.entries(sounds)) {
     // A recorded clip is optional (the grown up says the sounds); a sound without one has clip: null.
@@ -155,16 +156,39 @@ export function checkCurriculum(c, root = ROOT) {
     }
   }
 
-  // The game slot: every lesson lists 1 or 2 of the tap games, the ones gameSlot picks; Board needs its words.
+  // The lesson frame (js/lessons.js tasksFor, docs/LESSON-REBUILD.md): the middle holds 2 to 4 owner-approved activities, always
+  // Saying Sounds (blending and reading words) and Track Tracing; `games` lists the tap games in it; Board needs its words;
+  // Word Cars (sayingWords) is gone; no two neighbouring lessons share a middle.
   {
     const ord = (c.lessons || []).map((x) => x.sound);
+    const APPROVED = ['sounds', 'writing', 'hunt', 'signals', 'wagons', 'board'];
     for (const L of c.lessons || []) {
-      const g = L.games, want = gameSlot(ord, L.number);
-      if (!Array.isArray(g) || g.length < 1 || g.length > 2 || !g.every((k) => ['signals', 'wagons', 'board'].includes(k))) err(`lesson ${L.number}.games must hold 1 or 2 of signals, wagons, board`);
-      else if (g.join() !== want.join()) err(`lesson ${L.number}.games is ${g.join()} but the rotation says ${want.join()}`);
-      if (Array.isArray(g) && g.includes('board') && !L.board) err(`lesson ${L.number} lists board but has no board words`);
+      const m = L.middle, g = L.games;
+      if (!Array.isArray(m) || m.length < 2 || m.length > 4 || !m.every((k) => APPROVED.includes(k)) || new Set(m).size !== m.length) err(`lesson ${L.number}.middle must hold 2 to 4 different activities from ${APPROVED.join(', ')}`);
+      else {
+        if (!m.includes('sounds') || !m.includes('writing')) err(`lesson ${L.number}.middle needs Saying Sounds (blending, reading words) and Track Tracing (writing)`);
+        if (m.join() !== middleFor(ord, L.number).join()) err(`lesson ${L.number}.middle is ${m.join()} but js/games-data.js MIDDLES says ${middleFor(ord, L.number).join()}`);
+        if (!Array.isArray(g) || g.join() !== m.filter((k) => TAP_GAMES.includes(k)).join()) err(`lesson ${L.number}.games must be the tap games of its middle (${m.filter((k) => TAP_GAMES.includes(k)).join()})`);
+        if (m.includes('signals') && L.number < 2) err(`lesson ${L.number}: Green Light needs a second sound`);
+        if (m.includes('board') && !L.board) err(`lesson ${L.number} lists board but has no board words`);
+      }
+      if ('sayingWords' in L) err(`lesson ${L.number}.sayingWords must be gone (Word Cars was removed from the lessons)`);
+      const prev = c.lessons[L.number - 2];
+      if (prev && Array.isArray(prev.middle) && Array.isArray(m) && prev.middle.join() === m.join()) err(`lessons ${prev.number} and ${L.number} have the same middle (${m.join()})`);
+      const tasks = tasksFor(L).map((t) => t.type);
+      if (tasks.at(-1) !== 'check') err(`lesson ${L.number} must end with Ticket Check`);
+      if (tasks.at(-2) !== 'practice') err(`lesson ${L.number} must end with the closing review, then Ticket Check`);
+      if (tasks[0] !== (L.number === 1 ? 'newLetter' : 'review')) err(`lesson ${L.number} must open with ${L.number === 1 ? 'New Sound' : 'Letter Review'} (got ${tasks[0]})`);
+      if (tasks[tasks.indexOf('newLetter') + 1] !== 'mouth') err(`lesson ${L.number}: Watch My Mouth must follow New Sound`);
+      if (tasks.some((t) => ['words', 'story'].includes(t))) err(`lesson ${L.number} still has Word Cars or the Sound Story`);
+      if (L.number > 1 && !(L.review || []).length) err(`lesson ${L.number} has nothing to review`);
     }
-    if (c.lessons && c.lessons[0] && (c.lessons[0].games || []).join() !== 'wagons') err('lesson 1 must hold only Wagon Parade');
+    for (const [k, s] of Object.entries(c.sounds || {})) {
+      // Watch My Mouth: "How to make this sound", one to three short sentences, voice on or off.
+      const m = s.mouth, sentences = m && typeof m.text === 'string' ? m.text.split(/(?<=[.!?])\s+/).filter(Boolean) : [];
+      if (!m || typeof m.voice !== 'boolean' || sentences.length < 1 || sentences.length > 4 || m.text.length > 120) err(`sounds.${k}.mouth needs voice (true or false) and 1 to 4 short sentences (at most 120 characters)`);
+      else if (!new RegExp(`Voice ${m.voice ? 'on' : 'off'}\\.$`).test(m.text)) err(`sounds.${k}.mouth.text must end with "Voice ${m.voice ? 'on' : 'off'}."`);
+    }
     for (const [k, s] of Object.entries(c.sounds || {})) if (s.clip !== null && s.clip !== `assets/audio/sounds/${k}.mp3`) err(`sounds.${k}.clip must be assets/audio/sounds/${k}.mp3 or null`);
     if ((c.games || {}).barn) err('games.barn must be gone (Barn Doors was removed in 1.9.3)');
   }
@@ -386,7 +410,6 @@ export function checkCurriculum(c, root = ROOT) {
   });
 
   const taught = new Set();
-  const seenCompounds = new Set();
   const clipped = Object.values(sounds).filter((x) => x.hold === false).map((x) => x.glyph);
   const taughtLetters = (L) => (c.lessons || []).slice(0, L.number).map((x) => x.sound);
   let css = '';
@@ -397,25 +420,10 @@ export function checkCurriculum(c, root = ROOT) {
     if (!sounds[L.sound]) err(`${lp}.sound "${L.sound}" not in sounds`);
     const allowed = new Set([...taught, L.sound]); // every letter taught so far, this lesson's included
     for (const r of L.review || []) if (!taught.has(r)) err(`${lp}.review "${r}" was not taught earlier`);
-    for (const f of ['review', 'intro', 'sayingWords', 'sayingSounds']) if (!Array.isArray(L[f])) err(`${lp}.${f} missing`);
+    for (const f of ['review', 'intro', 'sayingSounds']) if (!Array.isArray(L[f])) err(`${lp}.${f} missing`);
     checkParts(L.intro, `${lp}.intro`);
     checkQuiet(L.introQuiet, `${lp}.introQuiet`);
     if (JSON.stringify(L.introQuiet) !== JSON.stringify([{ tts: 'Today we learn a new letter. Your grown up will say its sound.' }])) err(`${lp}.introQuiet must be the agreed sentence`);
-    (L.sayingWords || []).forEach((w, j) => {
-      const p = `${lp}.sayingWords[${j}]`;
-      if (!Array.isArray(w.parts) || w.parts.length !== 2) err(`${p}.parts needs exactly two parts`);
-      if (!Array.isArray(w.emoji) || w.emoji.length !== 2) err(`${p}.emoji needs exactly two emoji`);
-      if (Array.isArray(w.parts) && w.parts.join('') !== w.word) err(`${p}: the parts (${(w.parts || []).join(' + ')}) do not make "${w.word}"`);
-      if (Array.isArray(w.emoji) && w.emoji[0] === w.emoji[1]) err(`${p}: both parts have the same emoji`);
-      if (seenCompounds.has(w.word)) err(`${p}: "${w.word}" is already a Saying Words word in another lesson`);
-      seenCompounds.add(w.word);
-      [w.word, ...(w.parts || [])].forEach((t) => {
-        if (t !== t.toLowerCase()) err(`${p} not lowercase: ${t}`);
-        if (S_SAYS_Z.includes(t)) err(`${p} "${t}" is a word where s says z`);
-        if (t === 'as') err(`${p} is "as"`);
-        if (isIsolated(t)) err(`${p} "${t}" is an isolated sound and is spoken by tts`);
-      });
-    });
     (L.sayingSounds || []).forEach((w, j) => {
       const p = `${lp}.sayingSounds[${j}]`;
       if (w.word !== w.word.toLowerCase()) err(`${p}.word not lowercase`);
@@ -430,7 +438,6 @@ export function checkCurriculum(c, root = ROOT) {
       if (!letterWords.some((w) => w.word.includes(L.sound))) err(`${lp}.sayingSounds: at least one letter word must contain "${L.sound}"`);
       if (pictureWords.length < 1) err(`${lp}.sayingSounds needs a picture word from the sound's tiles`);
       for (const w of pictureWords) if (!(sounds[L.sound] ? sounds[L.sound].words : []).some((x) => x.word === w.word && x.image === w.image)) err(`${lp}.sayingSounds picture word "${w.word}" is not one of the sound's tiles`);
-      if ((L.sayingWords || []).length !== 4) err(`${lp}.sayingWords needs four compound words`);
       for (const w of sounds[L.sound] ? sounds[L.sound].words : []) if ('aeiou'.includes(L.sound) ? !w.word.includes(L.sound) : w.word[0] !== L.sound) err(`sounds.${L.sound}.words "${w.word}" must ${'aeiou'.includes(L.sound) ? 'contain' : 'begin with'} the sound`);
       for (const w of L.sayingSounds || []) { // held sounds may be stretched, clipped ones never
         const lines = [slowSounds(w.word, sounds), firstSoundOut(w.word, sounds)];

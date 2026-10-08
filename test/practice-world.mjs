@@ -27,7 +27,7 @@ export async function practiceWorldChecks({ browser, url, ok }) {
   const idxOf = (tasks, type) => tasks.find((t) => t.type === type).index;
 
   // ---- switch off: the old look, byte for byte in what a test can see ----
-  for (const type of ['review', 'words', 'check']) {
+  for (const type of ['review', 'mouth', 'check']) {
     const { ctx, page, errors } = await open(VPS[1], `#/lesson/4/task/${idxOf(tasks4, type)}`, { newPractice: false });
     await page.waitForSelector('.task-stage'); await page.waitForTimeout(500);
     const o = await page.evaluate(() => { const r = document.querySelector('.task-screen'); return { cls: r.className, world: r.dataset.world || null, bg: getComputedStyle(r).backgroundColor, dots: document.querySelectorAll('.dots .dot').length, pill: document.querySelectorAll('.dot-pill').length, tk: document.querySelectorAll('.tk, .tk-engine, .pw-land, .pw-sky').length, radius: getComputedStyle(document.querySelector('.task-stage')).borderBottomLeftRadius, next: getComputedStyle(document.querySelector('.btn.next')).backgroundColor }; });
@@ -63,7 +63,7 @@ export async function practiceWorldChecks({ browser, url, ok }) {
   const worlds = [['W1', 4, 3, tasks4], ['W2', 8, 7, tasks8]];
   for (const [w, n, done, tasks] of worlds) for (const vp of VPS) {
     const tag = `${w} ${vp.name}`, land = vp.width > vp.height;
-    for (const type of ['newLetter', 'words', 'check']) {
+    for (const type of ['newLetter', 'mouth', 'check']) {
       const t = tasks.find((x) => x.type === type), pos = tasks.indexOf(t);
       const { ctx, page, errors } = await open(vp, `#/lesson/${n}/task/${t.index}`, {}, undefined, done);
       await page.waitForSelector('.task-stage'); await page.waitForTimeout(900);
@@ -95,7 +95,7 @@ export async function practiceWorldChecks({ browser, url, ok }) {
 
   // ---- behaviour: Say this expands, Again and Next work, the engine moves, no looping animation ----
   for (const vp of [VPS[1], VPS[3]]) {
-    const tag = vp.name, t = tasks4.find((x) => x.type === 'words'), pos = tasks4.indexOf(t);
+    const tag = vp.name, t = tasks4.find((x) => x.type === 'mouth'), pos = tasks4.indexOf(t);
     const { ctx, page, errors } = await open(vp, `#/lesson/4/task/${t.index}`, {}, undefined, 3);
     await page.waitForSelector('.task-stage'); await page.waitForTimeout(900);
     await page.locator('.script-toggle').click(); await page.waitForTimeout(400);
@@ -119,7 +119,7 @@ export async function practiceWorldChecks({ browser, url, ok }) {
   }
 
   // ---- reduced motion: no transitions on the train ----
-  { const t = tasks4.find((x) => x.type === 'words');
+  { const t = tasks4.find((x) => x.type === 'mouth');
     const { ctx, page } = await open(VPS[1], `#/lesson/4/task/${t.index}`, {}, { reducedMotion: 'reduce' }, 3);
     await page.waitForSelector('.tk-engine'); await page.waitForTimeout(700);
     const o = await page.evaluate(() => [...document.querySelectorAll('.tk-engine, .tk-car, .tk-tie')].map((e) => parseFloat(getComputedStyle(e).transitionDuration)).every((d) => d < 0.01));

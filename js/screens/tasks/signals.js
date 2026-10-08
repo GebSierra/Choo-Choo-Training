@@ -158,7 +158,7 @@ export function build(ctx) {
     el, flush: true,
     parts: () => parts,
     gist: () => fit(`Tap the light for ${soundPhrase(sound)}.`, `Light for ${soundPhrase(sound)}.`, 'Tap the right light.'),
-    script: () => `Say: 'Listen. Which light says ${soundPhrase(sound)}? Tap it.' If no recording plays, say the sound shown at the top.`,
+    script: () => `Say: 'Listen. Which light says ${soundPhrase(sound)}?' The recording plays. If it does not, say the sound shown at the top. Your child taps the light. If they are stuck, say the sound together.`,
     again: () => { again(); speech.say(parts); },
     cleanup: () => { T.clear(); hints.stop(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
   };

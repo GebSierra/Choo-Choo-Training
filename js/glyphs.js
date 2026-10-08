@@ -150,19 +150,32 @@ const TEXT_SIZE = 87;
 const FONT_TALL = 'bdfhijklt', FONT_TAIL = 'gjpqy';
 const extent = (ch) => (GLYPHS[ch] ? { top: GLYPHS[ch].minY, bottom: GLYPHS[ch].maxY } : { top: FONT_TALL.includes(ch) ? 17 : 38, bottom: FONT_TAIL.includes(ch) ? 96 : 80 });
 let measurer = null;
-const advance = (ch) => {
-  try { measurer = measurer || document.createElement('canvas').getContext('2d'); measurer.font = `800 ${TEXT_SIZE}px Nunito, system-ui, sans-serif`; return Math.max(24, measurer.measureText(ch).width); } catch { return TEXT_SIZE * 0.6; }
+const advance = (ch, reading = false) => {
+  try {
+    measurer = measurer || document.createElement('canvas').getContext('2d');
+    measurer.font = reading ? READING_FONT : `800 ${TEXT_SIZE}px Nunito, system-ui, sans-serif`;
+    return Math.max(reading ? 18 : 24, measurer.measureText(ch).width);
+  } catch { return reading ? 46 : 52; }
 };
+
+// Story text: one clean, even weight. The stroke glyphs only exist for the taught lowercase letters, so a line such as "Sam sat."
+// mixed our strokes with Nunito 800 for the capital and the full stop, which looked uneven and heavy. With opts.font every letter
+// and mark of a word is drawn from the house reading font (Andika 700, single-story a), so a sentence has one weight throughout.
+const READING_SIZE = 80;
+const READING_FONT = `700 ${READING_SIZE}px Andika, Nunito, system-ui, sans-serif`;
+try { if (typeof document !== 'undefined' && document.fonts && document.fonts.load) document.fonts.load(READING_FONT); } catch { /* the font loads when first used */ }
+const readingExtent = (ch) => ({ top: FONT_TALL.includes(ch) || /[A-Z0-9]/.test(ch) ? 20 : 38, bottom: FONT_TAIL.includes(ch) ? 98 : 82 });
 
 // A row of letters as one <svg>; each letter is its own <g class="glyph-letter"> for sweeps and highlights.
 // Our own glyphs draw every taught letter; opts.all adds the font for every other letter (without it only taught letters are drawn).
 export function wordSvg(word, opts = {}) {
   let x = 0;
-  const letters = [...word].filter((c) => opts.all || hasGlyph(c));
+  const reading = !!opts.font;
+  const letters = [...word].filter((c) => opts.all || reading || hasGlyph(c));
   const groups = [];
   for (const ch of letters) {
-    if (!hasGlyph(ch)) {
-      const w = advance(ch);
+    if (reading || !hasGlyph(ch)) {
+      const w = advance(ch, reading);
       const grp = h('g', { class: 'glyph-letter', transform: `translate(${x} 0)`, dataset: { letter: ch, x0: String(x), x1: String(x + w) } });
       const pop = h('g', { class: 'glyph-pop' }, h('text', { class: 'glyph-text', x: w / 2, y: BASELINE, 'text-anchor': 'middle', fill: opts.color || 'currentColor' }, ch));
       grp.append(h('ellipse', { class: 'glyph-halo', cx: w / 2, cy: 59, rx: w / 2 + 2, ry: 31 }), pop);
@@ -183,8 +196,9 @@ export function wordSvg(word, opts = {}) {
   }
   const width = Math.max(1, x - SPACING);
   const half = STROKE_WIDTH / 2 + 3;
-  const top = Math.min(BAND_TOP, ...letters.map((c) => extent(c).top - half)), bottom = Math.max(BAND_BOTTOM, ...letters.map((c) => extent(c).bottom + half));
-  const svg = h('svg', { class: 'glyph word-glyphs ' + (opts.class || ''), viewBox: `0 ${top} ${width} ${bottom - top}`, role: 'img', 'aria-label': opts.label || 'letters' });
+  const ext = reading ? readingExtent : extent;
+  const top = Math.min(BAND_TOP, ...letters.map((c) => ext(c).top - (reading ? 2 : half))), bottom = Math.max(BAND_BOTTOM, ...letters.map((c) => ext(c).bottom + (reading ? 2 : half)));
+  const svg = h('svg', { class: 'glyph word-glyphs ' + (reading ? 'reading-font ' : '') + (opts.class || ''), viewBox: `0 ${top} ${width} ${bottom - top}`, role: 'img', 'aria-label': opts.label || 'letters' });
   groups.forEach((g) => svg.append(g.grp));
   svg.dataset.width = String(width);
   svg.dataset.height = String(bottom - top);

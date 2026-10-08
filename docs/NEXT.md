@@ -62,7 +62,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
 ### ORDER (owner, 2026-10-08): 1 practice look → 2 world-preview bug fix → 3 parent instructions + lesson rebuild →
 ### 4 train stops at story/ride stations → 5 storybook pages → 6 Smooth Ride decision → 7 worlds W5–W7 → later items
 - [ ] **3. Lesson rebuild + parent instructions (owner, 2026-10-08; after the practice look; BEFORE W5–W7):**
-  SPLIT (2026-10-08): **Phase A** (in progress) = new frame, watch-my-mouth step, mixed middles, no YouTube, no Word
+  SPLIT (2026-10-08): **Phase A** (DONE in 1.9.30; details and the full wording list in docs/LESSON-REBUILD.md) = new frame, watch-my-mouth step, mixed middles, no YouTube, no Word
   Cars, all parent text, story font — on today's 13 lessons in today's order. **Phase B** (next) = switch to the
   curriculum's sound order (Green Valley f o n d c/k h u g l r b) and add the o, c/k, u, r lessons (needs new word
   pictures; map saved progress by sound instead of resetting it).

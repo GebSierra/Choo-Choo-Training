@@ -1,5 +1,5 @@
-// Sliding a finger across a word: Saying Sounds (letters, picture words once revealed) and Saying Words (the revealed
-// word and its picture). Real touch through the browser, many trials with awkward starting points and vertical drift.
+// Sliding a finger across a word: Saying Sounds (letters, picture words once revealed).
+// Real touch through the browser, many trials with awkward starting points and vertical drift.
 // Run alone with `node test/slide.mjs`, or as part of test/smoke.mjs.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -148,59 +148,11 @@ export async function lettersSlideChecks({ browser, url, ok, vp, lessonNo }) {
   await ctx.close();
 }
 
-export async function wordsSlideChecks({ browser, url, ok, vp, lessonNo, shot }) {
-  const { ctx, page, errors, lesson } = await open(browser, url, vp, lessonNo, 'words');
-  const tag = `${vp.name} Saying Words "${lesson.sayingWords[0].word}" L${lessonNo}`;
-  ok((await page.locator('.slide-band').count()) === 0, `${tag}: nothing to slide before the parts are put together`);
-  const merged = await page.locator('.merged-tile').boundingBox();
-  await page.touchscreen.tap(merged.x + merged.width / 2, merged.y + merged.height / 2);
-  await page.waitForSelector('.slide-band');
-  await page.waitForTimeout(900);
-  ok((await page.evaluate(() => document.querySelector('.merged-tile').classList.contains('revealed'))) && (await page.locator('.glyph-letter').count()) === lesson.sayingWords[0].word.length, `${tag}: a tap reveals the word as letters`);
-  ok((await wash(page)) === 0, `${tag}: the picture starts dimmed`);
-  const g = await geometry(page);
-  ok(g.band.h >= 139 || g.band.h >= (await page.evaluate(() => document.querySelector('.words-task').getBoundingClientRect().height)) - 1, `${tag}: the slide band is at least 140 px tall (${Math.round(g.band.h)}) and wide (${Math.round(g.band.w)})`);
-  const audited = await audit(page, tag);
-  ok(audited.length === 0, audited.join(' | '));
-  await letterByLetter({ page, ok, tag });
-  await trials({ page, ok, tag, n: 10, shot });
-  // The word is spoken again by a tap on it, and Again puts everything back.
-  const spokenBefore = (await plain(page)).tts;
-  const g2 = await geometry(page);
-  await page.touchscreen.tap((g2.edges[0].l + g2.edges[g2.edges.length - 1].r) / 2, g2.cy);
-  await page.waitForTimeout(500);
-  ok((await plain(page)).tts === spokenBefore + 1, `${tag}: a tap on the revealed word says it again`);
-  await page.click('.btn.again');
-  await page.waitForTimeout(600);
-  ok((await page.locator('.slide-band').count()) === 0 && !(await page.evaluate(() => document.querySelector('.merged-tile').classList.contains('revealed'))), `${tag}: Again puts the parts back`);
-  ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
-  await ctx.close();
-}
-
 // Reduced motion: the lighting and the wash are state only; nothing lifts.
 export async function slideReducedChecks({ browser, url, ok }) {
   const vp = VIEWPORTS[0];
-  let made = await open(browser, url, vp, 1, 'words', { reducedMotion: 'reduce' });
-  let { page, errors } = made;
-  const m = await page.locator('.merged-tile').boundingBox();
-  await page.touchscreen.tap(m.x + m.width / 2, m.y + m.height / 2);
-  await page.waitForSelector('.slide-band');
-  await page.waitForTimeout(400);
-  const g = await geometry(page), n = g.edges.length;
-  const t = await touchSession(page);
-  await t.start(g.band.l + 8, g.cy);
-  await t.move(g.band.l + 20, g.cy);
-  await t.move((g.edges[1].l + g.edges[1].r) / 2, g.cy);
-  await page.waitForTimeout(150);
-  ok((await lit(page)) >= 2 && (await wash(page)) > 0, 'reduced motion: Saying Words still lights letters and the wash');
-  await t.move(g.edges[n - 1].r + 14, g.cy);
-  await page.waitForTimeout(150);
-  ok((await page.evaluate(() => document.querySelector('.merged-tile').getAnimations().filter((a) => a.effect && a.effect.getTiming().duration > 0).length)) === 0, 'reduced motion: the word does not lift');
-  await t.end();
-  ok(errors.length === 0, 'reduced motion words slide: errors ' + errors.join(' | '));
-  await made.ctx.close();
-  made = await open(browser, url, vp, 1, 'sounds', { reducedMotion: 'reduce' });
-  page = made.page; errors = made.errors;
+  const made = await open(browser, url, vp, 1, 'sounds', { reducedMotion: 'reduce' });
+  const { page, errors } = made;
   await page.touchscreen.tap(...(await page.locator('.sounds-stage .pic-frame').boundingBox().then((b) => [b.x + b.width / 2, b.y + b.height / 2])));
   await page.waitForSelector('.slide-band');
   await page.waitForTimeout(400);
@@ -227,7 +179,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   for (const vp of VIEWPORTS) {
     if (!only || only === 'letters') for (const lessonNo of [2, 3, 4, 8]) await lettersSlideChecks({ browser, url, ok, vp, lessonNo });
     if (!only || only === 'picture') await pictureWordSlideChecks({ browser, url, ok, vp });
-    if (!only || only === 'words') for (const lessonNo of [1, 2]) await wordsSlideChecks({ browser, url, ok, vp, lessonNo });
   }
   if (!only || only === 'reduced') await slideReducedChecks({ browser, url, ok });
   await browser.close(); server.close();

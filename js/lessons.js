@@ -2,22 +2,25 @@
 export const TASK_TYPES = {
   review:  { name: 'Letter Review', color: 'sky',    dark: true,  label: "Today we'll review" },
   newLetter: { name: 'New Sound',   color: 'violet', dark: false, label: "Today we'll learn" },
-  story:   { name: 'Sound Story',   color: 'coral',  dark: false, label: "Today we'll hear" },
-  words:   { name: 'Word Cars',  color: 'sun',    dark: true,  label: "Today we'll say" },
+  mouth:   { name: 'Watch My Mouth', color: 'coral', dark: false, label: "Today we'll watch" },
   sounds:  { name: 'Saying Sounds', color: 'mint',   dark: true,  label: "Today we'll stretch" },
   writing: { name: 'Track Tracing', color: 'lilac', dark: true,  label: "Today we'll write" },
   hunt:    { name: 'Letter Hunt',   color: 'sky',    dark: true,  label: "Today we'll practice" },
   signals: { name: 'Green Light', color: 'mint', dark: true, label: "Today we'll listen" },
   wagons:  { name: 'Wagon Parade', color: 'sun', dark: true, label: "Today we'll tap" },
   board:   { name: 'Station Board', color: 'lilac', dark: true, label: "Today we'll find" },
-  practice: { name: 'Practicing Words', color: 'mint', dark: true, label: "Today we'll find" },
+  practice: { name: 'Practicing Words', color: 'mint', dark: true, label: "Today we'll review" },
   check:   { name: 'Ticket Check',   color: 'blue',   dark: true,  label: "Today we'll check" },
 };
 
+// The frame every lesson shares, so the child knows what to expect (docs/LESSON-REBUILD.md):
+//   OPENING  Letter Review (lesson 1 has nothing to review, so it opens with New Sound), New Sound, Watch My Mouth
+//   MIDDLE   lesson.middle: 2 to 4 of Saying Sounds, Track Tracing, Letter Hunt, Green Light, Wagon Parade, Station Board
+//   ENDING   Practicing Words (a short review of today's sound and the earlier ones), then Ticket Check, always last
 export function tasksFor(lesson) {
   const list = [];
   if (lesson.review && lesson.review.length) list.push('review');
-  list.push('newLetter', 'story', 'words', 'sounds', 'writing', 'hunt', ...(lesson.games || []), 'practice', 'check');
+  list.push('newLetter', 'mouth', ...(lesson.middle || ['sounds', 'writing', 'hunt']), 'practice', 'check');
   return list.map((type, index) => ({ type, index, ...TASK_TYPES[type] }));
 }
 
@@ -31,9 +34,7 @@ export const lessonByNumber = (curriculum, n) => curriculum.lessons.find((l) => 
 export function targetsFor(task, lesson) {
   switch (task.type) {
     case 'review': return lesson.review.map((g) => ({ glyph: g }));
-    case 'newLetter': case 'writing': case 'hunt': case 'signals': case 'wagons': case 'board': case 'practice': case 'check': return [{ glyph: lesson.sound }];
-    case 'story': return [{ glyph: lesson.sound }];
-    case 'words': return lesson.sayingWords.slice(0, 2).map((w) => ({ text: w.word }));
+    case 'newLetter': case 'mouth': case 'writing': case 'hunt': case 'signals': case 'wagons': case 'board': case 'practice': case 'check': return [{ glyph: lesson.sound }];
     case 'sounds': return lesson.sayingSounds.slice(0, 3).map((w) => ({ text: w.word }));
     default: return [];
   }

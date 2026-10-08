@@ -1,7 +1,5 @@
-import { openOutside } from '../components/grown-gate.js';
 import { h, animate, icon } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
-import { holdButton } from '../components/hold-button.js';
 import { speakButton } from '../components/speak-button.js';
 import { tasksFor, lessonByNumber, targetsFor, soundPhrase, introParts } from '../lessons.js';
 import { richText, letterText } from '../letters.js';
@@ -16,8 +14,7 @@ function illustration(task, lesson, curriculum) {
       lesson.review.forEach((g, i) => wrap.append(h('span', { class: 'flash', style: { '--r': (i % 2 ? 7 : -7) + 'deg' } }, glyphSvg(g, { color: `var(--${g})` }))));
       break;
     case 'newLetter': wrap.append(h('span', { class: 'big-glyph' }, glyphSvg(lesson.sound, { color: '#fff' }))); break;
-    case 'story': wrap.append(h('span', { class: 'play' }, icon('play', 44))); break;
-    case 'words': lesson.sayingWords[0].emoji.forEach((e, i) => { wrap.append(h('span', { class: 'emo' }, e)); if (i === 0) wrap.append(h('span', { class: 'plus' }, '+')); }); break;
+    case 'mouth': wrap.append(h('span', { class: 'play mouth-ic' }, icon('mouth', 44))); break;
     case 'sounds': wrap.append(h('span', { class: 'wave' }, h('i'), h('i'), h('i'), h('i'), h('i'))); break;
     case 'writing': wrap.append(h('span', { class: 'big-glyph ghost' }, glyphSvg(lesson.sound, { color: 'currentColor' })), h('span', { class: 'pencil' }, '✏️')); break;
     case 'hunt': wrap.append(h('span', { class: 'art-train' }, engineSvg({ still: true }))); break;
@@ -67,15 +64,7 @@ export function lessonScreen(ctx, n) {
     router.go(`/lesson/${lesson.number}/task/${nextIndex === -1 ? 0 : tasks[nextIndex].index}`);
   } }, startLabel, icon('arrowRight', 24));
 
-  // Optional alphabet song: not one of the tasks, so it never counts toward progress.
-  const openSong = () => openOutside(curriculum.alphabetSongUrl);
-  const songHold = holdButton({ label: 'Play', caption: 'Hold to open', hint: 'Press and hold', className: 'song-hold', leading: icon('external', 16), onComplete: openSong });
-  const song = h('section', { class: 'song-row', 'aria-label': 'Alphabet song' },
-    h('span', { class: 'song-thumb' }, icon('play', 26)),
-    h('div', { class: 'song-text' }, h('strong', {}, 'Alphabet song'), h('span', { class: 'song-opt' }, 'Optional'), h('p', { class: 'parent-note' }, 'Optional: play the alphabet song together, before or after the lesson.')),
-    songHold);
-
-  // The lesson itself comes first: the steps, then the big Start button, and the optional song as a small row at the very bottom.
+  // The lesson itself comes first: the steps, then the big Start button.
   // The steps are a row that scrolls sideways: a soft fade on the right edge shows there is more, and goes away at the end.
   const scroller = h('div', { class: 'cards-scroll' }, h('div', { class: 'cards' }, cards));
   const fade = h('span', { class: 'cards-fade', 'aria-hidden': 'true' });
@@ -83,8 +72,7 @@ export function lessonScreen(ctx, n) {
   const edge = () => { wrap.classList.toggle('at-end', scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 8 || scroller.scrollWidth <= scroller.clientWidth + 8); };
   scroller.addEventListener('scroll', edge, { passive: true });
   requestAnimationFrame(edge);
-  const root = h('div', { class: 'lesson-overview' }, header, wrap, h('footer', { class: 'lo-foot' }, start, song));
-  root.cleanup = songHold.cleanup;
+  const root = h('div', { class: 'lesson-overview' }, header, wrap, h('footer', { class: 'lo-foot' }, start));
   cards.forEach((c, i) => animate(c, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 140 + i * 40 }));
   return root;
 }

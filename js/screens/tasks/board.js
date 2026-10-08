@@ -170,7 +170,7 @@ export function build(ctx) {
     el, flush: true,
     parts: () => parts,
     gist: () => fit(`Find ${soundPhrase(sound)} in the word.`, 'Find the sound.'),
-    script: () => "Read the word on the board: 'This is …' Then say the sound shown, and let them tap the letter that makes it.",
+    script: () => "Read the word on the board to your child: 'This is …' Then say the sound shown at the top. Your child taps the letter that makes it. If they are stuck, say the sound together.",
     again: () => { again(); speech.say(parts); },
     cleanup: () => { T.clear(); hints.stop(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
   };
