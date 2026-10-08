@@ -134,6 +134,7 @@ export function grownupsScreen(ctx) {
     devBox.replaceChildren(sec('Developer',
       h('div', { class: 'gu-field inline' }, h('span', {}, 'Open every lesson'), devSwitch('devOpenAll', 'Open every lesson')),
       h('div', { class: 'gu-field inline' }, h('span', {}, 'Ignore daily limit'), devSwitch('devNoLimit', 'Ignore daily limit')),
+      h('div', { class: 'gu-field inline' }, h('span', {}, 'New practice look'), devSwitch('newPractice', 'New practice look')),
       h('p', { class: 'gu-note' }, 'Progress is not changed by these. Lessons finished now are still recorded.'),
       h('h3', { class: 'gu-h3' }, 'Look at a world'),
       h('div', { class: 'gu-devworlds' }, ...(curriculum.worlds || []).map((w) => h('button', { class: 'btn small ghost', type: 'button', dataset: { world: w.id }, onclick: () => router.go(`/world/${w.id}`) }, w.id))),
