@@ -176,36 +176,63 @@ export async function homeScreen(ctx) {
     ctx.homePlan = null;
     if (plan.cross && !plan.hosted) { const m = await import('./crossing.js'); return m.crossingHost(ctx, plan); }
   }
-  if (ctx.store.settings.trainWorld !== false && !ctx.noTrain) {
-    let canvas = null, gl = null, soft = false;
-    const opts = (antialias) => ({ antialias, alpha: true, powerPreference: 'low-power' });
-    try {
-      canvas = document.createElement('canvas');
-      // Multisampling only on a low-density screen: on a 2x or denser phone the pixels are small enough without it.
-      gl = canvas.getContext('webgl2', opts((window.devicePixelRatio || 1) < 2));
-      // A software renderer (a test machine, or a phone with no usable GPU) draws without multisampling, shadows or
-      // high-density pixels, so it stays responsive. ?hq=1 in the address keeps full quality (for screenshots).
-      if (gl && isSoftware(gl) && !/[?&]hq=1/.test(location.search)) {
-        loseContext(gl);
-        canvas = document.createElement('canvas');
-        gl = canvas.getContext('webgl2', opts(false));
-        soft = true;
-      }
-    } catch { gl = null; }
-    if (gl) {
+  // The region preview (#/world/<id>) is a read-only look: it tries even when the real Home gave up on 3D, retries once with a
+  // fresh canvas in the soft configuration, and a failure of it never marks 3D as broken for the session (ctx.noTrain).
+  const region = !!preview && preview.mode === 'region';
+  let lastError = null;
+  if (ctx.store.settings.trainWorld !== false && (region || !ctx.noTrain)) {
+    for (const soft of region ? [false, true] : [false]) {
+      releaseHeld(); // a context left over from the screen just left is let go before a new one is asked for
+      let made = null;
       try {
+        made = makeGl(soft);
+        if (!made.gl) throw new Error('WebGL could not make a context' + (made.error ? ': ' + made.error : ''));
+        heldGl = made.gl;
+        if (region && window.__fail3d > 0) { window.__fail3d--; throw new Error('test: forced 3D failure'); } // test hook: fail the next attempts
         const m = await import('./home3d.js');
-        return m.home3dScreen(ctx, { canvas, gl, soft, preview, plan });
+        return m.home3dScreen(ctx, { canvas: made.canvas, gl: made.gl, soft: made.soft, preview, plan });
       } catch (e) {
-        console.warn('train world unavailable, using the 2D path:', e && e.message);
-        loseContext(gl);
-        ctx.noTrain = true; // do not try again in this page session
+        lastError = e;
+        console.warn('train world unavailable' + (region ? ' (region preview, attempt ' + (soft ? 2 : 1) + ')' : ', using the 2D path') + ':', e && e.message);
+        if (made && made.gl) loseContext(made.gl);
+        heldGl = null;
+        if (!preview && made && made.gl) ctx.noTrain = true; // the real Home does not try again in this page session; a preview never decides that
       }
     }
   }
-  // the region preview (#/world/<id>) is 3D only: there is no 2D version of a themed world
-  if (preview && preview.mode === 'region') return h('div', { class: 'retry-card' }, h('p', {}, 'This preview needs 3D.'));
+  // the region preview is 3D only: there is no 2D version of a themed world. Developer mode shows what went wrong.
+  if (region) {
+    const msg = lastError ? String((lastError && lastError.message) || lastError) : 'WebGL is switched off or not available';
+    return h('div', { class: 'retry-card' }, h('p', {}, 'This preview needs 3D.'),
+      ctx.store.settings.dev === true ? h('p', { class: 'retry-error', style: { fontSize: '13px', wordBreak: 'break-word', opacity: 0.8 } }, 'Error: ' + msg) : null,
+      h('button', { class: 'btn', type: 'button', onclick: () => ctx.router.go(ctx.router.path) }, 'Try again'));
+  }
   return mapScreen(ctx, preview, plan);
+}
+
+
+// The WebGL context the 3D Home holds (at most one). Leaving Home disposes it (home3d.js cleanup); this is the safety net for a
+// context that is still alive when the next screen asks for its own (some phones allow very few at once).
+let heldGl = null;
+function releaseHeld() { if (heldGl) { loseContext(heldGl); heldGl = null; } }
+
+// A canvas and its context. soft: the soft configuration (no multisampling; home3d then draws without shadows at one pixel per CSS
+// pixel). A software renderer (a test machine, or a phone with no usable GPU) is soft too unless ?hq=1 is in the address.
+function makeGl(forceSoft) {
+  const opts = (antialias) => ({ antialias, alpha: true, powerPreference: 'low-power' });
+  let canvas = null, gl = null, soft = !!forceSoft, error = null;
+  try {
+    canvas = document.createElement('canvas');
+    // Multisampling only on a low-density screen: on a 2x or denser phone the pixels are small enough without it.
+    gl = canvas.getContext('webgl2', opts(!soft && (window.devicePixelRatio || 1) < 2));
+    if (gl && !soft && isSoftware(gl) && !/[?&]hq=1/.test(location.search)) {
+      loseContext(gl);
+      canvas = document.createElement('canvas');
+      gl = canvas.getContext('webgl2', opts(false));
+      soft = true;
+    }
+  } catch (e) { gl = null; error = e && e.message; }
+  return { canvas, gl, soft, error };
 }
 
 function loseContext(gl) { try { const lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext(); } catch { /* fine */ } }

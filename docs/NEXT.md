@@ -92,7 +92,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   model for the parent instructions pass and the lesson rebuild. Lessons do NOT need the exact same games every time: mix
   activities across lessons, and keep some of the current games (the balloon game Letter Hunt and the train games Green
   Light / Wagon Parade), but bring their wording and interactions in line with the f lesson and the white paper.
-- [ ] **"Look at a world" shows "This preview needs 3D" on the owner's phone** (works in our test browser at both quality
+- [x] **(FIXED in 1.9.27: context released before the preview, soft retry, no session-wide 3D off, Try again + dev error text) "Look at a world" shows "This preview needs 3D" on the owner's phone** (works in our test browser at both quality
   levels; investigate the real flow Home > Grownups > world button: a 3D failure on a real GPU, or a leftover GL context,
   falls back to the 2D message). Fix: retry once with a fresh context, never mark 3D as broken for the whole session from
   a preview, and show the actual error in developer mode.
@@ -114,7 +114,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   which the app no longer does. Offer the owner three options (e.g. replace with a grown-up-judged read-along / repeated
   reading activity from the white paper, fold it into lessons, or remove it).
 - [ ] **7. Worlds W5–W7 (Blend Bay, Endings Junction, Silent E Summit):** resume after 3–6 (paused 2026-10-08; any
-  partial work is on the branch worktree-agent-a901920b65f056c35).
+  partial work is on the branch worktree-agent-a901920b65f056c35; first versions of W5–W7 are merged in 1.9.27, reachable only via developer mode, NOT yet reviewed for quality).
 - [ ] **Better voice:** owner to choose A (best phone voice, done in the welcome-fit release), B (pre-recorded natural AI
   voice files, recommended) or C (voice actor).
 - [ ] **Golden tickets (from the website plan, docs/marketing/TECH.md on the website branch):** decided 2026-10-07: ticket

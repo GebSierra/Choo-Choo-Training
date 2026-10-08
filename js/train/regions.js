@@ -42,6 +42,12 @@ class Bake {
     }
     g.dispose();
   }
+  // One triangle already in world space (a flag, a sail, a kite panel), flat shaded, one colour.
+  tri(a, b, c, color) {
+    const set = this.sets.flat, n = this.d.subVectors(this.b.set(b[0], b[1], b[2]), this.a.set(a[0], a[1], a[2])).cross(new THREE.Vector3(c[0] - a[0], c[1] - a[1], c[2] - a[2])).normalize();
+    const col = this.c.set(color);
+    for (const v of [a, b, c]) { set.pos.push(v[0], v[1], v[2]); set.nor.push(n.x, n.y, n.z); set.col.push(col.r, col.g, col.b); }
+  }
   // The merged meshes (castShadow / receiveShadow on), added to `group`.
   finish(group, { shadow = true } = {}) {
     const out = [];
@@ -556,4 +562,6 @@ function docks({ bag, line, stops, stationCount, group, sky, R, W }) {
 }
 
 export const REGION_BUILDERS = { sunny: sunnyHills, docks };
+// shared with the later worlds (js/train/regions2.js)
+export { Bake, blobGeo, lerpHex, helpers, box, cyl, cone, ball, prism, addHill, TAU };
 export { EDGE as DOCKS_EDGE };
