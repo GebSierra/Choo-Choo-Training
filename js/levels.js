@@ -2,7 +2,9 @@
 // celebration plays once; the first look (no count yet) only records it.
 export const NUMBER_WORDS = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 export const builtLevels = (curriculum) => (curriculum.levels || []).filter((v) => v.after !== null);
-export const earnedLevels = (curriculum, store) => builtLevels(curriculum).filter((v) => store.isDone(v.after));
+// A level needs every lesson up to its `after` lesson done (lessons can be done out of order in a mapped save: o, c/k, u and r come into the middle).
+export const levelReached = (store, after) => { for (let n = 1; n <= after; n++) if (!store.isDone(n)) return false; return true; };
+export const earnedLevels = (curriculum, store) => builtLevels(curriculum).filter((v) => levelReached(store, v.after));
 export function dueLevel(store, curriculum) {
   const earned = earnedLevels(curriculum, store), seen = store.levels().seen;
   const now = new Date().toISOString();
