@@ -4,16 +4,16 @@
   "needs": ["m", "a", "s", "i"],
   "sight": ["is", "I"],
   "pages": [
-    { "read": "Toot toot! Here comes a little train. The driver is a tiny conductor named Pip.", "art": { "train": true, "pip": "wave" }, "tap": { "on": "train", "anim": "toot", "label": "Pip's whistle" } },
-    { "read": "The train stops at a station. Who is waiting there? It is {name}!", "art": { "friend": true }, "tap": { "on": "friend", "anim": "wave", "label": "{name}" } },
-    { "read": "Pip leans out and says, \"Hop on! I ...\"", "child": "am", "after": "\"... Pip!\"", "slider": "am", "art": { "pip": "point" } },
-    { "read": "Then a boy runs up the hill. He has a red hat. \"Wait for me!\" he calls. His name ...", "child": "is Sam", "slider": "Sam", "art": { "emoji": ["👦", "🧢"] } },
-    { "read": "Sam has a baby sister. He holds her hand. Sam calls her ...", "child": "sis", "art": { "emoji": ["👧"] }, "tap": { "on": "emoji", "anim": "giggle", "label": "Sis" } },
-    { "kind": "drag", "read": "Off they go! Up the hill and down the hill." },
-    { "read": "Oh no! A cow is standing on the track. The cow says ...", "sound": "mmmm", "after": "Pip toots. The cow walks away.", "art": { "emoji": ["🐄"] }, "tap": { "on": "emoji", "anim": "walk", "label": "the cow" } },
-    { "read": "A snake is in the grass by the track. The snake says ...", "sound": "sssss", "art": { "emoji": ["🐍"] } },
-    { "read": "Sis throws a ball to {name}. {name} reaches for it ... oops! It is a ...", "child": "miss", "art": { "emoji": ["⚽"] }, "tap": { "on": "emoji", "anim": "bounce", "label": "the ball" } },
-    { "read": "The train pulls into the station. Pip blows the whistle. \"You are my friend,\" says Pip. And {name} says, \"I ...\"", "child": "am", "after": "The end. Toot toot!", "art": { "train": true, "pip": "cheer", "friend": true } },
-    { "kind": "review", "read": "Read them all!", "words": ["am", "is", "Sam", "sis", "miss"] }
+    { "scene": "track", "read": "Toot toot! Here comes a little train. The driver is a tiny conductor named Pip.", "art": { "train": true, "pip": "wave" }, "tap": { "on": "train", "anim": "toot", "label": "Pip's whistle" } },
+    { "scene": "station", "read": "The train stops at a station. Who is waiting there? It is {name}!", "art": { "friend": true }, "tap": { "on": "friend", "anim": "wave", "label": "{name}" } },
+    { "scene": "station", "read": "Pip leans out and says, \"Hop on! I ...\"", "child": "am", "after": "\"... Pip!\"", "slider": "am", "art": { "pip": "point" } },
+    { "scene": "hill", "read": "Then a boy runs up the hill. He has a red hat. \"Wait for me!\" he calls. His name ...", "child": "is Sam", "slider": "Sam", "art": { "emoji": ["👦", "🧢"] } },
+    { "scene": "meadow", "read": "Sam has a baby sister. He holds her hand. Sam calls her ...", "child": "sis", "art": { "emoji": ["👧"] }, "tap": { "on": "emoji", "anim": "giggle", "label": "Sis" } },
+    { "scene": "hill", "kind": "drag", "read": "Off they go! Up the hill and down the hill." },
+    { "scene": "track", "read": "Oh no! A cow is standing on the track. The cow says ...", "sound": "mmmm", "after": "Pip toots. The cow walks away.", "art": { "emoji": ["🐄"] }, "tap": { "on": "emoji", "anim": "walk", "label": "the cow" } },
+    { "scene": "track", "read": "A snake is in the grass by the track. The snake says ...", "sound": "sssss", "art": { "emoji": ["🐍"] } },
+    { "scene": "meadow", "read": "Sis throws a ball to {name}. {name} reaches for it ... oops! It is a ...", "child": "miss", "art": { "emoji": ["⚽"] }, "tap": { "on": "emoji", "anim": "bounce", "label": "the ball" } },
+    { "scene": "station", "read": "The train pulls into the station. Pip blows the whistle. \"You are my friend,\" says Pip. And {name} says, \"I ...\"", "child": "am", "after": "The end. Toot toot!", "art": { "train": true, "pip": "cheer", "friend": true } },
+    { "scene": "meadow", "kind": "review", "read": "Read them all!", "words": ["am", "is", "Sam", "sis", "miss"] }
   ]
 }

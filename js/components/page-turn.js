@@ -9,7 +9,7 @@
 //   const d = turner.drag(dir, renderTarget); d.move(k /* 0..1 */); d.release(commit, renderBack)
 //   turner.finish()  turner.busy  turner.cleanup()
 
-const FULL = { spread: 760, single: 650 };
+const FULL = { spread: 760, single: 720 };
 const EASE = 'cubic-bezier(.45,.05,.35,1)';
 
 export function pageTurner({ block, spread, reducedMotion }) {
@@ -19,11 +19,11 @@ export function pageTurner({ block, spread, reducedMotion }) {
   function snap(el, cls) {
     const c = el.cloneNode(true);
     c.classList.remove('is-live'); c.classList.add(cls);
-    c.querySelectorAll('.slide-band, .slide-hand, .sparkle').forEach((n) => n.remove());
+    c.querySelectorAll('.slide-band, .slide-hand, .sparkle, .book-arrow').forEach((n) => n.remove());
     c.inert = true; c.setAttribute('aria-hidden', 'true');
     return c;
   }
-  const blank = (side) => { const b = document.createElement('div'); b.className = `book-sheet is-${side} leaf-face`; b.setAttribute('aria-hidden', 'true'); return b; };
+  const blank = (side) => { const b = document.createElement('div'); b.className = `book-sheet paper is-${side} leaf-face`; b.setAttribute('aria-hidden', 'true'); return b; };
   const place = (el, sh) => { el.style.left = sh.offsetLeft + 'px'; el.style.width = sh.offsetWidth + 'px'; };
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
