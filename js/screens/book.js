@@ -265,6 +265,8 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
       const caps = box ? [cap0, ...CAPS.filter((k) => k < cap0)] : [cap0];
       const artWant = art && !sheet.classList.contains('kind-review') ? Math.min(150, sheet.clientHeight * 0.28) : 0;
       const fits = () => sheet.scrollHeight <= sheet.clientHeight + 0.5 && (!box || box.getBoundingClientRect().width <= sheet.clientWidth) && (!art || art.offsetHeight >= artWant);
+      const tiles = sheet.querySelector('.book-tiles');
+      if (tiles) { tiles.classList.remove('is-tight'); sheet.style.removeProperty('--art-min'); if (!fits()) { tiles.classList.add('is-tight'); sheet.style.setProperty('--art-min', '40px'); } }
       for (let step = 0; step < 16; step++) {
         if (box) box.style.setProperty('--cap', caps[Math.min(step, caps.length - 1)] + 'px');
         if (rd) sheet.style.setProperty('--read-fs', Math.max(16, fs0 - Math.floor(step / 2)) + 'px');
