@@ -65,9 +65,9 @@ with the date.
 - [x] E. (Done by the owner during setup.) When accounts are turned on: Supabase Site URL https://app.choochootraining.com (keep the old address in
   Redirect URLs for a few weeks).
 
-- [ ] F. **Porkbun tidy-up (2 minutes, after the Netlify project renames):** the `app` and `www` CNAME records still point
-  to the old name `choochootraining.netlify.app` (it works for now because Netlify routes by domain, but the old name could
-  be reused later). Edit `app` -> **appchoochootraining.netlify.app** and `www` -> **choochootrainingwebsite.netlify.app**.
+- [ ] F. **Porkbun tidy-up (2 minutes; updated 2026-10-09):** `app` already points to gebsierra.github.io (the app is on
+  GitHub Pages now; leave it). Only `www` still points to the old name `choochootraining.netlify.app`: edit it to
+  **choochootrainingwebsite.netlify.app**.
 
 - [ ] **Turn on the welcome email (about 5 minutes, 2026-10-08).** Every new parent (Google or email) then gets the
   welcome email (preview: docs/emails/welcome.html).
