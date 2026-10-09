@@ -205,6 +205,8 @@ export async function tapChecks({ browser, url, ok }) {
 // The index of a lesson's stop on the line (the line has no Sound Station stops since 1.7.0).
 // (1.9.14: the index within the lesson's own world, which is the line the Home builds for it.)
 export const iL = (n) => { const w = CUR.lessons.find((l) => l.number === n).world; return NODES.filter((x) => worldOfNode(x) === w).findIndex((x) => x.lesson && x.lesson.number === n); };
+// The stop the train holds at after lesson 4: the Smooth Ride that comes next in line (a Story or Smooth Ride is never ridden past; 1.9.31).
+export const iN = iL(4) + 1;
 export async function arrivalChecks({ browser, url, ok, shot }) {
   const vp = VIEWPORTS[0];
   {
@@ -229,16 +231,16 @@ export async function arrivalChecks({ browser, url, ok, shot }) {
     await page.mouse.click(3, 300); // a real tap as well
     const a = await train(page);
     ok(a.arriving && Math.abs(a.trainS - (a.stops[iL(4)] + a.engineAt)) < 0.01, `arrival: the train starts at the stop before (${a.trainS.toFixed(2)})`);
-    const mid = await until(page, ([i4, i5]) => window.__train.trainS > window.__train.stopS[i4] + 1 && window.__train.trainS < window.__train.stopS[i5], [iL(4), iL(5)], 8000);
+    const mid = await until(page, ([i4, i5]) => window.__train.trainS > window.__train.stopS[i4] + 1 && window.__train.trainS < window.__train.stopS[i5], [iL(4), iN], 8000);
     ok(mid, 'arrival: the train chugs along the line between the two stops');
     if (shot) await shot(page, 'arrival');
     ok(await until(page, () => window.__train.tootAt !== null, null, 10000), 'arrival: a toot is played on arrival');
     const b = await train(page);
-    ok(Math.abs(b.trainS - (b.stops[iL(5)] + b.engineAt)) < 0.01, `arrival: the train stands at the new current stop (${b.trainS.toFixed(2)})`);
+    ok(Math.abs(b.trainS - (b.stops[iN] + b.engineAt)) < 0.01, `arrival: the train stands at the new current stop (${b.trainS.toFixed(2)})`);
     const toots = await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'toot' && !n.partial).length);
     const whistleSamples = await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'whistle' && n.sample).length);
     ok(toots === 2 && whistleSamples >= 1, `arrival: the train whistle as it sets off and a toot (two whistle notes) on arrival (${whistleSamples} whistle, ${toots} toot notes)`);
-    ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainAt)) === iL(5), 'arrival: the new stop is remembered, so it plays once');
+    ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).settings.trainAt)) === iN, 'arrival: the new stop is remembered, so it plays once');
     ok(errors.length === 0, `arrival: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
@@ -247,7 +249,7 @@ export async function arrivalChecks({ browser, url, ok, shot }) {
     const { ctx, page, errors } = await openHome(browser, url, vp, { ...state(4, { trainAt: iL(4) }), settings: { seenScripts: SEEN, trainAt: iL(4) } }, { extra: { reducedMotion: 'reduce' } });
     await until(page, () => window.__train && window.__train.frames > 0);
     const a = await train(page);
-    ok(a.reduced && Math.abs(a.trainS - (a.stops[iL(5)] + a.engineAt)) < 0.01 && Math.abs(a.focus - a.stops[iL(5)]) < 0.05, `reduced motion: the train is at the new stop and the camera there at once (${a.trainS.toFixed(2)}, ${a.focus.toFixed(2)})`);
+    ok(a.reduced && Math.abs(a.trainS - (a.stops[iN] + a.engineAt)) < 0.01 && Math.abs(a.focus - a.stops[iN]) < 0.05, `reduced motion: the train is at the new stop and the camera there at once (${a.trainS.toFixed(2)}, ${a.focus.toFixed(2)})`);
     await page.waitForTimeout(1500);
     const f1 = await train(page);
     await page.waitForTimeout(1200);
@@ -263,7 +265,7 @@ export async function arrivalChecks({ browser, url, ok, shot }) {
 // done than Home last saw). The figure waits on lesson 4's platform, the train toots, the figure hops on, the train rides to
 // the next station with thick smoke, the figure hops off and waves. Reduced motion skips the animation; nothing draws when idle.
 export const RAF_COUNT = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
-const justDone = (settings = {}) => state(4, { trainAt: iL(5), trainDone: 3, ...settings }, { character: { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit: 'dress', made: true }, lessons: Object.fromEntries([1, 2, 3, 4].map((n) => [n, { tasksDone: [], result: 'got-it', completedAt: `2026-10-0${n}T10:00:00.000Z` }])) });
+const justDone = (settings = {}) => state(4, { trainAt: iN, trainDone: 3, ...settings }, { character: { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit: 'dress', made: true }, lessons: Object.fromEntries([1, 2, 3, 4].map((n) => [n, { tasksDone: [], result: 'got-it', completedAt: `2026-10-0${n}T10:00:00.000Z` }])) });
 export async function sequenceChecks({ browser, url, ok, shot }) {
   const vp = VIEWPORTS[0];
   {
@@ -301,12 +303,12 @@ export async function sequenceChecks({ browser, url, ok, shot }) {
     ok(await until(page, () => window.__train.kid.phase === 'go', null, 8000), 'sequence: then the train sets off');
     const live = await page.evaluate(() => window.__train.kid.index);
     ok(live === iL(4), `sequence: while it rides, the figure is still counted at the station it left (${live})`);
-    await until(page, ([i4, i5]) => window.__train.trainS > window.__train.stopS[i4] + 2 && window.__train.trainS < window.__train.stopS[i5] - 2, [iL(4), iL(5)], 8000);
+    await until(page, ([i4, i5]) => window.__train.trainS > window.__train.stopS[i4] + 2 && window.__train.trainS < window.__train.stopS[i5] - 2, [iL(4), iN], 8000);
     if (shot) await shot(page, 'station-sequence-smoke');
     ok(await until(page, () => window.__phases.includes('off'), null, 20000), 'sequence: the train arrives and the figure hops off');
     ok(await until(page, () => window.__train.kid.phase === '' && window.__train.kid.index === window.__train.currentIndex && window.__train.kid.waving, null, 8000), 'sequence: the figure lands on the next platform and waves');
     const b = await train(page);
-    ok(Math.abs(b.trainS - (b.stops[iL(5)] + b.engineAt)) < 0.01, `sequence: the train ends at the next stop (${b.trainS.toFixed(2)})`);
+    ok(Math.abs(b.trainS - (b.stops[iN] + b.engineAt)) < 0.01, `sequence: the train ends at the next stop (${b.trainS.toFixed(2)})`);
     ok(await until(page, () => !window.__train.running, null, 8000), 'sequence: the scene settles');
     await page.waitForTimeout(800);
     const r0 = await page.evaluate(() => window.__raf);
@@ -324,7 +326,7 @@ export async function sequenceChecks({ browser, url, ok, shot }) {
     let phases = 0;
     for (let i = 0; i < 14; i++) { phases += (await page.evaluate(() => window.__train.kid.phase)) ? 1 : 0; await page.waitForTimeout(150); }
     const a = await train(page);
-    ok(phases === 0 && a.kid.index === iL(5) && Math.abs(a.trainS - (a.stops[iL(5)] + a.engineAt)) < 0.01, `reduced motion sequence: no hop and no ride, the figure and the train are at the next station (${phases} phases, kid ${a.kid.index})`);
+    ok(phases === 0 && a.kid.index === iN && Math.abs(a.trainS - (a.stops[iN] + a.engineAt)) < 0.01, `reduced motion sequence: no hop and no ride, the figure and the train are at the next station (${phases} phases, kid ${a.kid.index})`);
     await page.waitForTimeout(800);
     ok(await until(page, () => window.__train.tootAt !== null, null, 4000), 'reduced motion sequence: one soft toot at the end (the arrival toot only, no start toot)');
     ok((await page.evaluate(() => window.__train.startTootAt)) === null, 'reduced motion sequence: no toot at the start');
@@ -345,6 +347,117 @@ export async function sequenceChecks({ browser, url, ok, shot }) {
     ok(await page.evaluate(() => window.__audioNotes().filter((n) => n.event === 'whistle' && n.sample).length) >= 1, '2D sequence: and the train whistle as it sets off');
 
     ok(errors.length === 0, `2D sequence: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+}
+
+// Lesson finish, auto-return and the checkpoint stop (1.9.31): after "Yes, go on" the railway opens by itself and the figure rides
+// to the next station; a Story or Smooth Ride that comes next holds the train (the figure stands beside it, it is the current stop).
+const kidSeed = { character: { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit: 'dress', made: true } };
+const tapYesTwice = async (page) => {
+  await page.waitForSelector('.finish');
+  await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
+  await page.click('.btn.got');
+  await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
+  await page.click('.btn.got');
+};
+export async function autoReturnChecks({ browser, url, ok, shot }) {
+  const vp = VIEWPORTS[0];
+  {
+    // lesson 2 finished with a lesson next: Yes twice, no extra tap, and the figure rides to lesson 3
+    const PHASES = () => { window.__phases = []; setInterval(() => { const p = window.__train && window.__train.kid.phase; if (p !== undefined && window.__phases[window.__phases.length - 1] !== p) window.__phases.push(p); }, 16); };
+    const { ctx, page, errors } = await openHome(browser, url, vp, state(1, { trainAt: iL(2), trainDone: 1 }, kidSeed), { route: '#/lesson/2/finish', init: [PHASES] });
+    await tapYesTwice(page);
+    await page.waitForTimeout(450);
+    ok(page.url().endsWith('#/lesson/2/finish') && await page.evaluate(() => !!document.querySelector('.finish')), 'auto-return: the success moment stays for a short time first');
+    ok(await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[2].result) === 'got-it', 'auto-return: "Yes" records got-it at once');
+    ok(await page.evaluate(() => [...document.querySelectorAll('.finish .btn')].every((b) => b.disabled)), 'auto-return: the buttons are off while it waits (no double tap)');
+    await page.waitForFunction(() => location.hash === '#/home', null, { timeout: 3000 }).catch(() => {});
+    ok(page.url().endsWith('#/home'), `auto-return: the app goes to the railway by itself (${page.url().split('#')[1]})`);
+    await until(page, () => window.__train && window.__train.frames > 0);
+    await page.mouse.click(3, 300); // only the first-touch audio unlock
+    const a = await train(page);
+    ok(a.arriving && a.fromIndex === iL(2) && a.currentIndex === iL(3), `auto-return: the ride starts at lesson 2's station and aims at lesson 3 (${a.fromIndex} to ${a.currentIndex})`);
+    ok(await until(page, () => window.__phases.includes('on') && window.__phases.includes('go'), null, 10000), 'auto-return: the figure hops on and the train rides');
+    ok(await until(page, () => window.__phases.includes('off') && !window.__train.running, null, 20000), 'auto-return: it arrives and the figure hops off');
+    const b = await train(page);
+    ok(b.kid.index === iL(3) && Math.abs(b.trainS - (b.stops[iL(3)] + b.engineAt)) < 0.01, `auto-return: the train stands at lesson 3 (${b.kid.index})`);
+    if (shot) await shot(page, 'auto-return-arrived');
+    ok(errors.length === 0, 'auto-return: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  {
+    // "Not yet, practice again" behaves as before: back to the overview, no return to the railway
+    const { ctx, page, errors } = await openHome(browser, url, vp, state(1, { trainAt: iL(2), trainDone: 1 }, kidSeed), { route: '#/lesson/2/finish' });
+    await page.waitForSelector('.finish');
+    await page.waitForFunction(() => !document.querySelector('.btn.practice').disabled, null, { timeout: 3000 });
+    await page.click('.btn.practice');
+    await page.waitForSelector('.lesson-overview');
+    await page.waitForTimeout(1800);
+    ok(page.url().endsWith('#/lesson/2') && await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[2].result) === 'practice-again', '"Not yet, practice again" goes back to the lesson, no auto-return');
+    ok(errors.length === 0, 'practice again: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  {
+    // lesson 4 finished: the Smooth Ride is next, so the ride ends THERE (the current stop), not at lesson 5
+    const PHASES = () => { window.__phases = []; setInterval(() => { const p = window.__train && window.__train.kid.phase; if (p !== undefined && window.__phases[window.__phases.length - 1] !== p) window.__phases.push(p); }, 16); };
+    const { ctx, page, errors } = await openHome(browser, url, vp, justDone({ trainAt: iL(4) }), { init: [PHASES] });
+    await until(page, () => window.__train && window.__train.frames > 0);
+    await page.mouse.click(3, 300);
+    const a = await train(page);
+    const ck = NODES[iL(4) + 1].checkpoint;
+    ok(ck && (ck.kind === 'ride' || ck.kind === 'book'), `checkpoint stop: the stop after lesson 4 is a Story or Smooth Ride (${ck && ck.id})`);
+    ok(a.arriving && a.fromIndex === iL(4) && a.currentIndex === iN, `checkpoint stop: the ride runs from lesson 4 to the ${ck.id} station (${a.fromIndex} to ${a.currentIndex})`);
+    ok(await until(page, () => window.__phases.includes('off') && !window.__train.running, null, 20000), 'checkpoint stop: the figure hops off there');
+    const b = await train(page);
+    ok(b.kid.index === iN && Math.abs(b.trainS - (b.stops[iN] + b.engineAt)) < 0.01, `checkpoint stop: the train stops at the ${ck.id} station and the figure stands beside it (kid ${b.kid.index})`);
+    const st = await shown(page);
+    ok(/current/.test(st[iN].cls) || st[iN].cls.includes('is-current'), `checkpoint stop: its station is highlighted as the current one (${st[iN].cls})`);
+    ok(!/current/.test(st[iN + (CUR.checkpoints.filter((c) => c.after === 4).length)].cls), `checkpoint stop: the lesson after the checkpoints is not current (${st[iN + CUR.checkpoints.filter((c) => c.after === 4).length].cls})`);
+    if (shot) await shot(page, 'checkpoint-stop');
+    ok(errors.length === 0, 'checkpoint stop: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  {
+    // the checkpoint itself is finished: the next ride goes on, to the next held checkpoint if there is one, else the lesson
+    const nAfter4 = CUR.checkpoints.filter((c) => c.after === 4);
+    if (nAfter4.length > 1) {
+      const first = nAfter4[0];
+      const seed = justDone({ trainAt: iL(4) + 1, trainDone: 4 });
+      seed.checkpoints = { [first.id]: { result: 'got-it', completedAt: '2026-10-05T10:00:00.000Z' } };
+      const { ctx, page, errors } = await openHome(browser, url, vp, seed);
+      await until(page, () => window.__train && window.__train.frames > 0);
+      await page.mouse.click(3, 300);
+      const a = await train(page);
+      ok(a.arriving && a.fromIndex === iN && a.currentIndex === iN + 1, `checkpoint stop: after the first one is done the ride goes on to the next one (${a.fromIndex} to ${a.currentIndex})`);
+      const k2 = await until(page, (n) => !window.__train.running && window.__train.kid.index === n + 1 && window.__train.kid.phase === '', iN, 20000);
+      ok(k2, `checkpoint stop: and stops there (${JSON.stringify(await page.evaluate(() => ({ r: window.__train.running, k: window.__train.kid.index, p: window.__train.kid.phase, c: window.__train.currentIndex })))})`);
+      ok(errors.length === 0, 'checkpoint stop 2: errors ' + errors.join(' | '));
+      await ctx.close();
+    }
+  }
+  {
+    // the 2D path holds the figure at the checkpoint stone too
+    const { ctx, page, errors } = await openHome(browser, url, vp, justDone({ trainWorld: false, migrated1912: true }));
+    await page.waitForSelector('.map-scroll');
+    ok(await until(page, () => !document.querySelector('.seq-kid') && !!document.querySelector('.stone-kid'), null, 10000), '2D checkpoint stop: the ride ends');
+    const cur = await page.evaluate(() => [...document.querySelectorAll('.stone.is-current')].map((s) => s.getAttribute('aria-label')));
+    ok(cur.length === 1 && cur[0] === NODES[iN].checkpoint.title, `2D checkpoint stop: the one current stone is the checkpoint (${cur})`);
+    ok(errors.length === 0, '2D checkpoint stop: errors ' + errors.join(' | '));
+    await ctx.close();
+  }
+  {
+    // reduced motion: it still returns by itself, with no ride animation
+    const { ctx, page, errors } = await openHome(browser, url, vp, state(1, { trainAt: iL(2), trainDone: 1 }, kidSeed), { route: '#/lesson/2/finish', extra: { reducedMotion: 'reduce' } });
+    await tapYesTwice(page);
+    await page.waitForFunction(() => location.hash === '#/home', null, { timeout: 3500 }).catch(() => {});
+    ok(page.url().endsWith('#/home'), 'reduced motion auto-return: it still goes back to the railway by itself');
+    await until(page, () => window.__train && window.__train.frames > 0);
+    let phases = 0;
+    for (let i = 0; i < 10; i++) { phases += (await page.evaluate(() => window.__train.kid.phase)) ? 1 : 0; await page.waitForTimeout(150); }
+    const a = await train(page);
+    ok(phases === 0 && a.kid.index === iL(3) && Math.abs(a.trainS - (a.stops[iL(3)] + a.engineAt)) < 0.01, `reduced motion auto-return: no ride, the train is at lesson 3 (${phases} phases, kid ${a.kid.index})`);
+    ok(errors.length === 0, 'reduced motion auto-return: errors ' + errors.join(' | '));
     await ctx.close();
   }
 }
@@ -437,11 +550,11 @@ export async function heatChecks({ browser, url, ok, log = () => {} }) {
   await until(page, () => window.__train && !window.__train.disposed && window.__train.frames > 0 && !window.__train.running, null, 15000);
   await page.waitForTimeout(2600); // Pip's hello wave
   await idle('Home after a lesson and back');
-  await page.evaluate(() => { location.hash = '#/lesson/2/task/6'; });
+  await page.evaluate(() => { location.hash = '#/lesson/3/task/3'; });
   await page.waitForSelector('.screen:not(.leaving) .sky-letter');
   await page.waitForTimeout(1500);
   await idle('Letter Hunt');
-  await page.evaluate(() => { location.hash = '#/lesson/3/task/8'; });
+  await page.evaluate(() => { location.hash = '#/lesson/3/task/7'; });
   await page.waitForSelector('.screen:not(.leaving) .sack-card');
   await page.waitForTimeout(1500);
   await idle('Practicing Words');
@@ -462,6 +575,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   await tapChecks({ browser, url, ok });
   await arrivalChecks({ browser, url, ok, shot });
   await sequenceChecks({ browser, url, ok, shot });
+  await autoReturnChecks({ browser, url, ok, shot });
   await lifeChecks({ browser, url, ok });
   await heatChecks({ browser, url, ok, log: console.log });
   await browser.close(); server.close();

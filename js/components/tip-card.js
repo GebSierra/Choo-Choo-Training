@@ -1,18 +1,18 @@
 // "Did you know?": a calm, non-blocking tip card for the grown-up (data/tips.json). It fades in and STAYS until the grown-up
-// closes it with "Got it" or the X (owner decision: no timeout, a grown-up needs time to read). No timer, no loop. The card is
+// closes it with the X (bottom right; some cards also have "Got it") (owner decision: no timeout, a grown-up needs time to read). No timer, no loop. The card is
 // the only part that takes touches, so whatever is under it stays usable. Returns { el, close }.
 import { h, icon, reduced } from '../dom.js';
 import { pipSvg } from '../art/pip.js';
 
 export const TIP_FADE_MS = 300;
 
-export function tipCard({ host, tip, title = 'Did you know?', onClose }) {
+export function tipCard({ host, tip, title = 'Did you know?', onClose, gotIt = true, className = '' }) {
   let closed = false;
   const still = reduced();
-  const el = h('div', { class: 'tip-card' + (still ? ' still' : ''), role: 'status', dataset: { tip: String(tip.id) } },
+  const el = h('div', { class: 'tip-card' + (still ? ' still' : '') + (className ? ' ' + className : ''), role: 'status', dataset: { tip: String(tip.id) } },
     h('div', { class: 'tip-pip', 'aria-hidden': 'true' }, pipSvg({ pose: 'point', still: true })),
     h('div', { class: 'tip-body' }, h('strong', { class: 'tip-title' }, title), h('p', { class: 'tip-text' }, tip.text),
-      h('button', { class: 'btn small tip-ok', type: 'button', onclick: () => close() }, 'Got it')),
+      gotIt ? h('button', { class: 'btn small tip-ok', type: 'button', onclick: () => close() }, 'Got it') : null),
     h('button', { class: 'tip-close', type: 'button', 'aria-label': 'Close the tip', onclick: () => close() }, icon('close', 22)));
   function close() {
     if (closed) return;

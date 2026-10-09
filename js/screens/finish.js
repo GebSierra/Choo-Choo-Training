@@ -11,7 +11,8 @@ import { kidSvg } from '../art/kid.js';
 // and stays (CSS only, finite; reduced motion shows the settled picture), and the two figures cheering. The parent still
 // decides whether the child got it.
 // Taps are ignored for the first 1.5 s, and "Yes" takes two taps, so a child cannot move on by accident.
-// The first Yes tap only arms the button (and dims it for 1.5 s); the second records "got it" and goes back to the railway (onContinue).
+// The first Yes tap only arms the button (and dims it for 1.5 s); the second records "got it" (onContinue) and, for a lesson, goes back
+// to the railway by itself after LESSON_RETURN_MS (a checkpoint goes back at once).
 // 22 pieces, each with its resting place around the wagon (--tx/--ty from its centre, --r turn), a colour, a shape and a delay.
 const CONFETTI = ['#E5484D', '#FFD166', '#5FE3B0', '#5DE0F0', '#5A4BD6', '#F0556A'];
 function confetti() {
@@ -23,15 +24,25 @@ function confetti() {
   }
   return box;
 }
+// After "Yes, go on" on a lesson, the short success moment before the railway opens by itself.
+export const LESSON_RETURN_MS = 1200;
 const STAR_PATH = 'M12 2.4l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 16.6 6.2 19.9l1.4-6.4L2.7 9.1l6.5-.7z';
 const goldStar = () => h('span', { class: 'finish-star', 'aria-hidden': 'true' }, h('svg', { viewBox: '0 0 24 24', width: 56, height: 56 }, h('path', { d: STAR_PATH, fill: '#FFD166', stroke: '#E8A93A', 'stroke-width': 1.4, 'stroke-linejoin': 'round' })));
 
-function finishView({ speech, router, character, heading, badge, accent, armedLabel, armedNote, onContinue, onPractice }) {
+function finishView({ speech, router, character, heading, badge, accent, armedLabel, armedNote, onContinue, onPractice, returnMs = 0 }) {
   const note = h('p', { class: 'finish-note', 'aria-live': 'polite' });
-  let armed = false, armTimer = 0; // the first "Yes" tap has been made
+  let armed = false, armTimer = 0, goTimer = 0, left = false; // the first "Yes" tap has been made; the second one has recorded it
   const label = h('span', {}, 'Yes, go on');
   const gotIt = h('button', { class: 'btn big got', type: 'button', disabled: true, onclick: () => {
-    if (armed) { sfx.play('unlock'); onContinue(); return; }
+    if (armed) {
+      if (left) return;
+      left = true; sfx.play('unlock'); onContinue();
+      // The grown-up needs no extra tap: after a short success moment the railway opens by itself, where the child's figure
+      // boards the train and rides to the next station (the reward; js/sequence.js).
+      for (const b of [gotIt, again, back]) b.disabled = true;
+      goTimer = setTimeout(() => router.go('/home'), returnMs);
+      return;
+    }
     armed = true;
     note.textContent = armedNote;
     gotIt.classList.add('chosen');
@@ -53,7 +64,7 @@ function finishView({ speech, router, character, heading, badge, accent, armedLa
   // The voice says "Good job." first; the jingle waits for it to finish (see sfx.js).
   const t = setTimeout(() => { speech.autoSay([{ tts: 'Good job.' }]); sfx.play('lesson'); }, 500);
   const ready = setTimeout(() => { for (const b of [gotIt, again, back]) b.disabled = false; }, 1500);
-  root.cleanup = () => { clearTimeout(t); clearTimeout(ready); clearTimeout(armTimer); };
+  root.cleanup = () => { clearTimeout(t); clearTimeout(ready); clearTimeout(armTimer); clearTimeout(goTimer); };
   return root;
 }
 
@@ -69,7 +80,8 @@ export function finishScreen({ store, router, curriculum, speech }, n) {
     // Yes goes back to the railway, where the station-complete sequence rides the train to the next stop (js/sequence.js).
     armedLabel: 'Yes, back to path',
     armedNote: 'Tap again to go back to the path.',
-    onContinue: () => { store.setResult(num, 'got-it'); router.go('/home'); },
+    onContinue: () => store.setResult(num, 'got-it'),
+    returnMs: LESSON_RETURN_MS,
     onPractice: () => {
       if (!store.isDone(num)) store.setResult(num, 'practice-again'); // keep the best result
       store.resetLessonTasks(num);
@@ -89,7 +101,7 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
     accent: ck.kind === 'book' ? '#E5484D' : ck.kind === 'ride' ? '#E5A73A' : '#C99A5B', // a book's red cover, a gauge's brass, a crate's wood
     armedLabel: 'Yes, back to path',
     armedNote: 'Tap again to go back to the path.',
-    onContinue: () => { store.setCheckpointResult(ck.id, 'got-it'); router.go('/home'); },
+    onContinue: () => store.setCheckpointResult(ck.id, 'got-it'),
     onPractice: () => {
       if (!store.isCheckpointDone(ck)) store.setCheckpointResult(ck.id, 'practice-again'); // keep the best result
       router.go(`/checkpoint/${ck.id}`);

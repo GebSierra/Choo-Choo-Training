@@ -247,3 +247,8 @@ owner approves that plan.
 Full `npm test` on 1.9.19 (2026-10-07): all 31 suites pass (train, regions and smoke re-run after two test fixes).
 Since 1.9.14: 1.9.16 heart word prototype, 1.9.17 research-based placement check, 1.9.18 portal mountain redesign, 1.9.19
 regions W3/W4 (`#/world/<id>`), pace limit, developer mode, finishing a lesson completes the earlier ones.
+
+## Lesson tips, auto-return, story stops (done, no version change)
+- ORDER item 4 is done: a Story or Smooth Ride next in line holds the train (`checkpointStopIndex`, js/sequence.js). After a lesson's
+  "Yes, go on" the app returns Home by itself after 1.2 s and the ride plays. The "Did you know?" card shows on each lesson open
+  (bottom-right X only; `window.__noTips` is set by test/lib.mjs). Details: README, "Lesson tips, auto-return and story stops".

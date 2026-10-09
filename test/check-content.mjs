@@ -508,10 +508,10 @@ export function childReadProof(c, root = ROOT) {
   return { errors, count: items.length };
 }
 
-// data/tips.json: the 19 "Did you know?" tips of docs/CURRICULUM.md section 13 as [{ id, text }]. No privacy or recording warnings.
+// data/tips.json: the 20 "Did you know?" tips of docs/CURRICULUM.md section 13 as [{ id, text }]. No privacy or recording warnings.
 export function checkTips(tips) {
   const errors = [];
-  if (!Array.isArray(tips) || tips.length !== 19) return ['tips.json must be a list of 19 tips'];
+  if (!Array.isArray(tips) || tips.length !== 20) return ['tips.json must be a list of 20 tips'];
   tips.forEach((t, i) => {
     if (t.id !== i + 1) errors.push(`tips[${i}].id must be ${i + 1}`);
     if (typeof t.text !== 'string' || t.text.length < 20) errors.push(`tips[${i}].text missing`);

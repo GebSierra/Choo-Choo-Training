@@ -3,6 +3,7 @@ import { glyphSvg } from '../glyphs.js';
 import { speakButton } from '../components/speak-button.js';
 import { tasksFor, lessonByNumber, targetsFor, soundPhrase, introParts } from '../lessons.js';
 import { richText, letterText } from '../letters.js';
+import { tipCard, nextTip, loadTips } from '../components/tip-card.js';
 import { engineSvg, crateSvg, signalSvg, wagonSvg } from '../art/train2d.js';
 
 // Little illustrations for the task cards, drawn from our own shapes and emoji.
@@ -73,6 +74,16 @@ export function lessonScreen(ctx, n) {
   scroller.addEventListener('scroll', edge, { passive: true });
   requestAnimationFrame(edge);
   const root = h('div', { class: 'lesson-overview' }, header, wrap, h('footer', { class: 'lo-foot' }, start));
+  // "Did you know?": the first time this lesson is opened from the Home (not when coming back from a task), the tip card shows over
+  // the overview and stays until its X is tapped. window.__noTips is the test/developer switch. Never on a task screen: the card
+  // lives inside this screen and goes with it.
+  if (ctx.lessonTipFor !== n && !window.__noTips) {
+    ctx.lessonTipFor = n;
+    loadTips().then((tips) => {
+      const show = () => { if (!root.isConnected) return; const tip = nextTip(store, tips); if (tip) tipCard({ host: root, tip, gotIt: false, className: 'lesson-tip' }); };
+      if (root.isConnected) show(); else setTimeout(show, 60);
+    });
+  }
   cards.forEach((c, i) => animate(c, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 260, delay: 140 + i * 40 }));
   return root;
 }

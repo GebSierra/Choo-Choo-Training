@@ -1142,13 +1142,15 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .gateway-host { position: fixed; inset: 0; }
 
 /* the tip card */
-.tip-card { position: fixed; left: 50%; bottom: calc(84px + var(--sab)); transform: translateX(-50%); z-index: 14; width: min(460px, calc(100% - 32px)); box-sizing: border-box; display: grid; grid-template-columns: 52px 1fr 48px; gap: 8px; align-items: start; padding: 12px 4px 12px 12px; border-radius: 24px; background: var(--cream); border: 4px solid var(--sun); box-shadow: 0 8px 0 rgba(30,33,64,.14), var(--shadow); touch-action: manipulation; opacity: 0; transition: opacity 300ms ease; }
+.tip-card { position: fixed; left: 50%; bottom: calc(84px + var(--sab)); transform: translateX(-50%); z-index: 14; width: min(460px, calc(100% - 32px)); box-sizing: border-box; display: grid; grid-template-columns: 52px 1fr; gap: 4px 8px; align-items: start; padding: 12px 10px 8px 12px; border-radius: 24px; background: var(--cream); border: 4px solid var(--sun); box-shadow: 0 8px 0 rgba(30,33,64,.14), var(--shadow); touch-action: manipulation; opacity: 0; transition: opacity 300ms ease; }
 .tip-card.in { opacity: 1; } .tip-card.closing { opacity: 0; pointer-events: none; } .tip-card.still { transition: none; }
 .tip-pip svg { width: 52px; height: auto; display: block; }
 .tip-title { display: block; font-size: 19px; font-weight: 800; color: var(--violet); }
 .tip-text { margin: 2px 0 0; font-size: 16px; line-height: 1.35; font-weight: 600; }
 .tip-ok { margin-top: 8px; min-height: 48px; padding: 0 22px; }
-.tip-close { width: 48px; height: 48px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; }
+.tip-close { grid-column: 1 / -1; justify-self: end; width: 48px; height: 48px; border: 0; border-radius: 50%; background: #ECEEF8; color: var(--ink); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; }
+/* over a lesson overview: clear of the big Start button; the card stays until its X is tapped */
+.tip-card.lesson-tip { bottom: calc(120px + var(--sab)); }
 @media (orientation: landscape) and (max-height: 520px) { .tip-card { width: min(560px, calc(100% - 200px)); bottom: calc(12px + var(--sab)); left: auto; right: calc(16px + var(--sar)); transform: none; } }
 
 /* the loading card between two worlds */

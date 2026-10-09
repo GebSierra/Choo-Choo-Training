@@ -58,6 +58,7 @@ export async function newPage(browser, vp, extra = {}) {
   const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: vp.deviceScaleFactor, hasTouch: true, isMobile: true, serviceWorkers: 'block', ...extra });
   const page = await ctx.newPage();
   await page.addInitScript('window.__noAutoAdvance = true;'); // finished games stay put; the auto-advance checks in tap-games.mjs switch it off
+  await page.addInitScript('window.__noTips = true;'); // no "Did you know?" card over lesson overviews; test/lesson-tips.mjs switches it off
   await page.addInitScript(AUDIO_STUB); // sound cannot be heard here: Web Audio is a recorder in every test
   const errors = [];
   // A missing recorded clip is expected until Geb records it; the browser logs its 404 itself.

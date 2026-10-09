@@ -7,7 +7,7 @@
 //
 //   home3dScreen(ctx, { canvas, gl, soft }) -> element, or throws (the caller falls back to the 2D map).
 import { makeBag, makeLine, THREE } from '../train/world.js';
-import { finishedStop } from '../sequence.js';
+import { finishedStop, checkpointStopIndex } from '../sequence.js';
 import { createRenderer, createScene } from '../train/scene.js';
 import { buildTrack, buildSiding } from '../train/track.js';
 import { buildScenery } from '../train/scenery.js';
@@ -60,6 +60,9 @@ export function stopsOf(curriculum, store, worldId = null) {
     return { kind: 'lesson', lesson: l, number: l.number, glyph: l.sound, accent: accentOf(l.sound), state, resting: state === 'current' && store.isResting(l.number) }; // resting: today's pace limit is reached
   });
   if (currentIndex < 0) currentIndex = stops.length - 1;
+  // a Story or Smooth Ride next in line holds the train: it becomes the current stop (the lesson after it stays open)
+  const hold = checkpointStopIndex(nodes, currentIndex, store);
+  if (hold >= 0) { stops[currentIndex].state = 'open'; stops[currentIndex].held = true; stops[hold].state = 'current'; currentIndex = hold; }
   return { stops, currentIndex };
 }
 
@@ -192,7 +195,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const tap = (fn) => (btn, e) => { if (dragged) { dragged = false; return; } fn(btn, e); };
   const overlayStops = stops.map((s, i) => {
     const name = s.placeholder ? `Sound ${s.glyph}` : s.kind === 'lesson' ? `Lesson ${s.number}` : s.title;
-    const cls = (s.kind === 'lesson' ? (s.state === 'open' ? 'current' : s.state) : (s.state === 'open' ? 'unlocked' : s.state)) + (s.resting ? ' is-resting' : '');
+    const cls = (s.kind === 'lesson' ? (s.state === 'open' && !s.held ? 'current' : s.held ? 'unlocked' : s.state) : (s.state === 'open' ? 'unlocked' : s.state)) + (s.resting ? ' is-resting' : '');
     return {
       kind: s.kind, cls, anchor: built[i].sign, badge: s.resting ? moonBadge() : null,
       label: `${name}${s.state === 'locked' ? ', locked' : s.state === 'done' ? ', done' : s.resting ? ', resting until tomorrow' : ''}`,
