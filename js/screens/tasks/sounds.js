@@ -6,6 +6,7 @@ import { slideBlend, placeBand, startSweep, handCue } from '../../components/sli
 import { picture } from '../../components/picture.js';
 import { accentOf } from '../../theme.js';
 import { fit } from '../../lessons.js';
+import { soundOfLetter } from '../../order.js';
 
 // Task 5: stretch the sounds, then say the word. Words that show letters can be slid under with a finger; a picture word
 // shows its letters, slidable in the same way, once the picture is tapped.
@@ -18,7 +19,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
   const cur = () => list[i];
   const partsFor = () => {
     const w = cur();
-    if (w.showLetters) return [...[...w.word].filter(hasGlyph).map((c) => ({ clip: c })), { pause: 300 }, { tts: w.word }];
+    if (w.showLetters) return [...[...w.word].filter(hasGlyph).map((c) => ({ clip: soundOfLetter(c) })), { pause: 300 }, { tts: w.word }];
     return [{ tts: w.word }];
   };
   const stopSweep = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } if (cue) { cue.stop(); cue = null; cueStage.classList.remove('cueing'); } };
@@ -63,7 +64,8 @@ export function build({ lesson, curriculum, speech, refresh }) {
       stage.classList.add('revealed');
       animate(stage, [{ transform: 'translateY(0)' }, { transform: 'translateY(-6px)', offset: 0.4 }, { transform: 'translateY(0)' }], { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
       if (w.showLetters) { stopSweep(); animate(label, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260 }); }
-      else { const row = mountWord(stage, w, hint, { perLetter: false, capped: true }); animate(row, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260 }); }
+      // A picture word with letters not taught yet (sayOnly) is only said: its letters are never shown to read.
+      else if (!w.sayOnly) { const row = mountWord(stage, w, hint, { perLetter: false, capped: true }); animate(row, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260 }); }
       speech.say([{ tts: w.word }]);
     };
     tapStage = () => { if (revealed) speech.say(partsFor()); else reveal(); };
@@ -81,8 +83,9 @@ export function build({ lesson, curriculum, speech, refresh }) {
       // A held sound is stretched ("sss"), a clipped one is short ("t-") and never stretched.
       // Only the very first Saying Sounds (lesson 1) is new to the child: I do, we do, you do. After that the child recalls first;
       // the grown-up steps in only after a failed try (together, then say it and have the child say it after).
-      const first = lesson.number === 1, held = sounds[w.word[0]] && sounds[w.word[0]].hold === false ? 'with a short first sound' : 'stretching the first sound';
+      const first = lesson.number === 1, held = sounds[soundOfLetter(w.word[0])] && sounds[soundOfLetter(w.word[0])].hold === false ? 'with a short first sound' : 'stretching the first sound';
       const help = 'If they are stuck, sound it out together. Still stuck? Say it yourself, then have your child say it after you.';
+      if (w.sayOnly) return `Let your child say the word first. Tap the picture to hear it. If they are stuck, say it together. Still stuck? Say it yourself, then have your child say it after you. (Slowly, ${held}: ${firstSoundOut(w.word, sounds)}. Then fast: ${w.word}.)`;
       if (!w.showLetters) return first
         ? `I do: say the word slowly, ${held}: ${firstSoundOut(w.word, sounds)}. Then say it fast: ${w.word}. We do: tap the picture. Slide a finger under the word and say it together, slowly. You do: your child slides and says the word. ${help}`
         : `Let your child try first. Tap the picture to show the word. Your child slides a finger under it and says it. ${help} (Slowly, ${held}: ${firstSoundOut(w.word, sounds)}. Then fast: ${w.word}.)`;

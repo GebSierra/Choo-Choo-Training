@@ -9,9 +9,14 @@ export function soundCard(sound, { lead = false } = {}) {
   const accent = accentOf(sound.glyph);
   const lines = soundCardLines(sound);
   const first = h('p', { class: 'sc-first' });
-  first.append('This letter says ');
-  first.append(h('strong', {}, sound.sayItLike === 'a' ? richText('a') : sound.sayItLike));
-  first.append(sound.asIn ? ` as in ${sound.asIn}.` : '.');
+  if (sound.alt && sound.alt.length) { // c and k: one sound, two spellings
+    first.append(`The letters ${[sound.glyph, ...sound.alt].join(' and ')} make the same sound: `);
+    first.append(h('strong', {}, sound.sayItLike), '.');
+  } else {
+    first.append('This letter says ');
+    first.append(h('strong', {}, sound.sayItLike === 'a' ? richText('a') : sound.sayItLike));
+    first.append(sound.asIn ? ` as in ${sound.asIn}.` : '.');
+  }
   const rest = lines.slice(1);
   return h('div', { class: 'sound-card' + (lead ? ' lead' : ''), style: { '--accent': accent } },
     h('span', { class: 'sc-ic' }, icon('speaker', 20)),

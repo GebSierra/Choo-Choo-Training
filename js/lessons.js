@@ -51,7 +51,7 @@ export const fit = (...options) => options.find((o) => o.length <= GIST_MAX) || 
 // Sound cards are built from the sounds table: "This letter says mmm. Hold it. Do not say muh."
 export const spellings = (sound) => [sound.glyph, ...(sound.alt || [])];
 export function soundCardLines(sound) {
-  const lines = [sound.alt && sound.alt.length ? `The letters ${spellings(sound).join(' and ')} say ${soundPhrase(sound)}.` : `This letter says ${soundPhrase(sound)}.`];
+  const lines = [sound.alt && sound.alt.length ? `The letters ${spellings(sound).join(' and ')} make the same sound: ${soundPhrase(sound)}.` : `This letter says ${soundPhrase(sound)}.`];
   if (sound.hold) lines.push('Hold it.');
   if (sound.doNotSay) lines.push(`Do not say ${sound.doNotSay}.`);
   return lines;

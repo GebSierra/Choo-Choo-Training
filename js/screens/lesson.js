@@ -1,7 +1,7 @@
 import { h, animate, icon } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { speakButton } from '../components/speak-button.js';
-import { tasksFor, lessonByNumber, targetsFor, soundPhrase, introParts } from '../lessons.js';
+import { tasksFor, lessonByNumber, targetsFor, soundPhrase, introParts, spellings } from '../lessons.js';
 import { richText, letterText } from '../letters.js';
 import { tipCard, nextTip, loadTips } from '../components/tip-card.js';
 import { engineSvg, crateSvg, signalSvg, wagonSvg } from '../art/train2d.js';
@@ -14,10 +14,10 @@ function illustration(task, lesson, curriculum) {
     case 'review':
       lesson.review.forEach((g, i) => wrap.append(h('span', { class: 'flash', style: { '--r': (i % 2 ? 7 : -7) + 'deg' } }, glyphSvg(g, { color: `var(--${g})` }))));
       break;
-    case 'newLetter': wrap.append(h('span', { class: 'big-glyph' }, glyphSvg(lesson.sound, { color: '#fff' }))); break;
+    case 'newLetter': wrap.append(h('span', { class: 'big-glyph' + (s.alt ? ' pair' : '') }, ...spellings(s).map((ch) => glyphSvg(ch, { color: '#fff' })))); break;
     case 'mouth': wrap.append(h('span', { class: 'play mouth-ic' }, icon('mouth', 44))); break;
     case 'sounds': wrap.append(h('span', { class: 'wave' }, h('i'), h('i'), h('i'), h('i'), h('i'))); break;
-    case 'writing': wrap.append(h('span', { class: 'big-glyph ghost' }, glyphSvg(lesson.sound, { color: 'currentColor' })), h('span', { class: 'pencil' }, '✏️')); break;
+    case 'writing': wrap.append(h('span', { class: 'big-glyph ghost' + (s.alt ? ' pair' : '') }, ...spellings(s).map((ch) => glyphSvg(ch, { color: 'currentColor' }))), h('span', { class: 'pencil' }, '✏️')); break;
     case 'hunt': wrap.append(h('span', { class: 'art-train' }, engineSvg({ still: true }))); break;
     case 'signals': wrap.append(h('span', { class: 'art-sig' }, signalSvg())); break;
     case 'wagons': wrap.append(h('span', { class: 'art-wag' }, wagonSvg())); break;
@@ -42,7 +42,7 @@ export function lessonScreen(ctx, n) {
 
   const header = h('header', { class: 'lo-head' },
     h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back', onclick: () => router.back() }, icon('back', 28)),
-    h('div', { class: 'lo-title' }, h('h1', {}, `Lesson ${lesson.number}`), h('p', {}, richText(`Today: the sound ${soundPhrase(sound)}.`, { every: true }))),
+    h('div', { class: 'lo-title' }, h('h1', {}, `Lesson ${lesson.number}`), h('p', {}, richText(sound.alt ? `Today: ${spellings(sound).join(' and ')} make the same sound, ${soundPhrase(sound)}.` : `Today: the sound ${soundPhrase(sound)}.`, { every: true }))),
     speakButton({ speech, getParts: () => introParts(lesson, store), label: 'Hear the lesson intro', accent }));
 
   const cards = tasks.map((t, i) => {

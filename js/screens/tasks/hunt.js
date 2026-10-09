@@ -8,6 +8,7 @@ import { skyCells, deal, BOX } from './hunt-deal.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
+import { spellingsOf } from '../../order.js';
 
 const STEPS = 5;     // correct touches to reach the station
 const INK = '#1E2140';
@@ -60,7 +61,7 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
   function dealSky() {
     letters.filter((l) => !l.btn.classList.contains('popped')).forEach((l) => { if (l.drift) l.drift.cancel(); l.btn.remove(); });
     if (memory.slots !== grid.length) memory = { slots: grid.length, deals: [] };
-    const d = deal({ positions: grid, history: memory.deals, rng: Math.random, target, distractors: others });
+    const d = deal({ positions: grid, history: memory.deals, rng: Math.random, target, distractors: others, spellings: spellingsOf(target) });
     memory.deals = [...memory.deals, d.targets].slice(-12);
     letters = d.letters.map((ch, i) => {
       const isTarget = d.targets.includes(i), c = grid[i];

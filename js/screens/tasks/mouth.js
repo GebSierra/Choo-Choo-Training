@@ -2,7 +2,8 @@ import { h, animate, icon } from '../../dom.js';
 import { grownupSvg } from '../../art/grownup.js';
 import { sayPrompt, saySound, sayLine, clipReady } from '../../components/say-sound.js';
 import { timers } from '../../components/game-kit.js';
-import { soundPhrase } from '../../lessons.js';
+import { soundPhrase, spellings } from '../../lessons.js';
+import { richText } from '../../letters.js';
 
 // Watch My Mouth: the step after New Sound. One picture of a grown-up with a finger at the side of the mouth, the grown-up's
 // instruction, the sound as a recording (or the prompt "Say: mmm" when there is none), and an optional "How to make this sound"
@@ -36,7 +37,9 @@ export function build(env) {
     refresh();
   } }, icon('mouth', 22), h('span', { class: 'mouth-how-label' }, 'How to make this sound'));
 
-  const el = h('div', { class: 'proto mouth-task', dataset: { sound: key } }, h('div', { class: 'ns-body' }, art, prompt.el, h('div', { class: 'px-btns' }, hear, how), panel));
+  // c and k: one sound, two spellings - said once, here, so the child sees both letters
+  const same = sound.alt && sound.alt.length ? h('p', { class: 'mouth-same' }, richText(`${spellings(sound).join(' and ')} make the same sound.`, { every: true })) : null;
+  const el = h('div', { class: 'proto mouth-task', dataset: { sound: key } }, h('div', { class: 'ns-body' }, art, same, prompt.el, h('div', { class: 'px-btns' }, hear, how), panel));
 
   // With no recording to play, the prompt is shown at once; with one, only if the shell's auto-play finds it missing.
   if (!clipReady(env, key)) prompt.show(sayLine(key, env.curriculum.sounds), key);

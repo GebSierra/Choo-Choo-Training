@@ -9,6 +9,7 @@ import { roundsFor, otherLetters, parade } from '../../games-data.js';
 import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 import { starSvg } from '../../art.js';
+import { soundOfLetter, spellingsOf } from '../../order.js';
 
 const INK = '#1E2140';
 const TRAIN_W = 116, WAGON_W = 104, CW = 62, GAP = 16, SIZE = 8, HITS = 3, SPEED = 80; // px and px per second
@@ -83,13 +84,16 @@ export function build(ctx) {
     const mine = ++serial;
     lane.replaceChildren();
     coupled = []; cars.replaceChildren(); el.dataset.hits = '0';
-    const letters = parade(target, others, { size: SIZE, hits: HITS });
+    // a sound with two spellings (c and k): the target wagons carry them in turn
+    const sp = spellingsOf(target);
+    let turn = Math.floor(Math.random() * sp.length);
+    const letters = parade(target, others, { size: SIZE, hits: HITS }).map((ch) => (ch === target ? sp[turn++ % sp.length] : ch));
     wagons = letters.map((ch, i) => {
       const paint = PAINT[(i + round) % PAINT.length];
-      const btn = h('button', { class: 'parade-wagon', type: 'button', 'aria-label': 'wagon', dataset: { letter: ch, target: ch === target ? '1' : '0', slot: String(i) } },
+      const btn = h('button', { class: 'parade-wagon', type: 'button', 'aria-label': 'wagon', dataset: { letter: ch, target: soundOfLetter(ch) === target ? '1' : '0', slot: String(i) } },
         wagonSvg(paint), h('span', { class: 'crate' }, letterFace(ch, INK)));
       const pos = h('div', { class: 'pw' }, btn);
-      const w = { i, ch, paint, isTarget: ch === target, btn, pos, x0: i * SLOT, gone: false };
+      const w = { i, ch, paint, isTarget: soundOfLetter(ch) === target, btn, pos, x0: i * SLOT, gone: false };
       btn.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse' && e.button !== 0) return; tap(w); });
       btn.addEventListener('click', (e) => { if (e.detail === 0) tap(w); });
       lane.append(pos);

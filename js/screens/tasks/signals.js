@@ -4,7 +4,7 @@ import { pipSvg } from '../../art/pip.js';
 import { letterFace } from '../../components/letter-face.js';
 import { sayPrompt, saySound } from '../../components/say-sound.js';
 import { timers, watchSize, starRow, shake, idleHints, shuffle } from '../../components/game-kit.js';
-import { order, roundTargets, roundsFor, otherLetters } from '../../games-data.js';
+import { order, roundTargets, roundsFor, otherLetters, spellingFor } from '../../games-data.js';
 import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 
@@ -62,9 +62,9 @@ export function build(ctx) {
 
   function newRound() {
     const mine = ++serial;
-    const target = targets[round];
+    const key = targets[round], target = spellingFor(key, Math.floor(round / 2)); // c and k take turns on the lamp
     let letters;
-    do letters = shuffle([target, ...otherLetters(curriculum, lesson.number, target, 3)]); while (letters.indexOf(target) === lastSlot && letters.length > 1);
+    do letters = shuffle([target, ...otherLetters(curriculum, lesson.number, key, 3)]); while (letters.indexOf(target) === lastSlot && letters.length > 1);
     lastSlot = letters.indexOf(target);
     buttons.forEach((b, i) => {
       b.dataset.letter = letters[i];
