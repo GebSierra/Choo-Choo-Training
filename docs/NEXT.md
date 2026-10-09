@@ -112,6 +112,11 @@ Owner: implement all of these without asking, then report the decisions made. Co
   js/account.js like the reset-link flow), buttons shown only for providers listed in js/config.js (e.g.
   `OAUTH_PROVIDERS = ['google','apple']`), behind the same grown-up screen; Apple's button follows Apple's style rules;
   fake-endpoint tests. Owner sets up the providers (steps in docs/OWNER-TODO.md).
+- [ ] **3b. (owner, 2026-10-09; building now) Tip card on every lesson open + "out in the wild" tip + auto-return after
+  "Yes, go on":** the "Did you know?" card shows when a lesson is opened, rotates through data/tips.json, closes only
+  with its X (bottom right); new tip about finding letters on a cereal box or favourite book; after the grown-up taps
+  "Yes, go on" the app goes back to the railway by itself so the child sees their figure ride to the next station (the
+  reward). Built together with item 4.
 - [ ] **4. Train stops at story / Smooth Ride stations (bug, owner 2026-10-08):** after a lesson, the ride skips over a
   following Story or Smooth Ride station, so they look like scenery. The train should stop there (the child's figure can
   get off and stand beside it), so grown-ups notice them. Keep the station building as is if a redesign is hard.
