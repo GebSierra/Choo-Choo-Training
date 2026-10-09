@@ -331,9 +331,10 @@ let backend;
   await A.page.waitForSelector('.screen:not(.leaving) .path, .home, .screen', { timeout: 6000 });
   await A.page.waitForTimeout(500);
   ok(b.calls(/POST \/rest\/v1\/progress/).length === pushesBefore, 'sync: a push waits (debounced about 2 s), it does not fire at once');
-  await A.page.waitForTimeout(2300);
+  // (1.9.31: the finish screen returns to Home by itself, whose own saves restart the debounce, so wait for the uploads to settle)
+  for (let t = 0, n = -1; t < 40; t++) { await A.page.waitForTimeout(250); const c = b.calls(/POST \/rest\/v1\/progress/).length; if (c === n && b.rows[uid].data.lessons[5] && t > 12) break; n = c; }
   const pushed = b.rows[uid].data;
-  ok(b.calls(/POST \/rest\/v1\/progress/).length === pushesBefore + 1 && pushed.lessons[5] && pushed.lessons[5].result === 'got-it' && pushed.savedAt > 0, 'sync: the lesson result is pushed after the debounce, with savedAt');
+  ok(b.calls(/POST \/rest\/v1\/progress/).length > pushesBefore && pushed.lessons[5] && pushed.lessons[5].result === 'got-it' && pushed.savedAt > 0, 'sync: the lesson result is pushed after the debounce, with savedAt');
   const last = b.calls(/POST \/rest\/v1\/progress/).pop();
   ok(last.path.includes('on_conflict=user_id') && last.body.user_id === uid && last.auth.startsWith('Bearer at-'), 'sync: an upsert for the signed-in user with the access token');
   // a fresh device takes the cloud copy

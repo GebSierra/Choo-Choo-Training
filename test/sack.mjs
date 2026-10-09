@@ -156,7 +156,7 @@ export async function sackMapChecks({ browser, url, ok, vp }) {
   page = made.page; errors = made.errors;
   await page.waitForSelector('.stone', { state: 'attached' });
   await page.waitForTimeout(900);
-  ok((await page.locator(sel).first().evaluate((e) => !e.classList.contains('is-locked'))) && (await page.locator('.stone.is-current').getAttribute('aria-label')) === `Lesson ${K.after + 1}`, `${tag}: once lesson ${K.after} is done ${K.title} is open and lesson ${K.after + 1} is the current stone`);
+  ok((await page.locator(sel).first().evaluate((e) => e.classList.contains('is-current'))) && (await page.locator(`.stone[aria-label="Lesson ${K.after + 1}"]`).evaluate((e) => !e.classList.contains('is-locked'))), `${tag}: once lesson ${K.after} is done ${K.title} is the current stone (it holds the train, 1.9.31) and lesson ${K.after + 1} is open`);
   await showStop(page, sel);
   await page.locator(sel).first().click();
   await page.waitForSelector(screenOf(K));
