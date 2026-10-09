@@ -5,6 +5,7 @@ import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, SEEN, DONE_JSON, touchDrag } from './lib.mjs';
 import { tasksFor } from '../js/lessons.js';
+import { spellingsOf } from '../js/order.js';
 
 const SEED = (settings = {}) => `localStorage.setItem('reading.v1', JSON.stringify({schema:1,lessons:${DONE_JSON},settings:${JSON.stringify({ seenScripts: SEEN, ...settings })},firstRunDone:true}))`;
 const OUT = path.join(ROOT, '_test');
@@ -50,12 +51,13 @@ export async function huntChecks({ browser, url, ok, CUR, vp, lessonNo = 1, shot
   ok(!clash, `${tag}: sky letters never overlap, even while they drift`);
   const targets = await page.locator('.sky-letter[data-target="1"]').count();
   ok(targets >= 4 && targets <= 5, `${tag}: four or five target letters (${targets})`);
-  ok((await page.locator('.find-card .glyph').count()) === 1, `${tag}: Find this card shows the target glyph`);
+  const spell = spellingsOf(lesson.sound); // c and k: one sound, two spellings (phase B), both on the card
+  ok((await page.locator('.find-card .glyph').count()) === spell.length, `${tag}: Find this card shows the target glyph${spell.length > 1 ? 's (both spellings)' : ''}`);
   // Only target letters are drawn from the letter set the lesson allows.
   const shown = await page.evaluate(() => [...document.querySelectorAll('.sky-letter')].map((b) => b.dataset.letter));
-  const allowed = new Set([lesson.sound, ...CUR.games.hunt.distractors[lesson.sound]]);
+  const allowed = new Set([...spell, ...CUR.games.hunt.distractors[lesson.sound]]);
   ok(shown.every((l) => allowed.has(l)), `${tag}: only the target and its distractors appear: ${[...new Set(shown)].join('')}`);
-  ok(await page.evaluate(() => [...document.querySelectorAll('.sky-letter[data-target="1"]')].every((b) => b.dataset.letter === document.querySelector('.find-card .glyph').dataset.letter)), `${tag}: targets match the Find this glyph`);
+  ok(await page.evaluate(() => [...document.querySelectorAll('.sky-letter[data-target="1"]')].every((b) => [...document.querySelectorAll('.find-card .glyph')].some((g) => g.dataset.letter === b.dataset.letter))), `${tag}: targets match the Find this glyph`);
 
   const steps = () => page.evaluate(() => document.querySelector('.hunt').dataset.steps);
   const trainX = () => page.evaluate(() => new DOMMatrix(getComputedStyle(document.querySelector('.train-wrap')).transform).m41); // the train's step along the track
