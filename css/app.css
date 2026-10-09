@@ -913,9 +913,9 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .book-tap { min-width: 64px; min-height: 64px; cursor: pointer; }
 .book-train { width: min(86cqw, 124cqh, 330px); } .book-train .engine-art, .book-pip .pip { display: block; width: 100%; height: auto; overflow: visible; }
 .book-art:has(.book-friend) .book-train { width: min(54cqw, 90cqh, 250px); }
-.book-pip { height: min(78cqh, 300px); } .book-pip .pip { height: 100%; width: auto; }
+.book-pip { height: min(66cqh, 280px); } .book-pip .pip { height: 100%; width: auto; }
 .book-puffs { position: absolute; inset: 0; pointer-events: none; }
-.book-emoji { display: block; font-size: clamp(40px, min(28cqw, 66cqh), 150px); line-height: 1; filter: drop-shadow(0 4px 2px rgba(40,60,30,.22)); }
+.book-emoji { display: block; font-size: clamp(40px, min(38cqw, 70cqh), 190px); line-height: 1; filter: drop-shadow(0 4px 2px rgba(40,60,30,.22)); }
 .book-emojis { display: flex; gap: 8px; align-items: flex-end; }
 .book-child { flex: 0 0 auto; max-width: 100%; box-sizing: border-box; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px 22px; padding: 8px 14px; border-radius: 14px; background: #FFF1C2; box-shadow: inset 0 0 0 2px rgba(255,209,102,.5); --cap: 78px; }
 .book-child .glyph-row { width: auto; padding: 4px 2px; }
@@ -923,11 +923,13 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 
 /* quiet arrows on the page edges, a folded corner that turns the page */
 .book-arrow { position: absolute; top: var(--arrow-y, calc(50% - 24px)); z-index: 7; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%; display: grid; place-items: center; color: #5A4636; cursor: pointer; touch-action: manipulation;
-  background: rgba(255,248,234,.84); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.6), 0 2px 6px rgba(40,25,10,.3); }
+  background: rgba(255,248,234,.93); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.6), 0 2px 6px rgba(40,25,10,.3); }
 .book-arrow svg { width: 26px; height: 26px; display: block; }
 .book-arrow:active:not([disabled]) { background: #FFF; }
 .book-arrow.book-back { left: 6px; } .book-arrow.book-next { right: 6px; }
 .book-arrow[disabled] { visibility: hidden; }
+.book-sheet.is-left .book-arrow.book-back { top: auto; bottom: 8px; left: 8px; }
+.book-read[data-size="l"] { font-size: var(--read-fs, clamp(21px, 6vw, 26px)); }
 .book-corner { position: absolute; bottom: 0; width: 56px; height: 56px; z-index: 6; border: 0; padding: 0; background: none; touch-action: manipulation; cursor: pointer; }
 .book-corner.next { right: 0; filter: drop-shadow(-1px -1px 2px rgba(60,40,20,.32)); } .book-corner.prev { left: 0; }
 .book-corner[hidden] { display: none; }
@@ -945,7 +947,7 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 @media (prefers-reduced-motion: reduce) { .book, .book * { animation: none !important; transition: none !important; } }
 
 /* the train drag and the review */
-.book-drag { flex-direction: column; align-items: stretch; justify-content: center; padding: 0 14px; }
+.book-drag { flex-direction: column; align-items: stretch; justify-content: center; padding: 0 64px; }
 .book-track { position: relative; z-index: 1; width: 100%; background: #E9ECF8; margin-bottom: 28px; }
 .slide-track.book-track .st-handle { background: transparent; box-shadow: none; width: 96px; }
 .book-tiles { flex: 1 1 0; min-height: 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 12px; }
@@ -995,7 +997,7 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .kid.still, .kid.still * { animation: none !important; }
 .book-sheet .kid .kid-eyes, .cover-plate .kid .kid-eyes { animation: pip-blink 4.7s ease-in-out infinite; }
 .book-friend .kid { height: 100%; width: auto; }
-.book-friend { height: min(76cqh, 300px); }
+.book-friend { height: min(66cqh, 280px); }
 .stone-kid { position: absolute; width: 58%; left: -52%; bottom: 8%; pointer-events: none; }
 .stone-kid .kid { width: 100%; height: auto; }
 .finish-kid { position: absolute; left: -70px; bottom: -18px; width: 84px; height: 105px; pointer-events: none; }

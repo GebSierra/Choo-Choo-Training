@@ -40,7 +40,7 @@ function track(y = 168) {
   const sleepers = [];
   for (let x = -6; x < 410; x += 17) sleepers.push(s('rect', { x, y: y + 6, width: 11, height: 12, rx: 2, fill: '#B8926A' }));
   return s('g', {},
-    s('rect', { x: 0, y: y + 1, width: 400, height: 28, fill: '#CDB89A' }), s('rect', { x: 0, y: y + 1, width: 400, height: 3, fill: '#E3D3B8' }),
+    s('rect', { x: 0, y: y + 1, width: 400, height: 40, fill: '#CDB89A' }), s('rect', { x: 0, y: y + 1, width: 400, height: 3, fill: '#E3D3B8' }),
     ...sleepers,
     s('rect', { x: 0, y: y + 7, width: 400, height: 3.5, rx: 1.5, fill: '#8A6E5A' }), s('rect', { x: 0, y: y + 14, width: 400, height: 3.5, rx: 1.5, fill: '#8A6E5A' }),
     s('rect', { x: 0, y: y + 7, width: 400, height: 1.2, fill: '#C4A58B' }), s('rect', { x: 0, y: y + 14, width: 400, height: 1.2, fill: '#C4A58B' }));

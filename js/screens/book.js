@@ -194,7 +194,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     stage.dataset.page = String(i);
     stage.dataset.kind = kind;
 
-    const read = h('section', { class: 'book-read', 'aria-label': 'Read this aloud' });
+    const read = h('section', { class: 'book-read', 'aria-label': 'Read this aloud', dataset: { size: !page.child && !page.after && !page.sound && page.read.length < 70 ? 'l' : 'm' } });
     if (i === 0) read.append(h('p', { class: 'book-title' }, book.title));
     read.append(h('p', { class: 'book-text' }, page.read));
     if (page.sound) read.append(h('p', { class: 'book-says' }, 'Your child says: ', h('b', {}, page.sound)));
@@ -263,7 +263,8 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
       const fs0 = rd ? parseFloat(getComputedStyle(rd).fontSize) || 20 : 20;
       const cap0 = box ? parseFloat(getComputedStyle(box).getPropertyValue('--cap')) || 78 : 0;
       const caps = box ? [cap0, ...CAPS.filter((k) => k < cap0)] : [cap0];
-      const fits = () => sheet.scrollHeight <= sheet.clientHeight + 0.5 && (!box || box.getBoundingClientRect().width <= sheet.clientWidth);
+      const artWant = art && !sheet.classList.contains('kind-review') ? Math.min(150, sheet.clientHeight * 0.28) : 0;
+      const fits = () => sheet.scrollHeight <= sheet.clientHeight + 0.5 && (!box || box.getBoundingClientRect().width <= sheet.clientWidth) && (!art || art.offsetHeight >= artWant);
       for (let step = 0; step < 16; step++) {
         if (box) box.style.setProperty('--cap', caps[Math.min(step, caps.length - 1)] + 'px');
         if (rd) sheet.style.setProperty('--read-fs', Math.max(16, fs0 - Math.floor(step / 2)) + 'px');
