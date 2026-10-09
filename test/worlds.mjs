@@ -25,18 +25,18 @@ export const SHOT_VIEWPORTS = [
 export function dataChecks(ok) {
   ok(CUR.worlds.length === 11 && CUR.worlds.every((w, i) => w.n === i + 1 && w.id === `W${i + 1}`), 'data: eleven worlds, n 1 to 11');
   ok(new Set(CUR.units.map((u) => u.id)).size === CUR.units.length && CUR.units.length === 14, 'data: fourteen unique units (1.1 to 1.3, 2.1 to 2.11)');
-  const want = { 1: '2.1', 2: '2.1', 3: '2.1', 4: '2.2', 5: '2.2', 6: '2.3', 7: '2.5', 8: '2.4', 9: '2.5', 10: '2.6', 11: '2.7', 12: '2.8', 13: '2.7' };
-  ok(CUR.lessons.every((l) => l.unit === want[l.number]), 'data: every lesson is in the unit of its sound (n 2.5, f 2.4, d 2.5, h 2.6, g 2.7, b 2.8, l 2.7)');
-  ok(CUR.lessons.slice(0, 6).every((l) => l.world === 'W1') && CUR.lessons.slice(6).every((l) => l.world === 'W2'), 'data: lessons 1 to 6 are in world 1, 7 to 13 in world 2');
+  const want = { 1: '2.1', 2: '2.1', 3: '2.1', 4: '2.2', 5: '2.2', 6: '2.3', 7: '2.4', 8: '2.4', 9: '2.5', 10: '2.5', 11: '2.6', 12: '2.6', 13: '2.7', 14: '2.7', 15: '2.7', 16: '2.8', 17: '2.8' };
+  ok(CUR.lessons.every((l) => l.unit === want[l.number]), 'data: every lesson is in the unit of its sound (f o 2.4, n d 2.5, c h 2.6, u g l 2.7, r b 2.8)');
+  ok(CUR.lessons.slice(0, 6).every((l) => l.world === 'W1') && CUR.lessons.slice(6).every((l) => l.world === 'W2'), 'data: lessons 1 to 6 are in world 1, 7 to 17 in world 2');
   ok(CUR.checkpoints.every((k) => k.world === CUR.lessons.find((l) => l.number === k.after).world), 'data: a checkpoint is in the world of its lesson');
   ok(JSON.stringify(unitsIn(CUR, 'W1').map((u) => u.id)) === '["1.1","1.2","1.3","2.1","2.2","2.3"]' && unitsIn(CUR, 'W2').length === 5 && unitsIn(CUR, 'W3').length === 3, 'data: worlds 1 to 3 hold the units the plan lists');
   ok(unitsIn(CUR, 'W4').length === 5 && unitsIn(CUR, 'W11').length === 6 && unitsIn(CUR, 'W4')[0].id === '3.1', 'data: worlds 4 to 11 list their stage units by id');
   ok(unitsIn(CUR, 'W2').map((u) => u.sounds.join('')).join(' ') === 'fo nd ckh ugl rb', 'data: units 2.4 to 2.8 carry their sounds');
   ok(worldOf(CUR, 8).id === 'W2' && worldOf(CUR, 3).id === 'W1' && worldOf(CUR, 99) === null, 'helpers: worldOf');
-  ok(lessonsIn(CUR, 'W1').length === 6 && lessonsIn(CUR, 'W2').length === 7 && lessonsIn(CUR, 'W3').length === 0, 'helpers: lessonsIn');
+  ok(lessonsIn(CUR, 'W1').length === 6 && lessonsIn(CUR, 'W2').length === 11 && lessonsIn(CUR, 'W3').length === 0, 'helpers: lessonsIn');
   const fake = (done) => ({ isDone: (n) => n <= done, currentLesson: (t) => (done >= t ? null : done + 1) });
-  ok(unitDone(fake(3), CUR, '2.1') && !unitDone(fake(2), CUR, '2.1') && !unitDone(fake(13), CUR, '1.1'), 'helpers: unitDone needs every lesson of the unit, and a unit with none is not done');
-  ok(currentWorld(fake(0), CUR).id === 'W1' && currentWorld(fake(6), CUR).id === 'W2' && currentWorld(fake(13), CUR).id === 'W2', 'helpers: currentWorld follows the first unfinished lesson, else the last world with lessons');
+  ok(unitDone(fake(3), CUR, '2.1') && !unitDone(fake(2), CUR, '2.1') && !unitDone(fake(17), CUR, '1.1'), 'helpers: unitDone needs every lesson of the unit, and a unit with none is not done');
+  ok(currentWorld(fake(0), CUR).id === 'W1' && currentWorld(fake(6), CUR).id === 'W2' && currentWorld(fake(17), CUR).id === 'W2', 'helpers: currentWorld follows the first unfinished lesson, else the last world with lessons');
   ok(currentUnit(fake(4), CUR, 'W1').id === '2.2' && worldDone(fake(6), CUR, 'W1') && !worldDone(fake(5), CUR, 'W1') && nextWorld(CUR, 'W1').id === 'W2' && nextWorld(CUR, 'W2') === null, 'helpers: currentUnit, worldDone, nextWorld');
   // 1.9.14: what the Home shows (planHome): the world to build, and whether its crossing is due
   const plan = (done, seen) => { const st = { seen }; const store = { ...fake(done), worlds: () => st, setWorlds: (p) => Object.assign(st, p) }; const first = planHome(store, CUR); return { first, again: planHome(store, CUR), st }; };
@@ -118,7 +118,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
   ok(/9 more worlds/.test(g.note), `${tag} list: the later worlds are noted`);
   await shot(page, 'grownups-top', tag);
   await page.locator('.gu-world[data-world="W2"] .gu-fold').click();
-  ok(await page.evaluate(() => document.querySelectorAll('.gu-world[data-world="W2"] .gu-row').length === 7 && document.querySelectorAll('.gu-world[data-world="W1"] .gu-row').length === 9), `${tag} list: opening world 2 shows its seven lessons; world 1 has six lessons and three checkpoints`);
+  ok(await page.evaluate(() => document.querySelectorAll('.gu-world[data-world="W2"] .gu-row').length === 11 && document.querySelectorAll('.gu-world[data-world="W1"] .gu-row').length === 9), `${tag} list: opening world 2 shows its eleven lessons; world 1 has six lessons and three checkpoints`);
   await page.locator('.gu-world[data-world="W2"] button[aria-label="Unlock lesson 9"]').click();
   ok((await page.locator('.gu-confirm').count()) === 1 && (await page.locator('.gu-world[data-world="W2"] .gu-fold').getAttribute('aria-expanded')) === 'true', `${tag} list: the unlock confirm works inside a fold and the fold stays open`);
   await page.locator('.gu-confirm button', { hasText: 'Cancel' }).click();
@@ -230,8 +230,8 @@ export async function previewChecks({ browser, url, ok, vp }) {
   ok(await until(page, () => !document.querySelector('.world-card'), null, 5000), `${tag} gateway: a tap ends the card (${Date.now() - t1} ms)`);
   ok(await until(page, () => window.__train && window.__train.world === 'W2' && window.__train.frames > 0, null, 20000), `${tag} gateway: the second world's Home is up`);
   const w2 = await page.evaluate(() => ({ stops: window.__train.stopCount, l: window.__train.lessonCount, c: window.__train.checkpointCount, tunnel: window.__train.startTunnel, btns: document.querySelectorAll('.station-btn').length, mode: window.__train.gate.mode, kinds: [...document.querySelectorAll('.station-btn')].map((b) => b.getAttribute('aria-label')).join() }));
-  ok(w2.stops === 7 && w2.l === 7 && w2.c === 0 && w2.btns === 7 && w2.tunnel && w2.mode === 'in', `${tag} gateway: the second world has only its own seven stations and a tunnel to roll out of (${JSON.stringify({ ...w2, kinds: undefined })})`);
-  ok(w2.kinds.includes('Lesson 7') && w2.kinds.includes('Lesson 13') && !w2.kinds.includes('Lesson 6,') && !/Lesson [1-6]\b/.test(w2.kinds), `${tag} gateway: lessons 7 to 13 only (${w2.kinds})`);
+  ok(w2.stops === 11 && w2.l === 11 && w2.c === 0 && w2.btns === 11 && w2.tunnel && w2.mode === 'in', `${tag} gateway: the second world has only its own eleven stations and a tunnel to roll out of (${JSON.stringify({ ...w2, kinds: undefined })})`);
+  ok(w2.kinds.includes('Lesson 7') && w2.kinds.includes('Lesson 17') && !w2.kinds.includes('Lesson 6,') && !/Lesson [1-6]\b/.test(w2.kinds), `${tag} gateway: lessons 7 to 17 only (${w2.kinds})`);
   ok(await until(page, () => window.__train.gate.phase === 'in', null, 8000), `${tag} gateway: the train rolls out of the tunnel`);
   await page.waitForTimeout(1200);
   await shot(page, 'second-world-rolling-out', tag);
@@ -266,7 +266,7 @@ export async function flatChecks({ browser, url, ok }) {
   await shot(page, 'loading-card-flat', 'portrait');
   ok(await until(page, () => document.querySelector('.world-card') && document.querySelector('.world-card').dataset.ready === '1', null, 10000), 'flat gateway: the second map is built behind it');
   await page.locator('.world-card .wg-go').click();
-  ok(await until(page, () => !document.querySelector('.world-card') && document.querySelectorAll('.stone').length === 7, null, 8000), 'flat gateway: then the second world shows its seven stones');
+  ok(await until(page, () => !document.querySelector('.world-card') && document.querySelectorAll('.stone').length === 11, null, 8000), 'flat gateway: then the second world shows its eleven stones');
   ok(errors.length === 0, `flat gateway: errors ${errors.join(' | ')}`);
   await ctx.close();
 }
@@ -313,7 +313,7 @@ const doneL = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i +
 const L1 = { L1: '2026-10-06T10:00:00.000Z' };
 // n lessons done, the train resting at the current stop (no ride, no party): world 1 until lesson 6 is done
 const passed = (n) => CUR.checkpoints.filter((k) => k.after <= n).length;
-const resting = (n, settings = {}, extra = {}) => state(n, { trainDone: n + passed(n), trainAt: iL(n + 1 <= 13 ? n + 1 : 13), ...settings }, { lessons: doneL(n), levels: { seen: n >= 6 ? 1 : 0, earned: n >= 6 ? L1 : {} }, worlds: { seen: n >= 7 ? 'W2' : 'W1' }, checkpoints: Object.fromEntries(CUR.checkpoints.filter((k) => k.after <= n).map((k) => [k.id, { result: 'got-it' }])), character: CHARACTER, meetDue: false, ...extra }); // the story/ride stops already passed are done, so the train rests at the lesson (1.9.31 holds it at an open checkpoint)
+const resting = (n, settings = {}, extra = {}) => state(n, { trainDone: n + passed(n), trainAt: iL(n + 1 <= 17 ? n + 1 : 17), ...settings }, { lessons: doneL(n), levels: { seen: n >= 6 ? 1 : 0, earned: n >= 6 ? L1 : {} }, worlds: { seen: n >= 7 ? 'W2' : 'W1' }, checkpoints: Object.fromEntries(CUR.checkpoints.filter((k) => k.after <= n).map((k) => [k.id, { result: 'got-it' }])), character: CHARACTER, meetDue: false, ...extra }); // the story/ride stops already passed are done, so the train rests at the lesson (1.9.31 holds it at an open checkpoint)
 // world 1 finished and the crossing due, with nothing else to play first
 const crossingDue = (settings = {}, extra = {}) => state(6, { trainDone: 6, trainAt: 8, ...settings }, { lessons: doneL(6), levels: { seen: 1, earned: L1 }, worlds: { seen: 'W1' }, character: CHARACTER, meetDue: false, ...extra });
 const stored = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')));
@@ -330,7 +330,7 @@ export async function liveWorldChecks({ browser, url, ok, vp }) {
     ok(await settled(page), `${tag} world 1 at lesson ${n + 1}: Home settles`);
     const t = await page.evaluate(() => { const x = window.__train; return { world: x.world, stops: x.stopCount, l: x.lessonCount, c: x.checkpointCount, portal: x.portal, sign: x.signText, start: x.startTunnel, next: x.nextWorld, btns: [...document.querySelectorAll('.station-btn')].map((b) => b.getAttribute('aria-label')), spot: x.portalSpot(), wagons: x.wagons, parked: x.parked, upgrade: x.engineUpgrade }; });
     ok(t.world === 'W1' && t.stops === 9 && t.l === 6 && t.c === 3 && t.btns.length === 9, `${tag} world 1 at lesson ${n + 1}: only world 1's nine stations are built (${t.btns.length} buttons)`);
-    ok(!t.btns.some((b) => /Lesson (7|8|9|1[0-3])\b/.test(b)), `${tag} world 1 at lesson ${n + 1}: no lesson of Green Valley is on the Home (${t.btns.filter((b) => /Lesson/.test(b)).length} lessons)`);
+    ok(!t.btns.some((b) => /Lesson (7|8|9|1[0-7])\b/.test(b)), `${tag} world 1 at lesson ${n + 1}: no lesson of Green Valley is on the Home (${t.btns.filter((b) => /Lesson/.test(b)).length} lessons)`);
     ok(t.portal && t.sign === 'Green Valley' && t.next === 'W2' && !t.start, `${tag} world 1 at lesson ${n + 1}: the line runs into a tunnel portal with a signpost naming Green Valley, and no start tunnel`);
     // (in landscape the portal is still just above the screen at lesson 5 and comes into view at lesson 6, the last lesson)
     const need = vp.width > vp.height ? (n === 5 ? 0 : -1e9) : 70;
@@ -391,7 +391,7 @@ export async function liveCrossingChecks({ browser, url, ok, vp }) {
   await liveShot(page, 'crossing-rolling-out', tag);
   ok(await until(page, () => { const h = document.querySelector('.gateway-host'); return h && h.dataset.phase === 'done' && window.__train.gate.phase === 'done' && !window.__train.running; }, null, 30000), `${tag} crossing: the train arrives at world 2's first station and Home settles`);
   const w2 = await page.evaluate(() => { const t = window.__train; return { world: t.world, stops: t.stopCount, l: t.lessonCount, c: t.checkpointCount, start: t.startTunnel, portal: t.portal, sign: t.signText, btns: [...document.querySelectorAll('.station-btn')].map((b) => b.getAttribute('aria-label')), specials: t.specials, trainS: t.trainS, rest: t.stopS[0] + t.engineAt, len: t.trainLength, wagons: t.wagons, parked: t.parked, upgrade: t.engineUpgrade }; });
-  ok(w2.world === 'W2' && w2.stops === 7 && w2.l === 7 && w2.c === 0 && w2.btns.length === 7 && w2.btns[0].startsWith('Lesson 7') && !w2.btns.some((b) => /Lesson [1-6]\b/.test(b)), `${tag} crossing: world 2 shows only lessons 7 to 13 (${w2.btns.length} stations)`);
+  ok(w2.world === 'W2' && w2.stops === 11 && w2.l === 11 && w2.c === 0 && w2.btns.length === 11 && w2.btns[0].startsWith('Lesson 7') && !w2.btns.some((b) => /Lesson [1-6]\b/.test(b)), `${tag} crossing: world 2 shows only lessons 7 to 17 (${w2.btns.length} stations)`);
   ok(w2.start && w2.portal && w2.sign === 'Sunny Hills', `${tag} crossing: world 2 has a start tunnel and an end portal with a signpost to Sunny Hills`);
   ok(w2.wagons === 0 && w2.parked === 0 && w2.specials.join() === 'caboose' && w2.upgrade === 1 && Math.abs(w2.trainS - w2.rest) < 0.05, `${tag} crossing: the letter wagons were left behind (${w2.wagons}), the engine has upgrade ${w2.upgrade}, only the newest special car (${w2.specials}) came through, and it rests at lesson 7`);
   await page.waitForTimeout(3000);
@@ -421,7 +421,7 @@ export async function liveCrossingChecks({ browser, url, ok, vp }) {
   await until(page, () => window.__train && window.__train.frames > 1, null, 20000);
   await page.waitForTimeout(4500);
   const again = await page.evaluate(() => ({ world: window.__train.world, card: !!document.querySelector('.world-card'), host: !!document.querySelector('.gateway-host'), phase: window.__train.gate.phase, stops: window.__train.stopCount, start: window.__train.startTunnel, upgrade: window.__train.engineUpgrade, wagons: window.__train.wagons }));
-  ok(again.world === 'W2' && !again.card && !again.host && again.phase === '' && again.stops === 7 && again.start && again.upgrade === 1 && again.wagons === 0, `${tag} crossing: a reload does not replay it; world 2 is simply there (${JSON.stringify(again)})`);
+  ok(again.world === 'W2' && !again.card && !again.host && again.phase === '' && again.stops === 11 && again.start && again.upgrade === 1 && again.wagons === 0, `${tag} crossing: a reload does not replay it; world 2 is simply there (${JSON.stringify(again)})`);
   ok(errors.length === 0, `${tag} crossing: errors ${errors.join(' | ')}`);
   await ctx.close();
 
@@ -530,7 +530,7 @@ export async function liveFlatChecks({ browser, url, ok, vp }) {
     await page.waitForSelector('.stone');
     await page.waitForTimeout(2500);
     const m = await page.evaluate(() => ({ stones: document.querySelectorAll('.stone').length, labels: [...document.querySelectorAll('.stone')].map((s) => s.getAttribute('aria-label')), tunnel: document.querySelector('.scene-tunnel') && { world: document.querySelector('.scene-tunnel').dataset.world, text: document.querySelector('.tunnel-name').textContent, label: document.querySelector('.scene-tunnel').getAttribute('aria-label') }, three: !!document.querySelector('.home3d') }));
-    ok(m.stones === 9 && !m.three && !m.labels.some((l) => /Lesson (7|8|9|1[0-3])\b/.test(l)), `${tag} world 1: only its nine stones, no Green Valley lesson (${m.stones})`);
+    ok(m.stones === 9 && !m.three && !m.labels.some((l) => /Lesson (7|8|9|1[0-7])\b/.test(l)), `${tag} world 1: only its nine stones, no Green Valley lesson (${m.stones})`);
     ok(m.tunnel && m.tunnel.world === 'W2' && /^Green Valley/.test(m.tunnel.text) && /Green Valley/.test(m.tunnel.label), `${tag} world 1: a tunnel icon at the end names Green Valley (${JSON.stringify(m.tunnel)})`);
     await liveShot(page, 'map-world1', vp.name);
     await page.evaluate(() => { const s = document.querySelector('.map-scroll'); s.scrollTop = 0; s.scrollLeft = s.scrollWidth; });
@@ -550,7 +550,7 @@ export async function liveFlatChecks({ browser, url, ok, vp }) {
     await liveShot(page, 'map-loading-card', vp.name);
     ok(await until(page, () => document.querySelector('.world-card') && document.querySelector('.world-card').dataset.ready === '1', null, 10000), `${tag} crossing: world 2's map is built behind it`);
     await page.locator('.world-card .wg-go').click();
-    ok(await until(page, () => !document.querySelector('.world-card') && document.querySelectorAll('.stone').length === 7, null, 8000), `${tag} crossing: then world 2 shows only its seven stones`);
+    ok(await until(page, () => !document.querySelector('.world-card') && document.querySelectorAll('.stone').length === 11, null, 8000), `${tag} crossing: then world 2 shows only its eleven stones`);
     const t = await page.evaluate(() => ({ world: document.querySelector('.scene-tunnel').dataset.world, labels: [...document.querySelectorAll('.stone')].map((s) => s.getAttribute('aria-label')) }));
     ok(t.world === 'W3' && t.labels[0].startsWith('Lesson 7') && !t.labels.some((l) => /Lesson [1-6]\b/.test(l)), `${tag} crossing: world 2's map ends in a tunnel icon to Sunny Hills`);
     await page.waitForTimeout(1500);
@@ -559,7 +559,7 @@ export async function liveFlatChecks({ browser, url, ok, vp }) {
     await page.reload();
     await page.waitForSelector('.stone');
     await page.waitForTimeout(2500);
-    ok((await page.locator('.world-card').count()) === 0 && (await page.locator('.stone').count()) === 7, `${tag} crossing: a reload does not replay it`);
+    ok((await page.locator('.world-card').count()) === 0 && (await page.locator('.stone').count()) === 11, `${tag} crossing: a reload does not replay it`);
     ok(errors.length === 0, `${tag} crossing: errors ${errors.join(' | ')}`);
     await ctx.close();
   }

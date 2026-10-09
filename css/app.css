@@ -432,8 +432,11 @@ body.night { background: var(--night); }
 .writing { display: grid; gap: 14px; align-content: start; }
 .writing-buttons { display: flex; gap: 10px; justify-content: center; }
 .writing-buttons .btn { white-space: nowrap; flex: 1 1 0; min-width: 0; max-width: 200px; padding: 0 14px; }
-.writing-buttons .letter-pick { flex: 0 0 56px; max-width: 56px; padding: 0; display: grid; place-items: center; } .writing-buttons .letter-pick .glyph { height: 26px; width: auto; }
-.writing-buttons .letter-pick[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--accent, var(--c)); }
+.pad-wrap { position: relative; }
+.letter-picks { position: absolute; top: 8px; right: 8px; z-index: 2; display: flex; gap: 8px; }
+.letter-pick { width: 48px; height: 48px; min-height: 48px; padding: 0; border: 0; border-radius: 16px; background: #fff; box-shadow: var(--shadow); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; }
+.letter-pick .glyph { height: 26px; width: auto; }
+.letter-pick[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--c), var(--shadow); }
 
 /* check */
 .check { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 24px; }

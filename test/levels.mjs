@@ -1,5 +1,5 @@
 // Levels (v1.9.4): a tunnel celebration, a special car and a gold star when a milestone lesson is done (level one at
-// lesson 6, level two at lesson 13). 3D, reduced motion, 2D, no replay on the next visit, replay from Grownups, and heat.
+// lesson 6, level two at lesson 17, the end of World 2). 3D, reduced motion, 2D, no replay on the next visit, replay from Grownups, and heat.
 // Run alone with `node test/levels.mjs`.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -141,12 +141,12 @@ export async function levelChecks({ browser, url, ok }) {
     await ctx.close();
   }
   {
-    // 7. Level two at thirteen: the coach, the second star, and the caboose still last
+    // 7. Level two at seventeen (the end of World 2, phase B): the coach, the second star, and the caboose still last
     const l1 = { L1: '2026-10-06T10:00:00.000Z' };
-    const { ctx, page, errors } = await openHome(browser, url, vp, state(13, { trainAt: 9999 }, { lessons: done(13), levels: { seen: 1, earned: l1 }, character: CHARACTER, meetDue: false }), { init: [RAF_COUNT, PHASES] });
+    const { ctx, page, errors } = await openHome(browser, url, vp, state(17, { trainAt: 9999 }, { lessons: done(17), levels: { seen: 1, earned: l1 }, character: CHARACTER, meetDue: false }), { init: [RAF_COUNT, PHASES] });
     await until(page, () => window.__train && window.__train.frames > 0);
     await page.mouse.click(3, 300);
-    ok(await page.evaluate(() => window.__train.level.id) === 'L2', 'level two: due at thirteen');
+    ok(await page.evaluate(() => window.__train.level.id) === 'L2', 'level two: due at seventeen');
     ok(await until(page, () => !!document.querySelector('.level-banner'), null, 20000), 'level two: the banner shows');
     ok((await page.locator('.level-banner').first().innerText()).trim() === 'Level two complete!', 'level two: it reads "Level two complete!"');
     ok((await page.evaluate(() => window.__train.specials.join())) === 'coach', 'level two: the coach is the newest car and the only special car (the owner\'s wagon rule)');

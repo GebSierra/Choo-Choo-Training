@@ -150,7 +150,7 @@ export async function sfxChecks({ browser, url, ok }) {
     await touchDrag(page, { x: hb.x + hb.width / 2, y: hb.y + hb.height / 2 }, { x: hb.x + hb.width / 2 + tb.width - hb.width + 4, y: hb.y + hb.height / 2 });
     await page.waitForTimeout(200);
     ok(of(await notes(page), 'sparkle').bells.length === 4, 'Slide track: reaching the end plays the sparkle');
-    await page.evaluate(() => { location.hash = '#/lesson/2/task/4'; });
+    await page.evaluate(() => { location.hash = '#/lesson/2/task/3'; });
     await page.waitForSelector('.slide-band');
     await page.waitForTimeout(800);
     const g = await page.evaluate(() => { const svg = document.querySelector('.word-glyphs'), r = svg.getBoundingClientRect(), k = r.width / Number(svg.dataset.width); const e = [...svg.querySelectorAll('.glyph-letter')].map((x) => ({ l: r.left + Number(x.dataset.x0) * k, r: r.left + Number(x.dataset.x1) * k })); return { first: e[0].l, last: e[e.length - 1].r, y: r.top + r.height / 2 }; });

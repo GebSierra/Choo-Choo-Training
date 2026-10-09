@@ -40,7 +40,7 @@ const TABLE = [
     tiles: ['d/duck', 'd/deer', 'd/dog', 'd/door', 'd/dolphin'], words: ['dad', 'dip', 'sad'], pic: 'duck',
     qc: { kind: 'letter', others: ['m', 's'] }, hunt: 'msitfone' },
   // c and k are ONE lesson: one sound /k/, two spellings. The data key is c (glyph c), `alt` lists the second spelling. The parent says "k-".
-  { n: 11, k: 'c', alt: ['k'], practice: ['cat', 'king', 'camel'], say: 'k-', hold: false, not: 'kuh', how: 'Lift the back of your tongue, then let it drop with a puff of air. Short: k-. Do not add uh. The letters c and k make this same sound.',
+  { n: 11, k: 'c', alt: ['k'], practice: ['cat', 'king', 'camel'], say: 'k-', hold: false, not: 'kuh', how: 'Lift the back of your tongue, then let it drop with a puff of air. Short: k-. Do not add uh.',
     tiles: ['c-k/camel', 'c-k/candy', 'c-k/cat', 'c-k/king', 'c-k/koala'], words: ['cap', 'kit', 'cot'], pic: 'cat',
     qc: { kind: 'picture', word: 'cat', others: ['window', 'van'] }, hunt: 'masitpfn' },
   { n: 12, k: 'h', practice: ['hat', 'hand', 'horse'], say: 'h-', hold: false, not: 'huh', how: 'Breathe out as if fogging a mirror. Short: h-. Do not add uh.',
