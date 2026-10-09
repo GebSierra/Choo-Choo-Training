@@ -4,7 +4,7 @@ import { holdButton } from '../components/hold-button.js';
 import { fullscreenButton } from '../components/fullscreen-button.js';
 import { firstRunOverlay } from '../components/welcome-card.js';
 import { stopIcon, puffEl } from '../art/train2d.js';
-import { finishedStop } from '../sequence.js';
+import { finishedStop, checkpointStopIndex } from '../sequence.js';
 import { sfx } from '../sfx.js';
 import { music } from '../music.js';
 import { kidSvg } from '../art/kid.js';
@@ -167,6 +167,7 @@ function stone(g, i, what, state, onTap, speech, character, resting = false) {
 // The probe's context is handed to the renderer, so Home never holds two. Any failure on the way falls back quietly.
 // preview (prototype 2, Grownups > Previews): { world, mode, onEnter } builds only that world's stops; null for the real Home.
 export async function homeScreen(ctx) {
+  ctx.lessonTipFor = null; // the next lesson opened from here shows its "Did you know?" card again
   const preview = ctx.preview || null;
   ctx.preview = null;
   // The Home builds one world only. When the child has just finished a world, its crossing plays once (js/screens/crossing.js).
@@ -275,25 +276,29 @@ export function mapScreen(ctx, preview = null, plan = null) {
   const tap = (fn) => (btn, st) => { if (dragged) { dragged = false; return; } fn(btn, st); };
 
   const wobble = (btn) => animate(btn, [{ transform: 'rotate(0)' }, { transform: 'rotate(-6deg)', offset: 0.25 }, { transform: 'rotate(6deg)', offset: 0.6 }, { transform: 'rotate(0)' }], { duration: 260 });
+  // a Story or Smooth Ride next in line holds the figure: that stone becomes the current one, the lesson after it stays open
+  const curNode = current === null ? -1 : nodes.findIndex((n) => n.lesson && n.lesson.number === current);
+  const hold = preview || curNode < 0 ? -1 : checkpointStopIndex(nodes, curNode, store);
   let currentIndex = 0, found = false; // the stone the map opens on: the current lesson's, else the current sack, else the last stone
   const stones = nodes.map((node, i) => {
     if (node.checkpoint) {
       const c = node.checkpoint;
       // With every lesson done, the first sack not yet done is the current stone (one bubble, not one for each).
       const pending = (curriculum.checkpoints || []).find((k) => !store.isCheckpointDone(k) && store.isCheckpointUnlocked(k));
-      const state = store.isCheckpointDone(c) ? 'done' : (!store.isCheckpointUnlocked(c) ? 'locked' : (current === null && pending && pending.id === c.id ? 'current' : 'open'));
+      const state = store.isCheckpointDone(c) ? 'done' : (!store.isCheckpointUnlocked(c) ? 'locked' : (i === hold || (current === null && pending && pending.id === c.id) ? 'current' : 'open'));
       if (state === 'current') { currentIndex = i; found = true; }
       return stone(g, i, c, state === 'open' ? 'unlocked' : state, tap((btn, st) => { if (st === 'locked') wobble(btn); else router.go(`/checkpoint/${c.id}`); }), speech, store.character());
     }
     const l = node.lesson;
     const state = store.isDone(l.number) ? 'done' : (!store.isUnlocked(l.number) ? 'locked' : (l.number === current ? 'current' : 'open'));
-    if (l.number === current) { currentIndex = i; found = true; }
+    if (l.number === current && hold < 0) { currentIndex = i; found = true; }
     const resting = state === 'current' && store.isResting(l.number); // today's pace limit is reached
-    return stone(g, i, { sound: curriculum.sounds[l.sound], number: l.number }, state === 'open' ? 'current' : state, tap((btn, st) => {
+    return stone(g, i, { sound: curriculum.sounds[l.sound], number: l.number }, l.number === current && hold >= 0 ? 'unlocked' : state === 'open' ? 'current' : state, tap((btn, st) => {
       if (st === 'locked') wobble(btn); else if (resting) openRest(l.number); else router.go(`/lesson/${l.number}`);
     }), speech, store.character(), resting);
   });
   if (!found) currentIndex = nodes.length - 1;
+  if (hold >= 0) currentIndex = hold;
   if (preview) currentIndex = preview.mode === 'in' ? 0 : nodes.length - 1; // a previewed world opens at its start (arriving) or its end (leaving)
   stones.forEach((s) => scene.append(s));
   // A station was just finished: the figure rides to the next stone (the simple version of the 3D sequence).

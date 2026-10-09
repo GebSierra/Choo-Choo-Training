@@ -312,7 +312,7 @@ const CHARACTER = { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit:
 const doneL = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it', completedAt: `2026-10-${String(i + 1).padStart(2, '0')}T10:00:00.000Z` }]));
 const L1 = { L1: '2026-10-06T10:00:00.000Z' };
 // n lessons done, the train resting at the current stop (no ride, no party): world 1 until lesson 6 is done
-const resting = (n, settings = {}, extra = {}) => state(n, { trainDone: n, trainAt: iL(n + 1 <= 13 ? n + 1 : 13), ...settings }, { lessons: doneL(n), levels: { seen: n >= 6 ? 1 : 0, earned: n >= 6 ? L1 : {} }, worlds: { seen: n >= 7 ? 'W2' : 'W1' }, character: CHARACTER, meetDue: false, ...extra });
+const resting = (n, settings = {}, extra = {}) => state(n, { trainDone: n, trainAt: iL(n + 1 <= 13 ? n + 1 : 13), ...settings }, { lessons: doneL(n), levels: { seen: n >= 6 ? 1 : 0, earned: n >= 6 ? L1 : {} }, worlds: { seen: n >= 7 ? 'W2' : 'W1' }, checkpoints: Object.fromEntries(CUR.checkpoints.filter((k) => k.after <= n).map((k) => [k.id, { result: 'got-it' }])), character: CHARACTER, meetDue: false, ...extra }); // the story/ride stops already passed are done, so the train rests at the lesson (1.9.31 holds it at an open checkpoint)
 // world 1 finished and the crossing due, with nothing else to play first
 const crossingDue = (settings = {}, extra = {}) => state(6, { trainDone: 6, trainAt: 8, ...settings }, { lessons: doneL(6), levels: { seen: 1, earned: L1 }, worlds: { seen: 'W1' }, character: CHARACTER, meetDue: false, ...extra });
 const stored = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')));

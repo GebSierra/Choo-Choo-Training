@@ -13,3 +13,17 @@ export function finishedStop(store, done, currentIndex) {
   done.forEach((d, i) => { if (d !== false && i < currentIndex && (idx < 0 || (typeof d === 'string' && d >= best))) { idx = i; if (typeof d === 'string') best = d; } });
   return idx;
 }
+
+// The train stops at a Story or a Smooth Ride that comes next after the lessons just finished, instead of riding past it: of the
+// checkpoints standing right before the current lesson, the first Story or Smooth Ride not yet done (and unlocked) becomes the
+// current stop (grown-ups notice it). `nodes` is the line in order ({ lesson } or { checkpoint }); returns that node's index, or
+// -1 when the current stop stays the lesson. Crates (sound sacks) never hold the train.
+export function checkpointStopIndex(nodes, currentIndex, store) {
+  if (!nodes[currentIndex] || !nodes[currentIndex].lesson) return -1;
+  let first = -1;
+  for (let i = currentIndex - 1; i >= 0 && nodes[i].checkpoint; i--) {
+    const c = nodes[i].checkpoint;
+    if ((c.kind === 'book' || c.kind === 'ride') && !store.isCheckpointDone(c) && store.isCheckpointUnlocked(c)) first = i;
+  }
+  return first;
+}

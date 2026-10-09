@@ -539,8 +539,9 @@ Each is short enough for a card or a social post.
     builds the second. Read books above their level and chat about new words.
 19. **Did you know?** A typical child reads about 60 words a minute at the end of first grade and 100 by the end of
     second. These are averages, not deadlines; steady progress is what matters.
+20. **Did you know?** A fun way to speed up your child's learning is to find letters "out in the wild" during your day. Show them a cereal box or their favorite book and ask if they can find "mmm."
 
-> **Builder notes (internal).** Owner decision 8A. The open card shows one tip for a few seconds and never blocks; tips
+> **Builder notes (internal).** Owner decision 8A, updated 2026-10-09: a tip card shows each time a lesson is opened and stays until the grown-up closes it with the X (bottom right); tips
 > rotate without repeating until all have shown. The "Say this" sheet already shows a "Grown-up tip" (js/guide.js);
 > map each activity to the matching tip. No privacy or recording warnings (standing rule).
 
