@@ -1,10 +1,15 @@
+import { soundOfLetter } from './order.js';
 // Parent scripts are shown as text. To read one aloud, isolated sounds (mmm, aaammm, sss) become
 // recorded clips and everything else goes to text to speech. Nothing is ever a single letter.
 export function stretchLetters(word) { return [...word].map((c) => c.repeat(3)).join(''); }
 
 // How a parent writes a sound: a held sound (m, a, s, f, i, n) is stretched, "mmm"; a clipped one (t, d, g, p, h, b, l)
 // is short with a dash and never stretched, "t-". `sounds` is the curriculum's sounds table (its `hold` flag decides).
-export const soundText = (ch, sounds) => (sounds && sounds[ch] && sounds[ch].hold === false ? `${ch}-` : ch.repeat(3));
+// A sound with two spellings (c and k) is written with its sound letter: "k-" for c and for k alike.
+export const soundText = (ch, sounds) => {
+  const s = sounds && sounds[soundOfLetter(ch)];
+  return s && s.hold === false ? `${s.alt && s.alt.length ? s.alt[0] : ch}-` : ch.repeat(3);
+};
 // A word sound by sound, for a parent to say slowly with no pause: held sounds stretched, clipped ones short: "t-aaa".
 export const slowSounds = (word, sounds) => [...word].map((c) => soundText(c, sounds)).join('');
 // A picture word: only its first sound is brought out, held ("sssun") or short ("t-iger"); the rest stays as it is.
@@ -22,7 +27,7 @@ export function scriptToParts(text, soundKeys, { quiet = false } = {}) {
     const hasSound = (tok) => {
       const m = tok.match(/^['"]*([A-Za-z][A-Za-z-]*)[.,:;!?'"]*$/);
       const core = m ? m[1].toLowerCase() : '';
-      return (core && isSoundy(core)) || (core.length === 1 && soundKeys.includes(core));
+      return (core && isSoundy(core)) || (core.length === 1 && soundKeys.includes(soundOfLetter(core)));
     };
     // A quotation that runs over several sentences is one unit: a sound inside it drops all of it, never a fragment.
     const units = [];
@@ -44,10 +49,10 @@ export function scriptToParts(text, soundKeys, { quiet = false } = {}) {
     const core = m ? m[1].toLowerCase() : '';
     if (core && isSoundy(core)) {
       const pieces = isPure(core) ? core.match(PIECE) : null;
-      if (pieces && pieces.every((p) => soundKeys.includes(p[0]))) { flush(); pieces.forEach((p) => parts.push({ clip: p[0] })); }
+      if (pieces && pieces.every((p) => soundKeys.includes(soundOfLetter(p[0])))) { flush(); pieces.forEach((p) => parts.push({ clip: soundOfLetter(p[0]) })); }
       continue; // a stretch we have no clip for is shown, never spoken
     }
-    if (core.length === 1 && soundKeys.includes(core) && m[1] === core) { flush(); parts.push({ clip: core }); continue; }
+    if (core.length === 1 && soundKeys.includes(soundOfLetter(core)) && m[1] === core) { flush(); parts.push({ clip: soundOfLetter(core) }); continue; }
     buf.push(tok);
   }
   flush();

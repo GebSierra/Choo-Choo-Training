@@ -110,6 +110,45 @@ export const GLYPHS = {
     ],
     minX: 37, maxX: 51, minY: 14, maxY: 80,
   },
+  // Phase B letters. o: the round bowl of a, d and g, drawn on its own, counter-clockwise from about two o'clock.
+  o: {
+    strokes: [
+      { d: 'M62.2 48.5 A21 21 0 0 0 25.8 69.5 A21 21 0 0 0 62.2 48.5', start: [62.2, 48.5] },
+    ],
+    minX: 16, maxX: 72, minY: 38, maxY: 80,
+  },
+  // c: the same bowl, left open on the right.
+  c: {
+    strokes: [
+      { d: 'M62.2 48.5 A21 21 0 1 0 62.2 69.5', start: [62.2, 48.5] },
+    ],
+    minX: 16, maxX: 69, minY: 38, maxY: 80,
+  },
+  // k: a tall stem, then the arm in towards the stem, then the leg out from the arm.
+  k: {
+    strokes: [
+      { d: 'M24 14 L24 80', start: [24, 14] },
+      { d: 'M58 38 L25 64', start: [58, 38] },
+      { d: 'M37 55 L60 80', start: [37, 55] },
+    ],
+    minX: 17, maxX: 66, minY: 14, maxY: 80,
+  },
+  // u: down and round the bottom and up to the right, then the right-hand stem down.
+  u: {
+    strokes: [
+      { d: 'M24 38 L24 62 C24 74 32 80 42 80 C51 80 57 76 60 70', start: [24, 38] },
+      { d: 'M60 38 L60 80', start: [60, 38] },
+    ],
+    minX: 17, maxX: 66, minY: 38, maxY: 80,
+  },
+  // r: a short stem, then back up it and over a small arm.
+  r: {
+    strokes: [
+      { d: 'M24 38 L24 80', start: [24, 38] },
+      { d: 'M24 58 C24 46 31 39 42 39 C48 39 52 41 55 44', start: [24, 58] },
+    ],
+    minX: 17, maxX: 62, minY: 38, maxY: 80,
+  },
 };
 
 const SPACING = 4;

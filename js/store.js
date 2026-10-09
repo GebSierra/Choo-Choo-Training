@@ -1,5 +1,5 @@
 // Progress and settings in localStorage. Every access is guarded: a throwing or corrupt store starts fresh.
-import { ORDER } from './order.js';
+import { ORDER, ORDER_SOUNDS, LEGACY_ORDER } from './order.js';
 import { cleanCharacter } from './character.js';
 const KEY = 'reading.v1';
 const AUTH_KEY = 'reading.auth'; // the grown-up account session (js/account.js). Never part of reading.v1.
@@ -87,16 +87,41 @@ export function createStore() {
     try {
       if (!p || p.schema !== 1 || !p.lessons || typeof p.lessons !== 'object' || Array.isArray(p.lessons)) return fresh();
       const f = fresh();
-      // v1.8.1 changed the sound order: a real install (it has been opened, so it has lastOpened) saved under another order starts its lessons again once. Settings, seen task scripts, the name and the welcome stay.
-      const reorder = p.order !== ORDER && typeof p.lastOpened === 'string';
-      const lessons = {};
+      // The sound order changed twice. v1.8.1: a real install (it has been opened, so it has lastOpened) saved under an unknown order starts its
+      // lessons again once. Phase B (docs/LESSON-REBUILD.md): the legacy 13-lesson order 'masitpnfdhgbl' is MAPPED by sound, never reset (below).
+      const legacy = p.order === LEGACY_ORDER;
+      const reorder = !legacy && p.order !== ORDER && typeof p.lastOpened === 'string';
+      let lessons = {};
       for (const [n, l] of Object.entries(reorder ? {} : p.lessons)) {
         if (l && typeof l === 'object' && !Array.isArray(l)) lessons[n] = { ...l, tasksDone: Array.isArray(l.tasksDone) ? l.tasksDone.filter(Number.isInteger) : [] };
+      }
+      // A lesson counts as done only by its own result (isDone is strict since phase B). Older saves (no order, or the legacy one) counted a lesson
+      // as done when a later one was: write that down once, in the numbering the save was made under, before any mapping.
+      let top = 0;
+      if (!reorder && p.order !== ORDER) {
+        top = Math.max(0, ...Object.entries(lessons).filter(([, l]) => l.result === 'got-it').map(([n]) => Number(n)));
+        for (let n = 1; n < top; n++) { const l = lessons[n] || { tasksDone: [] }; if (l.result !== 'got-it') lessons[n] = { ...l, result: 'got-it', completedAt: typeof l.completedAt === 'string' ? l.completedAt : null }; }
       }
       let settings = p.settings && typeof p.settings === 'object' && !Array.isArray(p.settings) ? p.settings : {};
       if (reorder) {
         migrated = true;
         const { trainAt, ...rest } = settings;
+        const seen = rest.seenScripts && typeof rest.seenScripts === 'object' && !Array.isArray(rest.seenScripts) ? rest.seenScripts : {};
+        settings = { ...rest, seenScripts: Object.fromEntries(Object.entries(seen).filter(([k]) => !/^lesson:/.test(k))) };
+      }
+      if (legacy) {
+        // Each saved lesson n teaches the sound LEGACY_ORDER[n-1]; it moves to that sound's lesson number in the new order. A finished lesson keeps
+        // its result and dates; an unfinished one starts its tasks again (the task lists differ by lesson). Checkpoints (by id, all in World 1),
+        // the character, levels, worlds.seen and the settings stay. The train position and the seen lesson scripts are per old lesson number: dropped.
+        migrated = true;
+        const mapped = {};
+        for (const [n, l] of Object.entries(lessons)) {
+          const sound = LEGACY_ORDER[Number(n) - 1], at = ORDER_SOUNDS.indexOf(sound) + 1;
+          if (!sound || at < 1) continue;
+          mapped[at] = l.result === 'got-it' ? l : { ...l, tasksDone: [] };
+        }
+        lessons = mapped;
+        const { trainAt, trainDone, ...rest } = settings;
         const seen = rest.seenScripts && typeof rest.seenScripts === 'object' && !Array.isArray(rest.seenScripts) ? rest.seenScripts : {};
         settings = { ...rest, seenScripts: Object.fromEntries(Object.entries(seen).filter(([k]) => !/^lesson:/.test(k))) };
       }
@@ -118,6 +143,8 @@ export function createStore() {
       if (p.checkpoints && typeof p.checkpoints === 'object' && !Array.isArray(p.checkpoints)) {
         for (const [id, c] of Object.entries(reorder ? {} : p.checkpoints)) if (c && typeof c === 'object' && !Array.isArray(c)) checkpoints[id] = c;
       }
+      // A stop counted as done when the lesson after it was (derived); that is now written down for a mapped save (World 1 stops sit after lesson 4 and 6, as before).
+      if (legacy) for (const [id, after] of Object.entries({ r1: 4, b1: 4, b2: 6 })) if (top > after && !(checkpoints[id] && checkpoints[id].result === 'got-it')) checkpoints[id] = { ...(checkpoints[id] || {}), result: 'got-it', completedAt: (checkpoints[id] && checkpoints[id].completedAt) || null };
       return { ...f, ...p, savedAt: Number.isFinite(p.savedAt) && p.savedAt > 0 ? p.savedAt : 0, order: ORDER, lessons, checkpoints, character: cleanCharacter(p.character), levels: cleanLevels(p.levels), worlds: cleanWorlds(p.worlds), meetDue: typeof p.meetDue === 'boolean' ? p.meetDue : typeof p.lastOpened === 'string', settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
     } catch { return fresh(); }
   }
@@ -137,11 +164,14 @@ export function createStore() {
     get state() { return state; },
     get settings() { return state.settings; },
     lesson,
-    // Finishing a lesson completes everything before it: a lesson counts as done when its own result is got-it or a later lesson's is.
-    // This is derived, never written, so the saved results stay exactly as the child earned them.
-    isDone(n) { return Object.entries(state.lessons).some(([k, l]) => Number(k) >= n && l && l.result === 'got-it'); },
-    // Open by the rules of the path (the lesson before it is done, or a grown-up unlocked it), ignoring developer mode.
-    isNaturallyUnlocked(n) { return n === 1 || lesson(n).unlocked === true || this.isDone(n - 1); },
+    // A lesson counts as done by its own result only (got-it). Before phase B a later lesson's result also counted; that does not hold when
+    // lessons are added in the middle of the order, so older saves are written out explicitly once (parse, above).
+    isDone(n) { const l = state.lessons[n]; return !!l && l.result === 'got-it'; },
+    // Every lesson before n is done (lesson 1 has none before it).
+    earlierDone(n) { for (let m = 1; m < n; m++) if (!this.isDone(m)) return false; return true; },
+    // Open by the rules of the path (it is done, every lesson before it is done, or a grown-up unlocked it), ignoring developer mode.
+    // A lesson never opens just because a later one was finished: a mapped save keeps the lessons still to do, in order.
+    isNaturallyUnlocked(n) { return n === 1 || lesson(n).unlocked === true || this.isDone(n) || this.earlierDone(n); },
     isUnlocked(n) { return this.devOpenAll || this.isNaturallyUnlocked(n); },
     get devOpenAll() { return state.settings.dev === true && state.settings.devOpenAll === true; },
     currentLesson(total) {
@@ -153,7 +183,7 @@ export function createStore() {
     paceActive() { const s = state.settings; return s.perDay > 0 && !(s.dev === true && (s.devOpenAll || s.devNoLimit)); },
     // The next new lesson is resting when today's limit is reached, unless a grown-up opened it for today. Done lessons, and lessons a grown-up unlocked, never rest.
     isResting(n) {
-      if (!this.paceActive() || this.isDone(n) || !(n === 1 || this.isDone(n - 1)) || lesson(n).unlocked === true) return false;
+      if (!this.paceActive() || this.isDone(n) || !this.earlierDone(n) || lesson(n).unlocked === true) return false;
       return state.settings.restOverride !== dayKey() && this.doneToday() >= state.settings.perDay;
     },
     allowToday() { this.setSetting('restOverride', dayKey()); },
