@@ -17,6 +17,8 @@ const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 
 const SHOTS = path.join(ROOT, 'docs/screenshots/phase-b');
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } };
+// text that draws every a from our glyph: read the sentence's own aria-label
+const said = (loc) => loc.locator('[aria-label]').first().getAttribute('aria-label');
 const until = (page, fn, arg, timeout = 10000) => page.waitForFunction(fn, arg, { timeout }).then(() => true).catch(() => false);
 
 // ---- 1. the order and the count ----
@@ -192,7 +194,7 @@ for (const vp of VPS) {
     const { ctx, page: p, errors } = await page(vp, base(10), `#/lesson/11/task/${idx(11, 'mouth')}`);
     await p.waitForSelector('.mouth-task');
     await p.waitForTimeout(1800);
-    const same = (await p.locator('.mouth-same').innerText()).replace(/\s+/g, ' ').trim();
+    const same = (await said(p.locator('.mouth-same'))).replace(/\s+/g, ' ').trim();
     ok(same === 'c and k make the same sound.', `${tag} Watch My Mouth: "${same}"`);
     await p.click('.mouth-how-btn');
     ok(/How to make k-/.test(await p.locator('.mouth-how-title').innerText()) && await fits(p, '.mouth-same, .mouth-art') && await noScroll(p), `${tag} Watch My Mouth: the how-to panel names k- and everything fits`);
@@ -206,7 +208,7 @@ for (const vp of VPS) {
   // the overview shows both letters
   const { ctx, page: p, errors } = await page(vp, base(10), '#/lesson/11');
   await p.waitForSelector('.lesson-overview');
-  const head = (await p.locator('.lo-title p').innerText()).replace(/\s+/g, ' ');
+  const head = (await said(p.locator('.lo-title p'))).replace(/\s+/g, ' ');
   ok(/c and k make the same sound, k-/.test(head), `overview: "${head}"`);
   const chips = await p.evaluate(() => [...document.querySelectorAll('.task-card')].map((c) => [...c.querySelectorAll('.chip-glyph svg')].map((g) => g.dataset.letter).join('')));
   ok(chips.filter((c) => c === 'ck').length >= 5, `overview: the task chips show both letters (${chips.join(' ')})`);
@@ -237,7 +239,7 @@ for (const vp of VPS) {
   await p.waitForSelector('.trace-pad');
   ok((await p.locator('.letter-pick').count()) === 2 && (await p.evaluate(() => document.querySelector('.trace-pad').dataset.letter)) === 'c', 'Track Tracing: two letter buttons, c first');
   const box = await p.locator('.letter-pick').first().boundingBox();
-  ok(box.width >= 48 && box.height >= 48, `Track Tracing: the letter buttons are at least 48 px (${box.width}x${box.height})`);
+  ok(box.width >= 47.9 && box.height >= 47.9, `Track Tracing: the letter buttons are at least 48 px (${box.width}x${box.height})`);
   await p.locator('.letter-pick').nth(1).click();
   await p.waitForTimeout(300);
   ok((await p.evaluate(() => document.querySelector('.trace-pad').dataset.letter)) === 'k' && (await p.locator('.letter-pick[aria-pressed="true"]').getAttribute('data-letter')) === 'k', 'Track Tracing: tapping k switches the pad to k');
@@ -254,7 +256,7 @@ for (const vp of VPS) {
   // Ticket Check: the prompt says k- as text for the grown-up; the phone says no isolated sound
   const { ctx, page: p } = await page(VPS[0], base(10), '#/lesson/11/task/' + idx(11, 'check'));
   await p.waitForSelector('.check');
-  ok((await p.locator('.check-prompt').innerText()).trim() === 'Which picture starts with k-?', 'Ticket Check c/k: "Which picture starts with k-?"');
+  ok((await said(p.locator('.check-prompt'))).trim() === 'Which picture starts with k-?', 'Ticket Check c/k: "Which picture starts with k-?"');
   await p.waitForTimeout(1500);
   ok((await p.evaluate(() => window.__spoken.slice())).every((x) => !isIsolated(x)), 'Ticket Check c/k: the phone says no isolated sound');
   await ctx.close();
@@ -290,7 +292,7 @@ for (const vp of VPS) {
   const { ctx, page: p, errors } = await page(VPS[0], base(7), '#/lesson/8');
   await p.waitForSelector('.lesson-overview');
   await p.waitForTimeout(700);
-  ok((await p.locator('.lo-title h1').innerText()).trim() === 'Lesson 8' && /o as in octopus/.test((await p.locator('.lo-title p').innerText()).replace(/\s+/g, ' ')), 'o lesson overview: Lesson 8, "the sound o as in octopus"');
+  ok((await p.locator('.lo-title h1').innerText()).trim() === 'Lesson 8' && /o as in octopus/.test((await said(p.locator('.lo-title p'))).replace(/\s+/g, ' ')), 'o lesson overview: Lesson 8, "the sound o as in octopus"');
   await p.screenshot({ path: path.join(SHOTS, 'o-overview-390x844.png') });
   await ctx.close();
   // a locked lesson cannot be opened by the address

@@ -18,7 +18,7 @@ export function soundCard(sound, { lead = false } = {}) {
     first.append(sound.asIn ? ` as in ${sound.asIn}.` : '.');
   }
   const rest = lines.slice(1);
-  return h('div', { class: 'sound-card' + (lead ? ' lead' : ''), style: { '--accent': accent } },
+  return h('div', { class: 'sound-card' + (lead ? ' lead' : '') + (sound.alt && sound.alt.length ? ' pair' : ''), style: { '--accent': accent } },
     h('span', { class: 'sc-ic' }, icon('speaker', 20)),
     h('div', { class: 'sc-text' }, first, rest.length ? h('p', { class: 'sc-rules' }, rest.join(' ')) : null, h('p', { class: 'sc-how' }, richText(sound.howTo, { every: true }))));
 }

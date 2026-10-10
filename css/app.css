@@ -367,6 +367,7 @@ body.night { background: var(--night); }
 .letter-card .glyph { height: calc(100% - 16px); width: auto; max-width: 72%; }
 .letter-card.big { width: min(72%, 280px); height: 170px; }
 .new-letter .letter-card.big.pair { height: 130px; }
+@media (max-height: 700px) { .new-letter .sound-card.pair .sc-how { display: none; } } /* c and k: the how-to is on the Watch My Mouth step */
 @media (max-width: 380px) { .new-letter .letter-card.big.pair { height: 96px; } }
 .letter-card.pair { display: flex; align-items: center; justify-content: center; gap: 4%; }
 .letter-card.pair .glyph { height: auto; width: 44%; max-width: 44%; }
