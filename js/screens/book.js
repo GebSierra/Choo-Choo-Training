@@ -54,9 +54,8 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
   const el = stage;
   const block = h('div', { class: 'book-block' });
   // the folded corner and its twin are extra touch targets for the arrows below: hidden from a screen reader and the tab order
-  const cornerPrev = h('button', { class: 'book-corner prev', type: 'button', 'aria-hidden': 'true', tabindex: '-1', hidden: true, onclick: () => go(i - 1) });
   const cornerNext = h('button', { class: 'book-corner next', type: 'button', 'aria-hidden': 'true', tabindex: '-1', onclick: () => go(i + 1) });
-  block.append(cornerPrev, cornerNext);
+  block.append(cornerNext);
   const cover = h('button', { class: 'book-cover', type: 'button', 'aria-label': `Open the book: ${book.title}` },
     h('span', { class: 'cover-front' },
       h('span', { class: 'cover-title' }, book.title),
@@ -243,7 +242,6 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     block.querySelectorAll('.book-sheet.is-live').forEach((s) => s.remove());
     block.prepend(...(L ? [L] : []), R);
     stage.classList.toggle('has-child', !!c);
-    cornerPrev.hidden = i === 0;
     cornerNext.hidden = last;
     pending = c && c.sliderSvg ? { c, host: R } : null;
     fit();

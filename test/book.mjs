@@ -112,9 +112,9 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
   // Corners.
   await page.locator('.book-corner.next').click();
   await page.waitForFunction(() => Number(document.querySelector('.book-stage').dataset.page) === 2); await settled();
-  await page.locator('.book-corner.prev').click();
+  await page.locator('.book-back').click();
   await page.waitForFunction(() => Number(document.querySelector('.book-stage').dataset.page) === 1); await settled();
-  ok((await pageNo()) === 1, `${tag}: the bottom corners turn forward and back`);
+  ok((await pageNo()) === 1, `${tag}: the folded corner turns forward and the Previous arrow back`);
   await page.locator('.book').focus();
   await page.keyboard.press('ArrowRight');
   await page.waitForFunction(() => Number(document.querySelector('.book-stage').dataset.page) === 2); await settled();
