@@ -253,7 +253,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
 
   // Fitting one page: the picture has already given way (it is the flexible part, down to its minimum); if the page still
   // does not fit, the child's word and the text step down together, a size at a time. The word never goes below 36 px and
-  // the text never below 16 px, so the word stays the biggest thing on the page. Then the arrows are centred on the picture.
+  // the text never below 16 px, so the word stays the biggest thing on the page.
   const CAPS = [84, 74, 66, 58, 52, 46, 41, 36];
   function fit() {
     for (const sheet of block.querySelectorAll('.book-sheet.is-live')) {
@@ -272,7 +272,6 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
         if (rd) sheet.style.setProperty('--read-fs', Math.max(16, fs0 - Math.floor(step / 2)) + 'px');
         if (fits()) break;
       }
-      if (art && art.offsetHeight) sheet.style.setProperty('--arrow-y', Math.round(art.offsetTop + art.offsetHeight / 2 - 24) + 'px'); else sheet.style.removeProperty('--arrow-y');
     }
   }
 
