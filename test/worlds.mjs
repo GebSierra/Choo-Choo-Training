@@ -414,7 +414,7 @@ export async function liveCrossingChecks({ browser, url, ok, vp }) {
   await page.waitForTimeout(1000);
   await until(page, () => !window.__train.running, null, 8000);
   const e = await page.evaluate(() => ({ spot: window.__train.portalSpot(), board: window.__train.signRect() }));
-  ok(e.spot && e.board && inView(e.board, vp) && e.spot.y > 70, `${tag} crossing: at world 2's last station the portal and its signpost are in view`);
+  ok(e.spot && e.board && inView(e.board, vp) && e.spot.y > 70, `${tag} crossing: at world 2's last station the portal and its signpost are in view (${JSON.stringify(e)})`);
   await liveShot(page, 'w2-end-portal', tag);
   // reload: no replay
   await page.reload();
