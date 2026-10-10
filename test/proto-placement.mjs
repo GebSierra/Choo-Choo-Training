@@ -108,6 +108,7 @@ async function madeUp({ browser, url, ok }) {
   const r = await page.evaluate(async () => {
     const m = await import('/js/screens/proto-placement.js');
     const g = await import('/js/games-data.js');
+    const { soundOfLetter } = await import('/js/order.js');
     const cur = await (await fetch('data/curriculum.json')).json();
     const order = cur.lessons.map((l) => l.sound);
     const bad = [], sets = [new Set(order), new Set(order.slice(0, 10)), new Set(order.slice(0, 11)), new Set(order.slice(0, 12))];
