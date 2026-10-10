@@ -217,9 +217,11 @@ export async function bookFit({ browser, url, ok, sizes = FIT_SIZES, shot = null
     await page.goto(url + `#/checkpoint/${ck.id}`);
     await page.waitForSelector('.book-stage');
     await page.waitForTimeout(400);
+    const tag = `fit ${w}x${hgt}`;
+    const cov = await page.evaluate(() => { const p = document.querySelector('.cover-plate').getBoundingClientRect(); return [...document.querySelectorAll('.cover-plate .pip, .cover-plate .kid')].map((f) => f.getBoundingClientRect()).filter((q) => q.left < p.left - 1 || q.right > p.right + 1 || q.top < p.top - 1 || q.bottom > p.bottom + 1).length; });
+    ok(cov === 0, `${tag}: Pip and the kid are fully inside the cover's picture`);
     await page.locator('.book-cover').click();
     await page.waitForSelector('.book[data-state="open"]', { timeout: 1500 });
-    const tag = `fit ${w}x${hgt}`;
     const bad = [];
     for (let n = 0; n < BOOK.pages.length; n++) {
       await page.waitForFunction((k) => Number(document.querySelector('.book-stage').dataset.page) === k && !document.querySelector('.book-leaf'), n);
@@ -237,7 +239,6 @@ export async function bookFit({ browser, url, ok, sizes = FIT_SIZES, shot = null
         for (const s of document.querySelectorAll('.book-sheet.is-live')) if (s.scrollHeight > s.clientHeight + 1) out.push(`sheet scrolls ${s.scrollHeight} > ${s.clientHeight}`);
         for (const b of document.querySelectorAll('.book-sheet.is-live .book-arrow:not([disabled])')) { const r = b.getBoundingClientRect(); if (r.width < 47.5 || r.height < 47.5) out.push('arrow under 48 px'); if (!b.getAttribute('aria-label')) out.push('arrow without a label');
           for (const sel of ['.book-art', '.book-read', '.book-child', '.book-track', '.book-tiles', '.slide-band']) for (const el of b.closest('.book-sheet').querySelectorAll(sel)) { const q = el.getBoundingClientRect(); if (q.width && r.left < q.right - 0.5 && r.right > q.left + 0.5 && r.top < q.bottom - 0.5 && r.bottom > q.top + 0.5) out.push(`arrow overlaps ${sel}`); } }
-        for (const f of document.querySelectorAll('.cover-plate .pip, .cover-plate .kid')) { const q = f.getBoundingClientRect(), p = document.querySelector('.cover-plate') ? document.querySelector('.cover-plate').getBoundingClientRect() : q; if (document.querySelector('.book-cover') && getComputedStyle(document.querySelector('.book-cover')).display !== 'none' && (q.right > p.right + 1 || q.left < p.left - 1)) out.push('cover figure cut off'); }
         const next = document.querySelector('.task-buttons .next'); if (next) { const r = next.getBoundingClientRect(); if (r.bottom > innerHeight + 1 || r.top < 0) out.push('Finish/Skip button off screen'); }
         const fsz = Math.max(0, ...[...document.querySelectorAll('.book-sheet.is-live .book-read p')].map((p) => parseFloat(getComputedStyle(p).fontSize)));
         const kids = [...document.querySelectorAll('.book-sheet.is-live .book-child svg')].map((s) => s.getBoundingClientRect().height);
