@@ -7,6 +7,7 @@
 // the same seed gives the same words); the quick re-check runs step 1 alone; the phone's voice never says a sound; nothing is
 // written; reduced motion; the idle frame budget (DOM-only screens: at most 2 frames in 3 s); three phone sizes with 48 px targets.
 // Run alone with `node test/proto-placement.mjs`; SHOTS=1 also saves screenshots in docs/screenshots/proto-placement/.
+import { soundOfLetter } from '../js/order.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
@@ -78,7 +79,7 @@ async function drive(page, streams, { stopAt = null, hook = null } = {}) {
 }
 const seq = (trace, phase) => trace.filter((t) => t.phase === phase);
 const phasesOf = (trace) => new Set(trace.map((t) => t.phase));
-const lessonOf = (w) => Math.min(...[...w].map((c) => ORDER.indexOf(c) + 1));
+const lessonOf = (w) => Math.min(...[...w].map((c) => ORDER.indexOf(soundOfLetter(c)) + 1)); // k is taught with c
 const redX = (page) => page.evaluate(() => {
   const stage = document.querySelector('.task-stage'); if (!stage) return 0;
   let n = /[✗✘✕✖❌❎]/.test(stage.textContent) ? 1 : 0;
@@ -120,7 +121,7 @@ async function madeUp({ browser, url, ok }) {
       for (const x of w) {
         words++;
         if (!/^[^aeiou][aeiou][^aeiou]$/.test(x)) bad.push('shape ' + x);
-        if ([...x].some((c) => !known.has(c))) bad.push('unknown sound ' + x);
+        if ([...x].some((c) => !known.has(soundOfLetter(c)))) bad.push('unknown sound ' + x);
         if (g.WORD_BANK.includes(x)) bad.push('WORD_BANK ' + x);
         if (m.REAL_CVC.has(x)) bad.push('real ' + x);
         if (m.BLOCKED.has(x)) bad.push('blocked ' + x);
@@ -308,15 +309,15 @@ async function branches({ browser, url, ok }) {
   trace = await drive(page, { letters: 'yyyyyyyyyynnn', retest: 'y', made: 'yyy', real: 'yyyy', sentence: 'y' }, { hook: async (s) => { if (s.phase === 'madeup' && s.pos === '0') await shotOf(page, '06-made-up-word'); if (s.phase === 'sentence') await shotOf(page, '07-sentence'); } });
   const known10 = ORDER.slice(0, 10);
   const mw = seq(trace, 'madeup').map((t) => t.word);
-  ok(mw.length === 3 && mw.every((w) => /^[^aeiou][aeiou][^aeiou]$/.test(w) && [...w].every((c) => known10.includes(c))), `ten sounds: three made-up words from known sounds only (${mw})`);
+  ok(mw.length === 3 && mw.every((w) => /^[^aeiou][aeiou][^aeiou]$/.test(w) && [...w].every((c) => known10.includes(soundOfLetter(c)))), `ten sounds: three made-up words from known sounds only (${mw})`);
   ok(ph.has('result') && phasesOf(trace).has('madeup') && !phasesOf(trace).has('awareness'), 'ten sounds: step 3, not step 2');
   const rw = seq(trace, 'words').map((t) => t.word);
-  ok(rw.length === 4 && rw.every((w) => /^[^aeiou]?[aeiou][^aeiou]$/.test(w) && [...w].every((c) => known10.includes(c))), `good made-up words: step 4 shows four real words from known sounds (${rw})`);
+  ok(rw.length === 4 && rw.every((w) => /^[^aeiou]?[aeiou][^aeiou]$/.test(w) && [...w].every((c) => known10.includes(soundOfLetter(c)))), `good made-up words: step 4 shows four real words from known sounds (${rw})`);
   const sen = seq(trace, 'sentence');
   ok(sen.length === 1 && sen[0].sentence === 'Sam sat at a map.', `good made-up words: the sentence "${sen[0] && sen[0].sentence}"`);
   r = await resultText(page);
   ok(/reads Sam sat at a map\./.test(r.why) && /blends made-up words like/.test(r.why), `strong result: the why line (${r.why})`);
-  ok(/Suggested start: Lesson 11 \(sound g\)/.test(r.head), `ten sounds: suggests the first unknown sound, lesson 11 (${r.head})`);
+  ok(/Suggested start: Lesson 11 \(sound c\)/.test(r.head), `ten sounds: suggests the first unknown sound, lesson 11 (${r.head})`);
   await made.ctx.close();
 
   // all known, strong: shot of the result
@@ -386,9 +387,9 @@ async function quick({ browser, url, ok }) {
   let ph = phasesOf(trace);
   ok(!ph.has('awareness') && !ph.has('madeup') && !ph.has('words') && !ph.has('sentence'), 'quick re-check: step 1 only (no steps 2, 3 or 4)');
   const ls = seq(trace, 'letters').map((t) => t.letter + (t.retest ? '*' : '')).join('');
-  ok(ls === 'masitpnfp*'.replace('nfp*', 'nfp*'), `quick re-check: letters in teaching order, the taught letter again at the end (${ls})`);
+  ok(ls === 'masitpfop*', `quick re-check: letters in teaching order, the taught letter again at the end (${ls})`);
   const r = await resultText(page);
-  ok(/Letter sounds: 5 of 13/.test(r.head), `quick re-check: the result counts the sounds (${r.head})`);
+  ok(/Letter sounds: 5 of 17/.test(r.head), `quick re-check: the result counts the sounds (${r.head})`);
   ok(/Knows m a s i t/.test(r.why) && /Re-check every few weeks to see growth\./.test(r.all) && /Next new sound: Lesson 6 \(p\)\./.test(r.all), `quick re-check: the result (${r.all})`);
   ok((await sel(page, '.pc-start').count()) === 0 && !/Suggested start/.test(r.page), 'quick re-check: no "Start here" and no start suggestion');
   await shotOf(page, '11-quick-recheck-result');
@@ -399,11 +400,11 @@ async function quick({ browser, url, ok }) {
   made = await open(browser, url, PHONE); page = made.page;
   await begin(page, true);
   await shotOf(page, '11a-quick-recheck-letter');
-  trace = await drive(page, { letters: 'n' + 'y'.repeat(12), retest: 'y' });
+  trace = await drive(page, { letters: 'n' + 'y'.repeat(16), retest: 'y' });
   const sc = trace.map((t) => (t.phase === 'letters' ? t.letter + (t.retest ? '*' : '') : t.phase === 'teach' ? '[teach]' : t.phase));
   ok(sc.slice(0, 5).join(' ') === 'm [teach] a s m*', `quick re-check: teach and retest too (${sc.slice(0, 5).join(' ')})`);
   ok(trace[trace.length - 1].phase === 'result' && !phasesOf(trace).has('madeup'), 'quick re-check: all known goes straight to the result');
-  ok(/Letter sounds: 12 of 13/.test((await resultText(page)).head), `quick re-check: counts only the sounds known (${(await resultText(page)).head})`);
+  ok(/Letter sounds: 16 of 17/.test((await resultText(page)).head), `quick re-check: counts only the sounds known (${(await resultText(page)).head})`);
   await made.ctx.close();
 }
 

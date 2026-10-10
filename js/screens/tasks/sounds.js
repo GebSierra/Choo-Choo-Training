@@ -95,7 +95,9 @@ export function build({ lesson, curriculum, speech, refresh }) {
     },
     gist: () => {
       const w = cur(), stretched = w.showLetters ? slowSounds(w.word, sounds) : firstSoundOut(w.word, sounds);
-      return fit(`Stretch: ${stretched}, then ${w.word}.`, `${stretched}, then ${w.word}.`);
+      // wide letters (m, w, u stretched) make the long form too wide for the narrowest bar: use the short form then
+      const wide = [...stretched].filter((ch) => 'mwu'.includes(ch)).length >= 4;
+      return fit(...(wide ? [] : [`Stretch: ${stretched}, then ${w.word}.`]), `${stretched}, then ${w.word}.`);
     },
     again: () => { show(); speech.say(partsFor()); },
     cleanup: teardown,

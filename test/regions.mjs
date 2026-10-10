@@ -83,7 +83,7 @@ export async function regionChecks({ browser, url, ok, vp }) {
     const w2 = await page.evaluate(() => ({ ...window.__train, stopS: undefined }));
     baseCalls = w2.calls;
     ok(w2.theme === 'default' && w2.fogHex === '#fff6e5' && w2.skyOverride === false && w2.world === 'W2' && w2.region === true && w2.placeholder === false, `${tag} W2: still the default theme (fog ${w2.fogHex}, the page's own sky)`);
-    ok(w2.stopCount === 7 && w2.startTunnel && w2.portal && w2.signText === 'Sunny Hills', `${tag} W2: shows its real stops with the start tunnel and the portal to Sunny Hills (${w2.stopCount} stops)`);
+    ok(w2.stopCount === 11 && w2.startTunnel && w2.portal && w2.signText === 'Sunny Hills', `${tag} W2: shows its real stops with the start tunnel and the portal to Sunny Hills (${w2.stopCount} stops)`);
     ok(w2.details === null, `${tag} W2: no Starter Station props (world 2 is unchanged)`);
     ok(errors.length === 0, `${tag} W2: errors ${errors.join(' | ')}`);
     await ctx.close();

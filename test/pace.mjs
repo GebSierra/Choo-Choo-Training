@@ -38,9 +38,9 @@ export async function storeChecks(ok) {
   const first = s.lesson(3).doneAt;
   s.setResult(3, 'got-it');
   ok(s.lesson(3).doneAt === first, 'store: doneAt is kept on a second got-it');
-  ok(s.isDone(1) && s.isDone(2) && s.lesson(1).doneAt === undefined, 'store: lessons 1 and 2 are done but got no doneAt');
+  ok(s.isDone(3) && !s.isDone(1) && !s.isDone(2) && s.lesson(1).doneAt === undefined, 'store: isDone is strict (phase B): finishing lesson 3 does not make lessons 1 and 2 done');
   s.setResult(2, 'got-it');
-  ok(s.lesson(2).doneAt === undefined, 'store: finishing a lesson a later one already completed does not count as new');
+  ok(typeof s.lesson(2).doneAt === 'number' && s.isDone(2), 'store: a lesson finished after a later one counts as new (it gets its own doneAt)');
   // settings
   const d = { perDay: 2, restOverride: null, dev: false, devOpenAll: false, devNoLimit: false, rate: 0.9, sfxVolume: 0.6 };
   const c = (x) => cleanSettings({ ...d, ...x }, d);
@@ -113,7 +113,7 @@ export async function browserChecks({ browser, url, ok }) {
     ok(cks.length > 0 && depots.slice(0, cks.length).every((x) => x.cls === 'is-done'), `cascade: the checkpoints before lesson 5 show done (${depots.map((x) => x.cls).join(',')})`);
     ok(await page.evaluate(() => window.__train.wagons) === 5, 'cascade: the train pulls five wagons');
     ok(await page.evaluate(() => window.__train.currentIndex === [...document.querySelectorAll('.station-btn')].findIndex((x) => x.getAttribute('aria-label') === 'Lesson 6')), 'cascade: the train waits at lesson 6');
-    ok((await stored(page)).lessons[3] === undefined, 'cascade: nothing was written for lesson 3');
+    ok((await stored(page)).lessons[3] && (await stored(page)).lessons[3].result === 'got-it' && (await stored(page)).lessons[3].completedAt === null, 'cascade: an old save with only lesson 5 got-it is written out once (phase B): lesson 3 is got-it with no date');
     ok(errors.length === 0, `cascade: errors ${errors.join(' | ')}`);
     await ctx.close();
   }

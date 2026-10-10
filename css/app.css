@@ -366,6 +366,8 @@ body.night { background: var(--night); }
 .letter-card { align-self: center; width: 150px; height: 130px; border-radius: 24px; background: #fff; display: grid; place-items: center; box-shadow: var(--shadow); border: 0; margin: 6px auto 14px; }
 .letter-card .glyph { height: calc(100% - 16px); width: auto; max-width: 72%; }
 .letter-card.big { width: min(72%, 280px); height: 170px; }
+.new-letter .letter-card.big.pair { height: 130px; }
+@media (max-width: 380px) { .new-letter .letter-card.big.pair { height: 96px; } }
 .letter-card.pair { display: flex; align-items: center; justify-content: center; gap: 4%; }
 .letter-card.pair .glyph { height: auto; width: 44%; max-width: 44%; }
 .new-letter .letter-card.big { width: min(calc(100% - 144px), 280px); }
