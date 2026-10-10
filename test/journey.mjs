@@ -248,7 +248,7 @@ export async function journeyChecks({ browser, url, ok }) {
     }));
     ok(p.worlds.length === 2 && p.worlds[0].id === 'W1' && p.worlds[0].state === 'done' && p.worlds[1].state === 'current', `${v.name} Progress: a row for each world with lessons, world 1 finished, world 2 current`);
     ok(p.worlds[0].text === 'Starter Station · finished | 6 of 6 lessons done | Level one star: earned | Last lesson finished: Oct 6, 2026', `${v.name} Progress: world 1 summary (${p.worlds[0].text})`);
-    ok(p.worlds[1].text === 'Green Valley · you are here | 1 of 7 lessons done | Now: unit 2.4, sounds f o | Level two star: not yet | Last lesson finished: Oct 7, 2026', `${v.name} Progress: world 2 summary (${p.worlds[1].text})`);
+    ok(p.worlds[1].text === 'Green Valley · you are here | 1 of 11 lessons done | Now: unit 2.4, sounds f o | Level two star: not yet | Last lesson finished: Oct 7, 2026', `${v.name} Progress: world 2 summary (${p.worlds[1].text})`);
     ok(p.badges.length === 11 && p.badges[0] === 'done' && p.badges[1] === 'current' && p.have === '1 of 2', `${v.name} Progress: the board is there with the stars (${p.badges.join()} ${p.have})`);
     ok(/9 more worlds are coming later/.test(p.later || ''), `${v.name} Progress: the worlds still to come are one quiet line (${p.later})`);
     ok(p.previews.length === 0, `${v.name} Progress: no Previews buttons outside developer mode (${p.previews.length})`);
