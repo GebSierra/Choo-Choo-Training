@@ -65,7 +65,19 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
   ok((await page.locator('.book-title').innerText()) === TITLE, `${tag}: the title carries the name`);
   ok((await page.locator('.book[data-spread="0"]').count()) === 1 && (await page.locator('.book-sheet.is-live').count()) === 1, `${tag}: portrait shows one page`);
   ok((await page.evaluate(() => { const f = getComputedStyle(document.querySelector('.book-read')).fontFamily; return f.startsWith('Andika') && document.fonts.check('20px Andika'); })), `${tag}: the grown-up's text is set in Andika`);
-  ok((await page.evaluate(() => getComputedStyle(document.querySelector('.book-block'), '::after').width)) === '7px', `${tag}: the book has a page edge`);
+  // (changed for the picture-book look: the 7 px page-edge check became the stacked pages behind the page, plus the paper, picture and arrow checks)
+  ok((await page.evaluate(() => getComputedStyle(document.querySelector('.book-block'), '::before').boxShadow)) !== 'none', `${tag}: the next pages are stacked behind the page`);
+  const look = await page.evaluate(() => {
+    const sh = document.querySelector('.book-sheet.is-live'), art = sh.querySelector('.book-art'), s = sh.getBoundingClientRect(), a = art.getBoundingClientRect();
+    const ar = [...sh.querySelectorAll('.book-arrow')].map((b) => { const r = b.getBoundingClientRect(); return { l: b.getAttribute('aria-label'), w: r.width, h: r.height, dis: b.disabled }; });
+    return { paper: sh.classList.contains('paper'), grain: getComputedStyle(sh).backgroundImage.includes('data:image/svg'), top: Math.abs(a.top - s.top) < 1.5, wide: Math.abs(a.width - s.width) < 1.5, frac: a.height / s.height, ar,
+      tint: getComputedStyle(document.querySelector('.task-stage')).backgroundImage, sc: !!art.querySelector('.book-scene svg'), cyan: getComputedStyle(document.querySelector('.task-stage')).boxShadow };
+  });
+  ok(look.paper && look.grain, `${tag}: the page is paper with a texture`);
+  ok(look.top && look.wide && look.frac >= 0.35 && look.frac <= 0.62 && look.sc, `${tag}: the picture is full-bleed across the top of the page with a scene (${look.frac.toFixed(2)})`);
+  ok(look.tint === 'none' && look.cyan === 'none', `${tag}: no coloured app card around the book`);
+  ok(look.ar.length === 2 && look.ar.find((a) => a.l === 'Next page' && a.w >= 48 && a.h >= 48) && look.ar.find((a) => a.l === 'Previous page' && a.dis), `${tag}: the arrows are labelled, at least 48 px; Previous is off on page 1 (${JSON.stringify(look.ar)})`);
+  ok((await page.locator('.book-corner.next').boundingBox()).width >= 48, `${tag}: the folded corner is a real touch target`);
   ok((await page.locator('.book-folio').innerText()) === '1', `${tag}: the folio is the page number`);
   if (shot) await shot(page, 'book-page-1');
   await idle('page 1');
@@ -100,9 +112,9 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
   // Corners.
   await page.locator('.book-corner.next').click();
   await page.waitForFunction(() => Number(document.querySelector('.book-stage').dataset.page) === 2); await settled();
-  await page.locator('.book-corner.prev').click();
+  await page.locator('.book-back').click();
   await page.waitForFunction(() => Number(document.querySelector('.book-stage').dataset.page) === 1); await settled();
-  ok((await pageNo()) === 1, `${tag}: the bottom corners turn forward and back`);
+  ok((await pageNo()) === 1, `${tag}: the folded corner turns forward and the Previous arrow back`);
   await page.locator('.book').focus();
   await page.keyboard.press('ArrowRight');
   await page.waitForFunction(() => Number(document.querySelector('.book-stage').dataset.page) === 2); await settled();
@@ -196,7 +208,7 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
 
 // Fit: every page of the book lies fully inside its page at the phone sizes that matter: the Back and Next page buttons, the
 // child's word box and every word in it. The picture shrinks first, then the word steps down; the word stays the biggest text.
-export const FIT_SIZES = [[346, 690], [360, 640], [375, 667], [390, 844], [412, 780], [915, 412]];
+export const FIT_SIZES = [[346, 690], [360, 640], [375, 667], [390, 844], [412, 780], [412, 915], [915, 412], [844, 390]];
 export async function bookFit({ browser, url, ok, sizes = FIT_SIZES, shot = null, extraSeed = null }) {
   for (const [w, hgt] of sizes) {
     const { ctx, page, errors } = await newPage(browser, { name: 'fit', width: w, height: hgt, deviceScaleFactor: 1 });
@@ -205,9 +217,11 @@ export async function bookFit({ browser, url, ok, sizes = FIT_SIZES, shot = null
     await page.goto(url + `#/checkpoint/${ck.id}`);
     await page.waitForSelector('.book-stage');
     await page.waitForTimeout(400);
+    const tag = `fit ${w}x${hgt}`;
+    const cov = await page.evaluate(() => { const p = document.querySelector('.cover-plate').getBoundingClientRect(); return [...document.querySelectorAll('.cover-plate .pip, .cover-plate .kid')].map((f) => f.getBoundingClientRect()).filter((q) => q.left < p.left - 1 || q.right > p.right + 1 || q.top < p.top - 1 || q.bottom > p.bottom + 1).length; });
+    ok(cov === 0, `${tag}: Pip and the kid are fully inside the cover's picture`);
     await page.locator('.book-cover').click();
     await page.waitForSelector('.book[data-state="open"]', { timeout: 1500 });
-    const tag = `fit ${w}x${hgt}`;
     const bad = [];
     for (let n = 0; n < BOOK.pages.length; n++) {
       await page.waitForFunction((k) => Number(document.querySelector('.book-stage').dataset.page) === k && !document.querySelector('.book-leaf'), n);
@@ -216,13 +230,15 @@ export async function bookFit({ browser, url, ok, sizes = FIT_SIZES, shot = null
         const inside = (el, box, why) => { const r = el.getBoundingClientRect(), b = box.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.top >= b.top - 1 && r.bottom <= b.bottom + 1 && r.left >= b.left - 1 && r.right <= b.right + 1 ? null : `${why} ${[r.left, r.top, r.right, r.bottom].map(Math.round)} not in ${[b.left, b.top, b.right, b.bottom].map(Math.round)}`; };
         const out = [];
         const view = { getBoundingClientRect: () => ({ left: 0, top: 0, right: innerWidth, bottom: innerHeight }) };
-        for (const sel of ['.book-back', '.book-next', '.book-child', '.book-child .glyph-row', '.book-read', '.book-art']) {
+        for (const sel of ['.book-back', '.book-next', '.book-child', '.book-child .glyph-row', '.book-read', '.book-read p', '.book-art']) {
           for (const el of document.querySelectorAll(`.book-sheet.is-live ${sel}`)) {
             const sheet = el.closest('.book-sheet'), why = inside(el, sheet, sel) || inside(el, view, sel + ' (screen)');
             if (why) out.push(why);
           }
         }
         for (const s of document.querySelectorAll('.book-sheet.is-live')) if (s.scrollHeight > s.clientHeight + 1) out.push(`sheet scrolls ${s.scrollHeight} > ${s.clientHeight}`);
+        for (const b of document.querySelectorAll('.book-sheet.is-live .book-arrow:not([disabled])')) { const r = b.getBoundingClientRect(); if (r.width < 47.5 || r.height < 47.5) out.push('arrow under 48 px'); if (!b.getAttribute('aria-label')) out.push('arrow without a label');
+          for (const sel of ['.book-art', '.book-read', '.book-child', '.book-track', '.book-tiles', '.slide-band']) for (const el of b.closest('.book-sheet').querySelectorAll(sel)) { const q = el.getBoundingClientRect(); if (q.width && r.left < q.right - 0.5 && r.right > q.left + 0.5 && r.top < q.bottom - 0.5 && r.bottom > q.top + 0.5) out.push(`arrow overlaps ${sel}`); } }
         const next = document.querySelector('.task-buttons .next'); if (next) { const r = next.getBoundingClientRect(); if (r.bottom > innerHeight + 1 || r.top < 0) out.push('Finish/Skip button off screen'); }
         const fsz = Math.max(0, ...[...document.querySelectorAll('.book-sheet.is-live .book-read p')].map((p) => parseFloat(getComputedStyle(p).fontSize)));
         const kids = [...document.querySelectorAll('.book-sheet.is-live .book-child svg')].map((s) => s.getBoundingClientRect().height);

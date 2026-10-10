@@ -8,14 +8,17 @@ import { slideBlend, placeBand, startSweep, handCue } from '../components/slide-
 import { timers } from '../components/game-kit.js';
 import { sfx } from '../sfx.js';
 import { pageTurner } from '../components/page-turn.js';
+import { bookScene, SCENES } from '../art/scenes.js';
 
 const INK = '#1E2140';
 const FRIEND = "Pip's friend"; // when no name is set: fits every sentence of Books 1 and 2
 
 // A book is a checkpoint with kind "book" (data/books/<book>.json). The grown-up reads each page aloud and the child reads
 // the one big word on it. Books are silent: page text never goes to text-to-speech (so the child's name never reaches a
-// speech engine) and no letter sound is played. Art is a slot per page: the 2D Pip, the 2D engine and emoji for now;
-// a page with `art.image` shows that picture instead, with no code change.
+// speech engine) and no letter sound is played. Art is a slot per page: a backdrop drawn from the page (its `scene`:
+// meadow, track, station, hill, picnic or sunset; js/art/scenes.js) with the 2D Pip, the 2D engine, the kid and emoji in
+// front of it; a page with `art.image` shows that picture instead, with no code change. The page is one cream sheet:
+// the picture full-bleed across the top, the text on the paper below it, quiet arrows on the page edges.
 
 // Fetches the book and puts the child's name where {name} stands.
 export async function loadBook(checkpoint, store) {
@@ -50,13 +53,14 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
   const stage = h('div', { class: 'book-stage', dataset: { page: '0' } });
   const el = stage;
   const block = h('div', { class: 'book-block' });
-  const cornerPrev = h('button', { class: 'book-corner prev', type: 'button', 'aria-label': 'Previous page', hidden: true, onclick: () => go(i - 1) });
-  const cornerNext = h('button', { class: 'book-corner next', type: 'button', 'aria-label': 'Next page', onclick: () => go(i + 1) });
-  block.append(cornerPrev, cornerNext);
+  // the folded corner and its twin are extra touch targets for the arrows below: hidden from a screen reader and the tab order
+  const cornerNext = h('button', { class: 'book-corner next', type: 'button', 'aria-hidden': 'true', tabindex: '-1', onclick: () => go(i + 1) });
+  block.append(cornerNext);
   const cover = h('button', { class: 'book-cover', type: 'button', 'aria-label': `Open the book: ${book.title}` },
     h('span', { class: 'cover-front' },
       h('span', { class: 'cover-title' }, book.title),
-      h('span', { class: 'cover-pip', 'aria-hidden': 'true' }, pipSvg({ pose: 'wave', still: false }), h('span', { class: 'cover-kid' }, kidSvg({ ...store.character(), pose: 'wave', still: false }))),
+      h('span', { class: 'cover-plate', 'aria-hidden': 'true' }, bookScene('meadow'),
+        h('span', { class: 'cover-pip' }, pipSvg({ pose: 'wave', still: false }), h('span', { class: 'cover-kid' }, kidSvg({ ...store.character(), pose: 'wave', still: false })))),
       h('span', { class: 'cover-hint' }, 'Tap to open')),
     h('span', { class: 'cover-back', 'aria-hidden': 'true' }));
   const bookEl = h('div', { class: 'book', tabindex: '0', dataset: { state: 'closed', spread: '0' } }, block, cover);
@@ -100,8 +104,10 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
   // ---- the picture ----
   function scene(page) {
     const a = page.art || {};
-    const art = h('div', { class: 'book-art' });
+    const kind = SCENES.includes(page.scene) ? page.scene : SCENES.includes(a.scene) ? a.scene : 'meadow';
+    const art = h('div', { class: 'book-art' + (a.train ? ' has-train' : ''), dataset: { scene: kind } });
     if (a.image) { art.append(h('img', { class: 'book-img', src: a.image, alt: '', decoding: 'async', draggable: 'false' })); return { art, parts: {} }; }
+    art.append(bookScene(kind));
     const parts = {};
     if (a.train) {
       const p = h('span', { class: 'book-part book-train' }, engineSvg({ pose: a.pip || 'idle', still: true }));
@@ -177,7 +183,9 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
   const stopSweep = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } if (cue) { cue.stop(); cue = null; } };
 
   // ---- the page ----
-  const liveSheet = (side) => { const s = document.createElement('section'); s.className = `book-sheet is-${side} is-live`; return s; };
+  const liveSheet = (side, kind) => { const s = document.createElement('section'); s.className = `book-sheet paper is-${side} is-live kind-${kind}`; return s; };
+  const chevron = (d) => h('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true', focusable: 'false' }, h('path', { d, fill: 'none', stroke: 'currentColor', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+  const sceneOf = (page, fallback) => (SCENES.includes(page.scene) ? page.scene : fallback);
   function paint(n) {
     teardown();
     i = n;
@@ -185,26 +193,28 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     stage.dataset.page = String(i);
     stage.dataset.kind = kind;
 
-    const read = h('section', { class: 'book-read', 'aria-label': 'Read this aloud' });
+    const read = h('section', { class: 'book-read', 'aria-label': 'Read this aloud', dataset: { size: !page.child && !page.after && !page.sound && page.read.length < 70 ? 'l' : 'm' } });
     if (i === 0) read.append(h('p', { class: 'book-title' }, book.title));
     read.append(h('p', { class: 'book-text' }, page.read));
     if (page.sound) read.append(h('p', { class: 'book-says' }, 'Your child says: ', h('b', {}, page.sound)));
     if (page.after) read.append(h('p', { class: 'book-after' }, page.after));
 
     const last = i === pages.length - 1;
-    const back = h('button', { class: 'btn ghost book-back', type: 'button', 'aria-label': 'Back one page', disabled: i === 0, onclick: () => go(i - 1) }, 'Back');
-    const next = last ? null : h('button', { class: 'btn book-next', type: 'button', onclick: () => go(i + 1) }, 'Next page');
-    const mid = [];
-    let c = null;
+    const back = h('button', { class: 'book-arrow book-back', type: 'button', 'aria-label': 'Previous page', disabled: i === 0, onclick: () => go(i - 1) }, chevron('M15 5l-7 7 7 7'));
+    const next = last ? null : h('button', { class: 'book-arrow book-next', type: 'button', 'aria-label': 'Next page', onclick: () => go(i + 1) }, chevron('M9 5l7 7-7 7'));
+    let art, c = null;
+    const rest = []; // under the picture: the child's word, the review tiles
 
     if (kind === 'drag') {
-      const art = h('div', { class: 'book-art book-drag' });
+      const sc = sceneOf(page, 'hill');
+      art = h('div', { class: 'book-art book-drag', dataset: { scene: sc } }, bookScene(sc));
       track = slideTrack({ handle: engineSvg({ still: true }), onComplete: () => { track.dataset.done = '1'; sfx.play('toot'); } });
       track.classList.add('book-track');
       art.append(track);
-      mid.push(art);
     } else if (kind === 'review') {
-      const tiles = h('div', { class: 'book-tiles' + (page.words.length > 6 ? ' is-many' : '') }, page.words.map((w) => {
+      const sc = sceneOf(page, 'sunset');
+      art = h('div', { class: 'book-art', dataset: { scene: sc } }, bookScene(sc));
+      rest.push(h('div', { class: 'book-tiles' + (page.words.length > 6 ? ' is-many' : '') }, page.words.map((w) => {
         const svg = wordSvg(w, { color: INK, label: w, all: true, font: true });
         svg.style.width = `calc(var(--tile-cap, 60px) * ${Number(svg.dataset.width) / Number(svg.dataset.height)})`;
         svg.style.maxWidth = '100%';
@@ -214,27 +224,24 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
           keep(animate(tile, [{ transform: 'scale(1)' }, { transform: 'scale(1.07)', offset: 0.4 }, { transform: 'scale(1)' }], { duration: 360, easing: 'cubic-bezier(.34,1.56,.64,1)', fill: 'none' }));
         });
         return tile;
-      }));
-      mid.push(tiles);
+      })));
       setDone(true);
     } else {
-      const s = scene(page);
-      mid.push(s.art);
+      art = scene(page).art;
       if (page.child) {
-        c = child(page); mid.push(c.box);
-        if (c.sliderSvg) { c.bar = h('span', { class: 'blend-bar book-bar', 'aria-hidden': 'true' }, h('i')); mid.push(c.bar); }
+        c = child(page); rest.push(c.box);
+        if (c.sliderSvg) { c.bar = h('span', { class: 'blend-bar book-bar', 'aria-hidden': 'true' }, h('i')); rest.push(c.bar); }
       }
     }
     const folio = h('span', { class: 'book-folio', 'aria-hidden': 'true' }, String(i + 1));
-    const R = liveSheet('right'), L = spread ? liveSheet('left') : null;
+    const R = liveSheet('right', kind), L = spread ? liveSheet('left', kind) : null;
     if (spread) {
-      L.append(read, h('div', { class: 'book-nav' }, back));
-      R.append(...mid, h('div', { class: 'book-nav' }, next), folio);
-    } else R.append(read, ...mid, h('div', { class: 'book-nav' }, back, next), folio);
+      L.append(h('div', { class: 'book-body' }, read), back);
+      R.append(art, ...(rest.length ? [h('div', { class: 'book-body' }, ...rest)] : []), ...(next ? [next] : []), folio);
+    } else R.append(art, h('div', { class: 'book-body' }, read, ...rest), back, ...(next ? [next] : []), folio);
     block.querySelectorAll('.book-sheet.is-live').forEach((s) => s.remove());
     block.prepend(...(L ? [L] : []), R);
     stage.classList.toggle('has-child', !!c);
-    cornerPrev.hidden = i === 0;
     cornerNext.hidden = last;
     pending = c && c.sliderSvg ? { c, host: R } : null;
     fit();
@@ -243,17 +250,25 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
   }
 
   // Fitting one page: the picture has already given way (it is the flexible part, down to its minimum); if the page still
-  // does not fit, the child's word steps down one size at a time. The word never goes below 36 px, so it stays the biggest text.
+  // does not fit, the child's word and the text step down together, a size at a time. The word never goes below 36 px and
+  // the text never below 16 px, so the word stays the biggest thing on the page.
   const CAPS = [84, 74, 66, 58, 52, 46, 41, 36];
   function fit() {
     for (const sheet of block.querySelectorAll('.book-sheet.is-live')) {
-      const box = sheet.querySelector('.book-child');
-      if (!box) continue;
-      box.style.removeProperty('--cap');
-      const start = parseFloat(getComputedStyle(box).getPropertyValue('--cap')) || 78;
-      for (const cap of [start, ...CAPS.filter((c) => c < start)]) {
-        box.style.setProperty('--cap', cap + 'px');
-        if (sheet.scrollHeight <= sheet.clientHeight + 0.5 && box.getBoundingClientRect().width <= sheet.clientWidth) break;
+      const box = sheet.querySelector('.book-child'), rd = sheet.querySelector('.book-read'), art = sheet.querySelector('.book-art');
+      sheet.style.removeProperty('--read-fs');
+      if (box) box.style.removeProperty('--cap');
+      const fs0 = rd ? parseFloat(getComputedStyle(rd).fontSize) || 20 : 20;
+      const cap0 = box ? parseFloat(getComputedStyle(box).getPropertyValue('--cap')) || 78 : 0;
+      const caps = box ? [cap0, ...CAPS.filter((k) => k < cap0)] : [cap0];
+      const artWant = art && !sheet.classList.contains('kind-review') ? Math.min(150, sheet.clientHeight * 0.28) : 0;
+      const fits = () => sheet.scrollHeight <= sheet.clientHeight + 0.5 && (!box || box.getBoundingClientRect().width <= sheet.clientWidth) && (!art || art.offsetHeight >= artWant);
+      const tiles = sheet.querySelector('.book-tiles');
+      if (tiles) { tiles.classList.remove('is-tight'); sheet.style.removeProperty('--art-min'); if (!fits()) { tiles.classList.add('is-tight'); sheet.style.setProperty('--art-min', '40px'); } }
+      for (let step = 0; step < 16; step++) {
+        if (box) box.style.setProperty('--cap', caps[Math.min(step, caps.length - 1)] + 'px');
+        if (rd) sheet.style.setProperty('--read-fs', Math.max(16, fs0 - Math.floor(step / 2)) + 'px');
+        if (fits()) break;
       }
     }
   }
@@ -355,7 +370,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
   }
 
   // ---- one page or a spread: the stage decides ----
-  const wantSpread = () => { const w = stage.clientWidth, hh = stage.clientHeight; return w >= 1.3 * hh && (w - 40) / 2 >= 295 && hh >= 260; };
+  const wantSpread = () => { const w = stage.clientWidth, hh = stage.clientHeight; return w >= 1.3 * hh && (w - 40) / 2 >= 262 && hh >= 250; };
   const ro = new ResizeObserver(() => {
     const s = wantSpread();
     if (s === spread) { fit(); return; }
