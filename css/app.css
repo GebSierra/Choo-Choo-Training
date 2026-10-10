@@ -884,7 +884,8 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
   background-image: var(--fibers), var(--grain), linear-gradient(270deg, rgba(70,45,20,.22), rgba(70,45,20,0) 30px), linear-gradient(90deg, rgba(70,45,20,.07), rgba(70,45,20,0) 10px), radial-gradient(120% 80% at 50% 45%, rgba(255,255,255,.4), rgba(255,255,255,0) 62%), linear-gradient(0deg, rgba(150,110,60,.12), rgba(150,110,60,0) 16%); }
 .book-body { flex: 1 0 auto; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 14px 24px 68px 28px; box-sizing: border-box; min-height: 0; }
 .book-sheet.is-left .book-body { padding: 18px 30px 68px 22px; justify-content: flex-start; }
-.book[data-spread="1"] .book-sheet.is-right .book-body { flex: 0 0 auto; padding: 8px 18px 62px 24px; }
+.book[data-spread="1"] .book-sheet.is-right { padding-bottom: 62px; }
+.book[data-spread="1"] .book-sheet.is-right .book-body { flex: 0 0 auto; padding: 8px 18px 6px 24px; }
 .book-sheet.kind-review .book-body { flex: 1 1 auto; justify-content: flex-start; }
 .book-folio { position: absolute; left: 0; right: 0; bottom: 19px; text-align: center; font-size: 15px; color: #9A8466; pointer-events: none; }
 .book-folio::before { content: '\2013\00a0'; } .book-folio::after { content: '\00a0\2013'; }
