@@ -134,7 +134,11 @@ Owner: implement all of these without asking, then report the decisions made. Co
   worlds with a "Go to this world" button. Progress never changes by visiting.
 - [ ] **5. Storybook as real pages (owner, 2026-10-08):** the owner expected the storybook to look like an immersive
   real book page; check the current book screen against that and make it feel like a picture book page.
-- [ ] **6. Smooth Ride: overhaul, replace or remove (owner, 2026-10-08):** it was built around recording the child,
+- [ ] **6. DECIDED (owner, 2026-10-10): option 1, Smooth Ride becomes "Read It Again"**, a repeated-reading station: the grown-up
+  reads a tiny decodable story (2–4 short sentences, taught letters only) once, the child reads it back, and the train pulls
+  forward one wagon per sentence the grown-up marks read. No microphone (remove the mic code and its permission prompt).
+  Evidence already cited in the white paper: Therrien (2004) repeated reading. Built after phase B (shares the checkpoint
+  data in tools/gen-lessons.mjs). Original item: **Smooth Ride: overhaul, replace or remove (owner, 2026-10-08):** it was built around recording the child,
   which the app no longer does. Offer the owner three options (e.g. replace with a grown-up-judged read-along / repeated
   reading activity from the white paper, fold it into lessons, or remove it).
 - [ ] **7. Worlds W5–W7 (Blend Bay, Endings Junction, Silent E Summit):** resume after 3–6 (paused 2026-10-08; any
