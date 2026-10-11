@@ -19,7 +19,7 @@ import { landscape, trainBar } from './practice-world.js';
 //   return shell.mount(current, advance);
 // current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?, lockScroll?}.
 // lockScroll: the activity never scrolls and ignores pan gestures (tasks where a finger slides across the screen).
-export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false, tip = null, tipKey = '', noScript = false, noAgain = false, autoAdvance = false, world = null }) {
+export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false, tip = null, tipKey = '', noScript = false, noAgain = false, autoAdvance = false, world = null, kicker = '' }) {
   const { router, speech, store } = ctx;
   const themed = !!world && store.settings.newPractice === true;
   let current = null, doneHook = () => {};
@@ -66,7 +66,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
 
       const head = h('header', { class: 'task-head' },
         h('button', { class: 'icon-btn light', type: 'button', 'aria-label': backLabel, onclick: () => { cancelAuto(); router.back(); } }, icon('back', 28)),
-        h('h1', {}, title),
+        h('h1', {}, title, ...(kicker ? [h('small', { class: 'task-kicker' }, kicker)] : [])),
         h('span', { class: 'head-spacer' }),
         bar);
       const stage = h('main', { class: `task-stage c-${color}${onDark ? ' on-dark' : ''}` }, h('div', { class: 'task-activity' + (current.flush ? ' flush' : '') + (current.lockScroll ? ' lock' : '') }, current.el), speaker);

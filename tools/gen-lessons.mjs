@@ -110,9 +110,9 @@ delete c.games.barn; // Barn Doors is gone (v1.9.3): the tap games take its plac
 delete c.games.ride;
 const REREAD = {
   id: 'r1', kind: 'reread', title: 'Read It Again', needs: ['m', 'a', 's', 'i'],
-  // A tiny story the grown-up reads once and the child then reads back. Only letters taught by lesson 4 (m a s i) and the two heart words
-  // Story 1 already uses (is, I): test/check-content.mjs checks every word.
-  story: ['I am Sam.', 'I miss Sis.', 'Sis is Mim.'], sight: ['I', 'is'],
+  // A tiny story the grown-up reads once and the child then reads back. Only letters taught by lesson 4 (m a s i) and the heart word
+  // I that Story 1 already uses: test/check-content.mjs checks every word.
+  story: ['I am Sam.', 'I miss Sis.', 'Sis! Sis! I am Sam!'], sight: ['I'],
 };
 c.checkpoints = [REREAD, ...(c.checkpoints || []).filter((k) => k.kind === 'book')];
 

@@ -114,7 +114,8 @@ export async function screenChecks({ browser, url, ok }) {
       await page.goto(url + (i === 0 ? `#/checkpoint/${k.id}` : `#/checkpoint/${k.id}/task/${i}`));
       await page.waitForSelector(gameSel + ', .check', { timeout: 8000 });
       await page.waitForTimeout(700);
-      const title = await page.locator('.task-head h1').innerText();
+      const title = (await page.locator('.task-head h1').innerText()).split('\n')[0].trim();
+      ok((await page.locator('.task-kicker').innerText()) === `Review Stop · ${i + 1} of ${k.plan.length}`, `${k.id} step ${i + 1}: the header says Review Stop and where you are`);
       ok(title === NAMES[a.task], `${k.id} step ${i + 1}: ${NAMES[a.task]} (${title})`);
       ok((await page.locator('.task-head [role=progressbar]').getAttribute('aria-valuemax')) === String(k.plan.length), `${k.id} step ${i + 1}: progress shows ${k.plan.length} games`);
       let letters = new Set(await letterSets(page));
@@ -144,7 +145,7 @@ export async function screenChecks({ browser, url, ok }) {
   for (let i = 0; i < k.plan.length; i++) {
     await page.waitForTimeout(1200);
     ok(page.url().endsWith(i === 0 ? `#/checkpoint/${k.id}` : `#/checkpoint/${k.id}/task/${i}`), `${k.id} run: step ${i + 1} is at its address`);
-    ok((await page.locator('.task-head h1').innerText()) === NAMES[k.plan[i].task], `${k.id} run: step ${i + 1} is ${NAMES[k.plan[i].task]}`);
+    ok((await page.locator('.task-head h1').innerText()).split('\n')[0].trim() === NAMES[k.plan[i].task], `${k.id} run: step ${i + 1} is ${NAMES[k.plan[i].task]}`);
     await page.locator('.btn.next').click();
     await page.waitForTimeout(500);
   }

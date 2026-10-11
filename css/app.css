@@ -2099,3 +2099,6 @@ button.hw-tile:active { transform: translateY(3px) scale(.97); }
 .art-mouth .mouth-ic { color: var(--coral); }
 @media (max-height: 700px) { .mouth-art { width: min(44vw, 170px, calc(100dvh - 400px)); min-width: 96px; } .mouth-how-text { font-size: 17px; } }
 .review-help { align-self: center; margin-top: 4px; }
+
+/* Review Stop: a small line under the game's title says where the grown-up is */
+.task-kicker { display: block; margin-top: 1px; font-size: 11.5px; font-weight: 800; line-height: 1.1; letter-spacing: .02em; opacity: .85; }

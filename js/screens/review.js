@@ -24,7 +24,7 @@ export function reviewTaskScreen(ctx, id, idx = 0) {
   // The tap games run their short round counts (as in a lesson with several games); the sound is the planned lesson's.
   const lesson = { ...base, games: ck.plan.map((p) => p.task).filter((t) => TAP_GAMES.includes(t)) };
   const sound = curriculum.sounds[lesson.sound];
-  const shell = makeShell({ ctx, title: task.name, color: task.color, steps: ck.plan.length, pos: index, from: lastIndex[ck.id] === undefined ? -1 : lastIndex[ck.id], isLast, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to the path', stepNoun: 'Game', autoAdvance: true, world: ck.world || 'W1',
+  const shell = makeShell({ ctx, title: task.name, color: task.color, steps: ck.plan.length, pos: index, from: lastIndex[ck.id] === undefined ? -1 : lastIndex[ck.id], isLast, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to the path', stepNoun: 'Game', kicker: `Review Stop · ${index + 1} of ${ck.plan.length}`, autoAdvance: true, world: ck.world || 'W1',
     tip: TIP, tipKey: 'tip:review', autoOpen: !['hunt', 'signals', 'wagons', 'board'].includes(task.type), seenKeys: [task.type] });
   // Nothing new: the Letter Hunt balloons and the lamps and wagons the games fill up with (games-data.js otherLetters) only ever carry letters
   // taught by this stop. A lesson's own list also holds letters that come later.

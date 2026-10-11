@@ -375,10 +375,10 @@ Owner decisions of 2026-10-10 (roadmap items 3c and 6). Built after phase B beca
 - **What:** a repeated-reading station after lesson 4. The grown-up reads a tiny story once, pointing to each word; the child then reads it
   back one sentence at a time. After each sentence the grown-up taps a big "Read it!" and the train on the screen pulls one more wagon into
   view. "Again" starts the reading over. At the end Pip waves at the station. Same finish screen as every stop.
-- **The story** (only m a s i, plus the heart words "I" and "is" that Story 1 already teaches): "I am Sam." "I miss Sis." "Sis is Mim."
+- **The story** (only m a s i, plus the heart word "I" that Story 1 already teaches): "I am Sam." "I miss Sis." "Sis! Sis! I am Sam!"
 - **Parent script:** (listen) "Read the whole story to your child once, slowly, pointing to each word as you say it. Your child only
   listens. Then tap 'Your child reads'." (read) "Your child reads one sentence at a time. Let your child try first. If your child gets stuck,
-  sound the word out together. Still stuck? Read the sentence yourself, then have your child read it after you. When the sentence is read,
+  sound the word out together. Still stuck? Read the sentence yourself, then have your child read it after you. After each sentence your child reads,
   tap Read it!" The app judges nothing.
 - **Why:** repeated reading with a fluent adult model improves fluency (Therrien 2004, already in the white paper's table).
 - **The microphone is gone from the app.** `js/mic.js`, `js/blend-detect.js`, the Smooth Ride screen, its permission card and its tests are

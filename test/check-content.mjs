@@ -298,8 +298,8 @@ export function checkCurriculum(c, root = ROOT) {
     const sight = (k.sight || []).map((w) => String(w).toLowerCase());
     for (const w of sight) if (!['is', 'i', 'it'].includes(w)) err(`${p}.sight "${w}" is not one of the heart words the app already teaches (is, I, It)`);
     k.story.forEach((sentence, i) => {
-      if (typeof sentence !== 'string' || !/^[A-Z][A-Za-z ]*[.!?]$/.test(sentence)) err(`${p}.story[${i}] must be one plain sentence (letters, spaces, a final . ! or ?)`);
-      const words = String(sentence).toLowerCase().replace(/[.!?]/g, '').split(/\s+/).filter(Boolean);
+      if (typeof sentence !== 'string' || !/^[A-Z][A-Za-z !,]*[.!?]$/.test(sentence)) err(`${p}.story[${i}] must be one plain sentence (letters, spaces, a final . ! or ?)`);
+      const words = String(sentence).toLowerCase().replace(/[.!?,]/g, '').split(/\s+/).filter(Boolean);
       if (words.length > 6) err(`${p}.story[${i}] is longer than 6 words`);
       for (const w of words) if (!sight.includes(w) && ![...w].every((ch) => taught.has(ch))) err(`${p}.story[${i}] "${w}" is not readable by lesson ${k.after}`);
     });
