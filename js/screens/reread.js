@@ -13,7 +13,7 @@ import { sfx } from '../sfx.js';
 // The app never listens or records: the grown-up judges. Only CSS transforms and opacity move; nothing runs while idle.
 const WAGON = [{ body: '#D65A4A', rib: '#B8463A' }, { body: '#E5A73A', rib: '#C58A22' }, { body: '#4FB286', rib: '#3A9470' }, { body: '#5A8FE0', rib: '#4474C0' }];
 const STAR = 'M12 2.4l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 16.6 6.2 19.9l1.4-6.4L2.7 9.1l6.5-.7z';
-const ENGINE_W = 76, WAGON_W = 52;
+const ENGINE_W = 68, WAGON_W = 46;
 
 export function rereadBuild({ checkpoint, speech, refresh, setProgress, setDone }) {
   const story = checkpoint.story;
@@ -28,15 +28,17 @@ export function rereadBuild({ checkpoint, speech, refresh, setProgress, setDone 
     return h('div', { class: 'ra-wagon', style: { width: WAGON_W + 'px' }, dataset: { n: String(i + 1) } }, art);
   });
   const engine = h('div', { class: 'ra-engine', style: { width: ENGINE_W + 'px' } }, engineSvg({ still: true }));
-  const train = h('div', { class: 'ra-train' }, ...wagons, engine);
+  // the first wagon is the one behind the engine, so the wagons are laid out last to first
+  const train = h('div', { class: 'ra-train' }, ...[...wagons].reverse(), engine);
+  const lane = h('div', { class: 'ra-lane' }, train);
   const goal = h('div', { class: 'hunt-goal ra-goal' }, h('span', { class: 'goal-glow', 'aria-hidden': 'true' }), stationSvg({ accent: '#5A8FE0' }));
   const scene = h('div', { class: 'farm ra-scene' }, huntBackdrop());
-  scene.append(goal, train);
+  scene.append(goal, lane);
   const seat = () => engine.querySelector('.pip-seat');
   const setPip = (pose) => { const s = seat(), old = s.firstChild, p = pipSvg({ pose, still: true }); for (const k of ['x', 'y', 'width', 'height']) p.setAttribute(k, old.getAttribute(k)); s.replaceChildren(p); };
 
   // The train stands with only its engine in view; each sentence read brings the next wagon in.
-  const place = () => { train.style.transform = `translate3d(${8 - (n - read) * WAGON_W}px,0,0)`; };
+  const place = () => { train.style.transform = `translate3d(${10 - (n - read) * WAGON_W}px,0,0)`; };
   const light = () => wagons.forEach((w, i) => w.classList.toggle('on', i < read));
 
   // ---- the page: the sentences, big, with one "Read it!" for the grown-up under the current one ----
@@ -45,8 +47,8 @@ export function rereadBuild({ checkpoint, speech, refresh, setProgress, setDone 
     return { text, btn, el: h('li', { class: 'ra-row', dataset: { n: String(i + 1) } }, h('p', { class: 'ra-sentence' }, text), btn) };
   });
   const turn = h('button', { class: 'btn big ra-turn', type: 'button', onclick: () => startReading() }, 'Your child reads', icon('arrowRight', 22));
-  const note = h('p', { class: 'ra-note', 'aria-live': 'polite' });
-  const page = h('section', { class: 'ra-page', 'aria-label': 'The story' }, h('ol', { class: 'ra-list' }, rows.map((r) => r.el)), h('div', { class: 'ra-foot' }, note, turn));
+  const foot = h('div', { class: 'ra-foot' }, turn);
+  const page = h('section', { class: 'ra-page', 'aria-label': 'The story' }, h('ol', { class: 'ra-list' }, rows.map((r) => r.el)), foot);
   const el = h('div', { class: 'game reread', dataset: { phase, read: '0', total: String(n), state: 'playing' } }, scene, page);
 
   function paint() {
@@ -58,8 +60,7 @@ export function rereadBuild({ checkpoint, speech, refresh, setProgress, setDone 
       r.btn.tabIndex = st === 'now' ? 0 : -1;
       r.btn.setAttribute('aria-label', st === 'done' ? `Sentence ${i + 1}, read` : `Read it! Sentence ${i + 1}`);
     });
-    turn.hidden = phase !== 'listen';
-    note.textContent = phase === 'listen' ? 'Your grown-up reads it first.' : phase === 'done' ? 'You read it!' : 'Now you read it.';
+    foot.hidden = phase !== 'listen';
     light(); place();
   }
 

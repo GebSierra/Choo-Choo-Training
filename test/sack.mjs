@@ -120,9 +120,9 @@ export async function renameChecks({ browser, url, ok, CUR }) {
   await m.ctx.close();
 }
 
-// The stops on the line (a book, later the Smooth Ride): locked until the lesson they follow is done, labelled with their title, and opened from Home.
+// The stops on the line (Read It Again, a book, the Review Stops): locked until the lesson they follow is done, labelled with their title, and opened from Home.
 // Each stop kind shows its own screen.
-const SCREEN = { book: '.book-stage', ride: '.ride-game' };
+const SCREEN = { book: '.book-stage', reread: '.reread', review: '.game' };
 const screenOf = (k) => SCREEN[k.kind] || '.sack-game';
 const ROWS = CURR.lessons.flatMap((l) => [{ lesson: l }, ...CURR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
 

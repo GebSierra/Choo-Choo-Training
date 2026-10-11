@@ -3,6 +3,7 @@ import { makeShell } from './shell.js';
 import { BUILDERS } from './task.js';
 import { TASK_TYPES } from '../lessons.js';
 import { TAP_GAMES } from '../games-data.js';
+import { ORDER_SOUNDS, lettersOfSounds } from '../order.js';
 
 // A Review Stop (checkpoint kind "review"): a short run of the lesson games on letters already taught, nothing new
 // (docs/LESSON-REBUILD.md section 10). `ck.plan` lists the activities, each with the lesson whose sound it is about; the task
@@ -25,7 +26,12 @@ export function reviewTaskScreen(ctx, id, idx = 0) {
   const sound = curriculum.sounds[lesson.sound];
   const shell = makeShell({ ctx, title: task.name, color: task.color, steps: ck.plan.length, pos: index, from: lastIndex[ck.id] === undefined ? -1 : lastIndex[ck.id], isLast, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to the path', stepNoun: 'Game', autoAdvance: true, world: ck.world || 'W1',
     tip: TIP, tipKey: 'tip:review', autoOpen: !['hunt', 'signals', 'wagons', 'board'].includes(task.type), seenKeys: [task.type] });
-  const current = BUILDERS[task.type]({ ...ctx, lesson, sound, refresh: shell.refresh, setDone: shell.setDone });
+  // Nothing new: the Letter Hunt balloons and the lamps and wagons the games fill up with (games-data.js otherLetters) only ever carry letters
+  // taught by this stop. A lesson's own list also holds letters that come later.
+  const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, ck.after));
+  const hunt = curriculum.games.hunt;
+  const only = { ...curriculum, games: { ...curriculum.games, hunt: { ...hunt, distractors: Object.fromEntries(Object.entries(hunt.distractors).map(([k, list]) => [k, list.filter((ch) => taught.has(ch))])) } } };
+  const current = BUILDERS[task.type]({ ...ctx, curriculum: only, lesson, sound, refresh: shell.refresh, setDone: shell.setDone });
   const advance = () => {
     lastIndex[ck.id] = index;
     router.go(isLast ? `/checkpoint/${ck.id}/finish` : `/checkpoint/${ck.id}/task/${index + 1}`);

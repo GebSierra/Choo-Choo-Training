@@ -2841,8 +2841,8 @@
           "lesson": 2
         },
         {
-          "task": "signals",
-          "lesson": 3
+          "task": "hunt",
+          "lesson": 1
         },
         {
           "task": "check",
@@ -2871,7 +2871,7 @@
         },
         {
           "task": "check",
-          "lesson": 9
+          "lesson": 8
         }
       ],
       "world": "W2"
@@ -2896,7 +2896,7 @@
         },
         {
           "task": "check",
-          "lesson": 10
+          "lesson": 12
         }
       ],
       "world": "W2"
@@ -2921,7 +2921,7 @@
         },
         {
           "task": "check",
-          "lesson": 15
+          "lesson": 14
         }
       ],
       "world": "W2"
@@ -2946,7 +2946,7 @@
         },
         {
           "task": "check",
-          "lesson": 17
+          "lesson": 16
         }
       ],
       "world": "W2"

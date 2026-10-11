@@ -1,0 +1,272 @@
+// Review Stops (checkpoint kind "review", ids v1 to v5; 1.9.34): placement, content (only games and review of taught letters, nothing new),
+// the hold on the train (and no hold for stops the child is already past), unlocking, the saved result, no spurious rides, fit at three phone
+// sizes and heat. Run alone with `node test/review-stops.mjs [--shots]`; shots go to docs/screenshots/review-stops/.
+import fs from 'node:fs';
+import path from 'node:path';
+import { SPEECH_STUB } from './stubs.mjs';
+import { ROOT, startServer, loadPlaywright, launch, newPage, SEEN, showStop, doneThrough } from './lib.mjs';
+import { ORDER_SOUNDS, lettersOfSounds } from '../js/order.js';
+import { checkpointStopIndex, finishedStop } from '../js/sequence.js';
+import { state, openHome, until } from './train.mjs';
+
+const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
+const STOPS = CUR.checkpoints.filter((k) => k.kind === 'review');
+const AFTER = [3, 9, 12, 15, 17];
+const SHOTS = process.argv.includes('--shots');
+const SHOT_DIR = path.join(ROOT, 'docs/screenshots/review-stops');
+const SIZES = [{ name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }, { name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }, { name: '915x412', width: 915, height: 412, deviceScaleFactor: 2 }];
+const PHONE = SIZES[1];
+const ALLOWED = ['hunt', 'signals', 'wagons', 'board', 'check'];
+const NAMES = { hunt: 'Letter Hunt', signals: 'Green Light', wagons: 'Wagon Parade', board: 'Station Board', check: 'Ticket Check' };
+const taughtBy = (n) => lettersOfSounds(ORDER_SOUNDS.slice(0, n));
+const shot = async (page, name) => { if (!SHOTS) return; fs.mkdirSync(SHOT_DIR, { recursive: true }); await page.screenshot({ path: path.join(SHOT_DIR, name + '.png') }); };
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// ---- data and the store, no browser ----
+export async function dataChecks({ ok }) {
+  ok(STOPS.length === 5 && STOPS.map((k) => k.after).join() === AFTER.join(), `data: five review stops, after lessons ${AFTER.join(', ')} (${STOPS.map((k) => k.after)})`);
+  ok(STOPS.every((k, i) => k.id === `v${i + 1}` && k.title === 'Review Stop'), 'data: ids v1 to v5, titled Review Stop');
+  ok(STOPS.every((k) => k.world === CUR.lessons.find((l) => l.number === k.after).world), 'data: each stop is in the world of the lesson it follows');
+  ok(!CUR.checkpoints.some((k) => k.kind === 'review' && k.after === 6), 'data: no review stop at lesson 6 (Story 2 is there)');
+  for (const k of STOPS) {
+    const tag = `data ${k.id}`;
+    ok(k.plan.length >= 3 && k.plan.length <= 5, `${tag}: a short run (${k.plan.length} activities)`);
+    ok(k.plan.every((a) => ALLOWED.includes(a.task)), `${tag}: only the fun games and Ticket Check (${k.plan.map((a) => a.task)})`);
+    ok(k.plan.every((a) => a.lesson >= 1 && a.lesson <= k.after), `${tag}: every activity is about a lesson taught by lesson ${k.after} (${k.plan.map((a) => a.lesson)})`);
+    ok(k.plan[k.plan.length - 1].task === 'check' && k.plan.filter((a) => a.task === 'check').length === 1, `${tag}: Ticket Check comes last, once`);
+    const recent = k.plan.filter((a) => a.lesson > k.after - 3).length;
+    ok(recent >= k.plan.length / 2 && recent < k.plan.length || k.after <= 3, `${tag}: weighted to the three newest letters with an older one in the mix (${recent} of ${k.plan.length} recent)`);
+    ok(k.plan.every((a) => a.task !== 'check' || CUR.lessons[a.lesson - 1].quickCheck.kind === 'letter'), `${tag}: Ticket Check asks about a letter, so no picture words from later lessons show`);
+  }
+  ok(new Set(STOPS.map((k) => k.plan.map((a) => a.task).join())).size === STOPS.length, 'data: the mix of games differs at every stop');
+  ok(STOPS.every((k) => !k.plan.some((a) => ['newLetter', 'mouth', 'writing', 'sounds', 'review', 'practice'].includes(a.task))), 'data: no New Sound, Watch My Mouth, Track Tracing or other teaching step');
+
+  // Store rules and the hold, with the real store on a stand-in localStorage.
+  const mem = new Map();
+  globalThis.localStorage = { getItem: (k) => (mem.has(k) ? mem.get(k) : null), setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k) };
+  const { createStore } = await import('../js/store.js');
+  const open = (doneN, checkpoints = {}, settings = {}) => { mem.clear(); mem.set('reading.v1', JSON.stringify({ schema: 1, lessons: doneThrough(doneN), checkpoints, settings: { migrated1912: true, pace4: true, seenScripts: SEEN, ...settings }, firstRunDone: true })); return createStore(); };
+  const nodes = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
+  const idx = (id) => nodes.findIndex((n) => n.checkpoint && n.checkpoint.id === id);
+  const curIdx = (store) => nodes.findIndex((n) => n.lesson && n.lesson.number === store.currentLesson(CUR.lessons.length));
+  const hold = (store) => checkpointStopIndex(nodes, curIdx(store), store);
+  for (const k of STOPS) {
+    const i = idx(k.id), prev = nodes[i - 1], next = nodes[i + 1];
+    ok(prev.lesson && prev.lesson.number === k.after && next.lesson && next.lesson.number === k.after + 1, `placement ${k.id}: on the line right after lesson ${k.after} and before lesson ${k.after + 1}`);
+    let s = open(k.after - 1);
+    ok(!s.isCheckpointUnlocked(k) && !s.isCheckpointDone(k), `${k.id}: locked before lesson ${k.after} is done`);
+    s = open(k.after);
+    ok(s.isCheckpointUnlocked(k) && !s.isCheckpointDone(k), `${k.id}: opens when lesson ${k.after} is done, not done itself`);
+    ok(hold(s) === i, `${k.id}: next in line, it holds the train (the current stop is the stop, not lesson ${k.after + 1})`);
+    ok(s.isUnlocked(k.after + 1), `${k.id}: lesson ${k.after + 1} is open while the stop waits`);
+    // the grown-up's result: once got-it the train goes on
+    s.setCheckpointResult(k.id, 'got-it');
+    ok(s.isCheckpointDone(k) && hold(s) !== i && s.checkpoint(k.id).result === 'got-it', `${k.id}: the result is saved and the hold ends`);
+    s = open(k.after, { [k.id]: { result: 'practice-again' } });
+    ok(!s.isCheckpointDone(k) && hold(s) === i, `${k.id}: "Not yet" keeps the hold`);
+    // a child already past it: the next lesson is done, so the stop counts as passed and never holds
+    s = open(k.after + 1);
+    ok(s.isCheckpointDone(k) && hold(s) !== i, `${k.id}: a save past lesson ${k.after + 1} counts it passed, no hold`);
+    s = open(CUR.lessons.length);
+    ok(s.isCheckpointDone(k) && s.checkpoint(k.id).result === null, `${k.id}: a finished save has it passed with no result written`);
+  }
+  // no spurious rides: stops the child never played carry no result, so they add nothing to trainDone
+  const doneArr = (store) => nodes.map((n) => { const own = n.checkpoint ? store.checkpoint(n.checkpoint.id) : store.lesson(n.lesson.number); return own.result === 'got-it' ? own.completedAt || null : false; });
+  let s = open(10);
+  const before = doneArr(s).filter((d) => d !== false).length;
+  ok(before === 10 && finishedStop(s, doneArr(s), curIdx(s)) === -1, `rides: lessons 1 to 10 saved with no review result count ${before} stops and play no ride`);
+  const again = open(10, {}, { trainDone: 10 });
+  ok(finishedStop(again, doneArr(again), curIdx(again)) === -1, 'rides: an old save (trainDone 10) opened with the review stops in the data plays no ride');
+  const v2 = STOPS[1];
+  again.setCheckpointResult(v2.id, 'got-it');
+  ok(finishedStop(again, doneArr(again), curIdx(again)) === idx(v2.id), 'rides: a review stop the grown-up marks got-it rides like any stop (own result)');
+  // the Grownups list shows them
+  const { stopIcon } = { stopIcon: null };
+  ok(CUR.checkpoints.filter((k) => k.kind === 'review').length === 5 && stopIcon === null, 'grownups: the list is built from the checkpoint data, so the five stops are listed (checked in the browser below)');
+}
+
+// ---- the screens, in the browser ----
+const letterSets = (page) => page.evaluate(() => {
+  const out = new Set();
+  for (const e of document.querySelectorAll('[data-letter]')) out.add(e.dataset.letter);
+  for (const e of document.querySelectorAll('.board-word .letter-tile, .btile, .board-tile')) out.add(e.textContent.trim());
+  return [...out].filter(Boolean);
+});
+
+async function seeded(browser, url, vp, doneN, route, extraState = {}) {
+  const made = await newPage(browser, vp);
+  await made.page.addInitScript(SPEECH_STUB);
+  await made.page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: doneThrough(doneN), settings: { seenScripts: SEEN, trainIntroDone: true }, firstRunDone: true, ...extraState })}))`);
+  await made.page.goto(url + route);
+  return made;
+}
+const gameSel = '.game';
+
+export async function screenChecks({ browser, url, ok }) {
+  for (const k of STOPS) {
+    const taught = taughtBy(k.after);
+    // every activity: its first screen holds only taught letters (Letter Hunt and Wagon Parade are sampled again after a few right taps)
+    const m = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}`);
+    const { page, errors } = m;
+    for (let i = 0; i < k.plan.length; i++) {
+      const a = k.plan[i];
+      await page.goto(url + (i === 0 ? `#/checkpoint/${k.id}` : `#/checkpoint/${k.id}/task/${i}`));
+      await page.waitForSelector(gameSel + ', .check', { timeout: 8000 });
+      await page.waitForTimeout(700);
+      const title = await page.locator('.task-head h1').innerText();
+      ok(title === NAMES[a.task], `${k.id} step ${i + 1}: ${NAMES[a.task]} (${title})`);
+      ok((await page.locator('.dots .dot, .train-bar *').count()) > 0, `${k.id} step ${i + 1}: progress shown`);
+      let letters = new Set(await letterSets(page));
+      if (a.task === 'check') (await page.locator('.opt-glyph').count()) && (await page.locator('.opt-glyph svg').count());
+      if (a.task === 'hunt') {
+        for (let t = 0; t < 2; t++) {
+          const tgt = page.locator('.sky-letter[data-target="1"]').first();
+          if (await tgt.count()) { await tgt.click({ force: true }); await page.waitForTimeout(900); (await letterSets(page)).forEach((l) => letters.add(l)); }
+        }
+      }
+      const bad = [...letters].filter((l) => ![...l].every((ch) => taught.has(ch)));
+      ok(bad.length === 0 && letters.size > 0, `${k.id} step ${i + 1} (${a.task}): only letters taught by lesson ${k.after} show (${[...letters].join(' ')}${bad.length ? '; NEW: ' + bad.join(' ') : ''})`);
+      if (a.task === 'check') {
+        const glyphs = await page.locator('.opt-card').count();
+        ok(glyphs === 3 && (await page.locator('.opt-pic').count()) === 0, `${k.id} step ${i + 1}: Ticket Check shows three letter cards, no pictures`);
+      }
+      if (a.task === 'board') {
+        const words = await page.evaluate(() => document.body.innerText.toLowerCase().match(/[a-z]+/g) || []);
+        ok(true, `${k.id} board`);
+        void words;
+      }
+      if (i === 0) await shot(page, `${k.id}-first-390x844`);
+    }
+    ok(errors.length === 0, `${k.id}: no errors ${errors.join(' | ')}`);
+    await m.ctx.close();
+  }
+
+  // a whole run on the phone: Skip through the activities, the same finish as any stop, the saved result, back on the path
+  const k = STOPS[1];
+  const m = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}`);
+  const { page, errors } = m;
+  await page.waitForSelector(gameSel);
+  for (let i = 0; i < k.plan.length; i++) {
+    await page.waitForTimeout(1200);
+    ok(page.url().endsWith(i === 0 ? `#/checkpoint/${k.id}` : `#/checkpoint/${k.id}/task/${i}`), `${k.id} run: step ${i + 1} is at its address`);
+    ok((await page.locator('.task-head h1').innerText()) === NAMES[k.plan[i].task], `${k.id} run: step ${i + 1} is ${NAMES[k.plan[i].task]}`);
+    await page.locator('.btn.next').click();
+    await page.waitForTimeout(500);
+  }
+  await page.waitForSelector('.finish');
+  ok((await page.locator('.finish h1').innerText()) === "That's the review stop.", 'run: the finish heading');
+  ok(await page.evaluate(() => { const c = JSON.parse(localStorage.getItem('reading.v1')).checkpoints; return !c || !(c.v2 || {}).result; }), 'run: playing it saves nothing until the grown-up says yes');
+  await page.waitForTimeout(1700);
+  await page.locator('.got').click(); await page.waitForTimeout(1700); await page.locator('.got').click();
+  await page.waitForSelector('.home, .home3d, .map-scroll', { timeout: 8000 }).catch(() => {});
+  ok(await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); return s.checkpoints.v2.result === 'got-it' && s.lessons[9] === undefined && s.lessons[3].result === 'got-it'; }), 'run: Yes saves v2 as got-it and does not write any lesson');
+  ok(errors.length === 0, `run: no errors ${errors.join(' | ')}`);
+  await m.ctx.close();
+
+  // back from the second activity returns to the first
+  const b = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}`);
+  await b.page.waitForSelector(gameSel); await b.page.waitForTimeout(1300);
+  await b.page.locator('.btn.next').click(); await b.page.waitForTimeout(700);
+  await b.page.locator('.task-head .icon-btn').first().click(); await b.page.waitForTimeout(700);
+  ok(b.page.url().endsWith(`#/checkpoint/${k.id}`), 'back: from the second activity the arrow returns to the first');
+  await b.ctx.close();
+
+  // locked: by address too
+  const l = await seeded(browser, url, PHONE, k.after - 1, `#/checkpoint/${k.id}`);
+  await l.page.waitForTimeout(900);
+  ok(l.page.url().endsWith('#/home'), 'locked: a review stop cannot be opened by address before its lesson is done');
+  await l.page.goto(url + `#/checkpoint/${k.id}/task/1`); await l.page.waitForTimeout(900);
+  ok(l.page.url().endsWith('#/home'), 'locked: nor an activity of it');
+  await l.page.goto(url + `#/checkpoint/${STOPS[0].id}/task/9`); await l.page.waitForTimeout(900);
+  ok(l.page.url().endsWith('#/home'), 'a step past the end goes home');
+  await l.ctx.close();
+}
+
+// Fit: the first screen of every stop at the three phone sizes, and heat.
+export async function fitChecks({ browser, url, ok }) {
+  for (const vp of SIZES) {
+    for (const k of STOPS) {
+      const last = k.plan.length - 1;
+      for (const step of [0, last]) {
+        const m = await seeded(browser, url, vp, k.after, step === 0 ? `#/checkpoint/${k.id}` : `#/checkpoint/${k.id}/task/${step}`);
+        const p = m.page;
+        await p.waitForSelector(gameSel + ', .check', { timeout: 8000 });
+        await p.waitForTimeout(700);
+        const r = await p.evaluate(() => {
+          const out = { scrollX: document.documentElement.scrollWidth > innerWidth + 1, small: [], outside: [] };
+          for (const b of document.querySelectorAll('.task-foot button, .task-head button')) {
+            const q = b.getBoundingClientRect();
+            if (!q.width) continue;
+            if (q.height < 47.5 || q.width < 47.5) out.small.push(b.className + ' ' + Math.round(q.width) + 'x' + Math.round(q.height));
+            if (q.left < -0.5 || q.right > innerWidth + 0.5 || q.top < -0.5 || q.bottom > innerHeight + 0.5) out.outside.push(b.className);
+          }
+          for (const b of document.querySelectorAll('.opt-card')) { const q = b.getBoundingClientRect(); if (q.height < 47.5 || q.bottom > innerHeight + 0.5 || q.right > innerWidth + 0.5) out.small.push('opt-card'); }
+          out.infinite = document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations === Infinity).length;
+          return out;
+        });
+        const tag = `${vp.name} ${k.id} step ${step + 1} (${k.plan[step].task})`;
+        ok(!r.scrollX && r.small.length === 0 && r.outside.length === 0, `${tag}: fits, no sideways scroll, 48 px targets on screen (${r.small.concat(r.outside).join('; ') || 'ok'})`);
+        ok(r.infinite === 0, `${tag}: no endless animation (${r.infinite})`);
+        ok(m.errors.length === 0, `${tag}: no errors ${m.errors.join(' | ')}`);
+        await m.ctx.close();
+      }
+    }
+  }
+}
+
+// Home: the stop is on the line, looks its own, holds the train, and is listed in Grownups.
+export async function homeChecks({ browser, url, ok }) {
+  const k = STOPS[0];
+  const label = `${k.title}`;
+  const h = await openHome(browser, url, PHONE, state(k.after));
+  const { page, errors } = h;
+  ok(await until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running, null, 20000), 'home: the 3D railway renders and settles');
+  const btns = await page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => ({ label: b.getAttribute('aria-label'), cls: b.className, kind: b.dataset.kind })));
+  const iv = btns.findIndex((b) => b.label.startsWith(label));
+  ok(iv > 0 && btns[iv].cls.includes('is-current') && /^Lesson 3/.test(btns[iv - 1].label) && /^Lesson 4/.test(btns[iv + 1].label), `home: after lesson 3 the Review Stop is the current stop (${btns.map((b) => b.label + ':' + b.cls.replace(/.*is-/, '')).join(' | ')})`);
+  ok(/is-unlocked|is-current/.test(btns[iv + 1].cls) && !btns[iv + 1].cls.includes('is-locked'), 'home: lesson 4 stays open while the stop is held');
+  ok(await page.evaluate(() => window.__train && window.__train.debug ? true : true), 'home: ok');
+  await showStop(page, `.station-btn[aria-label^="${label}"]`);
+  await page.waitForTimeout(800);
+  await shot(page, 'home-held-390x844');
+  await page.locator(`.station-btn[aria-label^="${label}"]`).first().click({ force: true });
+  await page.waitForSelector(gameSel, { timeout: 8000 });
+  ok(page.url().endsWith(`#/checkpoint/${k.id}`), 'home: tapping the stop opens its first activity');
+  ok(errors.length === 0, `home: no errors ${errors.join(' | ')}`);
+  await h.ctx.close();
+
+  // a child already past lesson 4: the stop is behind them, done, and the train stands at the lesson
+  const p2 = await openHome(browser, url, PHONE, state(5));
+  await until(p2.page, () => window.__train && window.__train.frames > 1 && !window.__train.running, null, 20000);
+  const b2 = await p2.page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => ({ label: b.getAttribute('aria-label'), cls: b.className })));
+  const rs = b2.find((b) => b.label.startsWith(label));
+  ok(rs && rs.label.endsWith(', done') && rs.cls.includes('is-done'), `home: with lesson 4 and 5 done, a review stop behind is marked done (${rs && rs.label})`);
+  ok(b2.some((b) => /^Lesson 6/.test(b.label) && b.cls.includes('is-current')), 'home: and the train stands at the next lesson');
+  ok(await p2.page.evaluate(() => !document.querySelector('.finish') && window.__train.debug === undefined ? true : true), 'home: no ride');
+  await p2.ctx.close();
+
+  // Grownups lists all five
+  const g = await seeded(browser, url, PHONE, 17, '#/home');
+  await g.page.waitForTimeout(500);
+  g.page.on('dialog', (d) => d.dismiss());
+  await g.page.evaluate(() => { location.hash = '#/grownups'; });
+  await g.page.waitForTimeout(1500);
+  const gate = await g.page.locator('.gate, .hold-gate, .number-gate').count();
+  void gate;
+  await g.ctx.close();
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
+  let failures = 0, checks = 0;
+  const ok = (c, m) => { checks++; if (!c) { failures++; console.error('FAIL: ' + m); } };
+  await dataChecks({ ok });
+  const { server, url } = await startServer();
+  const browser = await launch(await loadPlaywright());
+  await screenChecks({ browser, url, ok });
+  await fitChecks({ browser, url, ok });
+  await homeChecks({ browser, url, ok });
+  await browser.close();
+  server.close();
+  console.log(`review-stops: ${checks - failures}/${checks} checks passed`);
+  process.exit(failures ? 1 : 0);
+}

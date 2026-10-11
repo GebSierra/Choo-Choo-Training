@@ -32,7 +32,7 @@ ok(CUR.lessons.slice(6).every((L) => L.world === 'W2') && lessonsIn(CUR, 'W2').l
 const UNIT_OF = { f: '2.4', o: '2.4', n: '2.5', d: '2.5', c: '2.6', h: '2.6', u: '2.7', g: '2.7', l: '2.7', r: '2.8', b: '2.8' };
 ok(CUR.lessons.slice(6).every((L) => L.unit === UNIT_OF[L.sound]), 'units: 2.4 f o, 2.5 n d, 2.6 c(k) h, 2.7 u g l, 2.8 r b');
 ok(Object.keys(CUR.sounds).join('') === SOUNDS.join('') && !CUR.sounds.k, 'one sound per lesson: c/k is one sound with the key c (there is no sound k)');
-ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6', 'the World 1 stops r1, b1, b2 are unchanged');
+ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,v1:3,v2:9,v3:12,v4:15,v5:17', 'the World 1 stops r1, b1, b2 keep their ids and places, and the five Review Stops v1 to v5 follow lessons 3, 9, 12, 15 and 17');
 ok(CUR.levels[0].after === 6 && CUR.levels[1].after === 17, 'level one comes after lesson 6, level two after lesson 17 (the end of World 2)');
 const fakeStore = (n) => ({ isDone: (k) => k <= n, lesson: () => ({}), currentLesson: (t) => (n >= t ? null : n + 1), worlds: () => ({ seen: null }) });
 ok(earnedLevels(CUR, fakeStore(16)).length === 1 && earnedLevels(CUR, fakeStore(17)).length === 2, 'levels: level two is earned by lesson 17, not before');

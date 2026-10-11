@@ -205,7 +205,7 @@ export async function tapChecks({ browser, url, ok }) {
 // The index of a lesson's stop on the line (the line has no Sound Station stops since 1.7.0).
 // (1.9.14: the index within the lesson's own world, which is the line the Home builds for it.)
 export const iL = (n) => { const w = CUR.lessons.find((l) => l.number === n).world; return NODES.filter((x) => worldOfNode(x) === w).findIndex((x) => x.lesson && x.lesson.number === n); };
-// The stop the train holds at after lesson 4: the Smooth Ride that comes next in line (a Story or Smooth Ride is never ridden past; 1.9.31).
+// The stop the train holds at after lesson 4: the Read It Again that comes next in line (a Story, Read It Again or Review Stop is never ridden past; 1.9.31).
 export const iN = iL(4) + 1;
 export async function arrivalChecks({ browser, url, ok, shot }) {
   const vp = VIEWPORTS[0];
@@ -399,14 +399,14 @@ export async function autoReturnChecks({ browser, url, ok, shot }) {
     await ctx.close();
   }
   {
-    // lesson 4 finished: the Smooth Ride is next, so the ride ends THERE (the current stop), not at lesson 5
+    // lesson 4 finished: Read It Again is next, so the ride ends THERE (the current stop), not at lesson 5
     const PHASES = () => { window.__phases = []; setInterval(() => { const p = window.__train && window.__train.kid.phase; if (p !== undefined && window.__phases[window.__phases.length - 1] !== p) window.__phases.push(p); }, 16); };
     const { ctx, page, errors } = await openHome(browser, url, vp, justDone({ trainAt: iL(4) }), { init: [PHASES] });
     await until(page, () => window.__train && window.__train.frames > 0);
     await page.mouse.click(3, 300);
     const a = await train(page);
     const ck = NODES[iL(4) + 1].checkpoint;
-    ok(ck && (ck.kind === 'ride' || ck.kind === 'book'), `checkpoint stop: the stop after lesson 4 is a Story or Smooth Ride (${ck && ck.id})`);
+    ok(ck && (ck.kind === 'reread' || ck.kind === 'book'), `checkpoint stop: the stop after lesson 4 is a Story or Read It Again (${ck && ck.id})`);
     ok(a.arriving && a.fromIndex === iL(4) && a.currentIndex === iN, `checkpoint stop: the ride runs from lesson 4 to the ${ck.id} station (${a.fromIndex} to ${a.currentIndex})`);
     ok(await until(page, () => window.__phases.includes('off') && !window.__train.running, null, 20000), 'checkpoint stop: the figure hops off there');
     const b = await train(page);

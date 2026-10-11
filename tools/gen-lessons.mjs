@@ -175,18 +175,21 @@ for (const L of c.lessons) { const b = boardWords(c.lessons.map((x) => x.sound),
 // in most stops, a different mix at every stop, and Ticket Check last. Picked by hand, then checked here and in test/check-content.mjs.
 const REVIEW_AFTER = [3, 9, 12, 15, 17];
 const REVIEW_PLANS = {
-  3: [['hunt', 3], ['wagons', 2], ['signals', 3], ['check', 2]],
-  9: [['hunt', 8], ['signals', 9], ['wagons', 6], ['check', 9]],
-  12: [['board', 12], ['wagons', 11], ['hunt', 7], ['check', 10]],
-  15: [['wagons', 15], ['hunt', 13], ['board', 14], ['check', 15]],
-  17: [['board', 17], ['hunt', 16], ['signals', 11], ['check', 17]],
+  3: [['hunt', 3], ['wagons', 2], ['hunt', 1], ['check', 2]], // three sounds only: Green Light needs a fourth letter for its lamps
+  9: [['hunt', 8], ['signals', 9], ['wagons', 6], ['check', 8]],
+  12: [['board', 12], ['wagons', 11], ['hunt', 7], ['check', 12]],
+  15: [['wagons', 15], ['hunt', 13], ['board', 14], ['check', 14]],
+  17: [['board', 17], ['hunt', 16], ['signals', 11], ['check', 16]],
 };
+// Ticket Check is always a letter question (lessons 2, 4, 6 ...): its wrong cards are letters taught by then, where a picture question
+// shows pictures (and their words) that begin with letters not taught yet.
 REVIEW_AFTER.forEach((after, i) => {
   if (after > c.lessons.length) return;
   const plan = REVIEW_PLANS[after].map(([task, lesson]) => {
     const L = c.lessons[lesson - 1];
     if (lesson > after || !L) throw new Error(`review stop after ${after}: lesson ${lesson} is not taught yet`);
     if (task === 'signals' && lesson < 2) throw new Error('Green Light needs two sounds');
+    if (task === 'check' && L.quickCheck.kind !== 'letter') throw new Error(`review stop after ${after}: lesson ${lesson}'s Ticket Check is a picture question`);
     if (task === 'board' && !L.board) throw new Error(`review stop after ${after}: lesson ${lesson} has no Station Board words`);
     return { task, lesson };
   });

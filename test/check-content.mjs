@@ -6,7 +6,7 @@ import { scriptToParts, slowSounds, firstSoundOut } from '../js/scripts.js';
 import { GLYPHS } from '../js/glyphs.js';
 import { ACCENT } from '../js/theme.js';
 import { ORDER, ORDER_SOUNDS, soundOfLetter, spellingsOf, lettersOfSounds } from '../js/order.js';
-import { sackPool, roundCaps, practiceRounds, rideWords } from '../js/lessons.js';
+import { sackPool, roundCaps, practiceRounds } from '../js/lessons.js';
 
 export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee', 'aitch', 'eye', 'jay', 'kay', 'el', 'em', 'en', 'oh', 'pee', 'cue', 'ar', 'ess', 'tee', 'you', 'vee', 'double', 'ex', 'wye', 'zee'];
 // Words where s says z, which a child must not learn as an s word.
@@ -289,23 +289,42 @@ export function checkCurriculum(c, root = ROOT) {
     if (!pages.length || (pages[pages.length - 1].kind || 'page') !== 'review') err(`${p}: the last page must be a review`);
   };
 
-  // A ride stop (Smooth Ride): its words are spelt with taught sounds only, held except the last, and none says z; the timings sit in sensible ranges.
-  const rideChecks = (k, p) => {
+  // Read It Again (kind "reread"): 2 to 4 short sentences, every word spelt with sounds taught by `after` or one of the heart words Story 1 uses.
+  const rereadChecks = (k, p) => {
     if (!k.title) err(`${p}.title missing`);
     if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
-    if (!Number.isInteger(k.rounds) || k.rounds < 1) err(`${p}.rounds must be a positive integer`);
-    const chosen = rideWords(c, k);
-    if (chosen.length !== k.rounds) err(`${p}: ${chosen.length} usable words for ${k.rounds} rounds (rideWords)`);
-    const taught = (c.lessons || []).slice(0, k.after).map((L) => L.sound);
-    for (const w of chosen) {
-      if (![...w].every((ch) => lettersOfSounds(taught).has(ch))) err(`${p}: "${w}" uses a sound not taught by lesson ${k.after}`);
-      if (![...w].slice(0, -1).every((ch) => sounds[soundOfLetter(ch)] && sounds[soundOfLetter(ch)].hold === true)) err(`${p}: "${w}" has a clipped sound before its last letter`);
-      if (S_SAYS_Z.includes(w)) err(`${p}: "${w}" is an s-says-z word`);
-    }
-    if (!(k.offHoldMs >= 20 && k.offHoldMs <= 80)) err(`${p}.offHoldMs must be between 20 and 80`);
-    if (!(k.gapMs >= 60 && k.gapMs <= 200)) err(`${p}.gapMs must be between 60 and 200`);
-    for (const f of ['onHoldMs', 'minRunMs', 'endMs']) if (!(k[f] > 0)) err(`${p}.${f} must be a positive number`);
-    if (!c.games || !c.games.ride || !c.games.ride.say) err('games.ride.say missing');
+    if (!Array.isArray(k.story) || k.story.length < 2 || k.story.length > 4) return err(`${p}.story must have 2 to 4 sentences`);
+    const taught = lettersOfSounds((c.lessons || []).slice(0, k.after).map((L) => L.sound));
+    const sight = (k.sight || []).map((w) => String(w).toLowerCase());
+    for (const w of sight) if (!['is', 'i', 'it'].includes(w)) err(`${p}.sight "${w}" is not one of the heart words the app already teaches (is, I, It)`);
+    k.story.forEach((sentence, i) => {
+      if (typeof sentence !== 'string' || !/^[A-Z][A-Za-z ]*[.!?]$/.test(sentence)) err(`${p}.story[${i}] must be one plain sentence (letters, spaces, a final . ! or ?)`);
+      const words = String(sentence).toLowerCase().replace(/[.!?]/g, '').split(/\s+/).filter(Boolean);
+      if (words.length > 6) err(`${p}.story[${i}] is longer than 6 words`);
+      for (const w of words) if (!sight.includes(w) && ![...w].every((ch) => taught.has(ch))) err(`${p}.story[${i}] "${w}" is not readable by lesson ${k.after}`);
+    });
+    for (const f of ['words', 'rounds', 'offHoldMs', 'onHoldMs', 'gapMs', 'minRunMs', 'endMs']) if (f in k) err(`${p}.${f} belongs to the old Smooth Ride`);
+    if (c.games && c.games.ride) err('games.ride is the old Smooth Ride text');
+  };
+
+  // Review Stop (kind "review"): a short run of lesson games on letters already taught, Ticket Check last, nothing past `after`.
+  const reviewChecks = (k, p) => {
+    if (!k.title) err(`${p}.title missing`);
+    if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
+    if (!Array.isArray(k.plan) || k.plan.length < 3 || k.plan.length > 5) return err(`${p}.plan must list 3 to 5 activities`);
+    k.plan.forEach((a, i) => {
+      const q = `${p}.plan[${i}]`;
+      if (!['hunt', 'signals', 'wagons', 'board', 'check'].includes(a.task)) err(`${q}.task "${a.task}" is not one of the fun games or Ticket Check`);
+      const L = (c.lessons || []).find((x) => x.number === a.lesson);
+      if (!L || a.lesson > k.after) return err(`${q}.lesson ${a.lesson} is not taught by lesson ${k.after}`);
+      if (a.task === 'signals' && a.lesson < 2) err(`${q}: Green Light needs two sounds`);
+      if (a.task === 'board' && !(L.board && L.board.length)) err(`${q}: lesson ${a.lesson} has no Station Board words`);
+      if (a.task === 'check' && !L.quickCheck) err(`${q}: lesson ${a.lesson} has no Ticket Check`);
+    });
+    if (k.plan[k.plan.length - 1].task !== 'check') err(`${p}: Ticket Check must come last`);
+    if (k.plan.slice(0, -1).some((a) => a.task === 'check')) err(`${p}: Ticket Check only comes last`);
+    const recent = k.plan.filter((a) => a.lesson > k.after - 3).length;
+    if (recent < Math.ceil(k.plan.length / 2)) err(`${p}: at least half the activities must be about the three newest sounds (${recent} of ${k.plan.length})`);
   };
 
   // Levels: milestones that earn a special car and a gold star (js/levels.js). `after` is the first lesson by which every needed sound is taught.
@@ -387,7 +406,9 @@ export function checkCurriculum(c, root = ROOT) {
     if (!/^[\w-]+$/.test(k.id || '')) err(`${p}.id "${k.id}" must match the route pattern [\\w-]+`);
     ids.add(k.id);
     if (k.kind === 'book') return bookChecks(k, p);
-    if (k.kind === 'ride') return rideChecks(k, p);
+    if (k.kind === 'reread') return rereadChecks(k, p);
+    if (k.kind === 'review') return reviewChecks(k, p);
+    if (k.kind === 'ride') return err(`${p}: kind ride is gone (Smooth Ride became Read It Again)`);
     if (k.kind) return;
     if (!k.title) err(`${p}.title missing`);
     if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
@@ -505,7 +526,10 @@ export function childReadProof(c, root = ROOT) {
         for (const text of pg.words || []) for (const w of clean(text)) items.push({ where: `${k.id} page ${n + 1}.words`, word: w, after: k.after });
         for (const f of ['read', 'after']) if (typeof pg[f] === 'string' && /\{name\}/.test(pg[f]) && /\b(he|she|him|his|her|hers)\b/i.test(pg[f])) errors.push(`proof: ${k.id} page ${n + 1}.${f}: use the name, not he or she`);
       });
-    } else if (k.kind === 'ride') for (const w of rideWords(c, k)) items.push({ where: `${k.id} ride`, word: w, after: k.after });
+    } else if (k.kind === 'reread') {
+      for (const w of (k.sight || [])) if (!SIGHT.includes(String(w).toLowerCase())) errors.push(`proof: ${k.id} sight word "${w}" is not one of is, I, It`);
+      k.story.forEach((sentence, n) => { for (const w of clean(sentence)) items.push({ where: `${k.id} story ${n + 1}`, word: w, after: k.after }); });
+    }
   }
   for (const { where, word, after } of items) {
     const w = word.toLowerCase();
