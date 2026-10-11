@@ -2125,10 +2125,11 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .visit-card .wg-panel { width: min(360px, 100%); grid-template-columns: none; }
 /* Grownups > Worlds */
 .gu-wlist { display: grid; gap: 10px; }
-.gu-wrow { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 18px; background: #fff; box-shadow: inset 0 0 0 2px #ECEEF8; }
+.gu-wrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 12px; border-radius: 18px; background: #fff; box-shadow: inset 0 0 0 2px #ECEEF8; }
 .gu-wrow.is-current { box-shadow: inset 0 0 0 3px var(--wc, var(--violet)); }
 .gu-wrow .gu-world-dot { flex: none; }
-.gu-wrow .gu-row-text { flex: 1 1 90px; min-width: 0; }
+.gu-wrow .gu-row-text { flex: 1 1 140px; min-width: 0; }
+.gu-wrow .world-go { margin-left: auto; }
 .gu-wrow .btn { padding-inline: 14px; font-size: 15px; }
 .gu-wrow .btn { flex: none; min-height: 48px; }
 .gu-wtag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--violet); color: #fff; font-size: 12px; font-weight: 800; vertical-align: 2px; }
