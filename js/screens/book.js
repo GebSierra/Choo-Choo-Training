@@ -118,6 +118,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
       parts.pip = h('span', { class: 'book-part book-pip' }, pipSvg({ pose: a.pip, still: false }));
     }
     if (a.friend) parts.friend = h('span', { class: 'book-part book-friend' }, kidSvg({ ...store.character(), pose: page.tap && page.tap.on === 'friend' ? 'idle' : 'wave', still: false, label: store.character().name || FRIEND }));
+    else if (a.kid) parts.friend = h('span', { class: 'book-part book-friend' }, kidSvg({ ...a.kid, pose: 'wave', still: false })); // a story character drawn like the child's figure (Sam)
     if (a.emoji) parts.emoji = h('span', { class: 'book-part book-emojis', role: 'img', 'aria-hidden': 'true' }, a.emoji.map((e) => h('span', { class: 'book-emoji' }, e)));
     const order = ['pip', 'train', 'friend', 'emoji'].filter((k) => parts[k]);
     for (const k of order) {

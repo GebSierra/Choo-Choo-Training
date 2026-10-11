@@ -132,7 +132,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   no way back to world 1. Tapping the tunnel/mountain at the start of a world goes back to the world before it (its
   finished stations can be replayed), with the tunnel there leading forward again; Grownups also lists the finished
   worlds with a "Go to this world" button. Progress never changes by visiting.
-- [ ] **5. Storybook as real pages (owner, 2026-10-08):** the owner expected the storybook to look like an immersive
+- [x] **5. (LIVE in 1.9.32) Storybook as real pages (owner, 2026-10-08):** the owner expected the storybook to look like an immersive
   real book page; check the current book screen against that and make it feel like a picture book page.
 - [ ] **6. DECIDED (owner, 2026-10-10): option 1, Smooth Ride becomes "Read It Again"**, a repeated-reading station: the grown-up
   reads a tiny decodable story (2–4 short sentences, taught letters only) once, the child reads it back, and the train pulls

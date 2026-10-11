@@ -20,8 +20,8 @@ const ring = (n, a0, a1, rad, cx = 60, cy = 58) => Array.from({ length: n }, (_,
 
 // The hats (front layer): short hair in the hair colour shows around the ears behind the head, and the brim stops above
 // the brows so the eyes and brows stay clear.
-function hatParts(style, col) {
-  const t = HATS[style];
+function hatParts(style, col, hat) {
+  const t = { ...HATS[style], ...(hat || {}) };
   const back = [h('path', { d: 'M27.5 73 C23.5 50 36 25 60 25 C84 25 96.5 50 92.5 73 Z', fill: col })];
   if (style === 'cowboy') {
     return { back, front: [h('g', { transform: 'translate(0 -3)' },
@@ -42,8 +42,8 @@ function hatParts(style, col) {
 }
 
 // Hair: { back, front } as arrays of elements, from the colour and its shade.
-function hairParts(style, col, shade, skinC) {
-  if (HATS[style]) return hatParts(style, col);
+function hairParts(style, col, shade, skinC, hat) {
+  if (HATS[style]) return hatParts(style, col, hat);
   const blob = (cx, cy, r, fill = col) => fill === col
     ? h('g', {}, h('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r, fill }), h('path', { d: `M${(cx - r * 0.55).toFixed(1)} ${(cy - r * 0.2).toFixed(1)} Q${(cx - r * 0.3).toFixed(1)} ${(cy - r * 0.62).toFixed(1)} ${(cx + r * 0.2).toFixed(1)} ${(cy - r * 0.62).toFixed(1)}`, fill: 'none', stroke: '#fff', 'stroke-width': 1.1, 'stroke-linecap': 'round', opacity: 0.12 }))
     : h('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r, fill });
@@ -145,12 +145,12 @@ function outfitParts(o, c, cd) {
   return { back, front };
 }
 
-export function kidSvg({ skin = 2, hair = 'short', hairColor = 1, outfit = 'star', pose = 'idle', still = false, label = null } = {}) {
+export function kidSvg({ skin = 2, hair = 'short', hairColor = 1, outfit = 'star', pose = 'idle', still = false, label = null, hat = null } = {}) { // hat: optional colours over a hat's own (a storybook character's red cap)
   if (!ARMS[pose]) pose = 'idle';
   const skinC = SKINS[skin] || SKINS[2], skinD = mixHex(skinC, '#000000', 0.14);
   const hairC = HAIR_COLORS[hairColor] || HAIR_COLORS[1], hairD = mixHex(hairC, '#000000', 0.22);
   const o = outfitOf(outfit), topC = o.top, teeD = mixHex(topC, '#000000', 0.14), legC = o.legs || skinC;
-  const hp = hairParts(HAIR_STYLES.includes(hair) ? hair : 'short', hairC, hairD, skinC);
+  const hp = hairParts(HAIR_STYLES.includes(hair) ? hair : 'short', hairC, hairD, skinC, hat);
   const wear = outfitParts(o, topC, teeD);
   const arm = ([d, hx, hy], side) => h('g', { class: `kid-arm kid-arm-${side}` },
     h('path', { d, fill: 'none', stroke: teeD, 'stroke-width': 13, 'stroke-linecap': 'round' }),
