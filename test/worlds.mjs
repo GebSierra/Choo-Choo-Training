@@ -551,7 +551,7 @@ export async function liveFlatChecks({ browser, url, ok, vp }) {
     ok(await until(page, () => document.querySelector('.world-card') && document.querySelector('.world-card').dataset.ready === '1', null, 10000), `${tag} crossing: world 2's map is built behind it`);
     await page.locator('.world-card .wg-go').click();
     ok(await until(page, () => !document.querySelector('.world-card') && document.querySelectorAll('.stone').length === 11, null, 8000), `${tag} crossing: then world 2 shows only its eleven stones`);
-    const t = await page.evaluate(() => ({ world: document.querySelector('.scene-tunnel').dataset.world, labels: [...document.querySelectorAll('.stone')].map((s) => s.getAttribute('aria-label')) }));
+    const t = await page.evaluate(() => ({ world: document.querySelector('.scene-tunnel:not(.start)').dataset.world, labels: [...document.querySelectorAll('.stone')].map((s) => s.getAttribute('aria-label')) }));
     ok(t.world === 'W3' && t.labels[0].startsWith('Lesson 7') && !t.labels.some((l) => /Lesson [1-6]\b/.test(l)), `${tag} crossing: world 2's map ends in a tunnel icon to Sunny Hills`);
     await page.waitForTimeout(1500);
     await liveShot(page, 'map-world2', vp.name);
