@@ -52,7 +52,7 @@ export function stopsOf(curriculum, store, worldId = null) {
       const c = n.checkpoint;
       const state = store.isCheckpointDone(c) ? 'done' : !store.isCheckpointUnlocked(c) ? 'locked' : current === null && pending && pending.id === c.id ? 'current' : 'open';
       if (state === 'current') currentIndex = i;
-      return { kind: 'depot', checkpoint: c, state, title: c.title, icon: c.kind === 'book' ? 'book' : c.kind === 'reread' ? 'reread' : c.kind === 'review' ? 'star' : 'crate' };
+      return { kind: 'depot', checkpoint: c, state, title: c.title, accent: c.kind === 'review' ? '#5A8FE0' : c.kind === 'reread' ? '#3E9C8B' : undefined, icon: c.kind === 'book' ? 'book' : c.kind === 'reread' ? 'reread' : c.kind === 'review' ? 'star' : 'crate' };
     }
     const l = n.lesson;
     const state = store.isDone(l.number) ? 'done' : !store.isUnlocked(l.number) ? 'locked' : l.number === current ? 'current' : 'open';

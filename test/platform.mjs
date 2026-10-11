@@ -1,5 +1,5 @@
 // App store readiness (docs/APP-STORE.md): native detection, the storage seam, no remote files and no YouTube links,
-// the Android back button and the one microphone request. Run alone with `node test/platform.mjs`.
+// the Android back button and the rule that nothing asks for the microphone. Run alone with `node test/platform.mjs`.
 import fs from 'node:fs';
 import path from 'node:path';
 import { startServer, loadPlaywright, launch, newPage, ROOT, doneThrough } from './lib.mjs';
@@ -39,11 +39,10 @@ for (const f of scan) {
 ok(urls >= 2, 'the remote address scan actually found the SVG namespace and the app address');
 ok(!scan.some((f) => /youtu\.?be/i.test(read(f))), 'no YouTube address or word anywhere in the app files (owner, 2026-10-08)');
 
-// 6. Microphone: one getUserMedia call site, in js/mic.js, which only the Smooth Ride screen imports.
-const gum = jsFiles.filter((f) => /getUserMedia/.test(read(f)));
-ok(gum.length === 1 && gum[0] === 'js/mic.js', `getUserMedia appears only in js/mic.js (${gum.join(', ')})`);
-const micUsers = jsFiles.filter((f) => /from\s+['"][^'"]*\/mic\.js['"]|import\(['"][^'"]*\/mic\.js['"]\)/.test(read(f)));
-ok(micUsers.length === 1 && micUsers[0] === 'js/screens/ride.js', `only the ride screen imports mic.js (${micUsers.join(', ')})`);
+// 6. Microphone: none. Smooth Ride (which listened) became Read It Again; no file asks for a microphone and mic.js is gone.
+const gum = jsFiles.filter((f) => /getUserMedia|mediaDevices/.test(read(f)));
+ok(gum.length === 0, `no file under js/ asks for a microphone (${gum.join(', ') || 'none'})`);
+ok(!fs.existsSync(path.join(ROOT, 'js/mic.js')) && !fs.existsSync(path.join(ROOT, 'js/blend-detect.js')) && !fs.existsSync(path.join(ROOT, 'js/screens/ride.js')), 'js/mic.js, js/blend-detect.js and js/screens/ride.js are deleted');
 ok(read('sw.js').includes("'js/platform.js'") && !read('sw.js').includes('grown-gate'), 'sw.js precaches platform.js and no longer lists the removed outside-link gate');
 
 const { server, url } = await startServer();

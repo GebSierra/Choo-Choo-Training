@@ -61,10 +61,10 @@ general is real but weaker. The table rates each finding, so our design rests on
 | Reading comprehension = word reading x language comprehension | Simple View of Reading (Gough and Tunmer, 1986); Scarborough's Reading Rope shows the sub-skills | Strong | A language strand: vocabulary, listening to rich stories, meaning questions **(coming)** |
 | Guessing words from pictures or context is a poor-reader habit | Skilled readers process every letter (Castles, Rastle and Nation, 2018); no direct evidence that teaching three-cueing improves reading (Shanahan) | Strong consensus | Hints never say "look at the picture" or "what makes sense" (see the rules) |
 | Read connected text daily, with feedback | IES practice guide (2016): moderate evidence for daily connected-text reading; strong evidence for sound awareness linked to letters and for decoding instruction | Moderate to strong | Stories now at story stops; a sentence or mini-story in every lesson **(coming)** |
-| Repeated reading builds fluency and comprehension | Therrien (2004), 18 studies: fluency 0.75, comprehension 0.73 for students with learning disabilities; reading with a fluent adult model worked better than reading without one | Strong for fluency | Listen to a model, then reread the same story over a few days **(coming)** |
+| Repeated reading builds fluency and comprehension | Therrien (2004), 18 studies: fluency 0.75, comprehension 0.73 for students with learning disabilities; reading with a fluent adult model worked better than reading without one | Strong for fluency | Read It Again station after lesson 4: a grown-up reads a tiny story once, the child reads it back, one sentence at a time; rereading the same story over a few days **(coming)** |
 | Decodable books help early practice, but evidence is thin | Research is limited and mixed; benefit is most plausible through about the middle of first grade | Weak to moderate | Decodable stories early, then a planned shift to less-controlled text from Stage 6 |
 | Flexibly fixing a near-miss pronunciation predicts word reading | "Set for variability" explained substantial unique variance (about 15 to 16 percent) in grade 2 to 5 word reading, while phonemic awareness added almost nothing once it was included (Steacy et al.); training studies are early | Emerging | A "fix the word" activity for heart words **(coming)** |
-| Spacing practice over time improves long-term learning | The spacing effect is long established; Vlach and Sandhofer (2012) confirmed it for learning in 5- to 7-year-olds (science concepts, not reading) | Strong | Earlier sounds and words come back in later lessons |
+| Spacing practice over time improves long-term learning | The spacing effect is long established; Vlach and Sandhofer (2012) confirmed it for learning in 5- to 7-year-olds (science concepts, not reading) | Strong | Earlier sounds and words come back in later lessons, and at Review Stops (short game runs after lessons 3, 9, 12, 15 and 17) |
 | Reading apps help, modestly | Kim et al. (2021), 36 studies: +0.31; a 2026 working paper by the same group (141 studies): +0.40. Both cover reading and math together; effects are larger on researcher-made tests, and evidence at scale is limited | Moderate | We plan to measure with standardized tests, not only in-app progress **(coming)** |
 | Story games and tap-hotspots can distract young readers | Takacs, Swart and Bus (2015), 43 studies, 2,147 children: story-matched animation, music and sound helped; hotspots, games and dictionaries distracted, and disadvantaged children were most sensitive to both | Moderate | A story tap never replaces reading: the child reads the word first, and taps belong to the story |
 | Speech-recognition reading feedback is promising but imperfect | A Dutch study of 525 first graders using a speech-recognition reading tutor: all groups gained accuracy, and explicit feedback helped more for sentence reading (Bai et al., 2025); recognizing children's speech is still error-prone | Emerging | Today a grown-up listens and confirms; optional speech recognition for sentence reading **(coming)** |
@@ -238,6 +238,17 @@ inside lessons rather than a strict calendar.
 
 **Mixed practice:** after a pattern's first 2 lessons, it is always practiced together with earlier look-alike patterns.
 Each stage ends with a mixed review unit.
+
+**Review Stops (live):** after lessons 3, 9, 12, 15 and 17 the train stops for a short run of the games the child already knows
+(Letter Hunt, Green Light, Wagon Parade, Station Board, then Ticket Check) on sounds taught so far, with nothing new. It leans on
+the three newest sounds and brings an older one back. The child tries first; the grown-up says a sound only after a miss. This is
+our design built on the general spacing and mixed-practice principles above, not a separately tested program.
+
+**Read It Again (live, after lesson 4):** the grown-up reads a tiny story once, pointing to each word, and the child then reads it
+back one sentence at a time; the grown-up taps "Read it!" for each sentence read, and the train pulls forward one wagon. It uses
+only taught sounds and the heart words "I" and "is". It draws on the repeated-reading finding in the table (Therrien, 2004, with
+students who have learning disabilities, and a fluent adult model working better than none); using it with 4 to 6 year olds is our
+adaptation and has not been tested. The app does not listen or record: the grown-up judges.
 
 **Fluency (from Stage 3, coming):** hear a fluent model of a short passage, read it aloud, get word-level corrections, and
 reread it on later days, 3 to 4 reads in all.

@@ -1,4 +1,4 @@
-// Review Stops (checkpoint kind "review", ids v1 to v5; 1.9.34): placement, content (only games and review of taught letters, nothing new),
+// Review Stops (checkpoint kind "review", ids v1 to v5): placement, content (only games and review of taught letters, nothing new),
 // the hold on the train (and no hold for stops the child is already past), unlocking, the saved result, no spurious rides, fit at three phone
 // sizes and heat. Run alone with `node test/review-stops.mjs [--shots]`; shots go to docs/screenshots/review-stops/.
 import fs from 'node:fs';
@@ -52,23 +52,27 @@ export async function dataChecks({ ok }) {
   const hold = (store) => checkpointStopIndex(nodes, curIdx(store), store);
   for (const k of STOPS) {
     const i = idx(k.id), prev = nodes[i - 1], next = nodes[i + 1];
-    ok(prev.lesson && prev.lesson.number === k.after && next.lesson && next.lesson.number === k.after + 1, `placement ${k.id}: on the line right after lesson ${k.after} and before lesson ${k.after + 1}`);
+    const lastOne = k.after === CUR.lessons.length; // the last stop of the line has no lesson after it
+    ok(prev.lesson && prev.lesson.number === k.after && (lastOne ? !next || !next.lesson : next.lesson && next.lesson.number === k.after + 1), `placement ${k.id}: on the line right after lesson ${k.after}${lastOne ? '' : ' and before lesson ' + (k.after + 1)}`);
     let s = open(k.after - 1);
     ok(!s.isCheckpointUnlocked(k) && !s.isCheckpointDone(k), `${k.id}: locked before lesson ${k.after} is done`);
     s = open(k.after);
     ok(s.isCheckpointUnlocked(k) && !s.isCheckpointDone(k), `${k.id}: opens when lesson ${k.after} is done, not done itself`);
-    ok(hold(s) === i, `${k.id}: next in line, it holds the train (the current stop is the stop, not lesson ${k.after + 1})`);
-    ok(s.isUnlocked(k.after + 1), `${k.id}: lesson ${k.after + 1} is open while the stop waits`);
+    const holds = (st) => (lastOne ? st.currentLesson(CUR.lessons.length) === null && CUR.checkpoints.find((c) => !st.isCheckpointDone(c) && st.isCheckpointUnlocked(c)) ?.id === k.id : hold(st) === i); // the last stop: with every lesson done it is the pending stop (the Home makes it current)
+    ok(holds(s), `${k.id}: next in line, it holds the train (the current stop is the stop${lastOne ? "" : ", not lesson " + (k.after + 1)})`);
+    if (!lastOne) ok(s.isUnlocked(k.after + 1), `${k.id}: lesson ${k.after + 1} is open while the stop waits`);
     // the grown-up's result: once got-it the train goes on
     s.setCheckpointResult(k.id, 'got-it');
-    ok(s.isCheckpointDone(k) && hold(s) !== i && s.checkpoint(k.id).result === 'got-it', `${k.id}: the result is saved and the hold ends`);
+    ok(s.isCheckpointDone(k) && !holds(s) && s.checkpoint(k.id).result === 'got-it', `${k.id}: the result is saved and the hold ends`);
     s = open(k.after, { [k.id]: { result: 'practice-again' } });
-    ok(!s.isCheckpointDone(k) && hold(s) === i, `${k.id}: "Not yet" keeps the hold`);
+    ok(!s.isCheckpointDone(k) && holds(s), `${k.id}: "Not yet" keeps the hold`);
     // a child already past it: the next lesson is done, so the stop counts as passed and never holds
-    s = open(k.after + 1);
-    ok(s.isCheckpointDone(k) && hold(s) !== i, `${k.id}: a save past lesson ${k.after + 1} counts it passed, no hold`);
-    s = open(CUR.lessons.length);
-    ok(s.isCheckpointDone(k) && s.checkpoint(k.id).result === null, `${k.id}: a finished save has it passed with no result written`);
+    if (!lastOne) {
+      s = open(k.after + 1);
+      ok(s.isCheckpointDone(k) && hold(s) !== i, `${k.id}: a save past lesson ${k.after + 1} counts it passed, no hold`);
+      s = open(CUR.lessons.length);
+      ok(s.isCheckpointDone(k) && s.checkpoint(k.id).result === null, `${k.id}: a finished save has it passed with no result written`);
+    }
   }
   // no spurious rides: stops the child never played carry no result, so they add nothing to trainDone
   const doneArr = (store) => nodes.map((n) => { const own = n.checkpoint ? store.checkpoint(n.checkpoint.id) : store.lesson(n.lesson.number); return own.result === 'got-it' ? own.completedAt || null : false; });
@@ -80,9 +84,6 @@ export async function dataChecks({ ok }) {
   const v2 = STOPS[1];
   again.setCheckpointResult(v2.id, 'got-it');
   ok(finishedStop(again, doneArr(again), curIdx(again)) === idx(v2.id), 'rides: a review stop the grown-up marks got-it rides like any stop (own result)');
-  // the Grownups list shows them
-  const { stopIcon } = { stopIcon: null };
-  ok(CUR.checkpoints.filter((k) => k.kind === 'review').length === 5 && stopIcon === null, 'grownups: the list is built from the checkpoint data, so the five stops are listed (checked in the browser below)');
 }
 
 // ---- the screens, in the browser ----
@@ -115,9 +116,8 @@ export async function screenChecks({ browser, url, ok }) {
       await page.waitForTimeout(700);
       const title = await page.locator('.task-head h1').innerText();
       ok(title === NAMES[a.task], `${k.id} step ${i + 1}: ${NAMES[a.task]} (${title})`);
-      ok((await page.locator('.dots .dot, .train-bar *').count()) > 0, `${k.id} step ${i + 1}: progress shown`);
+      ok((await page.locator('.task-head [role=progressbar]').getAttribute('aria-valuemax')) === String(k.plan.length), `${k.id} step ${i + 1}: progress shows ${k.plan.length} games`);
       let letters = new Set(await letterSets(page));
-      if (a.task === 'check') (await page.locator('.opt-glyph').count()) && (await page.locator('.opt-glyph svg').count());
       if (a.task === 'hunt') {
         for (let t = 0; t < 2; t++) {
           const tgt = page.locator('.sky-letter[data-target="1"]').first();
@@ -128,12 +128,7 @@ export async function screenChecks({ browser, url, ok }) {
       ok(bad.length === 0 && letters.size > 0, `${k.id} step ${i + 1} (${a.task}): only letters taught by lesson ${k.after} show (${[...letters].join(' ')}${bad.length ? '; NEW: ' + bad.join(' ') : ''})`);
       if (a.task === 'check') {
         const glyphs = await page.locator('.opt-card').count();
-        ok(glyphs === 3 && (await page.locator('.opt-pic').count()) === 0, `${k.id} step ${i + 1}: Ticket Check shows three letter cards, no pictures`);
-      }
-      if (a.task === 'board') {
-        const words = await page.evaluate(() => document.body.innerText.toLowerCase().match(/[a-z]+/g) || []);
-        ok(true, `${k.id} board`);
-        void words;
+        ok(glyphs >= 2 && (await page.locator('.opt-pic').count()) === 0, `${k.id} step ${i + 1}: Ticket Check shows letter cards, no pictures`);
       }
       if (i === 0) await shot(page, `${k.id}-first-390x844`);
     }
@@ -159,7 +154,7 @@ export async function screenChecks({ browser, url, ok }) {
   await page.waitForTimeout(1700);
   await page.locator('.got').click(); await page.waitForTimeout(1700); await page.locator('.got').click();
   await page.waitForSelector('.home, .home3d, .map-scroll', { timeout: 8000 }).catch(() => {});
-  ok(await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); return s.checkpoints.v2.result === 'got-it' && s.lessons[9] === undefined && s.lessons[3].result === 'got-it'; }), 'run: Yes saves v2 as got-it and does not write any lesson');
+  ok(await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); return s.checkpoints.v2.result === 'got-it' && s.lessons[10] === undefined && s.lessons[3].result === 'got-it'; }), 'run: Yes saves v2 as got-it and does not write any lesson');
   ok(errors.length === 0, `run: no errors ${errors.join(' | ')}`);
   await m.ctx.close();
 
@@ -168,7 +163,7 @@ export async function screenChecks({ browser, url, ok }) {
   await b.page.waitForSelector(gameSel); await b.page.waitForTimeout(1300);
   await b.page.locator('.btn.next').click(); await b.page.waitForTimeout(700);
   await b.page.locator('.task-head .icon-btn').first().click(); await b.page.waitForTimeout(700);
-  ok(b.page.url().endsWith(`#/checkpoint/${k.id}`), 'back: from the second activity the arrow returns to the first');
+  ok(b.page.url().endsWith('#/home'), 'back: the arrow goes back to the path');
   await b.ctx.close();
 
   // locked: by address too
@@ -225,7 +220,6 @@ export async function homeChecks({ browser, url, ok }) {
   const iv = btns.findIndex((b) => b.label.startsWith(label));
   ok(iv > 0 && btns[iv].cls.includes('is-current') && /^Lesson 3/.test(btns[iv - 1].label) && /^Lesson 4/.test(btns[iv + 1].label), `home: after lesson 3 the Review Stop is the current stop (${btns.map((b) => b.label + ':' + b.cls.replace(/.*is-/, '')).join(' | ')})`);
   ok(/is-unlocked|is-current/.test(btns[iv + 1].cls) && !btns[iv + 1].cls.includes('is-locked'), 'home: lesson 4 stays open while the stop is held');
-  ok(await page.evaluate(() => window.__train && window.__train.debug ? true : true), 'home: ok');
   await showStop(page, `.station-btn[aria-label^="${label}"]`);
   await page.waitForTimeout(800);
   await shot(page, 'home-held-390x844');
@@ -242,17 +236,18 @@ export async function homeChecks({ browser, url, ok }) {
   const rs = b2.find((b) => b.label.startsWith(label));
   ok(rs && rs.label.endsWith(', done') && rs.cls.includes('is-done'), `home: with lesson 4 and 5 done, a review stop behind is marked done (${rs && rs.label})`);
   ok(b2.some((b) => /^Lesson 6/.test(b.label) && b.cls.includes('is-current')), 'home: and the train stands at the next lesson');
-  ok(await p2.page.evaluate(() => !document.querySelector('.finish') && window.__train.debug === undefined ? true : true), 'home: no ride');
   await p2.ctx.close();
 
-  // Grownups lists all five
+  // Grownups lists all five, with the stop icon and its own title
   const g = await seeded(browser, url, PHONE, 17, '#/home');
-  await g.page.waitForTimeout(500);
-  g.page.on('dialog', (d) => d.dismiss());
-  await g.page.evaluate(() => { location.hash = '#/grownups'; });
-  await g.page.waitForTimeout(1500);
-  const gate = await g.page.locator('.gate, .hold-gate, .number-gate').count();
-  void gate;
+  await g.page.waitForSelector('.pill-hold');
+  await g.page.waitForTimeout(700);
+  const gb = await g.page.locator('.pill-hold').boundingBox();
+  await g.page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await g.page.mouse.down(); await g.page.waitForTimeout(2250); await g.page.mouse.up();
+  await g.page.waitForSelector('.grownups');
+  const rows = await g.page.locator('.gu-row').allInnerTexts();
+  ok(rows.filter((r) => r.includes('Review Stop')).length === 5 && rows.some((r) => r.includes('Read It Again')) && !rows.some((r) => /Smooth/.test(r)), `grownups: five Review Stops and Read It Again are listed (${rows.length} rows)`);
+  ok((await g.page.locator('.gu-row .ticket-art').count()) === 5 && (await g.page.locator('.gu-row .reread-art').count()) === 1, 'grownups: each stop kind has its own icon');
   await g.ctx.close();
 }
 

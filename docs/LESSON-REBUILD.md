@@ -343,3 +343,53 @@ Ticket Check), the mapping of a legacy save and of a cloud copy, the lock rule, 
 - Record the new sounds (o, c, u, r) with the studio; until then the prompt "Say: k-" shows for the grown-up.
 - The f prototype's own animated mouth screen is still separate; Practicing Words is still both the closing review and a "find the picture"
   game (both as in section 8).
+
+## 10. Review Stops and Read It Again
+
+Owner decisions of 2026-10-10 (roadmap items 3c and 6). Built after phase B because both need the final sound order.
+
+### Review Stops (checkpoint kind `review`, ids `v1` to `v5`)
+
+- **What:** a short run of the fun games on letters the child has already met, nothing new: no New Sound, no Watch My Mouth, no Track
+  Tracing. The stop is called "Review Stop" (one short, neutral name; its icon is a blue game ticket with a gold star).
+- **Where:** after lesson 3 (m a s), 9 (f o n), 12 (d c/k h), 15 (u g l) and 17 (r b). Lesson 6 already has Story 2, so no review there.
+- **How the content is picked:** `tools/gen-lessons.mjs` (`REVIEW_PLANS`) lists each stop's activities as `{ task, lesson }`: the game, and
+  the lesson whose sound it is about. Every stop is 3 games plus Ticket Check, which is always last and always a letter question (so no
+  picture word from a later lesson shows). The plans lean on the three newest sounds (at least half of the activities), with an older sound in
+  most stops, and the mix of games differs at every stop. The games are the lesson's own screens (`js/screens/review.js` calls the same
+  builders as `js/screens/task.js`), and they already mix the planned sound with the ones before it (`roundTargets`, `otherLetters` in
+  `js/games-data.js`). To keep it to taught letters, a review stop also trims every Letter Hunt, Green Light and Wagon Parade filler letter
+  to the letters taught by that stop (a lesson's own list holds a few letters that come later). Green Light is not used at v1: three
+  sounds cannot fill its four lamps.
+- **Parent text:** the games' own scripts, plus one tip on every step: "This is a review. Let your child try first. Only if your child
+  misses, say the sound, then have your child say it after you." The child recalls first; the grown-up models only after a miss.
+- **On the line:** a review stop next in line holds the train, like Story stops (`checkpointStopIndex` in `js/sequence.js`), and shows on the
+  3D line and the 2D path with the ticket icon. It opens when its lesson is done, is done by the grown-up's "Yes" (the checkpoint finish
+  screen), and does not lock the next lesson. It is not a new lesson, so it does not count against the daily limit.
+- **Saved data:** existing saves have no result for the new stops. `isCheckpointDone` already counts a stop done once the lesson after it is
+  done, so a child past lesson 3 or 9 is not sent back, and the stop behind them never holds the train. The ride counter (`trainDone`)
+  counts a stop only from its own result, so no ride plays for stops the child never played.
+
+### Read It Again (checkpoint `r1`, kind `reread`; it replaces Smooth Ride)
+
+- **What:** a repeated-reading station after lesson 4. The grown-up reads a tiny story once, pointing to each word; the child then reads it
+  back one sentence at a time. After each sentence the grown-up taps a big "Read it!" and the train on the screen pulls one more wagon into
+  view. "Again" starts the reading over. At the end Pip waves at the station. Same finish screen as every stop.
+- **The story** (only m a s i, plus the heart words "I" and "is" that Story 1 already teaches): "I am Sam." "I miss Sis." "Sis is Mim."
+- **Parent script:** (listen) "Read the whole story to your child once, slowly, pointing to each word as you say it. Your child only
+  listens. Then tap 'Your child reads'." (read) "Your child reads one sentence at a time. Let your child try first. If your child gets stuck,
+  sound the word out together. Still stuck? Read the sentence yourself, then have your child read it after you. When the sentence is read,
+  tap Read it!" The app judges nothing.
+- **Why:** repeated reading with a fluent adult model improves fluency (Therrien 2004, already in the white paper's table).
+- **The microphone is gone from the app.** `js/mic.js`, `js/blend-detect.js`, the Smooth Ride screen, its permission card and its tests are
+  deleted. Nothing in the app listens or records. The id `r1` is kept so saved results stay valid; the old timings and word list are gone
+  from the data.
+- **Look:** the storybook cream page and the practice frame; fits 360 x 640, 390 x 844 and 915 x 412; 48 px targets; only CSS transforms and
+  opacity move, and nothing runs while the page is idle.
+
+### Tests
+
+New: `test/review-stops.mjs` (placement, content, hold, passed stops, unlock, saved result, no spurious rides, fit, heat) and
+`test/read-again.mjs` (replaces `test/ride.mjs`: the story data, the flow, Again, the finish, fit, heat, no microphone anywhere).
+Updated: `check-content` (reread and review rules replace the ride rules), `phase-b` (the stop list), `sack`, `lib` (seen flags), `train`,
+`platform`, `round2` and `smoke` (the microphone rules now say "nowhere"), and the suites that count stops (see the build report).

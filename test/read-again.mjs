@@ -1,4 +1,4 @@
-// Read It Again (checkpoint r1, kind "reread"; it replaced Smooth Ride in 1.9.34): the story data, the screen (listen, then the child reads one
+// Read It Again (checkpoint r1, kind "reread"; it replaced Smooth Ride): the story data, the screen (listen, then the child reads one
 // sentence at a time, the grown-up taps Read it! and a wagon is pulled in), Again, the finish and the saved result, fit at the three phone
 // sizes, heat, and the rule that nothing in the app listens or records. Run alone with `node test/read-again.mjs [--shots]`;
 // shots go to docs/screenshots/read-again/.
