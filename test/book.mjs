@@ -21,7 +21,7 @@ const RAF_COUNTER = () => { window.__raf = 0; const o = window.requestAnimationF
 const TIMER_COUNTER = () => { window.__timerCalls = 0; for (const k of ['setTimeout', 'setInterval']) { const o = window[k].bind(window); window[k] = (...a) => { window.__timerCalls++; return o(...a); }; } };
 const PROPS = () => document.getAnimations().filter((a) => a.playState === 'running').map((a) => ({ props: [...new Set(a.effect ? a.effect.getKeyframes().flatMap((k) => Object.keys(k)) : [])].filter((p) => !['offset', 'easing', 'composite', 'computedOffset'].includes(p)), inf: a.effect && a.effect.getTiming().iterations === Infinity }));
 const done = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it' }]));
-const mkSeed = () => `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: done(ck.after), settings: { seenScripts: SEEN }, firstRunDone: true, character: { name: NAME } })})); }`;
+const mkSeed = () => `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: done(ck.after), settings: { seenScripts: SEEN }, firstRunDone: true, character: { name: NAME, skin: 3, hair: 'braids', hairColor: 1, outfit: 'dress', made: true } })})); }`;
 
 export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = null }) {
   const made = await newPage(browser, vp);
@@ -262,7 +262,7 @@ export async function bookFit({ browser, url, ok, sizes = FIT_SIZES, shot = null
 // The grown-up page before the book: once per book, "i" brings it back, and the book screen has no script bar.
 export async function bookIntro({ browser, url, ok, shotDir = null }) {
   const seen = { ...SEEN }; delete seen[`storyIntro:${ck.id}`];
-  const seed = `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: done(ck.after), settings: { seenScripts: seen }, firstRunDone: true, meetDue: false, character: { name: NAME } })})); }`;
+  const seed = `if (!sessionStorage.getItem('seeded')) { sessionStorage.setItem('seeded', '1'); localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: done(ck.after), settings: { seenScripts: seen }, firstRunDone: true, meetDue: false, character: { name: NAME, skin: 3, hair: 'braids', hairColor: 1, outfit: 'dress', made: true } })})); }`;
   const BULLETS = ['You read the small words out loud.', 'Your child reads the big words. They use only sounds your child knows.', 'Under some words is a slider. Have your child slide a finger along it while saying each sound, then say the whole word.', 'Tap the pictures to make them move.', 'Swipe or tap the corner to turn the page.'];
   for (const [w, hh] of [[346, 690], [915, 412]]) {
     const { ctx, page, errors } = await newPage(browser, { name: 'intro', width: w, height: hh, deviceScaleFactor: 2 });
