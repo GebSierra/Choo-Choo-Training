@@ -128,10 +128,10 @@ export const GLYPHS = {
   k: {
     strokes: [
       { d: 'M24 14 L24 80', start: [24, 14] },
-      { d: 'M58 38 L25 64', start: [58, 38] },
-      { d: 'M37 55 L60 80', start: [37, 55] },
+      { d: 'M60 38 L24 63', start: [60, 38] },
+      { d: 'M29 59 L63 80', start: [29, 59] },
     ],
-    minX: 17, maxX: 66, minY: 14, maxY: 80,
+    minX: 17, maxX: 69, minY: 14, maxY: 80,
   },
   // u: down and round the bottom and up to the right, then the right-hand stem down.
   u: {
