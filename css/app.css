@@ -1024,49 +1024,42 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 @media (orientation: landscape) and (max-height: 520px) { .finish-kid { left: auto; right: -66px; bottom: -14px; width: 62px; height: 78px; } }
 /* (the character creator's layout lives in the "polish A" block at the end of this file) */
 
-/* ---------- Smooth Ride (js/screens/ride.js): no transitions on the engine, the puffs or the needle ---------- */
-.stone-top.stone-sack .gauge-art { width: 60%; height: auto; } .stone.is-locked .stone-sack .gauge-art { opacity: .45; }
-.finish-glyph .gauge-art { width: 62%; height: auto; } .gu-glyph .gauge-art { width: 68%; height: auto; }
-.gauge-needle { transform: rotate(var(--needle, -62deg)); }
-.ride-scene { touch-action: none; }
-.ride-train { position: absolute; left: 6px; bottom: 12px; z-index: 3; pointer-events: none; will-change: transform; }
-.ride-train .engine-art { display: block; width: 100%; height: auto; overflow: visible; }
-.ride-lamp { position: absolute; left: calc(137 / 150 * 100%); top: calc(50 / 110 * 100% * .93); width: 54px; height: 54px; margin: -27px 0 0 -4px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,226,140,.95), rgba(255,226,140,0)); opacity: 0; pointer-events: none; }
-.ride-train.listening .ride-lamp { opacity: 1; }
-.ride-puffs { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
-.ride-puffs .steam-puff { z-index: auto; }
-.ride-goal { z-index: 1; }
-.ride-gauge { left: 10px; top: 10px; width: 96px; height: 96px; z-index: 5; pointer-events: none; }
-.ride-gauge .gauge-art { display: block; width: 100%; height: 100%; }
-.ride-word { left: 0; right: 0; top: 118px; z-index: 2; display: grid; justify-items: center; gap: 8px; pointer-events: none; }
-.ride-word .glyph-row { width: auto; padding: 4px 8px; }
-.ride-word .blend-bar { width: min(70%, 260px); }
-.ride-controls { left: 0; right: 0; bottom: 124px; z-index: 5; display: grid; justify-items: center; gap: 8px; pointer-events: none; }
-.ride-status { min-height: 24px; margin: 0; font-size: 20px; font-weight: 800; color: var(--ink); text-shadow: 0 1px 0 rgba(255,255,255,.7); }
-.ride-buttons { display: flex; gap: 14px; align-items: center; justify-content: center; pointer-events: auto; }
-.ride-go { width: 92px; height: 92px; border: 0; border-radius: 50%; background: #FFD166; color: var(--ink); font-family: inherit; font-weight: 800; font-size: 28px; line-height: 1; box-shadow: inset 0 -6px 0 rgba(0,0,0,.12), 0 6px 0 #C99A3A, 0 10px 16px rgba(60,40,20,.22); touch-action: manipulation; cursor: pointer; }
-.ride-go:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 -6px 0 rgba(0,0,0,.12), 0 3px 0 #C99A3A; }
-.ride-go:disabled { opacity: .55; cursor: default; }
-.ride-smooth { min-height: 64px; padding: 0 22px; border: 0; border-radius: 999px; background: #fff; color: var(--ink); font-family: inherit; font-weight: 800; font-size: 20px; line-height: 1; box-shadow: 0 5px 0 rgba(30,33,64,.18), 0 8px 14px rgba(60,40,20,.2); touch-action: manipulation; cursor: pointer; }
-.ride-smooth:disabled { opacity: .55; cursor: default; }
+/* ---------- Read It Again (js/screens/reread.js) and the Review Stop icon: transform and opacity only, nothing loops ---------- */
+.stone-top.stone-sack .ticket-art, .stone-top.stone-sack .reread-art { width: 60%; height: auto; } .stone.is-locked .stone-sack .ticket-art, .stone.is-locked .stone-sack .reread-art { opacity: .45; }
+.finish-glyph .ticket-art, .finish-glyph .reread-art { width: 62%; height: auto; } .gu-glyph .ticket-art, .gu-glyph .reread-art { width: 68%; height: auto; }
+.reread { gap: 10px; padding: 10px 14px 12px; }
+.ra-scene { flex: 0 0 auto; height: clamp(116px, 21dvh, 170px); border-radius: 22px; box-shadow: var(--shadow); }
+.ra-train { left: 0; bottom: 12px; z-index: 3; display: flex; align-items: flex-end; width: max-content; pointer-events: none; will-change: transform; transition: transform 900ms cubic-bezier(.45,.05,.3,1); }
+.ra-train .engine-art, .ra-train .wagon-art { display: block; width: 100%; height: auto; overflow: visible; }
+.ra-engine, .ra-wagon { flex: none; }
+.ra-star { opacity: 0; transition: opacity 300ms ease 500ms; }
+.ra-wagon.on .ra-star { opacity: 1; }
+.ra-goal { right: 6px; bottom: 22px; width: 104px; height: 87px; }
+.ra-page { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; box-sizing: border-box; padding: 6px 12px 8px; border-radius: 22px; background: #FFF8EC; box-shadow: var(--shadow); overflow: hidden; }
+.ra-list { list-style: none; margin: 0; padding: 0; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; justify-content: space-around; gap: 4px; }
+.ra-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 8px; border-radius: 16px; transition: opacity 250ms ease, background-color 250ms ease; }
+.ra-sentence { margin: 0; flex: 1 1 auto; min-width: 0; font: 700 clamp(22px, 6.4vw, 30px)/1.2 'Andika', 'Nunito', system-ui, sans-serif; font-variant-ligatures: none; color: #3B2F2A; }
+.ra-row[data-state="wait"] { opacity: .5; }
+.ra-row[data-state="now"] { background: #FFEFC0; }
+.ra-read { flex: none; min-width: 112px; min-height: 52px; padding: 0 16px; border: 0; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #FFD166; color: var(--ink); font: 800 19px/1 inherit; font-family: inherit; box-shadow: inset 0 -5px 0 rgba(0,0,0,.12), 0 5px 0 #C99A3A; touch-action: manipulation; cursor: pointer; }
+.ra-read:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 -5px 0 rgba(0,0,0,.12), 0 2px 0 #C99A3A; }
+.ra-read:disabled { cursor: default; }
+.ra-read-done { display: none; }
+.ra-row[data-state="done"] .ra-read { min-width: 52px; padding: 0; background: #5FE3B0; box-shadow: none; }
+.ra-row[data-state="done"] .ra-read-on { display: none; } .ra-row[data-state="done"] .ra-read-done { display: grid; place-items: center; }
+.ra-row[data-state="wait"] .ra-read { opacity: .35; box-shadow: none; }
+.ra-row[data-state="listen"] .ra-read { visibility: hidden; }
+.ra-foot { flex: none; min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 4px; }
+.ra-note { margin: 0; font-size: 17px; font-weight: 800; color: #5A5F80; }
+.ra-turn { min-height: 52px; font-size: 19px; padding: 0 22px; } .ra-turn[hidden] { display: none; }
 @media (orientation: landscape) and (max-height: 520px) {
-  .ride-word { top: 12px; }
-  .ride-gauge { width: 80px; height: 80px; }
-  .ride-controls { bottom: 112px; gap: 4px; } .ride-go { width: 80px; height: 80px; font-size: 24px; }
+  .reread { flex-direction: row; padding: 8px 12px; }
+  .ra-scene { flex: 0 0 36%; height: auto; }
+  .ra-sentence { font-size: clamp(20px, 3.2vw, 28px); }
+  .ra-read { min-height: 48px; }
+  .ra-foot { min-height: 52px; }
 }
-@media (orientation: landscape) and (max-height: 380px) { .ride-controls { bottom: 104px; } .ride-go { width: 72px; height: 72px; } .ride-gauge { width: 64px; height: 64px; } .ride-status { font-size: 17px; min-height: 20px; } }
-
-/* ---------- Smooth Ride: the first-visit card for the grown-up ---------- */
-.ride-game { position: relative; }
-.ride-intro { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 14px; background: rgba(30,33,64,.45); }
-.ride-intro-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); width: min(100%, 460px); max-height: 100%; overflow-y: auto; padding: 14px 16px 12px; display: grid; gap: 8px; }
-.ride-intro-card h2 { margin: 0; font-size: 24px; text-align: center; }
-.ride-intro-card p { margin: 0; font-size: 16.5px; font-weight: 600; line-height: 1.32; }
-.ride-intro-btns { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 4px; }
-.ride-intro-btns .btn { min-height: 56px; font-size: 20px; }
-.ride-intro-go { min-width: 150px; }
-.ride-intro-later { background: none; border: 0; box-shadow: none; color: #5A5F80; padding: 0 16px; }
-@media (orientation: landscape) and (max-height: 520px) { .ride-intro-card { padding: 12px 16px; gap: 6px; } .ride-intro-card h2 { font-size: 22px; } .ride-intro-card p { font-size: 16px; line-height: 1.3; } }
+@media (prefers-reduced-motion: reduce) { .ra-train, .ra-star, .ra-row { transition: none; } }
 
 /* ---------- the grown-up page before a book (js/screens/book.js) ---------- */
 .book-stage > .book-intro { z-index: 40; border-radius: 0; }
@@ -1819,7 +1812,7 @@ button.hw-tile:active { transform: translateY(3px) scale(.97); }
 .fw-wheel { position: absolute; top: -10px; width: 32px; height: 32px; border-radius: 50%; background: #2B2D5C; border: 6px solid #F3E6CF; box-shadow: 0 3px 0 rgba(30,33,64,.18); }
 .fw-wheel:first-child { left: 14px; } .fw-wheel:last-child { right: 14px; }
 .finish .finish-glyph .glyph { width: 58%; margin-top: 14px; }
-.finish .finish-glyph .sack-art, .finish .finish-glyph .crate-art, .finish .finish-glyph .book-art, .finish .finish-glyph .gauge-art { width: 56%; margin-top: 14px; }
+.finish .finish-glyph .sack-art, .finish .finish-glyph .crate-art, .finish .finish-glyph .book-art, .finish .finish-glyph .ticket-art, .finish .finish-glyph .reread-art { width: 56%; margin-top: 14px; }
 .finish .finish-ring { border-radius: 34px; inset: -8px -8px 6px; z-index: 0; }
 .finish-pip, .finish-kid { z-index: 2; }
 .finish-star { position: absolute; right: -14px; top: -26px; width: 56px; height: 56px; z-index: 3; transform: rotate(14deg); filter: drop-shadow(0 3px 0 rgba(168,110,20,.28)); pointer-events: none; }
@@ -2083,11 +2076,8 @@ button.hw-tile:active { transform: translateY(3px) scale(.97); }
 }
 @media (max-width: 380px) { .practice-world .script-toggle { padding-left: 14px; gap: 6px; grid-template-columns: minmax(0, 1fr) 24px; } .practice-world .script-toggle .script-ic { width: 30px; height: 30px; top: -16px; } .practice-world .script-peek .script-tag { display: none; } }
 @media (prefers-reduced-motion: reduce) { .tk-engine, .tk-car, .tk-tie { transition: none; } }
-/* Other first-time cards: never taller than the real visible height; the buttons of the ride/book intro stay in view. */
+/* Other first-time cards: never taller than the real visible height. */
 .gg-card { max-height: calc(100dvh - 32px - var(--sat) - var(--sab)); overflow-y: auto; }
-.ride-intro-card { display: flex; flex-direction: column; gap: 8px; max-height: calc(100dvh - 28px - var(--sat) - var(--sab)); overflow: hidden; }
-.ride-intro-card .ride-intro-btns { flex: none; }
-.ride-intro-card > p { min-height: 0; overflow-y: auto; }
 
 /* ---------- Lesson rebuild A: Watch My Mouth ---------- */
 .proto.mouth-task { color: #fff; }

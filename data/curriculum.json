@@ -2763,9 +2763,6 @@
     "sack": {
       "say": "Listen to your grown up. Then drag the picture into the wagon."
     },
-    "ride": {
-      "say": "Tap the whistle. Then say the word with your grown-up in one long sound."
-    },
     "signals": {
       "say": "Listen. Then tap the light that makes the sound."
     },
@@ -2779,26 +2776,24 @@
   "checkpoints": [
     {
       "id": "r1",
-      "kind": "ride",
-      "title": "Smooth Ride",
-      "after": 4,
-      "rounds": 5,
-      "offHoldMs": 40,
-      "onHoldMs": 30,
-      "gapMs": 100,
-      "minRunMs": 500,
-      "endMs": 600,
-      "words": [
-        "am",
-        "ma",
-        "at",
-        "sam",
-        "sat",
-        "mat",
-        "sis",
-        "miss",
-        "sit"
+      "kind": "reread",
+      "title": "Read It Again",
+      "needs": [
+        "m",
+        "a",
+        "s",
+        "i"
       ],
+      "story": [
+        "I am Sam.",
+        "I miss Sis.",
+        "Sis is Mim."
+      ],
+      "sight": [
+        "I",
+        "is"
+      ],
+      "after": 4,
       "world": "W1"
     },
     {
@@ -2830,6 +2825,131 @@
       ],
       "after": 6,
       "world": "W1"
+    },
+    {
+      "id": "v1",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 3,
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 3
+        },
+        {
+          "task": "wagons",
+          "lesson": 2
+        },
+        {
+          "task": "signals",
+          "lesson": 3
+        },
+        {
+          "task": "check",
+          "lesson": 2
+        }
+      ],
+      "world": "W1"
+    },
+    {
+      "id": "v2",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 9,
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 8
+        },
+        {
+          "task": "signals",
+          "lesson": 9
+        },
+        {
+          "task": "wagons",
+          "lesson": 6
+        },
+        {
+          "task": "check",
+          "lesson": 9
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "v3",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 12,
+      "plan": [
+        {
+          "task": "board",
+          "lesson": 12
+        },
+        {
+          "task": "wagons",
+          "lesson": 11
+        },
+        {
+          "task": "hunt",
+          "lesson": 7
+        },
+        {
+          "task": "check",
+          "lesson": 10
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "v4",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 15,
+      "plan": [
+        {
+          "task": "wagons",
+          "lesson": 15
+        },
+        {
+          "task": "hunt",
+          "lesson": 13
+        },
+        {
+          "task": "board",
+          "lesson": 14
+        },
+        {
+          "task": "check",
+          "lesson": 15
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "v5",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 17,
+      "plan": [
+        {
+          "task": "board",
+          "lesson": 17
+        },
+        {
+          "task": "hunt",
+          "lesson": 16
+        },
+        {
+          "task": "signals",
+          "lesson": 11
+        },
+        {
+          "task": "check",
+          "lesson": 17
+        }
+      ],
+      "world": "W2"
     }
   ],
   "gameDistractors": [

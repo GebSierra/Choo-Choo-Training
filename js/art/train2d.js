@@ -145,18 +145,28 @@ export function bookSvg() {
     h('path', { d: 'M18 38 Q31 34 42 40 M18 50 Q31 46 42 52 M18 62 Q31 58 42 64 M58 40 Q69 34 82 38 M58 52 Q69 46 82 50 M58 64 Q69 58 82 62', fill: 'none', stroke: C.woodDark, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: 0.45 }),
     h('rect', { x: 48, y: 28, width: 4, height: 54, rx: 2, fill: C.redDark }));
 }
-// A steam gauge: a round brass dial with a cream face and a red needle (.gauge-needle, turned by the CSS variable --needle, no
-// transition). No numbers and no zones. Smooth Ride's icon, and its live voice dial.
-export function gaugeSvg() {
-  return h('svg', { class: 'gauge-art', viewBox: '0 0 100 100', 'aria-hidden': 'true' },
-    h('ellipse', { cx: 50, cy: 94, rx: 34, ry: 4, fill: 'rgba(60,40,20,.16)' }),
-    h('circle', { cx: 50, cy: 50, r: 44, fill: C.sunDark }),
-    h('circle', { cx: 50, cy: 50, r: 44, fill: 'none', stroke: C.sun, 'stroke-width': 5 }),
-    h('circle', { cx: 50, cy: 50, r: 35, fill: '#FFF8EC' }),
-    h('path', { d: 'M24 62 A28 28 0 0 1 76 62', fill: 'none', stroke: C.woodDark, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: 0.28 }),
-    h('g', { class: 'gauge-needle', style: { 'transform-box': 'view-box', 'transform-origin': '50px 58px' } },
-      h('path', { d: 'M47.5 58 L50 24 L52.5 58 Z', fill: C.red })),
-    h('circle', { cx: 50, cy: 58, r: 5.5, fill: C.navy }));
+// A game ticket with a gold star: the Review Stop's icon on the 2D path, the finish screen and in Grownups. Blue ticket, notched
+// sides, a cream face with a dashed tear line and a gold star.
+export function ticketSvg() {
+  return h('svg', { class: 'ticket-art', viewBox: '0 0 100 100', 'aria-hidden': 'true' },
+    h('ellipse', { cx: 50, cy: 90, rx: 40, ry: 4, fill: 'rgba(60,40,20,.16)' }),
+    h('g', { transform: 'rotate(-8 50 50)' },
+      h('path', { d: 'M12 24 H88 V41 A9 9 0 0 0 88 59 V76 H12 V59 A9 9 0 0 0 12 41 Z', fill: '#5A8FE0' }),
+      h('rect', { x: 18, y: 30, width: 64, height: 40, rx: 5, fill: '#FFF8EC' }),
+      h('path', { d: 'M30 31 V69', stroke: C.woodDark, 'stroke-width': 2, 'stroke-dasharray': '3 4', opacity: 0.4 }),
+      h('path', { d: 'M56 36 l4.6 9.6 10.4 1.2 -7.8 7 2.3 10.2 -9.5 -5.4 -9.5 5.4 2.3 -10.2 -7.8 -7 10.4 -1.2 Z', fill: C.sun, stroke: C.sunDark, 'stroke-width': 2, 'stroke-linejoin': 'round' })));
 }
-// The icon for a stop on the path (a book for a story, a gauge for a ride, a crate otherwise).
-export const stopIcon = (ck) => (ck.kind === 'book' ? bookSvg() : ck.kind === 'ride' ? gaugeSvg() : crateSvg());
+// An open book with a loop arrow over it (read it once more): Read It Again's icon on the 2D path, the finish screen and in Grownups.
+export function rereadSvg() {
+  return h('svg', { class: 'reread-art', viewBox: '0 0 100 100', 'aria-hidden': 'true' },
+    h('ellipse', { cx: 50, cy: 90, rx: 42, ry: 4, fill: 'rgba(60,40,20,.16)' }),
+    h('rect', { x: 6, y: 34, width: 88, height: 52, rx: 9, fill: '#3E9C8B' }),
+    h('path', { d: 'M12 40 Q32 34 49 43 L49 80 Q32 73 12 78 Z', fill: C.cream }),
+    h('path', { d: 'M88 40 Q68 34 51 43 L51 80 Q68 73 88 78 Z', fill: '#FFF8EC' }),
+    h('path', { d: 'M18 52 Q31 48 42 54 M18 63 Q31 59 42 65 M58 54 Q69 48 82 52 M58 65 Q69 59 82 63', fill: 'none', stroke: C.woodDark, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: 0.4 }),
+    h('circle', { cx: 50, cy: 26, r: 20, fill: C.sun, stroke: C.sunDark, 'stroke-width': 3 }),
+    h('path', { d: 'M60 26 A10 10 0 1 1 52 16.5', fill: 'none', stroke: C.navy, 'stroke-width': 4, 'stroke-linecap': 'round' }),
+    h('path', { d: 'M47 12 L55 16.5 L48 22 Z', fill: C.navy }));
+}
+// The icon for a stop on the path (a book for a story, a book with a loop arrow for Read It Again, a ticket for a Review Stop, a crate otherwise).
+export const stopIcon = (ck) => (ck.kind === 'book' ? bookSvg() : ck.kind === 'reread' ? rereadSvg() : ck.kind === 'review' ? ticketSvg() : crateSvg());

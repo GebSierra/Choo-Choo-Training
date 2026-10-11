@@ -92,16 +92,32 @@ export function drawBook(g, cx, cy, size, color = '#E5484D') {
   g.restore();
 }
 
-// A round steam gauge seen from the front, for a ride's depot sign: brass ring, cream face, red needle.
-export function drawGauge(g, cx, cy, size, locked = false) {
-  const r = size / 2;
+// A game ticket with a gold star, for a Review Stop's depot sign: a blue ticket, a cream face, a dashed tear line and a gold star.
+export function drawTicket(g, cx, cy, size, locked = false) {
+  const w = size, hgt = size * 0.78, x = cx - w / 2, y = cy - hgt / 2, r = hgt * 0.12;
   g.save();
-  g.fillStyle = locked ? '#C4BBAE' : '#E5A73A'; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill();
-  g.strokeStyle = locked ? '#D8D1C6' : '#FFD166'; g.lineWidth = r * 0.12; g.beginPath(); g.arc(cx, cy, r * 0.94, 0, Math.PI * 2); g.stroke();
-  g.fillStyle = '#FFF8EC'; g.beginPath(); g.arc(cx, cy, r * 0.78, 0, Math.PI * 2); g.fill();
-  g.strokeStyle = locked ? '#C4BBAE' : '#E5484D'; g.lineWidth = r * 0.1; g.lineCap = 'round';
-  g.beginPath(); g.moveTo(cx, cy + r * 0.14); g.lineTo(cx + r * 0.3, cy - r * 0.55); g.stroke();
-  g.fillStyle = locked ? '#B3ACA1' : '#2B2D5C'; g.beginPath(); g.arc(cx, cy + r * 0.14, r * 0.12, 0, Math.PI * 2); g.fill();
+  g.translate(cx, cy); g.rotate(-0.14); g.translate(-cx, -cy);
+  g.fillStyle = locked ? '#C4BBAE' : '#5A8FE0'; g.beginPath(); g.roundRect(x, y, w, hgt, r); g.fill();
+  g.fillStyle = locked ? '#F4F0E8' : '#FFF8EC'; g.beginPath(); g.roundRect(x + w * 0.07, y + hgt * 0.13, w * 0.86, hgt * 0.74, r * 0.6); g.fill();
+  g.strokeStyle = 'rgba(80,50,20,.35)'; g.lineWidth = size * 0.02; g.setLineDash([size * 0.03, size * 0.04]);
+  g.beginPath(); g.moveTo(x + w * 0.22, y + hgt * 0.13); g.lineTo(x + w * 0.22, y + hgt * 0.87); g.stroke(); g.setLineDash([]);
+  g.fillStyle = locked ? '#B3ACA1' : '#FFD166'; g.strokeStyle = locked ? '#A8A196' : '#E5A73A'; g.lineWidth = size * 0.025; g.lineJoin = 'round';
+  g.beginPath();
+  const sx = x + w * 0.6, ro = hgt * 0.3, ri = ro * 0.46;
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (i * Math.PI) / 5, rr = i % 2 ? ri : ro; g[i ? 'lineTo' : 'moveTo'](sx + Math.cos(a) * rr, cy + Math.sin(a) * rr); }
+  g.closePath(); g.fill(); g.stroke();
+  g.restore();
+}
+
+// An open book with a loop arrow over it, for Read It Again's depot sign: a teal cover, two pages and a gold disc with a turning arrow.
+export function drawReread(g, cx, cy, size, locked = false) {
+  drawBook(g, cx, cy + size * 0.1, size, locked ? '#C4BBAE' : '#3E9C8B');
+  const r = size * 0.2, y = cy - size * 0.3;
+  g.save();
+  g.fillStyle = locked ? '#C4BBAE' : '#FFD166'; g.beginPath(); g.arc(cx, y, r, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = locked ? '#B3ACA1' : '#2B2D5C'; g.lineWidth = r * 0.22; g.lineCap = 'round';
+  g.beginPath(); g.arc(cx, y, r * 0.52, -Math.PI * 0.35, Math.PI * 1.35); g.stroke();
+  g.fillStyle = g.strokeStyle; g.beginPath(); g.moveTo(cx - r * 0.2, y - r * 0.82); g.lineTo(cx + r * 0.22, y - r * 0.5); g.lineTo(cx - r * 0.22, y - r * 0.2); g.closePath(); g.fill();
   g.restore();
 }
 
@@ -111,7 +127,8 @@ function signTexture(bag, { glyph, accent, locked, icon }) {
     g.fillRect(0, 0, w, w);
     g.lineWidth = 16; g.strokeStyle = locked ? '#C9C2B6' : accent;
     g.beginPath(); g.arc(128, 128, 118, 0, Math.PI * 2); g.stroke();
-    if (icon === 'gauge') drawGauge(g, 128, 128, 140, locked);
+    if (icon === 'star') drawTicket(g, 128, 128, 150, locked);
+    else if (icon === 'reread') drawReread(g, 128, 130, 138, locked);
     else if (icon === 'book') drawBook(g, 128, 130, 138, locked ? '#C4BBAE' : '#E5484D');
     else if (icon === 'crate') drawCrate(g, 128, 132, 118, locked ? '#C4BBAE' : '#B9874C');
     else drawSpelling(g, glyph, 128, 128, 170, locked ? '#B3ACA1' : accent);

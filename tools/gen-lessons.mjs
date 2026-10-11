@@ -105,7 +105,16 @@ c.sounds = Object.fromEntries(old.sounds.map((k) => [k, c.sounds[k]]));
 c.lessons = c.lessons.slice(0, old.lessons);
 for (const k of ['hunt']) c.games[k].distractors = Object.fromEntries(old.sounds.map((s) => [s, c.games[k].distractors[s]]));
 delete c.games.barn; // Barn Doors is gone (v1.9.3): the tap games take its place
-c.checkpoints = (c.checkpoints || []).filter((k) => k.kind);
+// Checkpoints: the stories (b1, b2) keep their hand-made data; Smooth Ride (r1, kind 'ride') became Read It Again (kind 'reread'; its
+// microphone is gone, docs/LESSON-REBUILD.md section 10); the Review Stops are generated below. The id r1 is kept so saved results stay valid.
+delete c.games.ride;
+const REREAD = {
+  id: 'r1', kind: 'reread', title: 'Read It Again', needs: ['m', 'a', 's', 'i'],
+  // A tiny story the grown-up reads once and the child then reads back. Only letters taught by lesson 4 (m a s i) and the two heart words
+  // Story 1 already uses (is, I): test/check-content.mjs checks every word.
+  story: ['I am Sam.', 'I miss Sis.', 'Sis is Mim.'], sight: ['I', 'is'],
+};
+c.checkpoints = [REREAD, ...(c.checkpoints || []).filter((k) => k.kind === 'book')];
 
 const phrase = (e) => (e.asIn ? `${e.say} as in ${e.asIn}` : e.say);
 const QUIET = [{ tts: 'Today we learn a new letter. Your grown up will say its sound.' }];
@@ -159,6 +168,32 @@ for (const k of c.checkpoints) if (Array.isArray(k.needs)) k.after = Math.max(..
 
 // Station Board words: for every lesson that has a full list (lessons 5 on), the proven short words of the bank.
 for (const L of c.lessons) { const b = boardWords(c.lessons.map((x) => x.sound), L.number, 4); if (b) L.board = b; else delete L.board; }
+
+// Review Stops (docs/LESSON-REBUILD.md section 10): a short run of the fun games on letters already taught, nothing new. Each activity
+// names the lesson whose sound it is about (`lesson`); the games then mix that sound with the earlier ones (js/games-data.js
+// roundTargets, otherLetters), so nothing past `after` ever shows. The plans lean on the three newest sounds, with one older sound
+// in most stops, a different mix at every stop, and Ticket Check last. Picked by hand, then checked here and in test/check-content.mjs.
+const REVIEW_AFTER = [3, 9, 12, 15, 17];
+const REVIEW_PLANS = {
+  3: [['hunt', 3], ['wagons', 2], ['signals', 3], ['check', 2]],
+  9: [['hunt', 8], ['signals', 9], ['wagons', 6], ['check', 9]],
+  12: [['board', 12], ['wagons', 11], ['hunt', 7], ['check', 10]],
+  15: [['wagons', 15], ['hunt', 13], ['board', 14], ['check', 15]],
+  17: [['board', 17], ['hunt', 16], ['signals', 11], ['check', 17]],
+};
+REVIEW_AFTER.forEach((after, i) => {
+  if (after > c.lessons.length) return;
+  const plan = REVIEW_PLANS[after].map(([task, lesson]) => {
+    const L = c.lessons[lesson - 1];
+    if (lesson > after || !L) throw new Error(`review stop after ${after}: lesson ${lesson} is not taught yet`);
+    if (task === 'signals' && lesson < 2) throw new Error('Green Light needs two sounds');
+    if (task === 'board' && !L.board) throw new Error(`review stop after ${after}: lesson ${lesson} has no Station Board words`);
+    return { task, lesson };
+  });
+  if (plan[plan.length - 1].task !== 'check') throw new Error('Ticket Check comes last');
+  c.checkpoints.push({ id: `v${i + 1}`, kind: 'review', title: 'Review Stop', after, plan });
+});
+
 c.games.board = { say: 'Find the sound in the word.' };
 // "How to make this sound" for the Watch My Mouth step (docs/CURRICULUM.md section 5 and the unit notes in section 11): lips, teeth,
 // tongue and whether the voice is on, in one to three short sentences. `voice` is shown as a small badge beside the text.

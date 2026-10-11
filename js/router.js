@@ -5,7 +5,7 @@ import { closeTopSheet } from './components/back-sheet.js';
 
 const depthOf = (path) => {
   if (path === '/home') return 0;
-  if (/^\/(lesson\/\d+\/(task\/\d+|finish)|checkpoint\/[\w-]+\/finish|proto\/f\/task\/\d+|proto\/play\/\d+\/task\/\d+)$/.test(path)) return 2;
+  if (/^\/(lesson\/\d+\/(task\/\d+|finish)|checkpoint\/[\w-]+\/(task\/\d+|finish)|proto\/f\/task\/\d+|proto\/play\/\d+\/task\/\d+)$/.test(path)) return 2;
   return 1;
 };
 

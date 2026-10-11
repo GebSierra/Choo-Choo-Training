@@ -10,6 +10,7 @@ import { grownupsScreen } from './screens/grownups.js';
 import { taskScreen } from './screens/task.js';
 import { finishScreen, checkpointFinishScreen } from './screens/finish.js';
 import { checkpointScreen } from './screens/checkpoint.js';
+import { reviewTaskScreen } from './screens/review.js';
 import { createAccount } from './account.js';
 import { signinScreen } from './screens/signin.js';
 import { handoffOut, handoffIn } from './handoff.js';
@@ -80,6 +81,7 @@ async function boot() {
     { re: /^\/lesson\/(\d+)\/task\/(\d+)$/, screen: taskScreen },
     { re: /^\/lesson\/(\d+)\/finish$/, screen: finishScreen },
     { re: /^\/checkpoint\/([\w-]+)$/, screen: checkpointScreen },
+    { re: /^\/checkpoint\/([\w-]+)\/task\/(\d+)$/, screen: reviewTaskScreen },
     { re: /^\/checkpoint\/([\w-]+)\/finish$/, screen: checkpointFinishScreen },
     { re: /^\/grownups$/, screen: grownupsScreen },
     // A read-only look at one world (W1 .. W11), linked from Grownups. Loaded on demand; its files are precached.

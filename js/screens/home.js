@@ -276,7 +276,7 @@ export function mapScreen(ctx, preview = null, plan = null) {
   const tap = (fn) => (btn, st) => { if (dragged) { dragged = false; return; } fn(btn, st); };
 
   const wobble = (btn) => animate(btn, [{ transform: 'rotate(0)' }, { transform: 'rotate(-6deg)', offset: 0.25 }, { transform: 'rotate(6deg)', offset: 0.6 }, { transform: 'rotate(0)' }], { duration: 260 });
-  // a Story or Smooth Ride next in line holds the figure: that stone becomes the current one, the lesson after it stays open
+  // a Story, Read It Again or Review Stop next in line holds the figure: that stone becomes the current one, the lesson after it stays open
   const curNode = current === null ? -1 : nodes.findIndex((n) => n.lesson && n.lesson.number === current);
   const hold = preview || curNode < 0 ? -1 : checkpointStopIndex(nodes, curNode, store);
   let currentIndex = 0, found = false; // the stone the map opens on: the current lesson's, else the current sack, else the last stone
