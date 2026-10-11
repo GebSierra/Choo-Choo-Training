@@ -12,6 +12,7 @@ import { earnedLevels } from '../js/levels.js';
 import { worldDone, currentWorld, lessonsIn } from '../js/worlds.js';
 import { isIsolated } from './check-content.mjs';
 import { WORD_BANK } from '../js/games-data.js';
+import { GLYPHS } from '../js/glyphs.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const SHOTS = path.join(ROOT, 'docs/screenshots/phase-b');
@@ -185,6 +186,11 @@ for (const vp of VPS) {
     ok(r.pair && r.glyphs.join() === 'c,k', `${tag} New Sound: the card shows both letters c and k (${r.glyphs})`);
     ok(/c and k make the same sound: k-/.test(r.card.replace(/\s+/g, ' ')), `${tag} New Sound: the sound card says "c and k make the same sound: k-" (${r.card.replace(/\s+/g, ' ')})`);
     ok(await fits(p, '.new-letter .letter-card, .new-letter .sound-card') && await noScroll(p), `${tag} New Sound: fits the screen`);
+    // the big card draws the one glyph table: every stroke of c and k is the data's, and once the draw-in has finished the whole letter is there
+    await p.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running'), null, { timeout: 8000 }).catch(() => {});
+    const paths = await p.evaluate(() => Object.fromEntries([...document.querySelectorAll('.new-letter .letter-card svg.glyph')].map((g) => [g.dataset.letter, [...g.querySelectorAll('path.stroke')].map((x) => ({ d: x.getAttribute('d'), off: getComputedStyle(x).strokeDashoffset, o: getComputedStyle(x).opacity }))])));
+    ok(['c', 'k'].every((l) => JSON.stringify(paths[l].map((x) => x.d)) === JSON.stringify(GLYPHS[l].strokes.map((x) => x.d))) && paths.k.length === 3, `${tag} New Sound: the big card draws the house c and k strokes (k has ${paths.k.length})`);
+    ok(paths.k.every((x) => (x.off === '0px' || x.off === 'none' || parseFloat(x.off) === 0) && x.o === '1'), `${tag} New Sound: the k is fully drawn once the draw-in ends (${JSON.stringify(paths.k.map((x) => x.off))})`);
     if (vp.name === 'phone') await p.screenshot({ path: path.join(SHOTS, 'ck-new-sound-390x844.png') });
     ok(errors.length === 0, `${tag} New Sound c/k: no errors ${errors.join(' | ')}`);
     await ctx.close();
