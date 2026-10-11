@@ -40,7 +40,7 @@ export function grownupsScreen(ctx) {
   // ---- worlds the child has reached, each one a button that opens it on the Home (a look back and practice, js/visit.js; nothing is recorded) ----
   const reached = reachedWorlds(store, curriculum), curW = currentWorld(store, curriculum);
   const worldsBox = reached.length > 1 ? h('section', { class: 'gu-card gu-worlds', 'aria-label': 'Worlds' }, h('h2', { class: 'gu-h2' }, h('span', { class: 'gu-ic', 'aria-hidden': 'true' }, icon('lessons', 22)), h('span', { class: 'gu-title' }, 'Worlds')),
-    h('p', { class: 'gu-note' }, 'Open a world the child has reached to look at its stations or practise a lesson again. Nothing is recorded while you look back.'),
+    h('p', { class: 'gu-note' }, 'Open a world your child has reached to look at its stations or practice a lesson again. Nothing is recorded while you look back.'),
     h('div', { class: 'gu-wlist' }, ...reached.map((w) => {
       const ls = lessonsIn(curriculum, w.id), done = ls.filter((l) => store.isDone(l.number)).length, isCur = curW && curW.id === w.id;
       return h('div', { class: 'gu-wrow' + (isCur ? ' is-current' : ''), dataset: { world: w.id }, style: { '--wc': w.color } },
