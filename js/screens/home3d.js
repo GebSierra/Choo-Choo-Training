@@ -186,7 +186,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
 
   // ---- the camera ----
   const min = stopS[0] - (startTunnel ? 9 : 2), max = lastS + (portal ? 3 : 1); // the end clamp shows the portal and its signpost
-  const rig = createRig(camera, line, { min, max, side: parked ? -0.7 : undefined, sidePortrait: theme.sidePortrait, across: theme.across }); // a finished world looks toward its siding on the far side
+  const rig = createRig(camera, line, { min, max, side: parked && !visiting ? -0.7 : undefined, sidePortrait: theme.sidePortrait, across: theme.across }); // a finished world looks toward its siding on the far side
   const firstVisit = !preview && !visiting && !arrive && !settings.trainIntroDone;
   if (firstVisit) store.setSetting('trainIntroDone', true);
   const glideIn = firstVisit && currentIndex > 0 && !reduced();
@@ -215,8 +215,8 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const prevW = hasStart && !preview && !cross ? previousWorld(curriculum, worldId) : null;
   const fwdW = visiting && portal ? nextWorld(curriculum, worldId) : null;
   const anchorAt = (s, y) => { const q = {}; line.at(s, q); const o = new THREE.Object3D(); o.position.set(q.x, y, q.z); return o; };
-  if (prevW && startTunnel) portalStops.push({ role: 'back', label: `Back to ${prevW.name}`, caption: prevW.name, anchor: anchorAt(mouthS - 0.4, 1.1), onTap: tap(() => goToWorld(ctx, prevW.id, { host: root, verb: 'Back to' })) });
-  if (fwdW) { portal.group.updateMatrixWorld(true); const o = new THREE.Object3D(); o.position.copy(portal.group.localToWorld(new THREE.Vector3(0, 1.0, -HILL / 2))); portalStops.push({ role: 'forward', label: `On to ${fwdW.name}`, caption: fwdW.name, anchor: o, onTap: tap(() => goToWorld(ctx, fwdW.id, { host: root, verb: 'On to' })) }); }
+  if (prevW && startTunnel) portalStops.push({ role: 'back', label: `Back to ${prevW.name}`, caption: prevW.name, anchor: anchorAt(mouthS - 0.4, 2.4), onTap: tap(() => goToWorld(ctx, prevW.id, { host: root, verb: 'Back to' })) });
+  if (fwdW) { portal.group.updateMatrixWorld(true); const o = new THREE.Object3D(); o.position.copy(portal.group.localToWorld(new THREE.Vector3(0, 2.4, -HILL / 2))); portalStops.push({ role: 'forward', label: `On to ${fwdW.name}`, caption: fwdW.name, anchor: o, onTap: tap(() => goToWorld(ctx, fwdW.id, { host: root, verb: 'On to' })) }); }
   const overlay = createOverlay(overlayStops, { portals: portalStops,  bubbleIndex: stops[currentIndex].state === 'current' && !stops[currentIndex].resting ? currentIndex : -1, onBubble: () => speech.say([{ tts: 'Tap to start' }]) });
   // Keyboard focus on a stop brings it into view.
   overlay.buttons.forEach((b, i) => b.addEventListener('focus', () => { if (b.dataset.shown !== '1') { rig.glideTo(stopS[i], 700, performance.now()); wake(); } }));

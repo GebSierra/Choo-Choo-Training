@@ -121,7 +121,7 @@ function tunnelIcon(g, next, opts = {}) {
     ? h('button', { class: 'scene-tunnel tappable', type: 'button', dataset: { world: next.id, role: 'forward' }, 'aria-label': opts.label, onclick: opts.onTap }, svg, h('span', { class: 'tunnel-name' }, next.name, ' \u2192'))
     : h('div', { class: 'scene-tunnel', dataset: { world: next.id }, 'aria-label': `Tunnel to ${next.name}` }, svg, h('span', { class: 'tunnel-name' }, next.name, ' \u2192'));
   const out = place(g, el, { t: 1, side: 0.2, w: 150, hgt: 100 });
-  out.style.setProperty('--py', '126px'); // in portrait it stands above the last stone, clear of the top bar
+  out.style.setProperty('--py', opts.onTap ? '150px' : '126px'); // in portrait it stands above the last stone, clear of the top bar (a button a little lower, so its middle is clear of the Grownups pill when that wraps)
   out.style.setProperty('--lx', (g.W - 95) + 'px'); // in landscape it stands whole at the far end
   return out;
 }

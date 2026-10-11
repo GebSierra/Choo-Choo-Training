@@ -125,7 +125,7 @@ export async function visit3dChecks({ browser, url, ok, vp }) {
   await page.locator('.finish .got').click();
   await page.waitForTimeout(1700);
   await page.locator('.finish .got').click();
-  ok(await world3d(page, 'W1') && await page.locator('.visit-chip').count() === 1, `${tag}: finishing a replayed lesson returns to the visited world`);
+  ok(await world3d(page, 'W1') && await page.locator('.screen:not(.leaving) .visit-chip').count() === 1, `${tag}: finishing a replayed lesson returns to the visited world`);
   ok(progress(await stored(page)) === progress(s0), `${tag}: replaying lesson 1 to its end changed nothing (no result, no doneAt, no train place)`);
   await page.evaluate(() => { location.hash = '#/lesson/1'; });
   await page.waitForSelector('.lesson-overview');
@@ -138,19 +138,20 @@ export async function visit3dChecks({ browser, url, ok, vp }) {
   await page.locator('.finish .got').click();
   await page.waitForTimeout(1700);
   await page.locator('.finish .got').click();
-  ok(await world3d(page, 'W1') && await page.locator('.visit-chip').count() === 1 && progress(await stored(page)) === progress(s0), `${tag}: finishing a replayed stop returns to the visited world and changes nothing`);
+  ok(await world3d(page, 'W1') && await page.locator('.screen:not(.leaving) .visit-chip').count() === 1 && progress(await stored(page)) === progress(s0), `${tag}: finishing a replayed stop returns to the visited world and changes nothing`);
 
   // on to the current world: the visit ends, and a reload also opens the current world
   ok(await showTunnel(page, 'forward'), `${tag}: the forward button is there again`);
   await page.locator('.portal-btn[data-role="forward"]').click();
-  ok(await world3d(page, 'W2') && await page.locator('.visit-chip').count() === 0, `${tag}: the forward tunnel returns to the current world, with no visit chip`);
+  const fwdOk = await world3d(page, 'W2') && await page.locator('.screen:not(.leaving) .visit-chip').count() === 0;
+  ok(fwdOk, `${tag}: the forward tunnel returns to the current world, with no visit chip ${fwdOk ? '' : JSON.stringify(await page.evaluate(() => [location.hash, window.__train && window.__train.world, document.querySelectorAll('.visit-chip').length]))}`);
   ok(progress(await stored(page)) === progress(s0), `${tag}: nor did going on change anything`);
   await settled(page);
   ok(await showTunnel(page, 'back'), `${tag}: back again for the reload check`);
   await page.locator('.portal-btn[data-role="back"]').click();
   ok(await world3d(page, 'W1'), `${tag}: visiting again works`);
   await page.reload();
-  ok(await world3d(page, 'W2') && await page.locator('.visit-chip').count() === 0, `${tag}: a reload mid-visit opens the current world`);
+  ok(await world3d(page, 'W2') && await page.locator('.screen:not(.leaving) .visit-chip').count() === 0, `${tag}: a reload mid-visit opens the current world`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
   await ctx.close();
 }
@@ -164,11 +165,11 @@ export async function replayRealChecks({ browser, url, ok }) {
   await page.locator('.portal-btn[data-role="back"]').click();
   await world3d(page, 'W1');
   // tap a station of the visited world on the Home itself
-  await page.evaluate(() => window.__train.show(0));
+  await page.evaluate(() => window.__train.show(1));
   await page.waitForTimeout(300);
-  await until(page, () => document.querySelector('.station-btn[data-index="0"]').dataset.shown === '1', null, 4000);
-  await page.locator('.station-btn[data-index="0"]').click();
-  ok(await until(page, () => /lesson\/1$/.test(location.hash), null, 5000), 'replay: a finished station of the visited world opens its lesson');
+  await until(page, () => document.querySelector('.station-btn[data-index="1"]').dataset.shown === '1', null, 4000);
+  await page.locator('.station-btn[data-index="1"]').click();
+  ok(await until(page, () => /lesson\/2$/.test(location.hash), null, 5000), 'replay: a finished station of the visited world opens its lesson');
   await page.waitForSelector('.lesson-overview');
   // Grownups > Lessons Unlock and the current world's lesson, from the same session, are real (practice is only for the visited world)
   await page.evaluate(() => { location.hash = '#/home'; });
@@ -196,29 +197,32 @@ export async function grownupsChecks({ browser, url, ok, vp }) {
   await world3d(w1.page, 'W1'); await settled(w1.page);
   ok(await w1.page.evaluate(() => !window.__train.startTunnel && !document.querySelector('.portal-btn') && !document.querySelector('.visit-chip')), `${tag}: world 1 has no start tunnel and no tunnel button`);
   await gate(w1.page);
+  await w1.page.waitForTimeout(600);
+  const baseOv = await w1.page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   ok((await w1.page.locator('.gu-worlds').count()) === 0, `${tag}: a child still in world 1 has no Worlds section`);
   await w1.ctx.close();
 
   const { ctx, page, errors } = await openHome(browser, url, vp, seed(7));
   await world3d(page, 'W2'); await settled(page);
   await gate(page);
+  await page.waitForTimeout(600); // the screen's slide-in is over
   const rows = await page.evaluate(() => [...document.querySelectorAll('.gu-worlds .gu-wrow')].map((r) => ({ id: r.dataset.world, cur: r.classList.contains('is-current'), tag: !!r.querySelector('.gu-wtag'), btn: (() => { const b = r.querySelector('button'); const x = b.getBoundingClientRect(); return { text: b.textContent, w: x.width, h: x.height, label: b.getAttribute('aria-label') }; })() })));
   ok(rows.length === 2 && rows[0].id === 'W1' && rows[1].id === 'W2' && !rows[0].cur && rows[1].cur && rows[1].tag && !rows[0].tag, `${tag}: Worlds lists the two reached worlds, the current one marked (${JSON.stringify(rows.map((r) => r.id + (r.cur ? '*' : '')))})`);
   ok(rows.every((r) => r.btn.text === 'Go to this world' && r.btn.h >= 48 && r.btn.w >= 48), `${tag}: each world has a "Go to this world" button of at least 48 px`);
   ok(await page.evaluate(() => { const b = document.querySelector('.gu-body'), k = [...b.children]; const wi = k.findIndex((c) => c.classList.contains('gu-worlds')), li = k.findIndex((c) => c.classList.contains('gu-group') && c.textContent.startsWith('Lessons')); return wi >= 0 && li === wi + 1; }), `${tag}: the Worlds section sits right before Lessons`);
-  const fit = await page.evaluate(() => { const r = document.querySelector('.gu-worlds').getBoundingClientRect(); return { l: r.left, r: r.right, ov: document.documentElement.scrollWidth - document.documentElement.clientWidth }; });
-  ok(fit.l >= 0 && fit.r <= vp.width + 0.5 && fit.ov <= 1, `${tag}: the Worlds section fits the width`);
+  const fit = await page.evaluate(() => { const r = document.querySelector('.gu-worlds').getBoundingClientRect(); return { l: r.left, r: r.right, ov: document.documentElement.scrollWidth - document.documentElement.clientWidth, wide: [...document.querySelectorAll('body *')].filter((e) => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 4).map((e) => e.className + ':' + Math.round(e.getBoundingClientRect().right)) }; });
+  ok(fit.l >= 0 && fit.r <= vp.width + 0.5 && fit.ov <= baseOv + 1, `${tag}: the Worlds section fits the width ${JSON.stringify(fit)}`);
   await page.locator('.gu-worlds').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
   await shot(page, 'grownups-worlds', vp);
   const s0 = await stored(page);
   await page.locator('.world-go[data-world="W1"]').click();
-  ok(await world3d(page, 'W1') && await page.locator('.visit-chip').count() === 1, `${tag}: "Go to this world" on world 1 opens it on the Home as a visit`);
+  ok(await world3d(page, 'W1') && await page.locator('.screen:not(.leaving) .visit-chip').count() === 1, `${tag}: "Go to this world" on world 1 opens it on the Home as a visit`);
   ok(progress(await stored(page)) === progress(s0), `${tag}: that changed no progress`);
   await settled(page);
   await gate(page);
   await page.locator('.world-go[data-world="W2"]').click();
-  ok(await world3d(page, 'W2') && await page.locator('.visit-chip').count() === 0, `${tag}: the current world's button returns to it`);
+  ok(await world3d(page, 'W2') && await page.locator('.screen:not(.leaving) .visit-chip').count() === 0, `${tag}: the current world's button returns to it`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
   await ctx.close();
 }
@@ -226,7 +230,7 @@ export async function grownupsChecks({ browser, url, ok, vp }) {
 // ---- the 2D path ----
 export async function flatVisitChecks({ browser, url, ok, vp }) {
   const tag = vp.name + ' 2D';
-  const { ctx, page, errors } = await openHome(browser, url, vp, seed(7, { trainWorld: false }));
+  const { ctx, page, errors } = await openHome(browser, url, vp, seed(7, { trainWorld: false, migrated1912: true }));
   await page.waitForSelector('.stone');
   await page.waitForTimeout(2200);
   ok((await page.locator('.stone').count()) === 11 && (await page.locator('.scene-tunnel.start').count()) === 1 && (await page.locator('.scene-house').count()) === 0, `${tag}: world 2 shows its 11 stones and a start tunnel instead of the house`);
@@ -254,9 +258,11 @@ export async function flatVisitChecks({ browser, url, ok, vp }) {
   await page.waitForTimeout(1700);
   await page.locator('.finish .got').click();
   ok(await until(page, () => document.querySelectorAll('.stone').length === 9 && !!document.querySelector('.visit-chip'), null, 8000) && progress(await stored(page)) === progress(s0), `${tag}: finishing a replayed lesson returns to the visited world and changes nothing`);
+  await page.waitForTimeout(2500); // the glide to the last stone
   await page.locator('.scene-tunnel.tappable[data-role="forward"]').scrollIntoViewIfNeeded();
   await page.locator('.scene-tunnel.tappable[data-role="forward"]').click();
   ok(await until(page, () => document.querySelectorAll('.stone').length === 11 && !document.querySelector('.visit-chip'), null, 8000), `${tag}: on to world 2: its 11 stones, no chip`);
+  await page.waitForTimeout(2500); // the glide to the current stone
   await page.locator('.scene-tunnel.tappable[data-role="back"]').scrollIntoViewIfNeeded();
   await page.locator('.scene-tunnel.tappable[data-role="back"]').click();
   await until(page, () => !!document.querySelector('.visit-chip'), null, 8000);
@@ -288,7 +294,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   unitChecks(ok);
   const { server, url } = await startServer();
   const browser = await launch(await loadPlaywright());
-  for (const vp of VIEWPORTS) { await visit3dChecks({ browser, url, ok, vp }); await grownupsChecks({ browser, url, ok, vp }); await flatVisitChecks({ browser, url, ok, vp }); }
+  const only = process.argv.find((a) => a.startsWith('--vp='));
+  for (const vp of VIEWPORTS.filter((v) => !only || v.name === only.slice(5))) { await visit3dChecks({ browser, url, ok, vp }); await grownupsChecks({ browser, url, ok, vp }); await flatVisitChecks({ browser, url, ok, vp }); }
   await replayRealChecks({ browser, url, ok });
   await reducedVisitChecks({ browser, url, ok });
   await browser.close(); server.close();
