@@ -14,7 +14,8 @@ import { starSvg } from '../art.js';
 import { NUMBER_WORDS, earnedLevels } from '../levels.js';
 import { accountCard } from '../components/account-card.js';
 import { kidSvg } from '../art/kid.js';
-import { currentWorld } from '../worlds.js';
+import { currentWorld, reachedWorlds, lessonsIn } from '../worlds.js';
+import { goToWorld } from '../visit.js';
 import { progressBody } from '../components/progress-card.js';
 
 export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA vowel and consonant chart recordings, CC BY-SA 3.0, obtained via github.com/joshstephenson/PhoneticFlashCards, trimmed and loudness-normalized.";
@@ -35,6 +36,18 @@ export function grownupsScreen(ctx) {
 
   // ---- lessons and checkpoints, grouped by world then unit, only the current world open (js/components/lesson-list.js) ----
   const lessonsBox = lessonList({ store, curriculum, grouped: true }).el;
+
+  // ---- worlds the child has reached, each one a button that opens it on the Home (a look back and practice, js/visit.js; nothing is recorded) ----
+  const reached = reachedWorlds(store, curriculum), curW = currentWorld(store, curriculum);
+  const worldsBox = reached.length > 1 ? h('section', { class: 'gu-card gu-worlds', 'aria-label': 'Worlds' }, h('h2', { class: 'gu-h2' }, h('span', { class: 'gu-ic', 'aria-hidden': 'true' }, icon('lessons', 22)), h('span', { class: 'gu-title' }, 'Worlds')),
+    h('p', { class: 'gu-note' }, 'Open a world the child has reached to look at its stations or practise a lesson again. Nothing is recorded while you look back.'),
+    h('div', { class: 'gu-wlist' }, ...reached.map((w) => {
+      const ls = lessonsIn(curriculum, w.id), done = ls.filter((l) => store.isDone(l.number)).length, isCur = curW && curW.id === w.id;
+      return h('div', { class: 'gu-wrow' + (isCur ? ' is-current' : ''), dataset: { world: w.id }, style: { '--wc': w.color } },
+        h('span', { class: 'gu-world-dot', style: { background: w.color }, 'aria-hidden': 'true' }, String(w.n)),
+        h('div', { class: 'gu-row-text' }, h('strong', {}, w.name, isCur ? h('span', { class: 'gu-wtag' }, 'Current') : null), h('span', { class: 'gu-sub' }, `${done} of ${ls.length} lessons done`)),
+        h('button', { class: 'btn small world-go', type: 'button', dataset: { world: w.id }, 'aria-label': `Go to ${w.name}`, onclick: () => goToWorld(ctx, w.id) }, 'Go to this world'));
+    }))) : null;
 
   // ---- reset (its own "Start over" card at the very bottom) ----
   const resetBox = h('div', { class: 'gu-reset' });
@@ -100,7 +113,7 @@ export function grownupsScreen(ctx) {
   });
 
   // Every card title carries a small round icon (js/dom.js). Group headings (Lessons, Help) sit between cards.
-  const ICONS = { Progress: 'chart', Lessons: 'lessons', 'Your child': 'child', 'Sound and voice': 'speaker', Pace: 'clock', Account: 'adult', Developer: 'code', Previews: 'eye', 'Start over': 'redo', Links: 'external', Screen: 'expand', Install: 'download', 'The thinking behind this app': 'help', 'Recorded sounds': 'speaker', Levels: 'star', 'All the sounds': 'lessons', 'Help and the thinking behind the app': 'help' };
+  const ICONS = { Progress: 'chart', Lessons: 'lessons', 'Your child': 'child', 'Sound and voice': 'speaker', Pace: 'clock', Worlds: 'lessons', Account: 'adult', Developer: 'code', Previews: 'eye', 'Start over': 'redo', Links: 'external', Screen: 'expand', Install: 'download', 'The thinking behind this app': 'help', 'Recorded sounds': 'speaker', Levels: 'star', 'All the sounds': 'lessons', 'Help and the thinking behind the app': 'help' };
   const titled = (title) => [h('span', { class: 'gu-ic', 'aria-hidden': 'true' }, icon(ICONS[title] || 'help', 22)), h('span', { class: 'gu-title' }, title)];
   const sec = (title, ...kids) => h('section', { class: 'gu-card' }, h('h2', { class: 'gu-h2' }, ...titled(title)), ...kids);
   const group = (title, note) => h('div', { class: 'gu-group' }, h('h2', { class: 'gu-h2' }, ...titled(title)), note ? h('p', { class: 'gu-note' }, note) : null);
@@ -165,6 +178,7 @@ export function grownupsScreen(ctx) {
     h('div', { class: 'gu-body' },
       hero,
       fold('Progress', ...progressBody({ curriculum, store })), // the journey board and a short summary for each world
+      ...(worldsBox ? [worldsBox] : []),
       group('Lessons', 'Each station opens when the one before it is finished. Unlock opens a lesson early.'), lessonsBox,
       sec('Your child', picker),
       sec('Sound and voice',

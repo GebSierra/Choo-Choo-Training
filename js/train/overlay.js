@@ -7,10 +7,18 @@ import { h, icon } from '../dom.js';
 const MIN = 64;
 
 // stops: [{ label, state, cls, anchor: Object3D (the sign), onTap }]. bubble: the "Tap to start" button for the current stop.
-export function createOverlay(stops, { bubbleIndex, onBubble }) {
+export function createOverlay(stops, { bubbleIndex, onBubble, portals = [] }) {
   const layer = h('div', { class: 'train-overlay' });
   const buttons = stops.map((s, i) => {
     const b = h('button', { class: `stone station-btn is-${s.cls}`, type: 'button', 'aria-label': s.label, 'aria-disabled': s.cls === 'locked' ? 'true' : null, dataset: { index: String(i), kind: s.kind }, onclick: (e) => s.onTap(b, e) }, s.badge || null);
+    b.style.visibility = 'hidden';
+    layer.append(b);
+    return b;
+  });
+  // Tunnel buttons (a visit, js/visit.js): a quiet round arrow over a tunnel's mouth with its world's name, 76 px to tap.
+  const portalBtns = portals.map((p) => {
+    const b = h('button', { class: 'portal-btn is-' + p.role, type: 'button', 'aria-label': p.label, dataset: { role: p.role }, onclick: (e) => p.onTap(b, e) },
+      h('span', { class: 'pb-ring' }, icon(p.role === 'back' ? 'back' : 'arrowRight', 24)), h('span', { class: 'pb-cap' }, p.caption));
     b.style.visibility = 'hidden';
     layer.append(b);
     return b;
@@ -32,6 +40,18 @@ export function createOverlay(stops, { bubbleIndex, onBubble }) {
       shown.length = 0;
       camera.getWorldPosition(cam);
       const order = stops.map((s, i) => { s.anchor.getWorldPosition(v); return [i, v.distanceToSquared(cam)]; }).sort((a, b) => a[1] - b[1]);
+      portals.forEach((p, k) => {
+        const b = portalBtns[k], size = 76;
+        p.anchor.getWorldPosition(v); v.project(camera);
+        const x = (v.x + 1) / 2 * w, y = (1 - v.y) / 2 * hgt;
+        const box = { x: Math.round(x - size / 2), y: Math.round(y - size / 2) };
+        const visible = v.z < 1 && x >= 0 && x <= w && y >= 0 && y <= hgt && !blocked(box.x, box.y, size, size);
+        b.style.visibility = visible ? 'visible' : 'hidden';
+        b.style.pointerEvents = visible ? '' : 'none';
+        b.tabIndex = visible ? 0 : -1;
+        b.style.transform = `translate(${Math.max(4, Math.min(w - size - 4, box.x))}px,${Math.max(4, Math.min(hgt - size - 30, box.y))}px)`;
+        b.dataset.shown = visible ? '1' : '0';
+      });
       for (const [i] of order) {
         const s = stops[i], b = buttons[i];
         s.anchor.getWorldPosition(v);
