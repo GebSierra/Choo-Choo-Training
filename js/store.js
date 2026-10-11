@@ -157,12 +157,15 @@ export function createStore() {
     write();
     if (bump) for (const fn of listeners) { try { fn(state); } catch { /* a listener must never break saving */ } }
   }
+  let practice = false; // a replay in a visited world (js/visit.js): progress writes are ignored while it is on
   const lesson = (n) => state.lessons[n] || { tasksDone: [], result: null, completedAt: null };
   const checkpoint = (id) => state.checkpoints[id] || { result: null, completedAt: null };
 
   return {
     get state() { return state; },
     get settings() { return state.settings; },
+    get practice() { return practice; },
+    setPractice(on) { practice = !!on; },
     lesson,
     // A lesson counts as done by its own result only (got-it). Before phase B a later lesson's result also counted; that does not hold when
     // lessons are added in the middle of the order, so older saves are written out explicitly once (parse, above).
@@ -188,19 +191,22 @@ export function createStore() {
     },
     allowToday() { this.setSetting('restOverride', dayKey()); },
     markTask(n, i) {
+      if (practice) return;
       const l = { ...lesson(n) };
       if (!l.tasksDone.includes(i)) l.tasksDone = [...l.tasksDone, i];
       state.lessons[n] = l; save();
     },
     setResult(n, result) {
+      if (practice) return;
       const l = { ...lesson(n), result, completedAt: new Date().toISOString() };
       if (result === 'got-it' && !this.isDone(n)) l.doneAt = Date.now(); // first time done (a lesson already completed by a later one does not count as new)
       state.lessons[n] = l; save();
     },
     resetLessonTasks(n) {
+      if (practice) return;
       state.lessons[n] = { ...lesson(n), tasksDone: [] }; save();
     },
-    unlock(n) { state.lessons[n] = { ...lesson(n), unlocked: true }; save(); },
+    unlock(n) { if (practice) return; state.lessons[n] = { ...lesson(n), unlocked: true }; save(); },
     checkpoint,
     // A checkpoint opens once the lesson it follows is done, or when the parent unlocks it in Grownups.
     isCheckpointUnlocked(ck) { return this.devOpenAll || checkpoint(ck.id).unlocked === true || this.isDone(ck.after); },
@@ -210,12 +216,12 @@ export function createStore() {
       if (checkpoint(id).result === 'got-it') return true;
       return typeof c === 'object' && c !== null && this.isDone(c.after + 1);
     },
-    setCheckpointResult(id, result) { state.checkpoints[id] = { ...checkpoint(id), result, completedAt: new Date().toISOString() }; save(); },
-    unlockCheckpoint(id) { state.checkpoints[id] = { ...checkpoint(id), unlocked: true }; save(); },
+    setCheckpointResult(id, result) { if (practice) return; state.checkpoints[id] = { ...checkpoint(id), result, completedAt: new Date().toISOString() }; save(); },
+    unlockCheckpoint(id) { if (practice) return; state.checkpoints[id] = { ...checkpoint(id), unlocked: true }; save(); },
     levels: () => state.levels,
-    setLevels(patch) { state.levels = { ...state.levels, ...patch, earned: { ...state.levels.earned, ...(patch.earned || {}) } }; save(); },
+    setLevels(patch) { if (practice) return; state.levels = { ...state.levels, ...patch, earned: { ...state.levels.earned, ...(patch.earned || {}) } }; save(); },
     worlds: () => state.worlds,
-    setWorlds(patch) { state.worlds = cleanWorlds({ ...state.worlds, ...patch }); save(); },
+    setWorlds(patch) { if (practice) return; state.worlds = cleanWorlds({ ...state.worlds, ...patch }); save(); },
     character: () => state.character,
     setCharacter(patch) { state.character = cleanCharacter({ ...state.character, ...patch }); save(); },
     // The creator was closed (All aboard or Later): keep what was picked and do not show it again.

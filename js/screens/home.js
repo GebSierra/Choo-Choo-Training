@@ -11,8 +11,15 @@ import { kidSvg } from '../art/kid.js';
 import { dueLevel, builtLevels } from '../levels.js';
 import { mapButton, openJourney } from '../components/map-button.js';
 import { levelBanner } from '../components/level-banner.js';
-import { planHome, worldAfter } from '../worlds.js';
+import { planHome, worldAfter, previousWorld, nextWorld, currentWorld } from '../worlds.js';
+import { activeVisit, goToWorld } from '../visit.js';
 import { restCard, moonBadge, devPill, whenShown } from '../components/rest-card.js';
+
+// On a visit to an earlier world: a quiet chip that goes back to the world the child is on.
+export function visitChip(ctx, getHost) {
+  const cur = currentWorld(ctx.store, ctx.curriculum);
+  return h('button', { class: 'visit-chip', type: 'button', 'aria-label': `Back to ${cur.name}`, dataset: { role: 'current' }, onclick: () => goToWorld(ctx, cur.id, { host: getHost(), verb: 'Back to' }) }, icon('arrowRight', 22), h('span', {}, `Back to ${cur.name}`));
+}
 
 // The path is a long winding trail that scrolls: up the screen in portrait (lesson 1 at the bottom, the newest stone at the top),
 // along it in landscape (lesson 1 at the left). Every stone, the trail and the scenery are placed from the data and the sizes
@@ -102,23 +109,38 @@ function place(g, el, { t, side, w = 0, hgt = 0 }) {
 }
 
 // The world's end: a hill with an arch, glowing in the next world's colour, and its name. The trail runs into it.
-function tunnelIcon(g, next) {
+// opts.onTap (a visit, js/visit.js): the tunnel is a real button, at least 48 px, with a spoken label.
+function tunnelIcon(g, next, opts = {}) {
   const svg = h('svg', { class: 'tunnel-art', viewBox: '0 0 160 110', 'aria-hidden': 'true' },
     h('path', { d: 'M6 104 C6 40 40 8 80 8 C120 8 154 40 154 104 Z', fill: '#2FA35E' }),
     h('path', { d: 'M80 8 C120 8 154 40 154 104 L120 104 C120 60 104 24 80 8 Z', fill: '#268A4D' }),
     h('path', { d: 'M40 104 C40 62 58 40 80 40 C102 40 120 62 120 104 Z', fill: '#2B2D5C' }),
     h('path', { d: 'M52 104 C52 72 64 54 80 54 C96 54 108 72 108 104 Z', fill: next.color, stroke: '#FFF8EC', 'stroke-width': 3 }),
     h('path', { d: 'M40 104 C40 62 58 40 80 40 C102 40 120 62 120 104', fill: 'none', stroke: '#C9C4BA', 'stroke-width': 9, 'stroke-linecap': 'round' }));
-  const el = h('div', { class: 'scene-tunnel', dataset: { world: next.id }, 'aria-label': `Tunnel to ${next.name}` }, svg, h('span', { class: 'tunnel-name' }, next.name, ' \u2192'));
+  const el = opts.onTap
+    ? h('button', { class: 'scene-tunnel tappable', type: 'button', dataset: { world: next.id, role: 'forward' }, 'aria-label': opts.label, onclick: opts.onTap }, svg, h('span', { class: 'tunnel-name' }, next.name, ' \u2192'))
+    : h('div', { class: 'scene-tunnel', dataset: { world: next.id }, 'aria-label': `Tunnel to ${next.name}` }, svg, h('span', { class: 'tunnel-name' }, next.name, ' \u2192'));
   const out = place(g, el, { t: 1, side: 0.2, w: 150, hgt: 100 });
-  out.style.setProperty('--py', '126px'); // in portrait it stands above the last stone, clear of the top bar
+  out.style.setProperty('--py', opts.onTap ? '150px' : '126px'); // in portrait it stands above the last stone, clear of the top bar (a button a little lower, so its middle is clear of the Grownups pill when that wraps)
   out.style.setProperty('--lx', (g.W - 95) + 'px'); // in landscape it stands whole at the far end
   return out;
 }
 
+// The start of a later world: the mountain the train came out of, a button that goes back to the world before (js/visit.js).
+function startTunnelIcon(g, prev, onTap) {
+  const svg = h('svg', { class: 'tunnel-art', viewBox: '0 0 160 110', 'aria-hidden': 'true' },
+    h('path', { d: 'M6 104 C6 40 40 8 80 8 C120 8 154 40 154 104 Z', fill: '#2FA35E' }),
+    h('path', { d: 'M80 8 C120 8 154 40 154 104 L120 104 C120 60 104 24 80 8 Z', fill: '#268A4D' }),
+    h('path', { d: 'M40 104 C40 62 58 40 80 40 C102 40 120 62 120 104 Z', fill: '#2B2D5C' }),
+    h('path', { d: 'M52 104 C52 72 64 54 80 54 C96 54 108 72 108 104 Z', fill: prev.color, stroke: '#FFF8EC', 'stroke-width': 3 }),
+    h('path', { d: 'M40 104 C40 62 58 40 80 40 C102 40 120 62 120 104', fill: 'none', stroke: '#C9C4BA', 'stroke-width': 9, 'stroke-linecap': 'round' }));
+  const el = h('button', { class: 'scene-tunnel tappable start', type: 'button', dataset: { world: prev.id, role: 'back' }, 'aria-label': `Back to ${prev.name}`, onclick: onTap }, svg, h('span', { class: 'tunnel-name' }, '\u2190 ', prev.name));
+  return place(g, el, { t: 0, side: -0.5, w: 150, hgt: 100 });
+}
+
 // The scenery: soft patches, trees, daisies and bushes repeated along the trail, the house at the start and a pond at the far end.
 // Nothing here moves except the two butterflies, and everything is placed by a fixed pattern (the map looks the same every time).
-function scenery(g, next = null) {
+function scenery(g, next = null, nav = {}) {
   const out = [];
   const count = Math.max(6, Math.round(g.stones.length * 0.9));
   for (let k = 0; k < count; k++) {
@@ -131,9 +153,12 @@ function scenery(g, next = null) {
     const t = (k + 0.3) / (g.stones.length * 2), side = ((k * 37) % 17) / 17 * 1.7 - 0.85;
     if (Math.abs(side) > 0.3) out.push(place(g, daisy(), { t, side, w: 18 }));
   }
-  out.push(place(g, house(), { t: 0, side: -0.55, w: 230, hgt: 178 }));
-  out[out.length - 1].classList.add('scene-house');
-  if (next) out.push(tunnelIcon(g, next)); else out.push(place(g, h('div', { class: 'scene-water' }), { t: 1, side: 0.9, w: 300, hgt: 190 }));
+  if (nav.prev) out.push(startTunnelIcon(g, nav.prev, nav.onBack)); // a later world starts at the tunnel the train came out of
+  else {
+    out.push(place(g, house(), { t: 0, side: -0.55, w: 230, hgt: 178 }));
+    out[out.length - 1].classList.add('scene-house');
+  }
+  if (next) out.push(tunnelIcon(g, next, nav.forward ? { onTap: nav.onForward, label: nav.forward } : {})); else out.push(place(g, h('div', { class: 'scene-water' }), { t: 1, side: 0.9, w: 300, hgt: 190 }));
   // The two butterflies fly by the start of the path (so a new child sees them) and halfway along.
   out.push(place(g, butterfly('b-one'), { t: 0.08, side: 0.5, w: 34, hgt: 26 }), place(g, butterfly('b-two'), { t: 0.5, side: -0.5, w: 26, hgt: 20 }));
   return out;
@@ -173,7 +198,9 @@ export async function homeScreen(ctx) {
   // The Home builds one world only. When the child has just finished a world, its crossing plays once (js/screens/crossing.js).
   let plan = null;
   if (!preview) {
-    plan = ctx.homePlan || planHome(ctx.store, ctx.curriculum);
+    // A visit to an earlier world (js/visit.js) shows that world and never touches worlds.seen or the train's place.
+    const visiting = ctx.homePlan ? null : activeVisit(ctx);
+    plan = ctx.homePlan || (visiting ? { world: visiting, cross: null, visit: true } : planHome(ctx.store, ctx.curriculum));
     ctx.homePlan = null;
     if (plan.cross && !plan.hosted) { const m = await import('./crossing.js'); return m.crossingHost(ctx, plan); }
   }
@@ -248,9 +275,10 @@ export function isSoftware(gl) {
 export function mapScreen(ctx, preview = null, plan = null) {
   const { store, router, curriculum, speech } = ctx;
   // A level earned since Home was last open (or one replayed from Grownups) shows its banner once (the 2D path has no tunnel or car).
-  const replayId = preview ? null : ctx.replayLevel || null;
-  if (!preview) ctx.replayLevel = null;
-  const due = preview ? null : replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
+  const visiting = !!(plan && plan.visit); // a look at an earlier world (js/visit.js): no celebration, no ride, nothing recorded
+  const replayId = preview || visiting ? null : ctx.replayLevel || null;
+  if (!preview && !visiting) ctx.replayLevel = null;
+  const due = preview || visiting ? null : replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
   // the map button (journey board) replaces the old star board; the gold level stars are inside the board
   const mapBtn = mapButton(curriculum, store, { hold: due && !replayId && !reduced() ? due.id : null, onOpen: () => openJourney({ host: root, curriculum, store, returnFocus: mapBtn.el }) });
   const timers = new Set();
@@ -264,8 +292,15 @@ export function mapScreen(ctx, preview = null, plan = null) {
   // One numbered path: the lessons in order, each checkpoint right after the lesson it follows.
   const nodes = curriculum.lessons.filter((l) => !worldId || l.world === worldId).flatMap((l) => [{ lesson: l }, ...(curriculum.checkpoints || []).filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   const g = mapGeometry(nodes.length);
+  // Going back to the world before (a later world's start tunnel) and, on a visit, on to the next one. dragged is declared below: a swipe is no tap.
+  const prevW = worldId && !preview ? previousWorld(curriculum, worldId) : null;
+  const fwdW = visiting && next ? nextWorld(curriculum, worldId) : null;
+  const nav = {
+    prev: prevW, onBack: () => { if (dragged) { dragged = false; return; } goToWorld(ctx, prevW.id, { host: root, verb: 'Back to' }); },
+    forward: fwdW ? `On to ${fwdW.name}` : null, onForward: () => { if (dragged) { dragged = false; return; } goToWorld(ctx, fwdW.id, { host: root, verb: 'On to' }); },
+  };
   const scene = h('div', { class: 'scene', style: { '--H': g.H, '--W': g.W } },
-    ...scenery(g, next),
+    ...scenery(g, next, nav),
     pathSvg(trailPoints(g, true, !!next), 'portrait', `0 0 100 ${g.H}`), pathSvg(trailPoints(g, false, !!next), 'landscape', `0 0 ${g.W} 100`));
   const scroller = h('div', { class: 'map-scroll', role: 'region', 'aria-label': 'The path of lessons', tabindex: '0' }, scene);
 
@@ -278,7 +313,7 @@ export function mapScreen(ctx, preview = null, plan = null) {
   const wobble = (btn) => animate(btn, [{ transform: 'rotate(0)' }, { transform: 'rotate(-6deg)', offset: 0.25 }, { transform: 'rotate(6deg)', offset: 0.6 }, { transform: 'rotate(0)' }], { duration: 260 });
   // a Story, Read It Again or Review Stop next in line holds the figure: that stone becomes the current one, the lesson after it stays open
   const curNode = current === null ? -1 : nodes.findIndex((n) => n.lesson && n.lesson.number === current);
-  const hold = preview || curNode < 0 ? -1 : checkpointStopIndex(nodes, curNode, store);
+  const hold = preview || visiting || curNode < 0 ? -1 : checkpointStopIndex(nodes, curNode, store);
   let currentIndex = 0, found = false; // the stone the map opens on: the current lesson's, else the current sack, else the last stone
   const stones = nodes.map((node, i) => {
     if (node.checkpoint) {
@@ -302,12 +337,12 @@ export function mapScreen(ctx, preview = null, plan = null) {
   if (preview) currentIndex = preview.mode === 'in' ? 0 : nodes.length - 1; // a previewed world opens at its start (arriving) or its end (leaving)
   stones.forEach((s) => scene.append(s));
   // A station was just finished: the figure rides to the next stone (the simple version of the 3D sequence).
-  const fromStop = preview ? -1 : finishedStop(store, nodes.map((n) => { const own = n.checkpoint ? store.checkpoint(n.checkpoint.id) : store.lesson(n.lesson.number); return own.result === 'got-it' ? own.completedAt || null : false; }), currentIndex);
+  const fromStop = preview || visiting ? -1 : finishedStop(store, nodes.map((n) => { const own = n.checkpoint ? store.checkpoint(n.checkpoint.id) : store.lesson(n.lesson.number); return own.result === 'got-it' ? own.completedAt || null : false; }), currentIndex);
 
   const grown = holdButton({ label: 'Grownups · hold', caption: null, hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
   const top = h('div', { class: 'home-top' }, grown, mapBtn.el, devPill(store));
   const fs = fullscreenButton({ className: 'home-fs' });
-  const root = h('div', { class: 'home' }, scroller, top, ...(fs ? [fs] : []));
+  const root = h('div', { class: 'home' }, scroller, top, ...(fs ? [fs] : []), visiting ? visitChip(ctx, () => root) : null);
   // The theme song waits for the ride and the level banner to finish (it starts at once when neither is due).
   let celebrating = fromStop >= 0 || !!due;
   const gateHold = cross || arrive ? (cross || arrive).gate : null;
@@ -324,7 +359,7 @@ export function mapScreen(ctx, preview = null, plan = null) {
   root.cleanup = () => { grown.cleanup(); timers.forEach(clearTimeout); timers.clear(); if (!preview) music.leaveHome(); };
   if (!preview) music.enterHome({ hold: () => celebrating || !!(gateHold && gateHold.active) });
 
-  firstRunOverlay({ store, root });
+  if (!visiting) firstRunOverlay({ store, root });
   // The pace limit's card: a tap on the resting stone, or a lesson opened by its address (js/screens/lesson.js leaves ctx.restCard).
   function openRest(n) { restCard({ host: root, store, onOpenAnyway: () => router.go(`/lesson/${n}`) }); }
   if (ctx.restCard) { const n = ctx.restCard; ctx.restCard = null; whenShown(root, () => openRest(n)); }

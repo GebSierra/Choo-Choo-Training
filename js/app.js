@@ -15,6 +15,7 @@ import { createAccount } from './account.js';
 import { signinScreen } from './screens/signin.js';
 import { handoffOut, handoffIn } from './handoff.js';
 import { initMember } from './member.js';
+import { practiceFor } from './visit.js';
 
 const GOOGLE_ERROR = "Google sign-in didn't finish. Please try again.";
 
@@ -75,6 +76,7 @@ async function boot() {
   // Browsers only allow speech after a completed tap, so the first pointerup (or click) unlocks it for this page session.
   for (const type of ['pointerup', 'click']) addEventListener(type, () => { speech.unlock(); sfx.unlock(); music.unlock(); }, { capture: true });
   document.addEventListener('visibilitychange', () => { if (document.hidden) speech.cancel(); });
+  const hashPath = () => location.hash.replace(/^#/, '') || '/home';
   const routes = [
     { re: /^\/home$/, screen: homeScreen },
     { re: /^\/lesson\/(\d+)$/, screen: lessonScreen },
@@ -104,6 +106,8 @@ async function boot() {
     { re: /^\/lab$/, screen: (...a) => import('./screens/lab.js').then((m) => m.labScreen(...a)) },
     { re: /^\/glyphs$/, screen: (...a) => import('./screens/glyphs-debug.js').then((m) => m.glyphsDebug(...a)) },
   ];
+  // A replay in a visited world (js/visit.js): the store ignores progress writes while such a lesson or stop is open.
+  for (const r of routes) { const screen = r.screen; r.screen = (c, ...a) => { store.setPractice(practiceFor(c, hashPath())); return screen(c, ...a); }; }
   ctx.router = createRouter(root, routes, ctx);
   await ctx.router.start();
   watchBackButton(ctx.router);

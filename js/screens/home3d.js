@@ -26,7 +26,9 @@ import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
 import { music } from '../music.js';
 import { dueLevel, builtLevels, earnedLevels } from '../levels.js';
-import { worldAfter, nextWorld, worldDone, lessonsIn } from '../worlds.js';
+import { worldAfter, nextWorld, previousWorld, worldDone, lessonsIn } from '../worlds.js';
+import { goToWorld } from '../visit.js';
+import { visitChip } from './home.js';
 import { mapButton, openJourney } from '../components/map-button.js';
 import { levelBanner } from '../components/level-banner.js';
 import { restCard, moonBadge, devPill, whenShown } from '../components/rest-card.js';
@@ -90,6 +92,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const arrive = !preview && plan && plan.arrive ? plan.arrive : null;
   const gw = preview || (cross ? { mode: 'out', onEnter: cross.onEnter } : arrive ? { mode: 'in', onDone: arrive.onDone } : null);
   const gateHold = cross || arrive ? (cross || arrive).gate : null;
+  const visiting = !preview && !!(plan && plan.visit); // a look at an earlier world (js/visit.js): nothing is recorded, nothing celebrates, no ride
   const inMode = !!gw && gw.mode === 'in';
   const worldId = preview ? preview.world : plan && plan.world ? plan.world.id : null;
   const region = !!preview && preview.mode === 'region';
@@ -101,9 +104,9 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const { stops } = stopsInfo;
   const currentIndex = region ? stopsInfo.currentIndex : preview ? (preview.mode === 'in' ? 0 : stops.length - 1) : stopsInfo.currentIndex;
   // A level earned since Home was last open (or one the parent replays from Grownups) celebrates once, after the arrival.
-  const replayId = preview ? null : ctx.replayLevel || null;
-  if (!preview) ctx.replayLevel = null;
-  const due = preview ? null : replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
+  const replayId = preview || visiting ? null : ctx.replayLevel || null;
+  if (!preview && !visiting) ctx.replayLevel = null;
+  const due = preview || visiting ? null : replayId ? builtLevels(curriculum).find((v) => v.id === replayId) || null : dueLevel(store, curriculum);
   const earnedNow = earnedLevels(curriculum, store);
   // Only the newest level's special car travels with the train (the owner's wagon rule).
   const carLevels = due && !earnedNow.includes(due) ? [...earnedNow, due] : earnedNow;
@@ -172,10 +175,10 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const lastAt = Number.isInteger(settings.trainAt) ? settings.trainAt : null;
   let prevLesson = -1;
   for (let i = currentIndex - 1; i >= 0; i--) if (stops[i].kind === 'lesson') { prevLesson = i; break; }
-  const finished = preview ? -1 : finishedStop(store, stops.map((s) => { const own = s.kind === 'lesson' ? store.lesson(s.number) : store.checkpoint(s.checkpoint.id); return s.state === 'done' && own.result === 'got-it' ? own.completedAt || null : false; }), currentIndex); // only stops the child finished: ones a later lesson completed never start a ride
-  const arriving = !preview && !arrive && ((lastAt !== null && lastAt < currentIndex && prevLesson >= 0) || finished >= 0);
+  const finished = preview || visiting ? -1 : finishedStop(store, stops.map((s) => { const own = s.kind === 'lesson' ? store.lesson(s.number) : store.checkpoint(s.checkpoint.id); return s.state === 'done' && own.result === 'got-it' ? own.completedAt || null : false; }), currentIndex); // only stops the child finished: ones a later lesson completed never start a ride
+  const arriving = !preview && !visiting && !arrive && ((lastAt !== null && lastAt < currentIndex && prevLesson >= 0) || finished >= 0);
   const fromIndex = finished >= 0 ? finished : arriving ? Math.max(lastAt, prevLesson) : currentIndex;
-  if (!preview && settings.trainAt !== currentIndex) store.setSetting('trainAt', currentIndex);
+  if (!preview && !visiting && settings.trainAt !== currentIndex) store.setSetting('trainAt', currentIndex);
   const restS = (i) => stopS[i] + ENGINE_AT;
   const gateStartS = mouthS - 1.8; // rolling out of a tunnel: the engine starts inside the hill
   train.place(inMode && !stillNow ? gateStartS : restS(fromIndex));
@@ -183,8 +186,8 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
 
   // ---- the camera ----
   const min = stopS[0] - (startTunnel ? 9 : 2), max = lastS + (portal ? 3 : 1); // the end clamp shows the portal and its signpost
-  const rig = createRig(camera, line, { min, max, side: parked ? -0.7 : undefined, sidePortrait: theme.sidePortrait, across: theme.across }); // a finished world looks toward its siding on the far side
-  const firstVisit = !preview && !arrive && !settings.trainIntroDone;
+  const rig = createRig(camera, line, { min, max, side: parked && !visiting ? -0.7 : undefined, sidePortrait: theme.sidePortrait, across: theme.across }); // a finished world looks toward its siding on the far side
+  const firstVisit = !preview && !visiting && !arrive && !settings.trainIntroDone;
   if (firstVisit) store.setSetting('trainIntroDone', true);
   const glideIn = firstVisit && currentIndex > 0 && !reduced();
   rig.jump(glideIn ? min : inMode && !stillNow ? gateStartS - ENGINE_AT : stopS[arriving ? fromIndex : currentIndex]);
@@ -206,7 +209,15 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
       }),
     };
   });
-  const overlay = createOverlay(overlayStops, { bubbleIndex: stops[currentIndex].state === 'current' && !stops[currentIndex].resting ? currentIndex : -1, onBubble: () => speech.say([{ tts: 'Tap to start' }]) });
+  // The tunnels as buttons (a visit, js/visit.js): the start tunnel of a later world goes back to the world before it; on a visit the
+  // end portal leads on again. The camera's anchors stand at each mouth. Not on a preview, nor while the train leaves for the next world.
+  const portalStops = [];
+  const prevW = hasStart && !preview && !cross ? previousWorld(curriculum, worldId) : null;
+  const fwdW = visiting && portal ? nextWorld(curriculum, worldId) : null;
+  const anchorAt = (s, y) => { const q = {}; line.at(s, q); const o = new THREE.Object3D(); o.position.set(q.x, y, q.z); return o; };
+  if (prevW && startTunnel) portalStops.push({ role: 'back', label: `Back to ${prevW.name}`, caption: prevW.name, anchor: anchorAt(mouthS - 0.4, 2.4), onTap: tap(() => goToWorld(ctx, prevW.id, { host: root, verb: 'Back to' })) });
+  if (fwdW) { portal.group.updateMatrixWorld(true); const o = new THREE.Object3D(); o.position.copy(portal.group.localToWorld(new THREE.Vector3(0, 2.4, -HILL / 2))); portalStops.push({ role: 'forward', label: `On to ${fwdW.name}`, caption: fwdW.name, anchor: o, onTap: tap(() => goToWorld(ctx, fwdW.id, { host: root, verb: 'On to' })) }); }
+  const overlay = createOverlay(overlayStops, { portals: portalStops,  bubbleIndex: stops[currentIndex].state === 'current' && !stops[currentIndex].resting ? currentIndex : -1, onBubble: () => speech.say([{ tts: 'Tap to start' }]) });
   // Keyboard focus on a stop brings it into view.
   overlay.buttons.forEach((b, i) => b.addEventListener('focus', () => { if (b.dataset.shown !== '1') { rig.glideTo(stopS[i], 700, performance.now()); wake(); } }));
 
@@ -214,10 +225,10 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const fs = fullscreenButton({ className: 'home-fs' });
   canvas.classList.add('train-canvas');
   canvas.setAttribute('aria-hidden', 'true');
-  const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, ...(region ? [] : [grown, mapBtn.el]), region ? null : devPill(store)), ...(fs ? [fs] : []));
+  const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, ...(region ? [] : [grown, mapBtn.el]), region ? null : devPill(store)), ...(fs ? [fs] : []), visiting ? visitChip(ctx, () => root) : null);
   if (theme.skyCss) root.style.background = theme.skyCss;
 
-  if (!region) firstRunOverlay({ store, root });
+  if (!region && !visiting) firstRunOverlay({ store, root });
   // The pace limit's card: a tap on the resting station, or a lesson opened by its address (js/screens/lesson.js leaves ctx.restCard).
   const openRest = (n) => restCard({ host: root, store, onOpenAnyway: () => router.go(`/lesson/${n}`) });
   if (!region && ctx.restCard) { const n = ctx.restCard; ctx.restCard = null; whenShown(root, () => openRest(n)); }

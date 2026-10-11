@@ -46,6 +46,19 @@ export function worldAfter(curriculum, worldId) {
   const ws = curriculum.worlds || [], i = ws.findIndex((w) => w.id === worldId);
   return i >= 0 ? ws[i + 1] || null : null;
 }
+// The built world (one with lessons) before worldId, or null for the first.
+export function previousWorld(curriculum, worldId) {
+  const ws = (curriculum.worlds || []).filter((w) => lessonsIn(curriculum, w.id).length), i = ws.findIndex((w) => w.id === worldId);
+  return i > 0 ? ws[i - 1] : null;
+}
+// The worlds the child has reached, in order: every built world up to and including the current one (Grownups > Worlds, and the
+// worlds the Home can visit, js/visit.js).
+export function reachedWorlds(store, curriculum) {
+  const cur = currentWorld(store, curriculum);
+  const ws = (curriculum.worlds || []).filter((w) => lessonsIn(curriculum, w.id).length);
+  const i = cur ? ws.findIndex((w) => w.id === cur.id) : -1;
+  return i >= 0 ? ws.slice(0, i + 1) : [];
+}
 // What the Home shows. The world of the first open lesson that is not done, except that the Home first finishes the world
 // the child last saw (state.worlds.seen) when that world is now done: then `cross` is { from, to } and the Home plays the
 // crossing once. The first look (no record), a world reached by a Grownups unlock, and a reset only record the world.

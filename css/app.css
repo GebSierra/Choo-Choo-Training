@@ -2102,3 +2102,26 @@ button.hw-tile:active { transform: translateY(3px) scale(.97); }
 
 /* Review Stop: a small line under the game's title says where the grown-up is */
 .task-kicker { display: block; margin-top: 1px; font-size: 11.5px; font-weight: 800; line-height: 1.1; letter-spacing: .02em; opacity: .85; }
+/* ---- visiting an earlier world (roadmap 3d, js/visit.js) ---- */
+/* the tunnel buttons on the 3D Home: a quiet round arrow, its world's name under it; 76 px to tap */
+.portal-btn { position: absolute; left: 0; top: 0; width: 76px; height: 76px; padding: 0; border: 0; background: transparent; cursor: pointer; touch-action: manipulation; will-change: transform; color: var(--violet); display: grid; place-items: start center; }
+.portal-btn:focus-visible { outline: 4px solid var(--violet); outline-offset: 2px; border-radius: 16px; }
+.pb-ring { width: 52px; height: 52px; margin-top: 6px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,248,236,.88); box-shadow: 0 2px 0 rgba(30,33,64,.18), 0 0 0 2px rgba(255,255,255,.7); }
+.pb-cap { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); max-width: 150px; font-size: 13px; font-weight: 800; line-height: 1.15; color: var(--ink); background: rgba(255,248,236,.92); border-radius: 9px; padding: 2px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+/* the 2D path's tunnels as buttons */
+button.scene-tunnel.tappable { position: absolute; z-index: 2; pointer-events: auto; border: 0; background: transparent; padding: 0; cursor: pointer; font: inherit; min-width: 48px; min-height: 48px; touch-action: manipulation; }
+button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); outline-offset: 2px; border-radius: 16px; }
+/* the way back to the world the child is on, while looking at an earlier one */
+.visit-chip { position: fixed; left: calc(16px + var(--sal)); bottom: calc(16px + var(--sab)); z-index: 12; min-height: 48px; max-width: calc(100vw - 32px); display: inline-flex; align-items: center; gap: 6px; padding: 0 18px 0 12px; border: 0; border-radius: 999px; background: #fff; color: var(--violet); font: inherit; font-weight: 800; font-size: 16px; box-shadow: var(--shadow); cursor: pointer; touch-action: manipulation; }
+.visit-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.visit-card .wg-panel { width: min(360px, 100%); grid-template-columns: none; }
+/* Grownups > Worlds */
+.gu-wlist { display: grid; gap: 10px; }
+.gu-wrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 12px; border-radius: 18px; background: #fff; box-shadow: inset 0 0 0 2px #ECEEF8; }
+.gu-wrow.is-current { box-shadow: inset 0 0 0 3px var(--wc, var(--violet)); }
+.gu-wrow .gu-world-dot { flex: none; }
+.gu-wrow .gu-row-text { flex: 1 1 140px; min-width: 0; }
+.gu-wrow .world-go { margin-left: auto; }
+.gu-wrow .btn { padding-inline: 14px; font-size: 15px; }
+.gu-wrow .btn { flex: none; min-height: 48px; }
+.gu-wtag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--violet); color: #fff; font-size: 12px; font-weight: 800; vertical-align: 2px; }
