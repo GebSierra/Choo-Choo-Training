@@ -123,7 +123,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
 - [ ] **Test debt (found 2026-10-09, also failing on 1.9.29):** test/proto-play.mjs "recordings" mode: 6 checks expect the
   stretched/smooth word recording to play in the Stage 1 sound-play prototype (Previews only) and none plays. Not a
   release blocker; a Haiku/Sonnet builder should find why (the blends route stub vs. speech.js blendUrls/missingBlend).
-- [ ] **3 phase B NEXT:** new sound order f o n d c/k h u g l r b, add the o, c/k, u, r lessons, map progress by sound.
+- [x] **3 phase B (LIVE in 1.9.33):** new sound order f o n d c/k h u g l r b, add the o, c/k, u, r lessons, map progress by sound.
 - [ ] **3c. Review stops (owner, 2026-10-10):** one or two more review stops after every three or four letters, ONLY the
   fun games and review, nothing new (taught letters only: Letter Hunt, Green Light, Wagon Parade, Station Board, the tap
   games, Ticket Check). Built right after phase B (it needs the new order). They do not hold the train (like crates) unless
