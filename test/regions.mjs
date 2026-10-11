@@ -83,7 +83,7 @@ export async function regionChecks({ browser, url, ok, vp }) {
     const w2 = await page.evaluate(() => ({ ...window.__train, stopS: undefined }));
     baseCalls = w2.calls;
     ok(w2.theme === 'default' && w2.fogHex === '#fff6e5' && w2.skyOverride === false && w2.world === 'W2' && w2.region === true && w2.placeholder === false, `${tag} W2: still the default theme (fog ${w2.fogHex}, the page's own sky)`);
-    ok(w2.stopCount === 11 && w2.startTunnel && w2.portal && w2.signText === 'Sunny Hills', `${tag} W2: shows its real stops with the start tunnel and the portal to Sunny Hills (${w2.stopCount} stops)`);
+    ok(w2.stopCount === 15 && w2.startTunnel && w2.portal && w2.signText === 'Sunny Hills', `${tag} W2: shows its real stops with the start tunnel and the portal to Sunny Hills (${w2.stopCount} stops)`);
     ok(w2.details === null, `${tag} W2: no Starter Station props (world 2 is unchanged)`);
     ok(errors.length === 0, `${tag} W2: errors ${errors.join(' | ')}`);
     await ctx.close();
@@ -139,7 +139,7 @@ export async function otherChecks({ browser, url, ok }) {
     const a = await store(page);
     const cls = await page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => b.className.match(/is-(\w+)/)[1]));
     const d = await page.evaluate(() => ({ theme: window.__train.theme, stops: window.__train.stopCount, placeholder: window.__train.placeholder, details: window.__train.details }));
-    ok(d.theme === 'starter-station' && d.stops === 9 && !d.placeholder && cls.filter((c) => c === 'done').length >= 4, `W1 preview: its real nine stops and progress (${cls.join(' ')})`);
+    ok(d.theme === 'starter-station' && d.stops === 10 && !d.placeholder && cls.filter((c) => c === 'done').length >= 4, `W1 preview: its real ten stops (6 lessons and 4 stops) and progress (${cls.join(' ')})`);
     ok(d.details && d.details.tris > 1000, `W1 preview: Starter Station's extra props are built (${d.details && d.details.tris} triangles)`);
     await page.evaluate(() => window.__train.show(4)); await page.waitForTimeout(300);
     const hash0 = await page.evaluate(() => location.hash);

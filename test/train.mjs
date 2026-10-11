@@ -133,12 +133,20 @@ export async function homeChecks({ browser, url, ok, vp, shot }) {
     ok(info.renderer === 'webgl' && info.gl && !info.map, `${tag}: a WebGL context drew the railway, not the 2D map (${info.name})`);
     const b = await shown(page);
     ok(b.length === WN.length && b.every((x, i) => x.label.startsWith(nameOf(WN[i]))), `${tag}: one button per stop of the current world only, in lesson order (${b.length} of ${NODES.length})`);
-    const want = (n) => (n.lesson ? (n.lesson.number <= done ? 'is-done' : n.lesson.number === done + 1 ? 'is-current' : 'is-locked') : (n.checkpoint.after <= done ? (done === CUR.lessons.length && n === NODES.find((m) => m.checkpoint && m.checkpoint.after <= done) ? 'is-current' : 'is-unlocked') : 'is-locked'));
+    // A stop is done once the lesson after it is done (isCheckpointDone). A Story, Read It Again or Review Stop next in line holds the train: it is the current stop and the lesson
+    // after it is only open. With every lesson done, the first stop not done is the current one.
+    const HOLDS = ['book', 'reread', 'review'];
+    const ckDone = (k) => k.after + 1 <= done;
+    const li = NODES.findIndex((x) => x.lesson && x.lesson.number === done + 1);
+    let held = null;
+    for (let j = li - 1; li >= 0 && j >= 0 && NODES[j].checkpoint; j--) { const k = NODES[j].checkpoint; if (HOLDS.includes(k.kind) && !ckDone(k) && k.after <= done) held = k; }
+    const pending = NODES.find((m) => m.checkpoint && !ckDone(m.checkpoint) && m.checkpoint.after <= done);
+    const want = (n) => (n.lesson ? (n.lesson.number <= done ? 'is-done' : n.lesson.number === done + 1 ? (held ? 'is-unlocked' : 'is-current') : 'is-locked') : (ckDone(n.checkpoint) ? 'is-done' : n.checkpoint.after <= done ? ((held && held.id === n.checkpoint.id) || (done === CUR.lessons.length && pending === n) ? 'is-current' : 'is-unlocked') : 'is-locked'));
     const bad = b.filter((x, i) => x.cls !== want(WN[i]));
     ok(bad.length === 0, `${tag}: done, current, open and locked as the progress says (${bad.map((x) => x.label + ':' + x.cls).join('; ')})`);
     ok(b.every((x, i) => (x.label.endsWith(', done') === (want(WN[i]) === 'is-done')) && (x.label.endsWith(', locked') === (want(WN[i]) === 'is-locked'))), `${tag}: labels say done and locked ("${b[0].label}", "${b[b.length - 1].label}")`);
     const vis = b.filter((x) => x.shown);
-    ok(vis.length >= (done === CUR.lessons.length && !wcks ? 1 : 2) && vis.every((x) => x.vis === 'visible' && x.w >= 64 && x.h >= 64 && x.x >= 0 && x.y >= 0 && x.x + x.w <= vp.width + 0.5 && x.y + x.h <= vp.height + 0.5), `${tag}: ${vis.length} stops on screen, each a button of at least 64 px inside the screen`);
+    ok(vis.length >= (done === CUR.lessons.length ? 1 : 2) && vis.every((x) => x.vis === 'visible' && x.w >= 64 && x.h >= 64 && x.x >= 0 && x.y >= 0 && x.x + x.w <= vp.width + 0.5 && x.y + x.h <= vp.height + 0.5), `${tag}: ${vis.length} stops on screen, each a button of at least 64 px inside the screen`);
     ok(b.filter((x) => !x.shown).every((x) => x.vis === 'hidden'), `${tag}: the stops off screen are hidden`);
     const t = await train(page);
     const cur = t.currentIndex;
@@ -160,7 +168,7 @@ export async function homeChecks({ browser, url, ok, vp, shot }) {
 // Taps go through the buttons: the current stop opens its lesson, a locked one only wobbles, a drag pans and opens nothing.
 export async function tapChecks({ browser, url, ok }) {
   const vp = VIEWPORTS[0];
-  let { ctx, page, errors } = await openHome(browser, url, vp, state(3));
+  let { ctx, page, errors } = await openHome(browser, url, vp, state(2)); // lesson 3 is current, so the stop after it is locked and right beside it
   await until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running);
   const btn = page.locator('.station-btn.is-locked[data-shown="1"]').first();
   ok((await btn.count()) === 1, 'train taps: a locked stop is on screen');
@@ -195,8 +203,10 @@ export async function tapChecks({ browser, url, ok }) {
   await until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running);
   const c = await page.locator('.station-btn.is-current').first().boundingBox();
   await page.touchscreen.tap(c.x + c.width / 2, c.y + c.height / 2);
-  await page.waitForSelector('.lesson-overview', { timeout: 8000 }).catch(() => {});
-  ok(page.url().endsWith('#/lesson/4'), `train taps: tapping the current stop opens lesson 4 (${page.url().split('#')[1]})`);
+  await page.waitForSelector('.lesson-overview, .game', { timeout: 8000 }).catch(() => {});
+  const heldAt3 = CUR.checkpoints.find((k) => k.after === 3 && ['book', 'reread', 'review'].includes(k.kind)); // a Review Stop after lesson 3 holds the train
+  const wantUrl = heldAt3 ? `#/checkpoint/${heldAt3.id}` : '#/lesson/4';
+  ok(page.url().endsWith(wantUrl), `train taps: tapping the current stop opens ${heldAt3 ? 'the ' + heldAt3.title : 'lesson 4'} (${page.url().split('#')[1]})`);
   ok(errors.length === 0, `train taps 2: errors ${errors.join(' | ')}`);
   await ctx.close();
 }

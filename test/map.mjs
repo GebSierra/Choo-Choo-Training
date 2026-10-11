@@ -58,7 +58,14 @@ export async function mapChecks({ browser, url, ok, vp, shot }) {
     ok(stones.every((s) => s.w >= 47.5 && s.h >= 47.5), `${tag}: every stone is at least 48 px`);
     ok(!stones.some((s, i) => stones.slice(i + 1).some((t) => overlaps(s, t))), `${tag}: no two stones overlap`);
     // States: a lesson is open when the one before is done; a checkpoint when its lesson is done.
-    const state = (n) => (n.lesson ? (n.lesson.number <= done ? 'done' : n.lesson.number === done + 1 ? 'current' : 'locked') : (withCks.includes(n.checkpoint.id) ? 'done' : n.checkpoint.after <= done ? 'open' : 'locked'));
+    // (1.9.31 and the Review Stops: a Story, Read It Again or Review Stop next in line holds the figure, so it is current and the lesson after it is only open;
+    // a stop whose next lesson is done counts done, as isCheckpointDone says.)
+    const HOLDS = ['book', 'reread', 'review'];
+    const ckDone = (k) => withCks.includes(k.id) || k.after + 1 <= done;
+    const li = NODES.findIndex((x) => x.lesson && x.lesson.number === done + 1);
+    let held = null;
+    for (let j = li - 1; li >= 0 && j >= 0 && NODES[j].checkpoint; j--) { const k = NODES[j].checkpoint; if (HOLDS.includes(k.kind) && !ckDone(k) && k.after <= done) held = k; }
+    const state = (n) => (n.lesson ? (n.lesson.number <= done ? 'done' : n.lesson.number === done + 1 ? (held ? 'open' : 'current') : 'locked') : (ckDone(n.checkpoint) ? 'done' : n.checkpoint.after <= done ? (held && held.id === n.checkpoint.id ? 'current' : 'open') : 'locked'));
     const classes = await page.evaluate(() => [...document.querySelectorAll('.stone')].map((s) => [...s.classList].filter((c) => c.startsWith('is-')).join(' ')));
     const bad = WN.map((n, i) => [n, classes[i], i]).filter(([n, c]) => { const w = state(n); return w === 'locked' ? c !== 'is-locked' : w === 'done' ? c !== 'is-done' : w === 'current' ? c !== 'is-current' : !/is-(unlocked|current)/.test(c); });
     ok(bad.length === 0, `${tag}: locked, open, current and done stones are as the progress says (${bad.map(([n, c]) => label(n) + ':' + c).join('; ')})`);
@@ -171,9 +178,11 @@ export async function mapUpgradeChecks({ browser, url, ok }) {
     const { ctx, page, errors } = await open(browser, url, VIEWPORTS[0], seed(3, extra));
     await page.waitForTimeout(2000);
     const tag = `old saved progress (${Object.keys(extra).length ? 'sack done' : 'sack not done'})`;
-    ok((await page.locator('.stone.is-current').getAttribute('aria-label')) === 'Lesson 4', `${tag}: lesson 4 is the current stone`);
+    const heldAt3 = CUR.checkpoints.find((k) => k.after === 3 && ['book', 'reread', 'review'].includes(k.kind)); // a Review Stop after lesson 3 holds the figure; lesson 4 stays open
+    ok((await page.locator('.stone.is-current').getAttribute('aria-label')).startsWith(heldAt3 ? heldAt3.title : 'Lesson 4'), `${tag}: ${heldAt3 ? heldAt3.title + ' (it holds the figure)' : 'lesson 4'} is the current stone`);
+    ok(!(await page.locator('.stone[aria-label="Lesson 4"]').evaluate((e) => e.classList.contains('is-locked'))), `${tag}: lesson 4 is open`);
     ok((await page.locator('.stone.is-done').count()) === 3 + (CUR.checkpoints.some((k) => k.id === 'c1') && Object.keys(extra).length ? 1 : 0), `${tag}: the stones for lessons 1 to 3 (and the sack, if the path still has one) are done`);
-    await page.locator('.stone.is-current').click();
+    await page.locator('.stone[aria-label="Lesson 4"]').click();
     await page.waitForSelector('.lesson-overview');
     ok(page.url().endsWith('#/lesson/4') && (await page.locator('.task-card').count()) === tasksFor(CUR.lessons[3]).length, `${tag}: lesson 4 opens with all ${tasksFor(CUR.lessons[3]).length} tasks`);
     ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
