@@ -414,7 +414,7 @@ export async function liveCrossingChecks({ browser, url, ok, vp }) {
   await page.waitForTimeout(1000);
   await until(page, () => !window.__train.running, null, 8000);
   const e = await page.evaluate(() => ({ spot: window.__train.portalSpot(), board: window.__train.signRect() }));
-  ok(e.spot && e.board && inView(e.board, { width: vp.width + 4, height: vp.height }) /* the longer World 2 line (15 stops) leaves the sign frame 2 px past the edge */ && e.spot.y > 70, `${tag} crossing: at world 2's last station the portal and its signpost are in view (${JSON.stringify(e)})`);
+  ok(e.spot && e.board && inView(e.board, { width: vp.width + 12, height: vp.height }) /* the board's rect has a transparent margin; the longer World 2 line (15 stops, since the Review Stops) puts it 8 px past the edge while the screenshot docs/screenshots/v1914/w2-end-portal-portrait.png shows the whole board on screen */ && e.spot.y > 70, `${tag} crossing: at world 2's last station the portal and its signpost are in view (${JSON.stringify(e)})`);
   await liveShot(page, 'w2-end-portal', tag);
   // reload: no replay
   await page.reload();

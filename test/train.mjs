@@ -514,9 +514,9 @@ export async function lifeChecks({ browser, url, ok }) {
     await page.waitForTimeout(600);
     const m = await page.evaluate(() => ({ map: !!document.querySelector('.map-scroll'), three: !!document.querySelector('.home3d'), stones: document.querySelectorAll('.stone').length, live: window.__liveGL() }));
     ok(m.map && !m.three && m.stones === worldNodes(3).length && m.live === 0, `${why}: the 2D path renders instead, with all ${worldNodes(3).length} stones of the world and no WebGL context (${JSON.stringify(m)})`);
-    await page.locator('.stone.is-current').click();
+    await page.locator('.stone[aria-label="Lesson 4"]').click(); // (the Review Stop after lesson 3 is the current stone; lesson 4 is open beside it)
     await page.waitForSelector('.lesson-overview');
-    ok(page.url().endsWith('#/lesson/4'), `${why}: its current stone opens lesson 4`);
+    ok(page.url().endsWith('#/lesson/4'), `${why}: its open lesson 4 stone opens lesson 4 (the held Review Stop is the current stone)`);
     ok(errors.length === 0, `${why}: errors ${errors.join(' | ')}`);
     await ctx.close();
   }
