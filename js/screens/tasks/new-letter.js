@@ -10,9 +10,12 @@ import { soundPhrase, introParts, fit } from '../../lessons.js';
 // Task 2: the new letter, its sound card, the slide track and the example pictures.
 export function build({ lesson, sound, speech, store }) {
   const accent = accentOf(sound.glyph);
-  const g = glyphSvg(sound.glyph, { color: accent, label: 'new letter' });
-  drawIn(g, { delay: 300 }); // started now, not in onShow: the hidden first frame must be there from the start
-  const card = h('button', { class: 'letter-card big tappable', type: 'button', 'aria-label': 'Watch the letter being written', onclick: () => drawIn(g) }, g);
+  // c and k: one sound, two spellings. Both letters sit in the one card, drawn in turn.
+  const letters = [sound.glyph, ...(sound.alt || [])];
+  const gs = letters.map((ch) => glyphSvg(ch, { color: accent, label: 'new letter' }));
+  const draw = () => gs.forEach((x, i) => drawIn(x, { delay: i * 700 }));
+  gs.forEach((x, i) => drawIn(x, { delay: 300 + i * 700 })); // started now, not in onShow: the hidden first frame must be there from the start
+  const card = h('button', { class: 'letter-card big tappable' + (gs.length > 1 ? ' pair' : ''), type: 'button', 'aria-label': 'Watch the letter being written', onclick: draw }, ...gs);
   const tiles = h('div', { class: 'word-strip' }, sound.words.map((w) => {
     const t = h('button', { class: 'word-tile', type: 'button', 'aria-label': w.word, onclick: () => { speech.say([{ tts: w.word }]); animate(t, [{ transform: 'scale(1)' }, { transform: 'scale(.94)', offset: 0.35 }, { transform: 'scale(1)' }], { duration: 260 }); } },
       h('span', { class: 'pic' }, picture(w)), h('span', { class: 'word' }, letterText(w.word, { tint: sound.glyph })));
@@ -27,6 +30,6 @@ export function build({ lesson, sound, speech, store }) {
     script: () => `I do: say ${soundPhrase(sound)}. We do: slide a finger under the letter and say it together. You do: your child slides under the letter and says it alone.`,
     gist: () => fit(`I do: say ${soundPhrase(sound)}.`, `Say ${soundPhrase(sound)}.`),
     cleanup: () => track.cleanup(),
-    again: () => { drawIn(g); speech.say(introParts(lesson, store)); },
+    again: () => { draw(); speech.say(introParts(lesson, store)); },
   };
 }

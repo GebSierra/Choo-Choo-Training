@@ -28,9 +28,14 @@
   --h: #7A5C3E; --h-tint: rgba(122,92,62,.12);
   --b: #5B6CFF; --b-tint: rgba(91,108,255,.12);
   --l: #6B8E23; --l-tint: rgba(107,142,35,.12);
+  --o: #9B3FC4; --o-tint: rgba(155,63,196,.12);
+  --c: #0E7FA8; --c-tint: rgba(14,127,168,.12);
+  --k: #0E7FA8; --k-tint: rgba(14,127,168,.12); /* the second spelling of c: the same colour */
+  --u: #E0603A; --u-tint: rgba(224,96,58,.12);
+  --r: #3C9D3C; --r-tint: rgba(60,157,60,.12);
   /* fills that carry white text: green darkened for contrast */
   --m-fill: var(--m); --a-fill: var(--a); --s-fill: #1E8E5E;
-  --t-fill: #AD6417; --f-fill: #108286; --d-fill: #8659E9; --g-fill: #C34A88; --i-fill: #A3690C; --n-fill: #2B6CB0; --p-fill: #C2417A; --h-fill: #7A5C3E; --b-fill: #5667F2; --l-fill: #60801F;
+  --t-fill: #AD6417; --f-fill: #108286; --d-fill: #8659E9; --g-fill: #C34A88; --i-fill: #A3690C; --n-fill: #2B6CB0; --p-fill: #C2417A; --h-fill: #7A5C3E; --b-fill: #5667F2; --l-fill: #60801F; --o-fill: #9B3FC4; --c-fill: #0B7396; --k-fill: #0B7396; --u-fill: #CC4F2A; --r-fill: #2E8A2E;
   --sky: #5DE0F0; --violet: #5A4BD6; --coral: #F0556A; --sun: #FFD166; --mint: #5FE3B0; --lilac: #CDC4F8; --blue: #7DB8F5;
   --radius: 24px;
   --shadow: 0 6px 20px rgba(60,40,20,.12);
@@ -246,6 +251,7 @@ h1, h2, h3, p { margin: 0; }
 .card-art .flash { width: 84px; height: 100px; background: #fff; border-radius: 14px; display: grid; place-items: center; transform: rotate(var(--r)); box-shadow: var(--shadow); }
 .card-art .flash .glyph { width: 70%; }
 .big-glyph .glyph { width: 130px; height: auto; }
+.big-glyph.pair { display: flex; align-items: center; gap: 2px; } .big-glyph.pair .glyph { width: 64px; }
 .big-glyph.ghost { color: rgba(30,33,64,.35); } .big-glyph.ghost .stroke { stroke-dasharray: 3 14; }
 .pencil { font-size: 40px; margin-left: -18px; margin-top: 50px; }
 .play { width: 84px; height: 84px; border-radius: 50%; background: #fff; color: var(--coral); display: grid; place-items: center; box-shadow: var(--shadow); }
@@ -360,6 +366,11 @@ body.night { background: var(--night); }
 .letter-card { align-self: center; width: 150px; height: 130px; border-radius: 24px; background: #fff; display: grid; place-items: center; box-shadow: var(--shadow); border: 0; margin: 6px auto 14px; }
 .letter-card .glyph { height: calc(100% - 16px); width: auto; max-width: 72%; }
 .letter-card.big { width: min(72%, 280px); height: 170px; }
+.new-letter .letter-card.big.pair { height: 130px; }
+@media (max-width: 380px), (max-height: 700px) { .new-letter .sound-card.pair .sc-how { display: none; } } /* c and k: the how-to is on the Watch My Mouth step */
+@media (max-width: 380px) { .new-letter .letter-card.big.pair { height: 96px; } }
+.letter-card.pair { display: flex; align-items: center; justify-content: center; gap: 4%; }
+.letter-card.pair .glyph { height: auto; width: 44%; max-width: 44%; }
 .new-letter .letter-card.big { width: min(calc(100% - 144px), 280px); }
 .letter-card.tappable { cursor: pointer; touch-action: manipulation; transition: transform var(--t-fast) var(--ease-out); }
 .letter-card.tappable:active { transform: scale(.97); }
@@ -424,6 +435,11 @@ body.night { background: var(--night); }
 .writing { display: grid; gap: 14px; align-content: start; }
 .writing-buttons { display: flex; gap: 10px; justify-content: center; }
 .writing-buttons .btn { white-space: nowrap; flex: 1 1 0; min-width: 0; max-width: 200px; padding: 0 14px; }
+.pad-wrap { position: relative; }
+.letter-picks { position: absolute; top: 8px; right: 8px; z-index: 2; display: flex; gap: 8px; }
+.letter-pick { width: 48px; height: 48px; min-height: 48px; padding: 0; border: 0; border-radius: 16px; background: #fff; box-shadow: var(--shadow); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; }
+.letter-pick .glyph { height: 26px; width: auto; }
+.letter-pick[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--c), var(--shadow); }
 
 /* check */
 .check { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 24px; }
@@ -595,6 +611,7 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .star-slot .gold-star { width: 30px; height: 30px; }
 .find-card { left: 10px; top: 10px; z-index: 3; display: grid; justify-items: center; gap: 2px; padding: 6px 14px 6px; border-radius: 18px; background: #fff; box-shadow: var(--shadow); color: var(--muted); font-size: 16px; font-weight: 800; line-height: 1.1; pointer-events: none; }
 .find-card .glyph { height: calc(34px * var(--vh, 1)); width: auto; }
+.find-card .find-glyphs { display: flex; align-items: center; gap: 4px; } .find-card.pair .glyph { height: calc(26px * var(--vh, 1)); }
 .sky { inset: 0; z-index: 2; touch-action: none; user-select: none; -webkit-user-select: none; } .sky.done { pointer-events: none; }
 .sky-letter { position: absolute; width: 56px; height: 56px; padding: 0; border: 0; background: none; cursor: pointer; touch-action: none; display: block; will-change: transform; }
 .sky-letter.dragging { z-index: 5; cursor: grabbing; }
@@ -2077,6 +2094,7 @@ button.hw-tile:active { transform: translateY(3px) scale(.97); }
 .mouth-task .ns-body { gap: 10px; }
 .mouth-art { width: min(62vw, 250px, calc(100dvh - 470px)); min-width: 130px; aspect-ratio: 240 / 230; border-radius: 30px; background: #fff; box-shadow: var(--shadow); overflow: hidden; }
 .mouth-art svg { display: block; width: 100%; height: 100%; }
+.mouth-same { margin: 0 0 10px; font-size: 19px; font-weight: 800; text-align: center; color: var(--ink); }
 .gu-ping { transform-box: fill-box; transform-origin: center; animation: gu-ping 2.4s ease-in-out 3; }
 @keyframes gu-ping { 0%, 100% { transform: scale(.85); opacity: .35; } 50% { transform: scale(1.2); opacity: .9; } }
 @media (prefers-reduced-motion: reduce) { .gu-ping { animation: none; opacity: .7; } }

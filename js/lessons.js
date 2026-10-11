@@ -1,3 +1,4 @@
+import { soundOfLetter, spellingsOf, lettersOfSounds } from './order.js';
 // Turns a lesson in curriculum.json into its ordered task list. Nothing here hardcodes lesson content.
 export const TASK_TYPES = {
   review:  { name: 'Letter Review', color: 'sky',    dark: true,  label: "Today we'll review" },
@@ -34,7 +35,7 @@ export const lessonByNumber = (curriculum, n) => curriculum.lessons.find((l) => 
 export function targetsFor(task, lesson) {
   switch (task.type) {
     case 'review': return lesson.review.map((g) => ({ glyph: g }));
-    case 'newLetter': case 'mouth': case 'writing': case 'hunt': case 'signals': case 'wagons': case 'board': case 'practice': case 'check': return [{ glyph: lesson.sound }];
+    case 'newLetter': case 'mouth': case 'writing': case 'hunt': case 'signals': case 'wagons': case 'board': case 'practice': case 'check': return spellingsOf(lesson.sound).map((g) => ({ glyph: g }));
     case 'sounds': return lesson.sayingSounds.slice(0, 3).map((w) => ({ text: w.word }));
     default: return [];
   }
@@ -48,8 +49,9 @@ export const GIST_MAX = 28;
 export const fit = (...options) => options.find((o) => o.length <= GIST_MAX) || options[options.length - 1];
 
 // Sound cards are built from the sounds table: "This letter says mmm. Hold it. Do not say muh."
+export const spellings = (sound) => [sound.glyph, ...(sound.alt || [])];
 export function soundCardLines(sound) {
-  const lines = [`This letter says ${soundPhrase(sound)}.`];
+  const lines = [sound.alt && sound.alt.length ? `The letters ${spellings(sound).join(' and ')} make the same sound: ${soundPhrase(sound)}.` : `This letter says ${soundPhrase(sound)}.`];
   if (sound.hold) lines.push('Hold it.');
   if (sound.doNotSay) lines.push(`Do not say ${sound.doNotSay}.`);
   return lines;
@@ -73,8 +75,8 @@ export function practiceRounds(curriculum, lesson, n = 3) {
 // The wrong cards of a checkpoint: words that begin with none of the sounds taught so far. A "sh" word counts as an s word
 // and a "th" word as a t or s word, so neither is used once s (or t) is taught.
 export function sackPool(curriculum, ck) {
-  const taught = ck.sounds;
-  return (curriculum.gameDistractors || []).filter((w) => !taught.includes(w.word[0])
+  const taught = ck.sounds; // sound keys; a word starting with k belongs to the sound c
+  return (curriculum.gameDistractors || []).filter((w) => !taught.includes(soundOfLetter(w.word[0]))
     && !(taught.includes('s') && w.word.startsWith('sh')) && !((taught.includes('t') || taught.includes('s')) && w.word.startsWith('th')));
 }
 // The sounds a checkpoint's rounds may be about, and how many rounds each can take: no more than its start words.
@@ -84,8 +86,8 @@ export const roundCaps = (curriculum, ck) => Object.fromEntries(ck.sounds.map((k
 // The words of a ride stop: those spelt only with sounds taught by `after`, where every letter but the last is a held sound
 // (the voice can stay on up to a clipped last sound). Two-letter words first, then three, then longer; cut to `rounds`.
 export function rideWords(curriculum, ck) {
-  const taught = new Set(taughtBy(curriculum, ck.after));
-  const fits = (w) => [...w].every((ch) => taught.has(ch)) && [...w].slice(0, -1).every((ch) => curriculum.sounds[ch].hold === true);
+  const taught = lettersOfSounds(taughtBy(curriculum, ck.after));
+  const fits = (w) => [...w].every((ch) => taught.has(ch)) && [...w].slice(0, -1).every((ch) => curriculum.sounds[soundOfLetter(ch)].hold === true);
   const words = (ck.words || []).filter(fits);
   return [...words.filter((w) => w.length === 2), ...words.filter((w) => w.length === 3), ...words.filter((w) => w.length > 3)].slice(0, ck.rounds);
 }

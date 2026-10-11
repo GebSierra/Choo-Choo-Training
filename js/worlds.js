@@ -1,3 +1,4 @@
+import { levelReached } from './levels.js';
 // Worlds and units (curriculum.worlds, curriculum.units; docs/CURRICULUM.md sections 9 and 11). A world is one stretch of
 // track with its own stations; a unit is a group of new sounds inside it. Pure helpers, no DOM.
 export const worldById = (curriculum, id) => (curriculum.worlds || []).find((w) => w.id === id) || null;
@@ -70,7 +71,7 @@ export function worldSummary(store, curriculum, worldId) {
   const ls = lessonsIn(curriculum, worldId);
   const done = ls.filter((l) => store.isDone(l.number));
   const cur = currentWorld(store, curriculum);
-  const levels = (curriculum.levels || []).filter((v) => v.after !== null && ls.some((l) => l.number === v.after)).map((v) => ({ id: v.id, n: v.n, earned: store.isDone(v.after) }));
+  const levels = (curriculum.levels || []).filter((v) => v.after !== null && ls.some((l) => l.number === v.after)).map((v) => ({ id: v.id, n: v.n, earned: levelReached(store, v.after) }));
   const dates = ls.map((l) => store.lesson(l.number)).filter((o) => o.result === 'got-it' && typeof o.completedAt === 'string').map((o) => o.completedAt).sort();
   const finished = ls.length > 0 && done.length === ls.length;
   const unit = cur && cur.id === worldId ? currentUnit(store, curriculum, worldId) : null;

@@ -35,18 +35,19 @@ const APP_FILES = [
   'assets/images/mentava/web/l/leaf.webp', 'assets/images/mentava/web/l/leg.webp', 'assets/images/mentava/web/m/map.webp',
   'assets/images/mentava/web/m/milk.webp', 'assets/images/mentava/web/n/necklace.webp', 'assets/images/mentava/web/n/nose.webp',
   'assets/images/mentava/web/n/nut.webp', 'assets/images/mentava/web/o/octopus.webp', 'assets/images/mentava/web/o/pot.webp',
-  'assets/images/mentava/web/oo-moon/moon.webp', 'assets/images/mentava/web/or/corn.webp', 'assets/images/mentava/web/or/horse.webp',
-  'assets/images/mentava/web/p/panda.webp', 'assets/images/mentava/web/p/pig.webp', 'assets/images/mentava/web/p/pumpkin.webp',
-  'assets/images/mentava/web/q/queen.webp', 'assets/images/mentava/web/r/rabbit.webp', 'assets/images/mentava/web/r/robot.webp',
-  'assets/images/mentava/web/r/rocket.webp', 'assets/images/mentava/web/s/snail.webp', 'assets/images/mentava/web/s/snake.webp',
-  'assets/images/mentava/web/s/sock.webp', 'assets/images/mentava/web/t/table.webp', 'assets/images/mentava/web/t/tiger.webp',
-  'assets/images/mentava/web/t/tree.webp', 'assets/images/mentava/web/u/sun.webp', 'assets/images/mentava/web/u/umbrella.webp',
+  'assets/images/mentava/web/o/rock.webp', 'assets/images/mentava/web/oo-moon/moon.webp', 'assets/images/mentava/web/or/corn.webp',
+  'assets/images/mentava/web/or/horse.webp', 'assets/images/mentava/web/p/panda.webp', 'assets/images/mentava/web/p/pig.webp',
+  'assets/images/mentava/web/p/pumpkin.webp', 'assets/images/mentava/web/q/queen.webp', 'assets/images/mentava/web/r/rabbit.webp',
+  'assets/images/mentava/web/r/robot.webp', 'assets/images/mentava/web/r/rocket.webp', 'assets/images/mentava/web/s/snail.webp',
+  'assets/images/mentava/web/s/snake.webp', 'assets/images/mentava/web/s/sock.webp', 'assets/images/mentava/web/t/table.webp',
+  'assets/images/mentava/web/t/tiger.webp', 'assets/images/mentava/web/t/tree.webp', 'assets/images/mentava/web/u/bug.webp',
+  'assets/images/mentava/web/u/sun.webp', 'assets/images/mentava/web/u/umbrella.webp', 'assets/images/mentava/web/u/up.webp',
   'assets/images/mentava/web/v/van.webp', 'assets/images/mentava/web/v/vest.webp', 'assets/images/mentava/web/v/volcano.webp',
   'assets/images/mentava/web/w/wagon.webp', 'assets/images/mentava/web/w/window.webp', 'assets/images/mentava/web/w/worm.webp',
   'assets/images/mentava/web/x/fox.webp', 'assets/images/mentava/web/y/yarn.webp',
 ];
 // Recorded sounds are optional: a missing file must not stop the install.
-const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3', 'assets/audio/sounds/s.mp3', 'assets/audio/sounds/i.mp3', 'assets/audio/sounds/t.mp3', 'assets/audio/sounds/p.mp3', 'assets/audio/sounds/n.mp3', 'assets/audio/sounds/f.mp3', 'assets/audio/sounds/d.mp3', 'assets/audio/sounds/h.mp3', 'assets/audio/sounds/g.mp3', 'assets/audio/sounds/b.mp3', 'assets/audio/sounds/l.mp3'];
+const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3', 'assets/audio/sounds/s.mp3', 'assets/audio/sounds/i.mp3', 'assets/audio/sounds/t.mp3', 'assets/audio/sounds/p.mp3', 'assets/audio/sounds/f.mp3', 'assets/audio/sounds/o.mp3', 'assets/audio/sounds/n.mp3', 'assets/audio/sounds/d.mp3', 'assets/audio/sounds/c.mp3', 'assets/audio/sounds/h.mp3', 'assets/audio/sounds/u.mp3', 'assets/audio/sounds/g.mp3', 'assets/audio/sounds/l.mp3', 'assets/audio/sounds/r.mp3', 'assets/audio/sounds/b.mp3'];
 // Connected blend models for the f lesson prototype ("fffiiit"), recorded by the grown-up, are optional too.
 OPTIONAL_FILES.push('assets/audio/blends/sat.mp3', 'assets/audio/blends/map.mp3', 'assets/audio/blends/mat.mp3', 'assets/audio/blends/sip.mp3', 'assets/audio/blends/fit.mp3', 'assets/audio/blends/fat.mp3', 'assets/audio/blends/if.mp3', 'assets/audio/blends/tip.mp3', 'assets/audio/blends/sam.mp3', 'assets/audio/blends/at.mp3', 'assets/audio/blends/it.mp3', 'assets/audio/blends/sis.mp3');
 

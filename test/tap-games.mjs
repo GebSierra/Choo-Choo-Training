@@ -479,9 +479,9 @@ export async function boardChecks({ browser, url, ok }) {
 export async function rotationChecks({ browser, url, ok, CUR }) {
   const ord = orderOf(CUR);
   const W = 'wagons', G = 'signals', B = 'board';
-  const want = [[], [G], [W], [G, W], [B], [G], [W, B], [], [G, B], [W], [B], [G, W], [B]];
+  const want = [[], [G], [W], [G, W], [B], [G], [W, B], [], [G, B], [W], [B], [G, W], [B], [G, B], [W], [B, G], [W]]; // 17 lessons (phase B)
   const gamesOf = (n) => middleFor(ord, n).filter((t) => TAP_GAMES.includes(t));
-  for (let n = 1; n <= 13; n++) ok(gamesOf(n).join() === want[n - 1].join() && CUR.lessons[n - 1].games.join() === want[n - 1].join(), `rotation: lesson ${n} has ${want[n - 1].join('+') || 'no tap game'} in its middle (${gamesOf(n).join('+')})`);
+  for (let n = 1; n <= 17; n++) ok(gamesOf(n).join() === want[n - 1].join() && CUR.lessons[n - 1].games.join() === want[n - 1].join(), `rotation: lesson ${n} has ${want[n - 1].join('+') || 'no tap game'} in its middle (${gamesOf(n).join('+')})`);
   const vp = VIEWPORTS[0];
   for (const [n, type] of [[1, 'hunt'], [7, 'wagons']]) {
     const { ctx, page, errors } = await open(browser, url, vp, { n, type });

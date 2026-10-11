@@ -3,7 +3,7 @@
 Owner decisions of 2026-10-08. This page is for the owner to read. It lists what changed in the 13 lessons, the new lesson frame,
 the new "Watch my mouth" step, and every grown-up line before and after. No version change; nothing is pushed.
 
-Phase A keeps today's sound order (`m a s i t p n f d h g b l`, `js/order.js`). Phase B will reorder it and add o, c/k, u and r.
+Phase A kept the sound order of that time (`m a s i t p n f d h g b l`). Phase B (section 9, at the end) switched to the curriculum's order and added o, c/k, u and r: 17 lessons.
 
 ## 1. The lesson frame (the same in every lesson)
 
@@ -228,10 +228,118 @@ no two neighbours share a middle, no Word Cars; each lesson's Watch My Mouth ste
 text, and the owner's script; the phone's voice says no isolated sound there (recordings on, off and missing); no YouTube address
 in any app file; no song row on the overview; no outside link in Grownups.
 
-## 8. For phase B
+## 8. For phase B (done: see section 9)
 
 - Reorder and add o, c/k, u, r: `js/order.js`, the `TABLE` and `MOUTH` in `tools/gen-lessons.mjs`, `MIDDLES` in `js/games-data.js`
   (a lesson past the table repeats it; `middleFor` swaps a game the lesson cannot hold).
 - The f prototype still has its own animated "mouth" screen inside New Sound. Phase B can replace it with the grown-up picture.
 - Open: Practicing Words is now both the closing review and a "find the picture" game; a reading-focused closing review could
   replace it later.
+
+## 9. Phase B: the curriculum's sound order, 17 lessons
+
+Owner roadmap item 3, second half. No version change here (the reviewer adds it); nothing is pushed.
+
+### What changed
+
+- **The order** (`ORDER_SOUNDS` in `js/order.js`): World 1 Starter Station `m a s i t p` (lessons 1 to 6, unchanged, with the stops r1, b1, b2),
+  World 2 Green Valley `f o n d c/k h u g l r b` (lessons 7 to 17). Before: `n f d h g b l` (lessons 7 to 13). The new lessons are o (8),
+  c/k (11), u (13) and r (16). Units: 2.4 f o, 2.5 n d, 2.6 c k h, 2.7 u g l, 2.8 r b. World 2 ends at lesson 17, and so does level two
+  (the coach car): level two now needs all 17 sounds.
+- **Built with the generator**: `TABLE` and `MOUTH` in `tools/gen-lessons.mjs` (lessons 7 to 17), `MIDDLES` in `js/games-data.js` (17 patterns,
+  no two neighbours the same), then `node tools/gen-lessons.mjs`. `data/curriculum.json` is generated, never edited by hand. The picture list
+  in `sw.js` and the optional sound clips (`assets/audio/sounds/<key>.mp3`: o, c, u, r are new) are written by the same run. The recording
+  studio lists the sound as `sound-c` (the c/k lesson).
+- **Letters**: new stroke glyphs for o, c, k, u, r (`js/glyphs.js`, drawn in the style of the others: o is the bowl of a, c is the bowl left open,
+  k is a tall stem with arm and leg, u and r like n flipped and cut) and four new accent colours (o purple, c/k deep cyan, u coral, r green;
+  `js/theme.js` and `css/app.css`).
+- **Every word a child reads is decodable** from the sounds taught up to and including its lesson. Saying Sounds' three letter words, the
+  Station Board words and the Ticket Check letters are checked by `test/check-content.mjs` and again, from scratch, by `test/phase-b.mjs`.
+  A picture word whose letters are not all taught yet (fish, nut, duck, leaf, robot) used to be shown as letters to slide under. It is now
+  only said (`sayOnly` in the data): the picture and the grown-up's voice, no letters. A picture word that is decodable (pot, cat, hippo,
+  sun, goat, ball) still reveals its letters. Lessons 1 to 6 are unchanged.
+- **Wrong cards** (`POOL_ADD` and `AVOID` in the generator): the lesson's own sound never appears among its wrong cards. New avoid rules: g
+  words (goat, gate) and "queen" stay out of the c/k rounds (k and g are close, and qu says kw), and w words (worm, wagon, window) stay out of
+  the r rounds. Words that start with k count as c words (`kite`, `king`, `koala`).
+- **Letter Hunt distractors** are letters that look unlike the target (taught letters first, padded with a few not yet taught: the child
+  finds a letter, not a word). New look-alike pairs: o/c, o/a, r/n, r/h, k/h, k/b, k/l.
+
+### c and k: one lesson, one sound, two spellings
+
+- Data: the key is `c`, `sounds.c.alt = ['k']`, `sayItLike` is `k-` (clipped, "do not say kuh"), the clip is `assets/audio/sounds/c.mp3`.
+  `SPELLINGS`, `spellingsOf` and `soundOfLetter` in `js/order.js` are the one place that knows k belongs to c.
+- The words: pictures camel, candy, cat, king, koala; reading words `cap kit cot` (a c word, a k word, a c word); Station Board `cat sad kid kin`
+  (its c rounds take the spellings in turn); Ticket Check "Which picture starts with k-?" (cat).
+- The child sees both letters: New Sound (both glyphs in one card, "The letters c and k make the same sound: k-."), Watch My Mouth ("c and k
+  make the same sound." and "How to make k-"), the lesson overview ("c and k make the same sound, k-", both letters on the chips and cards),
+  Track Tracing (two 56 px letter buttons next to Clear and Show me, c first), the Find card of the games.
+- The games: Letter Hunt deals c and k balloons as targets in every sky (never other balloons that are c or k), Green Light and Wagon Parade
+  show c and k in turn on the target lamp or wagons, Station Board accepts the c or the k tile. A place that can show only one glyph (the
+  slide track, the Home stop) uses c; the journey board's unit list shows c k h.
+- The grown-up text writes the sound as `k-` everywhere ("Say: k-", "k-at"): `soundText` in `js/scripts.js` maps c and k to it. The phone never
+  says an isolated sound: the prompt is text for the grown-up, or the recording `c.mp3` when it exists (a missing clip shows the prompt).
+
+### Saved progress: mapped by sound, never reset
+
+A save made under the old order (`order: 'masitpnfdhgbl'`, one character per lesson, `LEGACY_ORDER`) is mapped in `store.parse()`:
+each saved lesson n teaches the sound `LEGACY_ORDER[n - 1]` and moves to `ORDER_SOUNDS.indexOf(sound) + 1`.
+
+| Old lesson | 1 to 6 | 7 n | 8 f | 9 d | 10 h | 11 g | 12 b | 13 l |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| New lesson | 1 to 6 | 9 | 7 | 10 | 12 | 14 | 17 | 15 |
+
+- Finished lessons (`result: 'got-it'`) keep their result, `completedAt` and `doneAt`. Unfinished mapped lessons keep their result (for
+  example practice-again) and get `tasksDone: []`, because the task lists differ by lesson. Lessons that were counted as done only because a
+  later one was finished (the old derived rule) are written out as done first.
+- The new lessons o, c/k, u and r have no saved entry, so they are still to do. A child who had finished all 13 old lessons now has 4 lessons
+  left, and o (8) is the current one.
+- `settings.trainAt` and `settings.trainDone` are dropped (Home records fresh counts and plays no spurious ride), and `seenScripts` keys
+  that start with `lesson:` are dropped (they are per old lesson number). The checkpoints r1, b1, b2 (World 1, by id, unchanged), the
+  character, levels, `worlds.seen`, `savedAt` and the other settings stay. A stop that counted as done because the next lesson was is
+  written out as done.
+- A save with no `order` field or an unknown order keeps the old rule: a real install (it has `lastOpened`) starts its lessons again once.
+- The cloud copy goes through the same `parse()` (`adopt`), so a pull on sign-in is mapped too.
+- The localStorage key `reading.v1` is unchanged.
+
+### The lock rule
+
+`isDone(n)` is strict: a lesson's own result is got-it (it no longer counts as done because a later lesson is). A lesson is open when it is
+done, a grown-up unlocked it, or every earlier lesson is done (`earlierDone`). The current lesson is the first one that is open and not
+done. Example: old n f d done maps to f (7), n (9), d (10) done; o (8) is not done, so o is the current lesson and c/k (11) stays locked
+even though d (10) is done. The pace limit's "next new lesson" follows the same rule. A level is earned only when every lesson up to its own is
+done (`levelReached` in `js/levels.js`). Developer mode "open all" is unchanged.
+
+### New words per lesson (Green Valley)
+
+| Lesson | Sound | Unit | Saying Sounds letter words | Picture word | Station Board words | Middle | Ticket Check |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 7 | f | 2.4 | fat fit if | fish (said only) | fat pat fit it | sounds, wagons, writing, board | picture: fish |
+| 8 | o | 2.4 | top pop sit | pot | mop if mom map | hunt, writing, sounds | letter |
+| 9 | n | 2.5 | nap not tin | nut (said only) | man on an fan | signals, sounds, board, writing | picture: nut |
+| 10 | d | 2.5 | dad dip sad | duck (said only) | sad sand mad mop | writing, sounds, wagons | letter |
+| 11 | c and k | 2.6 | cap kit cot | cat | cat sad kid kin | board, sounds, hunt, writing | picture: cat |
+| 12 | h | 2.6 | hat him hot | hippo | hat cat had sad | writing, signals, sounds, wagons | letter |
+| 13 | u | 2.7 | mud cup hut | sun | sun hum sum cut | hunt, sounds, board, writing | picture: umbrella |
+| 14 | g | 2.7 | tag dig pig | goat | sag sun mug hug | signals, writing, sounds, board | letter |
+| 15 | l | 2.7 | lap lip lid | leaf (said only) | pal sag lag mug | writing, sounds, wagons, hunt | picture: leaf |
+| 16 | r | 2.8 | rat rip rug | robot (said only) | rat pal ran rag | board, sounds, writing, signals | letter |
+| 17 | b | 2.8 | bat big bad | ball | sob rob cob lab | hunt, writing, sounds, wagons | picture: ball |
+
+Ticket Check alternates by lesson number (odd lessons ask for a picture, even lessons for a letter), so the kind of a sound's check can differ
+from before. The Watch My Mouth text for the new sounds (`MOUTH`): o "Open your mouth wide and round, like an O. Keep your tongue low and still.
+Voice on."; c/k "Lift the back of your tongue to the roof of your mouth. Drop it with a quick puff of air. Voice off."; u "Open your mouth a
+little. Keep your jaw and tongue relaxed and low. Voice on."; r "Pull your tongue back and up, without touching the roof. Round your lips a
+little. Voice on."
+
+### Tests
+
+Changed because the lessons and the order changed: `store`, `check-content` and every suite that named a lesson by number, a sound by its old
+lesson, or "13 lessons" (listed in the phase B report). New: `test/phase-b.mjs` (in `npm test`): the order and the count, decodability of
+every reading word, the c/k lesson (both letters in New Sound, Watch My Mouth, the overview, Track Tracing, Letter Hunt, Station Board,
+Ticket Check), the mapping of a legacy save and of a cloud copy, the lock rule, World 2 ending at lesson 17.
+
+### Still open
+
+- Record the new sounds (o, c, u, r) with the studio; until then the prompt "Say: k-" shows for the grown-up.
+- The f prototype's own animated mouth screen is still separate; Practicing Words is still both the closing review and a "find the picture"
+  game (both as in section 8).

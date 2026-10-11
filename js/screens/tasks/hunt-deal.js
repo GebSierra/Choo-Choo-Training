@@ -44,8 +44,9 @@ export function skyCells(W, H, { goalW = 150, count = 16 } = {}) {
 //   (d) no two targets in neighbouring slots, when that can be avoided.
 // (a) and (b) are given up, in that order, only if nothing else can satisfy (c). Distractors are chosen at random,
 // with no letter more than twice in a deal (unless the list is too short for that).
+// spellings: the written forms of the target sound ([c, k]); the default is the target letter alone.
 // Returns { targets: sorted slot indices, letters: one letter per slot }.
-export function deal({ positions, history = [], rng = Math.random, target, distractors, counts = [4, 5] }) {
+export function deal({ positions, history = [], rng = Math.random, target, distractors, counts = [4, 5], spellings = null }) {
   const n = positions.length;
   const xs = positions.map((p) => p.x), ys = positions.map((p) => p.y);
   const midX = (Math.min(...xs) + Math.max(...xs)) / 2, midY = (Math.min(...ys) + Math.max(...ys)) / 2;
@@ -96,6 +97,9 @@ export function deal({ positions, history = [], rng = Math.random, target, distr
   if (!distractors.length) throw new Error('Letter Hunt needs at least one distractor letter');
   let bag = shuffle(distractors.flatMap((l) => [l, l]), rng);
   while (bag.length < n - k) bag = bag.concat(shuffle(distractors, rng));
-  const letters = all.map((i) => (targets.includes(i) ? target : bag.pop()));
+  // A sound with two spellings (c and k): the target slots show them in turn, so both letters are found in every sky.
+  const sp = spellings && spellings.length > 1 ? spellings : null, first = sp ? Math.floor(rng() * sp.length) : 0;
+  let turn = 0;
+  const letters = all.map((i) => (targets.includes(i) ? (sp ? sp[(first + turn++) % sp.length] : target) : bag.pop()));
   return { targets, letters };
 }

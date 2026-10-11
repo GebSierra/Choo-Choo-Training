@@ -24,9 +24,9 @@ export async function storeChecks(ok) {
   const open = (saved) => { mem.clear(); if (saved) mem.set('reading.v1', JSON.stringify(saved)); return createStore(); };
   const save = (lessons, settings = {}) => ({ schema: 1, order: undefined, lessons, checkpoints: {}, settings: { migrated1912: true, pace4: true, perDay: 2, ...settings }, firstRunDone: true }); // most checks use a limit of 2 (default is 4)
   let s = open(save({ 5: { tasksDone: [], result: 'got-it' } }));
-  ok([1, 2, 3, 4, 5].every((n) => s.isDone(n)) && !s.isDone(6), 'store: lesson 5 got-it makes lessons 1 to 5 done, not 6');
+  ok([1, 2, 3, 4, 5].every((n) => s.isDone(n)) && !s.isDone(6), 'store: a save with only lesson 5 got-it (no order, an old save) still counts lessons 1 to 5 done, not 6');
   ok(s.isUnlocked(6) && !s.isUnlocked(7) && s.currentLesson(13) === 6, 'store: lesson 6 is open and current, 7 is locked');
-  ok(s.lesson(3).result === null, 'store: derived, the saved result of lesson 3 is untouched');
+  ok(s.lesson(3).result === 'got-it' && s.lesson(3).completedAt === null && s.state.lessons[5].result === 'got-it', 'store: phase B writes the lessons that a later result implied (isDone is strict now): lesson 3 is got-it with no date, lesson 5 is untouched');
   const ck = CUR.checkpoints.find((c) => c.after === 4), ck5 = CUR.checkpoints.find((c) => c.after === 5) || CUR.checkpoints.find((c) => c.after >= 5);
   ok(ck && s.isCheckpointDone(ck) && s.isCheckpointUnlocked(ck), 'store: a checkpoint after lesson 4 is done and open (lesson 5 is done)');
   ok(!s.isCheckpointDone(ck5), `store: a checkpoint at or after lesson 5 is not done (after ${ck5.after})`);
@@ -38,9 +38,9 @@ export async function storeChecks(ok) {
   const first = s.lesson(3).doneAt;
   s.setResult(3, 'got-it');
   ok(s.lesson(3).doneAt === first, 'store: doneAt is kept on a second got-it');
-  ok(s.isDone(1) && s.isDone(2) && s.lesson(1).doneAt === undefined, 'store: lessons 1 and 2 are done but got no doneAt');
+  ok(s.isDone(3) && !s.isDone(1) && !s.isDone(2) && s.lesson(1).doneAt === undefined, 'store: isDone is strict (phase B): finishing lesson 3 does not make lessons 1 and 2 done');
   s.setResult(2, 'got-it');
-  ok(s.lesson(2).doneAt === undefined, 'store: finishing a lesson a later one already completed does not count as new');
+  ok(typeof s.lesson(2).doneAt === 'number' && s.isDone(2), 'store: a lesson finished after a later one counts as new (it gets its own doneAt)');
   // settings
   const d = { perDay: 2, restOverride: null, dev: false, devOpenAll: false, devNoLimit: false, rate: 0.9, sfxVolume: 0.6 };
   const c = (x) => cleanSettings({ ...d, ...x }, d);
@@ -113,7 +113,7 @@ export async function browserChecks({ browser, url, ok }) {
     ok(cks.length > 0 && depots.slice(0, cks.length).every((x) => x.cls === 'is-done'), `cascade: the checkpoints before lesson 5 show done (${depots.map((x) => x.cls).join(',')})`);
     ok(await page.evaluate(() => window.__train.wagons) === 5, 'cascade: the train pulls five wagons');
     ok(await page.evaluate(() => window.__train.currentIndex === [...document.querySelectorAll('.station-btn')].findIndex((x) => x.getAttribute('aria-label') === 'Lesson 6')), 'cascade: the train waits at lesson 6');
-    ok((await stored(page)).lessons[3] === undefined, 'cascade: nothing was written for lesson 3');
+    ok((await stored(page)).lessons[3] && (await stored(page)).lessons[3].result === 'got-it' && (await stored(page)).lessons[3].completedAt === null, 'cascade: an old save with only lesson 5 got-it is written out once (phase B): lesson 3 is got-it with no date');
     ok(errors.length === 0, `cascade: errors ${errors.join(' | ')}`);
     await ctx.close();
   }

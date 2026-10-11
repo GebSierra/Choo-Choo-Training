@@ -6,6 +6,7 @@ import { judgeBar } from '../components/judge-bar.js';
 import { clipReady } from '../components/say-sound.js';
 import { soundText, firstSoundOut } from '../scripts.js';
 import { WORD_BANK } from '../games-data.js';
+import { soundOfLetter } from '../order.js';
 import { INK, fadeIn, dotRow } from './tasks/proto/kit.js';
 
 // PROTOTYPE 6, part B: the placement check (docs/CURRICULUM.md section 10), led by the grown-up, at #/proto/placement, reached from
@@ -50,8 +51,8 @@ const START = 'bdfghjklmnprstvz', END = 'bdfgkmnpt';
 // word, never in WORD_BANK, never on the blocklist. They differ in their first letter and vowel where the known sounds allow it.
 export function makeUpWords(known, seed, count = MADE_UP_COUNT) {
   const rng = mulberry32(seed);
-  const vs = [...VOWELS].filter((c) => known.has(c));
-  const cs = [...START].filter((c) => known.has(c)), ce = [...END].filter((c) => known.has(c));
+  const vs = [...VOWELS].filter((c) => known.has(soundOfLetter(c)));
+  const cs = [...START].filter((c) => known.has(soundOfLetter(c))), ce = [...END].filter((c) => known.has(soundOfLetter(c)));
   const pool = [];
   for (const a of cs) for (const v of vs) for (const b of ce) {
     if (a === 'g' && 'ei'.includes(v)) continue; // gim: hard or soft g?
@@ -74,10 +75,10 @@ export function makeUpWords(known, seed, count = MADE_UP_COUNT) {
 // Up to four words (VC or CVC only, from WORD_BANK, js/games-data.js) built only from known sounds. The first is the easiest; the
 // rest each bring in as many not-yet-used sounds as they can, newest lesson first; shown from the easiest to the hardest.
 export function pickWords(sounds, known) {
-  const at = (c) => sounds.indexOf(c) + 1; // the lesson that teaches c
+  const at = (c) => sounds.indexOf(soundOfLetter(c)) + 1; // the lesson that teaches c (k is taught with c)
   const level = (w) => Math.max(...[...w].map(at));
   // Only VC and CVC words (am, sat): blends and doubled letters (band, miss) come in later worlds, so they would not be fair here.
-  const pool = [...new Set(WORD_BANK)].filter((w) => /^[^aeiou]?[aeiou][^aeiou]$/.test(w) && [...w].every((c) => known.has(c)));
+  const pool = [...new Set(WORD_BANK)].filter((w) => /^[^aeiou]?[aeiou][^aeiou]$/.test(w) && [...w].every((c) => known.has(soundOfLetter(c))));
   if (!pool.length) return [];
   const byEase = [...pool].sort((a, b) => a.length - b.length || level(a) - level(b) || pool.indexOf(a) - pool.indexOf(b));
   const picked = [byEase[0]], seen = new Set(byEase[0]);
@@ -99,7 +100,7 @@ export function pickWords(sounds, known) {
 const HEART = new Set(['a', 'i', 'is', 'the']);
 const SENTENCES = ['Sam sat at a map.', 'Pip is in a tin.', 'Dad had a big bag.', 'The pig is big.', 'Pat is at the mat.', 'Tim hid a pin.', 'Sam is a man.', 'I am Sam.', 'Sam sat.'];
 export function pickSentence(known) {
-  const ok = (word) => { const w = word.toLowerCase().replace(/[.,!?]/g, ''); return HEART.has(w) || (/^[^aeiou]?[aeiou][^aeiou]$/.test(w) && [...w].every((c) => known.has(c))); };
+  const ok = (word) => { const w = word.toLowerCase().replace(/[.,!?]/g, ''); return HEART.has(w) || (/^[^aeiou]?[aeiou][^aeiou]$/.test(w) && [...w].every((c) => known.has(soundOfLetter(c)))); };
   return SENTENCES.find((s) => s.split(' ').every(ok)) || null;
 }
 

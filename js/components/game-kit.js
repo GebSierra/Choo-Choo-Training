@@ -1,6 +1,7 @@
 import { h, animate, reduced } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { accentOf } from '../theme.js';
+import { spellingsOf } from '../order.js';
 import { starSvg, farmBackdrop } from '../art.js';
 
 // Small pieces the games share: timers that clean up, the farm, the "Find this" card and the row of gold stars.
@@ -29,8 +30,11 @@ export function watchSize(el, cb) {
   return () => ro.disconnect();
 }
 
+// `letter` is a sound key: a sound with two spellings (c and k) shows both letters on the card.
 export function findCard(letter) {
-  return h('div', { class: 'find-card', 'aria-label': 'Find this letter' }, h('span', {}, 'Find this'), glyphSvg(letter, { color: accentOf(letter), label: 'the letter to find' }));
+  const ls = spellingsOf(letter);
+  const faces = ls.map((ch) => glyphSvg(ch, { color: accentOf(ch), label: 'the letter to find' }));
+  return h('div', { class: 'find-card' + (ls.length > 1 ? ' pair' : ''), 'aria-label': ls.length > 1 ? 'Find these letters' : 'Find this letter' }, h('span', {}, ls.length > 1 ? 'Find these' : 'Find this'), ls.length > 1 ? h('div', { class: 'find-glyphs' }, ...faces) : faces[0]);
 }
 
 // A small sideways wobble: the only answer to a wrong touch. No colour, no sound.

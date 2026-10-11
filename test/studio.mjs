@@ -30,7 +30,7 @@ ok(new Set(files).size === files.length, 'file names are unique (' + files.lengt
 const per = {}; ITEMS.forEach((i) => { per[i.group] = (per[i.group] || 0) + 1; });
 console.log('per group', JSON.stringify(per));
 ok(ITEMS.every((i) => i.show && i.say && i.dont && i.tip && i.example && ['stretchy', 'bouncy', 'blend'].includes(i.hold)), 'every item has all fields');
-ok(files.includes('sound-k') && files.includes('sound-th-buzz') && files.includes('blend-sam'), 'key names present');
+ok(files.includes('sound-c') && files.includes('sound-th-buzz') && files.includes('blend-sam'), 'key names present');
 
 const { ctx, page, errors } = await open({ width: 360, height: 780 });
 ok((await page.textContent('#count')) === `0 of ${ITEMS.length} recorded`, 'progress starts at 0');
