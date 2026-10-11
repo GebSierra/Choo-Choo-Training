@@ -237,8 +237,8 @@ for (const vp of VIEWPORTS) {
   await huntChecks({ browser, url, ok, CUR, vp, shot: shotTo(OUT) });
   await dragChecks({ browser, url, ok, CUR, vp, shot: async (page, name) => page.screenshot({ path: path.join(OUT, `drag-${vp.name}-${name}.png`) }) });
 }
-// Letter Hunt for every lesson from the second on (every new letter and its distractors).
-for (const lessonNo of CUR.lessons.map((l) => l.number).filter((n) => n >= 2)) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
+// Letter Hunt for every lesson from the second on that has it (every new letter and its distractors; since the lesson rebuild the middle is mixed, so not every lesson has Letter Hunt).
+for (const lessonNo of CUR.lessons.filter((l) => l.number >= 2 && tasksFor(l).some((t) => t.type === 'hunt')).map((l) => l.number)) await huntChecks({ browser, url, ok, CUR, vp: VIEWPORTS[0], lessonNo });
 await reducedChecks({ browser, url, ok, CUR });
 await dragReducedChecks({ browser, url, ok, CUR });
 // Saying Sounds, slide to blend: real touch drags across am (lesson 2) and sam (lesson 3).
