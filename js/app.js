@@ -86,6 +86,9 @@ async function boot() {
     { re: /^\/checkpoint\/([\w-]+)\/task\/(\d+)$/, screen: reviewTaskScreen },
     { re: /^\/checkpoint\/([\w-]+)\/finish$/, screen: checkpointFinishScreen },
     { re: /^\/grownups$/, screen: grownupsScreen },
+    // Easter egg (docs/NEXT.md item 8): Fishing with Pip, opened by three quick taps on a river on the 3D Home. Loaded with import() on the
+    // third tap; its file is not precached (it is cached on first use) and nothing else links here.
+    { re: /^\/fishing$/, screen: (...a) => import('./screens/fishing.js').then((m) => m.fishingScreen(...a)) },
     // A read-only look at one world (W1 .. W11), linked from Grownups. Loaded on demand; its files are precached.
     { re: /^\/world\/(W\d+)$/, screen: (...a) => import('./screens/region.js').then((m) => m.regionScreen(...a)) },
     // Prototype 2 previews (Grownups > Previews). Loaded on demand; nothing in the child's flow leads here.

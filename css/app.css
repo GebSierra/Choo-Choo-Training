@@ -2127,3 +2127,6 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .gu-wrow .btn { padding-inline: 14px; font-size: 15px; }
 .gu-wrow .btn { flex: none; min-height: 48px; }
 .gu-wtag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--violet); color: #fff; font-size: 12px; font-weight: 800; vertical-align: 2px; }
+
+/* Fishing with Pip easter egg: the ripple under a tap on the 3D Home river */
+.river-ripple { position: absolute; z-index: 3; width: 56px; height: 56px; border-radius: 50%; border: 4px solid rgba(255,255,255,.9); pointer-events: none; }

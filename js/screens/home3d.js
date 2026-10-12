@@ -263,6 +263,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   debug.gate = { mode: gw ? gw.mode : null, phase: '' };
   debug.crossing = debug.gate;
   // Brings stop i into view (keyboard focus does the same for a stop that is on screen); tests use it to reach a stop.
+  debug.riverSpot = () => { const rv = scenery.river; if (!rv) return null; rig.jump(rv.s); render(); wake(); const g = new THREE.Vector3(rv.x, 0, rv.z + 0.4 * 0); const pt = screenOf(g); return pt; };
   debug.show = (i) => { rig.jump(i < 0 ? stopS[0] + i : stopS[Math.min(stopS.length - 1, i)]); render(); wake(); };
   // Where the portal's mouth and the signpost's board are on the screen (CSS px), for the tests.
   const screenOf = (v) => { camera.updateMatrixWorld(); camera.matrixWorldInverse.copy(camera.matrixWorld).invert(); v.project(camera); return { x: (v.x + 1) / 2 * W, y: (1 - v.y) / 2 * H }; };
@@ -566,10 +567,38 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
     downAt = [e.clientX, e.clientY]; lastMove = now;
     wake();
   };
+  // Easter egg: three quick taps (within about 1.5 s) on the river open Fishing with Pip. The game's module is loaded by import() on the
+  // third tap only (it is not precached). Each tap on the water shows a small ripple; a tap anywhere else starts the count again.
+  const riverTaps = [];
+  const groundAt = (cx, cy) => {
+    const r = root.getBoundingClientRect();
+    if (!r.width) return null;
+    camera.updateMatrixWorld();
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(new THREE.Vector2(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1), camera);
+    return ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), new THREE.Vector3());
+  };
+  const riverTap = (cx, cy) => {
+    const rv = scenery.river;
+    if (!rv || preview || gw || disposed) return;
+    const g = groundAt(cx, cy), now = performance.now();
+    if (!g || !rv.hit(g.x, g.z)) { riverTaps.length = 0; return; }
+    while (riverTaps.length && now - riverTaps[0] > 1500) riverTaps.shift();
+    riverTaps.push(now);
+    const o = root.getBoundingClientRect();
+    const ring = h('div', { class: 'river-ripple', 'aria-hidden': 'true', style: { left: `${cx - o.left}px`, top: `${cy - o.top}px` } });
+    root.append(ring);
+    animate(ring, [{ transform: 'translate(-50%,-50%) scale(.3)', opacity: 0.9 }, { transform: 'translate(-50%,-50%) scale(1.6)', opacity: 0 }], { duration: 600, fill: 'forwards' }).finished.then(() => ring.remove(), () => ring.remove());
+    debug.riverTaps = riverTaps.length;
+    if (riverTaps.length >= 3) { riverTaps.length = 0; import('./fishing.js').then(() => { if (!disposed) router.go('/fishing'); }).catch(() => {}); }
+  };
   const onUp = (e) => {
     if (e.pointerId !== pointer) return;
+    const wasDrag = dragged, px = e.clientX, py = e.clientY, tgt = e.target;
     pointer = null; downAt = null;
     if (dragged) { rig.dragEnd(); wake(); setTimeout(() => { dragged = false; }, 0); }
+    else if (!(tgt && tgt.closest && tgt.closest('.home-top, .home-fs, .first-run, .bubble, .bubble-wrap, .rest-card, .level-banner, .journey'))) riverTap(px, py);
+    void wasDrag;
   };
   root.addEventListener('pointerdown', onDown, true);
   addEventListener('pointermove', onMove, true);

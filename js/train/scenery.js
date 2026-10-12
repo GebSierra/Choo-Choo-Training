@@ -57,7 +57,7 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
   patches.receiveShadow = true;
   group.add(patches);
 
-  let blades = null, details = null, sway = null;
+  let blades = null, details = null, sway = null, river = null;
   if (!theme.decor) {
   // Starter Station's extras (world 1): built first, so the trees and flowers keep out of their spots
   if (theme.details === 'starter') details = buildStarterDetails({ bag, line, stops: stops.slice(0, stationCount), kinds, group });
@@ -90,6 +90,9 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
     return mesh;
   };
   group.add(ribbon(4.6, 0.02, PAL.cream), ribbon(3.4, 0.035, PAL.water));
+  // where the water is, for the tap on the river (Fishing with Pip): the centre line's z at x, and how far from it still counts
+  const riverMid = (x) => riverZ + Math.sin(x * 0.12) * 2.2 - Math.sin(riverX * 0.12) * 2.2;
+  river = { s: riverS, x: riverX, z: riverZ, half: 2.0, hit: (x, z) => Math.abs(x) <= W / 2 && Math.abs(z - riverMid(x)) <= 2.0 };
   // the bridge: a plank deck and two low rails, across the river under the track
   const bridge = new THREE.Group();
   bridge.position.set(riverX, 0, riverZ);
@@ -204,5 +207,5 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
     clouds.add(c);
   }
   if (theme.decor) REGION_BUILDERS[theme.decor]({ bag, line, stops, stationCount, group, sky: clouds, R: rng(23), W });
-  return { group, clouds, blades, details, sway };
+  return { group, clouds, blades, details, sway, river };
 }
