@@ -513,3 +513,27 @@ lesson 20, the q-then-u rule, letter Ticket Checks at 23 and 25, the mix review,
 Story 2, v9), `worlds` (World 1 has eleven stops, three worlds with lessons, the siding scene uses a save with Green Valley done), `regions` (W3 is
 a real world, not a placeholder), `journey` (three stars, W3 current at lesson 18), `levels` (three built levels), `world-visit` (eleven stops in
 World 1, reached worlds), `lib` (sample lessons now include 18 and 25). `train`, `map` and `smoke --fast` needed no change.
+
+### Review Stop additions (owner, same build)
+
+- **Opening card.** `/checkpoint/<id>` of a Review Stop is now a card: the ticket icon, "Review Stop", "Time to practise the sounds your child already
+  knows. Just games, nothing new." and a big Start button (`reviewIntroScreen`, `js/screens/review.js`). Start opens the first game at
+  `/checkpoint/<id>/task/0` (the bare address used to be the first game).
+- **First word (v1 only).** The first stop has a fifth step before Ticket Check, "Read a Word" (`js/screens/tasks/first-word.js`, plan task `read`,
+  words `ma` then `mama`). Each word is big with the slide-to-blend under it; the grown-up taps "Read it!". After mama: confetti (the finish
+  screen's, CSS only, finite), "Your child just read their first word: mama!" and the keepsake button.
+- **Keepsake (`js/components/keepsake.js`, reusable).** "Save this moment" draws a 1080 x 1350 PNG with a canvas on the device (the child's
+  figure and Pip as images from data URLs, "mama" in the story font, "<Name> just read their first word!" or "Your child just read their first
+  word!" without a name, the date, a small train, choochootraining.com). Nothing is uploaded and no request is made; the name only goes into the
+  picture on the device. It downloads; on iOS it uses the share sheet with the file (so "Save Image" shows) or opens the picture to be
+  pressed and held. The button says nothing about sharing. Only v1's mama moment uses it now. Example: docs/screenshots/sunny-hills/keepsake-mama.png.
+- **End message on every stop.** On the finish screen, above "Did your child get it?": "Your child has learned N sounds. Once they master them,
+  they will be able to read words like: ... With these sounds they can read W words!" N is the number of sounds taught by the stop (a lesson is
+  one sound, so c/k and qu count once each). **W is counted, never typed:** `data/words-decodable.json` is a curated list of common
+  child-friendly words that are read with plain letter sounds (no heart words, no double letters, nothing rude or obscure);
+  `tools/gen-lessons.mjs` counts the words of that list spelt only with the letters taught by the stop and stores `summary { sounds, words,
+  examples }` on the stop. Examples are up to 8 of those words, favouring words the child has already met, then words using the newest letters
+  (the first stop has only four: sam, am, ma, mama, so it lists all of them). W counts words from our list, not every word a child could read. Counts:
+  v1 4, v6 31, v2 58, v3 86, v4 141, v5 184, v7 233, v8 242, v9 252. Tests: `check-content` (a fresh count equals the stored one, examples are in
+  the list and readable) and `review-stops` (the opening card, the end message read from the screen, ma and mama, the celebration, the keepsake
+  PNG, no network).
