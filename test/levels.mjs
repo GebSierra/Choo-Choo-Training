@@ -75,7 +75,7 @@ export async function levelChecks({ browser, url, ok }) {
     await page.waitForTimeout(250);
     ok((await page.locator('.level-replay').count()) === 1 && (await page.locator('.level-replay[data-level="L1"]').count()) === 1, 'Grownups: only the earned level has Play again');
     const txt = await page.evaluate(() => document.querySelector('#gu-fold-levels').innerText);
-    ok(txt.includes('Level one') && txt.includes('m a s i t p') && txt.includes('Level two') && (txt.match(/Coming later/g) || []).length === 3, 'Grownups: levels list their sounds; the three unbuilt ones say "Coming later"');
+    ok(txt.includes('Level one') && txt.includes('m a s i t p') && txt.includes('Level two') && txt.includes('Level three') && (txt.match(/Coming later/g) || []).length === 2, 'Grownups: levels list their sounds; the two unbuilt ones say "Coming later" (level three is World 3)');
     ok(((await page.locator('.level-replay').boundingBox()).height) >= 48, 'Grownups: Play again is at least 48 px tall');
     await page.locator('.level-replay[data-level="L1"]').click();
     ok(await until(page, () => location.hash === '#/home' && window.__train && !window.__train.disposed && window.__train.level.id === 'L1', null, 6000), 'replay: Home opens with level one due');
@@ -94,7 +94,7 @@ export async function levelChecks({ browser, url, ok }) {
     await r.page.waitForTimeout(2500);
     ok((await r.page.evaluate(() => window.__train.level.id)) === null && (await r.page.locator('.level-banner').count()) === 0 && (await r.page.locator('.map-btn[data-stars="0"]').count()) === 1, 'before the threshold: five lessons, no celebration, no stars');
     await r.page.locator('.map-btn').click(); await r.page.waitForSelector('.jb .level-star');
-    ok((await r.page.locator('.jb .level-star').count()) === 2 && (await r.page.locator('.jb .level-star.on').count()) === 0, 'before the threshold: two empty star outlines (the built levels), now inside the journey board');
+    ok((await r.page.locator('.jb .level-star').count()) === 3 && (await r.page.locator('.jb .level-star.on').count()) === 0, 'before the threshold: three empty star outlines (the built levels), now inside the journey board');
     await r.page.locator('.jb-x').click();
     ok((await stored(r.page)).levels.seen === 0, 'before the threshold: seen stays 0');
     ok(r.errors.length === 0, 'before the threshold: errors ' + r.errors.join(' | '));

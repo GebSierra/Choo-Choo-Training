@@ -1,4 +1,4 @@
-// Review Stops (checkpoint kind "review", ids v1 to v5): placement, content (only games and review of taught letters, nothing new),
+// Review Stops (checkpoint kind "review", ids v1 to v9: v1 to v5 as before, v6 after lesson 6, v7 to v9 in World 3): placement, content (only games and review of taught letters, nothing new),
 // the hold on the train (and no hold for stops the child is already past), unlocking, the saved result, no spurious rides, fit at three phone
 // sizes and heat. Run alone with `node test/review-stops.mjs [--shots]`; shots go to docs/screenshots/review-stops/.
 import fs from 'node:fs';
@@ -11,7 +11,9 @@ import { state, openHome, until } from './train.mjs';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const STOPS = CUR.checkpoints.filter((k) => k.kind === 'review');
-const AFTER = [3, 9, 12, 15, 17];
+// Every world ends with a Review Stop (after 6, 17 and 25); the ids never change once saved, so the new stops are v6 to v9 and sit in lesson order.
+const AFTER = [3, 6, 9, 12, 15, 17, 20, 23, 25];
+const IDS = ['v1', 'v6', 'v2', 'v3', 'v4', 'v5', 'v7', 'v8', 'v9'];
 const SHOTS = process.argv.includes('--shots');
 const SHOT_DIR = path.join(ROOT, 'docs/screenshots/review-stops');
 const SIZES = [{ name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }, { name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }, { name: '915x412', width: 915, height: 412, deviceScaleFactor: 2 }];
@@ -24,10 +26,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ---- data and the store, no browser ----
 export async function dataChecks({ ok }) {
-  ok(STOPS.length === 5 && STOPS.map((k) => k.after).join() === AFTER.join(), `data: five review stops, after lessons ${AFTER.join(', ')} (${STOPS.map((k) => k.after)})`);
-  ok(STOPS.every((k, i) => k.id === `v${i + 1}` && k.title === 'Review Stop'), 'data: ids v1 to v5, titled Review Stop');
+  ok(STOPS.length === 9 && STOPS.map((k) => k.after).join() === AFTER.join(), `data: nine review stops, after lessons ${AFTER.join(', ')} (${STOPS.map((k) => k.after)})`);
+  ok(STOPS.every((k, i) => k.id === IDS[i] && k.title === 'Review Stop'), 'data: ids v1 to v9 (v6 sits after lesson 6), titled Review Stop');
   ok(STOPS.every((k) => k.world === CUR.lessons.find((l) => l.number === k.after).world), 'data: each stop is in the world of the lesson it follows');
-  ok(!CUR.checkpoints.some((k) => k.kind === 'review' && k.after === 6), 'data: no review stop at lesson 6 (Story 2 is there)');
+  ok([6, 17, 25].every((n) => CUR.checkpoints.some((k) => k.kind === 'review' && k.after === n)) && CUR.checkpoints.find((k) => k.id === 'b2').after === 6, 'data: every world ends with a Review Stop (lessons 6, 17, 25); at lesson 6 it sits with Story 2');
+  ok(CUR.checkpoints.filter((k) => k.kind === 'review').find((k) => k.after === 25).mix === 'vowels' && [18, 13, 8, 4, 2].every((n) => CUR.checkpoints.find((k) => k.id === 'v9').plan.some((a) => a.lesson === n)), 'data: the last stop mixes all five short vowels (a i o u e)');
   for (const k of STOPS) {
     const tag = `data ${k.id}`;
     ok(k.plan.length >= 3 && k.plan.length <= 5, `${tag}: a short run (${k.plan.length} activities)`);
@@ -35,10 +38,11 @@ export async function dataChecks({ ok }) {
     ok(k.plan.every((a) => a.lesson >= 1 && a.lesson <= k.after), `${tag}: every activity is about a lesson taught by lesson ${k.after} (${k.plan.map((a) => a.lesson)})`);
     ok(k.plan[k.plan.length - 1].task === 'check' && k.plan.filter((a) => a.task === 'check').length === 1, `${tag}: Ticket Check comes last, once`);
     const recent = k.plan.filter((a) => a.lesson > k.after - 3).length;
-    ok(recent >= k.plan.length / 2 && recent < k.plan.length || k.after <= 3, `${tag}: weighted to the three newest letters with an older one in the mix (${recent} of ${k.plan.length} recent)`);
+    ok(recent >= k.plan.length / 2 && recent < k.plan.length || k.after <= 3 || k.mix, `${tag}: weighted to the three newest letters with an older one in the mix (${recent} of ${k.plan.length} recent)`);
     ok(k.plan.every((a) => a.task !== 'check' || CUR.lessons[a.lesson - 1].quickCheck.kind === 'letter'), `${tag}: Ticket Check asks about a letter, so no picture words from later lessons show`);
   }
   ok(new Set(STOPS.map((k) => k.plan.map((a) => a.task).join())).size === STOPS.length, 'data: the mix of games differs at every stop');
+  ok(new Set(STOPS.map((k) => JSON.stringify(k.plan))).size === STOPS.length, 'data: no two stops have the same plan');
   ok(STOPS.every((k) => !k.plan.some((a) => ['newLetter', 'mouth', 'writing', 'sounds', 'review', 'practice'].includes(a.task))), 'data: no New Sound, Watch My Mouth, Track Tracing or other teaching step');
 
   // Store rules and the hold, with the real store on a stand-in localStorage.
@@ -51,12 +55,14 @@ export async function dataChecks({ ok }) {
   const curIdx = (store) => nodes.findIndex((n) => n.lesson && n.lesson.number === store.currentLesson(CUR.lessons.length));
   const hold = (store) => checkpointStopIndex(nodes, curIdx(store), store);
   for (const k of STOPS) {
-    const i = idx(k.id), prev = nodes[i - 1], next = nodes[i + 1];
+    const i = idx(k.id), next = nodes[i + 1];
+    let back = i - 1; while (nodes[back] && nodes[back].checkpoint && nodes[back].checkpoint.after === k.after) back--; // a Story that shares the lesson (Story 2 and v6 after lesson 6) comes first
+    const prev = nodes[back], earlierDone = Object.fromEntries(CUR.checkpoints.filter((c) => c.after === k.after && idx(c.id) < i).map((c) => [c.id, { result: 'got-it' }]));
     const lastOne = k.after === CUR.lessons.length; // the last stop of the line has no lesson after it
     ok(prev.lesson && prev.lesson.number === k.after && (lastOne ? !next || !next.lesson : next.lesson && next.lesson.number === k.after + 1), `placement ${k.id}: on the line right after lesson ${k.after}${lastOne ? '' : ' and before lesson ' + (k.after + 1)}`);
     let s = open(k.after - 1);
     ok(!s.isCheckpointUnlocked(k) && !s.isCheckpointDone(k), `${k.id}: locked before lesson ${k.after} is done`);
-    s = open(k.after);
+    s = open(k.after, earlierDone);
     ok(s.isCheckpointUnlocked(k) && !s.isCheckpointDone(k), `${k.id}: opens when lesson ${k.after} is done, not done itself`);
     const holds = (st) => (lastOne ? st.currentLesson(CUR.lessons.length) === null && CUR.checkpoints.find((c) => !st.isCheckpointDone(c) && st.isCheckpointUnlocked(c)) ?.id === k.id : hold(st) === i); // the last stop: with every lesson done it is the pending stop (the Home makes it current)
     ok(holds(s), `${k.id}: next in line, it holds the train (the current stop is the stop${lastOne ? "" : ", not lesson " + (k.after + 1)})`);
@@ -64,7 +70,7 @@ export async function dataChecks({ ok }) {
     // the grown-up's result: once got-it the train goes on
     s.setCheckpointResult(k.id, 'got-it');
     ok(s.isCheckpointDone(k) && !holds(s) && s.checkpoint(k.id).result === 'got-it', `${k.id}: the result is saved and the hold ends`);
-    s = open(k.after, { [k.id]: { result: 'practice-again' } });
+    s = open(k.after, { ...earlierDone, [k.id]: { result: 'practice-again' } });
     ok(!s.isCheckpointDone(k) && holds(s), `${k.id}: "Not yet" keeps the hold`);
     // a child already past it: the next lesson is done, so the stop counts as passed and never holds
     if (!lastOne) {
@@ -81,7 +87,7 @@ export async function dataChecks({ ok }) {
   ok(before === 10 && finishedStop(s, doneArr(s), curIdx(s)) === -1, `rides: lessons 1 to 10 saved with no review result count ${before} stops and play no ride`);
   const again = open(10, {}, { trainDone: 10 });
   ok(finishedStop(again, doneArr(again), curIdx(again)) === -1, 'rides: an old save (trainDone 10) opened with the review stops in the data plays no ride');
-  const v2 = STOPS[1];
+  const v2 = STOPS.find((k) => k.id === 'v2');
   again.setCheckpointResult(v2.id, 'got-it');
   ok(finishedStop(again, doneArr(again), curIdx(again)) === idx(v2.id), 'rides: a review stop the grown-up marks got-it rides like any stop (own result)');
 }
@@ -138,7 +144,7 @@ export async function screenChecks({ browser, url, ok }) {
   }
 
   // a whole run on the phone: Skip through the activities, the same finish as any stop, the saved result, back on the path
-  const k = STOPS[1];
+  const k = STOPS.find((c) => c.id === 'v2');
   const m = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}`);
   const { page, errors } = m;
   await page.waitForSelector(gameSel);
@@ -239,7 +245,7 @@ export async function homeChecks({ browser, url, ok }) {
   ok(b2.some((b) => /^Lesson 6/.test(b.label) && b.cls.includes('is-current')), 'home: and the train stands at the next lesson');
   await p2.ctx.close();
 
-  // Grownups lists all five, with the stop icon and its own title
+  // Grownups lists all nine, with the stop icon and its own title
   const g = await seeded(browser, url, PHONE, 17, '#/home');
   await g.page.waitForSelector('.pill-hold');
   await g.page.waitForTimeout(700);
@@ -247,8 +253,9 @@ export async function homeChecks({ browser, url, ok }) {
   await g.page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await g.page.mouse.down(); await g.page.waitForTimeout(2250); await g.page.mouse.up();
   await g.page.waitForSelector('.grownups');
   const rows = await g.page.locator('.gu-row').allInnerTexts();
-  ok(rows.filter((r) => r.includes('Review Stop')).length === 5 && rows.some((r) => r.includes('Read It Again')) && !rows.some((r) => /Smooth/.test(r)), `grownups: five Review Stops and Read It Again are listed (${rows.length} rows)`);
-  ok((await g.page.locator('.gu-row .ticket-art').count()) === 5 && (await g.page.locator('.gu-row .reread-art').count()) === 1, 'grownups: each stop kind has its own icon');
+  ok(await g.page.locator('.gu-world').count() === 3, 'grownups: with Green Valley done all three worlds are listed');
+  ok(rows.filter((r) => r.includes('Review Stop')).length === 9 && rows.some((r) => r.includes('Read It Again')) && !rows.some((r) => /Smooth/.test(r)), `grownups: nine Review Stops and Read It Again are listed (${rows.length} rows)`);
+  ok((await g.page.locator('.gu-row .ticket-art').count()) === 9 && (await g.page.locator('.gu-row .reread-art').count()) === 1, 'grownups: each stop kind has its own icon');
   await g.ctx.close();
 }
 

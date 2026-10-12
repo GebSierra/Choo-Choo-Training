@@ -221,11 +221,11 @@ const REVIEW_PLANS = {
   15: [['wagons', 15], ['hunt', 13], ['board', 10], ['check', 14]],
   17: [['board', 17], ['hunt', 16], ['signals', 11], ['check', 16]],
   // World 1 ends here (Story 2 sits at the same stop): the six sounds m a s i t p, with the three newest leading
-  6: [['hunt', 6], ['wagons', 5], ['signals', 4], ['check', 6]],
-  // Sunny Hills: e j w, then v y z, then the last stop mixes all five short vowels (a i o u e): one activity on each, Ticket Check on e (a letter question)
-  20: [['hunt', 20], ['wagons', 19], ['board', 18], ['check', 20]],
-  23: [['board', 23], ['signals', 22], ['wagons', 21], ['check', 22]],
-  25: [['hunt', 18], ['wagons', 13], ['signals', 8], ['hunt', 4], ['check', 18]],
+  6: [['hunt', 6], ['wagons', 5], ['signals', 2], ['check', 6]],
+  // Sunny Hills: e j w, then v y z, then the last stop mixes all five short vowels (a i o u e): one activity on each, Ticket Check on a (a letter question)
+  20: [['wagons', 20], ['hunt', 19], ['signals', 4], ['check', 20]], // Wagon Parade on w also deals j and e; Letter Hunt on j deals e; Green Light on i keeps e and i apart
+  23: [['board', 23], ['signals', 22], ['wagons', 7], ['check', 22]], // f is the unvoiced partner of v
+  25: [['hunt', 18], ['wagons', 13], ['signals', 8], ['hunt', 4], ['check', 2]],
 };
 // Ticket Check is always a letter question (lessons 2, 4, 6 ...): its wrong cards are letters taught by then, where a picture question
 // shows pictures (and their words) that begin with letters not taught yet.

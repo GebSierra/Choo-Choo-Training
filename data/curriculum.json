@@ -4161,7 +4161,7 @@
         },
         {
           "task": "signals",
-          "lesson": 4
+          "lesson": 2
         },
         {
           "task": "check",
@@ -4277,16 +4277,16 @@
       "after": 20,
       "plan": [
         {
-          "task": "hunt",
+          "task": "wagons",
           "lesson": 20
         },
         {
-          "task": "wagons",
+          "task": "hunt",
           "lesson": 19
         },
         {
-          "task": "board",
-          "lesson": 18
+          "task": "signals",
+          "lesson": 4
         },
         {
           "task": "check",
@@ -4311,7 +4311,7 @@
         },
         {
           "task": "wagons",
-          "lesson": 21
+          "lesson": 7
         },
         {
           "task": "check",
@@ -4345,7 +4345,7 @@
         },
         {
           "task": "check",
-          "lesson": 18
+          "lesson": 2
         }
       ],
       "world": "W3"
