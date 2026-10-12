@@ -128,7 +128,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   fun games and review, nothing new (taught letters only: Letter Hunt, Green Light, Wagon Parade, Station Board, the tap
   games, Ticket Check). Built right after phase B (it needs the new order). They do not hold the train (like crates) unless
   the owner wants that.
-- [x] **3d. (BUILT, awaiting release) Go back to an earlier world (owner, 2026-10-10):** built as a visit (js/visit.js): ctx.visit in memory, the store ignores progress writes while a visited world's lesson/stop is open (store.setPractice), Grownups > Worlds, test/world-visit.mjs. once the child has gone through the tunnel/mountain there is
+- [x] **3d. (LIVE in 1.9.34) Go back to an earlier world (owner, 2026-10-10):** built as a visit (js/visit.js): ctx.visit in memory, the store ignores progress writes while a visited world's lesson/stop is open (store.setPractice), Grownups > Worlds, test/world-visit.mjs. once the child has gone through the tunnel/mountain there is
   no way back to world 1. Tapping the tunnel/mountain at the start of a world goes back to the world before it (its
   finished stations can be replayed), with the tunnel there leading forward again; Grownups also lists the finished
   worlds with a "Go to this world" button. Progress never changes by visiting.
