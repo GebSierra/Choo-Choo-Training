@@ -3,11 +3,12 @@ import { wordSvg } from '../../glyphs.js';
 import { slideBlend, placeBand, startSweep, handCue } from '../../components/slide-blend.js';
 import { slowSounds } from '../../scripts.js';
 import { confetti } from '../finish.js';
+import { keepsakeButton, keepsakeHeadline } from '../../components/keepsake.js';
 
 // The first Review Stop's reading moment (owner): the child reads "ma", then "mama". Each word is big, with the slide-to-blend under it
 // (the same slide as Saying Sounds); the grown-up taps "Read it!" when the child has read it. After "mama" a gentle celebration (confetti
 // from the finish screen, CSS only) and a warm line for the grown-up. The app judges nothing.
-export function build({ checkpoint, step, curriculum, speech, refresh, setDone }) {
+export function build({ checkpoint, step, curriculum, speech, refresh, setDone, store }) {
   const words = (step && step.words) || ['ma', 'mama'];
   const sounds = curriculum.sounds;
   let i = 0, blend = null, bandWatch = null, bandEl = null, sweepAnim = null, cue = null, cueStage = null, celebrated = false;
@@ -48,7 +49,8 @@ export function build({ checkpoint, step, curriculum, speech, refresh, setDone }
     const burst = h('span', { class: 'first-word-confetti', style: { '--sc': '1' }, 'aria-hidden': 'true' }, confetti());
     const msg = h('p', { class: 'first-word-msg', role: 'status' }, `Your child just read their first word: ${words[words.length - 1]}!`);
     stage.append(burst);
-    body.append(msg);
+    const save = keepsakeButton({ filename: 'first-word.png', options: () => { const ch = (store && store.character && store.character()) || {}; return { headline: keepsakeHeadline(ch.name), word: words[words.length - 1], date: new Date(), character: ch }; } });
+    body.append(msg, save);
     stage.classList.add('celebrating');
     if (!reduced()) animate(msg, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'ease-out' });
     speech.autoSay([{ tts: `You read ${words[words.length - 1]}!` }]);

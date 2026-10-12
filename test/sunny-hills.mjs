@@ -180,9 +180,10 @@ export async function screenChecks({ browser, url, ok }) {
     await m.page.goto(url + `#/lesson/${n}/task/1`);
     await m.page.waitForSelector('.new-letter');
     await m.page.waitForTimeout(2600);
-    const d = await m.page.evaluate(() => ({ strokes: document.querySelectorAll('.letter-card path.stroke').length, card: document.querySelector('.sound-card') && document.querySelector('.sound-card').textContent, tiles: [...document.querySelectorAll('.word-tile')].map((t) => t.getAttribute('aria-label')), overflow: document.documentElement.scrollWidth > innerWidth + 1, box: (() => { const r = document.querySelector('.letter-card svg').getBoundingClientRect(); return { x: r.x, r: r.right, w: r.width }; })() }));
+    const d = await m.page.evaluate(() => ({ strokes: document.querySelectorAll('.letter-card path.stroke').length, card: document.querySelector('.sound-card') && document.querySelector('.sound-card').textContent, tiles: [...document.querySelectorAll('.word-tile')].map((t) => t.getAttribute('aria-label')), inl: [...document.querySelectorAll('.word-tile')].map((t) => t.querySelectorAll('.ltext svg').length).join(), overflow: document.documentElement.scrollWidth > innerWidth + 1, box: (() => { const r = document.querySelector('.letter-card svg').getBoundingClientRect(); return { x: r.x, r: r.right, w: r.width }; })() }));
     ok(d.strokes === GLYPHS[key].strokes.length && !d.overflow && d.box.x >= 0 && d.box.r <= PHONE.width, `New Sound ${key}: the letter is drawn from its ${GLYPHS[key].strokes.length} strokes and fits (${d.strokes} strokes, width ${Math.round(d.box.w)})`);
     ok(key === 'e' ? /egg/.test(d.card) && d.tiles.join() === 'egg,hen,nest,tent' : /kw-/.test(d.card) && d.tiles.join() === 'quack,queen,quilt', `New Sound ${key}: the card and the picture words (${d.card}; ${d.tiles})`);
+    if (key === 'q') ok(d.inl === '4,4,4', `New Sound qu: the picture words draw qu once (quack, queen, quilt are 4 letter shapes each: ${d.inl})`);
     await shot(m.page, `${key === 'e' ? 'e' : 'qu'}-new-sound`);
     ok(m.errors.length === 0, `New Sound ${key}: no errors ${m.errors.join(' | ')}`);
     await m.ctx.close();

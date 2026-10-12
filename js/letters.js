@@ -26,7 +26,10 @@ export function letterText(text, { tint, label = true, only } = {}) {
   const span = h('span', { class: 'ltext', 'aria-label': label ? labelOf(text) : null, role: label ? 'text' : null });
   let run = '';
   const flush = () => { if (run) { span.append(h('span', { 'aria-hidden': 'true' }, run)); run = ''; } };
-  for (const ch of text) {
+  const chars = [...text];
+  for (let i = 0; i < chars.length; i++) {
+    const ch = chars[i];
+    if (ch === 'u' && chars[i - 1] === 'q' && GLYPHS.q && (!only || only.includes('q'))) continue; // the q glyph is "qu": its u is already drawn
     const isTint = tint && ch === tint;
     if (GLYPHS[ch] && (!only || only.includes(ch))) { flush(); span.append(inlineGlyph(ch, isTint ? accentOf(ch) : null)); }
     else if (isTint) { flush(); span.append(h('span', { class: 'tint', style: { color: accentOf(tint) }, 'aria-hidden': 'true' }, ch)); }

@@ -215,6 +215,27 @@ export async function screenChecks({ browser, url, ok }) {
     await shot(m.page, 'v1-mama-celebration-390x844');
     ok(m.errors.length === 0, `v1 read: no errors ${m.errors.join(' | ')}`);
     await m.ctx.close();
+    // the keepsake: a button after mama, a PNG made on the device (no network), the name fallback, the name kept on the device
+    for (const named of [false, true]) {
+      const k = await seeded(browser, url, PHONE, v1.after, `#/checkpoint/v1/task/${at}`, named ? { character: { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit: 'star', made: true } } : {});
+      await k.page.waitForSelector('.first-word-stage');
+      await k.page.waitForTimeout(700);
+      ok((await k.page.locator('.keepsake-btn').count()) === 0, `keepsake (${named ? 'named' : 'no name'}): no button before mama`);
+      await k.page.locator('.read-it').click(); await k.page.waitForTimeout(400); await k.page.locator('.read-it').click(); await k.page.waitForTimeout(900);
+      const bb = await k.page.locator('.keepsake-btn').boundingBox();
+      ok(bb && bb.height >= 47.5 && bb.width >= 47.5 && (await k.page.locator('.keepsake-btn').innerText()) === 'Save this moment' && !/share|social/i.test(await k.page.locator('.first-word').innerText()), `keepsake (${named ? 'named' : 'no name'}): "Save this moment" is there after mama, 48 px, no talk of sharing`);
+      const reqs = []; k.page.on('request', (r) => { if (!/^(data|blob):/.test(r.url())) reqs.push(r.url()); });
+      const dl = k.page.waitForEvent('download', { timeout: 15000 }).catch(() => null);
+      await k.page.locator('.keepsake-btn').click();
+      await k.page.waitForFunction(() => window.__keepsake && window.__keepsake.size > 0, null, { timeout: 15000 }).catch(() => {});
+      const info = await k.page.evaluate(async () => { const s = window.__keepsake; if (!s) return null; const bmp = await createImageBitmap(s.blob); return { type: s.type, size: s.size, w: bmp.width, h: bmp.height, headline: s.headline, }; });
+      ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350 && info.size > 20000, `keepsake (${named ? 'named' : 'no name'}): a ${info && info.w}x${info && info.h} ${info && info.type} was made (${info && info.size} bytes)`);
+      ok(info && info.headline === (named ? 'Lily just read their first word!' : 'Your child just read their first word!'), `keepsake (${named ? 'named' : 'no name'}): the headline ${named ? 'uses the name' : 'falls back to "Your child"'} (${info && info.headline})`);
+      ok((await dl) !== null && reqs.length === 0, `keepsake (${named ? 'named' : 'no name'}): it downloads, and no network request was made (${reqs.join(' ') || 'none'})`);
+      if (named && SHOTS) { const b64 = await k.page.evaluate(async () => { const buf = new Uint8Array(await window.__keepsake.blob.arrayBuffer()); let s = ''; for (const x of buf) s += String.fromCharCode(x); return btoa(s); }); fs.mkdirSync(path.join(ROOT, 'docs/screenshots/sunny-hills'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'docs/screenshots/sunny-hills/keepsake-mama.png'), Buffer.from(b64, 'base64')); }
+      ok(k.errors.length === 0, `keepsake: no errors ${k.errors.join(' | ')}`);
+      await k.ctx.close();
+    }
   }
 
   // locked: by address too
