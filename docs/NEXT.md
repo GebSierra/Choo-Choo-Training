@@ -120,7 +120,8 @@ Owner: implement all of these without asking, then report the decisions made. Co
 - [x] **4. (LIVE in 1.9.31) Train stops at story / Smooth Ride stations (bug, owner 2026-10-08):** after a lesson, the ride skips over a
   following Story or Smooth Ride station, so they look like scenery. The train should stop there (the child's figure can
   get off and stand beside it), so grown-ups notice them. Keep the station building as is if a redesign is hard.
-- [ ] **Test debt (found 2026-10-09, also failing on 1.9.29):** test/proto-play.mjs "recordings" mode: 6 checks expect the
+- [ ] **Stage 1 sound play prototype (Previews only), found 2026-10-12:** with auto-speak off (the default since 1.9.25) an entry round shows neither the recording nor the "Say: ..." prompt until "Hear it again" is tapped. Decide before the prototype becomes real: show the grown-up prompt on entry. (The proto-play test debt is FIXED: the test now turns auto-speak on.)
+- [x] **Test debt (found 2026-10-09, also failing on 1.9.29; fixed 2026-10-12):** test/proto-play.mjs "recordings" mode: 6 checks expect the
   stretched/smooth word recording to play in the Stage 1 sound-play prototype (Previews only) and none plays. Not a
   release blocker; a Haiku/Sonnet builder should find why (the blends route stub vs. speech.js blendUrls/missingBlend).
 - [x] **3 phase B (LIVE in 1.9.33):** new sound order f o n d c/k h u g l r b, add the o, c/k, u, r lessons, map progress by sound.
