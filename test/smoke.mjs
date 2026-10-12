@@ -559,7 +559,7 @@ for (const [name, raw] of [
   const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
   const listed = new Set([...sw.matchAll(/'((?:js|css|data|icons|assets)\/[^']+)'/g)].map((m) => m[1]));
   const walk = (d) => fs.readdirSync(path.join(ROOT, d), { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
-  const DEBUG = ['js/screens/lab.js', 'js/screens/glyphs-debug.js'];
+  const DEBUG = ['js/screens/lab.js', 'js/screens/glyphs-debug.js', 'js/screens/fishing.js']; // fishing.js: the easter egg is deliberately NOT precached (loaded on first use; test/fishing.mjs checks it)
   const need = [...walk('js').filter((f) => !DEBUG.includes(f)), 'css/app.css', 'data/curriculum.json'];
   const missingFromSw = need.filter((f) => !listed.has(f));
   ok(missingFromSw.length === 0, 'sw precache lists every js/css/data file; missing: ' + missingFromSw.join(', '));
