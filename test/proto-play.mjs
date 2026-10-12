@@ -132,7 +132,9 @@ async function walkLessons(browser, url, ok, mode) {
   const rec = mode === 'recordings';
   shotsOn = !rec;
   const T = (s) => `${mode}: ${s}`;
-  const { ctx, page, errors, before } = await open(browser, url, PHONE, '#/proto/play/1/task/0', { settings: { playSounds: rec } });
+  // autoSpeak (off by default since 1.9.25; store.js turns it off again unless speak0 is set) is what lets the shell play a
+  // step's recording on entry. The recordings mode turns it on so the entry round is checked too.
+  const { ctx, page, errors, before } = await open(browser, url, PHONE, '#/proto/play/1/task/0', { settings: { playSounds: rec, ...(rec ? { autoSpeak: true, speak0: true } : {}) } });
 
   // 1.1 Left to right: two stories
   for (let s = 0; s < 2; s++) {
