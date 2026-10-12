@@ -231,6 +231,7 @@ const REVIEW_PLANS = {
 // Ticket Check is always a letter question (lessons 2, 4, 6 ...): its wrong cards are letters taught by then, where a picture question
 // shows pictures (and their words) that begin with letters not taught yet.
 // The grown-up's message at the end of a stop: N sounds taught (c/k and qu count once each: one lesson is one sound) and W, how many words of
+const NAMES = new Set(['sam', 'tim', 'pam', 'pip', 'kim', 'ben', 'ted', 'dan', 'meg', 'jen', 'jim', 'tom', 'bob', 'nan', 'pat']);
 // data/words-decodable.json use only the letters taught by then. W is counted here, never typed. The examples are a sample of those words,
 // favouring words the child has already met in the lessons and books, then words that use the newest letters; at most 8 (all of them when fewer).
 const WORD_LIST = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
@@ -239,7 +240,7 @@ function reviewSummary(after) {
   const sounds = ORDER_SOUNDS.slice(0, after), taught = lettersOfSounds(sounds), newest = lettersOfSounds(sounds.slice(-3));
   const readable = WORD_LIST.filter((w) => [...w].every((ch) => taught.has(ch)));
   const score = (w) => (met.has(w) ? 100 : 0) + [...new Set(w)].filter((ch) => newest.has(ch)).length * 10 + Math.min(w.length, 4);
-  const examples = readable.map((w, i) => ({ w, i })).sort((a, b) => score(b.w) - score(a.w) || a.i - b.i).slice(0, 8).map((x) => x.w);
+  const examples = readable.map((w, i) => ({ w, i })).sort((a, b) => score(b.w) - score(a.w) || a.i - b.i).slice(0, 8).map((x) => (NAMES.has(x.w) ? x.w[0].toUpperCase() + x.w.slice(1) : x.w)); // names are shown capitalised (Sam)
   return { sounds: sounds.length, words: readable.length, examples };
 }
 REVIEW_AFTER.forEach(([after, id]) => {

@@ -7,7 +7,7 @@ import { engineSvg } from '../art/train2d.js';
 // used; the child's name is only ever drawn into the picture on this device. Reusable for later milestones (the end of a world, a first story):
 // makeKeepsake({ headline, word, date, character }) gives a PNG Blob, keepsakeButton(...) is the grown-up's "Save this moment" button.
 export const KEEPSAKE_W = 1080, KEEPSAKE_H = 1350, KEEPSAKE_SITE = 'choochootraining.com';
-export const keepsakeHeadline = (name) => (name && String(name).trim() ? `${String(name).trim()} just read their first word!` : 'Your child just read their first word!');
+export const keepsakeHeadline = (name) => (name && String(name).trim() ? `${String(name).trim()} just read a real word!` : 'Your child just read their first word!');
 
 // An svg element drawn through an Image from a data URL (inline fonts and external files are not needed: the art is plain shapes).
 function svgImage(svg) {

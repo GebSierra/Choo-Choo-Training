@@ -330,7 +330,7 @@ export function checkCurriculum(c, root = ROOT) {
     const list = JSON.parse(fs.readFileSync(path.join(root, 'data/words-decodable.json'), 'utf8')).words;
     const taughtK = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = list.filter((w) => [...w].every((ch) => taughtK.has(ch)));
     if (!k.summary || k.summary.sounds !== k.after || k.summary.words !== fresh.length) err(`${p}.summary must say ${k.after} sounds and ${fresh.length} words (a fresh count of data/words-decodable.json)`);
-    else if (!Array.isArray(k.summary.examples) || k.summary.examples.length < Math.min(fresh.length, 4) || k.summary.examples.length > 8 || !k.summary.examples.every((w) => fresh.includes(w))) err(`${p}.summary.examples must be 4 to 8 (all, when fewer exist) words of the list that use only taught letters`);
+    else if (!Array.isArray(k.summary.examples) || k.summary.examples.length < Math.min(fresh.length, 4) || k.summary.examples.length > 8 || !k.summary.examples.every((w) => fresh.includes(w.toLowerCase()))) err(`${p}.summary.examples must be 4 to 8 (all, when fewer exist) words of the list that use only taught letters`);
     if (k.plan[k.plan.length - 1].task !== 'check') err(`${p}: Ticket Check must come last`);
     if (k.plan.slice(0, -1).some((a) => a.task === 'check')) err(`${p}: Ticket Check only comes last`);
     const recent = k.plan.filter((a) => a.lesson > k.after - 3).length;
