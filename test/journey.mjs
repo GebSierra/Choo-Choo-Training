@@ -17,11 +17,11 @@ const CHARACTER = { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit:
 
 // Lessons 1..n done, each finished at noon (UTC) on October n 2026, so dates read the same in any time zone.
 const dated = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it', completedAt: `2026-10-${String(i + 1).padStart(2, '0')}T12:00:00.000Z` }]));
-const stars = (n) => (n >= 17 ? 2 : n >= 6 ? 1 : 0);
+const stars = (n) => (n >= 25 ? 3 : n >= 17 ? 2 : n >= 6 ? 1 : 0);
 // The Home with n lessons done and nothing due (no level party, no crossing): the world last seen is the current one.
 const seed = (n, settings = {}, extra = {}) => {
-  const cur = n >= 6 ? 'W2' : 'W1';
-  return state(n, { migrated1912: true, pace4: true, trainDone: n, ...settings }, { lessons: dated(n), levels: { seen: stars(n), earned: stars(n) ? { L1: '2026-10-06T12:00:00.000Z', ...(stars(n) > 1 ? { L2: '2026-10-17T12:00:00.000Z' } : {}) } : {} }, worlds: { seen: cur }, character: CHARACTER, meetDue: false, ...extra });
+  const cur = n >= 17 ? 'W3' : n >= 6 ? 'W2' : 'W1'; // the world the child last saw: the crossings are past
+  return state(n, { migrated1912: true, pace4: true, trainDone: n, ...settings }, { lessons: dated(n), levels: { seen: stars(n), earned: stars(n) ? { L1: '2026-10-06T12:00:00.000Z', ...(stars(n) > 1 ? { L2: '2026-10-17T12:00:00.000Z' } : {}), ...(stars(n) > 2 ? { L3: '2026-10-25T12:00:00.000Z' } : {}) } : {} }, worlds: { seen: cur }, character: CHARACTER, meetDue: false, ...extra });
 };
 const settle = (page) => until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running, null, 20000);
 const idle = async (page) => {
@@ -44,8 +44,8 @@ export async function journeyChecks({ browser, url, ok }) {
   const vp = SHOT_VPS[0];
 
   // ---- 1. The map button where the star board was, on the 3D Home, for three points in the journey ----
-  for (const [n, want] of [[2, { cur: 0, done: [], stars: 0, curName: 'Starter Station' }], [7, { cur: 1, done: [0], stars: 1, curName: 'Green Valley' }], [17, { cur: 1, done: [0], stars: 2, curName: 'Green Valley', allDone: true }]]) {
-    const tag = `lesson ${n === 17 ? 'all done' : n + 1}`;
+  for (const [n, want] of [[2, { cur: 0, done: [], stars: 0, curName: 'Starter Station' }], [7, { cur: 1, done: [0], stars: 1, curName: 'Green Valley' }], [17, { cur: 2, done: [0, 1], stars: 2, curName: 'Sunny Hills' }], [25, { cur: 2, done: [0, 1], stars: 3, curName: 'Sunny Hills', allDone: true }]]) {
+    const tag = `lesson ${n === 25 ? 'all done' : n + 1}`;
     const { ctx, page, errors } = await openHome(browser, url, vp, seed(n), { init: [RAF_COUNT] });
     ok(await settle(page), `${tag}: the 3D Home settles`);
     ok((await page.locator('.home-top .map-btn').count()) === 1 && (await page.locator('.map-btn').getAttribute('aria-label')) === 'Journey map', `${tag}: one map button in the top bar, labelled "Journey map"`);
@@ -70,7 +70,7 @@ export async function journeyChecks({ browser, url, ok }) {
     }));
     ok(d.n === 11 && d.locks === 10 - want.done.length && d.ticks === want.done.length + (want.allDone ? 1 : 0), `${tag}: ${d.locks} locks on the later worlds and ${d.ticks} gold tick(s) on the finished ones`);
     ok(d.train.length === 1 && d.train[0] === CUR.worlds[want.cur].id && d.here === 'You are here' && d.name === want.curName && /you are here/.test(d.label), `${tag}: "You are here" and the train at ${want.curName} (${d.train})`);
-    ok(d.lit === want.stars && d.lit + d.outline === 2 && d.count === String(want.stars) && d.tally === `${want.stars} of 2`, `${tag}: the gold stars are inside the board (${d.lit} lit, ${d.outline} outline, "${d.tally}")`);
+    ok(d.lit === want.stars && d.lit + d.outline === 3 && d.count === String(want.stars) && d.tally === `${want.stars} of 3`, `${tag}: the gold stars are inside the board (${d.lit} lit, ${d.outline} outline, "${d.tally}")`);
     ok(d.more === !!want.allDone, `${tag}: the "more worlds are coming" line only when everything built is finished`);
     if (n === 2) ok(d.stations === '1.1:later,1.2:later,1.3:later,2.1:here,2.2:later,2.3:later', `${tag}: unit track (${d.stations})`);
     if (n === 7) { ok(d.stations === '2.4:here,2.5:later,2.6:later,2.7:later,2.8:later', `${tag}: world 2 unit track (${d.stations})`); await shotTo(page, 'board-' + vp.name); }
@@ -246,11 +246,11 @@ export async function journeyChecks({ browser, url, ok }) {
       badges: [...document.querySelectorAll('.gp-map .jb-badge')].map((b) => b.dataset.state), have: document.querySelector('.gp-map .jb-stars-n').textContent, later: document.querySelector('.gp-later') && document.querySelector('.gp-later').textContent,
       previews: [...document.querySelectorAll('.preview-btn')].map((b) => b.dataset.preview),
     }));
-    ok(p.worlds.length === 2 && p.worlds[0].id === 'W1' && p.worlds[0].state === 'done' && p.worlds[1].state === 'current', `${v.name} Progress: a row for each world with lessons, world 1 finished, world 2 current`);
+    ok(p.worlds.length === 3 && p.worlds[0].id === 'W1' && p.worlds[0].state === 'done' && p.worlds[1].state === 'current', `${v.name} Progress: a row for each world with lessons, world 1 finished, world 2 current (${JSON.stringify(p.worlds.map((w) => w.state + ':' + w.text))})`);
     ok(p.worlds[0].text === 'Starter Station · finished | 6 of 6 lessons done | Level one star: earned | Last lesson finished: Oct 6, 2026', `${v.name} Progress: world 1 summary (${p.worlds[0].text})`);
     ok(p.worlds[1].text === 'Green Valley · you are here | 1 of 11 lessons done | Now: unit 2.4, sounds f o | Level two star: not yet | Last lesson finished: Oct 7, 2026', `${v.name} Progress: world 2 summary (${p.worlds[1].text})`);
-    ok(p.badges.length === 11 && p.badges[0] === 'done' && p.badges[1] === 'current' && p.have === '1 of 2', `${v.name} Progress: the board is there with the stars (${p.badges.join()} ${p.have})`);
-    ok(/9 more worlds are coming later/.test(p.later || ''), `${v.name} Progress: the worlds still to come are one quiet line (${p.later})`);
+    ok(p.badges.length === 11 && p.badges[0] === 'done' && p.badges[1] === 'current' && p.have === '1 of 3', `${v.name} Progress: the board is there with the stars (${p.badges.join()} ${p.have})`);
+    ok(/8 more worlds are coming later/.test(p.later || ''), `${v.name} Progress: the worlds still to come are one quiet line (${p.later})`);
     ok(p.previews.length === 0, `${v.name} Progress: no Previews buttons outside developer mode (${p.previews.length})`);
     const fit = await page.evaluate(() => { const g = document.querySelector('.grownups'), bad = [...document.querySelectorAll('.gp-map .jb-badge, .gp-world, .gp-map .jb-stars')].filter((e) => { const r = e.getBoundingClientRect(); return r.left < 0 || r.right > innerWidth + 0.5; }).length; return { bad, hs: document.scrollingElement.scrollWidth > innerWidth + 1 }; });
     ok(fit.bad === 0 && !fit.hs, `${v.name} Progress: fits the screen, no sideways scroll`);
