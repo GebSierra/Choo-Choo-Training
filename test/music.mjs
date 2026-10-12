@@ -60,7 +60,7 @@ export async function musicChecks({ browser, url, ok }) {
     // Ducking: quiet while the voice speaks, back after.
     await page.evaluate(() => { const b = document.querySelector('.bubble'); if (b) b.click(); });
     ok(await until(page, () => window.__spoken.length > 0, null, 4000), 'music: the Tap to start bubble speaks');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1200);
     const duckedV = await vol(page);
     ok(duckedV !== null && duckedV < 0.2, `music: the theme ducks while speech plays (${duckedV})`);
     await page.waitForTimeout(2300);
