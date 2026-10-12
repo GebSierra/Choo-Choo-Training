@@ -23,7 +23,7 @@ CUR.lessons.forEach((L, i) => {
   ok(s[s.indexOf('newLetter') + 1] === 'mouth', `lesson ${L.number}: Watch My Mouth comes right after New Sound`);
   ok(s.at(-1) === 'check', `lesson ${L.number} ends with Ticket Check`);
   ok(s.at(-2) === 'practice', `lesson ${L.number}: the closing review comes just before Ticket Check`);
-  ok(mid.length >= 2 && mid.length <= 4, `lesson ${L.number}: the middle holds 2 to 4 activities (${mid.join(', ')})`);
+  ok(mid.length >= 2 && mid.length <= (L.number === 20 ? 5 : 4), `lesson ${L.number}: the middle holds 2 to 4 activities (5 for w, which gets extra practice) (${mid.join(', ')})`);
   ok(mid.includes('sounds') && mid.includes('writing'), `lesson ${L.number}: the middle has blending practice and Track Tracing`);
   ok(!s.includes('words') && !s.includes('story'), `lesson ${L.number}: no Word Cars, no Sound Story`);
   if (i) ok(seqs[i - 1].join() !== s.join() && seqs[i - 1].slice(seqs[i - 1].indexOf('mouth') + 1, -2).join() !== mid.join(), `lessons ${L.number - 1} and ${L.number} have different middles`);

@@ -391,7 +391,7 @@ async function quick({ browser, url, ok }) {
   const ls = seq(trace, 'letters').map((t) => t.letter + (t.retest ? '*' : '')).join('');
   ok(ls === 'masitpfop*', `quick re-check: letters in teaching order, the taught letter again at the end (${ls})`);
   const r = await resultText(page);
-  ok(/Letter sounds: 5 of 17/.test(r.head), `quick re-check: the result counts the sounds (${r.head})`);
+  ok(/Letter sounds: 5 of 25/.test(r.head), `quick re-check: the result counts the sounds (${r.head})`);
   ok(/Knows m a s i t/.test(r.why) && /Re-check every few weeks to see growth\./.test(r.all) && /Next new sound: Lesson 6 \(p\)\./.test(r.all), `quick re-check: the result (${r.all})`);
   ok((await sel(page, '.pc-start').count()) === 0 && !/Start at Lesson/.test(r.page), 'quick re-check: no "Start here" and no start suggestion');
   await shotOf(page, '11-quick-recheck-result');
@@ -406,7 +406,7 @@ async function quick({ browser, url, ok }) {
   const sc = trace.map((t) => (t.phase === 'letters' ? t.letter + (t.retest ? '*' : '') : t.phase === 'teach' ? '[teach]' : t.phase));
   ok(sc.slice(0, 5).join(' ') === 'm [teach] a s m*', `quick re-check: teach and retest too (${sc.slice(0, 5).join(' ')})`);
   ok(trace[trace.length - 1].phase === 'result' && !phasesOf(trace).has('madeup'), 'quick re-check: all known goes straight to the result');
-  ok(/Letter sounds: 16 of 17/.test((await resultText(page)).head), `quick re-check: counts only the sounds known (${(await resultText(page)).head})`);
+  ok(/Letter sounds: 24 of 25/.test((await resultText(page)).head), `quick re-check: counts only the sounds known (${(await resultText(page)).head})`);
   await made.ctx.close();
 }
 
