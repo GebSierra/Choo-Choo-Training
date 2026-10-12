@@ -367,10 +367,11 @@ export async function placementScreen(ctx) {
       return;
     }
     const ks = sounds.filter((c) => known.has(c));
-    box.append(h('h2', { class: 'pc-suggest' }, 'What your child knows'),
-      ks.length ? h('p', { class: 'pc-known', 'aria-label': 'Sounds your child knows' }, ...ks.map((c) => h('span', { class: 'pc-kchip' }, c))) : h('p', { class: 'pc-why' }, 'No letter sounds yet, and that is a fine place to begin.'),
-      h('h2', { class: 'pc-suggest pc-where' }, `Start at Lesson ${r.number}`),
-      h('p', { class: 'pc-why' }, `The sound ${r.sound}${w ? `, in ${w.name}` : ''}.`));
+    box.append(h('h2', { class: 'pc-suggest' }, `Start at Lesson ${r.number}`),
+      h('p', { class: 'pc-line' }, `The sound ${r.sound}${w ? `, in ${w.name}` : ''}.`),
+      h('h3', { class: 'pc-sub' }, 'What your child knows'),
+      ks.length ? h('p', { class: 'pc-known', 'aria-label': 'Sounds your child knows' }, ...ks.map((c) => h('span', { class: 'pc-kchip' }, c))) : h('p', { class: 'pc-line' }, 'No letter sounds yet, and that is a fine place to begin.'),
+      h('p', { class: 'pc-why' }, r.why));
     if (r.number > 1) box.append(h('p', { class: 'pc-line pc-skip' }, 'Letters your child knows are skipped, but they still come back in Letter Review.'));
     if (r.notes.length) box.append(h('ul', { class: 'pc-notes' }, ...r.notes.map((n) => h('li', {}, n))));
     const open = () => router.go(`/lesson/${r.number}`);

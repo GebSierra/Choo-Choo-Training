@@ -260,9 +260,10 @@ async function branches({ browser, url, ok }) {
   ok(st.lesson === '1' && st.sound === 'm', `few sounds: the start is the first sound not known (${r.head})`);
   ok(/Start with Sound play/.test(r.page) && (await sel(page, '.pc-playbtn').count()) === 1, `step 2 weak (1 of 6): "Start with Sound play" and a link (${r.page})`);
   ok(/Knows a s;/.test(r.why) || /Knows a s\b/.test(r.why), `few sounds: the why line (${r.why})`);
-  ok(/Lessons before this are skipped, but the first lesson's review still practises them\./.test(r.page), 'result: the skipped-lessons line');
+  ok(/Start at Lesson 1(?!\d)/.test(r.page) && /What your child knows/.test(r.page), 'result: the new wording (lesson 1, what your child knows)');
   const start = await page.evaluate(() => { const b = document.querySelector('.pc-start'); return { d: b.disabled, t: b.textContent, h: b.getBoundingClientRect().height }; });
-  ok(start.d && /Start here/.test(start.t) && /\(preview: nothing changes\)/.test(start.t) && start.h >= 48, `result: "Start here (preview: nothing changes)" is switched off (${start.t})`);
+  ok(!start.d && /Start here/.test(start.t) && start.h >= 48, `result: "Start here" is a working 48 px button (${start.t})`);
+  ok(!start.d && /Start here/.test(start.t) && start.h >= 48, `result: "Start here" is a working 48 px button (${start.t})`);
   ok((await sel(page, '.pc-later').count()) === 1 && (await redX(page)) === 0, 'result: "Do this later" and no red');
   await shotOf(page, '08-result-few-sounds');
   await tapEl(page, sel(page, '.pc-playbtn')); await page.waitForSelector('.proto-play-intro');
@@ -301,7 +302,7 @@ async function branches({ browser, url, ok }) {
   ph = phasesOf(trace);
   ok(!ph.has('awareness') && !ph.has('madeup') && !ph.has('words') && ph.has('result'), 'five sounds: no step 2 and no step 3');
   r = await resultText(page);
-  ok((await state(page)).lesson === '6' && /Suggested start: Lesson 6 \(sound p\)/.test(r.head), `five sounds: suggests lesson 6 (${r.head})`);
+  ok((await state(page)).lesson === '6' && /Start at Lesson 6\b/.test(r.head) && /The sound p/.test(r.all), `five sounds: suggests lesson 6 (${r.head})`);
   await made.ctx.close();
 
   // exactly 10 known: step 3 with only known sounds; 3 in a row stopped step 1
@@ -318,7 +319,7 @@ async function branches({ browser, url, ok }) {
   ok(sen.length === 1 && sen[0].sentence === 'Sam sat at a map.', `good made-up words: the sentence "${sen[0] && sen[0].sentence}"`);
   r = await resultText(page);
   ok(/reads Sam sat at a map\./.test(r.why) && /blends made-up words like/.test(r.why), `strong result: the why line (${r.why})`);
-  ok(/Suggested start: Lesson 11 \(sound c\)/.test(r.head), `ten sounds: suggests the first unknown sound, lesson 11 (${r.head})`);
+  ok(/Start at Lesson 11\b/.test(r.head) && /The sound c/.test(r.all), `ten sounds: suggests the first unknown sound, lesson 11 (${r.head})`);
   await made.ctx.close();
 
   // all known, strong: shot of the result
@@ -392,7 +393,7 @@ async function quick({ browser, url, ok }) {
   const r = await resultText(page);
   ok(/Letter sounds: 5 of 17/.test(r.head), `quick re-check: the result counts the sounds (${r.head})`);
   ok(/Knows m a s i t/.test(r.why) && /Re-check every few weeks to see growth\./.test(r.all) && /Next new sound: Lesson 6 \(p\)\./.test(r.all), `quick re-check: the result (${r.all})`);
-  ok((await sel(page, '.pc-start').count()) === 0 && !/Suggested start/.test(r.page), 'quick re-check: no "Start here" and no start suggestion');
+  ok((await sel(page, '.pc-start').count()) === 0 && !/Start at Lesson/.test(r.page), 'quick re-check: no "Start here" and no start suggestion');
   await shotOf(page, '11-quick-recheck-result');
   ok((await store(page)) === made.before, 'quick re-check: nothing written');
   await made.ctx.close();
@@ -501,6 +502,66 @@ async function sizes({ browser, url, ok }) {
   }
 }
 
+
+// "Start here": the wording, the confirm step, the placed lessons, no train ride, and "Start from the beginning".
+async function startHere({ browser, url, ok }) {
+  for (const vp of [PHONE, SMALL]) {
+    const made = await open(browser, url, vp); let page = made.page;
+    await begin(page);
+    await drive(page, { letters: 'yyyynnn' });
+    // 4 sounds known (m a s i? depends on the order): the start is the lesson of the first unknown sound
+    let st = await state(page);
+    const n = Number(st.lesson);
+    const page1 = await page.evaluate(() => document.querySelector('.pc-result').textContent);
+    ok(/What your child knows/.test(page1) && new RegExp(`Start at Lesson ${n}`).test(page1) && /Starter Station/.test(page1), `${vp.name} result wording: knows, start lesson and world (${page1})`);
+    ok(/still come back in Letter Review/.test(page1) && !/research|record|privacy/i.test(page1), `${vp.name} result: why line, no research or privacy talk`);
+    const chips = await page.evaluate(() => [...document.querySelectorAll('.pc-kchip')].map((e) => e.textContent));
+    ok(chips.join('') === ORDER.slice(0, n - 1).join('') && chips.length > 0, `${vp.name} known sounds as chips (${chips})`);
+    await shotOf(page, `placement-end-result-${vp.name}`);
+    if (process.env.SHOTS) { fs.mkdirSync(path.join(ROOT, 'docs/screenshots/placement-end'), { recursive: true }); await page.screenshot({ path: path.join(ROOT, `docs/screenshots/placement-end/result-${vp.name}.png`) }); }
+    // "Start from the beginning": opens lesson 1, writes nothing
+    const before = await store(page);
+    await tapEl(page, sel(page, '.pc-over')); await page.waitForTimeout(500);
+    ok(page.url().endsWith('#/lesson/1') && (await store(page)) === before, `${vp.name} Start from the beginning opens lesson 1 and changes nothing`);
+    await made.ctx.close();
+    const m2 = await open(browser, url, vp); const p2 = m2.page; await begin(p2); await drive(p2, { letters: 'yyyynnn' });
+    made.page = p2; made.ctx = m2.ctx; page = p2;
+    // confirm step: "No, go back" changes nothing
+    await tapEl(page, sel(page, '.pc-start')); await page.waitForSelector('.pc-confirm');
+    ok(/Start at Lesson \d+\?/.test(await text(page, '.pc-confirm h2')), `${vp.name} confirm question`);
+    if (process.env.SHOTS) await page.screenshot({ path: path.join(ROOT, `docs/screenshots/placement-end/confirm-${vp.name}.png`) });
+    const hts = await page.evaluate(() => ['.pc-yes', '.pc-no'].map((q) => document.querySelector(q).getBoundingClientRect().height));
+    ok(hts.every((x) => x >= 48), `${vp.name} confirm buttons are 48 px (${hts})`);
+    await tapEl(page, sel(page, '.pc-no')); await page.waitForSelector('.pc-start');
+    ok((await store(page)) === m2.before, `${vp.name} "No, go back" changes nothing`);
+    // confirm: yes
+    await tapEl(page, sel(page, '.pc-start')); await page.waitForSelector('.pc-yes');
+    await tapEl(page, sel(page, '.pc-yes')); await page.waitForTimeout(600);
+    ok(page.url().endsWith(`#/lesson/${n}`), `${vp.name} opens lesson ${n} (${page.url()})`);
+    const s = JSON.parse(await store(page));
+    const placed = Object.entries(s.lessons).filter(([, l]) => l.placed).map(([k]) => Number(k)).sort((a, b) => a - b);
+    ok(placed.join() === Array.from({ length: n - 1 }, (_, i) => i + 1).join() && placed.every((k) => s.lessons[k].result === 'got-it' && typeof s.lessons[k].completedAt === 'string' && s.lessons[k].doneAt === undefined), `${vp.name} lessons 1..${n - 1} placed + got-it, no doneAt (${placed})`);
+    ok(s.settings.trainAt === undefined && s.settings.trainDone === undefined, `${vp.name} ride bookkeeping cleared`);
+    const info = await page.evaluate(async (num) => {
+      const { createStore } = await import('/js/store.js'); const st = createStore();
+      const cur = await (await fetch('/data/curriculum.json')).json();
+      const { ORDER_SOUNDS } = await import('/js/order.js');
+      return { current: st.currentLesson(cur.lessons.length), resting: st.isResting(num), today: st.doneToday(), cks: cur.checkpoints.filter((c) => c.after < num).every((c) => st.isCheckpointDone(c)), order: ORDER_SOUNDS.slice(0, num - 1) };
+    }, n);
+    ok(info.current === n && !info.resting && info.today === 0, `${vp.name} lesson ${n} is current, not resting, pace not used (${JSON.stringify(info)})`);
+    ok(info.cks && info.order.join('') === ORDER.slice(0, n - 1).join(''), `${vp.name} stops behind the start are done and the skipped letters still feed review`);
+    // no train ride: the ride check says nothing finished
+    const ride = await page.evaluate(async () => {
+      const { createStore } = await import('/js/store.js'); const { finishedStop } = await import('/js/sequence.js');
+      const st = createStore(); const cur = await (await fetch('/data/curriculum.json')).json();
+      const done = cur.lessons.map((l) => { const o = st.lesson(l.number); return o.result === 'got-it' ? o.completedAt || null : false; });
+      return finishedStop(st, done, st.currentLesson(cur.lessons.length) - 1);
+    });
+    ok(ride === -1, `${vp.name} no train ride after placing (${ride})`);
+    await made.ctx.close();
+  }
+}
+
 export async function run() {
   shotsOn = true;
   let failures = 0, checks = 0;
@@ -512,6 +573,7 @@ export async function run() {
   await stepOne({ browser, url, ok });
   await branches({ browser, url, ok });
   await quick({ browser, url, ok });
+  await startHere({ browser, url, ok });
   ok(allTts.every((t) => !SOUNDY(t)), `the phone's voice never said a sound or a stretched word (${allTts.length} lines; bad: ${allTts.filter(SOUNDY).join(' | ')})`);
   await reducedRun({ browser, url, ok });
   await idle({ browser, url, ok });
