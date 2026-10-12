@@ -25,19 +25,19 @@ export const SHOT_VIEWPORTS = [
 export function dataChecks(ok) {
   ok(CUR.worlds.length === 11 && CUR.worlds.every((w, i) => w.n === i + 1 && w.id === `W${i + 1}`), 'data: eleven worlds, n 1 to 11');
   ok(new Set(CUR.units.map((u) => u.id)).size === CUR.units.length && CUR.units.length === 14, 'data: fourteen unique units (1.1 to 1.3, 2.1 to 2.11)');
-  const want = { 1: '2.1', 2: '2.1', 3: '2.1', 4: '2.2', 5: '2.2', 6: '2.3', 7: '2.4', 8: '2.4', 9: '2.5', 10: '2.5', 11: '2.6', 12: '2.6', 13: '2.7', 14: '2.7', 15: '2.7', 16: '2.8', 17: '2.8' };
-  ok(CUR.lessons.every((l) => l.unit === want[l.number]), 'data: every lesson is in the unit of its sound (f o 2.4, n d 2.5, c h 2.6, u g l 2.7, r b 2.8)');
-  ok(CUR.lessons.slice(0, 6).every((l) => l.world === 'W1') && CUR.lessons.slice(6).every((l) => l.world === 'W2'), 'data: lessons 1 to 6 are in world 1, 7 to 17 in world 2');
+  const want = { 1: '2.1', 2: '2.1', 3: '2.1', 4: '2.2', 5: '2.2', 6: '2.3', 7: '2.4', 8: '2.4', 9: '2.5', 10: '2.5', 11: '2.6', 12: '2.6', 13: '2.7', 14: '2.7', 15: '2.7', 16: '2.8', 17: '2.8', 18: '2.9', 19: '2.10', 20: '2.10', 21: '2.10', 22: '2.11', 23: '2.11', 24: '2.11', 25: '2.11' };
+  ok(CUR.lessons.every((l) => l.unit === want[l.number]), 'data: every lesson is in the unit of its sound (f o 2.4, n d 2.5, c h 2.6, u g l 2.7, r b 2.8, e 2.9, j w v 2.10, y z x q 2.11)');
+  ok(CUR.lessons.slice(0, 6).every((l) => l.world === 'W1') && CUR.lessons.slice(6, 17).every((l) => l.world === 'W2') && CUR.lessons.slice(17).every((l) => l.world === 'W3'), 'data: lessons 1 to 6 are in world 1, 7 to 17 in world 2, 18 to 25 in world 3');
   ok(CUR.checkpoints.every((k) => k.world === CUR.lessons.find((l) => l.number === k.after).world), 'data: a checkpoint is in the world of its lesson');
   ok(JSON.stringify(unitsIn(CUR, 'W1').map((u) => u.id)) === '["1.1","1.2","1.3","2.1","2.2","2.3"]' && unitsIn(CUR, 'W2').length === 5 && unitsIn(CUR, 'W3').length === 3, 'data: worlds 1 to 3 hold the units the plan lists');
   ok(unitsIn(CUR, 'W4').length === 5 && unitsIn(CUR, 'W11').length === 6 && unitsIn(CUR, 'W4')[0].id === '3.1', 'data: worlds 4 to 11 list their stage units by id');
   ok(unitsIn(CUR, 'W2').map((u) => u.sounds.join('')).join(' ') === 'fo nd ckh ugl rb', 'data: units 2.4 to 2.8 carry their sounds');
   ok(worldOf(CUR, 8).id === 'W2' && worldOf(CUR, 3).id === 'W1' && worldOf(CUR, 99) === null, 'helpers: worldOf');
-  ok(lessonsIn(CUR, 'W1').length === 6 && lessonsIn(CUR, 'W2').length === 11 && lessonsIn(CUR, 'W3').length === 0, 'helpers: lessonsIn');
+  ok(lessonsIn(CUR, 'W1').length === 6 && lessonsIn(CUR, 'W2').length === 11 && lessonsIn(CUR, 'W3').length === 8 && lessonsIn(CUR, 'W4').length === 0, 'helpers: lessonsIn');
   const fake = (done) => ({ isDone: (n) => n <= done, currentLesson: (t) => (done >= t ? null : done + 1) });
   ok(unitDone(fake(3), CUR, '2.1') && !unitDone(fake(2), CUR, '2.1') && !unitDone(fake(17), CUR, '1.1'), 'helpers: unitDone needs every lesson of the unit, and a unit with none is not done');
-  ok(currentWorld(fake(0), CUR).id === 'W1' && currentWorld(fake(6), CUR).id === 'W2' && currentWorld(fake(17), CUR).id === 'W2', 'helpers: currentWorld follows the first unfinished lesson, else the last world with lessons');
-  ok(currentUnit(fake(4), CUR, 'W1').id === '2.2' && worldDone(fake(6), CUR, 'W1') && !worldDone(fake(5), CUR, 'W1') && nextWorld(CUR, 'W1').id === 'W2' && nextWorld(CUR, 'W2') === null, 'helpers: currentUnit, worldDone, nextWorld');
+  ok(currentWorld(fake(0), CUR).id === 'W1' && currentWorld(fake(6), CUR).id === 'W2' && currentWorld(fake(17), CUR).id === 'W3' && currentWorld(fake(25), CUR).id === 'W3', 'helpers: currentWorld follows the first unfinished lesson, else the last world with lessons');
+  ok(currentUnit(fake(4), CUR, 'W1').id === '2.2' && worldDone(fake(6), CUR, 'W1') && !worldDone(fake(5), CUR, 'W1') && nextWorld(CUR, 'W1').id === 'W2' && nextWorld(CUR, 'W2').id === 'W3' && nextWorld(CUR, 'W3') === null, 'helpers: currentUnit, worldDone, nextWorld');
   // 1.9.14: what the Home shows (planHome): the world to build, and whether its crossing is due
   const plan = (done, seen) => { const st = { seen }; const store = { ...fake(done), worlds: () => st, setWorlds: (p) => Object.assign(st, p) }; const first = planHome(store, CUR); return { first, again: planHome(store, CUR), st }; };
   let pl = plan(4, null);
@@ -103,7 +103,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
   const tag = vp.name;
   const { ctx, page, errors } = await openHome(browser, url, vp, seed(4, { dev: true }), { init: [RAF_COUNT] }); // Polish A: the Previews fold shows only in developer mode
   await until(page, () => window.__train && window.__train.frames > 0);
-  ok(await page.evaluate(() => window.__train.world === 'W1' && window.__train.stopCount === 10 && window.__train.lessonCount === 6 && window.__train.checkpointCount === 4 && window.__train.portal && window.__train.signText === 'Green Valley'), `${tag}: the real Home builds only world 1 (9 stops) with a portal and a signpost to Green Valley`);
+  ok(await page.evaluate(() => window.__train.world === 'W1' && window.__train.stopCount === 11 && window.__train.lessonCount === 6 && window.__train.checkpointCount === 5 && window.__train.portal && window.__train.signText === 'Green Valley'), `${tag}: the real Home builds only world 1 (11 stops) with a portal and a signpost to Green Valley`);
   await gate(page);
 
   // ---- the lessons grouped by world and unit (the live list at the top of Grownups) ----
@@ -113,12 +113,12 @@ export async function previewChecks({ browser, url, ok, vp }) {
     worlds: [...document.querySelectorAll('.gu-world')].map((w) => ({ id: w.dataset.world, open: w.querySelector('.gu-fold').getAttribute('aria-expanded'), hidden: w.querySelector('.gu-fold-body').hidden, units: [...w.querySelectorAll('.gu-unit strong')].map((u) => u.textContent) })),
     rows: document.querySelectorAll('.gu-row').length, note: document.querySelector('.gu-body > .gu-list > .gu-note').textContent,
   }));
-  ok(g.worlds.length === 2 && g.worlds[0].open === 'true' && g.worlds[1].open === 'false' && g.worlds[1].hidden, `${tag} list: two worlds with lessons, only the current one open (${JSON.stringify(g.worlds.map((w) => w.id + w.open))})`);
-  ok(g.worlds[0].units.join() === 'Unit 2.1,Unit 2.2,Unit 2.3' && g.worlds[1].units.join() === 'Unit 2.4,Unit 2.5,Unit 2.6,Unit 2.7,Unit 2.8', `${tag} list: units group the rows (${g.worlds.map((w) => w.units.join(' ')).join(' / ')})`);
-  ok(/9 more worlds/.test(g.note), `${tag} list: the later worlds are noted`);
+  ok(g.worlds.length === 3 && g.worlds[0].open === 'true' && g.worlds[1].open === 'false' && g.worlds[1].hidden && g.worlds[2].open === 'false' && g.worlds[2].hidden, `${tag} list: three worlds with lessons (Sunny Hills too), only the current one open (${JSON.stringify(g.worlds.map((w) => w.id + w.open))})`);
+  ok(g.worlds[0].units.join() === 'Unit 2.1,Unit 2.2,Unit 2.3' && g.worlds[1].units.join() === 'Unit 2.4,Unit 2.5,Unit 2.6,Unit 2.7,Unit 2.8' && g.worlds[2].units.join() === 'Unit 2.9,Unit 2.10,Unit 2.11', `${tag} list: units group the rows (${g.worlds.map((w) => w.units.join(' ')).join(' / ')})`);
+  ok(/8 more worlds/.test(g.note), `${tag} list: the later worlds are noted`);
   await shot(page, 'grownups-top', tag);
   await page.locator('.gu-world[data-world="W2"] .gu-fold').click();
-  ok(await page.evaluate(() => document.querySelectorAll('.gu-world[data-world="W2"] .gu-row').length === 15 && document.querySelectorAll('.gu-world[data-world="W1"] .gu-row').length === 10), `${tag} list: opening world 2 shows its eleven lessons; world 1 has six lessons and three checkpoints`);
+  ok(await page.evaluate(() => document.querySelectorAll('.gu-world[data-world="W2"] .gu-row').length === 15 && document.querySelectorAll('.gu-world[data-world="W1"] .gu-row').length === 11), `${tag} list: opening world 2 shows its eleven lessons; world 1 has six lessons and five checkpoints`);
   await page.locator('.gu-world[data-world="W2"] button[aria-label="Unlock lesson 9"]').click();
   ok((await page.locator('.gu-confirm').count()) === 1 && (await page.locator('.gu-world[data-world="W2"] .gu-fold').getAttribute('aria-expanded')) === 'true', `${tag} list: the unlock confirm works inside a fold and the fold stays open`);
   await page.locator('.gu-confirm button', { hasText: 'Cancel' }).click();
@@ -205,7 +205,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
   await openPreview(page, 'gateway');
   ok(await until(page, () => window.__train && window.__train.world === 'W1' && window.__train.frames > 0, null, 20000), `${tag} gateway: the current world's Home opens`);
   const w1 = await page.evaluate(() => ({ stops: window.__train.stopCount, l: window.__train.lessonCount, c: window.__train.checkpointCount, tunnel: window.__train.tunnel, btns: document.querySelectorAll('.station-btn').length, mode: window.__train.gate.mode }));
-  ok(w1.stops === 10 && w1.l === 6 && w1.c === 4 && w1.btns === 10 && w1.tunnel && w1.mode === 'out', `${tag} gateway: only world 1 is built (6 lessons, 4 checkpoints) with a tunnel at the end (${JSON.stringify(w1)})`);
+  ok(w1.stops === 11 && w1.l === 6 && w1.c === 5 && w1.btns === 11 && w1.tunnel && w1.mode === 'out', `${tag} gateway: only world 1 is built (6 lessons, 5 checkpoints) with a tunnel at the end (${JSON.stringify(w1)})`);
   ok(await until(page, () => window.__train && window.__train.gate.phase === 'out', null, 10000), `${tag} gateway: the train rolls toward the tunnel`);
   await page.mouse.click(3, 300); // sound only after a tap
   ok(await until(page, () => !!document.querySelector('.world-card'), null, 30000), `${tag} gateway: the screen goes to the loading card`);
@@ -258,7 +258,7 @@ export async function flatChecks({ browser, url, ok }) {
   await page.waitForSelector('.stone');
   await gate(page);
   await openPreview(page, 'gateway');
-  ok(await until(page, () => document.querySelectorAll('.stone').length === 10, null, 10000), 'flat gateway: the first world shows its ten stones (6 lessons, 4 checkpoints)');
+  ok(await until(page, () => document.querySelectorAll('.stone').length === 11, null, 10000), 'flat gateway: the first world shows its eleven stones (6 lessons, 5 checkpoints)');
   ok((await page.locator('.home3d').count()) === 0, 'flat gateway: no 3D');
   ok(await until(page, () => !!document.querySelector('.world-card.in'), null, 15000), 'flat gateway: the loading card shows between the two maps');
   ok((await page.locator('.wg-name').textContent()) === 'Green Valley', 'flat gateway: it names the next world');
@@ -329,11 +329,11 @@ export async function liveWorldChecks({ browser, url, ok, vp }) {
     const { ctx, page, errors } = await openHome(browser, url, vp, resting(n), { init: [RAF_COUNT] });
     ok(await settled(page), `${tag} world 1 at lesson ${n + 1}: Home settles`);
     const t = await page.evaluate(() => { const x = window.__train; return { world: x.world, stops: x.stopCount, l: x.lessonCount, c: x.checkpointCount, portal: x.portal, sign: x.signText, start: x.startTunnel, next: x.nextWorld, btns: [...document.querySelectorAll('.station-btn')].map((b) => b.getAttribute('aria-label')), spot: x.portalSpot(), wagons: x.wagons, parked: x.parked, upgrade: x.engineUpgrade }; });
-    ok(t.world === 'W1' && t.stops === 10 && t.l === 6 && t.c === 4 && t.btns.length === 10, `${tag} world 1 at lesson ${n + 1}: only world 1's ten stations are built (${t.btns.length} buttons)`);
+    ok(t.world === 'W1' && t.stops === 11 && t.l === 6 && t.c === 5 && t.btns.length === 11, `${tag} world 1 at lesson ${n + 1}: only world 1's eleven stations are built (${t.btns.length} buttons)`);
     ok(!t.btns.some((b) => /Lesson (7|8|9|1[0-7])\b/.test(b)), `${tag} world 1 at lesson ${n + 1}: no lesson of Green Valley is on the Home (${t.btns.filter((b) => /Lesson/.test(b)).length} lessons)`);
     ok(t.portal && t.sign === 'Green Valley' && t.next === 'W2' && !t.start, `${tag} world 1 at lesson ${n + 1}: the line runs into a tunnel portal with a signpost naming Green Valley, and no start tunnel`);
-    // (in landscape the portal is still just above the screen at lesson 5 and comes into view at lesson 6, the last lesson)
-    const need = vp.width > vp.height ? (n === 5 ? 0 : -1e9) : 70;
+    // (World 1 ends with Story 2 and a Review Stop, so the portal is just above the screen until the last stops)
+    const need = vp.width > vp.height ? -1e9 : (n === 4 ? 0 : 70); // World 1 now ends with a Review Stop after Story 2, so the portal is one stop further on: just above the top bar at lessons 5 (portrait) and 5 and 6 (landscape); the last stops below show it whole
     ok(t.spot && t.spot.x > 0 && t.spot.x < vp.width && t.spot.y > need && t.spot.y < vp.height, `${tag} world 1 at lesson ${n + 1}: the portal is on the screen below the top bar (${JSON.stringify(t.spot && { x: Math.round(t.spot.x), y: Math.round(t.spot.y) })})`);
     ok(t.wagons === n && t.parked === 0 && t.upgrade === 0, `${tag} world 1 at lesson ${n + 1}: the train pulls its ${n} letter wagons and the engine is not upgraded yet (${t.wagons} wagons, upgrade ${t.upgrade})`);
     await liveShot(page, `w1-lesson${n + 1}`, tag);
@@ -342,9 +342,10 @@ export async function liveWorldChecks({ browser, url, ok, vp }) {
       await page.evaluate(() => window.__train.show(100));
       await page.waitForTimeout(900);
       await until(page, () => !window.__train.running, null, 8000);
-      const e = await page.evaluate(() => ({ spot: window.__train.portalSpot(), board: window.__train.signRect(), last: (() => { const b = document.querySelector('.station-btn[data-index="9"]'); const r = b.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, shown: b.dataset.shown }; })(), focus: window.__train.focus, stops: window.__train.stopS }));
+      const e = await page.evaluate(() => ({ spot: window.__train.portalSpot(), board: window.__train.signRect(), last: (() => { const b = document.querySelector('.station-btn[data-index="10"]'); const r = b.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, shown: b.dataset.shown }; })(), focus: window.__train.focus, stops: window.__train.stopS }));
+      await liveShot(page, 'w1-last-stop', tag);
       ok(e.spot && e.spot.x > 0 && e.spot.x < vp.width && e.spot.y > 70 && e.spot.y < vp.height, `${tag} last stop: the portal is in view (${JSON.stringify(e.spot && { x: Math.round(e.spot.x), y: Math.round(e.spot.y) })})`);
-      ok(e.board && e.board.w > 60 && inView(e.board, vp) && e.board.y > 60, `${tag} last stop: the signpost's board is whole on the screen and readable (${JSON.stringify(e.board && { w: Math.round(e.board.w), h: Math.round(e.board.h) })})`);
+      ok(e.board && e.board.w > 60 && inView(e.board, { width: vp.width + 4, height: vp.height }) && e.board.y > 60, `${tag} last stop: the signpost's board is whole on the screen (to within 4 px of its frame: World 1 ends one stop later now) and readable (${JSON.stringify(e.board && { x: Math.round(e.board.x), y: Math.round(e.board.y), w: Math.round(e.board.w), h: Math.round(e.board.h) })})`);
       ok(e.last.shown === '1' && !hitsRect(e.board, e.last), `${tag} last stop: the board does not cover the last station's sign (${JSON.stringify(e.board)} vs ${JSON.stringify(e.last)})`);
       await liveShot(page, 'w1-end-portal', tag);
     }
@@ -482,11 +483,11 @@ export async function liveOtherChecks({ browser, url, ok }) {
   {
     // a finished world shown again (the gateway preview of world 1 once it is done): its six wagons stand on the siding and the
     // train pulls none; the engine carries world 1's upgrade
-    const done6 = state(6, { trainDone: 6, trainAt: 0 }, { lessons: doneL(6), levels: { seen: 1, earned: L1 }, worlds: { seen: 'W2' }, character: CHARACTER, meetDue: false });
+    const done6 = state(17, { trainDone: 17, trainAt: 0 }, { lessons: doneL(17), levels: { seen: 2, earned: { ...L1, L2: '2026-10-17T10:00:00.000Z' } }, worlds: { seen: 'W3' }, character: CHARACTER, meetDue: false }); // with Green Valley done the current world is Sunny Hills, so the gateway preview shows world 1 again
     const { ctx, page, errors } = await openHome(browser, url, vp, done6, { init: [RAF_COUNT], route: '#/preview/gateway' });
     ok(await until(page, () => window.__train && window.__train.world === 'W1' && window.__train.frames > 1, null, 20000), 'siding: world 1 is shown again');
     const t = await page.evaluate(() => ({ wagons: window.__train.wagons, parked: window.__train.parked, up: window.__train.engineUpgrade, world: window.__train.world }));
-    ok(t.wagons === 0 && t.parked === 6 && t.up === 1, `siding: the six letter wagons stand on the siding, none on the train, engine upgrade 1 (${JSON.stringify(t)})`);
+    ok(t.wagons === 0 && t.parked === 6 && t.up === 2, `siding: the six letter wagons stand on the siding, none on the train, the engine carries both levels earned so far (${JSON.stringify(t)})`);
     await page.evaluate(() => window.__train.show(100));
     await page.waitForTimeout(500);
     await liveShot(page, 'w1-siding', vp.name);
@@ -530,7 +531,7 @@ export async function liveFlatChecks({ browser, url, ok, vp }) {
     await page.waitForSelector('.stone');
     await page.waitForTimeout(2500);
     const m = await page.evaluate(() => ({ stones: document.querySelectorAll('.stone').length, labels: [...document.querySelectorAll('.stone')].map((s) => s.getAttribute('aria-label')), tunnel: document.querySelector('.scene-tunnel') && { world: document.querySelector('.scene-tunnel').dataset.world, text: document.querySelector('.tunnel-name').textContent, label: document.querySelector('.scene-tunnel').getAttribute('aria-label') }, three: !!document.querySelector('.home3d') }));
-    ok(m.stones === 10 && !m.three && !m.labels.some((l) => /Lesson (7|8|9|1[0-7])\b/.test(l)), `${tag} world 1: only its ten stones, no Green Valley lesson (${m.stones})`);
+    ok(m.stones === 11 && !m.three && !m.labels.some((l) => /Lesson (7|8|9|1[0-7])\b/.test(l)), `${tag} world 1: only its eleven stones, no Green Valley lesson (${m.stones})`);
     ok(m.tunnel && m.tunnel.world === 'W2' && /^Green Valley/.test(m.tunnel.text) && /Green Valley/.test(m.tunnel.label), `${tag} world 1: a tunnel icon at the end names Green Valley (${JSON.stringify(m.tunnel)})`);
     await liveShot(page, 'map-world1', vp.name);
     await page.evaluate(() => { const s = document.querySelector('.map-scroll'); s.scrollTop = 0; s.scrollLeft = s.scrollWidth; });
@@ -543,7 +544,7 @@ export async function liveFlatChecks({ browser, url, ok, vp }) {
   }
   {
     const { ctx, page, errors } = await openHome(browser, url, vp, crossingDue({ trainWorld: false, migrated1912: true }));
-    ok(await until(page, () => document.querySelectorAll('.stone').length === 10, null, 10000), `${tag} crossing: world 1's ten stones show first`);
+    ok(await until(page, () => document.querySelectorAll('.stone').length === 11, null, 10000), `${tag} crossing: world 1's eleven stones show first`);
     ok(await until(page, () => !!document.querySelector('.world-card.in'), null, 15000), `${tag} crossing: the loading card shows between the two maps`);
     ok((await page.locator('.wg-name').textContent()) === 'Green Valley', `${tag} crossing: it names Green Valley`);
     await page.waitForTimeout(500);

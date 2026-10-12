@@ -8,6 +8,7 @@ import { timers, watchSize, starRow, shake, shuffle } from '../components/game-k
 import { accentOf } from '../theme.js';
 import { soundPhrase, fit, sackPool, roundCaps } from '../lessons.js';
 import { firstSoundOut } from '../scripts.js';
+import { soundOfLetter } from '../order.js';
 import { sfx } from '../sfx.js';
 
 const SPRING = 'cubic-bezier(.34,1.56,.64,1)';
@@ -110,7 +111,11 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
     el.dataset.round = String(round + 1); el.dataset.sound = key;
     const right = pickWord(key);
     rightWord = right;
-    const wrong = shuffle(sackPool(curriculum, checkpoint).filter((w) => !(w.avoid || []).includes(key))).slice(0, 2); // avoid: a look-alike for this sound
+    let candidates = sackPool(curriculum, checkpoint).filter((w) => !(w.avoid || []).includes(key)); // avoid: a look-alike for this sound
+    // Late in the order (World 3) almost every letter is taught, so too few pictures start with an untaught one: any picture of the pool that
+    // does not start with this sound will do (these are pictures to find by sound, not words to read).
+    if (candidates.length < 2) candidates = (curriculum.gameDistractors || []).filter((w) => !(w.avoid || []).includes(key) && soundOfLetter(w.word[0]) !== key && w.word !== right.word);
+    const wrong = shuffle(candidates).slice(0, 2);
     const choices = shuffle([{ ...right, correct: true }, ...wrong.map((w) => ({ ...w, correct: false }))]);
     front.replaceChildren(glyphSvg(key, { color: accentOf(key), label: 'the sound on the wagon' }));
     openLid();
