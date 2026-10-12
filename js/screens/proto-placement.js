@@ -18,7 +18,7 @@ import { INK, fadeIn, dotRow } from './tasks/proto/kit.js';
 //   2  sound awareness (about 1 min), only when fewer than 4 sounds were known: 3 first-sound items, 3 oral blending items.
 //   3  made-up words (about 1 min), only when 10 or more sounds were known: 3 CVC pretend words from known sounds.
 //   4  real words and a sentence (about 1 min), only when 2 of the 3 made-up words were read. Stops after 2 misses.
-// "Quick re-check: letter sounds only" is step 1 alone. Nothing is written: no progress, no setting. "Start here" is switched off.
+// "Quick re-check: letter sounds only" is step 1 alone. Nothing is written until the grown-up confirms "Start here" (placeAt in js/store.js); the quick re-check never writes.
 export const NOT_YET_RUN = 3, MISS_LIMIT = 2, WORD_COUNT = 4, FEW_SOUNDS = 4, MANY_SOUNDS = 10, MADE_UP_COUNT = 3;
 const VOWELS = 'aeiou';
 
@@ -357,16 +357,37 @@ export async function placementScreen(ctx) {
     const r = computeResult({ lessons, known, mode, retest: teach && teach.done ? { letter: teach.key, right: teach.right } : null, awareness: items.length ? { right: aware.right } : null, made, real, sentence });
     el.dataset.lesson = String(r.number); el.dataset.sound = r.sound; el.dataset.start = r.number + r.sound; el.dataset.blendFirst = r.blendFirst ? '1' : '0';
     const quick = mode === 'quick';
-    const start = h('button', { class: 'btn big pc-start', type: 'button', disabled: true }, h('span', {}, 'Start here'), h('small', {}, '(preview: nothing changes)'));
-    const box = h('section', { class: 'pc-result', 'aria-label': 'Result for the grown-up' }, h('span', { class: 'judge-tag pc-tag' }, 'For the grown-up'),
-      h('h2', { class: 'pc-suggest' }, r.head), h('p', { class: 'pc-why' }, r.why));
-    if (quick) box.append(h('p', { class: 'pc-line' }, r.allKnown ? 'That is the last lesson built so far.' : `Next new sound: Lesson ${r.number} (${r.sound}).`), h('p', { class: 'pc-line' }, 'Re-check every few weeks to see growth.'));
-    if (r.notes.length) box.append(h('ul', { class: 'pc-notes' }, ...r.notes.filter((n) => !(quick && n.startsWith('That is the last'))).map((n) => h('li', {}, n))));
-    if (!quick) box.append(h('p', { class: 'pc-line pc-skip' }, "Lessons before this are skipped, but the first lesson's review still practises them."));
+    const w = (curriculum.worlds || []).find((x) => { const l = curriculum.lessons.find((y) => y.number === r.number); return l && x.id === l.world; });
+    const box = h('section', { class: 'pc-result', 'aria-label': 'Result for the grown-up' }, h('span', { class: 'judge-tag pc-tag' }, 'For the grown-up'));
+    if (quick) {
+      box.append(h('h2', { class: 'pc-suggest' }, r.head), h('p', { class: 'pc-why' }, r.why),
+        h('p', { class: 'pc-line' }, r.allKnown ? 'That is the last lesson built so far.' : `Next new sound: Lesson ${r.number} (${r.sound}).`), h('p', { class: 'pc-line' }, 'Re-check every few weeks to see growth.'));
+      if (r.notes.length) box.append(h('ul', { class: 'pc-notes' }, ...r.notes.filter((n) => !n.startsWith('That is the last')).map((n) => h('li', {}, n))));
+      pad(chip('All done. Well done!'), box);
+      return;
+    }
+    const ks = sounds.filter((c) => known.has(c));
+    box.append(h('h2', { class: 'pc-suggest' }, 'What your child knows'),
+      ks.length ? h('p', { class: 'pc-known', 'aria-label': 'Sounds your child knows' }, ...ks.map((c) => h('span', { class: 'pc-kchip' }, c))) : h('p', { class: 'pc-why' }, 'No letter sounds yet, and that is a fine place to begin.'),
+      h('h2', { class: 'pc-suggest pc-where' }, `Start at Lesson ${r.number}`),
+      h('p', { class: 'pc-why' }, `The sound ${r.sound}${w ? `, in ${w.name}` : ''}.`));
+    if (r.number > 1) box.append(h('p', { class: 'pc-line pc-skip' }, 'Letters your child knows are skipped, but they still come back in Letter Review.'));
+    if (r.notes.length) box.append(h('ul', { class: 'pc-notes' }, ...r.notes.map((n) => h('li', {}, n))));
+    const open = () => router.go(`/lesson/${r.number}`);
+    const start = h('button', { class: 'btn big pc-start', type: 'button', onclick: () => (r.number > 1 ? confirmStart(r, open) : open()) }, 'Start here', icon('arrowRight', 24));
+    const over = h('button', { class: 'btn small ghost pc-over', type: 'button', onclick: () => router.go('/lesson/1') }, 'Start from the beginning');
     const kids = [chip('All done. Well done!'), box];
     if (r.soundPlay) kids.push(h('p', { class: 'pc-why pc-play' }, 'Start with Sound play.'), h('button', { class: 'btn small ghost pc-playbtn', type: 'button', onclick: () => router.go('/proto/play') }, 'Open Sound play'));
-    if (!quick) kids.push(start);
+    kids.push(start, over);
     pad(...kids);
+  }
+  // A second tap so a mis-tap cannot skip lessons. Lessons before the start become done (placed), their review still comes.
+  function confirmStart(r, open) {
+    setPhase('confirm'); gen++;
+    pad(chip('Please check'), h('section', { class: 'pc-result pc-confirm' }, h('h2', { class: 'pc-suggest' }, `Start at Lesson ${r.number}?`),
+      h('p', { class: 'pc-why' }, `Lessons 1 to ${r.number - 1} will be marked done. Their letters still come back in Letter Review.`)),
+      h('button', { class: 'btn big pc-yes', type: 'button', onclick: () => { ctx.store.placeAt(r.number, curriculum.checkpoints || []); open(); } }, `Yes, start at Lesson ${r.number}`, icon('arrowRight', 24)),
+      h('button', { class: 'btn small ghost pc-no', type: 'button', onclick: () => showResult() }, 'No, go back'));
   }
   showIntro();
   root.cleanup = () => { gen++; };

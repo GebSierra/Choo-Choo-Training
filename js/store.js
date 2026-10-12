@@ -216,6 +216,17 @@ export function createStore() {
       if (checkpoint(id).result === 'got-it') return true;
       return typeof c === 'object' && c !== null && this.isDone(c.after + 1);
     },
+    // The placement check's "Start here" (js/screens/proto-placement.js): every lesson before n that is not done is marked got-it with placed: true
+    // (no doneAt, so the pace limit is not used), and the Story, Read It Again and Review stops before lesson n count as passed. Letter Review reads
+    // the curriculum order, so the skipped lessons' letters still come back. The ride bookkeeping is cleared so Home plays no train ride.
+    placeAt(n, checkpoints = []) {
+      if (practice) return;
+      const at = new Date().toISOString();
+      for (let m = 1; m < n; m++) if (!this.isDone(m)) state.lessons[m] = { ...lesson(m), result: 'got-it', completedAt: at, placed: true };
+      for (const c of checkpoints) if (c.after < n && !checkpoint(c.id).result) state.checkpoints[c.id] = { ...checkpoint(c.id), result: 'got-it', completedAt: at, placed: true };
+      const { trainAt, trainDone, ...rest } = state.settings;
+      state.settings = rest; save();
+    },
     setCheckpointResult(id, result) { if (practice) return; state.checkpoints[id] = { ...checkpoint(id), result, completedAt: new Date().toISOString() }; save(); },
     unlockCheckpoint(id) { if (practice) return; state.checkpoints[id] = { ...checkpoint(id), unlocked: true }; save(); },
     levels: () => state.levels,
