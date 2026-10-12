@@ -18,7 +18,8 @@ const RAF_COUNTER = () => { window.__raf = 0; const o = window.requestAnimationF
 const NO_WEBGL = () => { const orig = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (type, ...rest) { return /webgl/.test(type) ? null : orig.call(this, type, ...rest); }; };
 const seed = (done = 4) => state(done, { migrated1912: true });
 const WANT = {
-  W3: { sounds: ['e', 'j', 'w', 'v', 'y', 'z', 'x', 'qu'], next: 'Digraph Docks', theme: 'sunny-hills' },
+  // W3 Sunny Hills is a real world now (lessons 18 to 25 and four stops): its preview shows locked real stations, not placeholders
+  W3: { real: true, sounds: ['e', 'j', 'w', 'v', 'y', 'z', 'x', 'q'], stops: 12, lessons: 8, checkpoints: 4, next: 'Digraph Docks', theme: 'sunny-hills' },
   W4: { sounds: ['sh', 'ch', 'th', 'ck', 'ff ll ss zz', 'wh', 'ng', 'nk'], next: 'Blend Bay', theme: 'digraph-docks' },
   W5: { sounds: ['st ft', 'nd mp nt', 'sp sk sn', 'sw sm sl', 'bl cl fl', 'pl gl', 'br tr cr', 'dr fr gr'], next: 'Endings Junction', theme: 'blend-bay' },
   W6: { sounds: ['s es', 'ing', 'ed', 'sun set', 'nap kin'], next: 'Silent E Summit', theme: 'endings-junction' },
@@ -40,7 +41,7 @@ export function dataChecks(ok) {
   ok(['W5', 'W6', 'W7'].every((w) => { const n = worldSounds(CUR, w).length; return n >= 4 && n <= 10; }), 'themes: W5 to W7 each list four to ten placeholder stations');
   ok(DEFAULT_THEME.ground === '#4FC97E' && DEFAULT_THEME.fog === '#FFF6E5' && DEFAULT_THEME.mountain.low === '#62C34C' && DEFAULT_THEME.skyCss === null, 'themes: the default is exactly the original colours (grass, fog, mountain) and the page sky');
   ok(Object.keys(WANT).every((w) => worldSounds(CUR, w).join() === WANT[w].sounds.join()) && worldSounds(CUR, 'W1').length > 0, 'themes: the placeholder sounds (W3 from units 2.9 to 2.11, W4 to W7 listed from docs/CURRICULUM.md stages 3 to 6)');
-  ok(CUR.lessons.every((l) => l.world === 'W1' || l.world === 'W2'), 'data: still no lessons beyond world 2 (the regions are only worlds, no lessons were built)');
+  ok(CUR.lessons.every((l) => ['W1', 'W2', 'W3'].includes(l.world)), 'data: no lessons beyond world 3 (World 4 and later are still only regions)');
 }
 
 // polish B: the Starter Station props are baked into at most two meshes (one solid, one water): at most 2 draw calls, 3 with the shadow pass, far under the 8 allowed.
@@ -93,17 +94,18 @@ export async function regionChecks({ browser, url, ok, vp }) {
     const { ctx, page, errors } = await preview(browser, url, vp, w, { init: [RAF_COUNTER] });
     const a = await store(page), ka = await keys(page);
     const d = await page.evaluate(() => ({ ...window.__train, stopS: undefined }));
-    ok(d.region && d.placeholder && d.world === w && d.theme === want.theme && d.skyOverride === true && d.fogHex !== '#fff6e5', `${t}: the scene renders with its own theme (${d.theme}, fog ${d.fogHex})`);
-    ok(d.stopCount === want.sounds.length && d.lessonCount === want.sounds.length && d.checkpointCount === 0, `${t}: one station per sound or sound group (${d.stopCount} of ${want.sounds.length})`);
+    ok(d.region && d.placeholder === !want.real && d.world === w && d.theme === want.theme && d.skyOverride === true && d.fogHex !== '#fff6e5', `${t}: the scene renders with its own theme (${d.theme}, fog ${d.fogHex})`);
+    const n = want.real ? want.stops : want.sounds.length;
+    ok(d.stopCount === n && d.lessonCount === (want.real ? want.lessons : want.sounds.length) && d.checkpointCount === (want.real ? want.checkpoints : 0), `${t}: ${want.real ? 'the real stations' : 'one station per sound or sound group'} (${d.stopCount} of ${n})`);
     const btns = await page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => ({ label: b.getAttribute('aria-label'), cls: b.className })));
-    ok(btns.length === want.sounds.length && btns.every((b) => /\bis-locked\b/.test(b.cls) && /, locked$/.test(b.label)), `${t}: every station is locked (${btns.map((b) => b.label).join(' | ')})`);
-    ok(btns.every((b, i) => b.label === `Sound ${want.sounds[i]}, locked`), `${t}: the signs carry the spellings in order`);
+    ok(btns.length === n && btns.every((b) => /\bis-locked\b/.test(b.cls) && /, locked$/.test(b.label)), `${t}: every station is locked (${btns.map((b) => b.label).join(' | ')})`);
+    ok(want.real || btns.every((b, i) => b.label === `Sound ${want.sounds[i]}, locked`), `${t}: the signs carry the spellings in order`);
     ok(d.signpost && d.signText === want.next && d.portal && d.startTunnel && d.nextWorld, `${t}: the end portal and signpost name ${want.next}, and there is a start tunnel (sign "${d.signText}")`);
-    ok(d.currentIndex === 0 && d.trainS < 9, `${t}: the train sits at the start`);
+    ok(want.real || (d.currentIndex === 0 && d.trainS < 9), `${t}: the train sits at the start`);
     ok(await page.evaluate(() => !document.querySelector('.home-top .hold-btn') && !!document.querySelector('.preview-back') && !document.querySelector('.first-run')), `${t}: a Back button, no Grownups hold button, no welcome card`);
     // every station can be brought into view with its whole tap target on screen
     const seen = [];
-    for (let i = 0; i < want.sounds.length; i++) {
+    for (let i = 0; i < n; i++) {
       await page.evaluate((k) => window.__train.show(k), i);
       await page.waitForTimeout(60);
       seen.push(await page.evaluate((k) => { const b = document.querySelectorAll('.station-btn')[k]; return b.dataset.shown === '1'; }, i));
@@ -139,7 +141,7 @@ export async function otherChecks({ browser, url, ok }) {
     const a = await store(page);
     const cls = await page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => b.className.match(/is-(\w+)/)[1]));
     const d = await page.evaluate(() => ({ theme: window.__train.theme, stops: window.__train.stopCount, placeholder: window.__train.placeholder, details: window.__train.details }));
-    ok(d.theme === 'starter-station' && d.stops === 10 && !d.placeholder && cls.filter((c) => c === 'done').length >= 4, `W1 preview: its real ten stops (6 lessons and 4 stops) and progress (${cls.join(' ')})`);
+    ok(d.theme === 'starter-station' && d.stops === 11 && !d.placeholder && cls.filter((c) => c === 'done').length >= 4, `W1 preview: its real eleven stops (6 lessons and 5 stops) and progress (${cls.join(' ')})`);
     ok(d.details && d.details.tris > 1000, `W1 preview: Starter Station's extra props are built (${d.details && d.details.tris} triangles)`);
     await page.evaluate(() => window.__train.show(4)); await page.waitForTimeout(300);
     const hash0 = await page.evaluate(() => location.hash);
