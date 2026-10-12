@@ -46,8 +46,8 @@ const APP_FILES = [
   'assets/images/mentava/web/v/van.webp', 'assets/images/mentava/web/v/vest.webp', 'assets/images/mentava/web/v/volcano.webp',
   'assets/images/mentava/web/w/wagon.webp', 'assets/images/mentava/web/w/window.webp', 'assets/images/mentava/web/w/worm.webp',
   'assets/images/mentava/web/x/box.webp', 'assets/images/mentava/web/x/fox.webp', 'assets/images/mentava/web/x/ox.webp',
-  'assets/images/mentava/web/y/yarn.webp', 'assets/images/mentava/web/y/yellow.webp', 'assets/images/mentava/web/y/yoyo.webp',
-  'assets/images/mentava/web/z/zebra.webp', 'assets/images/mentava/web/z/zipper.webp', 'assets/images/mentava/web/z/zoo.webp',
+  'assets/images/mentava/web/y/yarn.webp', 'assets/images/mentava/web/y/yoyo.webp', 'assets/images/mentava/web/z/zebra.webp',
+  'assets/images/mentava/web/z/zipper.webp', 'assets/images/mentava/web/z/zoo.webp',
 ];
 // Recorded sounds are optional: a missing file must not stop the install.
 const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3', 'assets/audio/sounds/s.mp3', 'assets/audio/sounds/i.mp3', 'assets/audio/sounds/t.mp3', 'assets/audio/sounds/p.mp3', 'assets/audio/sounds/f.mp3', 'assets/audio/sounds/o.mp3', 'assets/audio/sounds/n.mp3', 'assets/audio/sounds/d.mp3', 'assets/audio/sounds/c.mp3', 'assets/audio/sounds/h.mp3', 'assets/audio/sounds/u.mp3', 'assets/audio/sounds/g.mp3', 'assets/audio/sounds/l.mp3', 'assets/audio/sounds/r.mp3', 'assets/audio/sounds/b.mp3', 'assets/audio/sounds/e.mp3', 'assets/audio/sounds/j.mp3', 'assets/audio/sounds/w.mp3', 'assets/audio/sounds/v.mp3', 'assets/audio/sounds/y.mp3', 'assets/audio/sounds/z.mp3', 'assets/audio/sounds/x.mp3', 'assets/audio/sounds/q.mp3'];

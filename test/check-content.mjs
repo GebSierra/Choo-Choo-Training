@@ -249,9 +249,9 @@ export function checkCurriculum(c, root = ROOT) {
     for (const a of w.avoid || []) if (!sounds[a]) err(`gameDistractors[${i}].avoid "${a}" is not a sound`);
   });
   if (new Set(pool.map((w) => w.word)).size !== pool.length) err('gameDistractors repeats a word');
-  // Pictures that read as something else are not used anywhere: a paint can (red), a knife in the jam picture, a broom (mop), a duck (goose).
+  // Pictures that read as something else are not used anywhere: a paint can (red), a knife in the jam picture, a broom (mop), a duck (goose), a paint bucket (yellow).
   const everyWord = [...Object.values(sounds).flatMap((s) => [...s.words, ...(s.startWords || [])]), ...pool, ...(c.lessons || []).flatMap((L) => [...L.sayingSounds, ...(L.quickCheck ? L.quickCheck.options : [])])].map((w) => w.word);
-  for (const bad of ['red', 'jam', 'mop', 'goose']) if (everyWord.includes(bad)) err(`"${bad}" has a misleading picture and must not be used`);
+  for (const bad of ['red', 'jam', 'mop', 'goose', 'yellow']) if (everyWord.includes(bad)) err(`"${bad}" has a misleading picture and must not be used`);
   // Look-alikes: n-words never show in an m round, egg never in an a round.
   for (const w of pool) {
     if (w.word[0] === 'n' && !(w.avoid || []).includes('m')) err(`gameDistractors "${w.word}" looks like an m word and must avoid "m"`);

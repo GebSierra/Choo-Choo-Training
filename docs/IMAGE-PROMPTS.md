@@ -1,6 +1,6 @@
 # Image prompts for the picture tiles
 
-The app currently uses 80 picture tiles borrowed from the Mentava set (`assets/images/mentava/web/`). They must be replaced with our own art before the app is sold. This file lists every tile the curriculum uses, with one image-generation prompt for each, so all replacements can be made in one consistent style.
+The app currently uses 89 picture tiles borrowed from the Mentava set (`assets/images/mentava/web/`). They must be replaced with our own art before the app is sold. This file lists every tile the curriculum uses, with one image-generation prompt for each, so all replacements can be made in one consistent style.
 
 Source of the list: `tools/precache-images.mjs` (`usedImages()` over `data/curriculum.json`). Some words appear twice in different phonics folders (`cat`, `hat`); each folder gets its own file, so both are listed.
 
@@ -240,6 +240,31 @@ Prompt = STYLE block + the object sentence from the table.
 | folder | word | current file | prompt |
 |---|---|---|---|
 | y | yarn | assets/images/mentava/web/y/yarn.webp | a ball of red yarn with a loose thread |
+
+## World 3 (Sunny Hills) additions
+
+Lessons 18 to 25 (e j w v y z x qu) use these tiles from the same Mentava folders. The first rows are tiles that are in use now but were not listed above; the rows marked "new, no current file" are pictures the lessons could use but have no tile yet (the lessons are built without them: a letters-only or said-only word stands in, never a wrong picture). The jam tile (j/jam), the red tile (e/red) and the yellow tile (y/yellow) exist but show a misleading picture (a knife in the jam, a paint can for "red", a paint bucket for "yellow"), so they are not used; if you want them, draw them again.
+
+| folder | word | current file | prompt |
+|---|---|---|---|
+| j | jump | assets/images/mentava/web/j/jump.webp | a child in mid-air jumping with both arms up, knees bent |
+| y | yoyo | assets/images/mentava/web/y/yoyo.webp | a red yo-yo on a white string |
+| z | zebra | assets/images/mentava/web/z/zebra.webp | a zebra standing side-on, black and white stripes |
+| z | zipper | assets/images/mentava/web/z/zipper.webp | a jacket zipper half open, close up |
+| z | zoo | assets/images/mentava/web/z/zoo.webp | a zoo with a wooden fence and gate, and a lion, an elephant, a giraffe and a zebra behind it |
+| x | box | assets/images/mentava/web/x/box.webp | a brown cardboard box with the flaps open |
+| x | ox | assets/images/mentava/web/x/ox.webp | a brown ox with horns, standing side-on |
+| q | quack | assets/images/mentava/web/q/quack.webp | a yellow duck with its beak open, quacking |
+| q | quilt | assets/images/mentava/web/q/quilt.webp | a patchwork quilt of coloured squares, folded corner |
+| e | elephant | new, no current file | a grey elephant with big ears and a raised trunk (a second e picture: egg is the only tile that starts with e) |
+| e | bed | new, no current file | a child's bed with a blue blanket and a pillow (the curriculum says "e as in bed") |
+| j | jug | new, no current file | a blue jug with a handle, full of water |
+| j | jar | new, no current file | a glass jar of red jam with a lid and no knife (replaces the misleading jam tile) |
+| w | watch | new, no current file | a round wristwatch with a bright strap (hands visible, no numbers) |
+| w | web | new, no current file | a spider web with dew drops and a tiny spider |
+| y | yak | new, no current file | a shaggy brown yak with curved horns (a third y picture; yellow is not usable as a tile) |
+| v | violin | new, no current file | a wooden violin with its bow |
+| x | xylophone | new, no current file | a rainbow xylophone with two mallets (the one common picture word that starts with x) |
 
 ## Hard to picture
 

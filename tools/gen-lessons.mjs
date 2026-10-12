@@ -81,7 +81,7 @@ const TABLE = [
     qc: { kind: 'picture', word: 'van', others: ['yarn', 'zebra'] }, hunt: 'asitpfdb',
     note: 'v is the buzzing partner of f. Let your child say f first, then v, with a hand on the throat. Then compare fan and van.' },
   { n: 22, k: 'y', practice: ['yarn', 'yoyo'], say: 'y-', hold: false, not: 'yuh', how: 'Smile a little and lift the middle of your tongue, then glide down. Short: y-. Do not add uh.',
-    tiles: ['y/yarn', 'y/yellow', 'y/yoyo'], words: ['yes', 'yet', 'yam'], pic: 'yarn', sayOnly: true,
+    tiles: ['y/yarn', 'y/yoyo'], words: ['yes', 'yet', 'yam'], pic: 'yarn', sayOnly: true,
     qc: { kind: 'letter', others: ['s', 'm'] }, hunt: 'asitpfdb',
     note: 'The name of the letter y starts with a different sound. Say the sound, y-, not the letter name. Compare yet and wet: which one starts with y?' },
   { n: 23, k: 'z', practice: ['zebra', 'zoo'], say: 'zzz', hold: true, not: 'zuh', how: 'Close your teeth, like s, and turn your voice on. Hold it: zzz. Do not add uh.',

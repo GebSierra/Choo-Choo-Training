@@ -393,3 +393,123 @@ New: `test/review-stops.mjs` (placement, content, hold, passed stops, unlock, sa
 `test/read-again.mjs` (replaces `test/ride.mjs`: the story data, the flow, Again, the finish, fit, heat, no microphone anywhere).
 Updated: `check-content` (reread and review rules replace the ride rules), `phase-b` (the stop list), `sack`, `lib` (seen flags), `train`,
 `platform`, `round2` and `smoke` (the microphone rules now say "nowhere"), and the suites that count stops (see the build report).
+
+## 11. World 3, Sunny Hills: lessons 18 to 25
+
+Owner-approved plan (units 2.9 to 2.11 of docs/CURRICULUM.md). Built with no version change; nothing is pushed. Heart words are not part of it.
+
+### Order, units, world
+
+`ORDER_SOUNDS` gains `e j w v y z x q` at the end (25 lessons). Lessons 1 to 17 keep their numbers. World 3 (Sunny Hills) is lessons 18 to 25:
+unit 2.9 = e (18), unit 2.10 = j w v (19 to 21), unit 2.11 = y z x qu (22 to 25). The units list the key `q` for qu.
+
+| Lesson | Sound | Unit | Saying Sounds letter words | Picture word | Station Board words | Middle | Ticket Check |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 18 | e (as in egg) | 2.9 | pin pen bet | egg | set bet met rat | writing, sounds, hunt | letter |
+| 19 | j | 2.10 | jet jug jog | jump | jab jet jot sob | sounds, signals, writing | picture: jet |
+| 20 | w | 2.10 | wet web wig | wagon (said only) | wag jab web wet | hunt, sounds, wagons, board, writing | letter |
+| 21 | v | 2.10 | van vat vet | vest | van wag vat jab | signals, sounds, writing, wagons | picture: van |
+| 22 | y | 2.11 | yes yet yam | yarn (said only) | yam van yap wag | sounds, board, writing | letter |
+| 23 | z | 2.11 | zip zap buzz | zebra (said only) | zap yap zip van | writing, hunt, sounds, signals | letter |
+| 24 | x | 2.11 | six box mix | fox | six zip mix yam | sounds, wagons, writing, board | letter |
+| 25 | qu | 2.11 | quit quiz quilt | queen (said only) | quit six quiz zip (not used: no Station Board in lesson 25) | hunt, writing, sounds | letter |
+
+Notes on the choices:
+- **e** is the egg anchor ("as in egg", the only e tile that begins with e) and the grown-up is told to compare pin and pen (and later bit and bet).
+  The New Sound parent script adds a short `parentNote` (data field on the sound). Lesson 18 reads pin, pen, bet.
+- **w** gets one extra game (lesson 20 has five activities: `EXTRA_MIDDLES` in `js/games-data.js`), and a note that the letter's name does not
+  contain its sound. **y** carries a note on its name and the yet/wet contrast. **v** and **z** are the buzzing partners of f and s: their notes
+  ask the child to say f (or s) first, then v (or z), and their Watch My Mouth says "like f (or s), now turn your voice on".
+- **x** is heard at the end of words, so it has no start word: `sounds.x.endOnly`, no start words, no Practicing Words round of its own (that
+  lesson's Practicing Words reviews earlier sounds), tiles fox, box, ox (all with the x inside), reading words six box mix. The parent writes x as `ks-`.
+- **qu** is one unit of two letters. The data key is `q`; its glyph is "qu" drawn as one 100-wide letter (`GLYPHS.q`: the round bowl, the stem
+  below the line, then a narrow u: four strokes), so cards, games, tracing and word rows treat it as one letter. `letterUnits(word)` in
+  `js/order.js` drops the u after a q: `quit` is q i t, `quiz` is q i z, `quilt` is q i l t. `wordSvg` skips that u, so Saying Sounds and the slide
+  show q as one group; Saying Sounds clips and the Station Board use the units. The parent writes it as `kw-` (`sayItLike`), never read out
+  by the phone's voice (`scripts.js` knows kw- and ks- as sound tokens). check-content proves that a q is always followed by u.
+- The Ticket Check is a letter question at 23 and 25 as well as at the even lessons: no wrong picture can be found for those two, because
+  every first letter is taught by then (wrong pictures must begin with an untaught letter).
+- A picture word is shown as letters only when the plain letter sounds say it. wagon, yarn, zebra and queen use only taught letters but are not
+  read that way (a schwa, ar, a long e, ee), so they are `sayOnly` (`IRREGULAR_PICTURES` in test/check-content.mjs).
+- Practicing Words (the Sound Sack inside a lesson): late in the order too few pool pictures start with an untaught letter, so when fewer than
+  two are left, any pool picture that does not begin with the asked sound is used (`js/screens/sack.js`).
+- Letters: all eight now have our own stroke glyphs (`js/glyphs.js`), so the single-story look holds for every lesson. Accent colours (theme.js,
+  css/app.css, contrast 4.9:1 or more on white): e #B3472F, j #6A4FC4, w #1F7A8C, v #A33B7A, y #8A6D00, z #2E7D32, x #C2410C, q #3F51B5.
+
+Watch My Mouth (`MOUTH`): e "Open your mouth a little, a bit wider than for i. Keep your tongue forward and relaxed. Voice on."; j "Round your
+lips a little. Press your tongue up, then let the sound burst out. Voice on."; w "Round your lips like a small O, then open them quickly. Voice
+on."; v "Top teeth on your bottom lip, like f. Now turn your voice on and feel the buzz. Voice on."; y "Smile a little. Lift the middle of your
+tongue, then let it glide down. Voice on."; z "Teeth close together, like s. Now turn your voice on and feel the buzz. Voice on."; x "Two quick
+sounds: tap the back of your tongue up (k), then blow air through your teeth (s). Voice off."; qu "Lift the back of your tongue (k), then round
+your lips (w). Say both quickly as one sound. Voice on."
+
+### Pictures
+
+Used from `assets/images/mentava/web`: e egg hen nest tent; j jet jump; w wagon window worm; v van vest volcano; y yarn yoyo; z zebra zipper zoo;
+x fox box ox; q quack queen quilt. Not used because they show a misleading picture: j/jam (a knife), e/red (a paint can), y/yellow (a paint bucket).
+Missing pictures (prompts added to docs/IMAGE-PROMPTS.md, marked "new, no current file"): e elephant and bed, j jug and jar, w watch and web,
+v violin, x xylophone, y yak.
+
+### Stops
+
+Owner rule: **every world ends with a Review Stop.** New stop ids never renumber the old ones (a saved result is keyed by id):
+
+| Stop | After lesson | World | Notes |
+| --- | --- | --- | --- |
+| v1 | 3 | 1 | unchanged |
+| r1, b1 | 4 | 1 | unchanged |
+| b2 | 6 | 1 | Story 2, unchanged |
+| **v6** | 6 | 1 | new: the end of World 1, right after Story 2 (Story first, then the Review Stop). Plan: Letter Hunt p, Wagon Parade t, Green Light a, Ticket Check p |
+| v2 to v5 | 9, 12, 15, 17 | 2 | unchanged; v5 is the end of World 2 |
+| **v7** | 20 | 3 | e j w: Wagon Parade w, Letter Hunt j, Green Light i (keeps e and i apart), Ticket Check w |
+| **b3** | 22 | 3 | Story 3 (below) |
+| **v8** | 23 | 3 | v y z: Station Board z, Green Light y, Wagon Parade f (the unvoiced partner of v), Ticket Check y |
+| **v9** | 25 | 3 | the end of World 3, a mix of the five short vowels: Letter Hunt e, Wagon Parade u, Green Light o, Letter Hunt i, Ticket Check a (`mix: 'vowels'` in the data) |
+
+The test rule "half the activities about the three newest sounds" is switched off for v9 (`mix`). Saves: a child already past lesson 6 counts
+v6 as passed (the derived rule), so nothing is sent back and no ride plays for it.
+
+**Known behaviour, not changed:** the crossing into the next world plays as soon as the world's last lesson is done, and does not wait for the
+stops that follow it (Story 2 and v6 after lesson 6, v5 after lesson 17). They stay in the world just crossed and count as passed once the next
+lesson is done. This was already so for Story 2; it now also affects v5 and v6. Making the crossing wait for them is a decision for the owner.
+
+### Story 3 (`data/books/book-3.json`, stop b3 after lesson 22)
+
+"Pip and the Sunny Hills", 10 pages, the child reads one word on five of them; every child-read word uses only letters taught by lesson 22 (plus
+the heart word I that Story 1 already uses), the grown-up reads the rest. The child is called by name, never he or she.
+
+1. Toot toot! The little train rolls up into the Sunny Hills. Pip, {name} and Sam look out at the golden fields.
+2. Pip wants a picnic at the top of the hill. A shiny silver plane zooms over the fields. Pip points up and says, "Look! It is a ..." **jet**
+3. By the fence, a soft brown hen sits on her nest. Under the hen is a round white ... **egg**
+4. (drag page) Off they go! Up, up, up the sunny hill.
+5. Honk! A little blue ... drives by with a load of hay. The driver gives a big wave. **van**
+6. Splash! A little rain falls on the hill. The grass is all ... **wet**
+7. At the top, the sun comes back out. Pip spreads a soft blanket. Sam asks, "Can we eat now?" Pip says ... **yes** "Yes! Dig in!"
+8. Pip, Sam and {name} eat a big, warm bun. It is so good. Everyone says ... (mmmm)
+9. The sun sets over the Sunny Hills. Everyone climbs back on the train. Pip asks, "Did you have fun today?" {name} says ... **I did** "The end. Toot toot!"
+10. (review page) Read them all! jet, egg, van, wet, yes, I did
+
+### Levels
+
+Level three (flatbed) is earned after lesson 25, the end of World 3 (one level per world). Levels four and five are placeholders for Digraph Docks
+and Blend Bay and say "Coming later". The journey board and the Grownups list show three built levels.
+
+### Saved progress
+
+The 17-sound order string `m a s i t p f o n d c h u g l r b` (stored by 1.9.33 to 1.9.36) is a prefix of the new one; `store.parse()` reads a
+save carrying it as the current order (`PRIOR_ORDERS`), so lessons 1 to 17, stops, levels, worlds, settings and the train position stay exactly as
+they were, and lesson 18 is the next lesson. The legacy 13-lesson mapping and the unknown-order rule are unchanged.
+
+### Play
+
+The Green Valley to Sunny Hills crossing is the same generic one as World 1 to World 2 (World 3's scenery and theme were already built). Going
+back works W3 to W2 to W1 (the visited world's start tunnel is the button). Grownups lists the third world, its units 2.9 to 2.11 and its stops.
+
+### Tests
+
+New: `test/sunny-hills.mjs` (in `npm test`, before smoke). Changed deliberately: `check-content` (sayOnly list, end-only x, 5-activity middle for
+lesson 20, the q-then-u rule, letter Ticket Checks at 23 and 25, the mix review, yellow as a misleading picture), `store` (the order string),
+`phase-b` (25 lessons, the stop list, level three, the current world at lesson 17 is W3), `review-stops` (nine stops, v6 sharing lesson 6 with
+Story 2, v9), `worlds` (World 1 has eleven stops, three worlds with lessons, the siding scene uses a save with Green Valley done), `regions` (W3 is
+a real world, not a placeholder), `journey` (three stars, W3 current at lesson 18), `levels` (three built levels), `world-visit` (eleven stops in
+World 1, reached worlds), `lib` (sample lessons now include 18 and 25). `train`, `map` and `smoke --fast` needed no change.
