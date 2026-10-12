@@ -109,6 +109,7 @@ with the date.
 - [ ] IP check on Smooth Ride and the three tap games.
 - [ ] Andika font licence check.
 - [ ] Replace the Mentava picture tiles (Claude will prepare the prompt list: roadmap item 7).
+  - Prompt list ready: docs/IMAGE-PROMPTS.md
 - [ ] App store accounts: Apple Developer Program and Google Play Console (store notes in docs/APP-STORE.md).
 
 ## Done
