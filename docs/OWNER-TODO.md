@@ -102,7 +102,10 @@ with the date.
   actually cited).
 - [ ] The storybook intro: the new "read it together" wording did not fit; shorten the card or split it over two screens?
 
+- [ ] **New picture tiles for Sunny Hills (2026-10-12):** elephant, bed, jug, jar, watch, web, violin, xylophone, yak have no picture yet (stand-ins or said only for now). Prompts are in docs/IMAGE-PROMPTS.md (marked "new, no current file").
+
 ## Before selling (legal and business)
+- [ ] **Stripe (2026-10-12):** sign up at stripe.com; then run the Stripe setup in a separate coding chat (prompt given in chat): sandbox first, three pricing options, secret keys only in Supabase secrets.
 - [ ] Lawyer review: privacy policy and COPPA (children's privacy), including what accounts store (grown-up email + the
   app's progress: the child's first name and character, lesson results).
 - [ ] Trademark check on the name "Choo Choo Training".

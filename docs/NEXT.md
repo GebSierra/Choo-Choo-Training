@@ -28,7 +28,8 @@ Last session finished every item of the previous handoff. Full `npm test` result
   claude/choochoo-marketing-chat-mjzg8m, folder site/) stays on Netlify; save its credits for real launches.
 - Still batch releases: only push to main when a release is ready (docs-only changes can ride along with the next one).
 
-## ROADMAP (owner-approved 2026-10-07) — read this first if the session was cut off
+## ROADMAP
+- [x] **World 3 Sunny Hills (LIVE in 1.9.37):** lessons 18–25, Story 3, Review Stops incl. end of every world, keepsake, word-count end message. Next worlds follow the same pipeline; every world ends with a Review Stop (owner rule 2026-10-12). Crossing still plays right after the last lesson (owner chose b). (owner-approved 2026-10-07) — read this first if the session was cut off
 Owner: implement all of these without asking, then report the decisions made. Commit + push to main after each phase.
 - [x] 1.9.20 pace limit default 4 a day (Grownups 1, 2, 3, 4, No limit).
 - [ ] **Owner fixes batch** (builder running on a worktree branch; merge, bump, test, push):
