@@ -57,7 +57,7 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
   patches.receiveShadow = true;
   group.add(patches);
 
-  let blades = null, details = null;
+  let blades = null, details = null, sway = null;
   if (!theme.decor) {
   // Starter Station's extras (world 1): built first, so the trees and flowers keep out of their spots
   if (theme.details === 'starter') details = buildStarterDetails({ bag, line, stops: stops.slice(0, stationCount), kinds, group });
@@ -139,6 +139,7 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
   for (const mesh of [trunkMesh, crownMesh, pineMesh]) { mesh.castShadow = true; mesh.receiveShadow = true; group.add(mesh); }
 
   const flowerCols = ['#FFFFFF', PAL.sun, '#FF8A8A', '#C9B6FF'];
+  const swayFlowers = [];
   const flowers = new THREE.InstancedMesh(bag.geo('flower', () => new THREE.SphereGeometry(0.11, 6, 4)), bag.paint('#ffffff', { roughness: 0.7 }), 260);
   for (let i = 0; i < 260; i++) {
     const cluster = Math.floor(i / 5), s = line.start + 4 + (cluster / 52) * (line.end - line.start - 8);
@@ -147,8 +148,24 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
     const fx = x + (R() - 0.5) * 1.4, fz = z + (R() - 0.5) * 1.4, gone = clearOf(fx, fz); // (a flower in a pond or a bed is squashed to nothing)
     flowers.setMatrixAt(i, m.compose(v.set(fx, 0.1, fz), q.identity(), gone ? sc.set(0, 0, 0) : sc.set(1, 0.7, 1)));
     flowers.setColorAt(i, col.set(flowerCols[cluster % flowerCols.length]));
+    if (!gone && swayFlowers.length < 40) swayFlowers.push({ i, x: fx, z: fz });
   }
   group.add(flowers);
+  // idle life (js/idle.js, at most 10 a second): 40 flowers nod and 10 round crowns rustle; only those instance matrices are
+  // rewritten (no new meshes, no new draw calls)
+  const swayCrowns = rounds.slice(0, 10).map(([x, z, k], i) => ({ i, x, z, s: 0.8 + ((k * 7) % 1) * 0.6 }));
+  const eu = new THREE.Euler();
+  sway = (t) => {
+    for (const f of swayFlowers) {
+      eu.set(Math.sin(t * 1.6 + f.i) * 0.22, 0, Math.cos(t * 1.3 + f.i * 0.7) * 0.22);
+      flowers.setMatrixAt(f.i, m.compose(v.set(f.x, 0.1, f.z), q.setFromEuler(eu), sc.set(1, 0.7, 1)));
+    }
+    for (const c of swayCrowns) {
+      eu.set(Math.sin(t * 0.9 + c.i * 1.7) * 0.045, 0, Math.cos(t * 0.8 + c.i) * 0.045);
+      crownMesh.setMatrixAt(c.i, m.compose(v.set(c.x, 1.3 * c.s, c.z), q.setFromEuler(eu), sc.set(c.s, c.s * 1.05, c.s)));
+    }
+    flowers.instanceMatrix.needsUpdate = true; crownMesh.instanceMatrix.needsUpdate = true;
+  };
 
   // a water tower by the fifth stop and a windmill by the tenth, on the far side from the platforms
   const landmark = (i, off) => { const s = stops[Math.min(i, stops.length - 1)] - 1; const [x, z] = sideOf(s, off); return new THREE.Vector3(x, 0, z); };
@@ -187,5 +204,5 @@ export function buildScenery(bag, line, stops, theme = DEFAULT_THEME, stationCou
     clouds.add(c);
   }
   if (theme.decor) REGION_BUILDERS[theme.decor]({ bag, line, stops, stationCount, group, sky: clouds, R: rng(23), W });
-  return { group, clouds, blades, details };
+  return { group, clouds, blades, details, sway };
 }

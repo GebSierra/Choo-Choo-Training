@@ -24,6 +24,7 @@ import { fullscreenButton } from '../components/fullscreen-button.js';
 import { firstRunOverlay } from '../components/welcome-card.js';
 import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
+import { idle } from '../idle.js';
 import { music } from '../music.js';
 import { dueLevel, builtLevels, earnedLevels } from '../levels.js';
 import { worldAfter, nextWorld, previousWorld, worldDone, lessonsIn } from '../worlds.js';
@@ -305,13 +306,14 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   let arrival = null, waveUntil = 0;
   const still = reduced();
 
-  function render() {
+  function render(idleDraw = false) {
     if (disposed || !W) return;
     aimLight(rig.look.x, rig.look.z);
     scenery.clouds.position.set(rig.look.x, 0, rig.look.z);
     renderer.render(scene, camera);
     overlay.update(camera, W, H, blockers);
-    debug.frames++; debug.calls = renderer.info.render.calls; debug.tris = renderer.info.render.triangles;
+    if (idleDraw) debug.idleFrames++; else debug.frames++;
+    debug.calls = renderer.info.render.calls; debug.tris = renderer.info.render.triangles;
     debug.trainS = train.at; debug.focus = rig.focus;
   }
 
@@ -495,6 +497,23 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
     return busy;
   }
 
+  // Idle life (round 7b): on the shared low-rate ticker (js/idle.js, at most 10 a second, no rAF), only while nothing else moves:
+  // a puff from the funnel every couple of seconds, Pip and the child's figure breathing, blinking and glancing, a few flowers and
+  // crowns swaying, the portal's glow shimmering. Reduced motion: the ticker never starts.
+  let lastIdlePuff = -9;
+  const halos = [portal, startTunnel].filter(Boolean).flatMap((x) => x.halos || []).map((mat) => ({ mat, base: mat.opacity }));
+  const idleTick = (now) => {
+    if (disposed || debug.running || !W) return;
+    const t = (now - t0) / 1000;
+    if (t - lastIdlePuff > 2.2) { train.puff(t); lastIdlePuff = t; }
+    train.steam(t);
+    train.pip.tick(t); kid.tick(t);
+    if (scenery.sway) scenery.sway(t);
+    halos.forEach((hl, i) => { hl.mat.opacity = hl.base * (0.82 + 0.18 * Math.sin(t * 1.7 + i)); });
+    render(true);
+  };
+  const stopIdle = still ? null : idle.subscribe(idleTick);
+
   function frame(now) {
     raf = 0;
     if (disposed) return;
@@ -608,6 +627,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
     gate = null;
     debug.disposed = true;
     cancelAnimationFrame(raf);
+    if (stopIdle) stopIdle();
     grown.cleanup && grown.cleanup();
     ro.disconnect();
     document.removeEventListener('visibilitychange', onVisibility);

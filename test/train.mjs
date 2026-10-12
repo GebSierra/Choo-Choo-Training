@@ -108,6 +108,7 @@ const GL_COUNTER = () => {
   window.__liveGL = () => window.__gls.filter((g) => !g.isContextLost()).length;
 };
 const NO_WEBGL = () => { const orig = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (type, ...rest) { return /webgl/.test(type) ? null : orig.call(this, type, ...rest); }; };
+const idleState = (page) => page.evaluate(async () => (await import('/js/idle.js')).idle.state());
 const train = (page) => page.evaluate(() => { const t = window.__train; return t ? { ...t, stopS: undefined, stops: t.stopS } : null; });
 const shown = (page) => page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => { const r = b.getBoundingClientRect(); return { label: b.getAttribute('aria-label'), cls: [...b.classList].filter((c) => c.startsWith('is-')).join(' '), shown: b.dataset.shown === '1', vis: getComputedStyle(b).visibility, x: r.x, y: r.y, w: r.width, h: r.height }; }));
 export const until = async (page, fn, arg, timeout = 15000) => page.waitForFunction(fn, arg, { timeout }).then(() => true).catch(() => false);
@@ -482,16 +483,20 @@ export async function lifeChecks({ browser, url, ok }) {
     const a0 = await train(page);
     await page.waitForTimeout(1500);
     const a = await train(page);
-    ok(a.idleFrames === 0 && a.frames === a0.frames && !a.running, `idle: nothing is drawn while nothing moves (${a0.frames} then ${a.frames} frames)`);
+    // the render-on-demand loop draws nothing while nothing moves; the shared idle ticker (js/idle.js) draws idle life at most 10 times a second
+    ok(a.frames === a0.frames && !a.running, `idle: the on-demand loop draws nothing while nothing moves (${a0.frames} then ${a.frames} frames)`);
+    ok(a.idleFrames > a0.idleFrames && a.idleFrames - a0.idleFrames <= 16, `idle: the low-rate ticker draws idle life, at most 10 a second (${a0.idleFrames} then ${a.idleFrames} in 1.5 s)`);
     await page.evaluate(() => { Object.defineProperty(document, 'hidden', { value: true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
     await page.waitForTimeout(300);
     const b = await train(page);
     await page.waitForTimeout(1500);
     const c = await train(page);
-    ok(c.frames === b.frames, `hidden: the render loop stops while the page is hidden (${b.frames} then ${c.frames})`);
+    ok(c.frames === b.frames && c.idleFrames === b.idleFrames, `hidden: the render loop and the idle ticker stop while the page is hidden (${b.frames}/${b.idleFrames} then ${c.frames}/${c.idleFrames})`);
+    ok(!(await idleState(page)).running, 'hidden: the ticker has cleared its interval');
     await page.evaluate(() => { Object.defineProperty(document, 'hidden', { value: false, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
     await page.waitForTimeout(1200);
     ok((await train(page)).frames > c.frames, 'hidden: and starts again when the page is back');
+    ok((await train(page)).idleFrames > c.idleFrames && (await idleState(page)).running, 'hidden: the idle ticker runs again when the page is back');
     // leave Home and come back ten times: the WebGL contexts do not pile up
     const counts = [];
     for (let k = 0; k < 10; k++) {
@@ -534,23 +539,61 @@ export async function lifeChecks({ browser, url, ok }) {
   }
 }
 
+// Idle life: the ticker stops after 2 minutes without a touch (the limit is shortened for the test) and wakes on a touch; it never
+// starts under reduced motion; Home with idle life still draws far fewer calls than the budget allows.
+export async function idleLifeChecks({ browser, url, ok }) {
+  {
+    const { ctx, page, errors } = await openHome(browser, url, VIEWPORTS[0], state(4, { trainAt: iL(4) }));
+    await until(page, () => window.__train && window.__train.frames > 0 && !window.__train.running, null, 20000);
+    await page.waitForTimeout(1500);
+    const st = await idleState(page);
+    ok(st.running && st.tickMs >= 100 && st.limitMs === 120000, `idle life: the ticker runs on Home at most 10 a second with a 2 minute limit (${JSON.stringify(st)})`);
+    await page.evaluate(async () => (await import('/js/idle.js')).idle.setLimit(1200));
+    await page.waitForTimeout(2200);
+    const a = await idleState(page);
+    await page.waitForTimeout(1000);
+    const b = await idleState(page);
+    ok(!a.running && b.ticks === a.ticks, `idle life: the ticker stops after the idle limit and ticks no more (${a.ticks} then ${b.ticks})`);
+    await page.mouse.click(3, 400);
+    await page.waitForTimeout(700);
+    const c = await idleState(page);
+    ok(c.running && c.ticks > b.ticks, 'idle life: a touch wakes the ticker again');
+    ok(errors.length === 0, `idle life: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+  {
+    const { ctx, page, errors } = await openHome(browser, url, VIEWPORTS[0], state(4, { trainAt: iL(4) }), { extra: { reducedMotion: 'reduce' } });
+    await until(page, () => window.__train && window.__train.frames > 0);
+    await page.waitForTimeout(1500);
+    const a = await idleState(page);
+    ok(!a.running && a.ticks === 0 && (await train(page)).idleFrames === 0, `idle life: under reduced motion the ticker never runs (${JSON.stringify(a)})`);
+    ok(errors.length === 0, `idle life, reduced: errors ${errors.join(' | ')}`);
+    await ctx.close();
+  }
+}
+
 // Heat: count requestAnimationFrame callbacks (and endless animations) while idle, on Home after the arrival, after a
 // lesson and back, on Letter Hunt and on Practicing Words. Each should be about zero. The AudioContext sleeps when silent.
 const RAF_COUNTER = () => { window.__raf = 0; const o = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = (cb) => o((t) => { window.__raf++; cb(t); }); };
 export async function heatChecks({ browser, url, ok, log = () => {} }) {
   const { ctx, page, errors } = await openHome(browser, url, VIEWPORTS[0], state(4, { trainAt: iL(4) }), { init: [RAF_COUNTER] });
-  const idle = async (label) => {
+  // The heat budget (round 7b): about zero requestAnimationFrame callbacks and no endless animation in 3 s of idle, as before; plus the one
+  // shared ticker (js/idle.js) may tick at most 10 times a second on Home (<= 31 ticks in 3 s) and not at all on any other screen.
+  const idle = async (label, home = false) => {
     const r0 = await page.evaluate(() => window.__raf);
+    const k0 = (await idleState(page)).ticks;
     await page.waitForTimeout(3000);
     const m = await page.evaluate((r) => ({ raf: window.__raf - r, endless: document.getAnimations().filter((a) => a.playState === 'running' && a.effect && a.effect.getComputedTiming().endTime === Infinity).length }), r0);
-    log(`${label}: ${m.raf} animation frames in 3 s idle, ${m.endless} endless animations`);
+    const ticks = (await idleState(page)).ticks - k0;
+    log(`${label}: ${m.raf} animation frames in 3 s idle, ${m.endless} endless animations, ${ticks} ticker ticks`);
+    ok(home ? ticks >= 5 && ticks <= 31 : ticks === 0, `heat, ${label}: the idle ticker ticks at most 10 a second on Home and not at all elsewhere (${ticks} in 3 s)`);
     ok(m.raf <= 2 && m.endless === 0, `heat, ${label}: about zero frames in 3 s of idle (${m.raf}) and no endless animation (${m.endless})`);
   };
   await until(page, () => window.__train && window.__train.frames > 0);
   await page.mouse.click(3, 400); // the first tap lets sound play
   ok(await until(page, () => window.__train.tootAt !== null && !window.__train.running, null, 20000), 'heat: the arrival plays and ends');
   await page.waitForTimeout(800);
-  await idle('Home after the arrival');
+  await idle('Home after the arrival', true);
   await page.waitForTimeout(1500);
   ok((await page.evaluate(async () => (await import('/js/sfx.js')).sfx.state())) === 'suspended', 'heat: the AudioContext is suspended once the toot has rung out');
   await page.evaluate(() => { location.hash = '#/lesson/5'; });
@@ -559,7 +602,7 @@ export async function heatChecks({ browser, url, ok, log = () => {} }) {
   await page.evaluate(() => { location.hash = '#/home'; });
   await until(page, () => window.__train && !window.__train.disposed && window.__train.frames > 0 && !window.__train.running, null, 15000);
   await page.waitForTimeout(2600); // Pip's hello wave
-  await idle('Home after a lesson and back');
+  await idle('Home after a lesson and back', true);
   await page.evaluate(() => { location.hash = '#/lesson/3/task/3'; });
   await page.waitForSelector('.screen:not(.leaving) .sky-letter');
   await page.waitForTimeout(1500);
@@ -587,6 +630,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   await sequenceChecks({ browser, url, ok, shot });
   await autoReturnChecks({ browser, url, ok, shot });
   await lifeChecks({ browser, url, ok });
+  await idleLifeChecks({ browser, url, ok });
   await heatChecks({ browser, url, ok, log: console.log });
   await browser.close(); server.close();
   console.log(`train: ${checks - failures}/${checks} checks passed`);

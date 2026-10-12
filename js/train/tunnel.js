@@ -202,7 +202,7 @@ function buildEnd(bag, { L, soft, tint, seed, low, high, cap = null }) {
   group.add(rocks);
   // flowers in the sand's edge and at the feet of the arch
   for (const [x, z] of [[-1.95, -2.55], [1.9, -2.3], [-3.0, -1.9], [3.0, -1.7], [-2.6, -3.9], [2.7, -3.7]]) samples.push({ x, y: 0.12, z, ground: true });
-  return { group, samples };
+  return { group, samples, halo };
 }
 
 // s: the distance along the line of the portal's middle. Returns { group, length }.
@@ -250,12 +250,12 @@ export function buildTunnel(bag, line, s, flip = false, opts = {}) {
   const want = 34;
   for (let k = 0; k < want && cand.length; k++) { const f = cand[Math.floor(R() * cand.length)]; const o = onFace(R, f, 0.06); samples.push({ ...o, slope: true }); }
 
-  const ends = rear ? [-1, 1] : [-1];
+  const ends = rear ? [-1, 1] : [-1], halos = [];
   for (const end of ends) {
     const e = buildEnd(bag, { L: rear ? 0.5 : 2.4, soft: rear, tint: opts.glow, seed: end < 0 ? 13 : 17, low, high, cap });
     if (end > 0) { e.group.rotation.y = Math.PI; for (const sp of e.samples) { sp.x = -sp.x; sp.z = -sp.z; } }
     group.add(e.group);
-    samples.push(...e.samples);
+    samples.push(...e.samples); halos.push(e.halo);
   }
 
   // the flowers: one instanced mesh per colour, little clusters of three
@@ -296,7 +296,7 @@ export function buildTunnel(bag, line, s, flip = false, opts = {}) {
 
   group.position.set(p.x, 0, p.z);
   group.rotation.y = p.heading + (flip ? Math.PI : 0);
-  return { group, length: LENGTH };
+  return { group, length: LENGTH, halos };
 }
 
 // The wooden signpost by the portal: a post with a board that reads "<next world> <-" (drawn once into a canvas texture, in
