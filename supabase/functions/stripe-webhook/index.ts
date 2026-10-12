@@ -1,7 +1,7 @@
 // Stripe webhook: keeps public.entitlements in step with the subscription. Verifies Stripe's signature, handles each
 // event once (public.stripe_events), and answers 200 only after the row is written, so Stripe retries a failure.
 //
-// Events to send to this endpoint (docs/STRIPE.md): checkout.session.completed, customer.subscription.created,
+// Events to send to this endpoint (docs/STRIPE.md): checkout.session.completed, checkout.session.async_payment_succeeded, customer.subscription.created,
 // customer.subscription.updated, customer.subscription.deleted, charge.refunded, charge.dispute.created,
 // charge.dispute.closed, invoice.payment_failed.
 import Stripe from 'npm:stripe@18';
@@ -33,6 +33,8 @@ async function syncSubscription(sub: Stripe.Subscription) {
   const userId = await userIdForCustomer(customerId, sub);
   if (!userId) { console.error('no user for customer', customerId); return; }
   const { data: current } = await db.from('entitlements').select('status').eq('user_id', userId).maybeSingle();
+  // A lifetime purchase is never changed by a subscription event (e.g. an old monthly plan ending).
+  if (current?.status === 'lifetime') return;
   // A refund or dispute outranks the subscription's own status until a new subscription replaces it.
   const keepLocked = current && LOCKED.includes(current.status) && sub.status !== 'active' && sub.status !== 'trialing';
   const status = keepLocked ? current!.status : sub.status;
@@ -46,6 +48,17 @@ async function syncSubscription(sub: Stripe.Subscription) {
     stripe_customer_id: customerId,
     stripe_subscription_id: sub.id,
     updated_at: new Date().toISOString(),
+  });
+  if (error) throw error;
+}
+
+async function grantLifetime(s: Stripe.Checkout.Session) {
+  const customerId = typeof s.customer === 'string' ? s.customer : s.customer?.id;
+  const userId = s.metadata?.supabase_user_id ?? s.client_reference_id ?? (customerId ? await userIdForCustomer(customerId) : null);
+  if (!userId || !customerId) { console.error('no user for lifetime session', s.id); return; }
+  const { error } = await db.from('entitlements').upsert({
+    user_id: userId, status: 'lifetime', access: true, plan: 'lifetime', current_period_end: null,
+    cancel_at_period_end: false, stripe_customer_id: customerId, updated_at: new Date().toISOString(),
   });
   if (error) throw error;
 }
@@ -67,9 +80,15 @@ async function handle(event: Stripe.Event) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const s = event.data.object as Stripe.Checkout.Session;
+      if (s.mode === 'payment' && s.payment_status === 'paid' && s.metadata?.plan === 'lifetime') await grantLifetime(s);
       if (s.mode === 'subscription' && s.subscription) {
         await syncSubscription(await stripe.subscriptions.retrieve(typeof s.subscription === 'string' ? s.subscription : s.subscription.id));
       }
+      break;
+    }
+    case 'checkout.session.async_payment_succeeded': {
+      const s = event.data.object as Stripe.Checkout.Session;
+      if (s.mode === 'payment' && s.metadata?.plan === 'lifetime') await grantLifetime(s);
       break;
     }
     case 'customer.subscription.created':
@@ -100,7 +119,15 @@ async function handle(event: Stripe.Event) {
       if (d.status !== 'won') break; // lost or accepted: stays locked
       const customerId = await customerOfCharge(typeof d.charge === 'string' ? d.charge : d.charge.id);
       if (!customerId) break;
-      await db.from('entitlements').update({ status: 'none' }).eq('stripe_customer_id', customerId).eq('status', 'disputed');
+      const { data: row } = await db.from('entitlements').select('plan')
+        .eq('stripe_customer_id', customerId).eq('status', 'disputed').maybeSingle();
+      if (!row) break;
+      if (row.plan === 'lifetime') {
+        await db.from('entitlements').update({ status: 'lifetime', access: true, updated_at: new Date().toISOString() })
+          .eq('stripe_customer_id', customerId);
+        break;
+      }
+      await db.from('entitlements').update({ status: 'none' }).eq('stripe_customer_id', customerId);
       const subs = await stripe.subscriptions.list({ customer: customerId, limit: 1 });
       if (subs.data[0]) await syncSubscription(subs.data[0]);
       break;

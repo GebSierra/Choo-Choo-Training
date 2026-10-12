@@ -37,8 +37,8 @@ export async function userFromRequest(req: Request): Promise<{ id: string; email
   return { id: data.user.id, email: data.user.email ?? null };
 }
 
-// Statuses that keep the paid part unlocked. past_due keeps access while Stripe retries the card (Smart Retries).
-export const ACCESS_STATUSES = ['active', 'trialing', 'past_due'];
+// Statuses that keep the paid part unlocked ('lifetime' = one-time purchase, set by the webhook). past_due keeps access while Stripe retries the card (Smart Retries).
+export const ACCESS_STATUSES = ['active', 'trialing', 'past_due', 'lifetime'];
 
 // Find or create the Stripe customer for this user, remembering it in the entitlements row.
 export async function customerForUser(stripe: Stripe, user: { id: string; email: string | null }): Promise<string> {

@@ -1,6 +1,6 @@
 # Paid access with Stripe (branch `claude/stripe-billing`)
 
-Status: backend written, NOT deployed, paywall screen NOT built (waiting for the owner to pick a price, see below).
+Status: backend written and sandbox products created; NOT deployed yet; paywall screen being built.
 Nothing here touches the lessons, the Home or `js/config.js`. Everything starts in a Stripe **sandbox**.
 
 ## How it works
@@ -31,20 +31,21 @@ Rules used by the webhook:
 - A **dispute** locks access (`disputed`). If the dispute is **won**, access returns from the subscription's real status; lost or accepted stays locked.
 - A new paid subscription replaces a `refunded` / `disputed` state.
 
-## Pricing: pick one (owner decision before the paywall is built)
+## Pricing (owner decision 2026-10-12)
 
-These are starting points to choose from, not researched market prices. Check competing reading apps before going live.
-The free part is World 1 (Starter Station) in every option.
-
-| | A. Monthly + yearly (recommended) | B. Yearly only | C. One-time unlock |
+| Plan | Price | Stripe lookup key | Kind |
 |---|---|---|---|
-| Shape | e.g. $9.99 / month or $59.99 / year (about 50% off) | e.g. $59.99 / year | e.g. $79 once, all worlds, all future worlds |
-| Good | Low barrier to try (month), best value pushes families to the year; fits a curriculum that grows world by world | Simplest to explain and support; fewer refunds/chargebacks; steady income | No subscription fatigue; simplest for parents who hate renewals |
-| Watch out | Two prices to explain; monthly churn once a child finishes a level | Bigger first charge, more "is it worth it?" hesitation; no cheap way in | Cost to you continues (Supabase, voices, new worlds) with no recurring income; harder to fund the new worlds |
-| Stripe parts | Checkout (subscription) with two prices | Checkout (subscription) with one price | Checkout (payment mode); no Customer Portal needed, only receipts |
+| Monthly | $8.99 | `cct_monthly` | subscription |
+| Yearly | $59.99 (about 44% off monthly) | `cct_yearly` | subscription |
+| Lifetime | $147 | `cct_lifetime` | one-time payment (Checkout `payment` mode) |
 
-**Recommendation: A**, with the free World 1 as the trial (no card needed to start), so no free-trial period is added. If you pick C, the webhook needs a small change (a `payment` event instead of subscriptions); say so before building.
-Tell me the option and the actual amounts and currency, and I create the Product and Prices in the sandbox, set `STRIPE_PRICE_MONTHLY` / `STRIPE_PRICE_YEARLY`, and build the Unlock screen.
+World 1 is free; no free-trial period is added. Created in the sandbox on 2026-10-12: product `prod_VQh3800JKuL7lP`
+("Choo Choo Training - Full Access", tax code `txcd_10000000`, general electronically supplied services: ask your accountant
+whether a more specific code fits), prices tax-exclusive (tax is added on top at checkout). The code finds prices by lookup
+key, so live mode only needs the same three prices created with the same keys. Customer Portal configured in the sandbox
+(cancel at period end, payment method, invoice history).
+Lifetime: the webhook sets `status = 'lifetime'`, `access = true`; later subscription events never change it; a full refund or
+a lost dispute locks it. Lifetime buyers have receipts but no subscription to manage in the portal.
 
 ## Tax (Stripe Tax)
 
@@ -64,12 +65,12 @@ Owner checklist:
 Never paste a Stripe secret key, a restricted key or the webhook secret into this repo or into a chat. They go only into Supabase secrets.
 
 1. Supabase > SQL Editor: run `supabase/billing.sql`.
-2. Stripe sandbox > Developers > API keys: create a **restricted key** (write: Checkout Sessions, Customers, Customer portal Sessions, Subscriptions, Charges read, Subscriptions read/cancel; everything else none). Keep the value to yourself.
+2. Stripe sandbox > Developers > API keys: create a **restricted key** (write: Checkout Sessions, Customers, Customer portal Sessions, Subscriptions; read: Prices, Charges; everything else none). Keep the value to yourself.
 3. Install the Supabase CLI, `supabase login`, `supabase link --project-ref nwlfjqcynfoyjnepiuze`.
 4. Set the secrets in your own terminal (not in a chat):
-   `supabase secrets set STRIPE_SECRET_KEY=rk_test_... STRIPE_PRICE_MONTHLY=price_... STRIPE_PRICE_YEARLY=price_... APP_URL=https://app.choochootraining.com`
+   `supabase secrets set STRIPE_SECRET_KEY=rk_test_... APP_URL=https://app.choochootraining.com`
 5. `supabase functions deploy stripe-webhook create-checkout-session create-portal-session`
-6. Stripe sandbox > Developers > Webhooks > Add endpoint: URL `https://nwlfjqcynfoyjnepiuze.supabase.co/functions/v1/stripe-webhook`, events: `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `charge.refunded`, `charge.dispute.created`, `charge.dispute.closed`, `invoice.payment_failed`. Copy its signing secret into Supabase: `supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...`
+6. Stripe sandbox > Developers > Webhooks > Add endpoint: URL `https://nwlfjqcynfoyjnepiuze.supabase.co/functions/v1/stripe-webhook`, events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `charge.refunded`, `charge.dispute.created`, `charge.dispute.closed`, `invoice.payment_failed`. Copy its signing secret into Supabase: `supabase secrets set STRIPE_WEBHOOK_SECRET=whsec_...`
 7. Stripe sandbox > Settings > Billing > Customer portal: turn on cancel at period end, update payment method, invoice history. Turn on Smart Retries and failed-payment emails (Billing > Revenue recovery).
 8. Test with card 4242 4242 4242 4242: check `entitlements.access` becomes true; refund it in the Dashboard and check it locks.
 
@@ -79,4 +80,4 @@ Never paste a Stripe secret key, a restricted key or the webhook secret into thi
 - **Apple / Google store builds** (docs/APP-STORE.md): the stores usually require their own in-app purchase for unlocking digital content in the app, and restrict links out to web payment, especially in Kids categories. This web billing is for the web app only. VERIFY the current rules before any store submission.
 - **Children's privacy**: the purchase screen is for the grown-up only (the existing number gate); Stripe holds the card details, the app holds none. Lawyer review (OWNER-TODO) should cover it.
 - The webhook, Checkout and Portal functions were written against the Stripe docs but not yet run: they need the sandbox deploy above and the test purchase in step 8 before anyone trusts them.
-- Still to build once the price is picked: the "Unlock" grown-up screen, the app's read of its entitlements row (`GET /rest/v1/entitlements?select=*`), and the World 1 free / later worlds paid gate (a new `js/billing.js` plus the smallest possible hook in the world/lesson open path, to be agreed with the main-branch session).
+- Still to build: the "Unlock" grown-up screen, the app's read of its entitlements row (`GET /rest/v1/entitlements?select=*`), and the World 1 free / later worlds paid gate (a new `js/billing.js` plus the smallest possible hook in the world/lesson open path, to be agreed with the main-branch session).
