@@ -205,10 +205,10 @@ Nothing in this list gets built until the owner has picked an option and approve
    word), and for each one an image-generation prompt in one shared house style (soft flat illustration, warm palette,
    single object centred on a plain light background, no text, square), so the set can be recreated and swapped in at
    the same file paths.
-7b. **Idle life on the railway (new heat rule).** Build the one shared low-rate ticker (≤ 10 fps, stops when hidden, after
+7b. **(LIVE in 1.9.36) Idle life on the railway (new heat rule).** Build the one shared low-rate ticker (≤ 10 fps, stops when hidden, after
    2 minutes without a touch, under reduced motion), change test/train.mjs heatChecks to the new budget, then add small
    idle life: chimney smoke puffs, Pip blinking and glancing, flowers/trees swaying gently, the portal glow shimmering.
-8. **Easter egg: Fishing with Pip (owner request, not urgent; owner left the design to the planner).** Three quick
+8. **(LIVE in 1.9.36) Easter egg: Fishing with Pip (owner request, not urgent; owner left the design to the planner).** Three quick
    taps on a river on the 3D Home (within about 1.5 s) open a small fishing game. Nothing about it is preloaded: the
    game is a separate module loaded with import() on the third tap, and its files are not in the precache (they cache on
    first use), so it costs the phone nothing until found. Planner's design:
