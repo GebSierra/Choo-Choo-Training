@@ -1,2 +1,5 @@
 _test/
 node_modules/
+.agents/
+skills-lock.json
+.claude/skills/
