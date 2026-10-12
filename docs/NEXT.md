@@ -152,7 +152,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   links live on the app as `https://app.choochootraining.com/t/CODE` (a Netlify redirect rule in the app's netlify.toml
   sends `/t/:code` to `/#/ticket/:code`); the website forwards its own `/t/*` to the same app address so old or mistyped
   links still work. The ticket screen itself is not built yet (needs accounts + the licence tables).
-- [ ] **Placement check ending (owner, later — not now):** better wording on the result screen at the end of the check, and
+- [x] **(LIVE in 1.9.35) Placement check ending (owner, later — not now):** better wording on the result screen at the end of the check, and
   "Start here" must actually open the recommended lesson (today it is a disabled preview button), skipping the mastered
   lessons but keeping their review.
 - Then the older list below (7 Mentava images, 7b idle life, 8 fishing egg), and the lesson rebuild after the owner
