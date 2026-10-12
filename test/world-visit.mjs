@@ -97,10 +97,10 @@ export async function visit3dChecks({ browser, url, ok, vp }) {
   ok(await page.waitForSelector('.visit-card', { timeout: 3000 }).then(() => true).catch(() => false), `${tag}: a short world card shows while going back`);
   ok(await world3d(page, 'W1') && await settled(page), `${tag}: the Home now shows world 1`);
   const v = await page.evaluate(() => ({ stops: window.__train.stopCount, lessons: window.__train.lessonCount, portal: window.__train.portal, startTunnel: window.__train.startTunnel, next: window.__train.nextWorld, gate: window.__train.gate.mode, kid: window.__train.kid.index, wagons: window.__train.wagons, parked: window.__train.parked, level: window.__train.level.id, card: !!document.querySelector('.world-card') }));
-  ok(v.stops === 9 && v.lessons === 6 && v.portal && !v.startTunnel && v.next === 'W2' && v.gate === null, `${tag}: world 1 shows its nine stations, its end tunnel, and no start tunnel (${JSON.stringify(v)})`);
-  ok(v.kid === 8 && v.parked === 6 && v.level === null, `${tag}: the child's figure waits at the last station, its wagons stand parked, no level party (${v.kid}, ${v.parked}, ${v.level})`);
+  ok(v.stops === 10 && v.lessons === 6 && v.portal && !v.startTunnel && v.next === 'W2' && v.gate === null, `${tag}: world 1 shows its ten stations (6 lessons, 4 stops), its end tunnel, and no start tunnel (${JSON.stringify(v)})`);
+  ok(v.kid === 9 && v.parked === 6 && v.level === null, `${tag}: the child's figure waits at the last station, its wagons stand parked, no level party (${v.kid}, ${v.parked}, ${v.level})`);
   const states = await page.evaluate(async () => { const out = []; for (let i = 0; i < window.__train.stopCount; i++) { window.__train.show(i); await new Promise((r) => setTimeout(r, 30)); } return [...document.querySelectorAll('.station-btn')].map((b) => [...b.classList].filter((c) => c.startsWith('is-')).join()); });
-  ok(states.length === 9 && states.every((s) => s === 'is-done'), `${tag}: every station of world 1 has its done look (${states.join(' ')})`);
+  ok(states.length === 10 && states.every((s) => s === 'is-done'), `${tag}: every station of world 1 has its done look (${states.join(' ')})`);
   ok(await showTunnel(page, 'forward'), `${tag}: the end tunnel's button shows`);
   const fwd = await rectOf(page, '.portal-btn[data-role="forward"]');
   ok(fwd.w >= 48 && fwd.h >= 48 && inView(fwd, vp), `${tag}: the forward button is at least 48 px and on screen`);
@@ -233,14 +233,14 @@ export async function flatVisitChecks({ browser, url, ok, vp }) {
   const { ctx, page, errors } = await openHome(browser, url, vp, seed(7, { trainWorld: false, migrated1912: true }));
   await page.waitForSelector('.stone');
   await page.waitForTimeout(2200);
-  ok((await page.locator('.stone').count()) === 11 && (await page.locator('.scene-tunnel.start').count()) === 1 && (await page.locator('.scene-house').count()) === 0, `${tag}: world 2 shows its 11 stones and a start tunnel instead of the house`);
+  ok((await page.locator('.stone').count()) === 15 && (await page.locator('.scene-tunnel.start').count()) === 1 && (await page.locator('.scene-house').count()) === 0, `${tag}: world 2 shows its 15 stones and a start tunnel instead of the house`);
   const bk = page.locator('.scene-tunnel.tappable[data-role="back"]');
   await bk.scrollIntoViewIfNeeded();
   const rb = await rectOf(page, '.scene-tunnel.tappable[data-role="back"]');
   ok(rb.w >= 48 && rb.h >= 48 && (await bk.getAttribute('aria-label')) === `Back to ${W1.name}`, `${tag}: the start tunnel is a button of at least 48 px labelled "Back to ${W1.name}"`);
   const s0 = await stored(page);
   await bk.click();
-  ok(await until(page, () => document.querySelectorAll('.stone').length === 9 && !!document.querySelector('.visit-chip'), null, 8000), `${tag}: it shows world 1's nine stones with the visit chip`);
+  ok(await until(page, () => document.querySelectorAll('.stone').length === 10 && !!document.querySelector('.visit-chip'), null, 8000), `${tag}: it shows world 1's ten stones with the visit chip`);
   await page.waitForTimeout(2200);
   ok(await page.evaluate(() => [...document.querySelectorAll('.stone')].every((s) => s.classList.contains('is-done')) && document.querySelectorAll('.scene-tunnel.tappable[data-role="forward"]').length === 1 && document.querySelectorAll('.scene-tunnel.start').length === 0 && document.querySelectorAll('.scene-house').length === 1), `${tag}: every stone is done, the end tunnel is a button, the house is back at the start`);
   const fw = page.locator('.scene-tunnel.tappable[data-role="forward"]');
@@ -257,11 +257,11 @@ export async function flatVisitChecks({ browser, url, ok, vp }) {
   await page.locator('.finish .got').click();
   await page.waitForTimeout(1700);
   await page.locator('.finish .got').click();
-  ok(await until(page, () => document.querySelectorAll('.stone').length === 9 && !!document.querySelector('.visit-chip'), null, 8000) && progress(await stored(page)) === progress(s0), `${tag}: finishing a replayed lesson returns to the visited world and changes nothing`);
+  ok(await until(page, () => document.querySelectorAll('.stone').length === 10 && !!document.querySelector('.visit-chip'), null, 8000) && progress(await stored(page)) === progress(s0), `${tag}: finishing a replayed lesson returns to the visited world and changes nothing`);
   await page.waitForTimeout(2500); // the glide to the last stone
   await page.locator('.scene-tunnel.tappable[data-role="forward"]').scrollIntoViewIfNeeded();
   await page.locator('.scene-tunnel.tappable[data-role="forward"]').click();
-  ok(await until(page, () => document.querySelectorAll('.stone').length === 11 && !document.querySelector('.visit-chip'), null, 8000), `${tag}: on to world 2: its 11 stones, no chip`);
+  ok(await until(page, () => document.querySelectorAll('.stone').length === 15 && !document.querySelector('.visit-chip'), null, 8000), `${tag}: on to world 2: its 15 stones, no chip`);
   await page.waitForTimeout(2500); // the glide to the current stone
   await page.locator('.scene-tunnel.tappable[data-role="back"]').scrollIntoViewIfNeeded();
   await page.locator('.scene-tunnel.tappable[data-role="back"]').click();
@@ -269,7 +269,7 @@ export async function flatVisitChecks({ browser, url, ok, vp }) {
   await page.waitForTimeout(1500);
   await shot(page, 'flat-world1-visited', vp);
   await page.locator('.visit-chip').click();
-  ok(await until(page, () => document.querySelectorAll('.stone').length === 11 && !document.querySelector('.visit-chip'), null, 8000), `${tag}: the chip returns to the current world`);
+  ok(await until(page, () => document.querySelectorAll('.stone').length === 15 && !document.querySelector('.visit-chip'), null, 8000), `${tag}: the chip returns to the current world`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
   await ctx.close();
 }

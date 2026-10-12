@@ -124,7 +124,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   stretched/smooth word recording to play in the Stage 1 sound-play prototype (Previews only) and none plays. Not a
   release blocker; a Haiku/Sonnet builder should find why (the blends route stub vs. speech.js blendUrls/missingBlend).
 - [x] **3 phase B (LIVE in 1.9.33):** new sound order f o n d c/k h u g l r b, add the o, c/k, u, r lessons, map progress by sound.
-- [ ] **3c. Review stops (owner, 2026-10-10):** one or two more review stops after every three or four letters, ONLY the
+- [x] **3c. (LIVE in 1.9.34) Review stops (owner, 2026-10-10):** one or two more review stops after every three or four letters, ONLY the
   fun games and review, nothing new (taught letters only: Letter Hunt, Green Light, Wagon Parade, Station Board, the tap
   games, Ticket Check). Built right after phase B (it needs the new order). They do not hold the train (like crates) unless
   the owner wants that.
@@ -134,7 +134,7 @@ Owner: implement all of these without asking, then report the decisions made. Co
   worlds with a "Go to this world" button. Progress never changes by visiting.
 - [x] **5. (LIVE in 1.9.32) Storybook as real pages (owner, 2026-10-08):** the owner expected the storybook to look like an immersive
   real book page; check the current book screen against that and make it feel like a picture book page.
-- [ ] **6. DECIDED (owner, 2026-10-10): option 1, Smooth Ride becomes "Read It Again"**, a repeated-reading station: the grown-up
+- [x] **6. (LIVE in 1.9.34) DECIDED (owner, 2026-10-10): option 1, Smooth Ride becomes "Read It Again"**, a repeated-reading station: the grown-up
   reads a tiny decodable story (2–4 short sentences, taught letters only) once, the child reads it back, and the train pulls
   forward one wagon per sentence the grown-up marks read. No microphone (remove the mic code and its permission prompt).
   Evidence already cited in the white paper: Therrien (2004) repeated reading. Built after phase B (shares the checkpoint
