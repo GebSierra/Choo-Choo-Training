@@ -6,7 +6,7 @@ import { slideBlend, placeBand, startSweep, handCue } from '../../components/sli
 import { picture } from '../../components/picture.js';
 import { accentOf } from '../../theme.js';
 import { fit } from '../../lessons.js';
-import { soundOfLetter } from '../../order.js';
+import { soundOfLetter, letterUnits } from '../../order.js';
 
 // Task 5: stretch the sounds, then say the word. Words that show letters can be slid under with a finger; a picture word
 // shows its letters, slidable in the same way, once the picture is tapped.
@@ -19,7 +19,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
   const cur = () => list[i];
   const partsFor = () => {
     const w = cur();
-    if (w.showLetters) return [...[...w.word].filter(hasGlyph).map((c) => ({ clip: soundOfLetter(c) })), { pause: 300 }, { tts: w.word }];
+    if (w.showLetters) return [...letterUnits(w.word).filter(hasGlyph).map((c) => ({ clip: soundOfLetter(c) })), { pause: 300 }, { tts: w.word }];
     return [{ tts: w.word }];
   };
   const stopSweep = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } if (cue) { cue.stop(); cue = null; cueStage.classList.remove('cueing'); } };

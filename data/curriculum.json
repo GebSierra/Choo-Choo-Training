@@ -865,6 +865,345 @@
         "voice": true,
         "text": "Lips together, then pop them open. Voice on."
       }
+    },
+    "e": {
+      "glyph": "e",
+      "sayItLike": "e",
+      "hold": true,
+      "doNotSay": null,
+      "howTo": "Say e as in egg. Open your mouth a little, a bit wider than for i.",
+      "parentNote": "Let your child try the sound of i first. Then compare pin and pen: which one has the new sound? Later, bit and bet.",
+      "asIn": "egg",
+      "clip": "assets/audio/sounds/e.mp3",
+      "words": [
+        {
+          "word": "egg",
+          "image": "assets/images/mentava/web/e/egg.webp"
+        },
+        {
+          "word": "hen",
+          "image": "assets/images/mentava/web/e/hen.webp"
+        },
+        {
+          "word": "nest",
+          "image": "assets/images/mentava/web/e/nest.webp"
+        },
+        {
+          "word": "tent",
+          "image": "assets/images/mentava/web/e/tent.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "egg",
+          "image": "assets/images/mentava/web/e/egg.webp"
+        }
+      ],
+      "practice": [
+        "egg"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Open your mouth a little, a bit wider than for i. Keep your tongue forward and relaxed. Voice on."
+      }
+    },
+    "j": {
+      "glyph": "j",
+      "sayItLike": "j-",
+      "hold": false,
+      "doNotSay": "juh",
+      "howTo": "Let the sound pop out with your lips a little round. Short: j-. Do not add uh.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/j.mp3",
+      "words": [
+        {
+          "word": "jet",
+          "image": "assets/images/mentava/web/j/jet.webp"
+        },
+        {
+          "word": "jump",
+          "image": "assets/images/mentava/web/j/jump.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "jet",
+          "image": "assets/images/mentava/web/j/jet.webp"
+        },
+        {
+          "word": "jump",
+          "image": "assets/images/mentava/web/j/jump.webp"
+        }
+      ],
+      "practice": [
+        "jet",
+        "jump"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Round your lips a little. Press your tongue up, then let the sound burst out. Voice on."
+      }
+    },
+    "w": {
+      "glyph": "w",
+      "sayItLike": "w-",
+      "hold": false,
+      "doNotSay": "wuh",
+      "howTo": "Round your lips, then open them quickly. Short: w-. Do not add uh.",
+      "parentNote": "The name of the letter w does not have its sound in it, so this lesson has one extra game. Say the sound, w-, not the letter name.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/w.mp3",
+      "words": [
+        {
+          "word": "wagon",
+          "image": "assets/images/mentava/web/w/wagon.webp"
+        },
+        {
+          "word": "window",
+          "image": "assets/images/mentava/web/w/window.webp"
+        },
+        {
+          "word": "worm",
+          "image": "assets/images/mentava/web/w/worm.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "wagon",
+          "image": "assets/images/mentava/web/w/wagon.webp"
+        },
+        {
+          "word": "window",
+          "image": "assets/images/mentava/web/w/window.webp"
+        },
+        {
+          "word": "worm",
+          "image": "assets/images/mentava/web/w/worm.webp"
+        }
+      ],
+      "practice": [
+        "worm",
+        "wagon"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Round your lips like a small O, then open them quickly. Voice on."
+      }
+    },
+    "v": {
+      "glyph": "v",
+      "sayItLike": "vvv",
+      "hold": true,
+      "doNotSay": "vuh",
+      "howTo": "Rest your top teeth on your bottom lip, like f, and turn your voice on. Hold it: vvv. Do not add uh.",
+      "parentNote": "v is the buzzing partner of f. Let your child say f first, then v, with a hand on the throat. Then compare fan and van.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/v.mp3",
+      "words": [
+        {
+          "word": "van",
+          "image": "assets/images/mentava/web/v/van.webp"
+        },
+        {
+          "word": "vest",
+          "image": "assets/images/mentava/web/v/vest.webp"
+        },
+        {
+          "word": "volcano",
+          "image": "assets/images/mentava/web/v/volcano.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "van",
+          "image": "assets/images/mentava/web/v/van.webp"
+        },
+        {
+          "word": "vest",
+          "image": "assets/images/mentava/web/v/vest.webp"
+        },
+        {
+          "word": "volcano",
+          "image": "assets/images/mentava/web/v/volcano.webp"
+        }
+      ],
+      "practice": [
+        "van",
+        "vest"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Top teeth on your bottom lip, like f. Now turn your voice on and feel the buzz. Voice on."
+      }
+    },
+    "y": {
+      "glyph": "y",
+      "sayItLike": "y-",
+      "hold": false,
+      "doNotSay": "yuh",
+      "howTo": "Smile a little and lift the middle of your tongue, then glide down. Short: y-. Do not add uh.",
+      "parentNote": "The name of the letter y starts with a different sound. Say the sound, y-, not the letter name. Compare yet and wet: which one starts with y?",
+      "asIn": null,
+      "clip": "assets/audio/sounds/y.mp3",
+      "words": [
+        {
+          "word": "yarn",
+          "image": "assets/images/mentava/web/y/yarn.webp"
+        },
+        {
+          "word": "yellow",
+          "image": "assets/images/mentava/web/y/yellow.webp"
+        },
+        {
+          "word": "yoyo",
+          "image": "assets/images/mentava/web/y/yoyo.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "yarn",
+          "image": "assets/images/mentava/web/y/yarn.webp"
+        },
+        {
+          "word": "yellow",
+          "image": "assets/images/mentava/web/y/yellow.webp"
+        },
+        {
+          "word": "yoyo",
+          "image": "assets/images/mentava/web/y/yoyo.webp"
+        }
+      ],
+      "practice": [
+        "yarn",
+        "yoyo"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Smile a little. Lift the middle of your tongue, then let it glide down. Voice on."
+      }
+    },
+    "z": {
+      "glyph": "z",
+      "sayItLike": "zzz",
+      "hold": true,
+      "doNotSay": "zuh",
+      "howTo": "Close your teeth, like s, and turn your voice on. Hold it: zzz. Do not add uh.",
+      "parentNote": "z is the buzzing partner of s. Let your child say s first, then z, with a hand on the throat.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/z.mp3",
+      "words": [
+        {
+          "word": "zebra",
+          "image": "assets/images/mentava/web/z/zebra.webp"
+        },
+        {
+          "word": "zipper",
+          "image": "assets/images/mentava/web/z/zipper.webp"
+        },
+        {
+          "word": "zoo",
+          "image": "assets/images/mentava/web/z/zoo.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "zebra",
+          "image": "assets/images/mentava/web/z/zebra.webp"
+        },
+        {
+          "word": "zipper",
+          "image": "assets/images/mentava/web/z/zipper.webp"
+        },
+        {
+          "word": "zoo",
+          "image": "assets/images/mentava/web/z/zoo.webp"
+        }
+      ],
+      "practice": [
+        "zebra",
+        "zoo"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Teeth close together, like s. Now turn your voice on and feel the buzz. Voice on."
+      }
+    },
+    "x": {
+      "glyph": "x",
+      "sayItLike": "ks-",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "x is two quick sounds, k and s, said together. Short: ks-. It comes at the end of a word.",
+      "endOnly": true,
+      "parentNote": "x comes at the end of words. Say fox, six, box slowly and let your child listen for the last sound.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/x.mp3",
+      "words": [
+        {
+          "word": "fox",
+          "image": "assets/images/mentava/web/x/fox.webp"
+        },
+        {
+          "word": "box",
+          "image": "assets/images/mentava/web/x/box.webp"
+        },
+        {
+          "word": "ox",
+          "image": "assets/images/mentava/web/x/ox.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": false,
+        "text": "Two quick sounds: tap the back of your tongue up (k), then blow air through your teeth (s). Voice off."
+      }
+    },
+    "q": {
+      "glyph": "q",
+      "sayItLike": "kw-",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "q always comes with u. Together they say kw-, quickly, as one sound.",
+      "parentNote": "q is always followed by u. Look at them as one letter, qu. Together they say kw-.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/q.mp3",
+      "words": [
+        {
+          "word": "quack",
+          "image": "assets/images/mentava/web/q/quack.webp"
+        },
+        {
+          "word": "queen",
+          "image": "assets/images/mentava/web/q/queen.webp"
+        },
+        {
+          "word": "quilt",
+          "image": "assets/images/mentava/web/q/quilt.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "quack",
+          "image": "assets/images/mentava/web/q/quack.webp"
+        },
+        {
+          "word": "queen",
+          "image": "assets/images/mentava/web/q/queen.webp"
+        },
+        {
+          "word": "quilt",
+          "image": "assets/images/mentava/web/q/quilt.webp"
+        }
+      ],
+      "practice": [
+        "quack",
+        "queen"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Lift the back of your tongue (k), then round your lips (w). Say both quickly as one sound. Voice on."
+      }
     }
   },
   "lessons": [
@@ -2590,6 +2929,850 @@
       ],
       "unit": "2.8",
       "world": "W2"
+    },
+    {
+      "number": 18,
+      "sound": "e",
+      "review": [
+        "r",
+        "b"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "e"
+        },
+        {
+          "tts": "as in egg."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "pin",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "pen",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "bet",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "egg",
+          "image": "assets/images/mentava/web/e/egg.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "e"
+          },
+          {
+            "tts": "as in egg?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says e as in egg?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "e",
+            "correct": true
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          },
+          {
+            "glyph": "t",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "set",
+          "target": "e"
+        },
+        {
+          "word": "bet",
+          "target": "b"
+        },
+        {
+          "word": "met",
+          "target": "e"
+        },
+        {
+          "word": "rat",
+          "target": "r"
+        }
+      ],
+      "middle": [
+        "writing",
+        "sounds",
+        "hunt"
+      ],
+      "games": [],
+      "unit": "2.9",
+      "world": "W3"
+    },
+    {
+      "number": 19,
+      "sound": "j",
+      "review": [
+        "b",
+        "e"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "j"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "jet",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "jug",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "jog",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "jump",
+          "image": "assets/images/mentava/web/j/jump.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which picture starts with"
+          },
+          {
+            "clip": "j"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen. Touch the one that starts the same."
+          }
+        ],
+        "promptText": "Which picture starts with j-?",
+        "promptTextQuiet": "Listen. Touch the one that starts the same.",
+        "kind": "picture",
+        "options": [
+          {
+            "word": "jet",
+            "image": "assets/images/mentava/web/j/jet.webp",
+            "correct": true
+          },
+          {
+            "word": "wagon",
+            "image": "assets/images/mentava/web/w/wagon.webp",
+            "correct": false
+          },
+          {
+            "word": "yarn",
+            "image": "assets/images/mentava/web/y/yarn.webp",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "jab",
+          "target": "j"
+        },
+        {
+          "word": "jet",
+          "target": "e"
+        },
+        {
+          "word": "jot",
+          "target": "j"
+        },
+        {
+          "word": "sob",
+          "target": "b"
+        }
+      ],
+      "middle": [
+        "sounds",
+        "signals",
+        "writing"
+      ],
+      "games": [
+        "signals"
+      ],
+      "unit": "2.10",
+      "world": "W3"
+    },
+    {
+      "number": 20,
+      "sound": "w",
+      "review": [
+        "e",
+        "j"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "w"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "wet",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "web",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "wig",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "wagon",
+          "image": "assets/images/mentava/web/w/wagon.webp",
+          "showLetters": false,
+          "sayOnly": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "w"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says w-?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "w",
+            "correct": true
+          },
+          {
+            "glyph": "s",
+            "correct": false
+          },
+          {
+            "glyph": "t",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "wag",
+          "target": "w"
+        },
+        {
+          "word": "jab",
+          "target": "j"
+        },
+        {
+          "word": "web",
+          "target": "w"
+        },
+        {
+          "word": "wet",
+          "target": "e"
+        }
+      ],
+      "middle": [
+        "hunt",
+        "sounds",
+        "wagons",
+        "board",
+        "writing"
+      ],
+      "games": [
+        "wagons",
+        "board"
+      ],
+      "unit": "2.10",
+      "world": "W3"
+    },
+    {
+      "number": 21,
+      "sound": "v",
+      "review": [
+        "j",
+        "w"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "v"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "van",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "vat",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "vet",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "vest",
+          "image": "assets/images/mentava/web/v/vest.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which picture starts with"
+          },
+          {
+            "clip": "v"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen. Touch the one that starts the same."
+          }
+        ],
+        "promptText": "Which picture starts with vvv?",
+        "promptTextQuiet": "Listen. Touch the one that starts the same.",
+        "kind": "picture",
+        "options": [
+          {
+            "word": "van",
+            "image": "assets/images/mentava/web/v/van.webp",
+            "correct": true
+          },
+          {
+            "word": "yarn",
+            "image": "assets/images/mentava/web/y/yarn.webp",
+            "correct": false
+          },
+          {
+            "word": "zebra",
+            "image": "assets/images/mentava/web/z/zebra.webp",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "van",
+          "target": "v"
+        },
+        {
+          "word": "wag",
+          "target": "w"
+        },
+        {
+          "word": "vat",
+          "target": "v"
+        },
+        {
+          "word": "jab",
+          "target": "j"
+        }
+      ],
+      "middle": [
+        "signals",
+        "sounds",
+        "writing",
+        "wagons"
+      ],
+      "games": [
+        "signals",
+        "wagons"
+      ],
+      "unit": "2.10",
+      "world": "W3"
+    },
+    {
+      "number": 22,
+      "sound": "y",
+      "review": [
+        "w",
+        "v"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "y"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "yes",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "yet",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "yam",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "yarn",
+          "image": "assets/images/mentava/web/y/yarn.webp",
+          "showLetters": false,
+          "sayOnly": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "y"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says y-?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "y",
+            "correct": true
+          },
+          {
+            "glyph": "s",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "yam",
+          "target": "y"
+        },
+        {
+          "word": "van",
+          "target": "v"
+        },
+        {
+          "word": "yap",
+          "target": "y"
+        },
+        {
+          "word": "wag",
+          "target": "w"
+        }
+      ],
+      "middle": [
+        "sounds",
+        "board",
+        "writing"
+      ],
+      "games": [
+        "board"
+      ],
+      "unit": "2.11",
+      "world": "W3"
+    },
+    {
+      "number": 23,
+      "sound": "z",
+      "review": [
+        "v",
+        "y"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "z"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "zip",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "zap",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "buzz",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "zebra",
+          "image": "assets/images/mentava/web/z/zebra.webp",
+          "showLetters": false,
+          "sayOnly": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "z"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says zzz?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "z",
+            "correct": true
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          },
+          {
+            "glyph": "t",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "zap",
+          "target": "z"
+        },
+        {
+          "word": "yap",
+          "target": "y"
+        },
+        {
+          "word": "zip",
+          "target": "z"
+        },
+        {
+          "word": "van",
+          "target": "v"
+        }
+      ],
+      "middle": [
+        "writing",
+        "hunt",
+        "sounds",
+        "signals"
+      ],
+      "games": [
+        "signals"
+      ],
+      "unit": "2.11",
+      "world": "W3"
+    },
+    {
+      "number": 24,
+      "sound": "x",
+      "review": [
+        "y",
+        "z"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "x"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "six",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "box",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "mix",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "fox",
+          "image": "assets/images/mentava/web/x/fox.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "x"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says ks-?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "x",
+            "correct": true
+          },
+          {
+            "glyph": "s",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "six",
+          "target": "x"
+        },
+        {
+          "word": "zip",
+          "target": "z"
+        },
+        {
+          "word": "mix",
+          "target": "x"
+        },
+        {
+          "word": "yam",
+          "target": "y"
+        }
+      ],
+      "middle": [
+        "sounds",
+        "wagons",
+        "writing",
+        "board"
+      ],
+      "games": [
+        "wagons",
+        "board"
+      ],
+      "unit": "2.11",
+      "world": "W3"
+    },
+    {
+      "number": 25,
+      "sound": "q",
+      "review": [
+        "z",
+        "x"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "q"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "quit",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "quiz",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "quilt",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "queen",
+          "image": "assets/images/mentava/web/q/queen.webp",
+          "showLetters": false,
+          "sayOnly": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "q"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says kw-?",
+        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "q",
+            "correct": true
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          },
+          {
+            "glyph": "s",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "quit",
+          "target": "q"
+        },
+        {
+          "word": "six",
+          "target": "x"
+        },
+        {
+          "word": "quiz",
+          "target": "q"
+        },
+        {
+          "word": "zip",
+          "target": "z"
+        }
+      ],
+      "middle": [
+        "hunt",
+        "writing",
+        "sounds"
+      ],
+      "games": [],
+      "unit": "2.11",
+      "world": "W3"
     }
   ],
   "games": {
@@ -2757,6 +3940,86 @@
           "f",
           "o",
           "n"
+        ],
+        "e": [
+          "m",
+          "t",
+          "p",
+          "f",
+          "d",
+          "n",
+          "h",
+          "l"
+        ],
+        "j": [
+          "m",
+          "a",
+          "p",
+          "s",
+          "f",
+          "o",
+          "n",
+          "h"
+        ],
+        "w": [
+          "a",
+          "s",
+          "i",
+          "t",
+          "p",
+          "f",
+          "d",
+          "g"
+        ],
+        "v": [
+          "a",
+          "s",
+          "i",
+          "t",
+          "p",
+          "f",
+          "d",
+          "b"
+        ],
+        "y": [
+          "a",
+          "s",
+          "i",
+          "t",
+          "p",
+          "f",
+          "d",
+          "b"
+        ],
+        "z": [
+          "m",
+          "a",
+          "i",
+          "t",
+          "p",
+          "f",
+          "d",
+          "h"
+        ],
+        "x": [
+          "m",
+          "a",
+          "s",
+          "i",
+          "t",
+          "p",
+          "f",
+          "d"
+        ],
+        "q": [
+          "m",
+          "s",
+          "t",
+          "i",
+          "f",
+          "n",
+          "h",
+          "l"
         ]
       }
     },
@@ -2826,6 +4089,38 @@
       "world": "W1"
     },
     {
+      "id": "b3",
+      "kind": "book",
+      "title": "Story 3",
+      "book": "book-3",
+      "needs": [
+        "m",
+        "a",
+        "s",
+        "i",
+        "t",
+        "p",
+        "f",
+        "o",
+        "n",
+        "d",
+        "c",
+        "h",
+        "u",
+        "g",
+        "l",
+        "r",
+        "b",
+        "e",
+        "j",
+        "w",
+        "v",
+        "y"
+      ],
+      "after": 22,
+      "world": "W3"
+    },
+    {
       "id": "v1",
       "kind": "review",
       "title": "Review Stop",
@@ -2846,6 +4141,31 @@
         {
           "task": "check",
           "lesson": 2
+        }
+      ],
+      "world": "W1"
+    },
+    {
+      "id": "v6",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 6,
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 6
+        },
+        {
+          "task": "wagons",
+          "lesson": 5
+        },
+        {
+          "task": "signals",
+          "lesson": 4
+        },
+        {
+          "task": "check",
+          "lesson": 6
         }
       ],
       "world": "W1"
@@ -2949,6 +4269,86 @@
         }
       ],
       "world": "W2"
+    },
+    {
+      "id": "v7",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 20,
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 20
+        },
+        {
+          "task": "wagons",
+          "lesson": 19
+        },
+        {
+          "task": "board",
+          "lesson": 18
+        },
+        {
+          "task": "check",
+          "lesson": 20
+        }
+      ],
+      "world": "W3"
+    },
+    {
+      "id": "v8",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 23,
+      "plan": [
+        {
+          "task": "board",
+          "lesson": 23
+        },
+        {
+          "task": "signals",
+          "lesson": 22
+        },
+        {
+          "task": "wagons",
+          "lesson": 21
+        },
+        {
+          "task": "check",
+          "lesson": 22
+        }
+      ],
+      "world": "W3"
+    },
+    {
+      "id": "v9",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 25,
+      "mix": "vowels",
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 18
+        },
+        {
+          "task": "wagons",
+          "lesson": 13
+        },
+        {
+          "task": "signals",
+          "lesson": 8
+        },
+        {
+          "task": "hunt",
+          "lesson": 4
+        },
+        {
+          "task": "check",
+          "lesson": 18
+        }
+      ],
+      "world": "W3"
     }
   ],
   "gameDistractors": [
@@ -3266,6 +4666,13 @@
         "t",
         "s"
       ]
+    },
+    {
+      "word": "zebra",
+      "image": "assets/images/mentava/web/z/zebra.webp",
+      "avoid": [
+        "s"
+      ]
     }
   ],
   "levels": [
@@ -3330,9 +4737,16 @@
         "l",
         "r",
         "b",
-        "e"
+        "e",
+        "j",
+        "w",
+        "v",
+        "y",
+        "z",
+        "x",
+        "q"
       ],
-      "after": null
+      "after": 25
     },
     {
       "id": "L4",
@@ -3357,13 +4771,18 @@
         "r",
         "b",
         "e",
-        "w",
         "j",
+        "w",
         "v",
-        "x",
         "y",
         "z",
-        "q"
+        "x",
+        "q",
+        "sh",
+        "ch",
+        "th",
+        "ng",
+        "ck"
       ],
       "after": null
     },
@@ -3390,18 +4809,20 @@
         "r",
         "b",
         "e",
-        "w",
         "j",
+        "w",
         "v",
-        "x",
         "y",
         "z",
+        "x",
         "q",
         "sh",
         "ch",
         "th",
         "ng",
-        "ck"
+        "ck",
+        "bl",
+        "st"
       ],
       "after": null
     }
@@ -3514,7 +4935,7 @@
         "y",
         "z",
         "x",
-        "qu"
+        "q"
       ]
     }
   ],

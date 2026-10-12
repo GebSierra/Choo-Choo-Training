@@ -149,6 +149,69 @@ export const GLYPHS = {
     ],
     minX: 17, maxX: 62, minY: 38, maxY: 80,
   },
+  // World 3 letters (lessons 18 to 25). e: the bar left to right, then round counter-clockwise and a little way in at the bottom right.
+  e: {
+    strokes: [
+      { d: 'M26 59 L64 59 C64 46 55 38 44 38 C32 38 24 47 24 59 C24 71 32 80 44 80 C52 80 59 76 63 70', start: [26, 59] },
+    ],
+    minX: 17, maxX: 71, minY: 38, maxY: 80,
+  },
+  // j: the stem down and round a hook below the baseline, then the dot.
+  j: {
+    strokes: [
+      { d: 'M52 38 L52 84 C52 92 47 95 40 95 C36 95 33 94 30 91', start: [52, 38] },
+      { d: 'M52 19 L52 21', start: [52, 20] },
+    ],
+    minX: 22, maxX: 60, minY: 19, maxY: 95,
+  },
+  // w: down, up, down, up in one zigzag.
+  w: {
+    strokes: [
+      { d: 'M14 38 L27 80 L40 38 L53 80 L66 38', start: [14, 38] },
+    ],
+    minX: 7, maxX: 73, minY: 38, maxY: 80,
+  },
+  // v: down to a point and up.
+  v: {
+    strokes: [
+      { d: 'M18 38 L38 80 L58 38', start: [18, 38] },
+    ],
+    minX: 11, maxX: 65, minY: 38, maxY: 80,
+  },
+  // y: the short arm down to a point, then the long stroke from the top right down through it, below the baseline.
+  y: {
+    strokes: [
+      { d: 'M18 38 L38 80', start: [18, 38] },
+      { d: 'M58 38 L33 96', start: [58, 38] },
+    ],
+    minX: 11, maxX: 65, minY: 38, maxY: 96,
+  },
+  // z: across, the slanted stroke down, across.
+  z: {
+    strokes: [
+      { d: 'M22 38 L58 38 L22 80 L60 80', start: [22, 38] },
+    ],
+    minX: 15, maxX: 67, minY: 38, maxY: 80,
+  },
+  // x: two crossing strokes.
+  x: {
+    strokes: [
+      { d: 'M20 38 L60 80', start: [20, 38] },
+      { d: 'M60 38 L20 80', start: [60, 38] },
+    ],
+    minX: 13, maxX: 67, minY: 38, maxY: 80,
+  },
+  // q is one unit of two letters (qu says kw), so its glyph is "qu" drawn as one letter: the round bowl and the stem below the baseline,
+  // then a narrow u. Everything (cards, games, tracing, word rows) treats it as one letter; wordSvg skips the u that follows a q.
+  q: {
+    strokes: [
+      { d: 'M46.2 48.5 A21 21 0 0 0 9.8 69.5 A21 21 0 0 0 46.2 48.5', start: [46.2, 48.5] },
+      { d: 'M49 38 L49 94', start: [49, 38] },
+      { d: 'M62 38 L62 62 C62 74 68 80 75 80 C81 80 85 77 88 71', start: [62, 38] },
+      { d: 'M88 38 L88 80', start: [88, 38] },
+    ],
+    minX: 0, maxX: 95, minY: 38, maxY: 94,
+  },
 };
 
 const SPACING = 4;
@@ -210,7 +273,8 @@ const readingExtent = (ch) => ({ top: FONT_TALL.includes(ch) || /[A-Z0-9]/.test(
 export function wordSvg(word, opts = {}) {
   let x = 0;
   const reading = !!opts.font;
-  const letters = [...word].filter((c) => opts.all || reading || hasGlyph(c));
+  // the u after a q is part of q's glyph ("qu" is one unit), except in the reading font where every letter is its own
+  const letters = [...word].filter((c, i, a) => (opts.all || reading || hasGlyph(c)) && (reading || !(c === 'u' && a[i - 1] === 'q')));
   const groups = [];
   for (const ch of letters) {
     if (reading || !hasGlyph(ch)) {

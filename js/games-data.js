@@ -1,6 +1,6 @@
 // Data rules shared by the tap games and tools/gen-lessons.mjs. No DOM here.
-import { soundOfLetter, spellingsOf, lettersOfSounds } from './order.js';
-export const LOOKALIKE = ['da','db','dp','dq','dg','bp','bq','bh','pq','pg','nm','nh','nr','nu','hb','hk','hl','li','lt','lj','lf','tf','fi','oc','oa','rn','rh','kh','kb','kl'];
+import { soundOfLetter, spellingsOf, lettersOfSounds, letterUnits } from './order.js';
+export const LOOKALIKE = ['da','db','dp','dq','dg','bp','bq','bh','pq','pg','nm','nh','nr','nu','hb','hk','hl','li','lt','lj','lf','tf','fi','oc','oa','rn','rh','kh','kb','kl','ec','eo','ea','es','ji','jl','jt','jg','jy','wm','wv','wu','vy','vu','yu','yg','yj','zs','zn','xk','xz','xy','qg','qp','qa','qd','qb'];
 export const looksLike = (a, b) => LOOKALIKE.includes(a + b) || LOOKALIKE.includes(b + a);
 export const order = (curriculum) => curriculum.lessons.map((L) => L.sound);
 // Round targets: this lesson's sound on rounds 1, 3, 5 ...; the others take earlier sounds, newest first, cycling.
@@ -49,11 +49,11 @@ lap lab lad lag lip lit lid log lot leg let led
 cat cap can cab cot cop cod cut cup cub cob
 kit kid kin keg
 rat ran rag ram rap rip rib rid rim rob rod rot rub rug run red
-wag wig win wit wet web wed wax
+wag wig win wit wet web wed wax wag
 jab jam jet jig jog jot jug
 van vat vet
 yam yap yes yet yum
-zap zip
+zap zip fizz buzz
 quit quiz
 mast mist must fast fist last list lost past pest test rest nest best vest west
 sand band land hand bend send lend mend fund pond
@@ -69,7 +69,7 @@ const dist = (a, b) => {
   for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) m[i][j] = Math.min(m[i - 1][j] + 1, m[i][j - 1] + 1, m[i - 1][j - 1] + (a[i - 1] !== b[j - 1]));
   return m[a.length][b.length];
 };
-const once = (w, k) => [...w].filter((c) => soundOfLetter(c) === k).length === 1; // k is a sound key: c and k count together
+const once = (w, k) => letterUnits(w).filter((c) => soundOfLetter(c) === k).length === 1; // k is a sound key: c and k count together
 // The words of lesson n: up to 4 letters, all taught; each round's target sound appears exactly once in its word; each
 // next word is the closest to the last one (fewest letters changed; ties go to the bank order). Null when a round has no word.
 export function boardWords(order, n, rounds = 4) {
@@ -92,7 +92,7 @@ export function boardWords(order, n, rounds = 4) {
 // The middle of a lesson: what sits between the opening (Letter Review, New Sound, Watch My Mouth) and the ending (closing review,
 // Ticket Check). Owner-approved activities only: Saying Sounds ('sounds', the blending slide), Track Tracing ('writing'), Letter Hunt
 // ('hunt') and the three train games ('signals', 'wagons', 'board'). Every middle holds 'sounds' (blending and reading words) and
-// 'writing', and no two neighbouring lessons share the same list. The table has 17 patterns (one per lesson of the 17-lesson order); a lesson past it repeats it from the top.
+// 'writing', and no two neighbouring lessons share the same list. The table has 17 patterns; a lesson past it (World 3, 18 to 25) repeats it from the top, and EXTRA_MIDDLES overrides one lesson.
 export const MIDDLES = [
   ['writing', 'sounds', 'hunt'],
   ['sounds', 'signals', 'writing'],
@@ -112,11 +112,13 @@ export const MIDDLES = [
   ['board', 'sounds', 'writing', 'signals'],
   ['hunt', 'writing', 'sounds', 'wagons'],
 ];
+// Lesson 20 (w): its name, double-u, does not contain its sound, so it gets one more game than the other lessons.
+export const EXTRA_MIDDLES = { 20: ['hunt', 'sounds', 'wagons', 'board', 'writing'] };
 export const TAP_GAMES = ['signals', 'wagons', 'board'];
 // The middle of lesson n: its pattern, with a game the lesson cannot hold (Green Light needs a second sound; Station Board needs
 // its words) swapped for Letter Hunt or Wagon Parade, whichever is not already there.
 export function middleFor(order, n) {
-  const pattern = MIDDLES[(n - 1) % MIDDLES.length];
+  const pattern = EXTRA_MIDDLES[n] || MIDDLES[(n - 1) % MIDDLES.length];
   const ok = { signals: n >= 2, wagons: true, board: !!boardWords(order, n, 4) };
   const out = [];
   for (const t of pattern) {

@@ -9,7 +9,7 @@ import { order, roundsFor, boardWords } from '../../games-data.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
-import { soundOfLetter } from '../../order.js';
+import { soundOfLetter, letterUnits } from '../../order.js';
 
 const INK = '#1E2140';
 const TRAIN_W = 116, FLIP = 150, STAGGER = 60, NEXT_MS = 600, FIRST_MS = 400;
@@ -74,7 +74,7 @@ export function build(ctx) {
   function show(i) {
     const { word, target } = words[i];
     row.replaceChildren();
-    tiles = [...word].map((ch) => makeTile(ch, soundOfLetter(ch) === target));
+    tiles = letterUnits(word).map((ch) => makeTile(ch, soundOfLetter(ch) === target));
     row.append(...tiles);
     el.dataset.word = word; el.dataset.round = String(round);
     prompt.hide();
@@ -89,10 +89,10 @@ export function build(ctx) {
     const mine = ++serial;
     locked = true; prompt.hide();
     el.dataset.word = word; el.dataset.round = String(round);
-    const n = Math.max(tiles.length, word.length), old = tiles.slice(), next = [];
+    const units = letterUnits(word), n = Math.max(tiles.length, units.length), old = tiles.slice(), next = [];
     let total = 0;
     for (let k = 0; k < n; k++) {
-      const ch = word[k], isT = soundOfLetter(ch) === target;
+      const ch = units[k], isT = soundOfLetter(ch) === target;
       let tile = old[k];
       if (reduced()) {
         if (tile && ch) { setTile(tile, ch, isT); animate(tile, [{ opacity: 0 }, { opacity: 1 }], { duration: FLIP }); }

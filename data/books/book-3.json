@@ -1,0 +1,18 @@
+{
+  "id": "book-3",
+  "title": "Pip and the Sunny Hills",
+  "needs": ["m", "a", "s", "i", "t", "p", "f", "o", "n", "d", "c", "h", "u", "g", "l", "r", "b", "e", "j", "w", "v", "y"],
+  "sight": ["I"],
+  "pages": [
+    { "scene": "track", "read": "Toot toot! The little train rolls up into the Sunny Hills. Pip, {name} and Sam look out at the golden fields.", "art": { "train": true, "pip": "wave" }, "tap": { "on": "train", "anim": "toot", "label": "Pip's whistle" } },
+    { "scene": "hill", "read": "Pip wants a picnic at the top of the hill. A shiny silver plane zooms over the fields. Pip points up and says, \"Look! It is a ...\"", "child": "jet", "slider": "jet", "art": { "emoji": ["✈️"] }, "tap": { "on": "emoji", "anim": "wave", "label": "the jet" } },
+    { "scene": "meadow", "read": "By the fence, a soft brown hen sits on her nest. Under the hen is a round white ...", "child": "egg", "art": { "emoji": ["🐔"] }, "tap": { "on": "emoji", "anim": "giggle", "label": "the hen" } },
+    { "scene": "hill", "kind": "drag", "read": "Off they go! Up, up, up the sunny hill." },
+    { "scene": "track", "read": "Honk! A little blue ... drives by with a load of hay. The driver gives a big wave.", "child": "van", "slider": "van", "art": { "emoji": ["🚐"] }, "tap": { "on": "emoji", "anim": "bounce", "label": "the van" } },
+    { "scene": "meadow", "read": "Splash! A little rain falls on the hill. The grass is all ...", "child": "wet", "slider": "wet", "art": { "emoji": ["🌧️"] }, "tap": { "on": "emoji", "anim": "bounce", "label": "the rain" } },
+    { "scene": "picnic", "read": "At the top, the sun comes back out. Pip spreads a soft blanket. Sam asks, \"Can we eat now?\" Pip says ...", "child": "yes", "after": "\"Yes! Dig in!\"", "art": { "emoji": ["🧺"] }, "tap": { "on": "emoji", "anim": "bounce", "label": "the picnic basket" } },
+    { "scene": "picnic", "read": "Pip, Sam and {name} eat a big, warm bun. It is so good. Everyone says ...", "sound": "mmmm", "art": { "emoji": ["🥖"] } },
+    { "scene": "sunset", "read": "The sun sets over the Sunny Hills. Everyone climbs back on the train. Pip asks, \"Did you have fun today?\" {name} says ...", "child": "I did", "slider": "did", "after": "The end. Toot toot!", "art": { "train": true, "pip": "cheer", "friend": true } },
+    { "scene": "sunset", "kind": "review", "read": "Read them all!", "words": ["jet", "egg", "van", "wet", "yes", "I did"] }
+  ]
+}

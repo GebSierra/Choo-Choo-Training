@@ -14,7 +14,7 @@ const APP_FILES = [
   // the train world: the 3D Home and three.js (MIT, vendor/three/LICENSE)
   'js/screens/home3d.js', 'js/idle.js', 'js/screens/previews.js', 'js/screens/crossing.js', 'js/worlds.js', 'js/visit.js', 'js/components/tip-card.js', 'js/components/rest-card.js', 'js/components/journey-board.js', 'js/components/map-button.js', 'js/components/progress-card.js', 'js/components/back-sheet.js', 'js/components/lesson-list.js', 'js/train/world.js', 'js/train/scene.js', 'js/train/track.js', 'js/train/scenery.js', 'js/train/starter.js', 'js/train/stations.js', 'js/train/train.js', 'js/train/tunnel.js', 'js/train/themes.js', 'js/train/regions.js', 'js/train/regions2.js', 'js/screens/region.js', 'js/levels.js', 'js/components/star-board.js', 'js/components/level-banner.js', 'js/art/cars2d.js', 'js/train/pip3d.js', 'js/train/camera.js', 'js/train/overlay.js',
   'vendor/three/three.module.min.js', 'vendor/three/RoundedBoxGeometry.js',
-  'data/curriculum.json', 'data/tips.json', 'data/books/book-1.json', 'data/books/book-2.json',
+  'data/curriculum.json', 'data/tips.json', 'data/books/book-1.json', 'data/books/book-2.json', 'data/books/book-3.json',
   'assets/fonts/nunito-latin.woff2', 'assets/fonts/andika-latin-400-normal.woff2', 'assets/fonts/andika-latin-700-normal.woff2', 'js/components/page-turn.js', 'js/character.js', 'js/art/kid.js', 'js/art/scenes.js', 'js/train/kid3d.js', 'js/sequence.js', 'js/components/character-picker.js',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',
   // picture tiles curriculum.json uses (node tools/precache-images.mjs prints this list; the smoke test checks it)
@@ -31,23 +31,26 @@ const APP_FILES = [
   'assets/images/mentava/web/g/gate.webp', 'assets/images/mentava/web/g/goat.webp', 'assets/images/mentava/web/h/hand.webp',
   'assets/images/mentava/web/h/hat.webp', 'assets/images/mentava/web/h/hippo.webp', 'assets/images/mentava/web/i/igloo.webp',
   'assets/images/mentava/web/i/sit.webp', 'assets/images/mentava/web/i/stick.webp', 'assets/images/mentava/web/ie/kite.webp',
-  'assets/images/mentava/web/ie/light.webp', 'assets/images/mentava/web/j/jet.webp', 'assets/images/mentava/web/l/ladder.webp',
-  'assets/images/mentava/web/l/leaf.webp', 'assets/images/mentava/web/l/leg.webp', 'assets/images/mentava/web/m/map.webp',
-  'assets/images/mentava/web/m/milk.webp', 'assets/images/mentava/web/n/necklace.webp', 'assets/images/mentava/web/n/nose.webp',
-  'assets/images/mentava/web/n/nut.webp', 'assets/images/mentava/web/o/octopus.webp', 'assets/images/mentava/web/o/pot.webp',
-  'assets/images/mentava/web/o/rock.webp', 'assets/images/mentava/web/oo-moon/moon.webp', 'assets/images/mentava/web/or/corn.webp',
-  'assets/images/mentava/web/or/horse.webp', 'assets/images/mentava/web/p/panda.webp', 'assets/images/mentava/web/p/pig.webp',
-  'assets/images/mentava/web/p/pumpkin.webp', 'assets/images/mentava/web/q/queen.webp', 'assets/images/mentava/web/r/rabbit.webp',
+  'assets/images/mentava/web/ie/light.webp', 'assets/images/mentava/web/j/jet.webp', 'assets/images/mentava/web/j/jump.webp',
+  'assets/images/mentava/web/l/ladder.webp', 'assets/images/mentava/web/l/leaf.webp', 'assets/images/mentava/web/l/leg.webp',
+  'assets/images/mentava/web/m/map.webp', 'assets/images/mentava/web/m/milk.webp', 'assets/images/mentava/web/n/necklace.webp',
+  'assets/images/mentava/web/n/nose.webp', 'assets/images/mentava/web/n/nut.webp', 'assets/images/mentava/web/o/octopus.webp',
+  'assets/images/mentava/web/o/pot.webp', 'assets/images/mentava/web/o/rock.webp', 'assets/images/mentava/web/oo-moon/moon.webp',
+  'assets/images/mentava/web/or/corn.webp', 'assets/images/mentava/web/or/horse.webp', 'assets/images/mentava/web/p/panda.webp',
+  'assets/images/mentava/web/p/pig.webp', 'assets/images/mentava/web/p/pumpkin.webp', 'assets/images/mentava/web/q/quack.webp',
+  'assets/images/mentava/web/q/queen.webp', 'assets/images/mentava/web/q/quilt.webp', 'assets/images/mentava/web/r/rabbit.webp',
   'assets/images/mentava/web/r/robot.webp', 'assets/images/mentava/web/r/rocket.webp', 'assets/images/mentava/web/s/snail.webp',
   'assets/images/mentava/web/s/snake.webp', 'assets/images/mentava/web/s/sock.webp', 'assets/images/mentava/web/t/table.webp',
   'assets/images/mentava/web/t/tiger.webp', 'assets/images/mentava/web/t/tree.webp', 'assets/images/mentava/web/u/bug.webp',
   'assets/images/mentava/web/u/sun.webp', 'assets/images/mentava/web/u/umbrella.webp', 'assets/images/mentava/web/u/up.webp',
   'assets/images/mentava/web/v/van.webp', 'assets/images/mentava/web/v/vest.webp', 'assets/images/mentava/web/v/volcano.webp',
   'assets/images/mentava/web/w/wagon.webp', 'assets/images/mentava/web/w/window.webp', 'assets/images/mentava/web/w/worm.webp',
-  'assets/images/mentava/web/x/fox.webp', 'assets/images/mentava/web/y/yarn.webp',
+  'assets/images/mentava/web/x/box.webp', 'assets/images/mentava/web/x/fox.webp', 'assets/images/mentava/web/x/ox.webp',
+  'assets/images/mentava/web/y/yarn.webp', 'assets/images/mentava/web/y/yellow.webp', 'assets/images/mentava/web/y/yoyo.webp',
+  'assets/images/mentava/web/z/zebra.webp', 'assets/images/mentava/web/z/zipper.webp', 'assets/images/mentava/web/z/zoo.webp',
 ];
 // Recorded sounds are optional: a missing file must not stop the install.
-const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3', 'assets/audio/sounds/s.mp3', 'assets/audio/sounds/i.mp3', 'assets/audio/sounds/t.mp3', 'assets/audio/sounds/p.mp3', 'assets/audio/sounds/f.mp3', 'assets/audio/sounds/o.mp3', 'assets/audio/sounds/n.mp3', 'assets/audio/sounds/d.mp3', 'assets/audio/sounds/c.mp3', 'assets/audio/sounds/h.mp3', 'assets/audio/sounds/u.mp3', 'assets/audio/sounds/g.mp3', 'assets/audio/sounds/l.mp3', 'assets/audio/sounds/r.mp3', 'assets/audio/sounds/b.mp3'];
+const OPTIONAL_FILES = ['assets/audio/sounds/m.mp3', 'assets/audio/sounds/a.mp3', 'assets/audio/sounds/s.mp3', 'assets/audio/sounds/i.mp3', 'assets/audio/sounds/t.mp3', 'assets/audio/sounds/p.mp3', 'assets/audio/sounds/f.mp3', 'assets/audio/sounds/o.mp3', 'assets/audio/sounds/n.mp3', 'assets/audio/sounds/d.mp3', 'assets/audio/sounds/c.mp3', 'assets/audio/sounds/h.mp3', 'assets/audio/sounds/u.mp3', 'assets/audio/sounds/g.mp3', 'assets/audio/sounds/l.mp3', 'assets/audio/sounds/r.mp3', 'assets/audio/sounds/b.mp3', 'assets/audio/sounds/e.mp3', 'assets/audio/sounds/j.mp3', 'assets/audio/sounds/w.mp3', 'assets/audio/sounds/v.mp3', 'assets/audio/sounds/y.mp3', 'assets/audio/sounds/z.mp3', 'assets/audio/sounds/x.mp3', 'assets/audio/sounds/q.mp3'];
 // Connected blend models for the f lesson prototype ("fffiiit"), recorded by the grown-up, are optional too.
 OPTIONAL_FILES.push('assets/audio/blends/sat.mp3', 'assets/audio/blends/map.mp3', 'assets/audio/blends/mat.mp3', 'assets/audio/blends/sip.mp3', 'assets/audio/blends/fit.mp3', 'assets/audio/blends/fat.mp3', 'assets/audio/blends/if.mp3', 'assets/audio/blends/tip.mp3', 'assets/audio/blends/sam.mp3', 'assets/audio/blends/at.mp3', 'assets/audio/blends/it.mp3', 'assets/audio/blends/sis.mp3');
 

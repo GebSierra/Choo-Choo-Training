@@ -1,4 +1,4 @@
-import { soundOfLetter } from './order.js';
+import { soundOfLetter, letterUnits } from './order.js';
 // Parent scripts are shown as text. To read one aloud, isolated sounds (mmm, aaammm, sss) become
 // recorded clips and everything else goes to text to speech. Nothing is ever a single letter.
 export function stretchLetters(word) { return [...word].map((c) => c.repeat(3)).join(''); }
@@ -8,17 +8,20 @@ export function stretchLetters(word) { return [...word].map((c) => c.repeat(3)).
 // A sound with two spellings (c and k) is written with its sound letter: "k-" for c and for k alike.
 export const soundText = (ch, sounds) => {
   const s = sounds && sounds[soundOfLetter(ch)];
+  // A clipped sound is written as its own short text: t-, k- (c and k), kw- (qu), ks- (x). `sayItLike` holds it.
+  if (s && s.hold === false && /^[a-z]+-$/.test(s.sayItLike || '')) return s.sayItLike;
   return s && s.hold === false ? `${s.alt && s.alt.length ? s.alt[0] : ch}-` : ch.repeat(3);
 };
 // A word sound by sound, for a parent to say slowly with no pause: held sounds stretched, clipped ones short: "t-aaa".
-export const slowSounds = (word, sounds) => [...word].map((c) => soundText(c, sounds)).join('');
+export const slowSounds = (word, sounds) => letterUnits(word).map((c) => soundText(c, sounds)).join('');
 // A picture word: only its first sound is brought out, held ("sssun") or short ("t-iger"); the rest stays as it is.
-export const firstSoundOut = (word, sounds) => soundText(word[0], sounds) + word.slice(1);
+export const firstSoundOut = (word, sounds) => soundText(word[0], sounds) + word.slice(word.startsWith('qu') ? 2 : 1);
 
 // A sound token is only stretched runs (mmm) and short sounds with a dash (t-): "t-aaag-". It is shown, never spoken by text to speech.
-const PIECE = /([a-z])\1{2,}|[a-z]-/g;
+const PIECE = /([a-z])\1{2,}|(?:kw|ks|[a-z])-/g;
 const isPure = (core) => core.replace(PIECE, '') === '';
-const isSoundy = (core) => /([a-z])\1{2,}/.test(core) || /(^|-)[a-z]-/.test(core);
+const pieceKey = (p) => (p.startsWith('kw') ? 'q' : p.startsWith('ks') ? 'x' : soundOfLetter(p[0])); // kw- is the sound of qu, ks- of x
+const isSoundy = (core) => /([a-z])\1{2,}/.test(core) || /(^|-)(?:kw|ks|[a-z])-/.test(core);
 
 // quiet (the default, when the grown up says the sounds): any sentence that contains a sound is left out,
 // so only the framing sentences are read ("Now you try. Slide the letter as you say it.").
@@ -49,7 +52,7 @@ export function scriptToParts(text, soundKeys, { quiet = false } = {}) {
     const core = m ? m[1].toLowerCase() : '';
     if (core && isSoundy(core)) {
       const pieces = isPure(core) ? core.match(PIECE) : null;
-      if (pieces && pieces.every((p) => soundKeys.includes(soundOfLetter(p[0])))) { flush(); pieces.forEach((p) => parts.push({ clip: soundOfLetter(p[0]) })); }
+      if (pieces && pieces.every((p) => soundKeys.includes(pieceKey(p)))) { flush(); pieces.forEach((p) => parts.push({ clip: pieceKey(p) })); }
       continue; // a stretch we have no clip for is shown, never spoken
     }
     if (core.length === 1 && soundKeys.includes(soundOfLetter(core)) && m[1] === core) { flush(); parts.push({ clip: soundOfLetter(core) }); continue; }

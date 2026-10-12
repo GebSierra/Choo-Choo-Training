@@ -1,5 +1,5 @@
 // Progress and settings in localStorage. Every access is guarded: a throwing or corrupt store starts fresh.
-import { ORDER, ORDER_SOUNDS, LEGACY_ORDER } from './order.js';
+import { ORDER, ORDER_SOUNDS, LEGACY_ORDER, PRIOR_ORDERS } from './order.js';
 import { cleanCharacter } from './character.js';
 const KEY = 'reading.v1';
 const AUTH_KEY = 'reading.auth'; // the grown-up account session (js/account.js). Never part of reading.v1.
@@ -90,7 +90,8 @@ export function createStore() {
       // The sound order changed twice. v1.8.1: a real install (it has been opened, so it has lastOpened) saved under an unknown order starts its
       // lessons again once. Phase B (docs/LESSON-REBUILD.md): the legacy 13-lesson order 'masitpnfdhgbl' is MAPPED by sound, never reset (below).
       const legacy = p.order === LEGACY_ORDER;
-      const reorder = !legacy && p.order !== ORDER && typeof p.lastOpened === 'string';
+      const current = p.order === ORDER || PRIOR_ORDERS.includes(p.order); // a shorter order that ORDER only appended to (World 3) is the same order
+      const reorder = !legacy && !current && typeof p.lastOpened === 'string';
       let lessons = {};
       for (const [n, l] of Object.entries(reorder ? {} : p.lessons)) {
         if (l && typeof l === 'object' && !Array.isArray(l)) lessons[n] = { ...l, tasksDone: Array.isArray(l.tasksDone) ? l.tasksDone.filter(Number.isInteger) : [] };
@@ -98,7 +99,7 @@ export function createStore() {
       // A lesson counts as done only by its own result (isDone is strict since phase B). Older saves (no order, or the legacy one) counted a lesson
       // as done when a later one was: write that down once, in the numbering the save was made under, before any mapping.
       let top = 0;
-      if (!reorder && p.order !== ORDER) {
+      if (!reorder && !current) {
         top = Math.max(0, ...Object.entries(lessons).filter(([, l]) => l.result === 'got-it').map(([n]) => Number(n)));
         for (let n = 1; n < top; n++) { const l = lessons[n] || { tasksDone: [] }; if (l.result !== 'got-it') lessons[n] = { ...l, result: 'got-it', completedAt: typeof l.completedAt === 'string' ? l.completedAt : null }; }
       }
