@@ -1,0 +1,12 @@
+# Supabase CLI settings for the Edge Functions (deploy with `supabase functions deploy`, see docs/STRIPE.md).
+# Stripe calls the webhook without a Supabase login, so the gateway must not require a JWT there. The function
+# verifies Stripe's signature itself.
+[functions.stripe-webhook]
+verify_jwt = false
+
+# These two check the grown-up's login inside the function.
+[functions.create-checkout-session]
+verify_jwt = false
+
+[functions.create-portal-session]
+verify_jwt = false
