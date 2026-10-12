@@ -153,7 +153,7 @@ for (const L of [CUR.lessons[0], CUR.lessons[1], CUR.lessons[12]]) {
   const { ctx, page, errors } = await open('#/home', { seenScripts: SEEN });
   await page.waitForSelector('.pill-hold'); await page.waitForTimeout(900);
   const gb = await page.locator('.pill-hold').boundingBox();
-  await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await page.mouse.down(); await page.waitForTimeout(2300); await page.mouse.up();
+  await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await page.mouse.down(); await page.waitForTimeout(3000); await page.mouse.up();
   await page.waitForSelector('.grownups');
   const text = await page.locator('body').innerText();
   ok((await page.locator('.gu-link').count()) === 0 && (await page.locator('a[href^="http"]').count()) === 0, 'Grownups: no outside link');
