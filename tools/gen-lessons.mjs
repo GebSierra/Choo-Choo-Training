@@ -215,7 +215,8 @@ for (const L of c.lessons) { const b = boardWords(c.lessons.map((x) => x.sound),
 // with more inside the worlds. The ids are fixed (never renumbered: a saved result is keyed by id), so v1 to v5 stay where they were and the new stops are v6 to v9.
 const REVIEW_AFTER = [[3, 'v1'], [6, 'v6'], [9, 'v2'], [12, 'v3'], [15, 'v4'], [17, 'v5'], [20, 'v7'], [23, 'v8'], [25, 'v9']];
 const REVIEW_PLANS = {
-  3: [['hunt', 3], ['wagons', 2], ['hunt', 1], ['check', 2]], // three sounds only: Green Light needs a fourth letter for its lamps
+  // three sounds only: Green Light needs a fourth letter for its lamps. The first stop also has the child's first word: ma, then mama (the 'read' step)
+  3: [['hunt', 3], ['wagons', 2], ['hunt', 1], ['read', 3, ['ma', 'mama']], ['check', 2]],
   9: [['hunt', 8], ['signals', 9], ['wagons', 6], ['check', 8]],
   12: [['board', 12], ['wagons', 11], ['hunt', 7], ['check', 12]],
   15: [['wagons', 15], ['hunt', 13], ['board', 10], ['check', 14]],
@@ -229,18 +230,31 @@ const REVIEW_PLANS = {
 };
 // Ticket Check is always a letter question (lessons 2, 4, 6 ...): its wrong cards are letters taught by then, where a picture question
 // shows pictures (and their words) that begin with letters not taught yet.
+// The grown-up's message at the end of a stop: N sounds taught (c/k and qu count once each: one lesson is one sound) and W, how many words of
+// data/words-decodable.json use only the letters taught by then. W is counted here, never typed. The examples are a sample of those words,
+// favouring words the child has already met in the lessons and books, then words that use the newest letters; at most 8 (all of them when fewer).
+const WORD_LIST = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
+const met = new Set([...c.lessons.flatMap((L) => [...L.sayingSounds.map((w) => w.word), ...(L.board || []).map((b) => b.word)]), ...Object.values(c.sounds).flatMap((x) => x.words.map((w) => w.word))]);
+function reviewSummary(after) {
+  const sounds = ORDER_SOUNDS.slice(0, after), taught = lettersOfSounds(sounds), newest = lettersOfSounds(sounds.slice(-3));
+  const readable = WORD_LIST.filter((w) => [...w].every((ch) => taught.has(ch)));
+  const score = (w) => (met.has(w) ? 100 : 0) + [...new Set(w)].filter((ch) => newest.has(ch)).length * 10 + Math.min(w.length, 4);
+  const examples = readable.map((w, i) => ({ w, i })).sort((a, b) => score(b.w) - score(a.w) || a.i - b.i).slice(0, 8).map((x) => x.w);
+  return { sounds: sounds.length, words: readable.length, examples };
+}
 REVIEW_AFTER.forEach(([after, id]) => {
   if (after > c.lessons.length) return;
-  const plan = REVIEW_PLANS[after].map(([task, lesson]) => {
+  const plan = REVIEW_PLANS[after].map(([task, lesson, words]) => {
     const L = c.lessons[lesson - 1];
     if (lesson > after || !L) throw new Error(`review stop after ${after}: lesson ${lesson} is not taught yet`);
     if (task === 'signals' && lesson < 2) throw new Error('Green Light needs two sounds');
     if (task === 'check' && L.quickCheck.kind !== 'letter') throw new Error(`review stop after ${after}: lesson ${lesson}'s Ticket Check is a picture question`);
     if (task === 'board' && !L.board) throw new Error(`review stop after ${after}: lesson ${lesson} has no Station Board words`);
-    return { task, lesson };
+    if (task === 'read') for (const w of words) if (![...w].every((ch) => lettersOfSounds(ORDER_SOUNDS.slice(0, after)).has(ch))) throw new Error(`review stop after ${after}: "${w}" is not readable yet`);
+    return { task, lesson, ...(words ? { words } : {}) };
   });
   if (plan[plan.length - 1].task !== 'check') throw new Error('Ticket Check comes last');
-  c.checkpoints.push({ id, kind: 'review', title: 'Review Stop', after, ...(after === 25 ? { mix: 'vowels' } : {}), plan });
+  c.checkpoints.push({ id, kind: 'review', title: 'Review Stop', after, ...(after === 25 ? { mix: 'vowels' } : {}), summary: reviewSummary(after), plan });
 });
 
 c.games.board = { say: 'Find the sound in the word.' };

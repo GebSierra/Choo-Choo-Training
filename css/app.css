@@ -2138,3 +2138,17 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 
 /* Fishing with Pip easter egg: the ripple under a tap on the 3D Home river */
 .river-ripple { position: absolute; z-index: 3; width: 56px; height: 56px; border-radius: 50%; border: 4px solid rgba(255,255,255,.9); pointer-events: none; }
+
+/* Review Stop: the opening card, the first word (ma, mama) with its celebration, and the end message */
+.review-intro { min-height: 100%; display: grid; align-content: center; justify-items: center; gap: 16px; padding: 24px 16px; text-align: center; }
+.review-intro-icon svg { width: 96px; height: 96px; }
+.review-intro h1 { margin: 0; }
+.review-intro-line { margin: 0; max-width: 320px; font-size: 18px; line-height: 1.4; }
+.review-start { min-width: 220px; min-height: 56px; }
+.review-message { width: min(100%, 420px); margin: 0; padding: 12px 16px; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); font-size: 16px; line-height: 1.4; text-align: center; }
+.first-word-body { display: grid; gap: 14px; justify-items: center; }
+.first-word-stage { position: relative; overflow: visible; }
+.first-word-confetti { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; }
+.first-word-confetti .confetti { top: 40%; }
+.first-word-msg { margin: 0; max-width: 340px; font-size: 18px; font-weight: 700; line-height: 1.35; text-align: center; }
+.read-it { min-width: 200px; min-height: 56px; }

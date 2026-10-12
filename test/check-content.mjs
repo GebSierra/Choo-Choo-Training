@@ -318,13 +318,19 @@ export function checkCurriculum(c, root = ROOT) {
     if (!Array.isArray(k.plan) || k.plan.length < 3 || k.plan.length > 5) return err(`${p}.plan must list 3 to 5 activities`);
     k.plan.forEach((a, i) => {
       const q = `${p}.plan[${i}]`;
-      if (!['hunt', 'signals', 'wagons', 'board', 'check'].includes(a.task)) err(`${q}.task "${a.task}" is not one of the fun games or Ticket Check`);
+      if (!['hunt', 'signals', 'wagons', 'board', 'check', 'read'].includes(a.task)) err(`${q}.task "${a.task}" is not one of the fun games, the first-word step or Ticket Check`);
+      if (a.task === 'read') { if (k.id !== 'v1' || !Array.isArray(a.words) || a.words.join() !== 'ma,mama') err(`${q}: the reading step is only in the first stop and reads ma, then mama`); else for (const w of a.words) if (![...w].every((ch) => lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)).has(ch))) err(`${q}: "${w}" is not readable by lesson ${k.after}`); }
       const L = (c.lessons || []).find((x) => x.number === a.lesson);
       if (!L || a.lesson > k.after) return err(`${q}.lesson ${a.lesson} is not taught by lesson ${k.after}`);
       if (a.task === 'signals' && a.lesson < 2) err(`${q}: Green Light needs two sounds`);
       if (a.task === 'board' && !(L.board && L.board.length)) err(`${q}: lesson ${a.lesson} has no Station Board words`);
       if (a.task === 'check' && !L.quickCheck) err(`${q}: lesson ${a.lesson} has no Ticket Check`);
     });
+    // the grown-up's end message: N sounds, W words counted from data/words-decodable.json, examples from it that use only taught letters
+    const list = JSON.parse(fs.readFileSync(path.join(root, 'data/words-decodable.json'), 'utf8')).words;
+    const taughtK = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = list.filter((w) => [...w].every((ch) => taughtK.has(ch)));
+    if (!k.summary || k.summary.sounds !== k.after || k.summary.words !== fresh.length) err(`${p}.summary must say ${k.after} sounds and ${fresh.length} words (a fresh count of data/words-decodable.json)`);
+    else if (!Array.isArray(k.summary.examples) || k.summary.examples.length < Math.min(fresh.length, 4) || k.summary.examples.length > 8 || !k.summary.examples.every((w) => fresh.includes(w))) err(`${p}.summary.examples must be 4 to 8 (all, when fewer exist) words of the list that use only taught letters`);
     if (k.plan[k.plan.length - 1].task !== 'check') err(`${p}: Ticket Check must come last`);
     if (k.plan.slice(0, -1).some((a) => a.task === 'check')) err(`${p}: Ticket Check only comes last`);
     const recent = k.plan.filter((a) => a.lesson > k.after - 3).length;

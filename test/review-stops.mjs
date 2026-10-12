@@ -18,8 +18,8 @@ const SHOTS = process.argv.includes('--shots');
 const SHOT_DIR = path.join(ROOT, 'docs/screenshots/review-stops');
 const SIZES = [{ name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }, { name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }, { name: '915x412', width: 915, height: 412, deviceScaleFactor: 2 }];
 const PHONE = SIZES[1];
-const ALLOWED = ['hunt', 'signals', 'wagons', 'board', 'check'];
-const NAMES = { hunt: 'Letter Hunt', signals: 'Green Light', wagons: 'Wagon Parade', board: 'Station Board', check: 'Ticket Check' };
+const ALLOWED = ['hunt', 'signals', 'wagons', 'board', 'check', 'read'];
+const NAMES = { read: 'Read a Word', hunt: 'Letter Hunt', signals: 'Green Light', wagons: 'Wagon Parade', board: 'Station Board', check: 'Ticket Check' };
 const taughtBy = (n) => lettersOfSounds(ORDER_SOUNDS.slice(0, n));
 const shot = async (page, name) => { if (!SHOTS) return; fs.mkdirSync(SHOT_DIR, { recursive: true }); await page.screenshot({ path: path.join(SHOT_DIR, name + '.png') }); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -107,17 +107,17 @@ async function seeded(browser, url, vp, doneN, route, extraState = {}) {
   await made.page.goto(url + route);
   return made;
 }
-const gameSel = '.game';
+const gameSel = '.game, .first-word';
 
 export async function screenChecks({ browser, url, ok }) {
   for (const k of STOPS) {
     const taught = taughtBy(k.after);
     // every activity: its first screen holds only taught letters (Letter Hunt and Wagon Parade are sampled again after a few right taps)
-    const m = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}`);
+    const m = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}/task/0`);
     const { page, errors } = m;
     for (let i = 0; i < k.plan.length; i++) {
       const a = k.plan[i];
-      await page.goto(url + (i === 0 ? `#/checkpoint/${k.id}` : `#/checkpoint/${k.id}/task/${i}`));
+      await page.goto(url + `#/checkpoint/${k.id}/task/${i}`);
       await page.waitForSelector(gameSel + ', .check', { timeout: 8000 });
       await page.waitForTimeout(700);
       const title = (await page.locator('.task-head h1').innerText()).split('\n')[0].trim();
@@ -147,10 +147,12 @@ export async function screenChecks({ browser, url, ok }) {
   const k = STOPS.find((c) => c.id === 'v2');
   const m = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}`);
   const { page, errors } = m;
+  await page.waitForSelector('.review-start');
+  await page.locator('.review-start').click();
   await page.waitForSelector(gameSel);
   for (let i = 0; i < k.plan.length; i++) {
     await page.waitForTimeout(1200);
-    ok(page.url().endsWith(i === 0 ? `#/checkpoint/${k.id}` : `#/checkpoint/${k.id}/task/${i}`), `${k.id} run: step ${i + 1} is at its address`);
+    ok(page.url().endsWith(`#/checkpoint/${k.id}/task/${i}`), `${k.id} run: step ${i + 1} is at its address`);
     ok((await page.locator('.task-head h1').innerText()).split('\n')[0].trim() === NAMES[k.plan[i].task], `${k.id} run: step ${i + 1} is ${NAMES[k.plan[i].task]}`);
     await page.locator('.btn.next').click();
     await page.waitForTimeout(500);
@@ -166,12 +168,54 @@ export async function screenChecks({ browser, url, ok }) {
   await m.ctx.close();
 
   // back from the second activity returns to the first
-  const b = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}`);
+  const b = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}/task/0`);
   await b.page.waitForSelector(gameSel); await b.page.waitForTimeout(1300);
   await b.page.locator('.btn.next').click(); await b.page.waitForTimeout(700);
   await b.page.locator('.task-head .icon-btn').first().click(); await b.page.waitForTimeout(700);
   ok(b.page.url().endsWith('#/home'), 'back: the arrow goes back to the path');
   await b.ctx.close();
+
+  // the opening card of every stop, the end message of every stop, and v1's first word
+  const WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
+  const HEART = ['is', 'as', 'was', 'of', 'the', 'to', 'you', 'she', 'he', 'me', 'be', 'we', 'his', 'has', 'no', 'go', 'so'];
+  ok(WL.every((w) => /^[a-z]{2,}$/.test(w) && !HEART.includes(w) && !/(.)\1/.test(w)) && new Set(WL).size === WL.length, 'words list: lowercase, no repeats, no heart words, no double letters');
+  for (const k of STOPS) {
+    const m = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}`);
+    await m.page.waitForSelector('.review-intro');
+    const t = await m.page.evaluate(() => ({ h1: document.querySelector('.review-intro h1').textContent, line: document.querySelector('.review-intro-line').textContent, btn: (() => { const r = document.querySelector('.review-start').getBoundingClientRect(); return { w: r.width, h: r.height, text: document.querySelector('.review-start').textContent, inView: r.bottom <= innerHeight && r.right <= innerWidth }; })() }));
+    ok(t.h1 === 'Review Stop' && /practise the sounds your child already knows/.test(t.line) && /nothing new/.test(t.line) && t.btn.text === 'Start' && t.btn.h >= 48 && t.btn.w >= 120 && t.btn.inView, `${k.id}: the opening card says Review Stop, what it is, and has a big Start (${t.btn.w}x${t.btn.h})`);
+    if (k.id === 'v1') await shot(m.page, 'v1-opening-card-390x844');
+    await m.page.goto(url + `#/checkpoint/${k.id}/finish`);
+    await m.page.waitForSelector('.review-message');
+    const msg = await m.page.locator('.review-message').innerText();
+    const tg = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = WL.filter((w) => [...w].every((ch) => tg.has(ch)));
+    const mm = /^Your child has learned (\d+) sounds\. Once they master them, they will be able to read words like: (.+)\. With these sounds they can read (\d+) words!$/.exec(msg.replace(/\s+/g, ' ').trim());
+    ok(mm && Number(mm[1]) === k.after && Number(mm[3]) === fresh.length && mm[2].split(', ').every((w) => fresh.includes(w)) && mm[2].split(', ').length <= 8 && /^(?!.*pronounce)/.test(msg), `${k.id}: the end message says ${k.after} sounds and ${fresh.length} words, a fresh count from the list; every example is readable (${msg.slice(0, 90)}...)`);
+    if (k.id === 'v1' || k.id === 'v9') await shot(m.page, `${k.id}-end-message-390x844`);
+    await m.ctx.close();
+  }
+  {
+    const v1 = STOPS.find((k) => k.id === 'v1'), at = v1.plan.findIndex((a) => a.task === 'read');
+    ok(at === v1.plan.length - 2 && v1.plan[at].words.join() === 'ma,mama' && STOPS.filter((k) => k.plan.some((a) => a.task === 'read')).length === 1, 'v1: the ma, mama reading step is the last step before Ticket Check, in the first stop only');
+    const m = await seeded(browser, url, PHONE, v1.after, `#/checkpoint/v1/task/${at}`);
+    await m.page.waitForSelector('.first-word-stage');
+    await m.page.waitForTimeout(900);
+    const one = await m.page.evaluate(() => ({ word: document.querySelector('.first-word-stage').dataset.word, letters: [...document.querySelectorAll('.first-word-stage .glyph-letter')].map((e) => e.dataset.letter).join(''), msg: !!document.querySelector('.first-word-msg') }));
+    ok(one.word === 'ma' && one.letters === 'ma' && !one.msg, 'v1 read: first the word ma, big, with the slide under it');
+    await m.page.locator('.read-it').click();
+    await m.page.waitForTimeout(500);
+    const two = await m.page.evaluate(() => ({ word: document.querySelector('.first-word-stage').dataset.word, letters: [...document.querySelectorAll('.first-word-stage .glyph-letter')].map((e) => e.dataset.letter).join(''), band: !!document.querySelector('.slide-band'), msg: !!document.querySelector('.first-word-msg') }));
+    ok(two.word === 'mama' && two.letters === 'mama' && two.band && !two.msg, 'v1 read: then mama, with the slide-to-blend under it');
+    await shot(m.page, 'v1-mama-390x844');
+    await m.page.locator('.read-it').click();
+    await m.page.waitForTimeout(1200);
+    const three = await m.page.evaluate(() => ({ msg: document.querySelector('.first-word-msg') && document.querySelector('.first-word-msg').textContent, confetti: document.querySelectorAll('.first-word-confetti .confetti i').length, infinite: document.getAnimations().filter((a) => a.effect && a.effect.getComputedTiming().iterations === Infinity).length, small: [...document.querySelectorAll('.task-foot button, .read-it')].filter((b) => { const r = b.getBoundingClientRect(); return r.width && (r.height < 47.5 || r.width < 47.5); }).length }));
+    ok(three.msg === 'Your child just read their first word: mama!' && three.confetti >= 20 && three.infinite === 0 && three.small === 0, `v1 read: after mama a celebration (${three.confetti} confetti pieces) and the grown-up line (${three.msg})`);
+    await m.page.waitForTimeout(700);
+    await shot(m.page, 'v1-mama-celebration-390x844');
+    ok(m.errors.length === 0, `v1 read: no errors ${m.errors.join(' | ')}`);
+    await m.ctx.close();
+  }
 
   // locked: by address too
   const l = await seeded(browser, url, PHONE, k.after - 1, `#/checkpoint/${k.id}`);
@@ -190,7 +234,7 @@ export async function fitChecks({ browser, url, ok }) {
     for (const k of STOPS) {
       const last = k.plan.length - 1;
       for (const step of [0, last]) {
-        const m = await seeded(browser, url, vp, k.after, step === 0 ? `#/checkpoint/${k.id}` : `#/checkpoint/${k.id}/task/${step}`);
+        const m = await seeded(browser, url, vp, k.after, `#/checkpoint/${k.id}/task/${step}`);
         const p = m.page;
         await p.waitForSelector(gameSel + ', .check', { timeout: 8000 });
         await p.waitForTimeout(700);
@@ -231,8 +275,11 @@ export async function homeChecks({ browser, url, ok }) {
   await page.waitForTimeout(800);
   await shot(page, 'home-held-390x844');
   await page.locator(`.station-btn[aria-label^="${label}"]`).first().click({ force: true });
+  await page.waitForSelector('.review-intro', { timeout: 8000 });
+  ok(page.url().endsWith(`#/checkpoint/${k.id}`), 'home: tapping the stop opens its opening card');
+  await page.locator('.review-start').click();
   await page.waitForSelector(gameSel, { timeout: 8000 });
-  ok(page.url().endsWith(`#/checkpoint/${k.id}`), 'home: tapping the stop opens its first activity');
+  ok(page.url().endsWith(`#/checkpoint/${k.id}/task/0`), 'home: Start opens its first activity');
   ok(errors.length === 0, `home: no errors ${errors.join(' | ')}`);
   await h.ctx.close();
 

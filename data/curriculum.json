@@ -4117,6 +4117,16 @@
       "kind": "review",
       "title": "Review Stop",
       "after": 3,
+      "summary": {
+        "sounds": 3,
+        "words": 4,
+        "examples": [
+          "sam",
+          "am",
+          "ma",
+          "mama"
+        ]
+      },
       "plan": [
         {
           "task": "hunt",
@@ -4131,6 +4141,14 @@
           "lesson": 1
         },
         {
+          "task": "read",
+          "lesson": 3,
+          "words": [
+            "ma",
+            "mama"
+          ]
+        },
+        {
           "task": "check",
           "lesson": 2
         }
@@ -4142,6 +4160,20 @@
       "kind": "review",
       "title": "Review Stop",
       "after": 6,
+      "summary": {
+        "sounds": 6,
+        "words": 31,
+        "examples": [
+          "tip",
+          "pit",
+          "mist",
+          "sit",
+          "pat",
+          "it",
+          "sat",
+          "sap"
+        ]
+      },
       "plan": [
         {
           "task": "hunt",
@@ -4167,6 +4199,20 @@
       "kind": "review",
       "title": "Review Stop",
       "after": 9,
+      "summary": {
+        "sounds": 9,
+        "words": 58,
+        "examples": [
+          "fan",
+          "not",
+          "on",
+          "fat",
+          "fit",
+          "mom",
+          "mop",
+          "top"
+        ]
+      },
       "plan": [
         {
           "task": "hunt",
@@ -4192,6 +4238,20 @@
       "kind": "review",
       "title": "Review Stop",
       "after": 12,
+      "summary": {
+        "sounds": 12,
+        "words": 86,
+        "examples": [
+          "hand",
+          "kid",
+          "sand",
+          "hot",
+          "hat",
+          "him",
+          "cat",
+          "cap"
+        ]
+      },
       "plan": [
         {
           "task": "board",
@@ -4217,6 +4277,20 @@
       "kind": "review",
       "title": "Review Stop",
       "after": 15,
+      "summary": {
+        "sounds": 15,
+        "words": 141,
+        "examples": [
+          "hug",
+          "milk",
+          "hum",
+          "hut",
+          "cut",
+          "cup",
+          "dig",
+          "dog"
+        ]
+      },
       "plan": [
         {
           "task": "wagons",
@@ -4242,6 +4316,20 @@
       "kind": "review",
       "title": "Review Stop",
       "after": 17,
+      "summary": {
+        "sounds": 17,
+        "words": 184,
+        "examples": [
+          "crab",
+          "rob",
+          "milk",
+          "pal",
+          "sob",
+          "bat",
+          "bad",
+          "big"
+        ]
+      },
       "plan": [
         {
           "task": "board",
@@ -4267,6 +4355,20 @@
       "kind": "review",
       "title": "Review Stop",
       "after": 20,
+      "summary": {
+        "sounds": 20,
+        "words": 233,
+        "examples": [
+          "jet",
+          "web",
+          "wet",
+          "jump",
+          "nest",
+          "pen",
+          "set",
+          "met"
+        ]
+      },
       "plan": [
         {
           "task": "wagons",
@@ -4292,6 +4394,20 @@
       "kind": "review",
       "title": "Review Stop",
       "after": 23,
+      "summary": {
+        "sounds": 23,
+        "words": 242,
+        "examples": [
+          "vest",
+          "van",
+          "vet",
+          "yes",
+          "yet",
+          "yam",
+          "zip",
+          "zap"
+        ]
+      },
       "plan": [
         {
           "task": "board",
@@ -4318,6 +4434,20 @@
       "title": "Review Stop",
       "after": 25,
       "mix": "vowels",
+      "summary": {
+        "sounds": 25,
+        "words": 252,
+        "examples": [
+          "quiz",
+          "quit",
+          "fox",
+          "mix",
+          "zip",
+          "zap",
+          "box",
+          "six"
+        ]
+      },
       "plan": [
         {
           "task": "hunt",

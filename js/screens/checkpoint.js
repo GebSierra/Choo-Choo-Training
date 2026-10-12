@@ -3,7 +3,7 @@ import { makeShell } from './shell.js';
 import { build as sack } from './sack.js';
 import { bookBuild, loadBook } from './book.js';
 import { rereadBuild } from './reread.js';
-import { reviewTaskScreen } from './review.js';
+import { reviewIntroScreen } from './review.js';
 
 // A checkpoint is a bonus stop on the line. By default a review game (the sound sack: one progress dot per round); with
 // kind "book" a story to read (one dot per page); with kind "reread" Read It Again, the repeated-reading station (one dot per sentence); with kind
@@ -25,7 +25,7 @@ export async function checkpointScreen(ctx, id) {
     const current = rereadBuild({ ...ctx, checkpoint: ck, refresh: shell.refresh, setProgress: shell.setPos, setDone: shell.setDone });
     return shell.mount(current, done);
   }
-  if (ck.kind === 'review') return reviewTaskScreen(ctx, id, 0);
+  if (ck.kind === 'review') return reviewIntroScreen(ctx, id);
   const shell = makeShell({ ctx, title: ck.title, color: 'mint', steps: ck.rounds, pos: 0, from: -1, isLast: true, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to the path', stepNoun: 'Round', seenKeys: ['checkpoint'], autoOpen: false, skipUntilDone: true });
   const current = sack({ ...ctx, checkpoint: ck, refresh: shell.refresh, setProgress: shell.setPos, setDone: shell.setDone });
   return shell.mount(current, done);

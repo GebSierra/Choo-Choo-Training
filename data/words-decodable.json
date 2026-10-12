@@ -1,0 +1,23 @@
+{
+  "about": "A curated list of common, child-friendly real words that a child can read by sounding out with plain letter sounds (short vowels, one sound per letter, qu as one unit). No heart words (is, as, was, of, the ...), no rude or obscure words, no double letters or later digraphs (ck, ll, ss, ng ...). tools/gen-lessons.mjs counts, for each Review Stop, how many of these words use only the letters taught by that stop (the number W the grown-up sees) and picks the example words from them. Add words here, never to the counts by hand.",
+  "words": [
+    "am", "ma", "mama", "sam", "at", "it", "sit", "sat", "sip", "sap", "tip", "tap", "pat", "pit", "mat", "map", "tim",
+    "spat", "spit", "past", "mast", "mist", "stamp", "pasta", "taps", "maps", "mats", "pits", "sips", "tips", "sits",
+    "fat", "fit", "fin", "fan", "fun", "fig", "fog", "fix", "fox", "fed", "if", "on", "ox", "ax", "an", "in", "up", "us",
+    "mom", "mop", "top", "pop", "pot", "hot", "hop", "hat", "ham", "him", "hit", "hip", "hid", "hug", "hum", "hut",
+    "cat", "cap", "can", "cab", "cot", "cut", "cup", "cub", "kid", "kit",
+    "dad", "dim", "dig", "dip", "did", "dog", "dot", "den", "dug",
+    "nap", "nip", "nod", "not", "nut", "net", "pan", "pad", "pal", "pig", "pin", "pen", "pet", "peg", "pup",
+    "tan", "tag", "tin", "tub", "tug", "ten", "sad", "sag", "sob", "sun", "sum", "set", "man", "mad", "men", "met", "mix",
+    "bat", "bag", "bad", "bed", "beg", "bet", "big", "bin", "bit", "bib", "bud", "bug", "bun", "bus", "but",
+    "rat", "rag", "ram", "rip", "rid", "rim", "rob", "rod", "rot", "rub", "rug", "run", "red",
+    "lap", "lip", "lid", "log", "lot", "leg", "let", "led", "lad", "gap", "get", "gas", "gum", "got",
+    "jam", "jet", "jog", "jug", "jig", "web", "wet", "wig", "win", "wag", "van", "vet", "yes", "yet", "yam", "yum",
+    "zip", "zap", "box", "six", "wax", "quit", "quiz",
+    "frog", "flag", "flat", "flip", "slip", "slap", "slim", "slid", "sled", "spin", "spot", "stop", "step", "stem", "snap", "snip", "snug",
+    "swim", "twin", "trip", "trap", "trot", "glad", "clap", "clip", "club", "crab", "crib", "drip", "drop", "drum", "plan", "plum", "grab", "grin",
+    "lamp", "camp", "damp", "limp", "bump", "jump", "lump", "pump", "milk", "silk", "gift", "lift", "soft", "left", "raft",
+    "help", "held", "melt", "felt", "belt", "sand", "band", "land", "hand", "bend", "send", "lend", "mend", "fund", "pond",
+    "test", "rest", "nest", "best", "vest", "west"
+  ]
+}

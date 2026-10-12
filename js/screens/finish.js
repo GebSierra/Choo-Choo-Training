@@ -15,7 +15,7 @@ import { kidSvg } from '../art/kid.js';
 // to the railway by itself after LESSON_RETURN_MS (a checkpoint goes back at once).
 // 22 pieces, each with its resting place around the wagon (--tx/--ty from its centre, --r turn), a colour, a shape and a delay.
 const CONFETTI = ['#E5484D', '#FFD166', '#5FE3B0', '#5DE0F0', '#5A4BD6', '#F0556A'];
-function confetti() {
+export function confetti() {
   const box = h('span', { class: 'confetti', 'aria-hidden': 'true' });
   for (let i = 0; i < 22; i++) {
     const a = -Math.PI * 1.1 + (i / 21) * Math.PI * 1.2, k = (i * 37) % 10 / 10; // along an arch over the wagon and down both sides
@@ -29,7 +29,7 @@ export const LESSON_RETURN_MS = 1200;
 const STAR_PATH = 'M12 2.4l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 16.6 6.2 19.9l1.4-6.4L2.7 9.1l6.5-.7z';
 const goldStar = () => h('span', { class: 'finish-star', 'aria-hidden': 'true' }, h('svg', { viewBox: '0 0 24 24', width: 56, height: 56 }, h('path', { d: STAR_PATH, fill: '#FFD166', stroke: '#E8A93A', 'stroke-width': 1.4, 'stroke-linejoin': 'round' })));
 
-function finishView({ speech, router, character, heading, badge, accent, armedLabel, armedNote, onContinue, onPractice, returnMs = 0 }) {
+function finishView({ speech, router, character, heading, badge, accent, armedLabel, armedNote, onContinue, onPractice, returnMs = 0, extra = null }) {
   const note = h('p', { class: 'finish-note', 'aria-live': 'polite' });
   let armed = false, armTimer = 0, goTimer = 0, left = false; // the first "Yes" tap has been made; the second one has recorded it
   const label = h('span', {}, 'Yes, go on');
@@ -57,6 +57,7 @@ function finishView({ speech, router, character, heading, badge, accent, armedLa
   const root = h('div', { class: 'finish' },
     h('div', { class: 'finish-glyph', style: { '--accent': accent } }, confetti(), ring, h('span', { class: 'finish-chassis', 'aria-hidden': 'true' }, h('i', { class: 'fw-wheel' }), h('i', { class: 'fw-wheel' })), h('span', { class: 'finish-wagon' }, badge), goldStar(), h('span', { class: 'finish-pip' }, pipSvg({ pose: 'cheer' })), h('span', { class: 'finish-kid', 'aria-hidden': 'true' }, kidSvg({ ...character, pose: 'cheer' }))),
     h('h1', {}, heading),
+    extra,
     h('section', { class: 'finish-card' }, h('p', { class: 'finish-for' }, 'For the grown-up'), h('p', { class: 'finish-q' }, 'Did your child get it?'), h('div', { class: 'finish-choices' }, gotIt, again), note),
     back);
   animate(badge, [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 480, easing: 'cubic-bezier(.34,1.56,.64,1)' });
@@ -91,6 +92,11 @@ export function finishScreen({ store, router, curriculum, speech }, n) {
 }
 
 // The same two-step finish for a checkpoint (the sound sack): "Yes" goes back to the path, where its stone shows a tick.
+// The end of a Review Stop (owner): how many sounds, example words, and W, the number of words of data/words-decodable.json that use only the
+// letters taught so far (counted by tools/gen-lessons.mjs, stored on the stop as `summary`). "Read", never "pronounce".
+export const reviewMessageText = (s) => `Your child has learned ${s.sounds} sounds. Once they master them, they will be able to read words like: ${s.examples.join(', ')}. With these sounds they can read ${s.words} words!`;
+const reviewMessage = (s) => h('p', { class: 'review-message' }, reviewMessageText(s));
+
 export function checkpointFinishScreen({ store, router, curriculum, speech }, id) {
   const ck = (curriculum.checkpoints || []).find((c) => c.id === id);
   if (!ck || !store.isCheckpointUnlocked(ck)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
@@ -101,6 +107,7 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
     accent: ck.kind === 'book' ? '#E5484D' : ck.kind === 'reread' ? '#3E9C8B' : ck.kind === 'review' ? '#5A8FE0' : '#C99A5B', // a book's red cover, a teal reading book, a blue ticket, a crate's wood
     armedLabel: 'Yes, back to path',
     armedNote: 'Tap again to go back to the path.',
+    extra: ck.kind === 'review' && ck.summary ? reviewMessage(ck.summary) : null,
     onContinue: () => store.setCheckpointResult(ck.id, 'got-it'),
     onPractice: () => {
       if (!store.isCheckpointDone(ck)) store.setCheckpointResult(ck.id, 'practice-again'); // keep the best result

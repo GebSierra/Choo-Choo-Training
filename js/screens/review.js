@@ -1,4 +1,5 @@
 import { h } from '../dom.js';
+import { stopIcon } from '../art/train2d.js';
 import { makeShell } from './shell.js';
 import { BUILDERS } from './task.js';
 import { TASK_TYPES } from '../lessons.js';
@@ -11,6 +12,19 @@ import { ORDER_SOUNDS, lettersOfSounds } from '../order.js';
 // and Ticket Check behave exactly as they do there. The finish screen is the checkpoint's (the grown-up's "Yes" saves the result).
 const TIP = 'This is a review. Let your child try first. Only if your child misses, say the sound, then have your child say it after you.';
 const lastIndex = {}; // the previous activity per stop, so the progress pill can glide
+
+// The opening card (owner): says what a Review Stop is before its first game, so it is never only a small header line.
+export function reviewIntroScreen(ctx, id) {
+  const { store, router, curriculum } = ctx;
+  const ck = (curriculum.checkpoints || []).find((c) => c.id === id && c.kind === 'review');
+  if (!ck || !store.isCheckpointUnlocked(ck)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
+  return h('div', { class: 'review-intro', dataset: { stop: ck.id } },
+    h('span', { class: 'review-intro-icon', 'aria-hidden': 'true' }, stopIcon(ck)),
+    h('h1', {}, 'Review Stop'),
+    h('p', { class: 'review-intro-line' }, 'Time to practise the sounds your child already knows. Just games, nothing new.'),
+    h('button', { class: 'btn primary big review-start', type: 'button', onclick: () => router.go(`/checkpoint/${ck.id}/task/0`) }, 'Start'),
+    h('button', { class: 'btn secondary back-path', type: 'button', onclick: () => router.go('/home') }, 'Back to path'));
+}
 
 export function reviewTaskScreen(ctx, id, idx = 0) {
   const { store, router, curriculum } = ctx;
@@ -31,7 +45,7 @@ export function reviewTaskScreen(ctx, id, idx = 0) {
   const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, ck.after));
   const hunt = curriculum.games.hunt;
   const only = { ...curriculum, games: { ...curriculum.games, hunt: { ...hunt, distractors: Object.fromEntries(Object.entries(hunt.distractors).map(([k, list]) => [k, list.filter((ch) => taught.has(ch))])) } } };
-  const current = BUILDERS[task.type]({ ...ctx, curriculum: only, lesson, sound, refresh: shell.refresh, setDone: shell.setDone });
+  const current = BUILDERS[task.type]({ ...ctx, step, curriculum: only, lesson, sound, refresh: shell.refresh, setDone: shell.setDone });
   const advance = () => {
     lastIndex[ck.id] = index;
     router.go(isLast ? `/checkpoint/${ck.id}/finish` : `/checkpoint/${ck.id}/task/${index + 1}`);

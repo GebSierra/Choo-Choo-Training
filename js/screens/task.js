@@ -14,8 +14,9 @@ import { build as wagons } from './tasks/wagons.js';
 import { build as board } from './tasks/board.js';
 import { build as practice } from './tasks/practice.js';
 import { build as check } from './tasks/check.js';
+import { build as read } from './tasks/first-word.js';
 
-export const BUILDERS = { review, newLetter, mouth, sounds, writing, hunt, signals, wagons, board, practice, check };
+export const BUILDERS = { review, newLetter, mouth, sounds, writing, hunt, signals, wagons, board, practice, check, read };
 let lastIndex = {}; // remembers the previous task per lesson so the progress pill can glide
 
 export function taskScreen(ctx, n, idx) {
