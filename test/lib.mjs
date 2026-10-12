@@ -13,8 +13,8 @@ const CUR_CK = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'
 const LESSON_COUNT = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')).lessons.length;
 export const doneThrough = (n = LESSON_COUNT) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it' }]));
 export const DONE_JSON = JSON.stringify(doneThrough());
-// The lessons whose tasks are all walked in the slow suites: 1 to 3, the first new one, o (a new vowel), c/k (two letters) and the last.
-export const SAMPLE_LESSONS = [1, 2, 3, 4, 8, 11, 17].filter((n) => n <= LESSON_COUNT);
+// The lessons whose tasks are all walked in the slow suites: 1 to 3, the first new one, o (a new vowel), c/k (two letters), the last of Green Valley, e (the vowel that follows i) and qu (the last lesson, one unit of two letters).
+export const SAMPLE_LESSONS = [1, 2, 3, 4, 8, 11, 17, 18, 25].filter((n) => n <= LESSON_COUNT);
 
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.webp': 'image/webp', '.woff2': 'font/woff2', '.svg': 'image/svg+xml', '.webm': 'audio/webm' };
 
