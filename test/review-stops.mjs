@@ -183,7 +183,7 @@ export async function screenChecks({ browser, url, ok }) {
     const m = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}`);
     await m.page.waitForSelector('.review-intro');
     const t = await m.page.evaluate(() => ({ h1: document.querySelector('.review-intro h1').textContent, line: document.querySelector('.review-intro-line').textContent, btn: (() => { const r = document.querySelector('.review-start').getBoundingClientRect(); return { w: r.width, h: r.height, text: document.querySelector('.review-start').textContent, inView: r.bottom <= innerHeight && r.right <= innerWidth }; })() }));
-    ok(t.h1 === 'Review Stop' && /practise the sounds your child already knows/.test(t.line) && /nothing new/.test(t.line) && t.btn.text === 'Start' && t.btn.h >= 48 && t.btn.w >= 120 && t.btn.inView, `${k.id}: the opening card says Review Stop, what it is, and has a big Start (${t.btn.w}x${t.btn.h})`);
+    ok(t.h1 === 'Review Stop' && /practice the sounds your child already knows/.test(t.line) && /nothing new/.test(t.line) && t.btn.text === 'Start' && t.btn.h >= 48 && t.btn.w >= 120 && t.btn.inView, `${k.id}: the opening card says Review Stop, what it is, and has a big Start (${t.btn.w}x${t.btn.h})`);
     if (k.id === 'v1') await shot(m.page, 'v1-opening-card-390x844');
     await m.page.goto(url + `#/checkpoint/${k.id}/finish`);
     await m.page.waitForSelector('.review-message');

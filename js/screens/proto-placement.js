@@ -107,7 +107,7 @@ export function pickSentence(known) {
 // ---- the result ----
 // The suggested lesson is the lesson of the first letter sound that was not known (the last lesson when all were known). When the
 // made-up words were weak (1 of 3 or fewer) it moves back to the first lesson whose sound is in a missed made-up word, with
-// "Practise blending first". Nothing known: Lesson 1.
+// "Practice blending first". Nothing known: Lesson 1.
 export function computeResult({ lessons, known, mode = 'full', retest = null, awareness = null, made = null, real = null, sentence = null }) {
   const sounds = lessons.map((l) => l.sound);
   const at = (c) => sounds.indexOf(c) + 1;
@@ -138,7 +138,7 @@ export function computeResult({ lessons, known, mode = 'full', retest = null, aw
     notes.push(retest.right ? `Learned ${retest.letter} quickly — a good sign.` : `${retest.letter} was new today. That is fine: Lesson ${l ? l.number : 1} teaches it.`);
   }
   if (awareness) notes.push(weakAware ? 'Hearing the sounds inside words is still new. Sound play builds it, gently and with no letters.' : `Hearing sounds in words is going well (${awareness.right} of 6).`);
-  if (blendFirst) notes.push('Practise blending first: sound out short words slowly and smoothly before new letters.');
+  if (blendFirst) notes.push('Practice blending first: sound out short words slowly and smoothly before new letters.');
   if (!firstNo && !blendFirst) notes.push('That is the last lesson built so far.');
   const allKnown = !firstNo;
   const head = mode === 'quick' ? `Letter sounds: ${ks.length} of ${lessons.length}` : `Suggested start: Lesson ${start.number} (sound ${start.sound})`;

@@ -2,7 +2,7 @@
 // re-check (js/screens/proto-placement.js; docs/CURRICULUM.md section 10).
 // Checks: the first screen and its two entries; step 1 in teaching order, stopping after 3 "Not yet" in a row; teach-and-retest (the
 // card, the retest 2 letters later or at the end, a note and no change to the start); each branch (few sounds: step 2 and no steps 3
-// or 4; 10 or more sounds: step 3; good made-up words: step 4; weak made-up words: the start moves back with "Practise blending
+// or 4; 10 or more sounds: step 3; good made-up words: step 4; weak made-up words: the start moves back with "Practice blending
 // first"); the made-up words over 200 seeded runs (CVC, known sounds only, never in WORD_BANK, the extra real words or the blocklist,
 // the same seed gives the same words); the quick re-check runs step 1 alone; the phone's voice never says a sound; nothing is
 // written; reduced motion; the idle frame budget (DOM-only screens: at most 2 frames in 3 s); three phone sizes with 48 px targets.
@@ -331,13 +331,13 @@ async function branches({ browser, url, ok }) {
   ok(stt.lesson === String(ORDER.length) && stt.sound === ORDER[ORDER.length - 1], `all known: the last lesson (${r.head})`);
   ok(/That is the last lesson built so far\./.test(r.all), 'all known: "That is the last lesson built so far."');
   ok(new RegExp(`Knows ${ORDER.join(' ')};`).test(r.why) && /blends made-up words like [a-z]{3}/.test(r.why) && /reads Sam sat at a map\./.test(r.why), `all known: the why line (${r.why})`);
-  ok(stt.blendFirst === '0' && !/Practise blending first/.test(r.page), 'all known: no blending warning');
+  ok(stt.blendFirst === '0' && !/Practice blending first/.test(r.page), 'all known: no blending warning');
   await shotOf(page, '09-result-strong');
   ok((await store(page)) === made.before, 'all known: nothing written (localStorage unchanged)');
   allTts.push(...(await ttsAll(page)));
   await made.ctx.close();
 
-  // weak made-up words (1 of 3): no step 4, the start moves back, "Practise blending first"
+  // weak made-up words (1 of 3): no step 4, the start moves back, "Practice blending first"
   made = await open(browser, url, PHONE); page = made.page;
   await begin(page);
   trace = await drive(page, { letters: 'y'.repeat(ORDER.length), made: 'ynn' });
@@ -347,9 +347,9 @@ async function branches({ browser, url, ok }) {
   r = await resultText(page);
   const cap = Math.min(...[mw2[1], mw2[2]].map(lessonOf));
   ok((await state(page)).lesson === String(cap) && cap < ORDER.length, `weak made-up words: the start moves back to the lesson of a missed word's sound (Lesson ${cap}; ${r.head})`);
-  ok(/Practise blending first/.test(r.page) && (await state(page)).blendFirst === '1', 'weak made-up words: "Practise blending first"');
+  ok(/Practice blending first/.test(r.page) && (await state(page)).blendFirst === '1', 'weak made-up words: "Practice blending first"');
   ok(/made-up words were not smooth yet/.test(r.why), `weak made-up words: the why line (${r.why})`);
-  await shotOf(page, '10-result-practise-blending');
+  await shotOf(page, '10-result-practice-blending');
   await made.ctx.close();
 
   // 0 of 3 is weak too; 2 of 3 is good (step 4 shows)
@@ -358,7 +358,7 @@ async function branches({ browser, url, ok }) {
     await begin(page);
     trace = await drive(page, { letters: 'y'.repeat(ORDER.length), made: pat, real: 'yyyy', sentence: 'y' });
     ok(phasesOf(trace).has('words') === good && phasesOf(trace).has('sentence') === good, `made-up ${pat}: step 4 ${good ? 'shows' : 'is skipped'}`);
-    if (!good) ok(/Practise blending first/.test((await resultText(page)).page), `made-up ${pat}: practise blending first`);
+    if (!good) ok(/Practice blending first/.test((await resultText(page)).page), `made-up ${pat}: practice blending first`);
     await made.ctx.close();
   }
 

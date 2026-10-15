@@ -595,7 +595,7 @@ can replace the owner's recordings later at the same file paths.
 - Step 4, only if 2 of the 3 made-up words were read: up to four real VC/CVC words from WORD_BANK, then one decodable sentence from
   known sounds and the heart words a, I, is, the (`pickSentence`). Stop after 2 word misses (no sentence).
 - Result: the start is the lesson of the first sound not known (the last lesson when all are known). If 1 or fewer of the 3 made-up
-  words were read, the start moves back to the first lesson whose sound is in a missed made-up word, with "Practise blending first".
+  words were read, the start moves back to the first lesson whose sound is in a missed made-up word, with "Practice blending first".
   One plain line says why; notes carry the retest and sound-awareness advice. The real version will unlock earlier lessons and keep
   the first lesson's review step.
 - "Quick re-check: letter sounds only" runs step 1 alone and shows how many of the sounds are known.

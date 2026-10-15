@@ -585,3 +585,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   if (errors.length) { console.error(errors.map((e) => 'FAIL: ' + e).join('\n')); console.error(`check-content: ${errors.length} problem(s)`); process.exit(1); }
   console.log(`check-content: OK (${Object.keys(c.sounds).length} sounds, ${c.lessons.length} lessons, all rules pass, ${proof.count} child-read words proven readable)`);
 }
+
+// Spelling: the app uses American English; "practise" must not come back in any app text (owner 2026-10-15).
+{
+  const fs2 = await import('node:fs'), path2 = await import('node:path');
+  const walk = (d) => fs2.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path2.join(d, e.name)) : [path2.join(d, e.name)]));
+  const bad = [...walk('js'), ...walk('data')].filter((f) => /\.(js|json)$/.test(f) && /practis(e|ed|ing)\b/i.test(fs2.readFileSync(f, 'utf8')));
+  if (bad.length) { console.log(`FAIL: "practise" (British spelling) found in ${bad.join(', ')}; use "practice"`); process.exitCode = 1; }
+}

@@ -21,7 +21,7 @@ export function reviewIntroScreen(ctx, id) {
   return h('div', { class: 'review-intro', dataset: { stop: ck.id } },
     h('span', { class: 'review-intro-icon', 'aria-hidden': 'true' }, stopIcon(ck)),
     h('h1', {}, 'Review Stop'),
-    h('p', { class: 'review-intro-line' }, 'Time to practise the sounds your child already knows. Just games, nothing new.'),
+    h('p', { class: 'review-intro-line' }, 'Time to practice the sounds your child already knows. Just games, nothing new.'),
     h('button', { class: 'btn primary big review-start', type: 'button', onclick: () => router.go(`/checkpoint/${ck.id}/task/0`) }, 'Start'),
     h('button', { class: 'btn secondary back-path', type: 'button', onclick: () => router.go('/home') }, 'Back to path'));
 }
