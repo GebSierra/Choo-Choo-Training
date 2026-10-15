@@ -50,6 +50,25 @@ export async function levelChecks({ browser, url, ok }) {
     ok((await page.evaluate(() => window.__train.specials)).includes('caboose'), 'level one: the caboose is on the train');
     ok(await page.evaluate(() => window.__audioNotes().some((n) => n.event === 'checkpoint')), 'level one: the checkpoint jingle plays');
     ok(await page.evaluate(() => window.__train.world === 'W1' && window.__train.portal), 'level one: it plays in world 1, whose tunnel portal is the tunnel (one tunnel, not two)');
+    {
+      // the world keepsake: its headline names the world, N sounds and the words are counted afresh from the data
+      const btn = page.locator('.level-banner .keepsake-btn');
+      const bb = await btn.boundingBox();
+      ok(bb && bb.height >= 47.5 && (await btn.innerText()) === 'Save this moment', 'level one: the banner has a 48 px "Save this moment"');
+      const reqs = []; page.on('request', (r) => { if (!r.url().startsWith('data:') && !r.url().startsWith('blob:')) reqs.push(r.url()); });
+      await btn.click();
+      await page.waitForFunction(() => window.__keepsake && window.__keepsake.size > 0, null, { timeout: 15000 }).catch(() => {});
+      const info = await page.evaluate(async () => { const k = window.__keepsake; if (!k) return null; const b = await createImageBitmap(k.blob); const buf = new Uint8Array(await k.blob.arrayBuffer()); let bin = ''; for (const x of buf) bin += String.fromCharCode(x); return { w: b.width, h: b.height, type: k.type, headline: k.headline, word: k.word, sub: k.sub, b64: btoa(bin) }; });
+      if (info) fs.writeFileSync(path.join(ROOT, 'docs/screenshots/milestones/keepsake-world.png'), Buffer.from(info.b64, 'base64'));
+      const CURJ = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')), WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
+      const keys = CURJ.lessons.slice(0, 6).map((l) => l.sound), letters = new Set(keys.flatMap((k) => (k === 'c' ? ['c', 'k'] : [k])));
+      const fresh = WL.filter((w) => [...w].every((c) => letters.has(c))).length;
+      ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350, 'level one: the world keepsake is a 1080x1350 PNG');
+      ok(info && info.headline === 'Lily finished Starter Station!', `level one: the headline names the world (${info && info.headline})`);
+      ok(fresh > 0 && info && info.word === `${keys.length} sounds` && info.sub === `can read ${fresh} words`, `level one: ${keys.length} sounds and ${fresh} words match a fresh count (${info && info.word} / ${info && info.sub})`);
+      ok(reqs.length === 0, `level one: the keepsake made no network request (${reqs.join(' ') || 'none'})`);
+      await page.screenshot({ path: path.join(ROOT, 'docs/screenshots/milestones/world-banner-360x640.png') });
+    }
     ok(await crossed(page), 'level one: after the party the train crosses into world 2 and Home settles there');
     const sw = await page.evaluate(() => { const b = document.querySelector('.level-banner'); const r = b && b.getBoundingClientRect(); return r ? { l: r.left, r: r.right, w: innerWidth } : null; });
     ok(!sw || (sw.l >= 0 && sw.r <= sw.w), 'level one: the banner fits the screen');

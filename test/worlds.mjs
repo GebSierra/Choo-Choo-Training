@@ -117,6 +117,24 @@ export async function previewChecks({ browser, url, ok, vp }) {
   ok(g.worlds[0].units.join() === 'Unit 2.1,Unit 2.2,Unit 2.3' && g.worlds[1].units.join() === 'Unit 2.4,Unit 2.5,Unit 2.6,Unit 2.7,Unit 2.8' && g.worlds[2].units.join() === 'Unit 2.9,Unit 2.10,Unit 2.11', `${tag} list: units group the rows (${g.worlds.map((w) => w.units.join(' ')).join(' / ')})`);
   ok(/8 more worlds/.test(g.note), `${tag} list: the later worlds are noted`);
   await shot(page, 'grownups-top', tag);
+  {
+    // the reading line and the letter chips, counted from the lessons actually done in this save
+    const doneN = await page.evaluate(() => Object.entries(JSON.parse(localStorage.getItem('reading.v1')).lessons).filter(([, l]) => l.result === 'got-it').map(([n]) => Number(n)).sort((a, b) => a - b));
+    const CURW = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')), WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
+    const keys = doneN.map((n) => CURW.lessons[n - 1].sound), letters = new Set(keys.flatMap((k) => (k === 'c' ? ['c', 'k'] : [k])));
+    const fresh = WL.filter((w) => [...w].every((c) => letters.has(c))).length;
+    await page.waitForFunction(() => !!document.querySelector('.gu-hero-read').textContent, null, { timeout: 4000 }).catch(() => {});
+    const gh = await page.evaluate(() => ({ line: document.querySelector('.gu-hero-read').textContent, chips: [...document.querySelectorAll('.gu-hero-chips .gu-chip')].map((c) => c.textContent), r: (() => { const r = document.querySelector('.gu-hero').getBoundingClientRect(); return [r.left, r.right, innerWidth]; })() }));
+    ok(doneN.length > 0 && gh.line === `Can read ${fresh} words` && gh.chips.length === keys.length, `${tag} Grownups: "Can read N words" matches a fresh count (${gh.line} vs ${fresh}) and one chip per sound (${gh.chips.length} of ${keys.length})`);
+    ok(gh.chips.join() === keys.map((k) => (k === 'c' ? 'c/k' : k === 'q' ? 'qu' : k)).join() && !gh.chips.includes('k') && gh.r[0] >= 0 && gh.r[1] <= gh.r[2], `${tag} Grownups: c/k and qu are one chip each, and the header card fits`);
+    if (tag === (process.env.HERO_TAG || tag) && !globalThis.__heroShot) {
+      globalThis.__heroShot = true; const vs = page.viewportSize();
+      await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(200);
+      fs.mkdirSync(path.join(ROOT, 'docs/screenshots/milestones'), { recursive: true });
+      await page.screenshot({ path: path.join(ROOT, 'docs/screenshots/milestones/grownups-header-390x844.png') });
+      await page.setViewportSize(vs); await page.waitForTimeout(200);
+    }
+  }
   await page.locator('.gu-world[data-world="W2"] .gu-fold').click();
   ok(await page.evaluate(() => document.querySelectorAll('.gu-world[data-world="W2"] .gu-row').length === 15 && document.querySelectorAll('.gu-world[data-world="W1"] .gu-row').length === 11), `${tag} list: opening world 2 shows its eleven lessons; world 1 has six lessons and five checkpoints`);
   await page.locator('.gu-world[data-world="W2"] button[aria-label="Unlock lesson 9"]').click();

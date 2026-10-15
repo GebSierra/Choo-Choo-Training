@@ -88,7 +88,7 @@ export function keepsakeButton({ options, filename = 'keepsake.png', label = 'Sa
     try {
       const o = await (typeof options === 'function' ? options() : options);
       const blob = await makeKeepsake(o);
-      window.__keepsake = { type: blob.type, size: blob.size, blob, headline: o.headline }; // read by the tests
+      window.__keepsake = { type: blob.type, size: blob.size, blob, headline: o.headline, word: o.word || o.title, sub: o.sub }; // read by the tests
       await saveBlob(blob, filename);
     } finally { btn.disabled = false; }
   } }, label);

@@ -194,6 +194,21 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
   await page.waitForFunction(() => location.hash.endsWith('/finish'), null, { timeout: 4000 });
   await page.waitForSelector('.finish');
   ok((await page.locator('.finish h1').innerText()) === "That's the end of the story.", `${tag}: the finish heading`);
+  // The keepsake: "Save this moment", a 1080x1350 PNG drawn on the device, no network, the name only in the picture, a fallback without a name.
+  {
+    const kb = await page.locator('.finish .keepsake-btn').boundingBox();
+    ok(kb && kb.height >= 47.5 && kb.width >= 47.5 && (await page.locator('.finish .keepsake-btn').innerText()) === 'Save this moment' && !/share|social/i.test(await page.locator('.finish').innerText()), `${tag}: the finish page has "Save this moment" (48 px, no talk of sharing)`);
+    const before = requests.length, dl = page.waitForEvent('download', { timeout: 15000 }).catch(() => null);
+    await page.locator('.finish .keepsake-btn').click();
+    await page.waitForFunction(() => window.__keepsake && window.__keepsake.size > 0, null, { timeout: 15000 }).catch(() => {});
+    const info = await page.evaluate(async () => { const k = window.__keepsake; if (!k) return null; const b = await createImageBitmap(k.blob); return { type: k.type, w: b.width, h: b.height, size: k.size, headline: k.headline, b64: await new Promise((r) => { const f = new FileReader(); f.onload = () => r(f.result.split(',')[1]); f.readAsDataURL(k.blob); }) }; });
+    if (info && ck.id === BOOKS[0].id) { fs.mkdirSync(path.join(ROOT, 'docs/screenshots/milestones'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'docs/screenshots/milestones/keepsake-story.png'), Buffer.from(info.b64, 'base64')); }
+    ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350 && info.size > 20000, `${tag}: the story keepsake is a 1080x1350 PNG (${info && info.w}x${info && info.h})`);
+    ok(info && info.headline === `${NAME} read a whole story!`, `${tag}: the keepsake headline uses the name (${info && info.headline})`);
+    ok((await dl) !== null && requests.length === before, `${tag}: it downloads and makes no network request`);
+    const fb = await page.evaluate(async () => { const m = await import('./js/components/keepsake.js'); return [m.keepsakeStory(''), m.keepsakeStory('  ')]; });
+    ok(fb.every((t) => t === 'Your child read a whole story!'), `${tag}: no name falls back to "Your child read a whole story!"`);
+  }
   await page.waitForTimeout(1700);
   await page.locator('.got').click();
   await page.waitForTimeout(1700);
