@@ -5,7 +5,16 @@ import { starSvg } from '../art.js';
 import { carSvg } from '../art/cars2d.js';
 import { bannerText } from '../levels.js';
 import { sparkle } from './sparkle.js';
-import { keepsakeButton } from './keepsake.js';
+import { keepsakeButton, keepsakeWorld } from './keepsake.js';
+import { readingProgress } from '../reading-count.js';
+import { worldOf } from '../worlds.js';
+
+// The keepsake for a finished world: its name, the sounds learned up to the level's last lesson and how many words those make readable.
+export async function worldKeepsake(store, curriculum, level) {
+  const w = worldOf(curriculum, level.after), ch = store.character() || {};
+  const p = await readingProgress(store, curriculum, Array.from({ length: level.after }, (_, i) => i + 1));
+  return { headline: keepsakeWorld(ch.name, w ? w.name : 'a world'), word: `${p.sounds} sounds`, sub: `can read ${p.words} words`, date: new Date(), character: ch };
+}
 
 export const BANNER_MS = 4500, FADE_MS = 250;
 

@@ -10,19 +10,10 @@ import { music } from '../music.js';
 import { kidSvg } from '../art/kid.js';
 import { dueLevel, builtLevels } from '../levels.js';
 import { mapButton, openJourney } from '../components/map-button.js';
-import { levelBanner } from '../components/level-banner.js';
-import { keepsakeWorld } from '../components/keepsake.js';
-import { readingProgress } from '../reading-count.js';
-import { planHome, worldOf, worldAfter, previousWorld, nextWorld, currentWorld } from '../worlds.js';
+import { levelBanner, worldKeepsake } from '../components/level-banner.js';
+import { planHome, worldAfter, previousWorld, nextWorld, currentWorld } from '../worlds.js';
 import { activeVisit, goToWorld } from '../visit.js';
 import { restCard, moonBadge, devPill, whenShown } from '../components/rest-card.js';
-
-// The keepsake for a finished world: its name, the sounds learned up to the level's last lesson and how many words those make readable.
-export async function worldKeepsake(store, curriculum, level) {
-  const w = worldOf(curriculum, level.after), ch = store.character() || {};
-  const p = await readingProgress(store, curriculum, Array.from({ length: level.after }, (_, i) => i + 1));
-  return { headline: keepsakeWorld(ch.name, w ? w.name : 'a world'), word: `${p.sounds} sounds`, sub: `can read ${p.words} words`, date: new Date(), character: ch };
-}
 
 // On a visit to an earlier world: a quiet chip that goes back to the world the child is on.
 export function visitChip(ctx, getHost) {

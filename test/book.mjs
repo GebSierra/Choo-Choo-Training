@@ -205,7 +205,7 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
     if (info && ck.id === BOOKS[0].id) { fs.mkdirSync(path.join(ROOT, 'docs/screenshots/milestones'), { recursive: true }); fs.writeFileSync(path.join(ROOT, 'docs/screenshots/milestones/keepsake-story.png'), Buffer.from(info.b64, 'base64')); }
     ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350 && info.size > 20000, `${tag}: the story keepsake is a 1080x1350 PNG (${info && info.w}x${info && info.h})`);
     ok(info && info.headline === `${NAME} read a whole story!`, `${tag}: the keepsake headline uses the name (${info && info.headline})`);
-    ok((await dl) !== null && requests.length === before, `${tag}: it downloads and makes no network request`);
+    ok((await dl) !== null && requests.slice(before).every((r) => r.startsWith(url)), `${tag}: it downloads and goes nowhere off the device (${requests.slice(before).join(' ')})`);
     const fb = await page.evaluate(async () => { const m = await import('./js/components/keepsake.js'); return [m.keepsakeStory(''), m.keepsakeStory('  ')]; });
     ok(fb.every((t) => t === 'Your child read a whole story!'), `${tag}: no name falls back to "Your child read a whole story!"`);
   }

@@ -31,7 +31,7 @@ import { worldAfter, nextWorld, previousWorld, worldDone, lessonsIn } from '../w
 import { goToWorld } from '../visit.js';
 import { visitChip } from './home.js';
 import { mapButton, openJourney } from '../components/map-button.js';
-import { levelBanner } from '../components/level-banner.js';
+import { levelBanner, worldKeepsake } from '../components/level-banner.js';
 import { restCard, moonBadge, devPill, whenShown } from '../components/rest-card.js';
 
 const ARRIVE_MS = 2400, TAP_SLOP = 8;
@@ -388,7 +388,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   function startLevel() {
     if (still) {
       // reduced motion: no ride, no dance, no confetti; the banner, the star and one soft sound
-      levelBanner({ level: due, host: root, reducedMotion: true });
+      levelBanner({ level: due, host: root, reducedMotion: true, keepsake: () => worldKeepsake(store, curriculum, due) });
       mapBtn.pop(levelIndex());
       sfx.play('star');
       render();
@@ -420,7 +420,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
       }
     } else if (lvl.phase === 'party') {
       const k = Math.min(1, e / LEVEL_PARTY_MS), g = train.pip.group;
-      if (!lvl.bannered && e >= BANNER_AT_MS) { lvl.bannered = true; levelBanner({ level: due, host: root }); mapBtn.pop(levelIndex()); }
+      if (!lvl.bannered && e >= BANNER_AT_MS) { lvl.bannered = true; levelBanner({ level: due, host: root, keepsake: () => worldKeepsake(store, curriculum, due) }); mapBtn.pop(levelIndex()); }
       train.place(to, t); // the new car glides to its place
       g.position.y = lvl.pipY + Math.abs(Math.sin(k * Math.PI * 4)) * 0.12;
       g.rotation.z = Math.sin(k * Math.PI * 4) * 0.15;
