@@ -14,7 +14,9 @@ import { starSvg } from '../art.js';
 import { NUMBER_WORDS, earnedLevels } from '../levels.js';
 import { accountCard } from '../components/account-card.js';
 import { kidSvg } from '../art/kid.js';
-import { currentWorld, reachedWorlds, lessonsIn } from '../worlds.js';
+import { keepsakeButton } from '../components/keepsake.js';
+import { worldKeepsake } from '../components/level-banner.js';
+import { currentWorld, reachedWorlds, lessonsIn, worldDone } from '../worlds.js';
 import { goToWorld } from '../visit.js';
 import { readingProgress } from '../reading-count.js';
 import { progressBody } from '../components/progress-card.js';
@@ -47,7 +49,8 @@ export function grownupsScreen(ctx) {
       return h('div', { class: 'gu-wrow' + (isCur ? ' is-current' : ''), dataset: { world: w.id }, style: { '--wc': w.color } },
         h('span', { class: 'gu-world-dot', style: { background: w.color }, 'aria-hidden': 'true' }, String(w.n)),
         h('div', { class: 'gu-row-text' }, h('strong', {}, w.name, isCur ? h('span', { class: 'gu-wtag' }, 'Current') : null), h('span', { class: 'gu-sub' }, `${done} of ${ls.length} lessons done`)),
-        h('button', { class: 'btn small world-go', type: 'button', dataset: { world: w.id }, 'aria-label': `Go to ${w.name}`, onclick: () => goToWorld(ctx, w.id) }, 'Go to this world'));
+        h('button', { class: 'btn small world-go', type: 'button', dataset: { world: w.id }, 'aria-label': `Go to ${w.name}`, onclick: () => goToWorld(ctx, w.id) }, 'Go to this world'),
+        worldDone(store, curriculum, w.id) ? keepsakeButton({ filename: 'world.png', options: () => worldKeepsake(store, curriculum, { after: Math.max(...ls.map((l) => l.number)) }) }) : null);
     }))) : null;
 
   // ---- reset (its own "Start over" card at the very bottom) ----
