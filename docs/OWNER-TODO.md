@@ -105,7 +105,26 @@ with the date.
 - [ ] **New picture tiles for Sunny Hills (2026-10-12):** elephant, bed, jug, jar, watch, web, violin, xylophone, yak have no picture yet (stand-ins or said only for now). Prompts are in docs/IMAGE-PROMPTS.md (marked "new, no current file").
 
 ## Before selling (legal and business)
-- [ ] **Stripe (2026-10-12):** sign up at stripe.com; then run the Stripe setup in a separate coding chat (prompt given in chat): sandbox first, three pricing options, secret keys only in Supabase secrets.
+- [ ] **Stripe: close the loop (2026-10-15).** Do these in order; Claude checks back on this list every session.
+  1. stripe.com: finish sign-up (business details, bank account for payouts, identity check). Turn on two-step login.
+  2. Start a NEW coding chat with the Stripe prompt (in chat 2026-10-12; it says: branch `claude/stripe-billing` only,
+     no secret keys in chat or code, sandbox first, three pricing options first). In that chat, approve the Stripe sign-in
+     when Claude asks (it connects to Stripe's server, mcp.stripe.com).
+  3. Pick the price (one of the three options that chat gives you): one-time, yearly or monthly, and the free part
+     (suggested: World 1 free).
+  4. Tax: in Stripe > Tax > Settings set your head office address, pick the product tax code with your accountant, and add
+     a registration for each place you must collect tax (at least your home state). Without a registration Stripe
+     collects NO tax and shows no error.
+  5. Keys (never paste them in chat): create a restricted key and the webhook signing secret in Stripe, and put them in
+     Supabase > Edge Functions > Secrets as that chat tells you (names it gives you).
+  6. Test in the sandbox with Stripe's test cards (that chat lists them): buy, cancel, failed card, refund. Check the app
+     unlocks and locks again.
+  7. Tell THIS chat (or Claude in the main branch) "Stripe branch is ready": Claude reviews it, runs all tests, merges and
+     releases.
+  8. Go live: switch Stripe from sandbox to live keys (same Supabase secret names), and make one real small purchase
+     yourself, then refund it.
+  9. Before real customers: lawyer review of the privacy policy and terms now that payment is involved (see below), and
+     add a refund policy to the website.
 - [ ] Lawyer review: privacy policy and COPPA (children's privacy), including what accounts store (grown-up email + the
   app's progress: the child's first name and character, lesson results).
 - [ ] Trademark check on the name "Choo Choo Training".
