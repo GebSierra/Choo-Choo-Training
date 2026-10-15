@@ -212,6 +212,18 @@ export async function grownupsChecks({ browser, url, ok, vp }) {
   ok(await page.evaluate(() => { const b = document.querySelector('.gu-body'), k = [...b.children]; const wi = k.findIndex((c) => c.classList.contains('gu-worlds')), li = k.findIndex((c) => c.classList.contains('gu-group') && c.textContent.startsWith('Lessons')); return wi >= 0 && li === wi + 1; }), `${tag}: the Worlds section sits right before Lessons`);
   const fit = await page.evaluate(() => { const r = document.querySelector('.gu-worlds').getBoundingClientRect(); return { l: r.left, r: r.right, ov: document.documentElement.scrollWidth - document.documentElement.clientWidth, wide: [...document.querySelectorAll('body *')].filter((e) => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 4).map((e) => e.className + ':' + Math.round(e.getBoundingClientRect().right)) }; });
   ok(fit.l >= 0 && fit.r <= vp.width + 0.5 && fit.ov <= baseOv + 1, `${tag}: the Worlds section fits the width ${JSON.stringify(fit)}`);
+  {
+    // a keepsake button only on a finished world (world 1 here), with that world's name and a fresh count
+    const kb = await page.evaluate(() => [...document.querySelectorAll('.gu-worlds .gu-wrow')].map((r) => { const b = r.querySelector('.keepsake-btn'); const q = b && b.getBoundingClientRect(); return { id: r.dataset.world, has: !!b, h: q ? q.height : 0, text: b ? b.textContent : '' }; }));
+    ok(kb[0].has && !kb[1].has && kb[0].h >= 47.5 && kb[0].text === 'Save this moment', `${tag}: only the finished world has a 48 px "Save this moment" (${JSON.stringify(kb)})`);
+    await page.locator('.gu-wrow[data-world="W1"] .keepsake-btn').click();
+    await page.waitForFunction(() => window.__keepsake && window.__keepsake.size > 0, null, { timeout: 15000 }).catch(() => {});
+    const info = await page.evaluate(async () => { const k = window.__keepsake; if (!k) return null; const b = await createImageBitmap(k.blob); return { w: b.width, h: b.height, type: k.type, headline: k.headline, word: k.word, sub: k.sub }; });
+    const CJ = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')), WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
+    const last = Math.max(...CJ.lessons.filter((l) => l.world === 'W1').map((l) => l.number)), keys = CJ.lessons.slice(0, last).map((l) => l.sound), lt = new Set(keys.flatMap((k) => (k === 'c' ? ['c', 'k'] : [k])));
+    const fresh = WL.filter((w) => [...w].every((c) => lt.has(c))).length;
+    ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350 && /finished Starter Station!$/.test(info.headline) && info.word === `${keys.length} sounds` && info.sub === `can read ${fresh} words`, `${tag}: the world 1 keepsake is a 1080x1350 PNG naming Starter Station with ${keys.length} sounds and ${fresh} words (${info && info.headline} / ${info && info.word} / ${info && info.sub})`);
+  }
   await page.locator('.gu-worlds').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);
   await shot(page, 'grownups-worlds', vp);

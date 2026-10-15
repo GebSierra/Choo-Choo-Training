@@ -6,6 +6,7 @@ import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
 import { pipSvg } from '../art/pip.js';
 import { kidSvg } from '../art/kid.js';
+import { keepsakeButton, keepsakeStory } from '../components/keepsake.js';
 
 // A warm, short celebration (polish B): the letter on a little wagon ticket, a gold star, one burst of confetti that settles
 // and stays (CSS only, finite; reduced motion shows the settled picture), and the two figures cheering. The parent still
@@ -97,6 +98,14 @@ export function finishScreen({ store, router, curriculum, speech }, n) {
 export const reviewMessageText = (s) => `Your child has learned ${s.sounds} sounds. Once they master them, they will be able to read words like: ${s.examples.join(', ')}. With these sounds they can read ${s.words} words!`;
 const reviewMessage = (s) => h('p', { class: 'review-message' }, reviewMessageText(s));
 
+// The end of a story: a grown-up's "Save this moment" button (a picture made on this device; nothing is uploaded).
+const storyKeepsake = (store, ck) => keepsakeButton({ filename: 'story.png', options: async () => {
+  const ch = store.character() || {};
+  let title = ck.title;
+  try { const { loadBook } = await import('./book.js'); title = (await loadBook(ck, store)).title || title; } catch { /* the stop's own name is used */ }
+  return { headline: keepsakeStory(ch.name), word: title, date: new Date(), character: ch };
+} });
+
 export function checkpointFinishScreen({ store, router, curriculum, speech }, id) {
   const ck = (curriculum.checkpoints || []).find((c) => c.id === id);
   if (!ck || !store.isCheckpointUnlocked(ck)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
@@ -107,7 +116,7 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
     accent: ck.kind === 'book' ? '#E5484D' : ck.kind === 'reread' ? '#3E9C8B' : ck.kind === 'review' ? '#5A8FE0' : '#C99A5B', // a book's red cover, a teal reading book, a blue ticket, a crate's wood
     armedLabel: 'Yes, back to path',
     armedNote: 'Tap again to go back to the path.',
-    extra: ck.kind === 'review' && ck.summary ? reviewMessage(ck.summary) : null,
+    extra: ck.kind === 'review' && ck.summary ? reviewMessage(ck.summary) : ck.kind === 'book' ? storyKeepsake(store, ck) : null,
     onContinue: () => store.setCheckpointResult(ck.id, 'got-it'),
     onPractice: () => {
       if (!store.isCheckpointDone(ck)) store.setCheckpointResult(ck.id, 'practice-again'); // keep the best result

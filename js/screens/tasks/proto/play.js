@@ -33,7 +33,7 @@ async function sayStretch(env, w, text, prompt, stale) {
 }
 // On entry the shell's auto-speak plays parts(); the prompt shows at once when no recording can play, or once one turns out missing.
 function onEntry(env, w, text, prompt, T, stale) {
-  if (!blendReady(env, w)) { prompt.show(text, w); return; }
+  if (!blendReady(env, w) || !env.store.settings.autoSpeak) { prompt.show(text, w); return; } // auto-speak off: the clip is not played on entry, so the grown-up prompt shows now
   T.later(() => { if (!stale() && env.speech.missingBlends.includes(w)) prompt.show(text, w); }, 1500);
 }
 const entryParts = (env, w, instruction) => (blendReady(env, w) ? [{ blend: w }] : [{ tts: instruction }]);

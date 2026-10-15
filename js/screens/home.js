@@ -10,7 +10,7 @@ import { music } from '../music.js';
 import { kidSvg } from '../art/kid.js';
 import { dueLevel, builtLevels } from '../levels.js';
 import { mapButton, openJourney } from '../components/map-button.js';
-import { levelBanner } from '../components/level-banner.js';
+import { levelBanner, worldKeepsake } from '../components/level-banner.js';
 import { planHome, worldAfter, previousWorld, nextWorld, currentWorld } from '../worlds.js';
 import { activeVisit, goToWorld } from '../visit.js';
 import { restCard, moonBadge, devPill, whenShown } from '../components/rest-card.js';
@@ -352,7 +352,7 @@ export function mapScreen(ctx, preview = null, plan = null) {
     if (!due || !root.isConnected) { over(); return; }
     later(over, reduced() ? 1500 : 3000);
     const i = builtLevels(curriculum).findIndex((v) => v.id === due.id);
-    levelBanner({ level: due, host: root, reducedMotion: reduced() });
+    levelBanner({ level: due, host: root, reducedMotion: reduced(), keepsake: () => worldKeepsake(store, curriculum, due) });
     mapBtn.pop(i);
     sfx.play(reduced() ? 'star' : 'checkpoint');
   };

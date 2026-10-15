@@ -14,8 +14,11 @@ import { starSvg } from '../art.js';
 import { NUMBER_WORDS, earnedLevels } from '../levels.js';
 import { accountCard } from '../components/account-card.js';
 import { kidSvg } from '../art/kid.js';
-import { currentWorld, reachedWorlds, lessonsIn } from '../worlds.js';
+import { keepsakeButton } from '../components/keepsake.js';
+import { worldKeepsake } from '../components/level-banner.js';
+import { currentWorld, reachedWorlds, lessonsIn, worldDone } from '../worlds.js';
 import { goToWorld } from '../visit.js';
+import { readingProgress } from '../reading-count.js';
 import { progressBody } from '../components/progress-card.js';
 
 export const CLIP_CREDIT = "Letter sound clips are derived from Wikipedia's IPA vowel and consonant chart recordings, CC BY-SA 3.0, obtained via github.com/joshstephenson/PhoneticFlashCards, trimmed and loudness-normalized.";
@@ -46,7 +49,8 @@ export function grownupsScreen(ctx) {
       return h('div', { class: 'gu-wrow' + (isCur ? ' is-current' : ''), dataset: { world: w.id }, style: { '--wc': w.color } },
         h('span', { class: 'gu-world-dot', style: { background: w.color }, 'aria-hidden': 'true' }, String(w.n)),
         h('div', { class: 'gu-row-text' }, h('strong', {}, w.name, isCur ? h('span', { class: 'gu-wtag' }, 'Current') : null), h('span', { class: 'gu-sub' }, `${done} of ${ls.length} lessons done`)),
-        h('button', { class: 'btn small world-go', type: 'button', dataset: { world: w.id }, 'aria-label': `Go to ${w.name}`, onclick: () => goToWorld(ctx, w.id) }, 'Go to this world'));
+        h('button', { class: 'btn small world-go', type: 'button', dataset: { world: w.id }, 'aria-label': `Go to ${w.name}`, onclick: () => goToWorld(ctx, w.id) }, 'Go to this world'),
+        worldDone(store, curriculum, w.id) ? keepsakeButton({ filename: 'world.png', options: () => worldKeepsake(store, curriculum, { after: Math.max(...ls.map((l) => l.number)) }) }) : null);
     }))) : null;
 
   // ---- reset (its own "Start over" card at the very bottom) ----
@@ -123,7 +127,13 @@ export function grownupsScreen(ctx) {
   function paintHero() {
     const ch = store.character(), total = curriculum.lessons.length, n = store.currentLesson(total), w = currentWorld(store, curriculum), stars = earnedLevels(curriculum, store).length;
     const summary = [n ? `Lesson ${n} of ${total}` : `All ${total} lessons done`, w && w.name, stars ? `${stars} gold star${stars === 1 ? '' : 's'}` : 'No gold stars yet'].filter(Boolean).join(' · ');
-    hero.replaceChildren(h('div', { class: 'gu-hero-fig' }, kidSvg({ ...ch, pose: 'wave', still: true })), h('div', { class: 'gu-hero-text' }, h('strong', {}, ch.name || 'Your child'), h('span', { class: 'gu-hero-sum' }, summary)));
+    hero.replaceChildren(h('div', { class: 'gu-hero-fig' }, kidSvg({ ...ch, pose: 'wave', still: true })), h('div', { class: 'gu-hero-text' }, h('strong', {}, ch.name || 'Your child'), h('span', { class: 'gu-hero-sum' }, summary), h('span', { class: 'gu-hero-read' }), h('span', { class: 'gu-hero-chips', 'aria-label': 'Letters learned' })));
+    readingProgress(store, curriculum).then((p) => {
+      const rd = hero.querySelector('.gu-hero-read'), cp = hero.querySelector('.gu-hero-chips');
+      if (!rd) return;
+      rd.textContent = `Can read ${p.words} words`; rd.dataset.words = String(p.words);
+      cp.replaceChildren(...p.chips.map((c) => h('i', { class: 'gu-chip' }, c)));
+    });
   }
   paintHero();
 

@@ -314,6 +314,18 @@ async function sizes({ browser, url, ok }) {
   }
 }
 
+// Auto-speak off (the default) with recordings available: nothing plays on entry, so the grown-up prompt shows at once.
+async function autoSpeakOff({ browser, url, ok }) {
+  const { ctx, page, errors } = await open(browser, url, PHONE, '#/proto/play/2/task/0', { settings: { playSounds: true, autoSpeak: false } });
+  await page.waitForSelector('.proto.pick .pk-opt'); await page.waitForTimeout(400);
+  const round = DATA.lessons[1].steps[0].rounds[0];
+  ok((await prompt(page)) === `Say: Where is ${first(round.target)}?`, `auto-speak off: the grown-up prompt shows on entry (${await prompt(page)})`);
+  ok((await clips(page)).length === 0, 'auto-speak off: no clip played on entry');
+  ok(await noLetters(page), 'auto-speak off: no letters');
+  ok(errors.length === 0, 'auto-speak off: errors ' + errors.join(' | '));
+  await ctx.close();
+}
+
 export async function run() {
   shotsOn = true;
   let failures = 0, checks = 0;
@@ -323,6 +335,7 @@ export async function run() {
   await entry({ browser, url, ok });
   await walkLessons(browser, url, ok, 'prompts');
   await walkLessons(browser, url, ok, 'recordings');
+  await autoSpeakOff({ browser, url, ok });
   ok(allTts.length > 20 && allTts.every((t) => !SOUNDY(t)), `the phone's voice never said a sound or a stretched word (${allTts.length} lines; bad: ${allTts.filter(SOUNDY).join(' | ')})`);
   await tips({ browser, url, ok });
   await reducedRun({ browser, url, ok });
