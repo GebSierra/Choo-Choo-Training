@@ -56,13 +56,13 @@ export function buildStory(env) {
 
   function tap(k) {
     if (finished) return;
-    if (k < next) { speech.say([{ tts: step.pics[k][1] }]); return; } // a picture already lit tells its line again
+    if (k < next) { speech.say([{ word: step.pics[k][1] }]); return; } // a picture already lit tells its line again
     if (k > next) { bounce(tiles[next]); return; } // out of order: the right next picture bounces, nothing else
     tiles[k].classList.remove('is-start');
     tiles[k].classList.add('lit');
     pop(tiles[k].firstChild, 320);
     sfx.play('pop', { step: k });
-    speech.say([{ tts: step.pics[k][1] }]);
+    speech.say([{ word: step.pics[k][1] }]);
     next++; el.dataset.next = String(next);
     if (next < tiles.length) return;
     finished = true; el.dataset.state = 'done';
@@ -73,6 +73,7 @@ export function buildStory(env) {
   }
   return {
     el, lockScroll: false,
+    targetWords: () => step.pics.map((p) => p[1]),
     parts: () => [{ tts: 'Tap the pictures in order, from left to right.' }],
     script: () => fill(step.script), gist: () => fill(step.gist),
     again: () => { T.clear(); next = 0; finished = false; el.dataset.next = '0'; el.dataset.state = 'playing'; hint.hidden = false; tiles.forEach((t, k) => { t.classList.remove('lit'); t.classList.toggle('is-start', k === 0); }); refresh(); },
@@ -120,7 +121,7 @@ export function buildPick(env) {
     opts.forEach((o) => { if (o !== btn) o.classList.add('soft'); });
     pop(btn.firstChild, 320);
     sfx.play('pop', { step: 2 });
-    speech.say([{ tts: w }]);
+    speech.say([{ word: w }]);
     const r = btn.getBoundingClientRect(), o = el.getBoundingClientRect();
     sparkle(el, r.left - o.left + r.width / 2, r.top - o.top + r.height / 2, { count: 8, size: [10, 18], reach: [30, 60] });
     T.later(() => {
@@ -132,6 +133,7 @@ export function buildPick(env) {
   show(true);
   return {
     el, lockScroll: false,
+    targetWords: () => [round().target],
     parts: () => entryParts(env, round().target, first ? 'Listen to the grown-up. Tap the picture that starts the same way.' : 'Listen. Tap the picture of the word.'),
     script: () => wordFill(fill, step.script, round(), sounds), gist: () => wordFill(fill, step.gist, round(), sounds),
     again: () => { i = 0; show(); },
@@ -178,7 +180,7 @@ export function buildBreak(env) {
       sparkle(el, rr.left - o.left + rr.width / 2, rr.top - o.top + rr.height / 2, { count: 10, size: [10, 20], reach: [34, 70], sound: 'sparkle' });
       T.later(() => {
         if (g !== gen) return;
-        speech.say([{ tts: r.target }]);
+        speech.say([{ word: r.target }]);
         if (i < step.rounds.length - 1) { slot.append(h('button', { class: 'btn small px-next', type: 'button', onclick: () => { i++; show(); } }, 'Next word')); fadeIn(slot); } else { el.dataset.state = 'done'; setDone(true); }
       }, 500);
     }
@@ -188,6 +190,7 @@ export function buildBreak(env) {
   show(true);
   return {
     el, lockScroll: false,
+    targetWords: () => [round().target],
     parts: () => entryParts(env, round().target, 'Listen to the grown-up. Tap a dot for each sound.'),
     script: () => wordFill(fill, step.script, round(), sounds), gist: () => wordFill(fill, step.gist, round(), sounds),
     again: () => { i = 0; show(); },

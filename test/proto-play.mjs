@@ -159,7 +159,7 @@ async function walkLessons(browser, url, ok, mode) {
       if (k === 1 && s === 0) await shotOf(page, '11b-left-to-right-two-lit');
     }
     const said = await ttsAll(page);
-    ok(step.pics.every(([, t]) => said.includes(t)), T(`story ${s + 1}: the voice told each line (${said.slice(-4).join(' / ')})`));
+    ok(step.pics.every(([, t]) => !said.includes(t)), T(`story ${s + 1}: the phone never says a story line (the grown-up does) (${said.slice(-4).join(' / ')})`));
     await page.waitForFunction(() => document.querySelector('.proto.story-row').dataset.state === 'done', null, { timeout: 3000 });
     if (!rec && s === 0) { await shotOf(page, '11c-left-to-right-done'); await idleCheck(page, ok, T('story')); }
     await collectTts(page);
@@ -192,7 +192,7 @@ async function walkLessons(browser, url, ok, mode) {
       await tapEl(page, sel(page, `.pk-opt[data-word="${round.target}"]`)); await page.waitForTimeout(250);
       ok((await sel(page, '.pk-opt.right').count()) === 1, T(`${round.target}: the right picture lights`));
       if (s === 0 && r === 0) await shotOf(page, '12b-first-sounds-right');
-      ok((await ttsAll(page)).includes(round.target), T(`${round.target}: the whole word is spoken`));
+      ok(!(await ttsAll(page)).includes(round.target), T(`${round.target}: the word never goes to text to speech`));
     }
     await page.waitForFunction(() => document.querySelector('.proto.pick').dataset.state === 'done', null, { timeout: 4000 });
     await collectTts(page);
@@ -237,7 +237,7 @@ async function walkLessons(browser, url, ok, mode) {
       if (r === 2 && k === 1) await shotOf(page, '13c-break-two-of-three');
     }
     await page.waitForTimeout(700);
-    ok((await ttsAll(page)).includes(round.target), T(`${round.target}: the whole word is spoken at the end`));
+    ok(!(await ttsAll(page)).includes(round.target), T(`${round.target}: the word never goes to text to speech at the end`));
     if (r < B.rounds.length - 1) { await page.waitForSelector('.px-next', { timeout: 3000 }); await tapEl(page, sel(page, '.px-next')); await page.waitForTimeout(500); }
   }
   await page.waitForFunction(() => document.querySelector('.proto.segment').dataset.state === 'done', null, { timeout: 4000 });
@@ -336,7 +336,7 @@ export async function run() {
   await walkLessons(browser, url, ok, 'prompts');
   await walkLessons(browser, url, ok, 'recordings');
   await autoSpeakOff({ browser, url, ok });
-  ok(allTts.length > 20 && allTts.every((t) => !SOUNDY(t)), `the phone's voice never said a sound or a stretched word (${allTts.length} lines; bad: ${allTts.filter(SOUNDY).join(' | ')})`);
+  ok(allTts.every((t) => !SOUNDY(t)), `the phone's voice never said a sound or a stretched word (${allTts.length} lines; bad: ${allTts.filter(SOUNDY).join(' | ')})`);
   await tips({ browser, url, ok });
   await reducedRun({ browser, url, ok });
   await sizes({ browser, url, ok });
