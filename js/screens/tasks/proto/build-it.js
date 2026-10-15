@@ -31,7 +31,7 @@ export function build(env) {
   tray.append(...tileEls.values());
   const el = h('div', { class: 'proto buildit', dataset: { idx: '0', state: 'building', target: S.first, wrong: '0', filled: '' } }, dots.el, chip, slotRow, hint, tray);
 
-  const instruction = () => [{ tts: idx === 0 ? target() : `Change one letter to make ${target()}.` }];
+  const instruction = () => (idx === 0 ? [{ word: target() }] : [{ tts: 'Change one letter to make a new word.' }, { word: target() }]);
   const word = () => slots.map((s) => s || '').join('');
   const setHint = (text) => { hint.hidden = !text; hint.querySelector('.bi-hint-text').textContent = text || ''; if (text) fadeIn(hint, 200); };
   const sync = () => {
@@ -99,7 +99,7 @@ export function build(env) {
     const r = slotRow.getBoundingClientRect(), o = el.getBoundingClientRect();
     sparkle(el, r.left - o.left + r.width / 2, r.top - o.top + r.height / 2, { count: 12, size: [10, 22], reach: [40, 90], sound: 'star' });
     setHint('');
-    T.later(() => { if (g === gen) speech.say([{ tts: target() }]); }, 450); // the whole word, read aloud
+    T.later(() => { if (g === gen) speech.say([{ word: target() }]); }, 450); // the whole word, read aloud
     if (idx === words.length - 1) { T.later(() => { if (g === gen) { el.dataset.state = 'done'; setDone(true); } }, 1500); return; }
     T.later(() => { if (g !== gen) return; slotRow.querySelectorAll('.right').forEach((s) => s.classList.remove('right')); idx++; newWord(); }, 2300);
   }
@@ -107,6 +107,7 @@ export function build(env) {
   newWord();
   return {
     el,
+    targetWords: () => [target()],
     parts: () => instruction(),
     script: () => (idx === 0 ? env.fill(S.scripts.first, target()) : S.scripts.chain.replace('@', target())),
     gist: () => (idx === 0 ? env.fill(S.scripts.firstGist, target()) : S.scripts.chainGist.replace('@', target())),

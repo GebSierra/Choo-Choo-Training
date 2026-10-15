@@ -3,12 +3,15 @@
 // and those clips play only when the parent turns on "Play recorded letter sounds" (off by default).
 //
 // say(parts) takes [{tts:'text'} | {clip:'m'} | {blend:'fit'} | {src:'path'} | {pause:ms}] and plays them in order.
+// {word:'sun'} is a word the child blends or reads: the recording assets/audio/words/sun.mp3 (or .webm) when one exists, otherwise silence
+// (the grown-up says it). A word the child must blend or read NEVER goes to text to speech (the phone mispronounces it).
 // {blend:'fit'} is a connected blend model ("fffiiit"): the recording assets/audio/blends/fit.mp3 (or .webm), never text to speech.
 // A new say() cancels the one before it. The returned promise always resolves, so no screen ever waits
 // on speech that never starts.
 
 const START_TIMEOUT = 2000;   // if speech has not started by then, move on
 const MAX_UTTERANCE = 15000;  // hard ceiling for one spoken part
+export const wordUrls = (word) => [`assets/audio/words/${word}.mp3`, `assets/audio/words/${word}.webm`];
 export const blendUrls = (word) => [`assets/audio/blends/${word}.mp3`, `assets/audio/blends/${word}.webm`];
 const isIsolatedSound = (t) => {
   const s = t.trim().toLowerCase().replace(/[^a-z]/g, '');
@@ -162,6 +165,12 @@ export function createSpeech({ store, curriculum }) {
             if (st !== 'missing') break;
           }
           if (states.length && states.every((st) => st === 'missing')) { missing.add(part.clip); clipStatus[part.clip] = false; emit(); }
+        } else if (part.word !== undefined) {
+          // A recorded word, if one exists; never text to speech. No file means silence.
+          for (const url of wordUrls(String(part.word).toLowerCase())) {
+            if (run !== runId) return;
+            if (await playAudio(url, null) !== 'missing') break;
+          }
         } else if (part.blend !== undefined) {
           // Like a clip: each candidate file in turn; none playing means no recording, and the screen shows its prompt instead.
           const states = [];

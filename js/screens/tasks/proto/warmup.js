@@ -85,7 +85,7 @@ export function build(env) {
         });
         pic.replaceChildren(wordPicture(data, w, 'huge'));
         pop(pic.firstChild);
-        speech.say([{ tts: w }]);
+        speech.say([{ word: w }]);
         if (band.isConnected) band.remove();
         slot.append(i < S.blend.length - 1
           ? nextButton('Next word', () => { i++; showA(); refresh(); })
@@ -125,7 +125,7 @@ export function build(env) {
       sparkle(el, r.left - o.left + r.width / 2, r.top - o.top + r.height / 2, { count: 10, size: [10, 20], reach: [34, 70], sound: 'sparkle' });
       T.later(() => {
         if (g !== gen) return;
-        speech.say([{ tts: w }]);
+        speech.say([{ word: w }]);
         if (i < S.break.length - 1) slot.append(nextButton('Next word', () => { i++; showB(); refresh(); }));
         else { mark('done'); setDone(true); }
       }, 500);
@@ -136,6 +136,7 @@ export function build(env) {
   showA();
   return {
     el, lockScroll: true,
+    targetWords: () => [word()],
     parts: () => (round === 'a' ? modelParts(env, word(), 'Slide your finger along the letters, and say the word.') : [{ tts: 'Tap a box for each sound.' }]),
     script: () => fill(round === 'a' ? S.scripts.a : S.scripts.b, word()),
     gist: () => fill(round === 'a' ? S.scripts.aGist : S.scripts.bGist, word()),

@@ -115,7 +115,7 @@ export function readingItem(ctx, { kind = 'word', heart = [], onGot, onHelped })
     const model = () => { lightLetters(); return sayBlend(ctx, w, prompt, { stale: stale(g) }); };
     setPanel('Say the whole word. Then have your child say it after you.',
       btn('Hear it again', () => { model(); }),
-      btn('Hear the word', () => speech.say([{ tts: w }])),
+      btn('Hear the word', () => speech.say([{ word: w }])),
       btn('Done', () => complete(), 'ghost go'));
     model();
   }
@@ -127,8 +127,8 @@ export function readingItem(ctx, { kind = 'word', heart = [], onGot, onHelped })
     const letters = [...svg.querySelectorAll('.glyph-letter')];
     const again = () => setAgain();
     if (heart.includes(w)) {
-      setPanel(`"${w}" is a heart word. Say it, then have your child say it.`, ...(w.length > 1 ? [btn('Hear the word', () => speech.say([{ tts: w }]))] : []), btn('Read the whole line again', again, 'ghost go'));
-      if (w.length > 1) speech.say([{ tts: w }]);
+      setPanel(`"${w}" is a heart word. Say it, then have your child say it.`, ...(w.length > 1 ? [btn('Hear the word', () => speech.say([{ word: w }]))] : []), btn('Read the whole line again', again, 'ghost go'));
+      if (w.length > 1) speech.say([{ word: w }]);
       return;
     }
     const model = () => {

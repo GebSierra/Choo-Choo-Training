@@ -19,7 +19,8 @@ const TRAIN_W = 116, FLIP = 150, STAGGER = 60, NEXT_MS = 600, FIRST_MS = 400;
 // sound. The right tile glows, Pip cheers in the cab and the board flips to the next word. The word is never sent to the
 // phone's voice. Reduced motion: no flip, the letters swap with a short fade.
 export function build(ctx) {
-  const { lesson, sound, speech, curriculum } = ctx;
+  const { lesson, speech, curriculum } = ctx;
+  const roundSound = () => curriculum.sounds[words[Math.min(round, words.length - 1)].target];
   const rounds = roundsFor(lesson, 'board');
   const words = (lesson.board || boardWords(order(curriculum), lesson.number, rounds)).slice(0, rounds);
   const T = timers();
@@ -76,7 +77,7 @@ export function build(ctx) {
     row.replaceChildren();
     tiles = letterUnits(word).map((ch) => makeTile(ch, soundOfLetter(ch) === target));
     row.append(...tiles);
-    el.dataset.word = word; el.dataset.round = String(round);
+    el.dataset.word = word; el.dataset.round = String(round); if (ctx.refresh) ctx.refresh();
     prompt.hide();
     locked = false;
     const mine = ++serial;
@@ -88,7 +89,7 @@ export function build(ctx) {
     const { word, target } = words[i];
     const mine = ++serial;
     locked = true; prompt.hide();
-    el.dataset.word = word; el.dataset.round = String(round);
+    el.dataset.word = word; el.dataset.round = String(round); if (ctx.refresh) ctx.refresh();
     const units = letterUnits(word), n = Math.max(tiles.length, units.length), old = tiles.slice(), next = [];
     let total = 0;
     for (let k = 0; k < n; k++) {
@@ -170,7 +171,7 @@ export function build(ctx) {
   return {
     el, flush: true,
     parts: () => parts,
-    gist: () => fit(`Find ${soundPhrase(sound)} in the word.`, `Find ${soundPhrase(sound)}.`, 'Find the sound.'),
+    gist: () => fit(`Find ${soundPhrase(roundSound())} in the word.`, `Find ${soundPhrase(roundSound())}.`, 'Find the sound.'),
     script: () => "Read the word on the board to your child: 'This is …' Then say the sound shown at the top. Your child taps the letter that makes it. If they are stuck, say the sound together.",
     again: () => { again(); speech.say(parts); },
     cleanup: () => { T.clear(); hints.stop(); stopWatching(); endAnims.forEach((a) => a.cancel()); },

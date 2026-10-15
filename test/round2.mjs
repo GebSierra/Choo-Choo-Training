@@ -424,7 +424,7 @@ export async function platformChecks({ browser, url, ok }) {
     st = load({ rate: 0.1, sfxVolume: 9 }); ok(st.rate === 0.7 && st.sfxVolume === 1, `settings: numbers are clamped at the other end (${st.rate}, ${st.sfxVolume})`);
     st = load({ rate: NaN, sfxVolume: Infinity }); ok(st.rate === 0.9 && st.sfxVolume === 0.6, 'settings: NaN and Infinity fall back to the defaults');
     st = load({ rate: 0.95, sfxVolume: 0.3, autoSpeak: false, voiceURI: 'g-us', seenScripts: { hunt: true } }); ok(st.rate === 0.95 && st.sfxVolume === 0.3 && st.autoSpeak === false && st.voiceURI === 'g-us' && st.seenScripts.hunt === true, 'settings: good values are kept');
-    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'sounds')}`, { settings: { rate: 'fast', sfxVolume: 'x', seenScripts: 'oops' } });
+    const { ctx, page, errors } = await open(browser, url, vp, `#/lesson/1/task/${idx(1, 'mouth')}`, { settings: { rate: 'fast', sfxVolume: 'x', seenScripts: 'oops' } });
     await page.waitForSelector('.task-stage > .speak-btn');
     await page.waitForTimeout(900);
     await page.locator('.task-stage > .speak-btn').click();

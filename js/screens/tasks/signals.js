@@ -16,7 +16,8 @@ const TRAIN_W = 116, LEAVE_MS = 1500, NEXT_MS = 900, FIRST_MS = 400;
 // cheers in the cab and the little engine rolls one step along the track. A wrong lamp only shakes, and the sound plays again.
 // After the last round the engine toots and rolls out of the scene. Nothing is timed and nothing is red.
 export function build(ctx) {
-  const { lesson, sound, speech, curriculum } = ctx;
+  const { lesson, speech, curriculum } = ctx;
+  const roundSound = () => curriculum.sounds[targets[Math.min(round, targets.length - 1)]]; // the bar follows the round, never the first sound
   const rounds = roundsFor(lesson, 'signals');
   const targets = roundTargets(order(curriculum), lesson.number, rounds);
   const T = timers();
@@ -74,6 +75,7 @@ export function build(ctx) {
       b.disabled = false;
     });
     el.dataset.round = String(round);
+    if (ctx.refresh) ctx.refresh();
     prompt.hide();
     locked = false;
     T.later(() => { if (mine === serial && !done) say(); }, FIRST_MS);
@@ -157,8 +159,8 @@ export function build(ctx) {
   return {
     el, flush: true,
     parts: () => parts,
-    gist: () => fit(`Tap the light for ${soundPhrase(sound)}.`, `Light for ${soundPhrase(sound)}.`, 'Tap the right light.'),
-    script: () => `Say: 'Listen. Which light says ${soundPhrase(sound)}?' The recording plays. If it does not, say the sound shown at the top. Your child taps the light. If they are stuck, say the sound together.`,
+    gist: () => fit(`Tap the light for ${soundPhrase(roundSound())}.`, `Light for ${soundPhrase(roundSound())}.`, 'Tap the right light.'),
+    script: () => `Say: 'Listen. Which light says ${soundPhrase(roundSound())}?' The recording plays. If it does not, say the sound shown at the top. Your child taps the light. If they are stuck, say the sound together.`,
     again: () => { again(); speech.say(parts); },
     cleanup: () => { T.clear(); hints.stop(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
   };

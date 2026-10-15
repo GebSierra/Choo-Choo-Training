@@ -16,7 +16,7 @@ export function build({ checkpoint, step, curriculum, speech, refresh, setDone, 
   const el = h('div', { class: 'sounds-task first-word' }, body);
   const stopSweep = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } if (cue) { cue.stop(); cue = null; cueStage.classList.remove('cueing'); } };
   const teardown = () => { stopSweep(); if (blend) blend.cleanup(); if (bandWatch) bandWatch.stop(); if (bandEl) bandEl.remove(); blend = bandWatch = bandEl = null; };
-  const partsFor = () => [{ tts: words[i] }];
+  const partsFor = () => [{ word: words[i] }];
 
   function show() {
     teardown();
@@ -53,13 +53,14 @@ export function build({ checkpoint, step, curriculum, speech, refresh, setDone, 
     body.append(msg, save);
     stage.classList.add('celebrating');
     if (!reduced()) animate(msg, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'ease-out' });
-    speech.autoSay([{ tts: `You read ${words[words.length - 1]}!` }]);
+    speech.autoSay([{ word: words[words.length - 1] }]);
     if (setDone) setDone();
     refresh();
   }
   show();
   return {
     el, lockScroll: true,
+    targetWords: () => words,
     parts: () => partsFor(),
     script: () => `Let your child try first: your child slides a finger under the word and says it. Then tap Read it! If they are stuck, sound it out together. Still stuck? Say it yourself, then have your child say it after you. (Smooth and joined: ${slowSounds(words[i], sounds)}.)`,
     gist: () => 'Slide, say it, tap Read it!',

@@ -117,7 +117,7 @@ async function walk(browser, url, ok, mode) {
   await page.waitForSelector('.wu-pic .pic-frame', { timeout: 3000 });
   await page.waitForTimeout(900);
   ok(await sel(page, '.wu-pic .pic-frame').count() === 1, T('the picture of sat appears after the slide'));
-  ok((await ttsAll(page)).includes('sat'), T('the whole word sat is spoken after the slide'));
+  ok(!(await ttsAll(page)).includes('sat'), T('the word sat never goes to text to speech after the slide (the grown-up says it)'));
   await shotOf(page, '01b-warmup-picture');
   await tapEl(page, sel(page, '.px-next')); await page.waitForTimeout(700);
   ok((await dset(page, '.proto.warmup', 'word')) === 'map', T('then map'));
@@ -305,7 +305,7 @@ async function walk(browser, url, ok, mode) {
   // 6. Build It
   await page.waitForSelector('.proto.buildit .bi-tile');
   await page.waitForTimeout(500);
-  ok((await ttsAll(page)).includes('fat'), T('the phone says the whole word fat'));
+  ok(!(await ttsAll(page)).includes('fat'), T('the phone never says the word fat (text to speech is off for words to read)'));
   ok((await sel(page, '.bi-slot').count()) === 3 && (await sel(page, '.bi-tile').count()) === 7, T('three boxes and seven tiles'));
   ok((await page.evaluate(() => [...document.querySelectorAll('.bi-tile')].map((t) => t.dataset.letter).join(''))) === 'masitpf', T('the tray holds m a s i t p f'));
   await shotOf(page, '06a-build-empty');
@@ -326,7 +326,7 @@ async function walk(browser, url, ok, mode) {
   await page.waitForFunction(() => document.querySelector('.proto.buildit').dataset.idx === '1', null, { timeout: 5000 });
   ok(true, T('the chain starts'));
   await page.waitForTimeout(700);
-  ok((await ttsAll(page)).includes('Change one letter to make fit.'), T('"Change one letter to make fit."'));
+  ok((await ttsAll(page)).includes('Change one letter to make a new word.') && !(await ttsAll(page)).some((t) => /\bfit\b/.test(t)), T('"Change one letter to make a new word." and the word fit is not said by the phone'));
   ok((await dset(page, '.proto.buildit', 'filled')) === 'fat' && !(await page.evaluate(() => document.querySelector('.bi-slot.off, .bi-slot.right'))), T('the box to change is not marked'));
   await shotOf(page, '06d-build-chain');
   const swap = async (k, ch) => { await tapEl(page, sel(page, `.bi-slot:nth-child(${k + 1})`)); await page.waitForTimeout(200); await tapEl(page, tile(ch)); await page.waitForTimeout(500); };
@@ -375,7 +375,7 @@ async function walk(browser, url, ok, mode) {
   ok((await dset(page, '.proto.story', 'line')) === '2', T('line 3'));
   await tapEl(page, sel(page, '.judge-btn.help')); await page.waitForTimeout(400);
   await tapEl(page, sel(page, '.wtile:nth-child(4)')); await page.waitForTimeout(600);
-  ok(/heart word/.test((await text(page, '.ri-panel')) || '') && (await ttsAll(page)).includes('the'), T('a heart word is said whole, not blended'));
+  ok(/heart word/.test((await text(page, '.ri-panel')) || '') && !(await ttsAll(page)).includes('the'), T('a heart word is never spoken by text to speech'));
   await tapEl(page, btnByText(page, 'Read the whole line again')); await page.waitForTimeout(400);
   await got(page);
   ok((await dset(page, '.proto.story', 'line')) === '0', T('the helped line 1 comes back once'));
@@ -386,8 +386,7 @@ async function walk(browser, url, ok, mode) {
   ok((await sel(page, '.rs-row').count()) === 3, T('the whole story on one page'));
   ok(!(await ttsAll(page)).includes(STORY), T('still not read aloud'));
   await shotOf(page, '07d-story-page');
-  await tapEl(page, btnByText(page, 'Hear the story')); await page.waitForTimeout(400);
-  ok((await ttsAll(page)).includes(STORY), T('"Hear the story" speaks the whole story, after the child has read it'));
+  ok((await btnByText(page, 'Hear the story').count()) === 0 && !(await ttsAll(page)).includes(STORY), T('there is no "Hear the story": the story is never read by text to speech'));
   await tapEl(page, btnByText(page, 'Again, faster')); await page.waitForTimeout(600);
   ok((await dset(page, '.proto.story', 'reads')) === '2', T('"Again, faster" starts a reread'));
   await shotOf(page, '07e-story-faster');

@@ -19,8 +19,8 @@ export function build({ lesson, curriculum, speech, refresh }) {
   const cur = () => list[i];
   const partsFor = () => {
     const w = cur();
-    if (w.showLetters) return [...letterUnits(w.word).filter(hasGlyph).map((c) => ({ clip: soundOfLetter(c) })), { pause: 300 }, { tts: w.word }];
-    return [{ tts: w.word }];
+    if (w.showLetters) return [...letterUnits(w.word).filter(hasGlyph).map((c) => ({ clip: soundOfLetter(c) })), { pause: 300 }, { word: w.word }];
+    return [{ word: w.word }];
   };
   const stopSweep = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } if (cue) { cue.stop(); cue = null; cueStage.classList.remove('cueing'); } };
   const teardown = () => { stopSweep(); if (blend) blend.cleanup(); if (bandWatch) bandWatch.stop(); if (bandEl) bandEl.remove(); blend = null; bandWatch = null; bandEl = null; };
@@ -66,7 +66,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
       if (w.showLetters) { stopSweep(); animate(label, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260 }); }
       // A picture word with letters not taught yet (sayOnly) is only said: its letters are never shown to read.
       else if (!w.sayOnly) { const row = mountWord(stage, w, hint, { perLetter: false, capped: true }); animate(row, [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260 }); }
-      speech.say([{ tts: w.word }]);
+      speech.say([{ word: w.word }]);
     };
     tapStage = () => { if (revealed) speech.say(partsFor()); else reveal(); };
     stage.addEventListener('click', () => { if (blend && blend.swallowClick()) return; tapStage(); });
@@ -78,6 +78,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
   return {
     el, lockScroll: true,
     parts: () => partsFor(),
+    targetWords: () => [cur().word],
     script: () => {
       const w = cur();
       // A held sound is stretched ("sss"), a clipped one is short ("t-") and never stretched.

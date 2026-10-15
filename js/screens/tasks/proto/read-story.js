@@ -61,10 +61,9 @@ export function build(env) {
     const rows = lines.map((l, i) => h('div', { class: 'rs-row', dataset: { line: String(i) } }, h('span', { class: 'rs-thumb' }, storyScene(l.scene)), lineEl(l.text, 'small')));
     const page = h('div', { class: 'rs-page' }, ...rows);
     const faster = h('button', { class: 'btn small ghost', type: 'button', onclick: () => pace() }, icon('redo', 20), 'Again, faster');
-    const hear = hearBtn('Hear the story', () => speech.say([{ tts: storyText() }]));
     const msg = h('p', { class: 'rs-msg' }, 'You read it all!');
     const ask = h('button', { class: 'btn small px-next', type: 'button', onclick: () => { showQuestion(); refresh(); } }, 'A question');
-    host.replaceChildren(h('div', { class: 'rs-pad' }, msg, page, h('div', { class: 'px-btns' }, hear, faster, ask)));
+    host.replaceChildren(h('div', { class: 'rs-pad' }, msg, page, h('div', { class: 'px-btns' }, faster, ask)));
     fadeIn(page);
     function pace() {
       const g = ++gen; T.clear();
@@ -120,7 +119,7 @@ export function build(env) {
   showLine();
   return {
     el,
-    parts: () => (phase === 'lines' ? [{ tts: 'Read the line.' }] : phase === 'page' ? [{ tts: storyText() }] : [{ tts: Q.say }]),
+    parts: () => (phase === 'lines' ? [{ tts: 'Read the line.' }] : phase === 'page' ? [] : [{ tts: Q.say }]),
     script: () => fill(S.scripts[phase === 'lines' ? 'line' : phase], ''),
     gist: () => fill(S.scripts[(phase === 'lines' ? 'line' : phase) + 'Gist'], ''),
     again: () => { gen++; T.clear(); phase = 'lines'; el.dataset.phase = 'lines'; pos = 0; q.length = 0; q.push(...lines.map((_, i) => i)); returned.clear(); reads = 1; showLine(); },

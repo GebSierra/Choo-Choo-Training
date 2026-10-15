@@ -96,7 +96,7 @@ export function build(env) {
       el.dataset.slid = '1';
       T.later(() => {
         if (g0 !== gen) return;
-        speech.say([{ tts: w }]);
+        speech.say([{ word: w }]);
         if (i < S.words.length - 1) slot.append(h('button', { class: 'btn small px-next', type: 'button', onclick: () => { i++; show(); } }, 'Next word'));
         else { el.dataset.state = 'done'; setDone(true); }
         fadeIn(slot);
@@ -112,6 +112,7 @@ export function build(env) {
   show();
   return {
     el, lockScroll: true,
+    targetWords: () => [word()],
     parts: () => (mode === 'ido' ? modelParts(env, word(), 'Watch and listen.') : [{ tts: 'Slide your finger along the letters and say it together.' }]),
     script: () => fill(S.scripts[mode], word()),
     gist: () => fill(S.scripts[mode + 'Gist'], word()),
