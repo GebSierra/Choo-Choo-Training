@@ -141,7 +141,7 @@ export function createSpeech({ store, curriculum }) {
     let list = (Array.isArray(parts) ? parts : [parts]).map((p) => (typeof p === 'string' ? { tts: p } : p)).filter(Boolean);
     // By default the grown up says every sound: clip parts are skipped silently, never replaced by text to speech.
     if (!store.settings.playSounds) {
-      list = list.filter((p) => p.clip === undefined && p.blend === undefined);
+      list = list.filter((p) => p.clip === undefined && p.blend === undefined && p.word === undefined);
       while (list.length && list[0].pause !== undefined) list.shift();
     }
     cancel();
