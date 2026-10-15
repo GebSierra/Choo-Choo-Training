@@ -2152,3 +2152,8 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .first-word-confetti .confetti { top: 40%; }
 .first-word-msg { margin: 0; max-width: 340px; font-size: 18px; font-weight: 700; line-height: 1.35; text-align: center; }
 .read-it { min-width: 200px; min-height: 56px; }
+.gu-hero-read { font-size: 16px; font-weight: 800; color: #2B2D5C; margin-top: 2px; }
+.gu-hero-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.gu-chip { font-style: normal; font-weight: 800; font-size: 14px; line-height: 1; min-width: 24px; padding: 4px 6px; border-radius: 8px; background: rgba(255,255,255,.8); color: #2B2D5C; text-align: center; }
+.level-banner .keepsake-btn { margin-top: 6px; min-height: 48px; min-width: 48px; }
+.finish .keepsake-btn { justify-self: center; margin: 4px auto; }

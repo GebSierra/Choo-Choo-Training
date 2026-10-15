@@ -27,7 +27,12 @@ function wrap(ctx, text, maxW) {
 }
 const round = (ctx, x, y, w, hgt, r) => { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + hgt, r); ctx.arcTo(x + w, y + hgt, x, y + hgt, r); ctx.arcTo(x, y + hgt, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); };
 
-export async function makeKeepsake({ headline, word, date = new Date(), character = {} }) {
+export const keepsakeStory = (name) => (name && String(name).trim() ? `${String(name).trim()} read a whole story!` : 'Your child read a whole story!');
+export const keepsakeWorld = (name, world) => (name && String(name).trim() ? `${String(name).trim()} finished ${world}!` : `Your child finished ${world}!`);
+
+// spec: { headline, word (the big line on the card; `title` is the same), sub (an optional small line under it), date, character }
+export async function makeKeepsake({ headline, word, title, sub, date = new Date(), character = {} }) {
+  word = word || title || '';
   try { await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1500))]); await Promise.all([document.fonts.load('700 120px Andika'), document.fonts.load('800 60px Nunito')]).catch(() => {}); } catch { /* the fallback fonts draw */ }
   const [kid, pip, engine] = await Promise.all([svgImage(kidSvg({ ...character, pose: 'cheer', still: true })), svgImage(pipSvg({ pose: 'cheer', still: true })), svgImage(engineSvg({ still: true }))]);
   const c = document.createElement('canvas'); c.width = KEEPSAKE_W; c.height = KEEPSAKE_H;
@@ -44,8 +49,11 @@ export async function makeKeepsake({ headline, word, date = new Date(), characte
   const top = 150 + lines.length * 84 + 20;
   // the word on a card
   g.save(); g.shadowColor = 'rgba(60,40,20,.18)'; g.shadowBlur = 30; g.shadowOffsetY = 12; g.fillStyle = '#fff'; round(g, 130, top, KEEPSAKE_W - 260, 330, 48); g.fill(); g.restore();
-  g.fillStyle = '#1E2140'; g.font = '700 230px Andika, Nunito, system-ui, sans-serif'; g.textBaseline = 'alphabetic';
-  g.fillText(word, KEEPSAKE_W / 2, top + 250);
+  g.fillStyle = '#1E2140'; g.textBaseline = 'alphabetic';
+  let size = sub ? 120 : 230; // shrinks to fit the card for a long title
+  do { g.font = `700 ${size}px Andika, Nunito, system-ui, sans-serif`; size -= 6; } while (size > 40 && g.measureText(word).width > KEEPSAKE_W - 340);
+  g.fillText(word, KEEPSAKE_W / 2, top + (sub ? 190 : 250));
+  if (sub) { g.fillStyle = '#3E4370'; g.font = '700 54px Nunito, system-ui, sans-serif'; wrap(g, sub, KEEPSAKE_W - 340).slice(0, 2).forEach((t, i) => g.fillText(t, KEEPSAKE_W / 2, top + 265 + i * 58)); }
   // the child and Pip
   const figTop = top + 370, figH = 500;
   drawFit(g, kid, 90, figTop, 440, figH);
@@ -78,7 +86,7 @@ export function keepsakeButton({ options, filename = 'keepsake.png', label = 'Sa
   const btn = h('button', { class: 'btn secondary keepsake-btn', type: 'button', style: { minHeight: '48px' }, onclick: async () => {
     btn.disabled = true;
     try {
-      const o = typeof options === 'function' ? options() : options;
+      const o = await (typeof options === 'function' ? options() : options);
       const blob = await makeKeepsake(o);
       window.__keepsake = { type: blob.type, size: blob.size, blob, headline: o.headline }; // read by the tests
       await saveBlob(blob, filename);

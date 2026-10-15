@@ -5,14 +5,21 @@ import { starSvg } from '../art.js';
 import { carSvg } from '../art/cars2d.js';
 import { bannerText } from '../levels.js';
 import { sparkle } from './sparkle.js';
+import { keepsakeButton } from './keepsake.js';
 
 export const BANNER_MS = 4500, FADE_MS = 250;
 
-export function levelBanner({ level, host, reducedMotion = false }) {
+// keepsake: an optional () => spec for the grown-up's "Save this moment" button (js/components/keepsake.js); tapping it keeps the banner open.
+export function levelBanner({ level, host, reducedMotion = false, keepsake = null }) {
   let closed = false;
   const el = h('div', { class: 'level-banner', role: 'status', dataset: { level: level.id } },
     h('div', { class: 'level-banner-art' }, starSvg('big'), carSvg(level.car, 'car-icon')),
     h('div', { class: 'level-banner-text' }, bannerText(level)));
+  if (keepsake) {
+    const save = keepsakeButton({ filename: 'world.png', options: keepsake });
+    save.addEventListener('click', (e) => { e.stopPropagation(); clearTimeout(timer); });
+    el.append(save);
+  }
   const timer = setTimeout(() => close(), BANNER_MS);
   function close() {
     if (closed) return;
