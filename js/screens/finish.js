@@ -6,6 +6,7 @@ import { accentOf } from '../theme.js';
 import { sfx } from '../sfx.js';
 import { pipSvg } from '../art/pip.js';
 import { kidSvg } from '../art/kid.js';
+import { keepsakeButton, keepsakeStory } from '../components/keepsake.js';
 
 // A warm, short celebration (polish B): the letter on a little wagon ticket, a gold star, one burst of confetti that settles
 // and stays (CSS only, finite; reduced motion shows the settled picture), and the two figures cheering. The parent still

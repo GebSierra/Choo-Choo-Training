@@ -46,10 +46,6 @@ export async function levelChecks({ browser, url, ok }) {
     ok(await until(page, () => !!document.querySelector('.level-banner'), null, 3000), 'level one: the banner shows');
     ok((await page.locator('.level-banner').first().innerText()).trim() === 'Level one complete!', 'level one: the banner reads "Level one complete!"');
     ok((await page.locator('.level-banner .car-icon').count()) === 1 && (await page.locator('.level-banner .gold-star').count()) === 1, 'level one: the banner shows the star and the new car');
-    ok(await until(page, () => document.querySelector('.map-btn') && document.querySelector('.map-btn').dataset.stars === '1', null, 3000), 'level one: the map button counts one gold star (1.9.21: the star board moved into the journey board)');
-    ok((await page.evaluate(() => window.__train.specials)).includes('caboose'), 'level one: the caboose is on the train');
-    ok(await page.evaluate(() => window.__audioNotes().some((n) => n.event === 'checkpoint')), 'level one: the checkpoint jingle plays');
-    ok(await page.evaluate(() => window.__train.world === 'W1' && window.__train.portal), 'level one: it plays in world 1, whose tunnel portal is the tunnel (one tunnel, not two)');
     {
       // the world keepsake: its headline names the world, N sounds and the words are counted afresh from the data
       const btn = page.locator('.level-banner .keepsake-btn');
@@ -69,6 +65,10 @@ export async function levelChecks({ browser, url, ok }) {
       ok(reqs.length === 0, `level one: the keepsake made no network request (${reqs.join(' ') || 'none'})`);
       await page.screenshot({ path: path.join(ROOT, 'docs/screenshots/milestones/world-banner-360x640.png') });
     }
+    ok(await until(page, () => document.querySelector('.map-btn') && document.querySelector('.map-btn').dataset.stars === '1', null, 3000), 'level one: the map button counts one gold star (1.9.21: the star board moved into the journey board)');
+    ok((await page.evaluate(() => window.__train.specials)).includes('caboose'), 'level one: the caboose is on the train');
+    ok(await page.evaluate(() => window.__audioNotes().some((n) => n.event === 'checkpoint')), 'level one: the checkpoint jingle plays');
+    ok(await page.evaluate(() => window.__train.world === 'W1' && window.__train.portal), 'level one: it plays in world 1, whose tunnel portal is the tunnel (one tunnel, not two)');
     ok(await crossed(page), 'level one: after the party the train crosses into world 2 and Home settles there');
     const sw = await page.evaluate(() => { const b = document.querySelector('.level-banner'); const r = b && b.getBoundingClientRect(); return r ? { l: r.left, r: r.right, w: innerWidth } : null; });
     ok(!sw || (sw.l >= 0 && sw.r <= sw.w), 'level one: the banner fits the screen');
