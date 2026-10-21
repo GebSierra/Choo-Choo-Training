@@ -31,7 +31,7 @@
   "pages": [
     {
       "scene": "track",
-      "read": "Toot toot! Pip’s train rolls into the Sunny Hills. Pip, {name} and Sam look out at the golden fields. Pip smiles and says, \"We need to find the best spot for our picnic!\"",
+      "read": "Toot toot! Pip's train rolls into the Sunny Hills. Pip, {name} and Sam look out at the golden fields. Pip smiles and says, \"We need to find the best spot for our picnic!\"",
       "art": {
         "train": true,
         "pip": "wave"
@@ -76,7 +76,7 @@
     {
       "scene": "hill",
       "kind": "drag",
-      "read": "\"Hold on tight! Let’s power up the hill!\""
+      "read": "\"Hold on tight! Let's power up the hill!\""
     },
     {
       "scene": "track",
@@ -96,7 +96,7 @@
     },
     {
       "scene": "meadow",
-      "read": "Suddenly, splash! A tiny rain cloud pops overhead and drops fall on the grass. Oh no! Pip covers the picnic basket so the food doesn’t get ...",
+      "read": "Suddenly, splash! A tiny rain cloud pops overhead and drops fall on the grass. Oh no! Pip covers the picnic basket so the food doesn't get ...",
       "child": "wet",
       "slider": "wet",
       "art": {
@@ -128,7 +128,7 @@
     {
       "scene": "picnic",
       "read": "They unpack their basket and share a delicious, warm, freshly baked treat. Everyone takes a big bite together and says ...",
-      "sound": "mmmm",
+      "sound": "mmm",
       "art": {
         "emoji": [
           "🥖"

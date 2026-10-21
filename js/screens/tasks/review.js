@@ -46,7 +46,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
     parts: () => (revealed ? [{ clip: sound().glyph }, { tts: sound().words[0].word }] : [{ tts: 'What sound does this letter make?' }]),
     // Review: the child tries first. Stuck: say it together. Still stuck: the grown-up says it, the child says it after.
     script: () => 'Ask your child to say the sound of this letter. Your child can slide a finger under it. If they are stuck, say the sound together. Still stuck? Say it yourself, then have your child say it after you.',
-    gist: () => 'Child says the sound first.',
+    gist: () => 'Let your child say it first.',
     again: () => { show(); reveal(); },
     cleanup: () => track.cleanup(),
     next: () => { if (i < keys.length - 1) { i++; show(); return true; } return false; },

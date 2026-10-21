@@ -722,7 +722,7 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 @media (orientation: landscape) and (max-height: 520px) { .task-stage.dimmed::after { opacity: 0; } }
 .sheet-head { flex: 0 0 auto; display: grid; grid-template-columns: 36px minmax(0, 1fr) 48px 48px; gap: 8px; align-items: center; padding: 8px 4px 2px 12px; }
 .sheet-close { color: var(--muted); }
-.sheet-body { overflow-y: auto; padding: 4px 16px 16px; -webkit-overflow-scrolling: touch; }
+.sheet-body { overflow-y: auto; padding: 4px 16px 12px; -webkit-overflow-scrolling: touch; }
 .script-wrap.always { height: auto; }
 .script-card.full { padding: 8px 8px 8px 10px; min-height: 0; overflow-y: auto; }
 .script-card.full .script-text { font-size: 16px; line-height: 1.3; }
@@ -2157,3 +2157,12 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .gu-chip { font-style: normal; font-weight: 800; font-size: 14px; line-height: 1; min-width: 24px; padding: 4px 6px; border-radius: 8px; background: rgba(255,255,255,.8); color: #2B2D5C; text-align: center; }
 .level-banner .keepsake-btn { margin-top: 6px; min-height: 48px; min-width: 48px; }
 .finish .keepsake-btn { justify-self: center; margin: 4px auto; }
+/* Finish screens on a short portrait phone (360 x 640): the heading balances over its lines, and the picture and message give up some height so "Yes, go on" is fully on screen even under a Review Stop's longer message */
+.finish h1 { text-wrap: balance; }
+@media (orientation: portrait) and (max-height: 700px) {
+  .finish { gap: 12px; padding-top: calc(14px + var(--sat)); padding-bottom: calc(14px + var(--sab)); }
+  .finish-glyph { width: 112px; height: 112px; }
+  .finish h1 { font-size: 30px; }
+  .finish-card { padding: 14px; gap: 10px; }
+  .review-message { font-size: 15px; line-height: 1.3; padding: 10px 14px; }
+}

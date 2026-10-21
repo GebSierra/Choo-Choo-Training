@@ -123,7 +123,7 @@ export function rereadBuild({ checkpoint, speech, refresh, setProgress, setDone 
       : phase === 'done'
         ? "Well done. Reading the same story again makes it smoother. Tap Again for one more read, or Finish."
         : `Your child reads one sentence at a time: '${story[read]}' Let your child try first. If your child gets stuck, sound the word out together. Still stuck? Read the sentence yourself, then have your child read it after you. After each sentence your child reads, tap Read it!`),
-    gist: () => (phase === 'listen' ? fit('Read the story once, then tap', 'Read it once, point to words') : phase === 'done' ? fit('Well done. Again, or Finish') : fit('Tap Read it! after each line')),
+    gist: () => (phase === 'listen' ? fit('Read once, point to words.') : phase === 'done' ? fit('Well done. Again or Finish.') : fit('Tap Read it! for each line.')),
     again: () => { again(); speech.say([{ tts: 'Now you read it.' }]); },
     cleanup: () => { disposed = true; T.clear(); stopWatching(); },
   };

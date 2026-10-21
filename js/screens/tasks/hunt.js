@@ -6,7 +6,7 @@ import { sparkle } from '../../components/sparkle.js';
 import { timers, watchSize, findCard, starRow, shake, idleHints, pulseCard } from '../../components/game-kit.js';
 import { skyCells, deal, BOX } from './hunt-deal.js';
 import { accentOf } from '../../theme.js';
-import { soundPhrase, fit } from '../../lessons.js';
+import { soundPhrase } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 import { spellingsOf } from '../../order.js';
 
@@ -292,8 +292,8 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
   return {
     el, flush: true,
     parts: () => say,
-    gist: () => fit(`Find ${soundPhrase(sound)}. Touch it.`, `Find ${soundPhrase(sound)}.`),
-    script: () => `Say: 'Find the letter that says ${soundPhrase(sound)}.' Your child says the sound first, then touches the letter. If they are stuck, say it together.`,
+    gist: () => `Find ${soundPhrase(sound)}.`,
+    script: () => `Say: 'Find the letter that says ${soundPhrase(sound)}.' Your child says the sound back, then touches the letter. If they are stuck, say it together.`,
     again: () => { again(); speech.say(say); },
     cleanup: () => { T.clear(); hints.stop(); sky.replaceChildren(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
   };

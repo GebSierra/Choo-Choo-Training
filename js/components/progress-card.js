@@ -16,7 +16,8 @@ export function progressBody({ curriculum, store }) {
       h('span', { class: 'gp-lessons' }, `${s.done} of ${s.total} lessons done`),
       s.unit ? h('span', { class: 'gp-unit' }, s.unit.sounds.length ? `Now: unit ${s.unit.id}, sounds ${s.unit.sounds.join(' ')}` : `Now: unit ${s.unit.id}`) : null,
       s.levels.length ? h('span', { class: 'gp-levels' }, s.levels.map((v) => `Level ${NUMBER_WORDS[v.n - 1]} star: ${v.earned ? 'earned' : 'not yet'}`).join(' · ')) : null,
-      h('span', { class: 'gp-last' }, s.lastDone && dateText(s.lastDone) ? `Last lesson finished: ${dateText(s.lastDone)}` : 'No lesson finished here yet'),
+      // A world with lessons done but no saved date (finished before dates were kept) shows no line, never "No lesson finished here yet".
+      s.lastDone && dateText(s.lastDone) ? h('span', { class: 'gp-last' }, `Last lesson finished: ${dateText(s.lastDone)}`) : s.done > 0 ? null : h('span', { class: 'gp-last' }, 'No lesson finished here yet'),
     ];
     return h('li', { class: `gp-world is-${s.state}`, style: { '--wc': w.color }, dataset: { world: w.id, state: s.state, done: String(s.done), total: String(s.total) } },
       h('span', { class: 'gp-dot', 'aria-hidden': 'true' }, String(w.n)),

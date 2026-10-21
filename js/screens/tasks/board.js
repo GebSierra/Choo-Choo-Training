@@ -7,7 +7,7 @@ import { sparkle } from '../../components/sparkle.js';
 import { timers, watchSize, starRow, shake, idleHints } from '../../components/game-kit.js';
 import { order, roundsFor, boardWords } from '../../games-data.js';
 import { accentOf } from '../../theme.js';
-import { soundPhrase, fit } from '../../lessons.js';
+import { soundPhrase } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 import { soundOfLetter, letterUnits } from '../../order.js';
 
@@ -171,8 +171,8 @@ export function build(ctx) {
   return {
     el, flush: true,
     parts: () => parts,
-    gist: () => fit(`Find ${soundPhrase(roundSound())} in the word.`, `Find ${soundPhrase(roundSound())}.`, 'Find the sound.'),
-    script: () => "Read the word on the board to your child: 'This is …' Then say the sound shown at the top. Your child taps the letter that makes it. If they are stuck, say the sound together.",
+    gist: () => `Find ${soundPhrase(roundSound())}.`, // the same short form as Letter Hunt, in every round and lesson
+    script: () => "Read the word on the board to your child: 'This is …' The recording plays the sound. If it does not, say the sound shown at the top. Your child taps the letter that makes it. If they are stuck, say the sound together.",
     again: () => { again(); speech.say(parts); },
     cleanup: () => { T.clear(); hints.stop(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
   };

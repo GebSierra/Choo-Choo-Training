@@ -5,7 +5,7 @@ import { letterFace } from '../../components/letter-face.js';
 import { sayPrompt, saySound } from '../../components/say-sound.js';
 import { timers, watchSize, starRow, shake, idleHints, shuffle } from '../../components/game-kit.js';
 import { order, roundTargets, roundsFor, otherLetters, spellingFor } from '../../games-data.js';
-import { soundPhrase, fit } from '../../lessons.js';
+import { soundPhrase } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 
 const INK = '#1E2140';
@@ -159,7 +159,7 @@ export function build(ctx) {
   return {
     el, flush: true,
     parts: () => parts,
-    gist: () => fit(`Tap the light for ${soundPhrase(roundSound())}.`, `Light for ${soundPhrase(roundSound())}.`, 'Tap the right light.'),
+    gist: () => `Light for ${soundPhrase(roundSound())}.`, // one wording in every round and lesson (a long vowel phrase used to push only its own rounds to a shorter form)
     script: () => `Say: 'Listen. Which light says ${soundPhrase(roundSound())}?' The recording plays. If it does not, say the sound shown at the top. Your child taps the light. If they are stuck, say the sound together.`,
     again: () => { again(); speech.say(parts); },
     cleanup: () => { T.clear(); hints.stop(); stopWatching(); endAnims.forEach((a) => a.cancel()); },

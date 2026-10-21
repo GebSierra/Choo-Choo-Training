@@ -13,7 +13,8 @@ export const soundText = (ch, sounds) => {
   return s && s.hold === false ? `${s.alt && s.alt.length ? s.alt[0] : ch}-` : ch.repeat(3);
 };
 // A word sound by sound, for a parent to say slowly with no pause: held sounds stretched, clipped ones short: "t-aaa".
-export const slowSounds = (word, sounds) => letterUnits(word).map((c) => soundText(c, sounds)).join('');
+// A doubled letter (miss, buzz) is one sound, not two: "mmmiiisss", never "mmmiiissssss".
+export const slowSounds = (word, sounds) => letterUnits(word).filter((c, i, a) => c !== a[i - 1]).map((c) => soundText(c, sounds)).join('');
 // A picture word: only its first sound is brought out, held ("sssun") or short ("t-iger"); the rest stays as it is.
 export const firstSoundOut = (word, sounds) => soundText(word[0], sounds) + word.slice(word.startsWith('qu') ? 2 : 1);
 

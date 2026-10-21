@@ -298,7 +298,7 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
       ? `Say: 'Find the ${firstSoundOut(curWord(), curriculum.sounds)}.' Say the first sound the way it is written. Your child drags the picture into the wagon. The app does not say right or wrong. You decide. If it was not the right one, say the first sound together.`
       : `Say: 'Which one starts with ${soundPhrase(sound())}?' Your child drags the picture into the wagon. The app does not say right or wrong. You decide. If it was not the right one, say the sound together.`,
     gist: () => checkpoint.plan
-      ? fit(`Say: Find the ${firstSoundOut(curWord(), curriculum.sounds)}`, `Find the ${firstSoundOut(curWord(), curriculum.sounds)}`)
+      ? fit(`Say: Find the ${firstSoundOut(curWord(), curriculum.sounds)}.`, `Find the ${firstSoundOut(curWord(), curriculum.sounds)}.`)
       : fit(`Ask: which starts with ${soundPhrase(sound())}?`, `Ask: ${soundPhrase(sound())}?`),
     again: () => { again(); speech.say(say); },
     cleanup: () => { T.clear(); stopDemo(); stopWatching(); endAnims.forEach((a) => a.cancel()); },

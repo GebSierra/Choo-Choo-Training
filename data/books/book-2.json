@@ -11,7 +11,7 @@
     { "scene": "meadow", "read": "Sis sits down on a soft ...", "child": "mat", "art": { "emoji": ["👧"] }, "tap": { "on": "emoji", "anim": "bounce", "label": "Sis" } },
     { "scene": "hill", "kind": "drag", "read": "Off they go! Up, up, up the big hill." },
     { "scene": "track", "read": "A puppy runs next to the track. Sam gives it a gentle ...", "child": "pat", "art": { "emoji": ["🐶"] }, "tap": { "on": "emoji", "anim": "giggle", "label": "the puppy" } },
-    { "scene": "picnic", "read": "At the top they find a picnic! Pip takes a big bite. It is so good. Pip says ...", "sound": "mmmm", "art": { "emoji": ["🧺"] } },
+    { "scene": "picnic", "read": "At the top they find a picnic! Pip takes a big bite. It is so good. Pip says ...", "sound": "mmm", "art": { "emoji": ["🧺"] } },
     { "scene": "picnic", "read": "Pip pours a cup of cold water. {name} takes a little ...", "child": "sip", "art": { "emoji": ["🥤"] }, "tap": { "on": "emoji", "anim": "bounce", "label": "the cup" } },
     { "scene": "meadow", "read": "Sam wants to play a game. Sam runs to {name} and gives a soft ...", "child": "tap", "after": "\"You are it!\" Everyone laughs.", "art": { "friend": true }, "tap": { "on": "friend", "anim": "wave", "label": "{name}" } },
     { "scene": "sunset", "read": "The sun goes down. Everyone climbs back on the train. Pip asks, \"Who was the best helper today?\" Sam says ...", "child": "It is", "after": "... {name}! The end. Toot toot!", "art": { "train": true, "pip": "cheer", "friend": true } },

@@ -391,7 +391,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     el, flush: true,
     parts: () => [], // silent: the page text, and so the child's name, never reaches a speech engine
     script: () => 'Read the page aloud. When you reach the big word, point to it and let your child read it. Do not say letter names.',
-    gist: () => 'Read; your child reads the big word',
+    gist: () => 'Read it; your child reads the big word.',
     again: () => { setDone(false); turner.finish(); turnId++; if (state() === 'turning') setState('open'); paint(0); start(); },
     close,
     cleanup() { teardown(); turner.cleanup(); ro.disconnect(); document.removeEventListener('visibilitychange', onVis); if (coverAnim) coverAnim.cancel(); },

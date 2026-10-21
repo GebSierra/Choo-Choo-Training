@@ -872,7 +872,7 @@
       "hold": true,
       "doNotSay": null,
       "howTo": "Say e as in egg. Open your mouth a little, a bit wider than for i.",
-      "parentNote": "Let your child try the sound of i first. Then compare pin and pen: which one has the new sound? Later, bit and bet.",
+      "parentNote": "Let your child say the i sound first (i as in igloo). Then compare pin and pen: which one has the new sound? Later, bit and bet.",
       "asIn": "egg",
       "clip": "assets/audio/sounds/e.mp3",
       "words": [
@@ -996,7 +996,7 @@
       "hold": true,
       "doNotSay": "vuh",
       "howTo": "Rest your top teeth on your bottom lip, like f, and turn your voice on. Hold it: vvv. Do not add uh.",
-      "parentNote": "v is the buzzing partner of f. Let your child say f first, then v, with a hand on the throat. Then compare fan and van.",
+      "parentNote": "The sound vvv is the buzzing partner of fff. Let your child say fff first, then vvv, with a hand on the throat. Then compare fan and van.",
       "asIn": null,
       "clip": "assets/audio/sounds/v.mp3",
       "words": [
@@ -1042,7 +1042,7 @@
       "hold": false,
       "doNotSay": "yuh",
       "howTo": "Smile a little and lift the middle of your tongue, then glide down. Short: y-. Do not add uh.",
-      "parentNote": "The name of the letter y starts with a different sound. Say the sound, y-, not the letter name. Compare yet and wet: which one starts with y?",
+      "parentNote": "The name of the letter y starts with a different sound. Say the sound, y-, not the letter name. Compare yet and wet: which one starts with y-?",
       "asIn": null,
       "clip": "assets/audio/sounds/y.mp3",
       "words": [
@@ -1080,7 +1080,7 @@
       "hold": true,
       "doNotSay": "zuh",
       "howTo": "Close your teeth, like s, and turn your voice on. Hold it: zzz. Do not add uh.",
-      "parentNote": "z is the buzzing partner of s. Let your child say s first, then z, with a hand on the throat.",
+      "parentNote": "The sound zzz is the buzzing partner of sss. Let your child say sss first, then zzz, with a hand on the throat.",
       "asIn": null,
       "clip": "assets/audio/sounds/z.mp3",
       "words": [
@@ -1127,7 +1127,7 @@
       "doNotSay": null,
       "howTo": "x is two quick sounds, k and s, said together. Short: ks-. It comes at the end of a word.",
       "endOnly": true,
-      "parentNote": "x comes at the end of words. Say fox, six, box slowly and let your child listen for the last sound.",
+      "parentNote": "The letter x comes at the end of words. Say fox, six and box slowly, and let your child listen for the last sound.",
       "asIn": null,
       "clip": "assets/audio/sounds/x.mp3",
       "words": [
@@ -1157,7 +1157,7 @@
       "hold": false,
       "doNotSay": null,
       "howTo": "q always comes with u. Together they say kw-, quickly, as one sound.",
-      "parentNote": "q is always followed by u. Look at them as one letter, qu. Together they say kw-.",
+      "parentNote": "The letter q is always followed by u. Treat qu as one unit. Together they say kw-.",
       "asIn": null,
       "clip": "assets/audio/sounds/q.mp3",
       "words": [

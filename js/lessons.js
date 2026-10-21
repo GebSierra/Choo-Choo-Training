@@ -10,7 +10,7 @@ export const TASK_TYPES = {
   signals: { name: 'Green Light', color: 'mint', dark: true, label: "Today we'll listen" },
   wagons:  { name: 'Wagon Parade', color: 'sun', dark: true, label: "Today we'll tap" },
   board:   { name: 'Station Board', color: 'lilac', dark: true, label: "Today we'll find" },
-  practice: { name: 'Practicing Words', color: 'mint', dark: true, label: "Today we'll review" },
+  practice: { name: 'Practicing Words', color: 'mint', dark: true, label: "Today we'll match" },
   read:    { name: 'Read a Word', color: 'sun', dark: true, label: "Today we'll read" }, // the first Review Stop's ma and mama
   check:   { name: 'Ticket Check',   color: 'blue',   dark: true,  label: "Today we'll check" },
 };
