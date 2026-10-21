@@ -224,7 +224,7 @@ export async function layoutChecks({ browser, url, ok, vp }) {
     ok(tp.h <= tp.vh * 0.7 + 1, `${tag} Writing: the trace pad is at most 70vh (${Math.round(tp.h)} of ${tp.vh})`);
     // owner fix: the script tells the grown-up to draw first and that an imperfect drawing is fine, and Next never waits for a drawing
     const ws = await page.evaluate(() => (document.querySelector('.script-sheet .sheet-body') || {}).textContent || '');
-    ok(ws.includes("I do: draw the letter while your child watches. We do: trace it together, one finger each. You do: your child traces it alone. Start at the dot and follow the arrow. It does not have to look right yet. Your child can still move on."), `${tag} Writing: the script says draw first, and that it is fine if it does not look right`);
+    ok(ws.includes("I do: draw the letter while your child watches. We do: trace it together, one finger each. You do: your child traces it alone. Start at the dot and follow the arrow. It does not have to look right yet. You can move on any time."), `${tag} Writing: the script says draw first, and that it is fine if it does not look right`);
     await page.waitForTimeout(1200);
     ok(await page.evaluate(() => !document.querySelector('.btn.next').disabled), `${tag} Writing: Next is open with nothing drawn (a child who cannot draw it yet can move on)`);
     await ctx.close();
