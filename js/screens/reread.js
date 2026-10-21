@@ -117,7 +117,7 @@ export function rereadBuild({ checkpoint, speech, refresh, setProgress, setDone 
 
   return {
     el, flush: true,
-    parts: () => [{ tts: phase === 'listen' ? 'Listen to your grown up read the story.' : phase === 'done' ? 'You read it!' : 'Now you read it.' }],
+    parts: () => [{ tts: phase === 'listen' ? 'Listen to your grown-up read the story.' : phase === 'done' ? 'You read it!' : 'Now you read it.' }],
     script: () => (phase === 'listen'
       ? "Read the whole story to your child once, slowly, pointing to each word as you say it. Your child only listens. Then tap 'Your child reads'."
       : phase === 'done'

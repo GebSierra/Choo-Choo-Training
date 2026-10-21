@@ -108,7 +108,7 @@ export function pickSentence(known) {
 // The suggested lesson is the lesson of the first letter sound that was not known (the last lesson when all were known). When the
 // made-up words were weak (1 of 3 or fewer) it moves back to the first lesson whose sound is in a missed made-up word, with
 // "Practice blending first". Nothing known: Lesson 1.
-export function computeResult({ lessons, known, mode = 'full', retest = null, awareness = null, made = null, real = null, sentence = null }) {
+export function computeResult({ lessons, known, mode = 'full', retest = null, awareness = null, made = null, real = null, sentence = null, table = null }) {
   const sounds = lessons.map((l) => l.sound);
   const at = (c) => sounds.indexOf(c) + 1;
   const lessonOf = (n) => lessons.find((l) => l.number === n) || lessons[0];
@@ -135,7 +135,7 @@ export function computeResult({ lessons, known, mode = 'full', retest = null, aw
   const notes = [];
   if (retest) {
     const l = lessons.find((x) => x.sound === retest.letter);
-    notes.push(retest.right ? `Learned ${retest.letter} quickly — a good sign.` : `${retest.letter} was new today. That is fine: Lesson ${l ? l.number : 1} teaches it.`);
+    notes.push(retest.right ? `Learned ${soundText(retest.letter, table)} quickly, a good sign.` : `${retest.letter} was new today. That is fine: Lesson ${l ? l.number : 1} teaches it.`);
   }
   if (awareness) notes.push(weakAware ? 'Hearing the sounds inside words is still new. Sound play builds it, gently and with no letters.' : `Hearing sounds in words is going well (${awareness.right} of 6).`);
   if (blendFirst) notes.push('Practice blending first: sound out short words slowly and smoothly before new letters.');
@@ -354,7 +354,7 @@ export async function placementScreen(ctx) {
   // ---- the result, for the grown-up ----
   function showResult() {
     setPhase('result'); gen++;
-    const r = computeResult({ lessons, known, mode, retest: teach && teach.done ? { letter: teach.key, right: teach.right } : null, awareness: items.length ? { right: aware.right } : null, made, real, sentence });
+    const r = computeResult({ lessons, known, mode, retest: teach && teach.done ? { letter: teach.key, right: teach.right } : null, awareness: items.length ? { right: aware.right } : null, made, real, sentence, table: curriculum.sounds });
     el.dataset.lesson = String(r.number); el.dataset.sound = r.sound; el.dataset.start = r.number + r.sound; el.dataset.blendFirst = r.blendFirst ? '1' : '0';
     const quick = mode === 'quick';
     const w = (curriculum.worlds || []).find((x) => { const l = curriculum.lessons.find((y) => y.number === r.number); return l && x.id === l.world; });
@@ -368,7 +368,7 @@ export async function placementScreen(ctx) {
     }
     const ks = sounds.filter((c) => known.has(c));
     box.append(h('h2', { class: 'pc-suggest' }, `Start at Lesson ${r.number}`),
-      h('p', { class: 'pc-line' }, `The sound ${r.sound}${w ? `, in ${w.name}` : ''}.`),
+      h('p', { class: 'pc-line' }, `The sound ${soundText(r.sound, curriculum.sounds)}${w ? `, in ${w.name}` : ''}.`),
       h('h3', { class: 'pc-sub' }, 'What your child knows'),
       ks.length ? h('p', { class: 'pc-known', 'aria-label': 'Sounds your child knows' }, ...ks.map((c) => h('span', { class: 'pc-kchip' }, c))) : h('p', { class: 'pc-line' }, 'No letter sounds yet, and that is a fine place to begin.'),
       h('p', { class: 'pc-why' }, r.why));

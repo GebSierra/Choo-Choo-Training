@@ -11,7 +11,7 @@ import { pageTurner } from '../components/page-turn.js';
 import { bookScene, SCENES } from '../art/scenes.js';
 
 const INK = '#1E2140';
-const FRIEND = "Pip's friend"; // when no name is set: fits every sentence of Books 1 and 2
+const FRIEND = 'your new friend'; // when no name is set: reads after "to", "and", "is" ...; at the start of a sentence it is capitalised
 
 // A book is a checkpoint with kind "book" (data/books/<book>.json). The grown-up reads each page aloud and the child reads
 // the one big word on it. Books are silent: page text never goes to text-to-speech (so the child's name never reaches a
@@ -25,10 +25,11 @@ export async function loadBook(checkpoint, store) {
   const res = await fetch(`data/books/${checkpoint.book}.json`);
   if (!res.ok) throw new Error('book ' + res.status);
   const book = await res.json();
-  const name = store.character().name || FRIEND;
-  const fill = (s) => (typeof s === 'string' ? s.replaceAll('{name}', name) : s);
+  const given = store.character().name;
+  const name = given || FRIEND;
+  const fill = (s) => (typeof s !== 'string' ? s : given ? s.replaceAll('{name}', name) : s.replace(/(^|[.!?]["”]?\s+)\{name\}/g, (m, pre) => pre + 'Your new friend').replaceAll('{name}', name));
   return {
-    ...book, title: fill(book.title),
+    ...book, title: given ? fill(book.title) : 'Pip Meets a New Friend',
     pages: book.pages.map((p) => ({ ...p, read: fill(p.read), after: fill(p.after), tap: p.tap ? { ...p.tap, label: fill(p.tap.label) } : undefined })),
   };
 }

@@ -307,7 +307,7 @@ await sackGrownupsChecks({ browser, url, ok });
   await page.waitForSelector('.task-screen');
   await page.waitForTimeout(800);
   let spoken = await page.evaluate(() => window.__spoken);
-  ok(spoken.includes('Today we learn a new letter. Your grown up will say its sound.'), 'entry speech for New Letter (quiet): ' + JSON.stringify(spoken));
+  ok(spoken.includes('Today we learn a new letter. Your grown-up will say its sound.'), 'entry speech for New Letter (quiet): ' + JSON.stringify(spoken));
   ok(!(await page.evaluate(() => window.__events.some((e) => e.type === 'clip'))), 'with the default settings the entry speech plays no clip');
   // Next goes to Watch My Mouth (nothing leaves the app any more).
   await page.click('.btn.next');

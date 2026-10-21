@@ -10,7 +10,7 @@ import { ORDER_SOUNDS, lettersOfSounds } from '../order.js';
 // (docs/LESSON-REBUILD.md section 10). `ck.plan` lists the activities, each with the lesson whose sound it is about; the task
 // screens are the very ones the lessons use, handed that lesson's data, so Letter Hunt, Green Light, Wagon Parade, Station Board
 // and Ticket Check behave exactly as they do there. The finish screen is the checkpoint's (the grown-up's "Yes" saves the result).
-const TIP = 'This is a review. Let your child try first. Only if your child misses, say the sound, then have your child say it after you.';
+const TIP = 'This is a review. Let your child do the finding and the saying. If your child misses one, say the sound together, then try again.';
 const lastIndex = {}; // the previous activity per stop, so the progress pill can glide
 
 // The opening card (owner): says what a Review Stop is before its first game, so it is never only a small header line.

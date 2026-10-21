@@ -7,8 +7,8 @@ import { spellings } from '../../lessons.js';
 // Task 6: trace the letter with a finger. Nothing here judges the drawing: Next is never held back, so a child who cannot draw
 // the letter yet can still move on (the script says so to the grown-up).
 // c and k: one sound with two spellings. Two small letter buttons in the top right corner of the pad switch it between them (c first).
-export const WRITE_HELP = "I do: draw the letter while your child watches. We do: trace it together, one finger each. You do: your child traces it alone. Start at the dot and follow the arrow. It does not have to look right yet. Your child can still move on.";
-export const WRITE_HELP_PAIR = "I do: draw the letter while your child watches. We do: trace it together, one finger each. You do: your child traces it alone. Start at the dot and follow the arrow. Then tap the other letter and do it again. Both letters make the same sound. It does not have to look right yet. Your child can still move on.";
+export const WRITE_HELP = "I do: draw the letter while your child watches. We do: trace it together, one finger each. You do: your child traces it alone. Start at the dot and follow the arrow. It does not have to look right yet. You can move on any time.";
+export const WRITE_HELP_PAIR = "I do: draw the letter while your child watches. We do: trace it together, one finger each. You do: your child traces it alone. Start at the dot and follow the arrow. Then tap the other letter and do it again. Both letters make the same sound. It does not have to look right yet. You can move on any time.";
 export function build({ sound, speech }) {
   const letters = spellings(sound);
   let pad = tracePad({ letter: letters[0] });
@@ -30,7 +30,7 @@ export function build({ sound, speech }) {
     el,
     parts: () => parts,
     script: () => (letters.length > 1 ? WRITE_HELP_PAIR : WRITE_HELP),
-    gist: () => 'Draw it, then they try.',
+    gist: () => 'Draw, then your child tries.',
     again: () => { pad.clear(); speech.say(parts); },
     cleanup: () => pad.cleanup && pad.cleanup(),
   };

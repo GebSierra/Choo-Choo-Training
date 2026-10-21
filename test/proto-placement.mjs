@@ -202,7 +202,7 @@ async function stepOne({ browser, url, ok }) {
   ok(screens.filter((x) => x.startsWith('[teach')).length === 1 && screens.filter((x) => x === 'm*').length === 1, 'teach and retest: one teach card, one retest');
   ok(screens.indexOf('i') === 5, 'teach and retest: the check goes on with the next letter (i)');
   r = await resultText(page);
-  ok(/Learned m quickly/.test(r.all) && /good sign/.test(r.all), `teach and retest: a right retest adds "Learned m quickly — a good sign" (${r.all})`);
+  ok(/Learned mmm quickly, a good sign/.test(r.all), `teach and retest: a right retest adds "Learned mmm quickly, a good sign." (${r.all})`);
   ok(!/was new today/.test(r.all), 'teach and retest: no "new today" note after a right retest');
   await made.ctx.close();
 
@@ -319,7 +319,7 @@ async function branches({ browser, url, ok }) {
   ok(sen.length === 1 && sen[0].sentence === 'Sam sat at a map.', `good made-up words: the sentence "${sen[0] && sen[0].sentence}"`);
   r = await resultText(page);
   ok(/reads Sam sat at a map\./.test(r.why) && /blends made-up words like/.test(r.why), `strong result: the why line (${r.why})`);
-  ok(/Start at Lesson 11\b/.test(r.head) && /The sound c/.test(r.all), `ten sounds: suggests the first unknown sound, lesson 11 (${r.head})`);
+  ok(/Start at Lesson 11\b/.test(r.head) && /The sound k-/.test(r.all), `ten sounds: suggests the first unknown sound, lesson 11 (${r.head})`);
   await made.ctx.close();
 
   // all known, strong: shot of the result

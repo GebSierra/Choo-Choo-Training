@@ -49,10 +49,10 @@
     },
     "a": {
       "glyph": "a",
-      "sayItLike": "a",
+      "sayItLike": "aaa",
       "hold": true,
       "doNotSay": null,
-      "howTo": "Open your mouth wide, as if about to bite an apple. Say a as in apple.",
+      "howTo": "Open wide, as if to bite an apple. Say aaa as in apple.",
       "asIn": "apple",
       "clip": "assets/audio/sounds/a.mp3",
       "words": [
@@ -147,10 +147,10 @@
     },
     "i": {
       "glyph": "i",
-      "sayItLike": "i",
+      "sayItLike": "iii",
       "hold": true,
       "doNotSay": null,
-      "howTo": "Say i as in igloo. Keep your mouth small and relaxed.",
+      "howTo": "Say iii as in igloo. Keep your mouth small and relaxed.",
       "asIn": "igloo",
       "clip": "assets/audio/sounds/i.mp3",
       "words": [
@@ -345,10 +345,10 @@
     },
     "o": {
       "glyph": "o",
-      "sayItLike": "o",
+      "sayItLike": "ooo",
       "hold": true,
       "doNotSay": null,
-      "howTo": "Say o as in octopus. Open your mouth wide and round.",
+      "howTo": "Say ooo as in octopus. Open your mouth wide and round.",
       "asIn": "octopus",
       "clip": "assets/audio/sounds/o.mp3",
       "words": [
@@ -624,10 +624,10 @@
     },
     "u": {
       "glyph": "u",
-      "sayItLike": "u",
+      "sayItLike": "uuu",
       "hold": true,
       "doNotSay": null,
-      "howTo": "Say u as in umbrella. Keep your mouth relaxed and open a little.",
+      "howTo": "Say uuu as in umbrella. Keep your mouth relaxed and open a little.",
       "asIn": "umbrella",
       "clip": "assets/audio/sounds/u.mp3",
       "words": [
@@ -868,11 +868,11 @@
     },
     "e": {
       "glyph": "e",
-      "sayItLike": "e",
+      "sayItLike": "eee",
       "hold": true,
       "doNotSay": null,
-      "howTo": "Say e as in egg. Open your mouth a little, a bit wider than for i.",
-      "parentNote": "Let your child say the i sound first (i as in igloo). Then compare pin and pen: which one has the new sound? Later, bit and bet.",
+      "howTo": "Say eee as in egg. Open your mouth a little, wider than for iii.",
+      "parentNote": "Let your child say the i sound first (iii as in igloo). Then compare pin and pen: which one has the new sound? Later, bit and bet.",
       "asIn": "egg",
       "clip": "assets/audio/sounds/e.mp3",
       "words": [
@@ -1213,7 +1213,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -1296,7 +1296,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -1330,11 +1330,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
-        "promptText": "Which letter says a as in apple?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptText": "Which letter says aaa as in apple?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -1375,7 +1375,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -1406,11 +1406,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says sss?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -1459,7 +1459,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -1498,11 +1498,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
-        "promptText": "Which letter says i as in igloo?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptText": "Which letter says iii as in igloo?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -1549,7 +1549,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -1655,7 +1655,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -1691,11 +1691,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says p-?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -1759,7 +1759,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -1871,7 +1871,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -1910,11 +1910,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
-        "promptText": "Which letter says o as in octopus?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptText": "Which letter says ooo as in octopus?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -1975,7 +1975,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -2084,7 +2084,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -2121,11 +2121,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says d-?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -2188,7 +2188,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -2262,7 +2262,7 @@
           "target": "c"
         },
         {
-          "word": "kin",
+          "word": "in",
           "target": "n"
         }
       ],
@@ -2295,7 +2295,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -2331,11 +2331,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says h-?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -2403,7 +2403,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -2445,7 +2445,7 @@
             "tts": "Listen. Touch the one that starts the same."
           }
         ],
-        "promptText": "Which picture starts with u as in umbrella?",
+        "promptText": "Which picture starts with uuu as in umbrella?",
         "promptTextQuiet": "Listen. Touch the one that starts the same.",
         "kind": "picture",
         "options": [
@@ -2513,7 +2513,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -2549,11 +2549,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says g-?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -2618,7 +2618,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -2726,7 +2726,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -2763,11 +2763,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says rrr?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -2832,7 +2832,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -2894,19 +2894,19 @@
       },
       "board": [
         {
-          "word": "sob",
+          "word": "tub",
           "target": "b"
         },
         {
-          "word": "rob",
+          "word": "rub",
           "target": "r"
         },
         {
-          "word": "cob",
+          "word": "cub",
           "target": "b"
         },
         {
-          "word": "lab",
+          "word": "club",
           "target": "l"
         }
       ],
@@ -2942,7 +2942,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -2981,11 +2981,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
-        "promptText": "Which letter says e as in egg?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptText": "Which letter says eee as in egg?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -3046,7 +3046,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -3108,11 +3108,11 @@
       },
       "board": [
         {
-          "word": "jab",
+          "word": "jet",
           "target": "j"
         },
         {
-          "word": "jet",
+          "word": "set",
           "target": "e"
         },
         {
@@ -3120,7 +3120,7 @@
           "target": "j"
         },
         {
-          "word": "sob",
+          "word": "bat",
           "target": "b"
         }
       ],
@@ -3152,7 +3152,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -3189,11 +3189,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says w-?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -3216,15 +3216,15 @@
           "target": "w"
         },
         {
-          "word": "jab",
+          "word": "jig",
           "target": "j"
         },
         {
-          "word": "web",
+          "word": "wig",
           "target": "w"
         },
         {
-          "word": "wet",
+          "word": "peg",
           "target": "e"
         }
       ],
@@ -3259,7 +3259,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -3333,7 +3333,7 @@
           "target": "v"
         },
         {
-          "word": "jab",
+          "word": "jet",
           "target": "j"
         }
       ],
@@ -3367,7 +3367,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -3404,11 +3404,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says y-?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -3471,7 +3471,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -3508,11 +3508,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says zzz?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -3576,7 +3576,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -3612,11 +3612,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says ks-?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -3681,7 +3681,7 @@
       ],
       "introQuiet": [
         {
-          "tts": "Today we learn a new letter. Your grown up will say its sound."
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
         }
       ],
       "sayingSounds": [
@@ -3718,11 +3718,11 @@
         ],
         "promptQuiet": [
           {
-            "tts": "Listen to your grown up. Then touch the letter."
+            "tts": "Listen to your grown-up. Then touch the letter."
           }
         ],
         "promptText": "Which letter says kw-?",
-        "promptTextQuiet": "Listen to your grown up. Then touch the letter.",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
         "kind": "letter",
         "options": [
           {
@@ -4016,7 +4016,7 @@
       }
     },
     "sack": {
-      "say": "Listen to your grown up. Then drag the picture into the wagon."
+      "say": "Listen to your grown-up. Then drag the picture into the wagon."
     },
     "signals": {
       "say": "Listen. Then tap the light that makes the sound."
@@ -4320,14 +4320,14 @@
         "sounds": 17,
         "words": 184,
         "examples": [
+          "club",
           "crab",
-          "rob",
+          "rub",
           "milk",
+          "cub",
           "pal",
-          "sob",
-          "bat",
-          "bad",
-          "big"
+          "tub",
+          "bat"
         ]
       },
       "plan": [
@@ -4365,8 +4365,8 @@
           "jump",
           "nest",
           "pen",
-          "set",
-          "met"
+          "peg",
+          "set"
         ]
       },
       "plan": [

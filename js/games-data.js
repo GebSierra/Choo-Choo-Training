@@ -35,7 +35,7 @@ export function parade(target, others, { size = 8, hits = 3, rng = Math.random }
 // Short real words for Station Board: every letter keeps its basic sound; no names, no s said as z, no ng/nk/ck.
 // tools/gen-lessons.mjs keeps only the words spelt with taught sounds, so later lessons pick up more by themselves.
 export const WORD_BANK = `am an at it in if us up on ox ax
-sat sit set sap sip sad sag sob sun sum six sis
+sat sit set sap sip sad sag sun sum six sis
 mat map mad man mop mom mud mug mix men met mess miss
 pat pan pad pal pig pin pit pip pop pot pet pen peg pup pug
 tap tan tag tip tin top tub tug ten tell
@@ -46,11 +46,11 @@ hat had ham hip hit him hid hop hot hog hen hum hut hug hill hiss
 gas gap gig get got gum gull
 bat bag bad ban bib bit big bin bid bog bob bun bus but bud bug bed bet beg bell bill buzz box
 lap lab lad lag lip lit lid log lot leg let led
-cat cap can cab cot cop cod cut cup cub cob
-kit kid kin keg
+cat cap can cab cot cop cod cut cup cub
+kit kid keg
 rat ran rag ram rap rip rib rid rim rob rod rot rub rug run red
 wag wig win wit wet web wed wax wag
-jab jam jet jig jog jot jug
+jet jig jog jot jug
 van vat vet
 yam yap yes yet yum
 zap zip fizz buzz

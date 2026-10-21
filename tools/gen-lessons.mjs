@@ -17,7 +17,7 @@ const lastLesson = Number(process.argv[2] || 25);
 // sound, how to say it, tiles (folder/word; the word begins with the sound), letter words (only letters taught so far),
 // one picture word for Saying Sounds, the Quick Check and the games' distractor letters.
 const TABLE = [
-  { n: 4, k: 'i', practice: ['igloo'], say: 'i', asIn: 'igloo', hold: true, not: null, how: 'Say i as in igloo. Keep your mouth small and relaxed.',
+  { n: 4, k: 'i', practice: ['igloo'], say: 'iii', asIn: 'igloo', hold: true, not: null, how: 'Say iii as in igloo. Keep your mouth small and relaxed.',
     tiles: ['i/igloo', 'i/sit', 'i/stick'], start: ['i/igloo'], words: ['sis', 'miss', 'am'], pic: 'igloo',
     qc: { kind: 'letter', others: ['m', 's'] }, hunt: 'masonedp' },
   { n: 5, k: 't', practice: ['tiger', 'table', 'tent'], say: 't-', hold: false, not: 'tuh', how: 'Tap the tip of your tongue just behind your top teeth. Short and crisp: t-. Do not add uh.',
@@ -30,7 +30,7 @@ const TABLE = [
   { n: 7, k: 'f', practice: ['fish', 'fan', 'fox'], say: 'fff', hold: true, not: 'fuh', how: 'Rest your top teeth on your bottom lip and blow. Hold it: fff. Do not add uh.',
     tiles: ['f/fan', 'f/fish', 'f/fork', 'x/fox'], words: ['fat', 'fit', 'if'], pic: 'fish',
     qc: { kind: 'picture', word: 'fish', others: ['window', 'chair'] }, hunt: 'masoendp' },
-  { n: 8, k: 'o', practice: ['octopus'], say: 'o', asIn: 'octopus', hold: true, not: null, how: 'Say o as in octopus. Open your mouth wide and round.',
+  { n: 8, k: 'o', practice: ['octopus'], say: 'ooo', asIn: 'octopus', hold: true, not: null, how: 'Say ooo as in octopus. Open your mouth wide and round.',
     tiles: ['o/octopus', 'o/pot', 'o/rock'], start: ['o/octopus'], words: ['top', 'pop', 'sit'], pic: 'pot',
     qc: { kind: 'letter', others: ['m', 't'] }, hunt: 'msitpfnh' },
   { n: 9, k: 'n', practice: ['nose', 'nut', 'nest'], say: 'nnn', hold: true, not: 'nuh', how: 'Put your tongue behind your top teeth and hum through your nose. Hold it: nnn. Do not add uh.',
@@ -46,7 +46,7 @@ const TABLE = [
   { n: 12, k: 'h', practice: ['hat', 'hand', 'horse'], say: 'h-', hold: false, not: 'huh', how: 'Breathe out as if fogging a mirror. Short: h-. Do not add uh.',
     tiles: ['h/hat', 'h/hand', 'h/hippo', 'e/hen', 'or/horse'], words: ['hat', 'him', 'hot'], pic: 'hippo',
     qc: { kind: 'letter', others: ['m', 's'] }, hunt: 'masitpfo' },
-  { n: 13, k: 'u', practice: ['umbrella', 'up'], say: 'u', asIn: 'umbrella', hold: true, not: null, how: 'Say u as in umbrella. Keep your mouth relaxed and open a little.',
+  { n: 13, k: 'u', practice: ['umbrella', 'up'], say: 'uuu', asIn: 'umbrella', hold: true, not: null, how: 'Say uuu as in umbrella. Keep your mouth relaxed and open a little.',
     tiles: ['u/umbrella', 'u/sun', 'u/bug', 'u/up'], start: ['u/umbrella', 'u/up'], words: ['mud', 'cup', 'hut'], pic: 'sun',
     qc: { kind: 'picture', word: 'umbrella', others: ['window', 'van'] }, hunt: 'masitpfo' },
   { n: 14, k: 'g', practice: ['goat', 'gate'], say: 'g-', hold: false, not: 'guh', how: 'Lift the back of your tongue and let your voice out. Short: g-. Do not add uh.',
@@ -65,10 +65,10 @@ const TABLE = [
   // (EXTRA_MIDDLES: its name has no w in it); v and z are the buzzing partners of f and s; x is two sounds (ks-) heard at the END of words, so it has no
   // start word; qu is one unit of two letters (key q, glyph drawn as "qu") that says kw-. `sayOnly: true` forces a picture word to be said, never
   // shown as letters (yarn, zebra, wagon and queen are not spelt the way the letters sound). `note` is a short grown-up line on the New Sound screen.
-  { n: 18, k: 'e', practice: ['egg'], say: 'e', asIn: 'egg', hold: true, not: null, how: 'Say e as in egg. Open your mouth a little, a bit wider than for i.',
+  { n: 18, k: 'e', practice: ['egg'], say: 'eee', asIn: 'egg', hold: true, not: null, how: 'Say eee as in egg. Open your mouth a little, wider than for iii.',
     tiles: ['e/egg', 'e/hen', 'e/nest', 'e/tent'], start: ['e/egg'], words: ['pin', 'pen', 'bet'], pic: 'egg',
     qc: { kind: 'letter', others: ['m', 't'] }, hunt: 'mtpfdnhl',
-    note: 'Let your child say the i sound first (i as in igloo). Then compare pin and pen: which one has the new sound? Later, bit and bet.' },
+    note: 'Let your child say the i sound first (iii as in igloo). Then compare pin and pen: which one has the new sound? Later, bit and bet.' },
   { n: 19, k: 'j', practice: ['jet', 'jump'], say: 'j-', hold: false, not: 'juh', how: 'Let the sound pop out with your lips a little round. Short: j-. Do not add uh.',
     tiles: ['j/jet', 'j/jump'], words: ['jet', 'jug', 'jog'], pic: 'jump',
     qc: { kind: 'picture', word: 'jet', others: ['wagon', 'yarn'] }, hunt: 'mapsfonh' },
@@ -155,7 +155,7 @@ const books = (c.checkpoints || []).filter((k) => k.kind === 'book' && k.id !== 
 c.checkpoints = [REREAD, ...books, BOOK3];
 
 const phrase = (e) => (e.asIn ? `${e.say} as in ${e.asIn}` : e.say);
-const QUIET = [{ tts: 'Today we learn a new letter. Your grown up will say its sound.' }];
+const QUIET = [{ tts: 'Today we learn a new letter. Your grown-up will say its sound.' }];
 
 // The shared pool of wrong cards: the old words plus a few more, each with the sounds it must not appear next to.
 const have = new Set(c.gameDistractors.map((w) => w.word));
@@ -183,7 +183,7 @@ for (const e of TABLE.filter((t) => t.n <= lastLesson)) {
     options = [{ ...pickPicture(e.qc.word), correct: true }, ...e.qc.others.map((w) => { const t = c.gameDistractors.find((x) => x.word === w); if (!t) throw new Error('no pool word ' + w); return { word: t.word, image: t.image, correct: false }; })];
   }
   const ask = e.qc.kind === 'letter' ? 'Which letter says' : 'Which picture starts with';
-  const quiet = e.qc.kind === 'letter' ? 'Listen to your grown up. Then touch the letter.' : 'Listen. Touch the one that starts the same.';
+  const quiet = e.qc.kind === 'letter' ? 'Listen to your grown-up. Then touch the letter.' : 'Listen. Touch the one that starts the same.';
   c.lessons.push({
     number: e.n, sound: e.k, review: e.n >= 3 ? [c.lessons[e.n - 3].sound, c.lessons[e.n - 2].sound] : [],
     intro: [{ tts: 'Today we learn a new sound:' }, { clip: e.k }, ...asInTail],
@@ -330,7 +330,9 @@ for (const L of c.lessons) {
 }
 for (const k of c.checkpoints) { const l = c.lessons.find((x) => x.number === k.after); if (!l) throw new Error('checkpoint ' + k.id + ' has no lesson ' + k.after); k.world = l.world; }
 
-fs.writeFileSync(FILE, JSON.stringify(c, null, 2) + '\n');
+// Wording passes over the hand-made part (sound a, lessons 1 to 3): the grown-up's stretched vowel, hyphenated grown-up.
+if (c.sounds.a) { c.sounds.a.sayItLike = 'aaa'; c.sounds.a.howTo = c.sounds.a.howTo.replace(/Say a as in/, 'Say aaa as in').replace('Open your mouth wide, as if about to bite an apple.', 'Open wide, as if to bite an apple.'); }
+fs.writeFileSync(FILE, JSON.stringify(c, null, 2).replace(/grown up\b/g, 'grown-up').replace(/\ba as in apple/g, 'aaa as in apple') + '\n');
 
 // The precache list in sw.js: every tile curriculum.json uses.
 const SW = path.join(ROOT, 'sw.js');

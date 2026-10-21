@@ -189,7 +189,7 @@ export async function screenChecks({ browser, url, ok }) {
     await m.page.waitForSelector('.review-message');
     const msg = await m.page.locator('.review-message').innerText();
     const tg = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = WL.filter((w) => [...w].every((ch) => tg.has(ch)));
-    const mm = /^Your child has learned (\d+) sounds\. Once they master them, they will be able to read words like: (.+)\. With these sounds they can read (\d+) words!$/.exec(msg.replace(/\s+/g, ' ').trim());
+    const mm = /^Your child has learned (\d+) sounds\. Words made only from these sounds include: (.+)\. That's (\d+) words in all\.$/.exec(msg.replace(/\s+/g, ' ').trim());
     ok(mm && Number(mm[1]) === k.after && Number(mm[3]) === fresh.length && mm[2].split(', ').every((w) => fresh.includes(w.toLowerCase())) && mm[2].split(', ').length <= 8 && /^(?!.*pronounce)/.test(msg), `${k.id}: the end message says ${k.after} sounds and ${fresh.length} words, a fresh count from the list; every example is readable (${msg.slice(0, 90)}...)`);
     if (k.id === 'v1' || k.id === 'v9') await shot(m.page, `${k.id}-end-message-390x844`);
     await m.ctx.close();

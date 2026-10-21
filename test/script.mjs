@@ -145,7 +145,7 @@ export async function barChecks({ browser, url, ok, vp, shot }) {
   ok((await expanded(page)) === 'false' && !(await sheetShown(page)), `${tag}: it starts compact`);
   ok((await page.getAttribute('.script-toggle', 'aria-controls')) === (await page.getAttribute('.script-sheet', 'id')), `${tag}: the bar controls the sheet (aria-controls)`);
   const peek = await page.locator('.script-first').innerText();
-  ok(/^Stretch: mmmoon, then moon\.$/.test(peek) && (await page.evaluate(() => { const e = document.querySelector('.script-first'); return innerWidth > innerHeight ? e.scrollHeight <= e.clientHeight + 1 : getComputedStyle(e).whiteSpace === 'nowrap' && getComputedStyle(e).textOverflow === 'ellipsis'; })), `${tag}: it shows the gist on one line, with an ellipsis as a safety ("${peek.slice(0, 30)}")`);
+  ok(/^mmmoon, then moon\.$/.test(peek) && (await page.evaluate(() => { const e = document.querySelector('.script-first'); return innerWidth > innerHeight ? e.scrollHeight <= e.clientHeight + 1 : getComputedStyle(e).whiteSpace === 'nowrap' && getComputedStyle(e).textOverflow === 'ellipsis'; })), `${tag}: it shows the gist on one line, with an ellipsis as a safety ("${peek.slice(0, 30)}")`);
   if (shot) await shot(page, 'compact');
   const before = await stageBox(page);
   // Tapping the bar opens the sheet without touching the stage; focus goes to the close button.

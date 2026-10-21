@@ -78,10 +78,10 @@ export function checkCurriculum(c, root = ROOT) {
     if (/(^|\.)(image|clip)$/.test(p)) continue;
     for (const k of clippedLetters) if (new RegExp(`${k}{3,}`, 'i').test(s)) err(`${p}: "${s}" stretches the clipped sound ${k}-`);
   }
-  // The parent's words for the sound: "a as in apple", "i as in igloo", never a bare letter.
+  // The parent's words for the sound: "aaa as in apple", "iii as in igloo" (stretched, as on the round card), never a bare letter.
   for (const [k, sd] of Object.entries(c.sounds || {})) {
-    if (sd.asIn && !new RegExp(`\\b${k} as in ${sd.asIn}`).test(`${sd.sayItLike} as in ${sd.asIn}`)) err(`sounds.${k}: sayItLike and asIn must read "${k} as in ${sd.asIn}"`);
-    if ('ai'.includes(k) && !new RegExp(`\\b${k} as in ${sd.asIn}`).test(sd.howTo)) err(`sounds.${k}.howTo must say "${k} as in ${sd.asIn}", never a bare letter`);
+    if (sd.asIn && !new RegExp(`\\b${k.repeat(3)} as in ${sd.asIn}`).test(`${sd.sayItLike} as in ${sd.asIn}`)) err(`sounds.${k}: sayItLike and asIn must read "${k.repeat(3)} as in ${sd.asIn}"`);
+    if ('aioue'.includes(k) && sd.asIn && !new RegExp(`\\b${k.repeat(3)} as in ${sd.asIn}`).test(sd.howTo)) err(`sounds.${k}.howTo must say "${k.repeat(3)} as in ${sd.asIn}", never a bare letter`);
     const sayLetter = sd.alt && sd.alt.length ? sd.alt[0] : k; // c and k: the parent writes the sound as k-
     const clippedText = k === 'x' ? 'ks-' : k === 'q' ? 'kw-' : `${sayLetter}-`; // x is two sounds (ks-) and qu says kw-
     if (sd.hold === false && sd.sayItLike !== clippedText) err(`sounds.${k}: a clipped sound is written "${clippedText}"`);
@@ -458,7 +458,7 @@ export function checkCurriculum(c, root = ROOT) {
     for (const f of ['review', 'intro', 'sayingSounds']) if (!Array.isArray(L[f])) err(`${lp}.${f} missing`);
     checkParts(L.intro, `${lp}.intro`);
     checkQuiet(L.introQuiet, `${lp}.introQuiet`);
-    if (JSON.stringify(L.introQuiet) !== JSON.stringify([{ tts: 'Today we learn a new letter. Your grown up will say its sound.' }])) err(`${lp}.introQuiet must be the agreed sentence`);
+    if (JSON.stringify(L.introQuiet) !== JSON.stringify([{ tts: 'Today we learn a new letter. Your grown-up will say its sound.' }])) err(`${lp}.introQuiet must be the agreed sentence`);
     (L.sayingSounds || []).forEach((w, j) => {
       const p = `${lp}.sayingSounds[${j}]`;
       if (w.word !== w.word.toLowerCase()) err(`${p}.word not lowercase`);
@@ -491,7 +491,7 @@ export function checkCurriculum(c, root = ROOT) {
     if (q) {
       checkParts(q.prompt, `${lp}.quickCheck.prompt`);
       checkQuiet(q.promptQuiet, `${lp}.quickCheck.promptQuiet`);
-      const wantQuiet = q.kind === 'letter' ? 'Listen to your grown up. Then touch the letter.' : 'Listen. Touch the one that starts the same.';
+      const wantQuiet = q.kind === 'letter' ? 'Listen to your grown-up. Then touch the letter.' : 'Listen. Touch the one that starts the same.';
       if (JSON.stringify(q.promptQuiet) !== JSON.stringify([{ tts: wantQuiet }]) || q.promptTextQuiet !== wantQuiet) err(`${lp}.quickCheck.promptQuiet and promptTextQuiet must be "${wantQuiet}"`);
       if (q.promptText !== q.promptText.toLowerCase().replace(/^./, (x) => x.toUpperCase()) && /[A-Z]/.test(q.promptText.slice(1))) err(`${lp}.quickCheck.promptText has stray capitals`);
       (q.options || []).forEach((o, j) => {
@@ -580,7 +580,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const errors = [...checkCurriculum(c), ...proof.errors, ...checkQuietScripts(), ...checkTips(JSON.parse(fs.readFileSync(path.join(ROOT, 'data/tips.json'), 'utf8')))];
   // The board words are a test too: these are the exact lists the plan promises.
   const show = (n) => { const b = boardWords(ORDER_SOUNDS, n, 4); return b && b.map((x) => `${x.word}(${x.target})`).join(' '); };
-  const want = { 1: null, 2: null, 3: null, 4: null, 5: 'sat(t) sit(i) it(t) mist(s)', 7: 'fat(f) pat(p) fit(f) it(t)', 9: 'man(n) on(o) an(n) fan(f)', 11: 'cat(c) sad(d) kid(c) kin(n)', 13: 'sun(u) hum(h) sum(u) cut(c)', 17: 'sob(b) rob(r) cob(b) lab(l)' };
+  const want = { 1: null, 2: null, 3: null, 4: null, 5: 'sat(t) sit(i) it(t) mist(s)', 7: 'fat(f) pat(p) fit(f) it(t)', 9: 'man(n) on(o) an(n) fan(f)', 11: 'cat(c) sad(d) kid(c) in(n)', 13: 'sun(u) hum(h) sum(u) cut(c)', 17: 'tub(b) rub(r) cub(b) club(l)' };
   for (const [n, w] of Object.entries(want)) if (show(Number(n)) !== w) errors.push(`boardWords lesson ${n}: got ${show(Number(n))}, expected ${w}`);
   if (errors.length) { console.error(errors.map((e) => 'FAIL: ' + e).join('\n')); console.error(`check-content: ${errors.length} problem(s)`); process.exit(1); }
   console.log(`check-content: OK (${Object.keys(c.sounds).length} sounds, ${c.lessons.length} lessons, all rules pass, ${proof.count} child-read words proven readable)`);
