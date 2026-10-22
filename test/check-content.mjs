@@ -6,7 +6,7 @@ import { scriptToParts, slowSounds, firstSoundOut } from '../js/scripts.js';
 import { GLYPHS } from '../js/glyphs.js';
 import { ACCENT } from '../js/theme.js';
 import { ORDER, ORDER_SOUNDS, soundOfLetter, spellingsOf, lettersOfSounds } from '../js/order.js';
-import { sackPool, roundCaps, practiceRounds } from '../js/lessons.js';
+import { sackPool, roundCaps, practiceRounds, heartTaught } from '../js/lessons.js';
 
 export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee', 'aitch', 'eye', 'jay', 'kay', 'el', 'em', 'en', 'oh', 'pee', 'cue', 'ar', 'ess', 'tee', 'you', 'vee', 'double', 'ex', 'wye', 'zee'];
 // Picture words whose letters are all taught but are not spelt with the plain sounds (a schwa, ar, a long e), so they are only said (sayOnly), never shown as letters.
@@ -68,6 +68,7 @@ export function checkCurriculum(c, root = ROOT) {
   // No letter names in any string that could be shown or spoken (paths and URLs are not spoken).
   for (const [p, s] of strings) {
     if (/(^|\.)(image|clip)$/.test(p)) continue;
+    if (/^heartWords\.[^.]+\.(word|phrase|find\[\d\])$|\.hearts?\[\d+\]$/.test(p)) continue; // a heart word is a word (you), not a letter name (u)
     const m = s.match(nameRe);
     if (m) err(`${p}: contains letter name "${m[0]}" in "${s}"`);
   }
@@ -267,7 +268,7 @@ export function checkCurriculum(c, root = ROOT) {
     const first = (c.lessons || []).findIndex((_, n) => k.needs.every((s) => (c.lessons || []).slice(0, n + 1).some((L) => L.sound === s)));
     if (k.after !== first + 1) err(`${p}.after is ${k.after} but every needed sound is taught by lesson ${first + 1}`);
     if (JSON.stringify(book.needs) !== JSON.stringify(k.needs)) err(`${p}: the book's needs differ from the stop's`);
-    const sight = (book.sight || []).map((w) => w.toLowerCase());
+    const sight = [...(book.sight || []).map((w) => w.toLowerCase()), ...heartTaught(c, k.after).map((w) => w.toLowerCase())]; // a taught heart word is readable
     const readable = (text, where) => {
       for (const tok of text.split(' ').map((t) => t.replace(/[^\p{L}]/gu, '').toLowerCase()).filter(Boolean)) {
         if (!sight.includes(tok) && ![...tok].every((ch) => k.needs.includes(ch))) err(`${p} ${where}: "${tok}" uses a letter that is not taught yet and is not a sight word`);
@@ -299,8 +300,9 @@ export function checkCurriculum(c, root = ROOT) {
     if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) err(`${p}.after must be a lesson number`);
     if (!Array.isArray(k.story) || k.story.length < 2 || k.story.length > 4) return err(`${p}.story must have 2 to 4 sentences`);
     const taught = lettersOfSounds((c.lessons || []).slice(0, k.after).map((L) => L.sound));
-    const sight = (k.sight || []).map((w) => String(w).toLowerCase());
-    for (const w of sight) if (!['is', 'i', 'it'].includes(w)) err(`${p}.sight "${w}" is not one of the heart words the app already teaches (is, I, It)`);
+    const heartBy = heartTaught(c, k.after).map((w) => w.toLowerCase());
+    const sight = [...(k.sight || []).map((w) => String(w).toLowerCase()), ...heartBy];
+    for (const w of (k.sight || []).map((x) => String(x).toLowerCase())) if (!heartBy.includes(w)) err(`${p}.sight "${w}" is not a heart word taught by lesson ${k.after}`);
     k.story.forEach((sentence, i) => {
       if (typeof sentence !== 'string' || !/^[A-Z][A-Za-z !,]*[.!?]$/.test(sentence)) err(`${p}.story[${i}] must be one plain sentence (letters, spaces, a final . ! or ?)`);
       const words = String(sentence).toLowerCase().replace(/[.!?,]/g, '').split(/\s+/).filter(Boolean);
@@ -545,8 +547,7 @@ export function checkCurriculum(c, root = ROOT) {
   return errors;
 }
 
-// The proof: every word the child reads, anywhere, uses only sounds taught by then (plus the sight words is, I and It).
-const SIGHT = ['is', 'i', 'it'];
+// The proof: every word the child reads, anywhere, uses only sounds taught by then, or is a heart word taught by then (curriculum.heartWords).
 export function childReadProof(c, root = ROOT) {
   const errors = [];
   const items = [];
@@ -560,7 +561,7 @@ export function childReadProof(c, root = ROOT) {
     if (k.kind === 'book') {
       let book;
       try { book = JSON.parse(fs.readFileSync(path.join(root, 'data/books', `${k.book}.json`), 'utf8')); } catch (e) { errors.push(`proof: data/books/${k.book}.json unreadable (${e.message})`); continue; }
-      for (const w of book.sight || []) if (!SIGHT.includes(String(w).toLowerCase())) errors.push(`proof: ${k.id} sight word "${w}" is not one of is, I, It`);
+      for (const w of book.sight || []) if (!heartTaught(c, k.after).some((x) => x.toLowerCase() === String(w).toLowerCase())) errors.push(`proof: ${k.id} sight word "${w}" is not a heart word taught by lesson ${k.after}`);
       (book.pages || []).forEach((pg, n) => {
         for (const f of ['child', 'slider']) if (pg[f] !== undefined) for (const w of clean(pg[f])) items.push({ where: `${k.id} page ${n + 1}.${f}`, word: w, after: k.after });
         for (const text of pg.words || []) for (const w of clean(text)) items.push({ where: `${k.id} page ${n + 1}.words`, word: w, after: k.after });
@@ -570,17 +571,48 @@ export function childReadProof(c, root = ROOT) {
       for (const side of k.sides) for (const w of side.words) items.push({ where: `${k.id} tunnel word`, word: w, after: k.after });
       for (const pr of k.pairs) for (const w of [pr.a, pr.b]) items.push({ where: `${k.id} pair word`, word: w, after: k.after });
     } else if (k.kind === 'reread') {
-      for (const w of (k.sight || [])) if (!SIGHT.includes(String(w).toLowerCase())) errors.push(`proof: ${k.id} sight word "${w}" is not one of is, I, It`);
+      for (const w of (k.sight || [])) if (!heartTaught(c, k.after).some((x) => x.toLowerCase() === String(w).toLowerCase())) errors.push(`proof: ${k.id} sight word "${w}" is not a heart word taught by lesson ${k.after}`);
       k.story.forEach((sentence, n) => { for (const w of clean(sentence)) items.push({ where: `${k.id} story ${n + 1}`, word: w, after: k.after }); });
     }
   }
   for (const { where, word, after } of items) {
     const w = word.toLowerCase();
     const taught = (c.lessons || []).slice(0, after).map((L) => L.sound);
-    if (!SIGHT.includes(w) && ![...w].every((ch) => lettersOfSounds(taught).has(ch))) errors.push(`proof: ${where} "${w}" is not readable by lesson ${after}`);
+    if (!heartTaught(c, after).some((x) => x.toLowerCase() === w) && ![...w].every((ch) => lettersOfSounds(taught).has(ch))) errors.push(`proof: ${where} "${w}" is not readable by lesson ${after}`);
     if (w.length > 1 && /q(?!u)/.test(w)) errors.push(`proof: ${where} "${w}": q is always followed by u (qu is one unit that says kw)`);
   }
   return { errors, count: items.length };
+}
+
+// Heart words (docs/CURRICULUM.md section 12): each lesson names at most 2; every word has parts that spell it (at least one a heart part), a grown-up line, a phrase
+// that uses it and two wrong cards for the find-it round; the phrase and the cards use only decodable words or heart words taught by that lesson.
+export function checkHeartWords(c) {
+  const errors = [], hw = c.heartWords || {}, seen = new Set();
+  const readable = (w, n) => heartTaught(c, n).some((x) => x.toLowerCase() === w) || [...w].every((ch) => lettersOfSounds(c.lessons.slice(0, n).map((L) => L.sound)).has(ch));
+  for (const L of c.lessons || []) {
+    const list = L.heart || [];
+    if (list.length > 2) errors.push(`heart: lesson ${L.number} teaches ${list.length} heart words (2 at most)`);
+    for (const w of list) {
+      const p = `heart ${w} (lesson ${L.number})`, d = hw[w];
+      if (seen.has(w)) errors.push(`${p}: taught twice`);
+      seen.add(w);
+      if (!d) { errors.push(`${p}: no heartWords entry`); continue; }
+      if (d.word !== w || d.parts.map((q) => q.t).join('').toLowerCase() !== w.toLowerCase()) errors.push(`${p}: the parts do not spell the word`);
+      if (!d.parts.some((q) => q.heart) || !d.parts.every((q) => q.t)) errors.push(`${p}: needs a heart part`);
+      if (typeof d.tricky !== 'string' || d.tricky.length < 12) errors.push(`${p}.tricky missing`);
+      const words = String(d.phrase || '').split(' ');
+      if (words.length < 2 || words.length > 4) errors.push(`${p}.phrase must be 2 to 4 words`);
+      if (!words.some((x) => x.toLowerCase() === w.toLowerCase())) errors.push(`${p}.phrase does not use the word`);
+      for (const x of words) if (!readable(x.toLowerCase(), L.number)) errors.push(`${p}.phrase "${x}" is not decodable or a heart word taught by lesson ${L.number}`);
+      if (!Array.isArray(d.find) || d.find.length !== 2) { errors.push(`${p}.find needs two wrong cards`); continue; }
+      for (const x of d.find) {
+        if (x.toLowerCase() === w.toLowerCase()) errors.push(`${p}.find repeats the word`);
+        else if (!readable(x.toLowerCase(), L.number)) errors.push(`${p}.find "${x}" is not decodable or a heart word taught by lesson ${L.number}`);
+      }
+    }
+  }
+  for (const w of Object.keys(hw)) if (!seen.has(w)) errors.push(`heart ${w}: in heartWords but no lesson teaches it`);
+  return errors;
 }
 
 // data/tips.json: the 20 "Did you know?" tips of docs/CURRICULUM.md section 13 as [{ id, text }]. No privacy or recording warnings.
@@ -610,7 +642,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(im
   const file = process.argv[2] || path.join(ROOT, 'data/curriculum.json');
   const c = JSON.parse(fs.readFileSync(file, 'utf8'));
   const proof = childReadProof(c);
-  const errors = [...checkCurriculum(c), ...proof.errors, ...checkQuietScripts(), ...checkTips(JSON.parse(fs.readFileSync(path.join(ROOT, 'data/tips.json'), 'utf8')))];
+  const errors = [...checkCurriculum(c), ...proof.errors, ...checkHeartWords(c), ...checkQuietScripts(), ...checkTips(JSON.parse(fs.readFileSync(path.join(ROOT, 'data/tips.json'), 'utf8')))];
   // The board words are a test too: these are the exact lists the plan promises.
   const show = (n) => { const b = boardWords(ORDER_SOUNDS, n, 4); return b && b.map((x) => `${x.word}(${x.target})`).join(' '); };
   const want = { 1: null, 2: null, 3: null, 4: null, 5: 'sat(t) sit(i) it(t) mist(s)', 7: 'fat(f) pat(p) fit(f) it(t)', 9: 'man(n) on(o) an(n) fan(f)', 11: 'cat(c) sad(d) kid(c) in(n)', 13: 'sun(u) hum(h) sum(u) cut(c)', 17: 'tub(b) rub(r) cub(b) club(l)' };

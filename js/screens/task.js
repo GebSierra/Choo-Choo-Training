@@ -6,6 +6,7 @@ import { worldOf } from '../worlds.js';
 import { build as review } from './tasks/review.js';
 import { build as newLetter } from './tasks/new-letter.js';
 import { build as mouth } from './tasks/mouth.js';
+import { build as heart } from './tasks/heart.js';
 import { build as sounds } from './tasks/sounds.js';
 import { build as writing } from './tasks/writing.js';
 import { build as hunt } from './tasks/hunt.js';
@@ -18,7 +19,7 @@ import { build as read } from './tasks/first-word.js';
 import { build as tunnels } from './tasks/tunnels.js';
 import { build as which } from './tasks/which.js';
 
-export const BUILDERS = { review, newLetter, mouth, sounds, writing, hunt, signals, wagons, board, practice, check, read, tunnels, which };
+export const BUILDERS = { review, newLetter, mouth, heart, sounds, writing, hunt, signals, wagons, board, practice, check, read, tunnels, which };
 let lastIndex = {}; // remembers the previous task per lesson so the progress pill can glide
 
 export function taskScreen(ctx, n, idx) {

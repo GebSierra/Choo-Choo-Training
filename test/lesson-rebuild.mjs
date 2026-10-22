@@ -18,7 +18,7 @@ const walk = (dir, exts) => fs.readdirSync(path.join(ROOT, dir), { withFileTypes
 // ---- 1. the frame, from the data ----
 const seqs = CUR.lessons.map((L) => tasksFor(L).map((t) => t.type));
 CUR.lessons.forEach((L, i) => {
-  const s = seqs[i], mid = s.slice(s.indexOf('mouth') + 1, -2);
+  const s = seqs[i], mid = s.slice(s.indexOf('mouth') + 1, -2).filter((t) => t !== 'heart'); // the optional Heart Word step (docs/LESSON-REBUILD.md section 13) sits between Watch My Mouth and the middle
   ok(s[0] === (L.number === 1 ? 'newLetter' : 'review'), `lesson ${L.number} opens with ${L.number === 1 ? 'New Sound (nothing to review)' : 'Letter Review'}: ${s[0]}`);
   ok(s[s.indexOf('newLetter') + 1] === 'mouth', `lesson ${L.number}: Watch My Mouth comes right after New Sound`);
   ok(s.at(-1) === 'check', `lesson ${L.number} ends with Ticket Check`);
@@ -26,7 +26,7 @@ CUR.lessons.forEach((L, i) => {
   ok(mid.length >= 2 && mid.length <= (L.number === 20 ? 5 : 4), `lesson ${L.number}: the middle holds 2 to 4 activities (5 for w, which gets extra practice) (${mid.join(', ')})`);
   ok(mid.includes('sounds') && mid.includes('writing'), `lesson ${L.number}: the middle has blending practice and Track Tracing`);
   ok(!s.includes('words') && !s.includes('story'), `lesson ${L.number}: no Word Cars, no Sound Story`);
-  if (i) ok(seqs[i - 1].join() !== s.join() && seqs[i - 1].slice(seqs[i - 1].indexOf('mouth') + 1, -2).join() !== mid.join(), `lessons ${L.number - 1} and ${L.number} have different middles`);
+  if (i) ok(seqs[i - 1].join() !== s.join() && seqs[i - 1].slice(seqs[i - 1].indexOf('mouth') + 1, -2).filter((t) => t !== 'heart').join() !== mid.join(), `lessons ${L.number - 1} and ${L.number} have different middles`);
 });
 ok(new Set(CUR.lessons.map((L) => L.middle.join())).size >= 10, 'the middles are varied across the 13 lessons');
 for (const f of ['sounds', 'writing', 'hunt', 'signals', 'wagons', 'board']) ok(CUR.lessons.some((L) => L.middle.includes(f)), `${f} appears in some lesson`);

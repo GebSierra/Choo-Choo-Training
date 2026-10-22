@@ -1437,6 +1437,9 @@
         "sounds",
         "wagons",
         "writing"
+      ],
+      "heart": [
+        "a"
       ]
     },
     {
@@ -1528,6 +1531,10 @@
       "games": [
         "signals",
         "wagons"
+      ],
+      "heart": [
+        "I",
+        "is"
       ],
       "unit": "2.2",
       "world": "W1"
@@ -1738,6 +1745,9 @@
       ],
       "games": [
         "signals"
+      ],
+      "heart": [
+        "the"
       ],
       "unit": "2.3",
       "world": "W1"
@@ -2167,6 +2177,9 @@
       ],
       "games": [
         "wagons"
+      ],
+      "heart": [
+        "to"
       ],
       "unit": "2.5",
       "world": "W2"
@@ -3026,6 +3039,10 @@
         "hunt"
       ],
       "games": [],
+      "heart": [
+        "he",
+        "me"
+      ],
       "unit": "2.9",
       "world": "W3"
     },
@@ -3131,6 +3148,10 @@
       ],
       "games": [
         "signals"
+      ],
+      "heart": [
+        "be",
+        "go"
       ],
       "unit": "2.10",
       "world": "W3"
@@ -3238,6 +3259,10 @@
       "games": [
         "wagons",
         "board"
+      ],
+      "heart": [
+        "no",
+        "so"
       ],
       "unit": "2.10",
       "world": "W3"
@@ -3347,6 +3372,10 @@
         "signals",
         "wagons"
       ],
+      "heart": [
+        "we",
+        "want"
+      ],
       "unit": "2.10",
       "world": "W3"
     },
@@ -3450,6 +3479,10 @@
       ],
       "games": [
         "board"
+      ],
+      "heart": [
+        "was",
+        "my"
       ],
       "unit": "2.11",
       "world": "W3"
@@ -3556,6 +3589,10 @@
       "games": [
         "signals"
       ],
+      "heart": [
+        "you",
+        "of"
+      ],
       "unit": "2.11",
       "world": "W3"
     },
@@ -3661,6 +3698,10 @@
         "wagons",
         "board"
       ],
+      "heart": [
+        "said",
+        "do"
+      ],
       "unit": "2.11",
       "world": "W3"
     },
@@ -3763,6 +3804,10 @@
         "sounds"
       ],
       "games": [],
+      "heart": [
+        "does",
+        "are"
+      ],
       "unit": "2.11",
       "world": "W3"
     }
@@ -5017,6 +5062,9 @@
           "am",
           "ma",
           "mama"
+        ],
+        "hearts": [
+          "a"
         ]
       },
       "plan": [
@@ -5064,6 +5112,12 @@
           "it",
           "sat",
           "sap"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the"
         ]
       },
       "plan": [
@@ -5103,6 +5157,12 @@
           "mom",
           "mop",
           "top"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the"
         ]
       },
       "plan": [
@@ -5142,6 +5202,13 @@
           "him",
           "cat",
           "cap"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to"
         ]
       },
       "plan": [
@@ -5181,6 +5248,13 @@
           "cup",
           "dig",
           "dog"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to"
         ]
       },
       "plan": [
@@ -5220,6 +5294,13 @@
           "pal",
           "tub",
           "bat"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to"
         ]
       },
       "plan": [
@@ -5259,6 +5340,19 @@
           "pen",
           "peg",
           "set"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so"
         ]
       },
       "plan": [
@@ -5298,6 +5392,25 @@
           "yam",
           "zip",
           "zap"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so",
+          "we",
+          "want",
+          "was",
+          "my",
+          "you",
+          "of"
         ]
       },
       "plan": [
@@ -5338,6 +5451,29 @@
           "zap",
           "box",
           "six"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so",
+          "we",
+          "want",
+          "was",
+          "my",
+          "you",
+          "of",
+          "said",
+          "do",
+          "does",
+          "are"
         ]
       },
       "plan": [
@@ -6096,5 +6232,390 @@
         "10.6"
       ]
     }
-  ]
+  ],
+  "heartWords": {
+    "a": {
+      "word": "a",
+      "parts": [
+        {
+          "t": "a",
+          "heart": true
+        }
+      ],
+      "tricky": "The letter a says \"uh\" here.",
+      "phrase": "a mass",
+      "find": [
+        "am",
+        "Sam"
+      ]
+    },
+    "I": {
+      "word": "I",
+      "parts": [
+        {
+          "t": "I",
+          "heart": true
+        }
+      ],
+      "tricky": "A one-letter word that says long i. It is always a capital letter.",
+      "phrase": "I am Sam",
+      "find": [
+        "am",
+        "Sam"
+      ]
+    },
+    "is": {
+      "word": "is",
+      "parts": [
+        {
+          "t": "i"
+        },
+        {
+          "t": "s",
+          "heart": true
+        }
+      ],
+      "tricky": "The letter s says \"z\" here.",
+      "phrase": "Sis is Sam",
+      "find": [
+        "Sam",
+        "am"
+      ]
+    },
+    "the": {
+      "word": "the",
+      "parts": [
+        {
+          "t": "th"
+        },
+        {
+          "t": "e",
+          "heart": true
+        }
+      ],
+      "tricky": "The letter e says \"uh\" here.",
+      "phrase": "the map",
+      "find": [
+        "map",
+        "sit"
+      ]
+    },
+    "to": {
+      "word": "to",
+      "parts": [
+        {
+          "t": "t"
+        },
+        {
+          "t": "o",
+          "heart": true
+        }
+      ],
+      "tricky": "The letter o says \"oo\" here.",
+      "phrase": "to Dad",
+      "find": [
+        "dad",
+        "map"
+      ]
+    },
+    "he": {
+      "word": "he",
+      "parts": [
+        {
+          "t": "h"
+        },
+        {
+          "t": "e",
+          "heart": true
+        }
+      ],
+      "tricky": "The vowel at the end of the word says its name.",
+      "phrase": "he is a hen",
+      "find": [
+        "bed",
+        "pen"
+      ]
+    },
+    "me": {
+      "word": "me",
+      "parts": [
+        {
+          "t": "m"
+        },
+        {
+          "t": "e",
+          "heart": true
+        }
+      ],
+      "tricky": "The vowel at the end of the word says its name.",
+      "phrase": "Ben and me",
+      "find": [
+        "red",
+        "tin"
+      ]
+    },
+    "be": {
+      "word": "be",
+      "parts": [
+        {
+          "t": "b"
+        },
+        {
+          "t": "e",
+          "heart": true
+        }
+      ],
+      "tricky": "The vowel at the end of the word says its name.",
+      "phrase": "be big",
+      "find": [
+        "pen",
+        "tip"
+      ]
+    },
+    "go": {
+      "word": "go",
+      "parts": [
+        {
+          "t": "g"
+        },
+        {
+          "t": "o",
+          "heart": true
+        }
+      ],
+      "tricky": "The vowel at the end of the word says its name.",
+      "phrase": "go to bed",
+      "find": [
+        "jet",
+        "bad"
+      ]
+    },
+    "no": {
+      "word": "no",
+      "parts": [
+        {
+          "t": "n"
+        },
+        {
+          "t": "o",
+          "heart": true
+        }
+      ],
+      "tricky": "The vowel at the end of the word says its name.",
+      "phrase": "no web",
+      "find": [
+        "web",
+        "jet"
+      ]
+    },
+    "so": {
+      "word": "so",
+      "parts": [
+        {
+          "t": "s"
+        },
+        {
+          "t": "o",
+          "heart": true
+        }
+      ],
+      "tricky": "The vowel at the end of the word says its name.",
+      "phrase": "so wet",
+      "find": [
+        "wet",
+        "hug"
+      ]
+    },
+    "we": {
+      "word": "we",
+      "parts": [
+        {
+          "t": "w"
+        },
+        {
+          "t": "e",
+          "heart": true
+        }
+      ],
+      "tricky": "The vowel at the end of the word says its name.",
+      "phrase": "we win",
+      "find": [
+        "van",
+        "jet"
+      ]
+    },
+    "want": {
+      "word": "want",
+      "parts": [
+        {
+          "t": "w"
+        },
+        {
+          "t": "a",
+          "heart": true
+        },
+        {
+          "t": "nt"
+        }
+      ],
+      "tricky": "The letter a says \"o\" after w.",
+      "phrase": "I want a pet",
+      "find": [
+        "van",
+        "jam"
+      ]
+    },
+    "was": {
+      "word": "was",
+      "parts": [
+        {
+          "t": "w"
+        },
+        {
+          "t": "a",
+          "heart": true
+        },
+        {
+          "t": "s",
+          "heart": true
+        }
+      ],
+      "tricky": "The letter a says \"u\" and the letter s says \"z\" here.",
+      "phrase": "it was wet",
+      "find": [
+        "yes",
+        "jam"
+      ]
+    },
+    "my": {
+      "word": "my",
+      "parts": [
+        {
+          "t": "m"
+        },
+        {
+          "t": "y",
+          "heart": true
+        }
+      ],
+      "tricky": "The letter y says long i here.",
+      "phrase": "my pet",
+      "find": [
+        "pen",
+        "jug"
+      ]
+    },
+    "you": {
+      "word": "you",
+      "parts": [
+        {
+          "t": "y"
+        },
+        {
+          "t": "ou",
+          "heart": true
+        }
+      ],
+      "tricky": "The letters ou say \"oo\" here.",
+      "phrase": "you can zip",
+      "find": [
+        "zip",
+        "zap"
+      ]
+    },
+    "of": {
+      "word": "of",
+      "parts": [
+        {
+          "t": "o"
+        },
+        {
+          "t": "f",
+          "heart": true
+        }
+      ],
+      "tricky": "The letter f says \"v\" here.",
+      "phrase": "a cup of jam",
+      "find": [
+        "zap",
+        "yes"
+      ]
+    },
+    "said": {
+      "word": "said",
+      "parts": [
+        {
+          "t": "s"
+        },
+        {
+          "t": "ai",
+          "heart": true
+        },
+        {
+          "t": "d"
+        }
+      ],
+      "tricky": "The letters ai say short e here.",
+      "phrase": "Dad said yes",
+      "find": [
+        "six",
+        "mix"
+      ]
+    },
+    "do": {
+      "word": "do",
+      "parts": [
+        {
+          "t": "d"
+        },
+        {
+          "t": "o",
+          "heart": true
+        }
+      ],
+      "tricky": "The letter o says \"oo\" here.",
+      "phrase": "do not mix",
+      "find": [
+        "box",
+        "fox"
+      ]
+    },
+    "does": {
+      "word": "does",
+      "parts": [
+        {
+          "t": "d"
+        },
+        {
+          "t": "oe",
+          "heart": true
+        },
+        {
+          "t": "s",
+          "heart": true
+        }
+      ],
+      "tricky": "The letters oe say short u and the letter s says \"z\" here.",
+      "phrase": "he does a quiz",
+      "find": [
+        "quiz",
+        "quit"
+      ]
+    },
+    "are": {
+      "word": "are",
+      "parts": [
+        {
+          "t": "are",
+          "heart": true
+        }
+      ],
+      "tricky": "The whole word is tricky. Say it as one piece.",
+      "phrase": "you are a queen",
+      "find": [
+        "quit",
+        "zip"
+      ]
+    }
+  }
 }

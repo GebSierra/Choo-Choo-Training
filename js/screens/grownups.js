@@ -131,7 +131,7 @@ export function grownupsScreen(ctx) {
     readingProgress(store, curriculum).then((p) => {
       const rd = hero.querySelector('.gu-hero-read'), cp = hero.querySelector('.gu-hero-chips');
       if (!rd) return;
-      rd.textContent = `Can read ${p.words} words`; rd.dataset.words = String(p.words);
+      rd.textContent = `Can read ${p.words} words` + (p.hearts ? `, plus ${p.hearts} heart word${p.hearts === 1 ? '' : 's'}` : ''); rd.dataset.words = String(p.words); rd.dataset.hearts = String(p.hearts);
       cp.replaceChildren(...p.chips.map((c) => h('i', { class: 'gu-chip' }, c)));
     });
   }

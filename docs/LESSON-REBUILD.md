@@ -564,3 +564,55 @@ Owner request: extra stops that address the hard or trouble sounds (m and n, the
 - **Scripts.** Gists are at most 28 characters and one wording per game ("Which tunnel is it for?", "Say: pen. Which one?", "Light for k- as in..." as in Green Light). Sounds are written "mmm", "h-", never a bare letter name. At x2 the grown-up is told on every step: "Breathe it out, like fogging a mirror: h-. No 'huh.'"
 - **On the line.** The sign is a magnifying glass (`magnifySvg` in `js/art/train2d.js`, `drawMagnify` in `js/train/stations.js`, icon `magnify`). A Tricky Sounds stop holds the train like a Review Stop (`checkpointStopIndex`), sits before the Review Stop that follows the same lesson (so a world still ends with its Review Stop), and counts as passed once the lesson after it is done: a save past a stop is never sent back and no ride plays for a stop the child never played.
 - **Tests.** New `test/tricky-sounds.mjs` (placement, decodable words, both games right and wrong, no text to speech for targets, gists, Green Light, Ticket Check, the hold, the passed-behind rule, the saved result, fit at 360x640, 390x844 and 915x412, heat); in the `npm test` chain before smoke. Count-dependent suites were updated: `check-content` (a contrast check and the word proof), `review-stops`, `phase-b` and `sunny-hills` (the stop list), `worlds`, `regions` and `world-visit` (World 2 has 19 stops, World 3 has 16).
+
+## 13. Heart words in the lessons
+
+Owner request: build the heart words of docs/CURRICULUM.md section 12 into the lessons. A heart word is a word we learn by heart because a part of it does not follow the sounds yet; the regular
+parts still sound out and only the tricky part is learned whole. Everything is data: `tools/gen-lessons.mjs` (the `HEART` table) writes `lesson.heart` (the words a lesson teaches) and
+`curriculum.heartWords` (parts, grown-up line, phrase, wrong cards); nothing is typed into curriculum.json.
+
+### Which lesson teaches which word (21 words, 2 a lesson at most)
+| Lesson | Words | Unit | Why there |
+| --- | --- | --- | --- |
+| 3 | a | 2.1 | the lesson that completes unit 2.1 |
+| 4 | I, is | 2.2 | Story 1 and Read It Again sit after lesson 4 and use both, so both come at 4 (lesson 5 has none) |
+| 6 | the | 2.3 | completes 2.3 |
+| 10 | to | 2.5 | completes 2.5 (lesson 9 has none) |
+| 18 | he, me | 2.9 | the six words of 2.9 take lessons 18 to 20, two each (the unit has one lesson: its words spill forward) |
+| 19 | be, go | 2.9 | |
+| 20 | no, so | 2.9 | |
+| 21 | we, want | 2.10 | w words with the w lesson's neighbours |
+| 22 | was, my | 2.10 and 2.11 | 2.9 and 2.10 have nine words and lessons 18 to 21 hold eight, so was (the one with two tricky parts) moves to 22 |
+| 23 | you, of | 2.11 | |
+| 24 | said, do | 2.11 | |
+| 25 | does, are | 2.11 | completes 2.11 |
+
+### The step (js/screens/tasks/heart.js, task type `heart`, "Heart Word")
+After Watch My Mouth, before the middle (`tasksFor` in js/lessons.js), only in a lesson with `heart`. For each word, two sub-steps that the shell's Next walks through (the lesson's dots count tasks):
+- **meet**: the word big as one tile per part (a linked tile for letters that make one sound: th, ou, ai, oe), hearts hidden. The child has a go ("Your child had a go"), then the heart appears
+  on the tricky part, the grown-up says the word and the child reads it; judge bar (Got it / Help). Help shows the grown-up line ("The letter e says "uh" here.") and says it once more.
+- **find**: the grown-up says the word, the child touches it among 3 cards (the word and 2 look-different words the child can read); a wrong card only shakes, after 2 misses the right card shows a
+  small heart; the right card reveals a tiny phrase ("the map") to read together; judge bar, Help lights the words one at a time.
+- **Voice.** The phone's voice never says the word, a sound or the phrase (no text to speech for them). The word is the grown-up's recording `assets/audio/heart/<word>.mp3` (or .webm) when one exists,
+  else the screen shows "Say: the". The first heart word's grown-up tip (lesson 3, `TIPS['3:heart']`) explains once what a heart word is.
+- Gists are at most 28 characters ("Child tries. Then say it.", "Say it. Child taps the word."). The prototype's other sub-steps (map, fix the word, spell) are gone; "fix the word" stays **(coming)**.
+- The Grownups > Previews entry "Heart word: the" now opens the real step for "the" (preview shell, celebration at #/proto/heart/done); `js/screens/tasks/proto/heart.js` is gone.
+
+### Decodability and the pools
+A word a child reads is readable when every letter is taught by that lesson OR it is a heart word taught by that lesson (`heartTaught` in js/lessons.js). `test/check-content.mjs` uses this for books,
+Read It Again (its `sight` list may only name heart words taught by its `after` lesson, no longer a fixed is / I / it), the child-read proof, and the new `checkHeartWords` (each lesson 2 or fewer, parts spell the
+word, the phrase and the wrong cards are decodable or taught heart words). Review Stops list the heart words taught so far in the grown-up message (`summary.hearts`); the Station Board, Letter Hunt and
+Wagon words stay decodable words, because "find the sound in the word" does not suit a word whose sound is the exception.
+
+### Counting
+"Can read N words" (Grownups, level keepsakes, Review Stop message) stays only the words sounded out from taught letters. Heart words are counted apart and shown as ", plus H heart words" (Grownups and keepsakes)
+and a "Heart words learned so far, counted apart: a, I, is." sentence in a Review Stop message. This was chosen over folding them into N because N is a promise that a child can sound those words out.
+
+### Saved progress
+A lesson gained a task, so a saved task number can point at another task. The one-time setting `heartA` (like `layoutA`) clears `tasksDone` of lessons that are not finished (`result` is not got-it) once;
+finished lessons stay as they were. `reading.v1` is unchanged.
+
+### Tests
+New `test/heart-words.mjs` (placement, 2 at most, step order, flow, no text to speech, find-it, decodability rule, migration, counting, fit at three sizes, screenshots with SHOTS=1 in
+docs/screenshots/heart-words/), in the `npm test` chain before smoke. Updated: `check-content`, `proto-heart` (now the real step through the preview), `lesson-rebuild` (the middle excludes the Heart Word step),
+`sunny-hills` (task indexes, a saved mid-way lesson carries `heartA`), `script` (the Heart Word controls and gist), `review-stops` (the end message), `lib` (the heart task counts as seen).

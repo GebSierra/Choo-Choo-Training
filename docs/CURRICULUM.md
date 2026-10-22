@@ -366,7 +366,7 @@ about themselves.
 > every word a child reads in a lesson uses only the letters taught up to and including that lesson (test/check-content.mjs proves it).
 > Saved progress made under the old 13-lesson order (m a s i t p n f d h g b l) is mapped by sound in `store.parse()`, never reset.
 > World 3 (Sunny Hills, units 2.9 to 2.11) is built as lessons 18 to 25: **e j w v y z x qu** (docs/LESSON-REBUILD.md section 11). Heart words
-> are still not built (the heart-word columns above are the plan). The WORD_BANK, Station Board words, book stops (b1, b2, b3) and level `needs`
+> are built (section 12 below; docs/LESSON-REBUILD.md section 13): each lesson that teaches one has a Heart Word step. The WORD_BANK, Station Board words, book stops (b1, b2, b3) and level `needs`
 > follow the new order.
 >
 > **Every world ends with a Review Stop** (owner rule, with World 3): after lesson 6 (the end of World 1, next to Story 2), lesson 17 (the end
@@ -515,6 +515,12 @@ sound out.
 | some, done | 10.4 | o says short u |
 | put | 10.4 | u says /oo/ |
 | tomorrow | 10.6 | syllable splitting |
+
+**Heart words are live (lessons 3 to 25).** The 21 true heart words of units 2.1 to 2.11 (a, I, is, the, to, he, me, be, go, no, so, we, want, was, my, you, of, said, do, does, are)
+are taught in a Heart Word step, one or two words a lesson, never more. Each word is shown with its regular parts plain and its heart part marked with a small red heart (the
+"The tricky part" column above is what the grown-up reads); the grown-up says the word (never the phone), the child reads it, finds it among 3 cards and reads a tiny phrase.
+The words that section 12's second table calls "former sight words taught as patterns" (he, me, be, go, no, so, we, my) are met here early as heart words (unit 2.9 to 2.11) and
+become decodable patterns in unit 6.1. Heart words are counted apart from "can read N words". The "fix the word" activity is still **(coming)**.
 
 Heart words appear in stories only after they're taught, and come back in review like every other pattern. Each heart
 word also gets a "fix the word" activity **(coming)**: the app reads it the way it's spelled ("said" as "sayd"), and the

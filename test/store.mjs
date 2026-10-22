@@ -155,10 +155,22 @@ check(pickVoice([]) === null && pickVoice(null) === null && pickVoice([V('Google
   t.markTask(2, 4);
   t = createStore();
   check(t.state.lessons[2].tasksDone.join() === '4', 'layoutA: it runs once; progress made afterwards is kept');
-  t = open({ ...saved, settings: { ...saved.settings, layoutA: true } });
+  t = open({ ...saved, settings: { ...saved.settings, layoutA: true, heartA: true } });
   check(t.state.lessons[2].tasksDone.length === 4, 'layoutA: a save already on the new layout is left alone');
   mem.clear(); t = createStore();
   check(t.settings.layoutA === true, 'layoutA: a new install starts on the new layout');
+}
+// Heart words (heartA): a lesson gained a Heart Word task, so an unfinished lesson starts its tasks again once; finished lessons are untouched.
+{
+  const saved = { schema: 1, order: ORDER, lastOpened: '2026-10-01T00:00:00Z', firstRunDone: true, settings: { migrated1912: true, pace4: true, speak0: true, layoutA: true },
+    lessons: { 1: { tasksDone: [0, 1, 2], result: 'got-it' }, 6: { tasksDone: [0, 1, 2, 3], result: null } } };
+  let t = open(saved);
+  check(t.state.lessons[1].tasksDone.join() === '0,1,2' && t.state.lessons[6].tasksDone.length === 0 && t.settings.heartA === true, 'heartA: an unfinished lesson starts its tasks again, a finished one keeps them, the flag is saved');
+  t.markTask(6, 1);
+  t = open(JSON.parse(mem.get('reading.v1')));
+  check(t.state.lessons[6].tasksDone.join() === '1', 'heartA: it runs once; progress made afterwards is kept');
+  mem.clear(); t = createStore();
+  check(t.settings.heartA === true, 'heartA: a new install starts on the new layout');
 }
 
 console.log(`store: ${n - bad}/${n} checks passed`);

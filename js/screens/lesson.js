@@ -4,6 +4,7 @@ import { speakButton } from '../components/speak-button.js';
 import { tasksFor, lessonByNumber, targetsFor, soundPhrase, introParts, spellings } from '../lessons.js';
 import { richText, letterText } from '../letters.js';
 import { tipCard, nextTip, loadTips } from '../components/tip-card.js';
+import { heartSvg } from './tasks/heart.js';
 import { engineSvg, crateSvg, signalSvg, wagonSvg } from '../art/train2d.js';
 
 // Little illustrations for the task cards, drawn from our own shapes and emoji.
@@ -16,6 +17,7 @@ function illustration(task, lesson, curriculum) {
       break;
     case 'newLetter': wrap.append(h('span', { class: 'big-glyph' + (s.alt ? ' pair' : '') }, ...spellings(s).map((ch) => glyphSvg(ch, { color: '#fff' })))); break;
     case 'mouth': wrap.append(h('span', { class: 'play mouth-ic' }, icon('mouth', 44))); break;
+    case 'heart': wrap.append(h('span', { class: 'heart-ic' }, heartSvg())); break;
     case 'sounds': wrap.append(h('span', { class: 'wave' }, h('i'), h('i'), h('i'), h('i'), h('i'))); break;
     case 'writing': wrap.append(h('span', { class: 'big-glyph ghost' + (s.alt ? ' pair' : '') }, ...spellings(s).map((ch) => glyphSvg(ch, { color: 'currentColor' }))), h('span', { class: 'pencil' }, '✏️')); break;
     case 'hunt': wrap.append(h('span', { class: 'art-train' }, engineSvg({ still: true }))); break;

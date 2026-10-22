@@ -25,7 +25,7 @@ const route = (n, type) => `#/lesson/${n}/task/${tasksFor(CUR.lessons[n - 1]).fi
 
 // The controls each kind of task is for: all of them must sit inside the stage and the screen, unclipped.
 const PRIMARY = {
-  review: ['.slide-track'], newLetter: ['.slide-track', '.word-tile:first-child'], mouth: ['.grownup-art', '.px-hear', '.mouth-how-btn'],
+  review: ['.slide-track'], newLetter: ['.slide-track', '.word-tile:first-child'], mouth: ['.grownup-art', '.px-hear', '.mouth-how-btn'], heart: ['.hw-word', '.hw-tried'],
   sounds: ['.sounds-stage', '.btn.ghost.small'], writing: ['.tp-ink', '.writing-buttons .btn'], hunt: ['.sky-letter', '.train-wrap', '.star-row'],
   signals: ['.signal', '.star-row'], wagons: ['.find-card', '.train-wrap', '.star-row'], board: ['.flap-tile', '.star-row'], practice: ['.sack', '.sack-card'], check: ['.opt-card'],
 };
@@ -112,7 +112,7 @@ export async function gistChecks({ browser, url, ok }) {
       await page.waitForFunction((r) => location.hash === r && document.querySelector('.screen:not(.leaving) .script-first') && !document.querySelector('.screen.leaving'), `#/lesson/${L.number}/task/${t.index}`);
       await page.waitForTimeout(150);
       const gist = await gistOf(page);
-      const want = { review: '', mouth: '', sounds: L.sayingSounds[0].word, writing: '', practice: 'Find the' }[t.type] ?? P;
+      const want = { review: '', mouth: '', sounds: L.sayingSounds[0].word, writing: '', practice: 'Find the', heart: '' }[t.type] ?? P;
       const fits = await page.evaluate(() => { const e = document.querySelector('.screen:not(.leaving) .script-first'); return e.scrollWidth <= e.clientWidth; });
       ok(fits, `lesson ${L.number} ${t.type}: the gist "${gist}" fits the bar at 360 px without an ellipsis`);
       ok(gist.length > 0 && gist.length <= 28 && gist.includes(want), `lesson ${L.number} ${t.type}: gist "${gist}" is 1 to 28 characters and holds "${want}"`);

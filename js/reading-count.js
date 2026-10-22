@@ -8,8 +8,11 @@ export const soundKeysDone = (store, curriculum) => curriculum.lessons.filter((l
 export const countReadable = (words, keys) => { const taught = lettersOfSounds(keys); return words.filter((w) => [...w].every((ch) => taught.has(ch))).length; };
 // Chips: one per sound; c/k is one chip, qu is one chip.
 export const chipsOf = (keys) => keys.map((k) => (k === 'c' ? 'c/k' : k === 'q' ? 'qu' : k));
+// Heart words are counted apart (never inside the "can read N words" number: those are words a child sounds out): H, how many the done lessons teach.
+export const heartCount = (curriculum, lessons) => lessons.reduce((n, l) => n + ((l.heart || []).length), 0);
 export async function readingProgress(store, curriculum, lessonNumbers = null) {
   const keys = lessonNumbers ? lessonNumbers.map((n) => (curriculum.lessons.find((l) => l.number === n) || {}).sound).filter(Boolean) : soundKeysDone(store, curriculum);
   const words = await loadWordList();
-  return { sounds: keys.length, words: countReadable(words, keys), chips: chipsOf(keys) };
+  const lessons = curriculum.lessons.filter((l) => (lessonNumbers ? lessonNumbers.includes(l.number) : store.isDone(l.number)));
+  return { sounds: keys.length, words: countReadable(words, keys), hearts: heartCount(curriculum, lessons), chips: chipsOf(keys) };
 }

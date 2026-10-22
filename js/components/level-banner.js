@@ -13,7 +13,7 @@ import { worldOf } from '../worlds.js';
 export async function worldKeepsake(store, curriculum, level) {
   const w = worldOf(curriculum, level.after), ch = store.character() || {};
   const p = await readingProgress(store, curriculum, Array.from({ length: level.after }, (_, i) => i + 1));
-  return { headline: keepsakeWorld(ch.name, w ? w.name : 'a world'), word: `${p.sounds} sounds`, sub: `can read ${p.words} words`, date: new Date(), character: ch };
+  return { headline: keepsakeWorld(ch.name, w ? w.name : 'a world'), word: `${p.sounds} sounds`, sub: `can read ${p.words} words` + (p.hearts ? `, plus ${p.hearts} heart word${p.hearts === 1 ? '' : 's'}` : ''), date: new Date(), character: ch };
 }
 
 export const BANNER_MS = 4500, FADE_MS = 250;

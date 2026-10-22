@@ -27,4 +27,5 @@ export const TIPS = {
   '2:newLetter': 'Say the sound aaa (as in apple), not “ay”. Then ma is “maaa”, not “em-ay”.',
   '2:sounds': 'Say ma as “maaa”, with no gap between the sounds. Letter names would make “em-ay”, which is not a word.',
 };
+TIPS['3:heart'] = 'A heart word is a word we learn by heart, because a part of it does not follow the sounds yet. Most of the word still sounds out. The little heart marks only the tricky part.';
 export const tipFor = (lessonNumber, type) => TIPS[`${lessonNumber}:${type}`] || null;

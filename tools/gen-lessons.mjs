@@ -98,6 +98,35 @@ const TABLE = [
     note: 'The letter q is always followed by u. Treat qu as one unit. Together they say kw-.' },
 ];
 
+// Heart words (docs/CURRICULUM.md section 12): n is the lesson that teaches the word (never more than 2 a lesson). `parts` are [letters, heart]: the regular
+// parts sound out, the heart part is the tricky part to know by heart. `tricky` is what the grown-up reads. `phrase` is the tiny "use it" phrase and `find` the two
+// wrong cards of the find-it round: each word is spelt with letters taught by lesson n or is a heart word taught by n (test/check-content.mjs proves it).
+const P = (...a) => a.map((x) => (Array.isArray(x) ? { t: x[0], heart: true } : { t: x }));
+const END = 'The vowel at the end of the word says its name.';
+const HEART = [
+  { n: 3, w: 'a', parts: P(['a']), tricky: 'The letter a says "uh" here.', phrase: 'a mass', find: ['am', 'Sam'] },
+  { n: 4, w: 'I', parts: P(['I']), tricky: 'A one-letter word that says long i. It is always a capital letter.', phrase: 'I am Sam', find: ['am', 'Sam'] },
+  { n: 4, w: 'is', parts: P('i', ['s']), tricky: 'The letter s says "z" here.', phrase: 'Sis is Sam', find: ['Sam', 'am'] },
+  { n: 6, w: 'the', parts: P('th', ['e']), tricky: 'The letter e says "uh" here.', phrase: 'the map', find: ['map', 'sit'] },
+  { n: 10, w: 'to', parts: P('t', ['o']), tricky: 'The letter o says "oo" here.', phrase: 'to Dad', find: ['dad', 'map'] },
+  { n: 18, w: 'he', parts: P('h', ['e']), tricky: END, phrase: 'he is a hen', find: ['bed', 'pen'] },
+  { n: 18, w: 'me', parts: P('m', ['e']), tricky: END, phrase: 'Ben and me', find: ['red', 'tin'] },
+  { n: 19, w: 'be', parts: P('b', ['e']), tricky: END, phrase: 'be big', find: ['pen', 'tip'] },
+  { n: 19, w: 'go', parts: P('g', ['o']), tricky: END, phrase: 'go to bed', find: ['jet', 'bad'] },
+  { n: 20, w: 'no', parts: P('n', ['o']), tricky: END, phrase: 'no web', find: ['web', 'jet'] },
+  { n: 20, w: 'so', parts: P('s', ['o']), tricky: END, phrase: 'so wet', find: ['wet', 'hug'] },
+  { n: 21, w: 'we', parts: P('w', ['e']), tricky: END, phrase: 'we win', find: ['van', 'jet'] },
+  { n: 21, w: 'want', parts: P('w', ['a'], 'nt'), tricky: 'The letter a says "o" after w.', phrase: 'I want a pet', find: ['van', 'jam'] },
+  { n: 22, w: 'was', parts: P('w', ['a'], ['s']), tricky: 'The letter a says "u" and the letter s says "z" here.', phrase: 'it was wet', find: ['yes', 'jam'] },
+  { n: 22, w: 'my', parts: P('m', ['y']), tricky: 'The letter y says long i here.', phrase: 'my pet', find: ['pen', 'jug'] },
+  { n: 23, w: 'you', parts: P('y', ['ou']), tricky: 'The letters ou say "oo" here.', phrase: 'you can zip', find: ['zip', 'zap'] },
+  { n: 23, w: 'of', parts: P('o', ['f']), tricky: 'The letter f says "v" here.', phrase: 'a cup of jam', find: ['zap', 'yes'] },
+  { n: 24, w: 'said', parts: P('s', ['ai'], 'd'), tricky: 'The letters ai say short e here.', phrase: 'Dad said yes', find: ['six', 'mix'] },
+  { n: 24, w: 'do', parts: P('d', ['o']), tricky: 'The letter o says "oo" here.', phrase: 'do not mix', find: ['box', 'fox'] },
+  { n: 25, w: 'does', parts: P('d', ['oe'], ['s']), tricky: 'The letters oe say short u and the letter s says "z" here.', phrase: 'he does a quiz', find: ['quiz', 'quit'] },
+  { n: 25, w: 'are', parts: P(['are']), tricky: 'The whole word is tricky. Say it as one piece.', phrase: 'you are a queen', find: ['quit', 'zip'] },
+];
+
 // Words for the wrong cards of the Sound Sack and Quick Check: tiles whose word begins with none of the sounds taught so far.
 // avoid: sounds that are too close to the word's first sound to mix in (n with m, egg with a or i, v with f, k with g, ch with t or s ...).
 const POOL_ADD = [
@@ -241,7 +270,7 @@ function reviewSummary(after) {
   const readable = WORD_LIST.filter((w) => [...w].every((ch) => taught.has(ch)));
   const score = (w) => (met.has(w) ? 100 : 0) + [...new Set(w)].filter((ch) => newest.has(ch)).length * 10 + Math.min(w.length, 4);
   const examples = readable.map((w, i) => ({ w, i })).sort((a, b) => score(b.w) - score(a.w) || a.i - b.i).slice(0, 8).map((x) => (NAMES.has(x.w) ? x.w[0].toUpperCase() + x.w.slice(1) : x.w)); // names are shown capitalised (Sam)
-  return { sounds: sounds.length, words: readable.length, examples };
+  return { sounds: sounds.length, words: readable.length, examples, hearts: HEART.filter((x) => x.n <= after).map((x) => x.w) };
 }
 REVIEW_AFTER.forEach(([after, id]) => {
   if (after > c.lessons.length) return;
@@ -361,6 +390,18 @@ for (const L of c.lessons) {
   L.games = L.middle.filter((t) => TAP_GAMES.includes(t));
 }
 
+// Heart words: the table above, into the data. A lesson names the words it teaches (`heart`); `heartWords` holds each word's parts and its phrase.
+// The step sits in tasksFor (js/lessons.js) after Watch My Mouth. Never more than 2 a lesson.
+c.heartWords = {};
+for (const L of c.lessons) delete L.heart;
+for (const x of HEART.filter((y) => y.n <= c.lessons.length)) {
+  if (x.parts.map((q) => q.t).join('').toLowerCase() !== x.w.toLowerCase()) throw new Error('heart word parts do not spell ' + x.w);
+  c.heartWords[x.w] = { word: x.w, parts: x.parts, tricky: x.tricky, phrase: x.phrase, find: x.find };
+  const L = c.lessons[x.n - 1];
+  L.heart = [...(L.heart || []), x.w];
+  if (L.heart.length > 2) throw new Error(`lesson ${x.n} has more than 2 heart words`);
+}
+
 // Milestones (docs/PLAN-v1.9.md). A level is earned when its `after` lesson is done; after is null while a needed sound
 // is not built yet. Keep levels 4 to 15 sounds apart. Level two is the end of Green Valley (World 2): all 17 sounds of lessons 1 to 17; level three is the end of Sunny Hills (World 3): all 25
 // (k is the second spelling of c, so it is not a separate need). Later levels name the sounds still to build.
@@ -401,5 +442,6 @@ lines.push(line.trimEnd());
 sw = sw.replace(/(\/\/ picture tiles curriculum\.json uses[^\n]*\n)[\s\S]*?(\n\];)/, `$1${lines.join('\n')}$2`);
 // Recorded sounds are optional precache files: one per sound clip (a missing file never stops the install).
 sw = sw.replace(/OPTIONAL_FILES = \[[^\]]*\];/, `OPTIONAL_FILES = [${Object.values(c.sounds).map((s) => s.clip).filter(Boolean).map((f) => `'${f}'`).join(', ')}];`);
+sw = sw.replace(/OPTIONAL_FILES\.push\('assets\/audio\/heart\/[^;]*;/, `OPTIONAL_FILES.push(${Object.keys(c.heartWords).map((w) => `'assets/audio/heart/${w.toLowerCase()}.mp3'`).join(', ')});`);
 fs.writeFileSync(SW, sw);
 console.log(`gen-lessons: ${c.lessons.length} lessons, ${Object.keys(c.sounds).length} sounds, ${c.levels.filter((v) => v.after !== null).length} built levels, ${c.checkpoints.length} checkpoints, ${list.length} tiles in the precache list`);

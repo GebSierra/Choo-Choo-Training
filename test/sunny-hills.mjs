@@ -94,7 +94,7 @@ export async function dataChecks({ ok }) {
   globalThis.localStorage = { getItem: (k) => (mem.has(k) ? mem.get(k) : null), setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k) };
   const { createStore } = await import('../js/store.js');
   const open = (save) => { mem.clear(); mem.set('reading.v1', JSON.stringify(save)); return createStore(); };
-  const settings = { migrated1912: true, pace4: true, speak0: true, layoutA: true, seenScripts: { ...SEEN, 'lesson:9': true }, trainAt: 7, trainDone: 12, perDay: 4 };
+  const settings = { migrated1912: true, pace4: true, speak0: true, layoutA: true, heartA: true, seenScripts: { ...SEEN, 'lesson:9': true }, trainAt: 7, trainDone: 12, perDay: 4 };
   const old17 = (n, extra = {}) => ({ schema: 1, order: PRIOR_ORDERS[0], lessons: doneL(n), checkpoints: stopsDone(Math.min(n, 17)), settings, levels: { seen: 2, earned: L12 }, worlds: { seen: 'W2' }, character: CHARACTER, firstRunDone: true, lastOpened: '2026-10-12T08:00:00.000Z', savedAt: 1760000000000, ...extra });
   let save = old17(17), s = open(save);
   ok(JSON.stringify(s.state.lessons) === JSON.stringify(save.lessons) && Object.keys(s.state.lessons).length === 17, 'saves: a finished Green Valley save keeps lessons 1 to 17 exactly (results, dates, tasks)');
@@ -194,7 +194,7 @@ export async function screenChecks({ browser, url, ok }) {
     await m.page.addInitScript(SPEECH_STUB);
     await m.page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: doneL(24), settings: { seenScripts: SEEN, trainIntroDone: true, migrated1912: true, pace4: true }, firstRunDone: true })}))`);
     const tasks = CUR.lessons[24].middle;
-    const at = (type) => 1 + 2 + tasks.indexOf(type); // review, new sound, mouth, then the middle
+    const at = (type) => 1 + 2 + (CUR.lessons[24].heart && CUR.lessons[24].heart.length ? 1 : 0) + tasks.indexOf(type); // review, new sound, mouth, the Heart Word step (lesson 25 teaches does and are), then the middle
     await m.page.goto(url + `#/lesson/25/task/${at('sounds')}`);
     await m.page.waitForSelector('.glyph-letter');
     await m.page.waitForTimeout(1200);

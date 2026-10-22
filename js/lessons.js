@@ -4,6 +4,7 @@ export const TASK_TYPES = {
   review:  { name: 'Letter Review', color: 'sky',    dark: true,  label: "Today we'll review" },
   newLetter: { name: 'New Sound',   color: 'violet', dark: false, label: "Today we'll learn" },
   mouth:   { name: 'Watch My Mouth', color: 'coral', dark: false, label: "Today we'll watch" },
+  heart:   { name: 'Heart Word', color: 'sun', dark: true, label: "Today we'll learn" },
   sounds:  { name: 'Saying Sounds', color: 'mint',   dark: true,  label: "Today we'll stretch" },
   writing: { name: 'Track Tracing', color: 'lilac', dark: true,  label: "Today we'll write" },
   hunt:    { name: 'Letter Hunt',   color: 'sky',    dark: true,  label: "Today we'll practice" },
@@ -18,13 +19,13 @@ export const TASK_TYPES = {
 };
 
 // The frame every lesson shares, so the child knows what to expect (docs/LESSON-REBUILD.md):
-//   OPENING  Letter Review (lesson 1 has nothing to review, so it opens with New Sound), New Sound, Watch My Mouth
+//   OPENING  Letter Review (lesson 1 has nothing to review, so it opens with New Sound), New Sound, Watch My Mouth, and Heart Word when the lesson teaches one
 //   MIDDLE   lesson.middle: 2 to 4 of Saying Sounds, Track Tracing, Letter Hunt, Green Light, Wagon Parade, Station Board
 //   ENDING   Practicing Words (a short review of today's sound and the earlier ones), then Ticket Check, always last
 export function tasksFor(lesson) {
   const list = [];
   if (lesson.review && lesson.review.length) list.push('review');
-  list.push('newLetter', 'mouth', ...(lesson.middle || ['sounds', 'writing', 'hunt']), 'practice', 'check');
+  list.push('newLetter', 'mouth', ...(lesson.heart && lesson.heart.length ? ['heart'] : []), ...(lesson.middle || ['sounds', 'writing', 'hunt']), 'practice', 'check');
   return list.map((type, index) => ({ type, index, ...TASK_TYPES[type] }));
 }
 
@@ -39,6 +40,7 @@ export function targetsFor(task, lesson) {
   switch (task.type) {
     case 'review': return lesson.review.map((g) => ({ glyph: g }));
     case 'newLetter': case 'mouth': case 'writing': case 'hunt': case 'signals': case 'wagons': case 'board': case 'practice': case 'check': return spellingsOf(lesson.sound).map((g) => ({ glyph: g }));
+    case 'heart': return (lesson.heart || []).map((w) => ({ text: w }));
     case 'sounds': return lesson.sayingSounds.slice(0, 3).map((w) => ({ text: w.word }));
     default: return [];
   }
@@ -84,3 +86,6 @@ export function sackPool(curriculum, ck) {
 }
 // The sounds a checkpoint's rounds may be about, and how many rounds each can take: no more than its start words.
 export const roundCaps = (curriculum, ck) => Object.fromEntries(ck.sounds.map((k) => [k, (curriculum.sounds[k].startWords || []).length]));
+
+// The heart words taught by the end of lesson n (the lesson's own words included), as written in the data.
+export const heartTaught = (curriculum, n) => curriculum.lessons.slice(0, n).flatMap((L) => L.heart || []);
