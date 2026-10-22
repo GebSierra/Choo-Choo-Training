@@ -269,7 +269,7 @@ const CONTRAST = [
     sides: [{ sign: ['m'], letters: ['m'], words: ['map', 'mat', 'mop', 'mom'] }, { sign: ['n'], letters: ['n'], words: ['nap', 'nip', 'not', 'nan'] }],
     pairs: [['map', 'nap'], ['am', 'an']] },
   { id: 'x2', after: 12, pair: ['h', 'a'], check: ['h', 'a', 's'], hint: "Breathe it out, like fogging a mirror: h-. No 'huh.'",
-    line: "Easy to miss: the breath sound h-. A word can start with it or not, like hat and at. Let's listen closely.", end: 'Great listening! You can hear when a word starts with h- and when it does not.',
+    line: "Easy to miss: the breath sound h-. A word can start with it or not, like hat and at. Let's listen closely.", end: 'Great listening! Your child can hear when a word starts with h- and when it does not.',
     sides: [{ sign: ['h'], letters: ['h'], words: ['hat', 'hit', 'ham', 'hop', 'hot', 'him'] }, { signText: 'no h', letters: ['a', 'i', 'o'], words: ['at', 'it', 'am', 'as', 'an', 'on'] }],
     pairs: [['hat', 'at'], ['hit', 'it'], ['ham', 'am'], ['has', 'as']] },
   { id: 'x3', after: 14, pair: ['c', 'g'], check: ['g', 'c', 'm'],
@@ -307,7 +307,7 @@ for (const x of CONTRAST) {
   const A = x.pair.map(say2);
   c.checkpoints.push({ id: x.id, kind: 'contrast', title: 'Tricky Sounds', after: x.after, pair: x.pair, sides: x.sides, pairs, ...(x.whichLetters ? { whichLetters: x.whichLetters } : {}), ...(x.hint ? { hint: x.hint } : {}),
     line: x.line || `Two sounds that are easy to mix up: ${A[0]} and ${A[1]}. Let's listen closely.`,
-    end: x.end || `Great listening! You can tell ${A[0]} from ${A[1]}.`,
+    end: x.end || `Great listening! Your child can tell ${A[0]} from ${A[1]}.`,
     quickCheck: { prompt: [{ tts: ask }, { clip: key }, ...tail], promptQuiet: [{ tts: quiet }], promptText: `${ask} ${say2(key)}?`, promptTextQuiet: quiet, kind: 'letter', options: [key, mate, other].map((g, i) => ({ glyph: g, correct: i === 0 })) },
     plan: [{ task: 'tunnels' }, { task: 'which' }, { task: 'signals', lesson: x.after, pair: x.pair }, { task: 'check', lesson: x.after }] });
 }
