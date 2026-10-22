@@ -16,7 +16,7 @@ export function build({ lesson, sound, speech, store }) {
   const cards = order.map((o) => {
     const face = o.glyph
       ? h('span', { class: 'opt-glyph' }, glyphSvg(o.glyph, { color: accentOf(o.glyph), label: 'letter choice' }))
-      : h('span', { class: 'opt-pic' }, picture(o), h('span', { class: 'word' }, letterText(o.word)));
+      : h('span', { class: 'opt-pic' }, picture(o), h('span', { class: 'word' }, letterText(o.word, { level: lesson.number })));
     const b = h('button', { class: 'opt-card', type: 'button', 'aria-pressed': 'false', 'aria-label': o.glyph ? 'letter choice' : o.word, onclick: () => {
       cards.forEach((c) => { c.classList.toggle('picked', c === b); c.setAttribute('aria-pressed', String(c === b)); });
     } }, face);

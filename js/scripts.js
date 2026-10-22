@@ -1,4 +1,5 @@
-import { soundOfLetter, letterUnits } from './order.js';
+import { soundOfLetter, letterUnits, ORDER_SOUNDS } from './order.js';
+const ALL = ORDER_SOUNDS.length; // scripts are for the grown-up: a digraph is one sound in every word (the child's own rows join them by lesson)
 // Parent scripts are shown as text. To read one aloud, isolated sounds (mmm, aaammm, sss) become
 // recorded clips and everything else goes to text to speech. Nothing is ever a single letter.
 export function stretchLetters(word) { return [...word].map((c) => c.repeat(3)).join(''); }
@@ -6,23 +7,28 @@ export function stretchLetters(word) { return [...word].map((c) => c.repeat(3)).
 // How a parent writes a sound: a held sound (m, a, s, f, i, n) is stretched, "mmm"; a clipped one (t, d, g, p, h, b, l)
 // is short with a dash and never stretched, "t-". `sounds` is the curriculum's sounds table (its `hold` flag decides).
 // A sound with two spellings (c and k) is written with its sound letter: "k-" for c and for k alike.
-export const soundText = (ch, sounds) => {
+export const soundText = (ch, sounds, word) => {
   const s = sounds && sounds[soundOfLetter(ch)];
+  // th is one lesson with two kinds: the buzzing one (that, this) is written "thhh", the quiet one (thin, bath) "th-"
+  if (ch === 'th' && s && s.voiced) return s.voicedWords && s.voicedWords.includes(word) ? s.voiced : s.sayItLike;
+  // a double letter (ff, ll, ss, zz) says the single letter's sound; ck says k-
+  if (ch.length === 2 && ch[0] === ch[1] && sounds && sounds[ch[0]]) return soundText(ch[0], sounds);
+  if (s && ch.length === 2 && s.hold && s.sayItLike) return s.sayItLike; // a held digraph: shhh
   // A clipped sound is written as its own short text: t-, k- (c and k), kw- (qu), ks- (x). `sayItLike` holds it.
   if (s && s.hold === false && /^[a-z]+-$/.test(s.sayItLike || '')) return s.sayItLike;
   return s && s.hold === false ? `${s.alt && s.alt.length ? s.alt[0] : ch}-` : ch.repeat(3);
 };
 // A word sound by sound, for a parent to say slowly with no pause: held sounds stretched, clipped ones short: "t-aaa".
 // A doubled letter (miss, buzz) is one sound, not two: "mmmiiisss", never "mmmiiissssss".
-export const slowSounds = (word, sounds) => letterUnits(word).filter((c, i, a) => c !== a[i - 1]).map((c) => soundText(c, sounds)).join('');
+export const slowSounds = (word, sounds, level = ALL) => letterUnits(word, level).filter((c, i, a) => c !== a[i - 1]).map((c) => soundText(c, sounds, word)).join('');
 // A picture word: only its first sound is brought out, held ("sssun") or short ("t-iger"); the rest stays as it is.
-export const firstSoundOut = (word, sounds) => soundText(word[0], sounds) + word.slice(word.startsWith('qu') ? 2 : 1);
+export const firstSoundOut = (word, sounds, level = ALL) => { const u = letterUnits(word, level)[0], n = u === 'q' ? 2 : u.length; return soundText(u, sounds, word) + word.slice(n); };
 
 // A sound token is only stretched runs (mmm) and short sounds with a dash (t-): "t-aaag-". It is shown, never spoken by text to speech.
-const PIECE = /([a-z])\1{2,}|(?:kw|ks|[a-z])-/g;
+const PIECE = /([a-z])\1{2,}|(?:kw|ks|ch|th|ng|nk|[a-z])-/g;
 const isPure = (core) => core.replace(PIECE, '') === '';
-const pieceKey = (p) => (p.startsWith('kw') ? 'q' : p.startsWith('ks') ? 'x' : soundOfLetter(p[0])); // kw- is the sound of qu, ks- of x
-const isSoundy = (core) => /([a-z])\1{2,}/.test(core) || /(^|-)(?:kw|ks|[a-z])-/.test(core);
+const pieceKey = (p) => (p.startsWith('kw') ? 'q' : p.startsWith('ks') ? 'x' : /^(ch|th|ng|nk)-/.test(p) ? p.slice(0, 2) : soundOfLetter(p[0])); // kw- is the sound of qu, ks- of x, ch- th- ng- nk- of the digraphs
+const isSoundy = (core) => /([a-z])\1{2,}/.test(core) || /(^|-)(?:kw|ks|ch|th|ng|nk|[a-z])-/.test(core);
 
 // quiet (the default, when the grown up says the sounds): any sentence that contains a sound is left out,
 // so only the framing sentences are read ("Now you try. Slide the letter as you say it.").

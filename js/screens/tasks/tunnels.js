@@ -51,7 +51,7 @@ export function build(ctx) {
   }
   function newRound() {
     const mine = ++serial, r = rounds[round];
-    face.replaceChildren(r.kind === 'letter' ? glyphSvg(r.value, { color: accentOf(r.value), label: 'letter on the car' }) : letterText(r.value, { label: true }));
+    face.replaceChildren(r.kind === 'letter' ? glyphSvg(r.value, { color: accentOf(r.value), label: 'letter on the car' }) : letterText(r.value, { label: true, level: ck.after }));
     face.dataset.kind = r.kind;
     car.dataset.side = String(r.side); car.dataset.kind = r.kind; car.dataset.value = r.value;
     car.style.opacity = '1';

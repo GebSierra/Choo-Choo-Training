@@ -75,7 +75,7 @@ export function build(ctx) {
   function show(i) {
     const { word, target } = words[i];
     row.replaceChildren();
-    tiles = letterUnits(word).map((ch) => makeTile(ch, soundOfLetter(ch) === target));
+    tiles = letterUnits(word, lesson.number).map((ch) => makeTile(ch, soundOfLetter(ch) === target));
     row.append(...tiles);
     el.dataset.word = word; el.dataset.round = String(round); if (ctx.refresh) ctx.refresh();
     prompt.hide();
@@ -90,7 +90,7 @@ export function build(ctx) {
     const mine = ++serial;
     locked = true; prompt.hide();
     el.dataset.word = word; el.dataset.round = String(round); if (ctx.refresh) ctx.refresh();
-    const units = letterUnits(word), n = Math.max(tiles.length, units.length), old = tiles.slice(), next = [];
+    const units = letterUnits(word, lesson.number), n = Math.max(tiles.length, units.length), old = tiles.slice(), next = [];
     let total = 0;
     for (let k = 0; k < n; k++) {
       const ch = units[k], isT = soundOfLetter(ch) === target;

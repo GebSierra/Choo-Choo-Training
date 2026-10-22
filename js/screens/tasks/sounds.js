@@ -6,7 +6,7 @@ import { slideBlend, placeBand, startSweep, handCue } from '../../components/sli
 import { picture } from '../../components/picture.js';
 import { accentOf } from '../../theme.js';
 import { fit } from '../../lessons.js';
-import { soundOfLetter, letterUnits } from '../../order.js';
+import { soundOfLetter, letterUnits, startSound } from '../../order.js';
 
 // Task 5: stretch the sounds, then say the word. Words that show letters can be slid under with a finger; a picture word
 // shows its letters, slidable in the same way, once the picture is tapped.
@@ -19,7 +19,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
   const cur = () => list[i];
   const partsFor = () => {
     const w = cur();
-    if (w.showLetters) return [...letterUnits(w.word).filter(hasGlyph).map((c) => ({ clip: soundOfLetter(c) })), { pause: 300 }, { word: w.word }];
+    if (w.showLetters) return [...letterUnits(w.word, lesson.number).filter(hasGlyph).map((c) => ({ clip: soundOfLetter(c) })), { pause: 300 }, { word: w.word }];
     return [{ word: w.word }];
   };
   const stopSweep = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } if (cue) { cue.stop(); cue = null; cueStage.classList.remove('cueing'); } };
@@ -28,7 +28,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
   // The word as a slidable row of letters on the stage: the row, a progress bar, and a generous band to slide on.
   // perLetter: each letter lights in its own colour (m blue, a red, s green); otherwise all in the lesson's colour.
   function mountWord(stage, w, before, { perLetter, capped, cap = 96 }) {
-    const art = wordSvg(w.word, { color: '#1E2140', label: w.word, all: true });
+    const art = wordSvg(w.word, { color: '#1E2140', label: w.word, all: true, level: lesson.number });
     if (capped) { art.style.maxWidth = `calc(var(--cap, ${cap}px) * ${Number(art.dataset.width) / Number(art.dataset.height)})`; art.style.margin = '0 auto'; }
     const sweep = h('span', { class: 'sweep', 'aria-hidden': 'true' });
     const row = h('span', { class: 'glyph-row' }, art, sweep);
@@ -53,7 +53,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
     const hint = h('span', { class: 'tap-hint', 'aria-hidden': 'true' }, icon('tap', 40));
     let label = null;
     if (w.showLetters) {
-      label = h('span', { class: 'reveal-word' }, letterText(w.word));
+      label = h('span', { class: 'reveal-word' }, letterText(w.word, { level: lesson.number }));
       stage.append(hint, label);
       mountWord(stage, w, hint, { perLetter: true, capped: true, cap: 120 });
     } else {
@@ -84,7 +84,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
       // A held sound is stretched ("sss"), a clipped one is short ("t-") and never stretched.
       // Only the very first Saying Sounds (lesson 1) is new to the child: I do, we do, you do. After that the child recalls first;
       // the grown-up steps in only after a failed try (together, then say it and have the child say it after).
-      const first = lesson.number === 1, held = sounds[soundOfLetter(w.word[0])] && sounds[soundOfLetter(w.word[0])].hold === false ? 'with a short first sound' : 'stretching the first sound';
+      const first = lesson.number === 1, held = sounds[startSound(w.word)] && sounds[startSound(w.word)].hold === false ? 'with a short first sound' : 'stretching the first sound';
       const help = 'If they are stuck, sound it out together. Still stuck? Say it yourself, then have your child say it after you.';
       if (w.sayOnly) return `Let your child say the word first. Tap the picture to hear it. If they are stuck, say it together. Still stuck? Say it yourself, then have your child say it after you. (Slowly, ${held}: ${firstSoundOut(w.word, sounds)}. Then fast: ${w.word}.)`;
       if (!w.showLetters) return first

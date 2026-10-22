@@ -1,5 +1,5 @@
 {
-  "about": "A curated list of common, child-friendly real words that a child can read by sounding out with plain letter sounds (short vowels, one sound per letter, qu as one unit). No heart words (is, as, was, of, the ...), no rude or obscure words, no double letters or later digraphs (ck, ll, ss, ng ...). tools/gen-lessons.mjs counts, for each Review Stop, how many of these words use only the letters taught by that stop (the number W the grown-up sees) and picks the example words from them. Add words here, never to the counts by hand.",
+  "about": "A curated list of common, child-friendly real words that a child can read by sounding out with plain letter sounds (short vowels, one sound per letter, qu as one unit). No heart words (is, as, was, of, the ...), no rude or obscure words, no double letters (ff, ll, ss, zz). The World 4 digraph words (sh, ch, th, ck, wh, ng, nk) are counted only by the stops after their lesson. tools/gen-lessons.mjs counts, for each Review Stop, how many of these words use only the letters taught by that stop (the number W the grown-up sees) and picks the example words from them. Add words here, never to the counts by hand.",
   "words": [
     "am", "ma", "mama", "sam", "at", "it", "sit", "sat", "sip", "sap", "tip", "tap", "pat", "pit", "mat", "map", "tim",
     "spat", "spit", "past", "mast", "mist", "stamp", "pasta", "taps", "maps", "mats", "pits", "sips", "tips", "sits",
@@ -18,6 +18,14 @@
     "swim", "twin", "trip", "trap", "trot", "glad", "clap", "clip", "club", "crab", "crib", "drip", "drop", "drum", "plan", "plum", "grab", "grin",
     "lamp", "camp", "damp", "limp", "bump", "jump", "lump", "pump", "milk", "silk", "gift", "lift", "soft", "left", "raft",
     "help", "held", "melt", "felt", "belt", "sand", "band", "land", "hand", "bend", "send", "lend", "mend", "fund", "pond",
-    "test", "rest", "nest", "best", "vest", "west"
+    "test", "rest", "nest", "best", "vest", "west",
+    "ship", "shop", "shed", "shut", "shin", "fish", "dish", "wish", "mash", "cash", "rush", "shot",
+    "ash", "chip", "chop", "chat", "chin", "chug", "much", "such", "rich", "chest", "lunch", "bunch",
+    "munch", "punch", "inch", "ranch", "that", "this", "then", "them", "thin", "thud", "bath", "moth",
+    "math", "path", "thump", "back", "sack", "pack", "neck", "deck", "sick", "kick", "pick", "sock",
+    "rock", "duck", "luck", "lock", "dock", "tuck", "when", "whip", "whiz", "whim", "ring", "sing",
+    "king", "wing", "rang", "sang", "song", "long", "hung", "rung", "gong", "bang", "fang", "hang",
+    "bank", "sank", "tank", "pink", "sink", "link", "honk", "junk", "bunk", "think", "thank", "sunk",
+    "rink"
   ]
 }
