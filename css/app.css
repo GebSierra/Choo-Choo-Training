@@ -2187,6 +2187,6 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .which-card:active { transform: translateY(2px); }
 .which-card.go { background: #D8F5DF; border-color: #2FB37A; }
 .which-card .pic-frame { width: min(100%, 120px); height: auto; aspect-ratio: 1; }
-.which-word { font-size: clamp(30px, 9vmin, 54px); font-weight: 800; line-height: 1.1; }
+.which-word { font-size: clamp(44px, 15vmin, 88px); font-weight: 800; line-height: 1.1; }
 .which-glyph svg { height: clamp(48px, 16vmin, 96px); width: auto; display: block; }
 @media (orientation: landscape) and (max-height: 520px) { .which-card .pic-frame { width: min(100%, 64px); } .which-row { top: 74px; } .say-hear.which-hear { width: 56px; height: 56px; } .which-scene .say-prompt { left: 78px; } }
