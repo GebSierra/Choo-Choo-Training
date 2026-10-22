@@ -289,6 +289,50 @@ The Tricky Sounds stops (Which One?, `docs/LESSON-REBUILD.md` section 12) show a
 | s | sip | new, no current file | a child drinking through a striped straw from a glass of juice |
 | z | zip | new, no current file | a coat zip, half done up, with a metal pull tab |
 
+## World 4 (Digraph Docks) additions
+
+Lessons 26 to 33 (sh ch th ck ff(ll ss zz) wh ng nk) use the tiles that exist in the folders sh (ship shark shoe), ch (chair cheese chick), th-unvoiced (bath thumb thunder), th-voiced (brother father feather mother) and ng (ring sing wing), plus d/duck, s/sock, i/stick and o/rock (the ck words) and b/ball (the one double-letter picture). wh and nk have no tile at all, so their lessons show no pictures (never a wrong one). The rows below are pictures the lessons and the Tricky Sounds pairs could use but have no tile yet; all are "new, no current file".
+
+| folder | word | current file | prompt |
+|---|---|---|---|
+| wh | whale | new, no current file | a friendly blue whale with a water spout, side-on (wh has no tile at all: lesson 31 has no pictures until one of these exists) |
+| wh | wheel | new, no current file | a single red wagon wheel with spokes, front on |
+| wh | whistle | new, no current file | a silver train whistle on a chain |
+| wh | white | new, no current file | a plain white mug with a pale shadow (or a white rabbit) to show the colour white |
+| ch | chip | new, no current file | a single golden potato chip (crisp) on a plate; ship/chip needs this to show the pair as pictures |
+| sh | shop | new, no current file | a small shop front with a striped awning, an open door and a sign (the word shop pairs with chop) |
+| sh | shell | new, no current file | a pink spiral sea shell on sand |
+| sh | sheep | new, no current file | a fluffy white sheep standing side-on |
+| sh | shed | new, no current file | a small wooden garden shed with a closed door and a tiny window |
+| sh | dish | new, no current file | a round blue dish with a spoon in it |
+| ch | chop | new, no current file | a wooden chopping board with a carrot half chopped and a knife beside it (shop/chop pair) |
+| th | thin | new, no current file | a very thin snake or a thin stick next to a thick one (thin/tin pair) |
+| th | think | new, no current file | a child with a hand on the chin and a thought bubble above |
+| th | three | new, no current file | three red apples in a row, no numbers |
+| th | bath (th-voiced pair) | new, no current file | a child in a bath with bubbles (th-unvoiced/bath exists); that, this, then, them need no picture |
+| ck | clock | new, no current file | a round wall clock with hands and no numbers |
+| ck | truck | new, no current file | a red pick-up truck, side-on |
+| ck | sack | new, no current file | a brown sack tied at the top with string (sack/shack pair) |
+| ck | shack | new, no current file | a tiny wooden shack with a tin roof (sack/shack pair) |
+| ck | kick | new, no current file | a child kicking a football, leg raised |
+| ff | puff | new, no current file | a small white puff of cloud or a powder puff |
+| ff | cliff | new, no current file | a tall cliff above the sea with a gull |
+| ll | bell | new, no current file | a brass hand bell with a wooden handle (lesson 30 has only ball as a picture) |
+| ll | doll | new, no current file | a rag doll with yarn hair and a red dress |
+| ll | hill | new, no current file | a green hill with a winding path |
+| ss | kiss | new, no current file | a child kissing a mother on the cheek, hearts above |
+| ss | dress | new, no current file | a child standing in a yellow dress with a hem |
+| ss | grass | new, no current file | a patch of green grass with a few daisies |
+| zz | buzz | new, no current file | a bee with blurred wings and a dotted flight path |
+| zz | jazz | new, no current file | a trumpet and a saxophone side by side |
+| ng | king (ng) | new, no current file | the ng folder has ring, sing and wing; a swing is the fourth: a child on a swing |
+| ng | song | new, no current file | a music note over an open mouth, or a child singing |
+| nk | bank | new, no current file | a stone bank building with columns and a coin sign (nk has no tile at all: lesson 33 has no pictures until one of these exists) |
+| nk | sink | new, no current file | a white kitchen sink with a tap and water running |
+| nk | trunk | new, no current file | an elephant trunk lifted, or a wooden treasure trunk with a lid |
+| nk | skunk | new, no current file | a black and white skunk with a big tail |
+| nk | monkey | new, no current file | a brown monkey hanging from a branch |
+
 ## Hard to picture
 
 - **sit** (i): a verb, not a noun. The prompt shows a child sitting cross-legged; check that it reads as "sitting" and not as a generic child.

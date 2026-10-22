@@ -616,3 +616,77 @@ finished lessons stay as they were. `reading.v1` is unchanged.
 New `test/heart-words.mjs` (placement, 2 at most, step order, flow, no text to speech, find-it, decodability rule, migration, counting, fit at three sizes, screenshots with SHOTS=1 in
 docs/screenshots/heart-words/), in the `npm test` chain before smoke. Updated: `check-content`, `proto-heart` (now the real step through the preview), `lesson-rebuild` (the middle excludes the Heart Word step),
 `sunny-hills` (task indexes, a saved mid-way lesson carries `heartA`), `script` (the Heart Word controls and gist), `review-stops` (the end message), `lib` (the heart task counts as seen).
+
+## 14. World 4, Digraph Docks: lessons 26 to 33
+
+Units 3.1 to 3.5 of docs/CURRICULUM.md. Built with no version change; nothing is pushed. All data comes from `node tools/gen-lessons.mjs` (the `TABLE`, `MOUTH`, `HEART`, `REVIEW_PLANS`, `CONTRAST` tables).
+
+### Order, units, world
+
+`ORDER_SOUNDS` gains `sh ch th ck ff wh ng nk` at the end (33 lessons). Lessons 1 to 25 keep their numbers. World 4 is lessons 26 to 33 (`stageUnits(3, 5)`):
+unit 3.1 = sh, ch (26, 27); 3.2 = th (28); 3.3 = ck, ff, wh (29, 30, 31); 3.4 = ng, nk (32, 33); 3.5 (mixed review) has no new sound: it is the end-of-world Review Stop v11.
+The reviewer's proposal held without change (the pipeline did not force a different split).
+
+| Lesson | Sound | Unit | Saying Sounds letter words | Picture word | Station Board words (a sample) | Notation |
+| --- | --- | --- | --- | --- | --- | --- |
+| 26 | sh | 3.1 | shop fish mash | ship | ship quit shut six | shhh (held) |
+| 27 | ch | 3.1 | chop much rich | chick (said only: ck comes later) | chip ship chop quit | ch- |
+| 28 | th (buzzing and quiet) | 3.2 | that thin bath | thumb (said only: silent b) | that chat this ship | th- quiet, thhh buzzing |
+| 29 | ck | 3.3 | back sick duck | sock | back bath sack such | k- |
+| 30 | ff, ll, ss, zz | 3.3 | puff miss buzz | ball (said only: the a before ll) | off sock sell that | fff (and l-, sss, zzz) |
+| 31 | wh | 3.3 | when whip whiz | none | when puff whip back | w- |
+| 32 | ng | 3.4 | rang long hung | ring | ring when wing puff | ng- |
+| 33 | nk | 3.4 | bank pink honk | none | bank rang sank when | nk- |
+
+Notes:
+- **Digraphs are ONE sound written with TWO letters, so each is one unit everywhere.** `js/order.js` has `DIGRAPHS` (sh ch th ck ff ll ss zz wh ng nk), `letterUnits(word, ctx)`
+  (ctx = a lesson number or the Set from `lettersOfSounds`: the digraphs taught by then are one unit: ship = sh i p, bell = b e ll, quit = q i t), `isReadable(word, taught)`
+  (every letter taught, and a digraph taught as a unit: ship is not readable before lesson 26 even though s, h, i and p are; only the doubled letters ff ll ss zz fall back to
+  their single letters before lesson 30, so miss at lesson 4 and buzz at 23 keep working and no old lesson changes) and `startSound(word)`. `SPELLINGS.ff = ff ll ss zz`
+  (one lesson, four spellings, like c and k); `soundOfLetter('ck')` is its own key, `'k'` still belongs to c.
+  `check-content` and every test that proved decodability per letter now use `isReadable`; Station Board words count digraph units (`once(w, k, n)`), and the new
+  digraph and double-letter words (`DOCKS_BANK` in `js/games-data.js`) are only offered from lesson 26 so lessons 1 to 25 never gain a word.
+- **Glyphs** (`js/glyphs.js`): each digraph glyph is built from the strokes of its two letters (squeezed sideways to fit the usual 100-wide box) and a thin bar under the baseline
+  (`link`, drawn by `glyphSvg`, `wordSvg`, the inline text glyphs and the station signs, never traced), so a digraph is one linked tile on cards, balloons, wagons, the Station
+  Board, tunnels and word rows. `wordSvg(word, { level })`, `letterText(text, { level })` join the digraphs taught by that lesson; the reading font (story pages) joins them too and
+  draws the same bar. The slide-to-blend therefore slides over units: ship is three, `data-letter` is `sh`.
+- **Grown-up scripts** (`js/scripts.js`): `soundText` knows the digraphs (`slowSounds('ship')` = `shhhiiip-`, `chip` = `ch-iiip-`, `duck` = `d-uuuk-`, `ring` = `rrriiing-`; a doubled letter is the single letter's sound, `miss` = `mmmiiisss`).
+  th has two kinds: `sounds.th.voiced` is `thhh` and `voicedWords` (that this then them they the) pick it, so `that` = `thhhaaat-` and `thin` = `th-iiinnn`. The sound tokens `ch-`, `th-`, `ng-`, `nk-`
+  are shown and never spoken by the phone (`scriptToParts` treats them like `kw-`). The th New Sound script asks the grown-up to touch the throat: that buzzes, thin does not.
+  Quiet th is easy to mix up with f (fin and thin); sh and ch are mixed up with each other, so the next stop contrasts them.
+- **th** is one lesson with both kinds (like c/k: one lesson, two spellings, here two kinds). Tiles: thumb thunder bath (quiet) and mother father (buzzing).
+- **ff ll ss zz**: only the picture ball exists, so the lesson has one tile; the four spellings are each met in puff, ball, miss, buzz. **ck ff ng nk** are end-only (like x): no start words and no Practicing Words round of their own.
+- **wh and nk have no picture tile at all** (`noPictures: true`): their lessons show no pictures and the Saying Sounds are words only. A wrong picture is never used; the prompts are in docs/IMAGE-PROMPTS.md ("World 4 additions", all "new, no current file").
+- **ng and nk are taught as chunks**: the grown-up note names -ang -ing -ong -ung and -ank -ink -onk -unk; the unit is still ng or nk, and the words rang, sing, long, hung, bank, pink, honk, sank cover all eight chunks across Saying Sounds and the Station Board.
+- Wrong cards: the pool words ch (chair, cheese, chick) now avoid sh; `sack.js` no longer treats a word starting with any spelling of the asked sound as a wrong card.
+- Watch My Mouth: sh "Round your lips a little and close your teeth. Blow a long stream of air. Voice off."; ch "... a quick burst of air through your teeth, like a sneeze. Voice off."; th "Poke your tongue tip out between your teeth and blow air, as in thin. Voice off." (the buzzing th is in the grown-up note); ck, ff, wh, ng, nk likewise (see `MOUTH`).
+
+### Heart words
+she at 26, they at 28, **what and where both at 31** (their wh is only taught there; the proposal said 30 to 31). she is `sh` + `e`; they `th` + `ey` (long a); what `wh` + `a` + `t`; where `wh` + `ere`.
+The Heart Word step draws sh, th, wh, ey and ere as linked tiles. Counts: Review Stop messages list the heart words taught so far.
+
+### Stops
+| Stop | After lesson | Notes |
+| --- | --- | --- |
+| **x9** Tricky Sounds | 27 | sh against ch: ship/chip, shop/chop, shin/chin (words only: chip has no tile) |
+| **x10** Tricky Sounds | 28 | th against t: thin/tin, then/ten |
+| **v10** Review Stop | 30 | mid-world: Green Light ff, Letter Hunt th, Station Board ck, Ticket Check sh |
+| **b4** Story 4 | 31 | DRAFT (below) |
+| **v11** Review Stop | 33 | the end of the world, `mix: 'digraphs'`: Wagon Parade nk, Green Light wh, Letter Hunt ck, Station Board ch, Ticket Check ff (each game deals its lesson's sound with the digraphs before it) |
+
+New ids never renumber old ones. A stop counts as passed once the lesson after it is done; the crossing W3 to W4, going back W4 to W3 to W2 to W1, the Grownups list and the keepsakes are all data-driven and needed no change beyond the data.
+The half-the-activities-on-the-newest rule is off for v11 (`mix`). Review Stop counts: v10 306 words, v11 337 (digraph words other than doubled ones are in `data/words-decodable.json`; v1 to v9 are unchanged).
+
+### Story 4 (`data/books/book-4.json`, stop b4 after lesson 31) DRAFT, pending owner approval
+"Pip and the Docks", 10 pages, a child-read word on seven of them (ship, fish, shop, chop, bell, duck, back), no heart word needed. The file carries `"draft": true`; the text is not final until the owner approves it. The scenes reuse the existing backdrops (station for the dock).
+
+### Levels
+Level four (tanker) is earned after lesson 33 (every sound taught); its "Coming later" placeholder is gone. Level five is the only placeholder left.
+
+### Saved progress
+`PRIOR_ORDERS` now holds both the 17-sound and the 25-sound strings; both are prefixes of the current order, so `store.parse()` reads those saves as the current order and nothing is reset (lessons, stops, levels, worlds, settings, train position stay exactly as they were; lesson 26 is the next lesson for a child who finished World 3).
+
+### Tests
+New: `test/digraph-docks.mjs` (in `npm test`, before smoke). Changed deliberately: `check-content` (digraph notation, `noPictures`, units for the board and tunnel rules, `isReadable` everywhere), `store` (the order string), `phase-b` (33 lessons, the stop list, level four, units on the board, thumb and ball are said only),
+`sunny-hills`, `review-stops`, `tricky-sounds`, `heart-words`, `worlds`, `regions`, `world-visit`, `journey`, `levels`, `lib` and `read-again` (counts, stop lists, `isReadable`; see git log). Screenshots (390x844): docs/screenshots/digraph-docks/.
+

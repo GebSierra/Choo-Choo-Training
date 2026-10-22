@@ -302,7 +302,7 @@ const REVIEW_PLANS = {
   23: [['board', 23], ['signals', 22], ['wagons', 7], ['check', 22]], // f is the unvoiced partner of v
   25: [['hunt', 18], ['wagons', 13], ['signals', 8], ['hunt', 4], ['check', 2]],
   // Digraph Docks: the middle stop leans on th ck ff (with sh from before); the last stop mixes all the digraphs (the games deal each lesson's sound with the earlier ones)
-  30: [['wagons', 30], ['hunt', 28], ['signals', 26], ['check', 29]],
+  30: [['signals', 30], ['hunt', 28], ['board', 29], ['check', 26]],
   33: [['wagons', 33], ['signals', 31], ['hunt', 29], ['board', 27], ['check', 30]],
 };
 // Ticket Check is always a letter question (lessons 2, 4, 6 ...): its wrong cards are letters taught by then, where a picture question

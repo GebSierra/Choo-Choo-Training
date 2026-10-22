@@ -17,7 +17,7 @@ import { INK, hearBtn, fadeIn, pop } from './proto/kit.js';
 // (assets/audio/heart/<word>.mp3, or .webm) when one exists; without it the screen shows "Say: the". All wording comes from curriculum.heartWords.
 export const clipOf = (w) => ({ key: `heart-${w.toLowerCase()}`, src: `assets/audio/heart/${w.toLowerCase()}.mp3` });
 export const TIP = 'A heart word is a word we learn by heart, because a part of it does not follow the sounds yet. Most of the word still sounds out. The little heart marks only the tricky part.';
-const LINKED = new Set(['th', 'ou', 'ai', 'oe', 'are']); // letters that make one sound are drawn as one linked tile
+const LINKED = new Set(['th', 'sh', 'wh', 'ou', 'ai', 'oe', 'ey', 'ere', 'are']); // letters that make one sound are drawn as one linked tile
 const LIGHT_MS = 650;
 const popAnim = (n) => animate(n, [{ transform: 'scale(1)' }, { transform: 'scale(1.5)', offset: 0.4 }, { transform: 'scale(1)' }], { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
 

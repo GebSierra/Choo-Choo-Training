@@ -369,9 +369,13 @@ about themselves.
 > are built (section 12 below; docs/LESSON-REBUILD.md section 13): each lesson that teaches one has a Heart Word step. The WORD_BANK, Station Board words, book stops (b1, b2, b3) and level `needs`
 > follow the new order.
 >
+> World 4 (Digraph Docks, units 3.1 to 3.5) is built as lessons 26 to 33: **sh, ch, th (buzzing and quiet in one lesson), ck, ff ll ss zz (one lesson), wh, ng, nk**
+> (docs/LESSON-REBUILD.md section 14). Heart words she (26), they (28), what and where (31). Tricky Sounds after 27 (sh/ch) and 28 (th/t), a Review Stop after 30,
+> Story 4 after 31 (draft) and the end-of-world Review Stop after 33, which is unit 3.5 (mixed review). Level four is earned after lesson 33.
+>
 > **Every world ends with a Review Stop** (owner rule, with World 3): after lesson 6 (the end of World 1, next to Story 2), lesson 17 (the end
-> of World 2) and lesson 25 (the end of World 3, a mix of the five short vowels a i o u e). Inside the worlds there are more: after lessons 3,
-> 9, 12, 15, 20 and 23. Later worlds follow the same rule.
+> of World 2), lesson 25 (the end of World 3, a mix of the five short vowels a i o u e) and lesson 33 (the end of World 4, a mix of all the digraphs). Inside the worlds there are more: after lessons 3,
+> 9, 12, 15, 20, 23 and 30. Later worlds follow the same rule.
 
 ### Stage 3: Digraphs (late Kindergarten to Grade 1)
 Children learn that two letters can team up to make one new sound. The app shows digraph letters as one linked tile.

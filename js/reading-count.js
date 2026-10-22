@@ -6,8 +6,8 @@ let listP = null;
 export const loadWordList = () => listP || (listP = fetch('data/words-decodable.json').then((r) => r.json()).then((j) => j.words || []).catch(() => { listP = null; return []; }));
 export const soundKeysDone = (store, curriculum) => curriculum.lessons.filter((l) => store.isDone(l.number)).map((l) => l.sound || ORDER_SOUNDS[l.number - 1]).filter(Boolean);
 export const countReadable = (words, keys) => { const taught = lettersOfSounds(keys); return words.filter((w) => isReadable(w, taught)).length; };
-// Chips: one per sound; c/k is one chip, qu is one chip.
-export const chipsOf = (keys) => keys.map((k) => (k === 'c' ? 'c/k' : k === 'q' ? 'qu' : k));
+// Chips: one per sound; c/k is one chip, qu is one chip, ff ll ss zz is one chip.
+export const chipsOf = (keys) => keys.map((k) => (k === 'c' ? 'c/k' : k === 'q' ? 'qu' : k === 'ff' ? 'ff ll ss zz' : k));
 // Heart words are counted apart (never inside the "can read N words" number: those are words a child sounds out): H, how many the done lessons teach.
 export const heartCount = (curriculum, lessons) => lessons.reduce((n, l) => n + ((l.heart || []).length), 0);
 export async function readingProgress(store, curriculum, lessonNumbers = null) {

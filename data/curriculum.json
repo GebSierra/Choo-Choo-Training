@@ -7044,7 +7044,7 @@
       },
       "plan": [
         {
-          "task": "wagons",
+          "task": "signals",
           "lesson": 30
         },
         {
@@ -7052,12 +7052,12 @@
           "lesson": 28
         },
         {
-          "task": "signals",
-          "lesson": 26
+          "task": "board",
+          "lesson": 29
         },
         {
           "task": "check",
-          "lesson": 29
+          "lesson": 26
         }
       ],
       "world": "W4"

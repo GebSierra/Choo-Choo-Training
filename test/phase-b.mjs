@@ -6,12 +6,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, newPage, SEEN, doneThrough } from './lib.mjs';
-import { ORDER, ORDER_SOUNDS, LEGACY_ORDER, SPELLINGS, spellingsOf, soundOfLetter, lettersOfSounds, isReadable } from '../js/order.js';
+import { ORDER, ORDER_SOUNDS, LEGACY_ORDER, SPELLINGS, spellingsOf, soundOfLetter, lettersOfSounds, letterUnits, isReadable } from '../js/order.js';
 import { tasksFor } from '../js/lessons.js';
 import { earnedLevels } from '../js/levels.js';
 import { worldDone, currentWorld, lessonsIn } from '../js/worlds.js';
 import { isIsolated } from './check-content.mjs';
-import { WORD_BANK } from '../js/games-data.js';
+import { WORD_BANK, DOCKS_BANK } from '../js/games-data.js';
 import { GLYPHS } from '../js/glyphs.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
@@ -24,25 +24,25 @@ const until = (page, fn, arg, timeout = 10000) => page.waitForFunction(fn, arg, 
 
 // ---- 1. the order and the count ----
 const SOUNDS = CUR.lessons.map((L) => L.sound);
-ok(CUR.lessons.length === 25 && ORDER_SOUNDS.length === 25, 'there are 25 lessons (17 of them in Worlds 1 and 2; World 3 adds 18 to 25, test/sunny-hills.mjs)');
-ok(SOUNDS.join(' ') === ORDER && SOUNDS.join('') === 'masitpfondchuglrbejwvyzxq' && SOUNDS.slice(0, 17).join('') === 'masitpfondchuglrb', `the lessons teach m a s i t p f o n d c h u g l r b, then World 3 e j w v y z x q (${SOUNDS.join('')})`);
+ok(CUR.lessons.length === 33 && ORDER_SOUNDS.length === 33, 'there are 33 lessons (17 of them in Worlds 1 and 2; World 3 adds 18 to 25, test/sunny-hills.mjs; World 4 adds 26 to 33, test/digraph-docks.mjs)');
+ok(SOUNDS.join(' ') === ORDER && SOUNDS.slice(0, 25).join('') === 'masitpfondchuglrbejwvyzxq' && SOUNDS.slice(0, 17).join('') === 'masitpfondchuglrb', `the lessons teach m a s i t p f o n d c h u g l r b, then World 3 e j w v y z x q, then World 4 sh ch th ck ff wh ng nk (${SOUNDS.join('')})`);
 ok(ORDER.includes(' ') && ORDER !== LEGACY_ORDER && LEGACY_ORDER === 'masitpnfdhgbl', 'ORDER holds spaces, so it can never equal the legacy single-letter string');
 ok(CUR.lessons.slice(0, 6).map((L) => L.sound).join('') === 'masitp' && CUR.lessons.slice(0, 6).every((L) => L.world === 'W1'), 'World 1 is lessons 1 to 6 (m a s i t p), unchanged');
 ok(CUR.lessons.slice(6, 17).every((L) => L.world === 'W2') && lessonsIn(CUR, 'W2').length === 11 && lessonsIn(CUR, 'W2').at(-1).number === 17, 'World 2 (Green Valley) is lessons 7 to 17 and ends at lesson 17');
 const UNIT_OF = { f: '2.4', o: '2.4', n: '2.5', d: '2.5', c: '2.6', h: '2.6', u: '2.7', g: '2.7', l: '2.7', r: '2.8', b: '2.8' };
 ok(CUR.lessons.slice(6, 17).every((L) => L.unit === UNIT_OF[L.sound]), 'units: 2.4 f o, 2.5 n d, 2.6 c(k) h, 2.7 u g l, 2.8 r b');
 ok(Object.keys(CUR.sounds).join('') === SOUNDS.join('') && !CUR.sounds.k, 'one sound per lesson: c/k is one sound with the key c (there is no sound k)');
-ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25', 'the stops keep their ids and places (r1, b1, b2, v1 to v5), World 3 adds Story 3 (b3 after 22) and Review Stops v6 (after 6, end of World 1), v7, v8, v9 (after 20, 23, 25), then the eight Tricky Sounds stops x1 to x8');
-ok(CUR.levels[0].after === 6 && CUR.levels[1].after === 17 && CUR.levels[2].after === 25, 'level one comes after lesson 6, level two after lesson 17, level three after lesson 25 (the end of each world)');
+ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,b4:31,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,x9:27,x10:28,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25,v10:30,v11:33', 'the stops keep their ids and places (r1, b1, b2, v1 to v5), World 3 adds Story 3 (b3 after 22) and Review Stops v6 (after 6, end of World 1), v7, v8, v9 (after 20, 23, 25), then the eight Tricky Sounds stops x1 to x8; World 4 adds Story 4 (b4 after 31), Tricky Sounds x9 and x10 (after 27, 28) and Review Stops v10 and v11 (after 30, 33)');
+ok(CUR.levels[0].after === 6 && CUR.levels[1].after === 17 && CUR.levels[2].after === 25 && CUR.levels[3].after === 33, 'level one comes after lesson 6, level two after lesson 17, level three after lesson 25, level four after lesson 33 (the end of each world)');
 const fakeStore = (n) => ({ isDone: (k) => k <= n, lesson: () => ({}), currentLesson: (t) => (n >= t ? null : n + 1), worlds: () => ({ seen: null }) });
 ok(earnedLevels(CUR, fakeStore(16)).length === 1 && earnedLevels(CUR, fakeStore(17)).length === 2 && earnedLevels(CUR, fakeStore(24)).length === 2 && earnedLevels(CUR, fakeStore(25)).length === 3, 'levels: level two is earned by lesson 17, not before');
 ok(!worldDone(fakeStore(16), CUR, 'W2') && worldDone(fakeStore(17), CUR, 'W2') && currentWorld(fakeStore(17), CUR).id === 'W3' && currentWorld(fakeStore(6), CUR).id === 'W2', 'worlds: World 2 is done at lesson 17 (the current world is then World 3); after lesson 6 the current world is World 2');
-ok(Object.keys(SPELLINGS).join() === 'c' && spellingsOf('c').join('') === 'ck' && soundOfLetter('k') === 'c' && soundOfLetter('m') === 'm', 'order.js: c has two spellings, c and k');
+ok(Object.keys(SPELLINGS).join() === 'c,ff' && spellingsOf('c').join('') === 'ck' && spellingsOf('ff').join() === 'ff,ll,ss,zz' && soundOfLetter('k') === 'c' && soundOfLetter('m') === 'm', 'order.js: c has two spellings, c and k');
 for (const L of CUR.lessons) {
   const m = tasksFor(L).map((t) => t.type);
   ok(m.at(-1) === 'check' && m.at(-2) === 'practice' && (L.number === 1 || m[0] === 'review') && m[m.indexOf('newLetter') + 1] === 'mouth', `lesson ${L.number} keeps the lesson frame`);
 }
-for (let n = 8; n <= 25; n++) ok(CUR.lessons[n - 1].middle.join() !== CUR.lessons[n - 2].middle.join(), `lessons ${n - 1} and ${n} have different middles`);
+for (let n = 8; n <= 33; n++) ok(CUR.lessons[n - 1].middle.join() !== CUR.lessons[n - 2].middle.join(), `lessons ${n - 1} and ${n} have different middles`);
 
 // ---- 2. every word a child reads is decodable from the sounds taught up to and including that lesson ----
 const SIGHT = ['is', 'i', 'it'];
@@ -50,9 +50,9 @@ for (const L of CUR.lessons) {
   const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, L.number));
   const readable = (w) => isReadable(w, taught);
   for (const w of L.sayingSounds.filter((x) => x.showLetters)) ok(readable(w.word), `lesson ${L.number} Saying Sounds "${w.word}" uses only taught letters`);
-  for (const b of L.board || []) { ok(readable(b.word) && WORD_BANK.includes(b.word), `lesson ${L.number} Station Board "${b.word}" is decodable and from the word bank`); ok([...b.word].filter((ch) => soundOfLetter(ch) === b.target).length === 1, `lesson ${L.number} board "${b.word}" holds its target ${b.target} once`); }
+  for (const b of L.board || []) { ok(readable(b.word) && [...WORD_BANK, ...DOCKS_BANK].includes(b.word), `lesson ${L.number} Station Board "${b.word}" is decodable and from the word bank`); ok(letterUnits(b.word, L.number).filter((ch) => soundOfLetter(ch) === b.target).length === 1, `lesson ${L.number} board "${b.word}" holds its target ${b.target} once`); }
   for (const o of L.quickCheck.options) if (o.glyph) ok(taught.has(o.glyph), `lesson ${L.number} Ticket Check letter ${o.glyph} is taught`);
-  if (L.number >= 7) for (const w of L.sayingSounds.filter((x) => !x.showLetters)) ok(!!w.sayOnly === (!readable(w.word) || ['wagon', 'yarn', 'zebra', 'queen'].includes(w.word)), `lesson ${L.number} picture word "${w.word}": letters shown only when decodable (sayOnly ${!!w.sayOnly})`);
+  if (L.number >= 7) for (const w of L.sayingSounds.filter((x) => !x.showLetters)) ok(!!w.sayOnly === (!readable(w.word) || ['wagon', 'yarn', 'zebra', 'queen', 'thumb', 'ball'].includes(w.word)), `lesson ${L.number} picture word "${w.word}": letters shown only when decodable (sayOnly ${!!w.sayOnly})`);
   ok(L.review.every((k) => ORDER_SOUNDS.indexOf(k) < L.number - 1), `lesson ${L.number} reviews only earlier sounds`);
 }
 // the new Green Valley words, by lesson (docs/LESSON-REBUILD.md section 9)
