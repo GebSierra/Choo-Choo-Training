@@ -173,6 +173,10 @@ designed around it.
 | Dropping n or m before a final stop | In "sand," the n melts into the vowel, so children read "sad" | st and ft come first; nd, mp and nt after, with contrast pairs: sad/sand, cap/camp |
 | Still-developing speech sounds (/r/, /l/, /th/) | Many young children can't yet say these clearly, which can be mistaken for a reading error | The grown-up judges the word, not the articulation |
 
+### Tricky Sounds stops (the app's contrast practice)
+
+The trouble spots above are practised again at eight "Tricky Sounds" stops, each placed after the lesson that teaches the second sound of its pair: m and n (after 9), h with and without its breath (after 12), c/k and g (after 14), b and d (after 17), short i and short e (after 18), f and v (after 21), w and y (after 22), s and z (after 23). Each stop sets the two sounds side by side with minimal pairs made only of letters taught by then (map/nap, at/hat, cap/gap, bad/dad, pin/pen, fan/van, wet/yet, sip/zip), and teaches no new letter. h is never said "huh": the grown-up breathes it out, like fogging a mirror. The build is in docs/LESSON-REBUILD.md section 12.
+
 ## 7. The daily lesson loop
 
 Every lesson takes about 5 to 15 minutes and follows the same pattern, so children spend their energy on reading, not

@@ -126,3 +126,29 @@ export function middleFor(order, n) {
   }
   return out;
 }
+
+// ---- Tricky Sounds (checkpoint kind "contrast": Two Tunnels and Which One?). Data only; the screens are js/screens/tasks/tunnels.js and which.js. ----
+const mix = (list, rng) => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+// No more than two in a row with the same key (a shuffle that avoids the same tunnel or the same pair three times running).
+const spread = (list, key, rng) => { for (let t = 0; t < 40; t++) { const a = mix(list, rng); if (!a.some((x, i) => i > 1 && key(x) === key(a[i - 1]) && key(x) === key(a[i - 2]))) return a; } return list; };
+// Two Tunnels: six rounds, the first two a letter (one for each tunnel), then four words (two for each). Each round: { kind: 'letter' | 'word', value, side }.
+export function tunnelRounds(ck, rng = Math.random) {
+  const letters = mix([0, 1], rng).map((side) => ({ kind: 'letter', side, value: mix(ck.sides[side].letters, rng)[0] }));
+  const words = [0, 1].flatMap((side) => mix(ck.sides[side].words, rng).slice(0, 2).map((value) => ({ kind: 'word', side, value })));
+  return [...letters, ...spread(words, (r) => r.side, rng)];
+}
+// Which One?: six rounds. Leading `ck.whichLetters` rounds show the two letters (the grown-up says the sound); the rest show a minimal pair, every word of the
+// pairs taking a turn as the target. Each round: { kind, word, target, cards: [{ value, key?, image? }, { ... }] }; `target` indexes cards.
+export function whichRounds(ck, rng = Math.random, n = 6) {
+  const out = [];
+  const turn = mix([0, 1], rng);
+  for (let i = 0; i < (ck.whichLetters || 0); i++) out.push({ kind: 'letter', word: null, target: turn[i % 2], cards: ck.pair.map((k) => ({ key: k, value: spellingFor(k, i) })) });
+  let pool = [];
+  while (out.length < n && ck.pairs.length) {
+    if (!pool.length) pool = spread(ck.pairs.flatMap((p, pi) => [{ p, pi, t: 0 }, { p, pi, t: 1 }]), (x) => x.pi, rng);
+    const { p, t } = pool.shift();
+    const words = mix([p.a, p.b], rng), word = t ? p.b : p.a;
+    out.push({ kind: 'word', word, target: words.indexOf(word), cards: words.map((w) => ({ value: w, ...(p.images ? { image: p.images[w] } : {}) })) });
+  }
+  return out;
+}

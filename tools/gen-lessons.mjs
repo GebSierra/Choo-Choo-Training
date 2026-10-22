@@ -258,6 +258,63 @@ REVIEW_AFTER.forEach(([after, id]) => {
   c.checkpoints.push({ id, kind: 'review', title: 'Review Stop', after, ...(after === 25 ? { mix: 'vowels' } : {}), summary: reviewSummary(after), plan });
 });
 
+// Tricky Sounds (checkpoint kind "contrast", ids x1 to x8; docs/LESSON-REBUILD.md section 12): a stop that sets two easily mixed sounds side by side.
+// Each has Two Tunnels (sort a letter or a word by its sound), Which One? (a minimal pair: the grown-up says one word, the child taps it),
+// Green Light on just the two sounds, then a short Ticket Check (a letter question). `sides` are the tunnels; `pairs` the minimal pairs [word of side one,
+// word of side two]; every word is spelt with letters taught by `after`. A pair gets pictures only when BOTH words have a tile on disk.
+const TILE_DIR = path.join(ROOT, 'assets/images/mentava/web');
+const tileFor = (w) => { for (const d of fs.readdirSync(TILE_DIR)) if (fs.existsSync(path.join(TILE_DIR, d, w + '.webp'))) return `assets/images/mentava/web/${d}/${w}.webp`; return null; };
+const CONTRAST = [
+  { id: 'x1', after: 9, pair: ['m', 'n'], check: ['n', 'm', 's'],
+    sides: [{ sign: ['m'], letters: ['m'], words: ['map', 'mat', 'mop', 'mom'] }, { sign: ['n'], letters: ['n'], words: ['nap', 'nip', 'not', 'nan'] }],
+    pairs: [['map', 'nap'], ['am', 'an']] },
+  { id: 'x2', after: 12, pair: ['h', 'a'], check: ['h', 'a', 's'], hint: "Breathe it out, like fogging a mirror: h-. No 'huh.'",
+    line: "Easy to miss: the breath sound h-. A word can start with it or not, like hat and at. Let's listen closely.", end: 'Great listening! Your child can hear when a word starts with h- and when it does not.',
+    sides: [{ sign: ['h'], letters: ['h'], words: ['hat', 'hit', 'ham', 'hop', 'hot', 'him'] }, { signText: 'no h', letters: ['a', 'i', 'o'], words: ['at', 'it', 'am', 'as', 'an', 'on'] }],
+    pairs: [['hat', 'at'], ['hit', 'it'], ['ham', 'am'], ['has', 'as']] },
+  { id: 'x3', after: 14, pair: ['c', 'g'], check: ['g', 'c', 'm'],
+    sides: [{ sign: ['c', 'k'], letters: ['c', 'k'], words: ['cat', 'cap', 'cot', 'cup', 'kid', 'kit'] }, { sign: ['g'], letters: ['g'], words: ['gap', 'got', 'gum', 'gas', 'gift'] }],
+    pairs: [['cap', 'gap'], ['cot', 'got']] },
+  { id: 'x4', after: 17, pair: ['b', 'd'], check: ['d', 'b', 'm'],
+    sides: [{ sign: ['b'], letters: ['b'], words: ['big', 'bad', 'bug', 'bib', 'bus', 'bat'] }, { sign: ['d'], letters: ['d'], words: ['dad', 'dig', 'dug', 'did', 'dog', 'dip'] }],
+    pairs: [['bad', 'dad'], ['big', 'dig'], ['bug', 'dug'], ['bib', 'did']] },
+  { id: 'x5', after: 18, pair: ['i', 'e'], check: ['e', 'i', 'm'], mode: 'vowel',
+    sides: [{ sign: ['i'], letters: ['i'], words: ['pin', 'bit', 'tin', 'sit', 'pig', 'lip'] }, { sign: ['e'], letters: ['e'], words: ['pen', 'bet', 'ten', 'set', 'hen', 'leg'] }],
+    pairs: [['pin', 'pen'], ['bit', 'bet'], ['tin', 'ten'], ['sit', 'set']] },
+  { id: 'x6', after: 21, pair: ['f', 'v'], check: ['v', 'f', 'm'],
+    sides: [{ sign: ['f'], letters: ['f'], words: ['fan', 'fit', 'fig', 'fun', 'fed', 'fat'] }, { sign: ['v'], letters: ['v'], words: ['van', 'vet', 'vat', 'vest'] }],
+    pairs: [['fan', 'van'], ['fat', 'vat']] },
+  { id: 'x7', after: 22, pair: ['w', 'y'], check: ['y', 'w', 't'], whichLetters: 2,
+    sides: [{ sign: ['w'], letters: ['w'], words: ['wet', 'web', 'wig', 'wag', 'win'] }, { sign: ['y'], letters: ['y'], words: ['yet', 'yes', 'yam', 'yum', 'yap'] }],
+    pairs: [['wet', 'yet']] },
+  { id: 'x8', after: 23, pair: ['s', 'z'], check: ['z', 's', 'm'],
+    sides: [{ sign: ['s'], letters: ['s'], words: ['sit', 'sad', 'sun', 'sap', 'sip', 'set'] }, { sign: ['z'], letters: ['z'], words: ['zip', 'zap', 'zest', 'zigzag'] }],
+    pairs: [['sip', 'zip'], ['sap', 'zap']] },
+];
+const contrastStops = [];
+const say2 = (k) => { const s = c.sounds[k]; return s.asIn ? `${s.sayItLike} as in ${s.asIn}` : s.sayItLike; };
+for (const x of CONTRAST) {
+  if (x.after > c.lessons.length) continue;
+  const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, x.after));
+  const first = (side, w) => (x.mode === 'vowel' ? w.includes(side.letters[0]) && !x.sides.some((o) => o !== side && w.includes(o.letters[0])) : side.letters.includes(w[0]));
+  const inSide = (side, w) => side.letters.some((l) => w.includes(l)) && !x.sides.some((o) => o !== side && o.letters.some((l) => w.includes(l))); // a pair may differ at the end (am / an)
+  for (const side of x.sides) for (const w of side.words) if (![...w].every((ch) => taught.has(ch)) || !first(side, w)) throw new Error(`${x.id}: "${w}" is not a decodable word of its tunnel`);
+  for (const [a, b] of x.pairs) if (![a, b].every((w, i) => [...w].every((ch) => taught.has(ch)) && (first(x.sides[i], w) || inSide(x.sides[i], w)))) throw new Error(`${x.id}: pair ${a}/${b} is not decodable or sits in the wrong tunnel`);
+  for (const k of [...x.pair, ...x.check]) if (!taught.has(k) && !ORDER_SOUNDS.slice(0, x.after).includes(k)) throw new Error(`${x.id}: ${k} is not taught yet`);
+  const [key, mate, other] = x.check;
+  const ask = 'Which letter says', quiet = 'Listen to your grown-up. Then touch the letter.';
+  const sk = c.sounds[key], tail = sk.asIn ? [{ tts: `as in ${sk.asIn}.` }] : [];
+  const pairs = x.pairs.map(([a, b]) => { const ia = tileFor(a), ib = tileFor(b); return { a, b, ...(ia && ib ? { images: { [a]: ia, [b]: ib } } : {}) }; });
+  const A = x.pair.map(say2);
+  contrastStops.push({ id: x.id, kind: 'contrast', title: 'Tricky Sounds', after: x.after, pair: x.pair, sides: x.sides, pairs, ...(x.whichLetters ? { whichLetters: x.whichLetters } : {}), ...(x.hint ? { hint: x.hint } : {}),
+    line: x.line || `Two sounds that are easy to mix up: ${A[0]} and ${A[1]}. Let's listen closely.`,
+    end: x.end || `Great listening! Your child can tell ${A[0]} from ${A[1]}.`,
+    quickCheck: { prompt: [{ tts: ask }, { clip: key }, ...tail], promptQuiet: [{ tts: quiet }], promptText: `${ask} ${say2(key)}?`, promptTextQuiet: quiet, kind: 'letter', options: [key, mate, other].map((g, i) => ({ glyph: g, correct: i === 0 })) },
+    plan: [{ task: 'tunnels' }, { task: 'which' }, { task: 'signals', lesson: x.after, pair: x.pair }, { task: 'check', lesson: x.after }] });
+}
+// On the line a Tricky Sounds stop comes before the Review Stop that follows the same lesson (a world still ends with its Review Stop).
+c.checkpoints.splice(c.checkpoints.findIndex((k) => k.kind === 'review'), 0, ...contrastStops);
+
 c.games.board = { say: 'Find the sound in the word.' };
 // "How to make this sound" for the Watch My Mouth step (docs/CURRICULUM.md section 5 and the unit notes in section 11): lips, teeth,
 // tongue and whether the voice is on, in one to three short sentences. `voice` is shown as a small badge beside the text.

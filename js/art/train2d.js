@@ -169,4 +169,13 @@ export function rereadSvg() {
     h('path', { d: 'M47 12 L55 16.5 L48 22 Z', fill: C.navy }));
 }
 // The icon for a stop on the path (a book for a story, a book with a loop arrow for Read It Again, a ticket for a Review Stop, a crate otherwise).
-export const stopIcon = (ck) => (ck.kind === 'book' ? bookSvg() : ck.kind === 'reread' ? rereadSvg() : ck.kind === 'review' ? ticketSvg() : crateSvg());
+// A magnifying glass over two small letter dots (Tricky Sounds: look closely at two sounds): a violet ring, a pale lens and a short wooden handle.
+export function magnifySvg() {
+  return h('svg', { class: 'magnify-art', viewBox: '0 0 100 100', 'aria-hidden': 'true' },
+    h('ellipse', { cx: 50, cy: 90, rx: 38, ry: 4, fill: 'rgba(60,40,20,.16)' }),
+    h('path', { d: 'M66 66 L86 86', stroke: C.woodDark, 'stroke-width': 11, 'stroke-linecap': 'round' }),
+    h('circle', { cx: 44, cy: 44, r: 30, fill: '#E9F3FF', stroke: '#7B61D6', 'stroke-width': 8 }),
+    h('path', { d: 'M26 38 A20 20 0 0 1 40 26', stroke: '#fff', 'stroke-width': 5, 'stroke-linecap': 'round', fill: 'none' }),
+    h('circle', { cx: 36, cy: 50, r: 6, fill: '#5A8FE0' }), h('circle', { cx: 54, cy: 50, r: 6, fill: '#E5484D' }));
+}
+export const stopIcon = (ck) => (ck.kind === 'book' ? bookSvg() : ck.kind === 'reread' ? rereadSvg() : ck.kind === 'review' ? ticketSvg() : ck.kind === 'contrast' ? magnifySvg() : crateSvg());

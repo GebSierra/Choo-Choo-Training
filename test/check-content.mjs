@@ -337,6 +337,35 @@ export function checkCurriculum(c, root = ROOT) {
     if (!k.mix && recent < Math.ceil(k.plan.length / 2)) err(`${p}: at least half the activities must be about the three newest sounds (${recent} of ${k.plan.length})`);
   };
 
+  // Tricky Sounds (kind "contrast", ids x1 to x8): two sounds set side by side. Every word is spelt with letters taught by `after`, every word sits in the tunnel its sound
+  // belongs to, each minimal pair has one word for each tunnel, a picture only when both words have one, and the plan is Two Tunnels, Which One?, Green Light, Ticket Check.
+  const contrastChecks = (k, p) => {
+    if (k.title !== 'Tricky Sounds') err(`${p}.title must be "Tricky Sounds"`);
+    if (!Number.isInteger(k.after) || k.after < 1 || k.after > (c.lessons || []).length) return err(`${p}.after must be a lesson number`);
+    const keys = ORDER_SOUNDS.slice(0, k.after), taughtK = lettersOfSounds(keys);
+    if (!Array.isArray(k.pair) || k.pair.length !== 2 || !k.pair.every((x) => keys.includes(x))) err(`${p}.pair must be two sounds taught by lesson ${k.after}`);
+    if (!Array.isArray(k.sides) || k.sides.length !== 2) return err(`${p}.sides must be the two tunnels`);
+    const inSide = (side, w) => (k.mode === 'vowel' ? w.includes(side.letters[0]) : side.letters.includes(w[0]) || side.letters.some((l) => w.includes(l))) && !k.sides.some((o) => o !== side && o.letters.some((l) => w.includes(l) && (k.mode === 'vowel' || w[0] === l)));
+    k.sides.forEach((side, i) => {
+      if (!side.letters.length || !side.letters.every((l) => taughtK.has(l))) err(`${p}.sides[${i}].letters must be taught letters`);
+      if (!side.sign && !side.signText) err(`${p}.sides[${i}] needs a sign`);
+      if ((side.words || []).length < 4) err(`${p}.sides[${i}] needs at least 4 words`);
+      for (const w of side.words || []) { if (![...w].every((ch) => taughtK.has(ch))) err(`${p}.sides[${i}] "${w}" uses a letter not taught by lesson ${k.after}`); if (!inSide(side, w)) err(`${p}.sides[${i}] "${w}" is not a word of this tunnel`); }
+    });
+    if (!Array.isArray(k.pairs) || !k.pairs.length) err(`${p}.pairs missing`);
+    (k.pairs || []).forEach((pr, i) => {
+      for (const [n, w] of [['a', pr.a], ['b', pr.b]]) if (![...w].every((ch) => taughtK.has(ch))) err(`${p}.pairs[${i}].${n} "${w}" uses a letter not taught by lesson ${k.after}`);
+      if (pr.a === pr.b) err(`${p}.pairs[${i}] needs two different words`);
+      if (pr.images) { if (!pr.images[pr.a] || !pr.images[pr.b]) err(`${p}.pairs[${i}].images must have a picture for both words or none`); }
+    });
+    if (!k.line || !/mix up|miss/.test(k.line) || !k.end || k.line.length > 160) err(`${p}.line and .end are the grown-up's lines`);
+    const qc = k.quickCheck;
+    if (!qc || qc.kind !== 'letter' || !qc.options.every((o) => keys.some((s) => lettersOfSounds([s]).has(o.glyph))) || qc.options.filter((o) => o.correct).length !== 1) err(`${p}.quickCheck must be a letter question on taught letters`);
+    if (JSON.stringify((k.plan || []).map((a) => a.task)) !== JSON.stringify(['tunnels', 'which', 'signals', 'check'])) err(`${p}.plan must be Two Tunnels, Which One?, Green Light, Ticket Check`);
+    const sg = (k.plan || []).find((a) => a.task === 'signals');
+    if (sg && JSON.stringify(sg.pair) !== JSON.stringify(k.pair)) err(`${p}: Green Light must use the stop's own two sounds`);
+  };
+
   // Levels: milestones that earn a special car and a gold star (js/levels.js). `after` is the first lesson by which every needed sound is taught.
   {
     const CARS = ['caboose', 'coach', 'flatbed', 'tanker', 'dome'];
@@ -418,6 +447,7 @@ export function checkCurriculum(c, root = ROOT) {
     if (k.kind === 'book') return bookChecks(k, p);
     if (k.kind === 'reread') return rereadChecks(k, p);
     if (k.kind === 'review') return reviewChecks(k, p);
+    if (k.kind === 'contrast') return contrastChecks(k, p);
     if (k.kind === 'ride') return err(`${p}: kind ride is gone (Smooth Ride became Read It Again)`);
     if (k.kind) return;
     if (!k.title) err(`${p}.title missing`);
@@ -536,6 +566,9 @@ export function childReadProof(c, root = ROOT) {
         for (const text of pg.words || []) for (const w of clean(text)) items.push({ where: `${k.id} page ${n + 1}.words`, word: w, after: k.after });
         for (const f of ['read', 'after']) if (typeof pg[f] === 'string' && /\{name\}/.test(pg[f]) && /\b(he|she|him|his|her|hers)\b/i.test(pg[f])) errors.push(`proof: ${k.id} page ${n + 1}.${f}: use the name, not he or she`);
       });
+    } else if (k.kind === 'contrast') {
+      for (const side of k.sides) for (const w of side.words) items.push({ where: `${k.id} tunnel word`, word: w, after: k.after });
+      for (const pr of k.pairs) for (const w of [pr.a, pr.b]) items.push({ where: `${k.id} pair word`, word: w, after: k.after });
     } else if (k.kind === 'reread') {
       for (const w of (k.sight || [])) if (!SIGHT.includes(String(w).toLowerCase())) errors.push(`proof: ${k.id} sight word "${w}" is not one of is, I, It`);
       k.story.forEach((sentence, n) => { for (const w of clean(sentence)) items.push({ where: `${k.id} story ${n + 1}`, word: w, after: k.after }); });

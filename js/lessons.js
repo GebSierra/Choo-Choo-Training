@@ -12,6 +12,8 @@ export const TASK_TYPES = {
   board:   { name: 'Station Board', color: 'lilac', dark: true, label: "Today we'll find" },
   practice: { name: 'Practicing Words', color: 'mint', dark: true, label: "Today we'll match" },
   read:    { name: 'Read a Word', color: 'sun', dark: true, label: "Today we'll read" }, // the first Review Stop's ma and mama
+  tunnels: { name: 'Two Tunnels', color: 'sky', dark: true, label: "Today we'll sort" }, // Tricky Sounds (checkpoint kind contrast)
+  which:   { name: 'Which One?', color: 'sun', dark: true, label: "Today we'll listen" },
   check:   { name: 'Ticket Check',   color: 'blue',   dark: true,  label: "Today we'll check" },
 };
 

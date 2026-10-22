@@ -111,12 +111,12 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
   if (!ck || !store.isCheckpointUnlocked(ck)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
   return finishView({
     speech, router, character: store.character(),
-    heading: ck.kind === 'book' ? "That's the end of the story." : ck.kind === 'reread' ? 'You read it again!' : `That's the ${ck.title.toLowerCase()}.`,
+    heading: ck.kind === 'book' ? "That's the end of the story." : ck.kind === 'reread' ? 'You read it again!' : ck.kind === 'contrast' ? 'Tricky Sounds, done!' : `That's the ${ck.title.toLowerCase()}.`,
     badge: stopIcon(ck),
-    accent: ck.kind === 'book' ? '#E5484D' : ck.kind === 'reread' ? '#3E9C8B' : ck.kind === 'review' ? '#5A8FE0' : '#C99A5B', // a book's red cover, a teal reading book, a blue ticket, a crate's wood
+    accent: ck.kind === 'book' ? '#E5484D' : ck.kind === 'reread' ? '#3E9C8B' : ck.kind === 'review' ? '#5A8FE0' : ck.kind === 'contrast' ? '#7B61D6' : '#C99A5B', // a book's red cover, a teal reading book, a blue ticket, a crate's wood
     armedLabel: 'Yes, back to path',
     armedNote: 'Tap again to go back to the path.',
-    extra: ck.kind === 'review' && ck.summary ? reviewMessage(ck.summary) : ck.kind === 'book' ? storyKeepsake(store, ck) : null,
+    extra: ck.kind === 'contrast' ? h('p', { class: 'review-message' }, ck.end) : ck.kind === 'review' && ck.summary ? reviewMessage(ck.summary) : ck.kind === 'book' ? storyKeepsake(store, ck) : null,
     onContinue: () => store.setCheckpointResult(ck.id, 'got-it'),
     onPractice: () => {
       if (!store.isCheckpointDone(ck)) store.setCheckpointResult(ck.id, 'practice-again'); // keep the best result

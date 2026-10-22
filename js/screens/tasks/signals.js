@@ -5,6 +5,7 @@ import { letterFace } from '../../components/letter-face.js';
 import { sayPrompt, saySound } from '../../components/say-sound.js';
 import { timers, watchSize, starRow, shake, idleHints, shuffle } from '../../components/game-kit.js';
 import { order, roundTargets, roundsFor, otherLetters, spellingFor } from '../../games-data.js';
+import { soundOfLetter } from '../../order.js';
 import { soundPhrase } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 
@@ -19,7 +20,9 @@ export function build(ctx) {
   const { lesson, speech, curriculum } = ctx;
   const roundSound = () => curriculum.sounds[targets[Math.min(round, targets.length - 1)]]; // the bar follows the round, never the first sound
   const rounds = roundsFor(lesson, 'signals');
-  const targets = roundTargets(order(curriculum), lesson.number, rounds);
+  // Tricky Sounds (checkpoint kind contrast): `step.pair` limits the game to two easily mixed sounds, taking turns; the other one always sits on a lamp.
+  const pair = ctx.step && ctx.step.pair;
+  const targets = pair ? Array.from({ length: rounds }, (_, i) => pair[i % 2]) : roundTargets(order(curriculum), lesson.number, rounds);
   const T = timers();
   let round = 0, locked = true, done = false, lastSlot = -1, W = 0, H = 0, endAnims = [], serial = 0;
 
@@ -65,7 +68,9 @@ export function build(ctx) {
     const mine = ++serial;
     const key = targets[round], target = spellingFor(key, Math.floor(round / 2)); // c and k take turns on the lamp
     let letters;
-    do letters = shuffle([target, ...otherLetters(curriculum, lesson.number, key, 3)]); while (letters.indexOf(target) === lastSlot && letters.length > 1);
+    const mate = pair ? pair[0] === key ? pair[1] : pair[0] : null;
+    const fillers = otherLetters(curriculum, lesson.number, key, 4).filter((l) => !mate || soundOfLetter(l) !== mate);
+    do letters = shuffle([target, ...(mate ? [spellingFor(mate, Math.floor(round / 2)), ...fillers] : fillers).slice(0, 3)]); while (letters.indexOf(target) === lastSlot && letters.length > 1);
     lastSlot = letters.indexOf(target);
     buttons.forEach((b, i) => {
       b.dataset.letter = letters[i];
