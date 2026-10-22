@@ -268,7 +268,7 @@ Lessons 18 to 25 (e j w v y z x qu) use these tiles from the same Mentava folder
 
 ## Tricky Sounds additions (new, no current file)
 
-The Tricky Sounds stops (Which One?, `docs/LESSON-REBUILD.md` section 12) show a picture on both cards of a pair only when both words have a tile. Only fan and van have tiles today, so every other pair is words only. These are the pictures that would let more pairs show them (put each file in the folder named and add it to `tools/gen-lessons.mjs`; the pair then picks it up by itself). Use the shared STYLE block above.
+The Tricky Sounds stops (Which One?, `docs/LESSON-REBUILD.md` section 12) show a picture on both cards of a pair only when both words have a tile. Only fan and van have tiles today, so every other pair is words only. These are the pictures that would let more pairs show them (put each file in the folder named and run `node tools/gen-lessons.mjs`; a pair picks up its pictures by itself). Use the shared STYLE block above.
 
 | folder | word | current file | prompt |
 |---|---|---|---|
