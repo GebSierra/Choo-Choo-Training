@@ -15,7 +15,7 @@ export function finishedStop(store, done, currentIndex) {
 }
 
 // The train stops at a Story, a Read It Again or a Review Stop that comes next after the lessons just finished, instead of riding past it: of the
-// checkpoints standing right before the current lesson, the first Story, Read It Again or Review Stop not yet done (and unlocked) becomes the
+// checkpoints standing right before the current lesson, the first Story, Read It Again, Review Stop or Tricky Sounds stop not yet done (and unlocked) becomes the
 // current stop (grown-ups notice it). `nodes` is the line in order ({ lesson } or { checkpoint }); returns that node's index, or
 // -1 when the current stop stays the lesson. Crates (sound sacks) never hold the train. A stop behind the child never holds it: isCheckpointDone counts a stop done once the lesson after it is done.
 export function checkpointStopIndex(nodes, currentIndex, store) {
@@ -23,7 +23,7 @@ export function checkpointStopIndex(nodes, currentIndex, store) {
   let first = -1;
   for (let i = currentIndex - 1; i >= 0 && nodes[i].checkpoint; i--) {
     const c = nodes[i].checkpoint;
-    if ((c.kind === 'book' || c.kind === 'reread' || c.kind === 'review') && !store.isCheckpointDone(c) && store.isCheckpointUnlocked(c)) first = i;
+    if ((c.kind === 'book' || c.kind === 'reread' || c.kind === 'review' || c.kind === 'contrast') && !store.isCheckpointDone(c) && store.isCheckpointUnlocked(c)) first = i;
   }
   return first;
 }

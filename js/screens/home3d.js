@@ -55,7 +55,7 @@ export function stopsOf(curriculum, store, worldId = null) {
       const c = n.checkpoint;
       const state = store.isCheckpointDone(c) ? 'done' : !store.isCheckpointUnlocked(c) ? 'locked' : current === null && pending && pending.id === c.id ? 'current' : 'open';
       if (state === 'current') currentIndex = i;
-      return { kind: 'depot', checkpoint: c, state, title: c.title, accent: c.kind === 'review' ? '#5A8FE0' : c.kind === 'reread' ? '#3E9C8B' : undefined, icon: c.kind === 'book' ? 'book' : c.kind === 'reread' ? 'reread' : c.kind === 'review' ? 'star' : 'crate' };
+      return { kind: 'depot', checkpoint: c, state, title: c.title, accent: c.kind === 'contrast' ? '#7B61D6' : c.kind === 'review' ? '#5A8FE0' : c.kind === 'reread' ? '#3E9C8B' : undefined, icon: c.kind === 'book' ? 'book' : c.kind === 'reread' ? 'reread' : c.kind === 'review' ? 'star' : c.kind === 'contrast' ? 'magnify' : 'crate' };
     }
     const l = n.lesson;
     const state = store.isDone(l.number) ? 'done' : !store.isUnlocked(l.number) ? 'locked' : l.number === current ? 'current' : 'open';
@@ -63,7 +63,7 @@ export function stopsOf(curriculum, store, worldId = null) {
     return { kind: 'lesson', lesson: l, number: l.number, glyph: l.sound, accent: accentOf(l.sound), state, resting: state === 'current' && store.isResting(l.number) }; // resting: today's pace limit is reached
   });
   if (currentIndex < 0) currentIndex = stops.length - 1;
-  // a Story, Read It Again or Review Stop next in line holds the train: it becomes the current stop (the lesson after it stays open)
+  // a Story, Read It Again, Review Stop or Tricky Sounds stop next in line holds the train: it becomes the current stop (the lesson after it stays open)
   const hold = checkpointStopIndex(nodes, currentIndex, store);
   if (hold >= 0) { stops[currentIndex].state = 'open'; stops[currentIndex].held = true; stops[hold].state = 'current'; currentIndex = hold; }
   return { stops, currentIndex };

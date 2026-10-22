@@ -4471,6 +4471,898 @@
         }
       ],
       "world": "W3"
+    },
+    {
+      "id": "x1",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 9,
+      "pair": [
+        "m",
+        "n"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "m"
+          ],
+          "letters": [
+            "m"
+          ],
+          "words": [
+            "map",
+            "mat",
+            "mop",
+            "mom"
+          ]
+        },
+        {
+          "sign": [
+            "n"
+          ],
+          "letters": [
+            "n"
+          ],
+          "words": [
+            "nap",
+            "nip",
+            "not",
+            "nan"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "map",
+          "b": "nap"
+        },
+        {
+          "a": "am",
+          "b": "an"
+        }
+      ],
+      "line": "Two sounds that are easy to mix up: mmm and nnn. Let's listen closely.",
+      "end": "Great listening! You can tell mmm from nnn.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "n"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says nnn?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "n",
+            "correct": true
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          },
+          {
+            "glyph": "s",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 9,
+          "pair": [
+            "m",
+            "n"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 9
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "x2",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 12,
+      "pair": [
+        "h",
+        "a"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "h"
+          ],
+          "letters": [
+            "h"
+          ],
+          "words": [
+            "hat",
+            "hit",
+            "ham",
+            "hop",
+            "hot",
+            "him"
+          ]
+        },
+        {
+          "signText": "no h",
+          "letters": [
+            "a",
+            "i",
+            "o"
+          ],
+          "words": [
+            "at",
+            "it",
+            "am",
+            "as",
+            "an",
+            "on"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "hat",
+          "b": "at"
+        },
+        {
+          "a": "hit",
+          "b": "it"
+        },
+        {
+          "a": "ham",
+          "b": "am"
+        },
+        {
+          "a": "has",
+          "b": "as"
+        }
+      ],
+      "hint": "Breathe it out, like fogging a mirror: h-. No 'huh.'",
+      "line": "Easy to miss: the breath sound h-. A word can start with it or not, like hat and at. Let's listen closely.",
+      "end": "Great listening! You can hear when a word starts with h- and when it does not.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "h"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says h-?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "h",
+            "correct": true
+          },
+          {
+            "glyph": "a",
+            "correct": false
+          },
+          {
+            "glyph": "s",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 12,
+          "pair": [
+            "h",
+            "a"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 12
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "x3",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 14,
+      "pair": [
+        "c",
+        "g"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "c",
+            "k"
+          ],
+          "letters": [
+            "c",
+            "k"
+          ],
+          "words": [
+            "cat",
+            "cap",
+            "cot",
+            "cup",
+            "kid",
+            "kit"
+          ]
+        },
+        {
+          "sign": [
+            "g"
+          ],
+          "letters": [
+            "g"
+          ],
+          "words": [
+            "gap",
+            "got",
+            "gum",
+            "gas",
+            "gift"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "cap",
+          "b": "gap"
+        },
+        {
+          "a": "cot",
+          "b": "got"
+        }
+      ],
+      "line": "Two sounds that are easy to mix up: k- and g-. Let's listen closely.",
+      "end": "Great listening! You can tell k- from g-.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "g"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says g-?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "g",
+            "correct": true
+          },
+          {
+            "glyph": "c",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 14,
+          "pair": [
+            "c",
+            "g"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 14
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "x4",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 17,
+      "pair": [
+        "b",
+        "d"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "b"
+          ],
+          "letters": [
+            "b"
+          ],
+          "words": [
+            "big",
+            "bad",
+            "bug",
+            "bib",
+            "bus",
+            "bat"
+          ]
+        },
+        {
+          "sign": [
+            "d"
+          ],
+          "letters": [
+            "d"
+          ],
+          "words": [
+            "dad",
+            "dig",
+            "dug",
+            "did",
+            "dog",
+            "dip"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "bad",
+          "b": "dad"
+        },
+        {
+          "a": "big",
+          "b": "dig"
+        },
+        {
+          "a": "bug",
+          "b": "dug"
+        },
+        {
+          "a": "bib",
+          "b": "did"
+        }
+      ],
+      "line": "Two sounds that are easy to mix up: b- and d-. Let's listen closely.",
+      "end": "Great listening! You can tell b- from d-.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "d"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says d-?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "d",
+            "correct": true
+          },
+          {
+            "glyph": "b",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 17,
+          "pair": [
+            "b",
+            "d"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 17
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "x5",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 18,
+      "pair": [
+        "i",
+        "e"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "i"
+          ],
+          "letters": [
+            "i"
+          ],
+          "words": [
+            "pin",
+            "bit",
+            "tin",
+            "sit",
+            "pig",
+            "lip"
+          ]
+        },
+        {
+          "sign": [
+            "e"
+          ],
+          "letters": [
+            "e"
+          ],
+          "words": [
+            "pen",
+            "bet",
+            "ten",
+            "set",
+            "hen",
+            "leg"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "pin",
+          "b": "pen"
+        },
+        {
+          "a": "bit",
+          "b": "bet"
+        },
+        {
+          "a": "tin",
+          "b": "ten"
+        },
+        {
+          "a": "sit",
+          "b": "set"
+        }
+      ],
+      "line": "Two sounds that are easy to mix up: iii as in igloo and eee as in egg. Let's listen closely.",
+      "end": "Great listening! You can tell iii as in igloo from eee as in egg.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "e"
+          },
+          {
+            "tts": "as in egg."
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says eee as in egg?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "e",
+            "correct": true
+          },
+          {
+            "glyph": "i",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 18,
+          "pair": [
+            "i",
+            "e"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 18
+        }
+      ],
+      "world": "W3"
+    },
+    {
+      "id": "x6",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 21,
+      "pair": [
+        "f",
+        "v"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "f"
+          ],
+          "letters": [
+            "f"
+          ],
+          "words": [
+            "fan",
+            "fit",
+            "fig",
+            "fun",
+            "fed",
+            "fat"
+          ]
+        },
+        {
+          "sign": [
+            "v"
+          ],
+          "letters": [
+            "v"
+          ],
+          "words": [
+            "van",
+            "vet",
+            "vat",
+            "vest"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "fan",
+          "b": "van",
+          "images": {
+            "fan": "assets/images/mentava/web/f/fan.webp",
+            "van": "assets/images/mentava/web/v/van.webp"
+          }
+        },
+        {
+          "a": "fat",
+          "b": "vat"
+        }
+      ],
+      "line": "Two sounds that are easy to mix up: fff and vvv. Let's listen closely.",
+      "end": "Great listening! You can tell fff from vvv.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "v"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says vvv?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "v",
+            "correct": true
+          },
+          {
+            "glyph": "f",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 21,
+          "pair": [
+            "f",
+            "v"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 21
+        }
+      ],
+      "world": "W3"
+    },
+    {
+      "id": "x7",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 22,
+      "pair": [
+        "w",
+        "y"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "w"
+          ],
+          "letters": [
+            "w"
+          ],
+          "words": [
+            "wet",
+            "web",
+            "wig",
+            "wag",
+            "win"
+          ]
+        },
+        {
+          "sign": [
+            "y"
+          ],
+          "letters": [
+            "y"
+          ],
+          "words": [
+            "yet",
+            "yes",
+            "yam",
+            "yum",
+            "yap"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "wet",
+          "b": "yet"
+        }
+      ],
+      "whichLetters": 2,
+      "line": "Two sounds that are easy to mix up: w- and y-. Let's listen closely.",
+      "end": "Great listening! You can tell w- from y-.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "y"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says y-?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "y",
+            "correct": true
+          },
+          {
+            "glyph": "w",
+            "correct": false
+          },
+          {
+            "glyph": "t",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 22,
+          "pair": [
+            "w",
+            "y"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 22
+        }
+      ],
+      "world": "W3"
+    },
+    {
+      "id": "x8",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 23,
+      "pair": [
+        "s",
+        "z"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "s"
+          ],
+          "letters": [
+            "s"
+          ],
+          "words": [
+            "sit",
+            "sad",
+            "sun",
+            "sap",
+            "sip",
+            "set"
+          ]
+        },
+        {
+          "sign": [
+            "z"
+          ],
+          "letters": [
+            "z"
+          ],
+          "words": [
+            "zip",
+            "zap",
+            "zest",
+            "zigzag"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "sip",
+          "b": "zip"
+        },
+        {
+          "a": "sap",
+          "b": "zap"
+        }
+      ],
+      "line": "Two sounds that are easy to mix up: sss and zzz. Let's listen closely.",
+      "end": "Great listening! You can tell sss from zzz.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "z"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says zzz?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "z",
+            "correct": true
+          },
+          {
+            "glyph": "s",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 23,
+          "pair": [
+            "s",
+            "z"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 23
+        }
+      ],
+      "world": "W3"
     }
   ],
   "gameDistractors": [

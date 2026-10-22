@@ -109,6 +109,17 @@ export function drawTicket(g, cx, cy, size, locked = false) {
   g.restore();
 }
 
+// A magnifying glass over two coloured dots, for the Tricky Sounds depot sign.
+export function drawMagnify(g, cx, cy, size, locked = false) {
+  const r = size * 0.3, x = cx - size * 0.08, y = cy - size * 0.08;
+  g.save(); g.lineCap = 'round';
+  g.strokeStyle = locked ? '#B3ACA1' : '#8A6A3C'; g.lineWidth = size * 0.11; g.beginPath(); g.moveTo(x + r * 0.72, y + r * 0.72); g.lineTo(cx + size * 0.38, cy + size * 0.38); g.stroke();
+  g.fillStyle = locked ? '#F4F0E8' : '#E9F3FF'; g.strokeStyle = locked ? '#C4BBAE' : '#7B61D6'; g.lineWidth = size * 0.08; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); g.stroke();
+  g.fillStyle = locked ? '#B3ACA1' : '#5A8FE0'; g.beginPath(); g.arc(x - r * 0.35, y + r * 0.1, r * 0.2, 0, Math.PI * 2); g.fill();
+  g.fillStyle = locked ? '#B3ACA1' : '#E5484D'; g.beginPath(); g.arc(x + r * 0.35, y + r * 0.1, r * 0.2, 0, Math.PI * 2); g.fill();
+  g.restore();
+}
+
 // An open book with a loop arrow over it, for Read It Again's depot sign: a teal cover, two pages and a gold disc with a turning arrow.
 export function drawReread(g, cx, cy, size, locked = false) {
   drawBook(g, cx, cy + size * 0.1, size, locked ? '#C4BBAE' : '#3E9C8B');
@@ -128,6 +139,7 @@ function signTexture(bag, { glyph, accent, locked, icon }) {
     g.lineWidth = 16; g.strokeStyle = locked ? '#C9C2B6' : accent;
     g.beginPath(); g.arc(128, 128, 118, 0, Math.PI * 2); g.stroke();
     if (icon === 'star') drawTicket(g, 128, 128, 150, locked);
+    else if (icon === 'magnify') drawMagnify(g, 128, 128, 150, locked);
     else if (icon === 'reread') drawReread(g, 128, 130, 138, locked);
     else if (icon === 'book') drawBook(g, 128, 130, 138, locked ? '#C4BBAE' : '#E5484D');
     else if (icon === 'crate') drawCrate(g, 128, 132, 118, locked ? '#C4BBAE' : '#B9874C');
