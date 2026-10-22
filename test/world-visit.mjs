@@ -245,7 +245,7 @@ export async function flatVisitChecks({ browser, url, ok, vp }) {
   const { ctx, page, errors } = await openHome(browser, url, vp, seed(7, { trainWorld: false, migrated1912: true }));
   await page.waitForSelector('.stone');
   await page.waitForTimeout(2200);
-  ok((await page.locator('.stone').count()) === 15 && (await page.locator('.scene-tunnel.start').count()) === 1 && (await page.locator('.scene-house').count()) === 0, `${tag}: world 2 shows its 15 stones and a start tunnel instead of the house`);
+  ok((await page.locator('.stone').count()) === 19 && (await page.locator('.scene-tunnel.start').count()) === 1 && (await page.locator('.scene-house').count()) === 0, `${tag}: world 2 shows its 19 stones and a start tunnel instead of the house`);
   const bk = page.locator('.scene-tunnel.tappable[data-role="back"]');
   await bk.scrollIntoViewIfNeeded();
   const rb = await rectOf(page, '.scene-tunnel.tappable[data-role="back"]');
@@ -273,7 +273,7 @@ export async function flatVisitChecks({ browser, url, ok, vp }) {
   await page.waitForTimeout(2500); // the glide to the last stone
   await page.locator('.scene-tunnel.tappable[data-role="forward"]').scrollIntoViewIfNeeded();
   await page.locator('.scene-tunnel.tappable[data-role="forward"]').click();
-  ok(await until(page, () => document.querySelectorAll('.stone').length === 15 && !document.querySelector('.visit-chip'), null, 8000), `${tag}: on to world 2: its 15 stones, no chip`);
+  ok(await until(page, () => document.querySelectorAll('.stone').length === 19 && !document.querySelector('.visit-chip'), null, 8000), `${tag}: on to world 2: its 19 stones, no chip`);
   await page.waitForTimeout(2500); // the glide to the current stone
   await page.locator('.scene-tunnel.tappable[data-role="back"]').scrollIntoViewIfNeeded();
   await page.locator('.scene-tunnel.tappable[data-role="back"]').click();
@@ -281,7 +281,7 @@ export async function flatVisitChecks({ browser, url, ok, vp }) {
   await page.waitForTimeout(1500);
   await shot(page, 'flat-world1-visited', vp);
   await page.locator('.visit-chip').click();
-  ok(await until(page, () => document.querySelectorAll('.stone').length === 15 && !document.querySelector('.visit-chip'), null, 8000), `${tag}: the chip returns to the current world`);
+  ok(await until(page, () => document.querySelectorAll('.stone').length === 19 && !document.querySelector('.visit-chip'), null, 8000), `${tag}: the chip returns to the current world`);
   ok(errors.length === 0, `${tag}: errors ${errors.join(' | ')}`);
   await ctx.close();
 }

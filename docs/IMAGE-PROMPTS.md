@@ -266,6 +266,29 @@ Lessons 18 to 25 (e j w v y z x qu) use these tiles from the same Mentava folder
 | v | violin | new, no current file | a wooden violin with its bow |
 | x | xylophone | new, no current file | a rainbow xylophone with two mallets (the one common picture word that starts with x) |
 
+## Tricky Sounds additions (new, no current file)
+
+The Tricky Sounds stops (Which One?, `docs/LESSON-REBUILD.md` section 12) show a picture on both cards of a pair only when both words have a tile. Only fan and van have tiles today, so every other pair is words only. These are the pictures that would let more pairs show them (put each file in the folder named and add it to `tools/gen-lessons.mjs`; the pair then picks it up by itself). Use the shared STYLE block above.
+
+| folder | word | current file | prompt |
+|---|---|---|---|
+| n | nap | new, no current file | a child asleep in a small bed under a blue blanket, eyes closed |
+| h | ham | new, no current file | a whole pink ham on a plate with a bone sticking out |
+| c-k | cap | new, no current file | a red baseball cap seen from the side, peak to the right |
+| c-k | cot | new, no current file | a small folding camp cot with a green sheet and a pillow |
+| d | dad | new, no current file | a smiling dad, shoulders and head, short brown hair |
+| d | dig | new, no current file | a child digging a hole in sand with a small spade |
+| b | bib | new, no current file | a baby bib with a yellow duck on it, tied round the neck |
+| i | pin | new, no current file | a safety pin, silver, closed, with a loop at the top |
+| e | pen | new, no current file | a blue ballpoint pen, cap off, lying diagonally |
+| t | tin | new, no current file | a round metal tin can with a lid, silver with a blue label |
+| t | ten | new, no current file | ten red apples in two neat rows of five |
+| f | fat | new, no current file | a round, cheerful fat cat sitting down, ginger |
+| v | vat | new, no current file | a big wooden barrel-shaped vat with a lid, one handle on each side |
+| w | wet | new, no current file | a child in a yellow raincoat standing in the rain with water drops, smiling |
+| s | sip | new, no current file | a child drinking through a striped straw from a glass of juice |
+| z | zip | new, no current file | a coat zip, half done up, with a metal pull tab |
+
 ## Hard to picture
 
 - **sit** (i): a verb, not a noun. The prompt shows a child sitting cross-legged; check that it reads as "sitting" and not as a generic child.

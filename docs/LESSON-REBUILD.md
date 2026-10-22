@@ -537,3 +537,30 @@ World 1, reached worlds), `lib` (sample lessons now include 18 and 25). `train`,
   v1 4, v6 31, v2 58, v3 86, v4 141, v5 184, v7 233, v8 242, v9 252. Tests: `check-content` (a fresh count equals the stored one, examples are in
   the list and readable) and `review-stops` (the opening card, the end message read from the screen, ma and mama, the celebration, the keepsake
   PNG, no network).
+
+## 12. Tricky Sounds (checkpoint kind `contrast`, ids `x1` to `x8`)
+
+Owner request: extra stops that address the hard or trouble sounds (m and n, the letter h), some different games, and stops that contrast and test two similar sounds or words that are actually different.
+
+- **Stops** (`CONTRAST` in `tools/gen-lessons.mjs`; ids never change once saved). Pairs and the minimal pairs of Which One?:
+
+| id | after | sounds | minimal pairs |
+|---|---|---|---|
+| x1 | 9 | m, n | map/nap, am/an |
+| x2 | 12 | h (with and without) | hat/at, hit/it, ham/am, has/as |
+| x3 | 14 | c/k, g | cap/gap, cot/got |
+| x4 | 17 | b, d | bad/dad, big/dig, bug/dug, bib/did |
+| x5 | 18 | short i, short e | pin/pen, bit/bet, tin/ten, sit/set |
+| x6 | 21 | f, v | fan/van, fat/vat |
+| x7 | 22 | w, y | wet/yet, plus two single-sound rounds (the letters) |
+| x8 | 23 | s, z | sip/zip, sap/zap |
+
+  Every word (tunnel words and pairs) is spelt only with letters taught by the stop's lesson; `test/check-content.mjs` proves it (the word proof now covers them) and `tools/gen-lessons.mjs` refuses a word that is not decodable or sits in the wrong tunnel.
+- **A stop** is four steps: Two Tunnels, Which One?, Green Light on the two sounds, Ticket Check. It opens with a card ("Tricky Sounds", one warm line naming the sounds, Start) and ends with a celebration for the grown-up (no new letters; the saved result is the grown-up's "Yes", as at a Review Stop). The same two screens as Review Stops run it (`js/screens/review.js`, `reviewIntroScreen` and `reviewTaskScreen`, for kinds `review` and `contrast`).
+- **Two Tunnels** (`js/screens/tasks/tunnels.js`; rounds from `tunnelRounds` in `js/games-data.js`). Two tunnels wear the two letters. A purple train car rolls in carrying a letter (rounds 1 and 2, one for each tunnel) or a word (rounds 3 to 6, two for each); the child taps the tunnel it belongs to, or slides the car toward it. Right: the car rolls into the tunnel with a puff of steam and a star fills. Wrong: it bounces gently back, nothing counted. Six rounds, then a toot. At x2 the tunnels are "h" and "no h". CSS transforms and finite animations only.
+- **Which One?** (`js/screens/tasks/which.js`; rounds from `whichRounds`). Two ticket cards show a minimal pair. A pair shows pictures only when both words have a tile in `assets/images/mentava/web` (today only fan/van); otherwise words only, never a wrong picture (`docs/IMAGE-PROMPTS.md` lists what is missing). The grown-up's card says "Say: pen"; the grown-up says it. A recorded word plays only when `assets/audio/words/<word>.mp3` exists and "Play recorded letter sounds" is on; the phone's voice is never used for a target word. Six rounds mixing both words of the pairs; wrong taps only shake the card.
+- **Green Light** gets a pair mode (`step.pair` in `js/screens/tasks/signals.js`): the targets take turns between the two sounds, and the other sound always sits on a lamp, so the child must tell them apart. Five rounds.
+- **Ticket Check** is a letter question built by the generator (`quickCheck` on the stop): the second sound, with its pair-mate and one other taught letter as the wrong cards.
+- **Scripts.** Gists are at most 28 characters and one wording per game ("Which tunnel is it for?", "Say: pen. Which one?", "Light for k- as in..." as in Green Light). Sounds are written "mmm", "h-", never a bare letter name. At x2 the grown-up is told on every step: "Breathe it out, like fogging a mirror: h-. No 'huh.'"
+- **On the line.** The sign is a magnifying glass (`magnifySvg` in `js/art/train2d.js`, `drawMagnify` in `js/train/stations.js`, icon `magnify`). A Tricky Sounds stop holds the train like a Review Stop (`checkpointStopIndex`), sits before the Review Stop that follows the same lesson (so a world still ends with its Review Stop), and counts as passed once the lesson after it is done: a save past a stop is never sent back and no ride plays for a stop the child never played.
+- **Tests.** New `test/tricky-sounds.mjs` (placement, decodable words, both games right and wrong, no text to speech for targets, gists, Green Light, Ticket Check, the hold, the passed-behind rule, the saved result, fit at 360x640, 390x844 and 915x412, heat); in the `npm test` chain before smoke. Count-dependent suites were updated: `check-content` (a contrast check and the word proof), `review-stops`, `phase-b` and `sunny-hills` (the stop list), `worlds`, `regions` and `world-visit` (World 2 has 19 stops, World 3 has 16).
