@@ -291,6 +291,7 @@ const CONTRAST = [
     sides: [{ sign: ['s'], letters: ['s'], words: ['sit', 'sad', 'sun', 'sap', 'sip', 'set'] }, { sign: ['z'], letters: ['z'], words: ['zip', 'zap', 'zest', 'zigzag'] }],
     pairs: [['sip', 'zip'], ['sap', 'zap']] },
 ];
+const contrastStops = [];
 const say2 = (k) => { const s = c.sounds[k]; return s.asIn ? `${s.sayItLike} as in ${s.asIn}` : s.sayItLike; };
 for (const x of CONTRAST) {
   if (x.after > c.lessons.length) continue;
@@ -305,12 +306,14 @@ for (const x of CONTRAST) {
   const sk = c.sounds[key], tail = sk.asIn ? [{ tts: `as in ${sk.asIn}.` }] : [];
   const pairs = x.pairs.map(([a, b]) => { const ia = tileFor(a), ib = tileFor(b); return { a, b, ...(ia && ib ? { images: { [a]: ia, [b]: ib } } : {}) }; });
   const A = x.pair.map(say2);
-  c.checkpoints.push({ id: x.id, kind: 'contrast', title: 'Tricky Sounds', after: x.after, pair: x.pair, sides: x.sides, pairs, ...(x.whichLetters ? { whichLetters: x.whichLetters } : {}), ...(x.hint ? { hint: x.hint } : {}),
+  contrastStops.push({ id: x.id, kind: 'contrast', title: 'Tricky Sounds', after: x.after, pair: x.pair, sides: x.sides, pairs, ...(x.whichLetters ? { whichLetters: x.whichLetters } : {}), ...(x.hint ? { hint: x.hint } : {}),
     line: x.line || `Two sounds that are easy to mix up: ${A[0]} and ${A[1]}. Let's listen closely.`,
     end: x.end || `Great listening! Your child can tell ${A[0]} from ${A[1]}.`,
     quickCheck: { prompt: [{ tts: ask }, { clip: key }, ...tail], promptQuiet: [{ tts: quiet }], promptText: `${ask} ${say2(key)}?`, promptTextQuiet: quiet, kind: 'letter', options: [key, mate, other].map((g, i) => ({ glyph: g, correct: i === 0 })) },
     plan: [{ task: 'tunnels' }, { task: 'which' }, { task: 'signals', lesson: x.after, pair: x.pair }, { task: 'check', lesson: x.after }] });
 }
+// On the line a Tricky Sounds stop comes before the Review Stop that follows the same lesson (a world still ends with its Review Stop).
+c.checkpoints.splice(c.checkpoints.findIndex((k) => k.kind === 'review'), 0, ...contrastStops);
 
 c.games.board = { say: 'Find the sound in the word.' };
 // "How to make this sound" for the Watch My Mouth step (docs/CURRICULUM.md section 5 and the unit notes in section 11): lips, teeth,

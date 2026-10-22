@@ -55,9 +55,7 @@ export async function dataChecks({ ok }) {
   const curIdx = (store) => nodes.findIndex((n) => n.lesson && n.lesson.number === store.currentLesson(CUR.lessons.length));
   const hold = (store) => checkpointStopIndex(nodes, curIdx(store), store);
   for (const k of STOPS) {
-    const i = idx(k.id);
-    let fwd = i + 1; while (nodes[fwd] && nodes[fwd].checkpoint && nodes[fwd].checkpoint.kind === 'contrast') fwd++; // a Tricky Sounds stop may stand right after it (docs/LESSON-REBUILD.md section 12)
-    const next = nodes[fwd];
+    const i = idx(k.id), next = nodes[i + 1];
     let back = i - 1; while (nodes[back] && nodes[back].checkpoint && nodes[back].checkpoint.after === k.after) back--; // a Story that shares the lesson (Story 2 and v6 after lesson 6) comes first
     const prev = nodes[back], earlierDone = Object.fromEntries(CUR.checkpoints.filter((c) => c.after === k.after && idx(c.id) < i).map((c) => [c.id, { result: 'got-it' }]));
     const lastOne = k.after === CUR.lessons.length; // the last stop of the line has no lesson after it

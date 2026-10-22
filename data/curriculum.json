@@ -4113,366 +4113,6 @@
       "world": "W3"
     },
     {
-      "id": "v1",
-      "kind": "review",
-      "title": "Review Stop",
-      "after": 3,
-      "summary": {
-        "sounds": 3,
-        "words": 4,
-        "examples": [
-          "Sam",
-          "am",
-          "ma",
-          "mama"
-        ]
-      },
-      "plan": [
-        {
-          "task": "hunt",
-          "lesson": 3
-        },
-        {
-          "task": "wagons",
-          "lesson": 2
-        },
-        {
-          "task": "hunt",
-          "lesson": 1
-        },
-        {
-          "task": "read",
-          "lesson": 3,
-          "words": [
-            "ma",
-            "mama"
-          ]
-        },
-        {
-          "task": "check",
-          "lesson": 2
-        }
-      ],
-      "world": "W1"
-    },
-    {
-      "id": "v6",
-      "kind": "review",
-      "title": "Review Stop",
-      "after": 6,
-      "summary": {
-        "sounds": 6,
-        "words": 31,
-        "examples": [
-          "tip",
-          "pit",
-          "mist",
-          "sit",
-          "Pat",
-          "it",
-          "sat",
-          "sap"
-        ]
-      },
-      "plan": [
-        {
-          "task": "hunt",
-          "lesson": 6
-        },
-        {
-          "task": "wagons",
-          "lesson": 5
-        },
-        {
-          "task": "signals",
-          "lesson": 2
-        },
-        {
-          "task": "check",
-          "lesson": 6
-        }
-      ],
-      "world": "W1"
-    },
-    {
-      "id": "v2",
-      "kind": "review",
-      "title": "Review Stop",
-      "after": 9,
-      "summary": {
-        "sounds": 9,
-        "words": 58,
-        "examples": [
-          "fan",
-          "not",
-          "on",
-          "fat",
-          "fit",
-          "mom",
-          "mop",
-          "top"
-        ]
-      },
-      "plan": [
-        {
-          "task": "hunt",
-          "lesson": 8
-        },
-        {
-          "task": "signals",
-          "lesson": 9
-        },
-        {
-          "task": "wagons",
-          "lesson": 6
-        },
-        {
-          "task": "check",
-          "lesson": 8
-        }
-      ],
-      "world": "W2"
-    },
-    {
-      "id": "v3",
-      "kind": "review",
-      "title": "Review Stop",
-      "after": 12,
-      "summary": {
-        "sounds": 12,
-        "words": 86,
-        "examples": [
-          "hand",
-          "kid",
-          "sand",
-          "hot",
-          "hat",
-          "him",
-          "cat",
-          "cap"
-        ]
-      },
-      "plan": [
-        {
-          "task": "board",
-          "lesson": 12
-        },
-        {
-          "task": "wagons",
-          "lesson": 11
-        },
-        {
-          "task": "hunt",
-          "lesson": 7
-        },
-        {
-          "task": "check",
-          "lesson": 12
-        }
-      ],
-      "world": "W2"
-    },
-    {
-      "id": "v4",
-      "kind": "review",
-      "title": "Review Stop",
-      "after": 15,
-      "summary": {
-        "sounds": 15,
-        "words": 141,
-        "examples": [
-          "hug",
-          "milk",
-          "hum",
-          "hut",
-          "cut",
-          "cup",
-          "dig",
-          "dog"
-        ]
-      },
-      "plan": [
-        {
-          "task": "wagons",
-          "lesson": 15
-        },
-        {
-          "task": "hunt",
-          "lesson": 13
-        },
-        {
-          "task": "board",
-          "lesson": 10
-        },
-        {
-          "task": "check",
-          "lesson": 14
-        }
-      ],
-      "world": "W2"
-    },
-    {
-      "id": "v5",
-      "kind": "review",
-      "title": "Review Stop",
-      "after": 17,
-      "summary": {
-        "sounds": 17,
-        "words": 184,
-        "examples": [
-          "club",
-          "crab",
-          "rub",
-          "milk",
-          "cub",
-          "pal",
-          "tub",
-          "bat"
-        ]
-      },
-      "plan": [
-        {
-          "task": "board",
-          "lesson": 17
-        },
-        {
-          "task": "hunt",
-          "lesson": 16
-        },
-        {
-          "task": "signals",
-          "lesson": 11
-        },
-        {
-          "task": "check",
-          "lesson": 16
-        }
-      ],
-      "world": "W2"
-    },
-    {
-      "id": "v7",
-      "kind": "review",
-      "title": "Review Stop",
-      "after": 20,
-      "summary": {
-        "sounds": 20,
-        "words": 233,
-        "examples": [
-          "jet",
-          "web",
-          "wet",
-          "jump",
-          "nest",
-          "pen",
-          "peg",
-          "set"
-        ]
-      },
-      "plan": [
-        {
-          "task": "wagons",
-          "lesson": 20
-        },
-        {
-          "task": "hunt",
-          "lesson": 19
-        },
-        {
-          "task": "signals",
-          "lesson": 4
-        },
-        {
-          "task": "check",
-          "lesson": 20
-        }
-      ],
-      "world": "W3"
-    },
-    {
-      "id": "v8",
-      "kind": "review",
-      "title": "Review Stop",
-      "after": 23,
-      "summary": {
-        "sounds": 23,
-        "words": 242,
-        "examples": [
-          "vest",
-          "van",
-          "vet",
-          "yes",
-          "yet",
-          "yam",
-          "zip",
-          "zap"
-        ]
-      },
-      "plan": [
-        {
-          "task": "board",
-          "lesson": 23
-        },
-        {
-          "task": "signals",
-          "lesson": 22
-        },
-        {
-          "task": "wagons",
-          "lesson": 7
-        },
-        {
-          "task": "check",
-          "lesson": 22
-        }
-      ],
-      "world": "W3"
-    },
-    {
-      "id": "v9",
-      "kind": "review",
-      "title": "Review Stop",
-      "after": 25,
-      "mix": "vowels",
-      "summary": {
-        "sounds": 25,
-        "words": 252,
-        "examples": [
-          "quiz",
-          "quit",
-          "fox",
-          "mix",
-          "zip",
-          "zap",
-          "box",
-          "six"
-        ]
-      },
-      "plan": [
-        {
-          "task": "hunt",
-          "lesson": 18
-        },
-        {
-          "task": "wagons",
-          "lesson": 13
-        },
-        {
-          "task": "signals",
-          "lesson": 8
-        },
-        {
-          "task": "hunt",
-          "lesson": 4
-        },
-        {
-          "task": "check",
-          "lesson": 2
-        }
-      ],
-      "world": "W3"
-    },
-    {
       "id": "x1",
       "kind": "contrast",
       "title": "Tricky Sounds",
@@ -5360,6 +5000,366 @@
         {
           "task": "check",
           "lesson": 23
+        }
+      ],
+      "world": "W3"
+    },
+    {
+      "id": "v1",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 3,
+      "summary": {
+        "sounds": 3,
+        "words": 4,
+        "examples": [
+          "Sam",
+          "am",
+          "ma",
+          "mama"
+        ]
+      },
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 3
+        },
+        {
+          "task": "wagons",
+          "lesson": 2
+        },
+        {
+          "task": "hunt",
+          "lesson": 1
+        },
+        {
+          "task": "read",
+          "lesson": 3,
+          "words": [
+            "ma",
+            "mama"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 2
+        }
+      ],
+      "world": "W1"
+    },
+    {
+      "id": "v6",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 6,
+      "summary": {
+        "sounds": 6,
+        "words": 31,
+        "examples": [
+          "tip",
+          "pit",
+          "mist",
+          "sit",
+          "Pat",
+          "it",
+          "sat",
+          "sap"
+        ]
+      },
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 6
+        },
+        {
+          "task": "wagons",
+          "lesson": 5
+        },
+        {
+          "task": "signals",
+          "lesson": 2
+        },
+        {
+          "task": "check",
+          "lesson": 6
+        }
+      ],
+      "world": "W1"
+    },
+    {
+      "id": "v2",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 9,
+      "summary": {
+        "sounds": 9,
+        "words": 58,
+        "examples": [
+          "fan",
+          "not",
+          "on",
+          "fat",
+          "fit",
+          "mom",
+          "mop",
+          "top"
+        ]
+      },
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 8
+        },
+        {
+          "task": "signals",
+          "lesson": 9
+        },
+        {
+          "task": "wagons",
+          "lesson": 6
+        },
+        {
+          "task": "check",
+          "lesson": 8
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "v3",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 12,
+      "summary": {
+        "sounds": 12,
+        "words": 86,
+        "examples": [
+          "hand",
+          "kid",
+          "sand",
+          "hot",
+          "hat",
+          "him",
+          "cat",
+          "cap"
+        ]
+      },
+      "plan": [
+        {
+          "task": "board",
+          "lesson": 12
+        },
+        {
+          "task": "wagons",
+          "lesson": 11
+        },
+        {
+          "task": "hunt",
+          "lesson": 7
+        },
+        {
+          "task": "check",
+          "lesson": 12
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "v4",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 15,
+      "summary": {
+        "sounds": 15,
+        "words": 141,
+        "examples": [
+          "hug",
+          "milk",
+          "hum",
+          "hut",
+          "cut",
+          "cup",
+          "dig",
+          "dog"
+        ]
+      },
+      "plan": [
+        {
+          "task": "wagons",
+          "lesson": 15
+        },
+        {
+          "task": "hunt",
+          "lesson": 13
+        },
+        {
+          "task": "board",
+          "lesson": 10
+        },
+        {
+          "task": "check",
+          "lesson": 14
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "v5",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 17,
+      "summary": {
+        "sounds": 17,
+        "words": 184,
+        "examples": [
+          "club",
+          "crab",
+          "rub",
+          "milk",
+          "cub",
+          "pal",
+          "tub",
+          "bat"
+        ]
+      },
+      "plan": [
+        {
+          "task": "board",
+          "lesson": 17
+        },
+        {
+          "task": "hunt",
+          "lesson": 16
+        },
+        {
+          "task": "signals",
+          "lesson": 11
+        },
+        {
+          "task": "check",
+          "lesson": 16
+        }
+      ],
+      "world": "W2"
+    },
+    {
+      "id": "v7",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 20,
+      "summary": {
+        "sounds": 20,
+        "words": 233,
+        "examples": [
+          "jet",
+          "web",
+          "wet",
+          "jump",
+          "nest",
+          "pen",
+          "peg",
+          "set"
+        ]
+      },
+      "plan": [
+        {
+          "task": "wagons",
+          "lesson": 20
+        },
+        {
+          "task": "hunt",
+          "lesson": 19
+        },
+        {
+          "task": "signals",
+          "lesson": 4
+        },
+        {
+          "task": "check",
+          "lesson": 20
+        }
+      ],
+      "world": "W3"
+    },
+    {
+      "id": "v8",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 23,
+      "summary": {
+        "sounds": 23,
+        "words": 242,
+        "examples": [
+          "vest",
+          "van",
+          "vet",
+          "yes",
+          "yet",
+          "yam",
+          "zip",
+          "zap"
+        ]
+      },
+      "plan": [
+        {
+          "task": "board",
+          "lesson": 23
+        },
+        {
+          "task": "signals",
+          "lesson": 22
+        },
+        {
+          "task": "wagons",
+          "lesson": 7
+        },
+        {
+          "task": "check",
+          "lesson": 22
+        }
+      ],
+      "world": "W3"
+    },
+    {
+      "id": "v9",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 25,
+      "mix": "vowels",
+      "summary": {
+        "sounds": 25,
+        "words": 252,
+        "examples": [
+          "quiz",
+          "quit",
+          "fox",
+          "mix",
+          "zip",
+          "zap",
+          "box",
+          "six"
+        ]
+      },
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 18
+        },
+        {
+          "task": "wagons",
+          "lesson": 13
+        },
+        {
+          "task": "signals",
+          "lesson": 8
+        },
+        {
+          "task": "hunt",
+          "lesson": 4
+        },
+        {
+          "task": "check",
+          "lesson": 2
         }
       ],
       "world": "W3"

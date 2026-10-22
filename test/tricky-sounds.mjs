@@ -64,7 +64,7 @@ export async function dataChecks({ ok }) {
   const hold = (store) => checkpointStopIndex(nodes, curIdx(store), store);
   for (const k of STOPS) {
     const i = idx(k.id), prev = nodes[i - 1], next = nodes[i + 1];
-    ok(prev && (prev.lesson ? prev.lesson.number === k.after : prev.checkpoint.after === k.after) && next && (next.lesson ? next.lesson.number === k.after + 1 : next.checkpoint.after === k.after + 1 || next.checkpoint.after === k.after), `placement ${k.id}: on the line right after lesson ${k.after} (after its review or story stop when one shares the lesson)`);
+    ok(prev && (prev.lesson ? prev.lesson.number === k.after : prev.checkpoint.after === k.after) && next && (next.lesson ? next.lesson.number === k.after + 1 : next.checkpoint.after === k.after || next.checkpoint.after === k.after + 1), `placement ${k.id}: on the line right after lesson ${k.after} (a Story stop that shares the lesson first, its Review Stop after it)`);
     const earlier = Object.fromEntries(CUR.checkpoints.filter((c) => c.after === k.after && idx(c.id) < i).map((c) => [c.id, { result: 'got-it' }]));
     let s = open(k.after - 1);
     ok(!s.isCheckpointUnlocked(k) && !s.isCheckpointDone(k), `${k.id}: locked before lesson ${k.after} is done`);
@@ -280,13 +280,13 @@ export async function fitChecks({ browser, url, ok }) {
 // Home: a Tricky Sounds stop is on the line after its review stop, holds the train, and is marked done once behind.
 export async function homeChecks({ browser, url, ok }) {
   const k = STOPS[0];
-  const h = await openHome(browser, url, PHONE, state(k.after, {}, { checkpoints: { v2: { result: 'got-it', completedAt: '2026-10-01T10:00:00.000Z' } } }));
+  const h = await openHome(browser, url, PHONE, state(k.after));
   const { page, errors } = h;
   ok(await until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running, null, 20000), 'home: the 3D railway renders and settles');
   const btns = await page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => ({ label: b.getAttribute('aria-label'), cls: b.className })));
   const iv = btns.findIndex((b) => b.label.startsWith('Tricky Sounds'));
-  ok(iv > 0 && btns[iv].cls.includes('is-current') && /^Review Stop/.test(btns[iv - 1].label) && /^Lesson 10/.test(btns[iv + 1].label), `home: after lesson 9 and its Review Stop, Tricky Sounds is the current stop (${btns.map((b) => b.label + ':' + b.cls.replace(/.*is-/, '')).join(' | ')})`);
-  ok(!btns[iv + 1].cls.includes('is-locked'), 'home: lesson 10 stays open while the stop is held');
+  ok(iv > 0 && btns[iv].cls.includes('is-current') && /^Lesson 9/.test(btns[iv - 1].label) && /^Review Stop/.test(btns[iv + 1].label), `home: after lesson 9 Tricky Sounds is the current stop, its Review Stop next (${btns.map((b) => b.label + ':' + b.cls.replace(/.*is-/, '')).join(' | ')})`);
+  ok(btns.some((b) => /^Lesson 10/.test(b.label) && !b.cls.includes('is-locked')), 'home: lesson 10 stays open while the stop is held');
   await showStop(page, '.station-btn[aria-label^="Tricky Sounds"]');
   await page.waitForTimeout(900);
   await shot(page, 'home-tricky-sounds-390x844');

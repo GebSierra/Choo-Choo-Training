@@ -68,7 +68,7 @@ export async function dataChecks({ ok }) {
 
   // 4. the stops: every world ends with a Review Stop, Story 3 after lesson 22, level three after lesson 25
   const ck = Object.fromEntries(CUR.checkpoints.map((k) => [k.id, k]));
-  ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25', 'stops: ids and places (v1 to v5, r1, b1, b2 never move; v6 after 6; b3 after 22; v7, v8, v9 after 20, 23, 25)');
+  ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25', 'stops: ids and places (v1 to v5, r1, b1, b2 never move; Tricky Sounds x1 to x8 sit before the Review Stop of their lesson; v6 after 6; b3 after 22; v7, v8, v9 after 20, 23, 25)');
   const nodes = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   for (const w of ['W1', 'W2', 'W3']) {
     const last = nodes.filter((n) => (n.lesson ? n.lesson.world : n.checkpoint.world) === w).at(-1);
@@ -137,7 +137,7 @@ export async function screenChecks({ browser, url, ok }) {
     await page.locator('.world-card .wg-go').click();
     ok(await until(page, () => window.__train && window.__train.world === 'W3' && window.__train.frames > 0, null, 20000), 'crossing: Sunny Hills is built after it');
     const w3 = await page.evaluate(() => ({ stops: window.__train.stopCount, l: window.__train.lessonCount, c: window.__train.checkpointCount, start: window.__train.startTunnel, portal: window.__train.portal, sign: window.__train.signText, theme: window.__train.theme, placeholder: window.__train.placeholder, next: window.__train.nextWorld }));
-    ok(w3.stops === 12 && w3.l === 8 && w3.c === 4 && w3.start && w3.portal && w3.sign === 'Digraph Docks' && w3.theme === 'sunny-hills' && !w3.placeholder, `crossing: World 3 has its eight lessons and four stops, a start tunnel, its own look and a portal to Digraph Docks (${JSON.stringify(w3)})`);
+    ok(w3.stops === 16 && w3.l === 8 && w3.c === 8 && w3.start && w3.portal && w3.sign === 'Digraph Docks' && w3.theme === 'sunny-hills' && !w3.placeholder, `crossing: World 3 has its eight lessons and eight stops (four Tricky Sounds among them), a start tunnel, its own look and a portal to Digraph Docks (${JSON.stringify(w3)})`);
     ok(await settled(page, 40000), 'crossing: the train rolls out and settles');
     const seen = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).worlds.seen);
     ok(seen === 'W3', 'crossing: it is recorded, so it plays once');
