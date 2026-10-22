@@ -52,7 +52,7 @@ for (const L of CUR.lessons) {
   for (const w of L.sayingSounds.filter((x) => x.showLetters)) ok(readable(w.word), `lesson ${L.number} Saying Sounds "${w.word}" uses only taught letters`);
   for (const b of L.board || []) { ok(readable(b.word) && [...WORD_BANK, ...DOCKS_BANK].includes(b.word), `lesson ${L.number} Station Board "${b.word}" is decodable and from the word bank`); ok(letterUnits(b.word, L.number).filter((ch) => soundOfLetter(ch) === b.target).length === 1, `lesson ${L.number} board "${b.word}" holds its target ${b.target} once`); }
   for (const o of L.quickCheck.options) if (o.glyph) ok(taught.has(o.glyph), `lesson ${L.number} Ticket Check letter ${o.glyph} is taught`);
-  if (L.number >= 7) for (const w of L.sayingSounds.filter((x) => !x.showLetters)) ok(!!w.sayOnly === (!readable(w.word) || ['wagon', 'yarn', 'zebra', 'queen', 'thumb', 'ball'].includes(w.word)), `lesson ${L.number} picture word "${w.word}": letters shown only when decodable (sayOnly ${!!w.sayOnly})`);
+  if (L.number >= 7) for (const w of L.sayingSounds.filter((x) => !x.showLetters)) ok(!!w.sayOnly === (!readable(w.word) || ['wagon', 'yarn', 'zebra', 'queen', 'thumb'].includes(w.word) || (w.word === 'ball' && L.number >= 30)), `lesson ${L.number} picture word "${w.word}": letters shown only when decodable (sayOnly ${!!w.sayOnly})`);
   ok(L.review.every((k) => ORDER_SOUNDS.indexOf(k) < L.number - 1), `lesson ${L.number} reviews only earlier sounds`);
 }
 // the new Green Valley words, by lesson (docs/LESSON-REBUILD.md section 9)
