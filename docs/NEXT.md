@@ -30,7 +30,7 @@ Last session finished every item of the previous handoff. Full `npm test` result
 
 ## ROADMAP
 - Owner rule (2026-10-22): when Claude makes a plan, execute it right away and tell the owner afterwards what was decided (no approval step needed), except for genuine owner decisions (money, legal, story/brand wording the owner writes).
-- [ ] **Tricky Sounds contrast stops (owner 2026-10-22, building):** m/n after 9, h after 12, c/k-g after 14, b/d after 17, i/e after 18, f/v after 21, w/y after 22, s/z after 23; new games Two Tunnels and Which One?.
+- [x] **Tricky Sounds contrast stops (LIVE in 1.9.41):** m/n after 9, h after 12, c/k-g after 14, b/d after 17, i/e after 18, f/v after 21, w/y after 22, s/z after 23; new games Two Tunnels and Which One?.
 - [ ] **STRIPE (owner in progress since 2026-10-12): revisit every session.** Check docs/OWNER-TODO.md "Stripe: close the loop" for where the owner is; ask once per session; when the `claude/stripe-billing` branch exists, review it (security: no keys in repo, webhook signature checked, entitlements via RLS), run the full suite, merge, release.
 - [x] **World 3 Sunny Hills (LIVE in 1.9.37):** lessons 18–25, Story 3, Review Stops incl. end of every world, keepsake, word-count end message. Next worlds follow the same pipeline; every world ends with a Review Stop (owner rule 2026-10-12). Crossing still plays right after the last lesson (owner chose b). (owner-approved 2026-10-07) — read this first if the session was cut off
 Owner: implement all of these without asking, then report the decisions made. Commit + push to main after each phase.

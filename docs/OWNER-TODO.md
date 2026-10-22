@@ -104,6 +104,8 @@ with the date.
 
 - [ ] **New picture tiles for Sunny Hills (2026-10-12):** elephant, bed, jug, jar, watch, web, violin, xylophone, yak have no picture yet (stand-ins or said only for now). Prompts are in docs/IMAGE-PROMPTS.md (marked "new, no current file").
 
+- [ ] **Pictures for Tricky Sounds (2026-10-22):** 16 word pictures (nap, ham, cap, cot, dad, dig, bib, pin, pen, tin, ten, fat, vat, wet, sip, zip); prompts in docs/IMAGE-PROMPTS.md. Until then those pairs show words only.
+
 ## Before selling (legal and business)
 - [ ] **Stripe: close the loop (2026-10-15).** Do these in order; Claude checks back on this list every session.
   1. stripe.com: finish sign-up (business details, bank account for payouts, identity check). Turn on two-step login.
