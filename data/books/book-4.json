@@ -1,0 +1,180 @@
+{
+  "id": "book-4",
+  "title": "Pip and the Docks",
+  "draft": true,
+  "needs": [
+    "m",
+    "a",
+    "s",
+    "i",
+    "t",
+    "p",
+    "f",
+    "o",
+    "n",
+    "d",
+    "c",
+    "h",
+    "u",
+    "g",
+    "l",
+    "r",
+    "b",
+    "e",
+    "j",
+    "w",
+    "v",
+    "y",
+    "z",
+    "x",
+    "q",
+    "sh",
+    "ch",
+    "th",
+    "ck",
+    "ff",
+    "wh"
+  ],
+  "sight": [],
+  "pages": [
+    {
+      "scene": "track",
+      "read": "Toot toot! Pip's train rolls to the end of the line, down by the Docks. Pip, {name} and Sam hop off. The sea is bright blue and the gulls are calling!",
+      "art": {
+        "train": true,
+        "pip": "wave"
+      },
+      "tap": {
+        "on": "train",
+        "anim": "toot",
+        "label": "Pip's whistle"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "Look at the water! A big boat with a tall smokestack comes sailing in. Pip points and says, \"Look at that big ...\"",
+      "child": "ship",
+      "slider": "ship",
+      "art": {
+        "emoji": [
+          "🚢"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the ship"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "Splash! Something silver leaps out of the water and flops on the dock. Sam giggles. \"Ha! It is a wiggly ...\"",
+      "child": "fish",
+      "slider": "fish",
+      "art": {
+        "emoji": [
+          "🐟"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "giggle",
+        "label": "the fish"
+      }
+    },
+    {
+      "scene": "station",
+      "kind": "drag",
+      "read": "\"Hold on tight! Let's roll along the dock!\""
+    },
+    {
+      "scene": "station",
+      "read": "At the end of the dock is a little store with a striped roof. Pip says, \"Let's go in the ...\"",
+      "child": "shop",
+      "slider": "shop",
+      "art": {
+        "emoji": [
+          "🏪"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the shop"
+      }
+    },
+    {
+      "scene": "picnic",
+      "read": "Inside, the shopkeeper has a big board and a crunchy carrot. Chop, chop, chop! She makes a snack for the whole crew. Sam asks, \"What does she do to the carrot?\" Pip says, \"She will ...\"",
+      "child": "chop",
+      "slider": "chop",
+      "art": {
+        "emoji": [
+          "🥕"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the carrot"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "Ding dong! A loud sound rings out across the dock. It is time to go back to the train! Pip says, \"That is the ...\"",
+      "child": "bell",
+      "slider": "bell",
+      "art": {
+        "emoji": [
+          "🔔"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the bell"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "On the way, a little yellow bird waddles past and says quack, quack. Pip waves and says, \"Hello, little ...\"",
+      "child": "duck",
+      "slider": "duck",
+      "art": {
+        "emoji": [
+          "🦆"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "giggle",
+        "label": "the duck"
+      }
+    },
+    {
+      "scene": "sunset",
+      "read": "The sun begins to set over the Docks, painting the water orange. Everyone climbs on the train. Pip looks at {name} and says, \"What a fun day! Let's come ...\"",
+      "child": "back",
+      "slider": "back",
+      "art": {
+        "train": true,
+        "pip": "cheer",
+        "friend": true
+      }
+    },
+    {
+      "scene": "sunset",
+      "kind": "review",
+      "read": "Toot toot! You did it! Read all your words:",
+      "words": [
+        "ship",
+        "fish",
+        "shop",
+        "chop",
+        "bell",
+        "duck",
+        "back"
+      ]
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 // lesson 6, level two at lesson 17, the end of World 2). 3D, reduced motion, 2D, no replay on the next visit, replay from Grownups, and heat.
 // Run alone with `node test/levels.mjs`.
 import fs from 'node:fs';
+import { isReadable } from '../js/order.js';
 import path from 'node:path';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS } from './lib.mjs';
 import { openHome, state, iL, until, RAF_COUNT } from './train.mjs';
@@ -59,7 +60,7 @@ export async function levelChecks({ browser, url, ok }) {
       if (info) fs.writeFileSync(path.join(ROOT, 'docs/screenshots/milestones/keepsake-world.png'), Buffer.from(info.b64, 'base64'));
       const CURJ = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')), WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
       const keys = CURJ.lessons.slice(0, 6).map((l) => l.sound), letters = new Set(keys.flatMap((k) => (k === 'c' ? ['c', 'k'] : [k])));
-      const fresh = WL.filter((w) => [...w].every((c) => letters.has(c))).length;
+      const fresh = WL.filter((w) => isReadable(w, letters)).length;
       ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350, 'level one: the world keepsake is a 1080x1350 PNG');
       ok(info && info.headline === 'Lily finished Starter Station!', `level one: the headline names the world (${info && info.headline})`);
       ok(fresh > 0 && info && info.word === `${keys.length} sounds` && info.sub === `can read ${fresh} words`, `level one: ${keys.length} sounds and ${fresh} words match a fresh count (${info && info.word} / ${info && info.sub})`);

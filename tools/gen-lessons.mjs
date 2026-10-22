@@ -116,7 +116,7 @@ const TABLE = [
     qc: { kind: 'letter', others: ['m', 't'] }, hunt: 'masitpfd',
     note: 'Two letters, one sound: ck says k- and comes at the end of a short word, like back and duck. Slide under both letters at once.' },
   { n: 30, k: 'ff', alt: ['ll', 'ss', 'zz'], endOnly: true, practice: [], say: 'fff', asIn: 'puff', hold: true, not: null, how: 'Two of the same letter say the same sound as one: ff says fff, ll says l-, ss says sss, zz says zzz.',
-    tiles: ['b/ball'], start: [], words: ['puff', 'bell', 'miss'], pic: 'ball', sayOnly: true,
+    tiles: ['b/ball'], start: [], words: ['puff', 'miss', 'buzz'], pic: 'ball', sayOnly: true,
     qc: { kind: 'letter', others: ['m', 't'] }, hunt: 'masitpdh',
     note: 'Doubled letters come right after a short vowel at the end of a short word: puff, bell, miss, buzz. Two letters, one sound: the same sound the single letter makes. Slide under both letters at once.' },
   { n: 31, k: 'wh', noPictures: true, practice: [], say: 'w-', asIn: 'when', hold: false, not: 'wuh', how: 'wh says w-, the same sound as w. Round your lips, then open them quickly. Do not add uh.',

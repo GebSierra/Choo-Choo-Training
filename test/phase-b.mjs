@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, newPage, SEEN, doneThrough } from './lib.mjs';
-import { ORDER, ORDER_SOUNDS, LEGACY_ORDER, SPELLINGS, spellingsOf, soundOfLetter, lettersOfSounds } from '../js/order.js';
+import { ORDER, ORDER_SOUNDS, LEGACY_ORDER, SPELLINGS, spellingsOf, soundOfLetter, lettersOfSounds, isReadable } from '../js/order.js';
 import { tasksFor } from '../js/lessons.js';
 import { earnedLevels } from '../js/levels.js';
 import { worldDone, currentWorld, lessonsIn } from '../js/worlds.js';
@@ -48,7 +48,7 @@ for (let n = 8; n <= 25; n++) ok(CUR.lessons[n - 1].middle.join() !== CUR.lesson
 const SIGHT = ['is', 'i', 'it'];
 for (const L of CUR.lessons) {
   const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, L.number));
-  const readable = (w) => [...w].every((ch) => taught.has(ch));
+  const readable = (w) => isReadable(w, taught);
   for (const w of L.sayingSounds.filter((x) => x.showLetters)) ok(readable(w.word), `lesson ${L.number} Saying Sounds "${w.word}" uses only taught letters`);
   for (const b of L.board || []) { ok(readable(b.word) && WORD_BANK.includes(b.word), `lesson ${L.number} Station Board "${b.word}" is decodable and from the word bank`); ok([...b.word].filter((ch) => soundOfLetter(ch) === b.target).length === 1, `lesson ${L.number} board "${b.word}" holds its target ${b.target} once`); }
   for (const o of L.quickCheck.options) if (o.glyph) ok(taught.has(o.glyph), `lesson ${L.number} Ticket Check letter ${o.glyph} is taught`);

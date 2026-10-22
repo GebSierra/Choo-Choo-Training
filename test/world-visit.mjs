@@ -4,6 +4,7 @@
 // fit at 360x640, 390x844 and 915x412. Screenshots go to docs/screenshots/world-visit/ with `--shots`.
 // Run alone with `node test/world-visit.mjs [--shots]`.
 import fs from 'node:fs';
+import { isReadable } from '../js/order.js';
 import path from 'node:path';
 import { ROOT, startServer, loadPlaywright, launch } from './lib.mjs';
 import { openHome, state, until, iL } from './train.mjs';
@@ -221,7 +222,7 @@ export async function grownupsChecks({ browser, url, ok, vp }) {
     const info = await page.evaluate(async () => { const k = window.__keepsake; if (!k) return null; const b = await createImageBitmap(k.blob); return { w: b.width, h: b.height, type: k.type, headline: k.headline, word: k.word, sub: k.sub }; });
     const CJ = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')), WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
     const last = Math.max(...CJ.lessons.filter((l) => l.world === 'W1').map((l) => l.number)), keys = CJ.lessons.slice(0, last).map((l) => l.sound), lt = new Set(keys.flatMap((k) => (k === 'c' ? ['c', 'k'] : [k])));
-    const fresh = WL.filter((w) => [...w].every((c) => lt.has(c))).length;
+    const fresh = WL.filter((w) => isReadable(w, lt)).length;
     ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350 && /finished Starter Station!$/.test(info.headline) && info.word === `${keys.length} sounds` && info.sub === `can read ${fresh} words`, `${tag}: the world 1 keepsake is a 1080x1350 PNG naming Starter Station with ${keys.length} sounds and ${fresh} words (${info && info.headline} / ${info && info.word} / ${info && info.sub})`);
   }
   await page.locator('.gu-worlds').scrollIntoViewIfNeeded();

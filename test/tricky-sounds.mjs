@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, newPage, SEEN, showStop, doneThrough } from './lib.mjs';
-import { ORDER_SOUNDS, lettersOfSounds } from '../js/order.js';
+import { ORDER_SOUNDS, lettersOfSounds, isReadable } from '../js/order.js';
 import { checkpointStopIndex, finishedStop } from '../js/sequence.js';
 import { tunnelRounds, whichRounds } from '../js/games-data.js';
 import { state, openHome, until, RAF_COUNT } from './train.mjs';
@@ -33,9 +33,9 @@ export async function dataChecks({ ok }) {
   for (const k of STOPS) {
     const tag = `data ${k.id}`, taught = taughtBy(k.after);
     const words = [...k.sides.flatMap((s) => s.words), ...k.pairs.flatMap((p) => [p.a, p.b])];
-    ok(words.every((w) => [...w].every((ch) => taught.has(ch))), `${tag}: every word is spelt with letters taught by lesson ${k.after} (${words.filter((w) => ![...w].every((ch) => taught.has(ch)))})`);
+    ok(words.every((w) => isReadable(w, taught)), `${tag}: every word is spelt with letters taught by lesson ${k.after} (${words.filter((w) => !isReadable(w, taught))})`);
     ok(k.plan.map((a) => a.task).join() === 'tunnels,which,signals,check', `${tag}: Two Tunnels, Which One?, Green Light, then Ticket Check`);
-    ok(k.quickCheck.kind === 'letter' && k.quickCheck.options.every((o) => [...o.glyph].every((ch) => taught.has(ch))) && k.quickCheck.options.filter((o) => o.correct).length === 1, `${tag}: Ticket Check is a letter question on taught letters`);
+    ok(k.quickCheck.kind === 'letter' && k.quickCheck.options.every((o) => isReadable(o.glyph, taught)) && k.quickCheck.options.filter((o) => o.correct).length === 1, `${tag}: Ticket Check is a letter question on taught letters`);
     ok(k.pairs.every((p) => !p.images || (fs.existsSync(path.join(ROOT, p.images[p.a])) && fs.existsSync(path.join(ROOT, p.images[p.b])))), `${tag}: a pair has pictures only when both exist on disk`);
     ok(/Let's listen closely\.$/.test(k.line) && /^Great listening!/.test(k.end) && !/\b(new letter|learn)\b/i.test(k.end), `${tag}: the opening line and the celebration`);
     ok(k.id === 'x2' ? k.hint === "Breathe it out, like fogging a mirror: h-. No 'huh.'" : !k.hint, `${tag}: the h stop carries the breathing line, no other stop does`);
@@ -125,7 +125,7 @@ export async function screenChecks({ browser, url, ok }) {
           const lamps = await page.locator('.signal').evaluateAll((els) => els.map((e) => e.dataset.letter));
           const tg = await page.locator('.signal[data-target="1"]').getAttribute('data-letter');
           lamps.forEach((l) => lit.add(l)); targets.push(tg);
-          ok(lamps.every((l) => [...l].every((ch) => taughtBy(k.after).has(ch))), `${k.id} Green Light: lamps hold only taught letters (${lamps})`);
+          ok(lamps.every((l) => isReadable(l, taughtBy(k.after))), `${k.id} Green Light: lamps hold only taught letters (${lamps})`);
           const mate = k.pair.find((p) => !(p === 'c' ? ['c', 'k'] : [p]).includes(tg));
           ok(lamps.some((l) => (mate === 'c' ? ['c', 'k'] : [mate]).includes(l)), `${k.id} Green Light round ${r + 1}: the other sound ${mate} is on a lamp (${lamps})`);
           await page.locator('.signal[data-target="1"]').click(); await page.waitForTimeout(1200);

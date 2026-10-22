@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, startServer, loadPlaywright, launch, newPage, SEEN } from './lib.mjs';
 import { SPEECH_STUB } from './stubs.mjs';
-import { ORDER, ORDER_SOUNDS, LEGACY_ORDER, PRIOR_ORDERS, letterUnits, soundOfLetter, lettersOfSounds } from '../js/order.js';
+import { ORDER, ORDER_SOUNDS, LEGACY_ORDER, PRIOR_ORDERS, letterUnits, soundOfLetter, lettersOfSounds, isReadable } from '../js/order.js';
 import { GLYPHS } from '../js/glyphs.js';
 import { soundText, slowSounds, firstSoundOut } from '../js/scripts.js';
 import { lessonsIn, worldDone, currentWorld, reachedWorlds, previousWorld } from '../js/worlds.js';
@@ -46,10 +46,10 @@ export async function dataChecks({ ok }) {
   for (const L of CUR.lessons.slice(17)) {
     const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, L.number));
     const read = [...L.sayingSounds.filter((w) => w.showLetters).map((w) => w.word), ...(L.board || []).map((b) => b.word), ...L.quickCheck.options.filter((o) => o.glyph).map((o) => o.glyph)];
-    ok(read.length >= 6 && read.every((w) => [...w].every((ch) => taught.has(ch))), `lesson ${L.number}: every child-read word uses only letters taught by it (${read.join(' ')})`);
+    ok(read.length >= 6 && read.every((w) => isReadable(w, taught)), `lesson ${L.number}: every child-read word uses only letters taught by it (${read.join(' ')})`);
     ok(read.every((w) => w.length === 1 || !/q(?!u)/.test(w)), `lesson ${L.number}: a q is always followed by u`);
     ok(CUR.sounds[L.sound].mouth && typeof CUR.sounds[L.sound].mouth.voice === 'boolean' && /Voice (on|off)\.$/.test(CUR.sounds[L.sound].mouth.text), `lesson ${L.number}: Watch My Mouth text for ${L.sound}`);
-    ok(L.sayingSounds.every((w) => w.showLetters || w.sayOnly || [...w.word].every((ch) => taught.has(ch))), `lesson ${L.number}: a picture word is only shown as letters when decodable`);
+    ok(L.sayingSounds.every((w) => w.showLetters || w.sayOnly || isReadable(w.word, taught)), `lesson ${L.number}: a picture word is only shown as letters when decodable`);
   }
   const tiles = (k) => CUR.sounds[k].words.map((w) => w.word).join(' ');
   ok(tiles('e') === 'egg hen nest tent' && tiles('j') === 'jet jump' && tiles('w') === 'wagon window worm' && tiles('v') === 'van vest volcano' && tiles('y') === 'yarn yoyo' && tiles('z') === 'zebra zipper zoo' && tiles('x') === 'fox box ox' && tiles('q') === 'quack queen quilt', 'pictures: the tiles of the folders e j w v y z x q, no misleading picture (no red, jam, yellow)');
@@ -84,7 +84,7 @@ export async function dataChecks({ ok }) {
   const sight = (BOOK3.sight || []).map((w) => w.toLowerCase());
   const taught22 = lettersOfSounds(ORDER_SOUNDS.slice(0, 22));
   const childWords = BOOK3.pages.flatMap((p) => [p.child, p.slider, ...(p.words || [])].filter(Boolean)).flatMap((t) => t.split(/\s+/)).map((w) => w.replace(/[^a-z]/gi, '').toLowerCase()).filter(Boolean);
-  ok(childWords.length >= 10 && childWords.every((w) => sight.includes(w) || [...w].every((ch) => taught22.has(ch))), `story 3: every word the child reads uses only letters taught by lesson 22 (${[...new Set(childWords)].join(' ')})`);
+  ok(childWords.length >= 10 && childWords.every((w) => sight.includes(w) || isReadable(w, taught22)), `story 3: every word the child reads uses only letters taught by lesson 22 (${[...new Set(childWords)].join(' ')})`);
   ok(sight.join() === 'i' && BOOK3.pages.length >= 8 && BOOK3.pages.length <= 10 && BOOK3.pages.at(-1).kind === 'review', `story 3: ${BOOK3.pages.length} pages, the last one a review, only the heart word I (already in the app)`);
   ok(BOOK3.pages.every((p) => !/\b(he|she|him|his|her)\b/i.test(p.read || '') || !/\{name\}/.test(p.read || '')), 'story 3: the child is called by name, never he or she');
   ok(['jet', 'egg', 'van', 'wet', 'yes'].every((w) => BOOK3.pages.some((p) => p.child === w)) && BOOK3.pages.some((p) => /\bdid\b/.test(p.child || '')), 'story 3: it uses the new sounds j e v w y in the child words');

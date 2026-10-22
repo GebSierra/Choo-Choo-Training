@@ -4,6 +4,7 @@
 // motion. Screenshots for the owner are written to docs/screenshots/v1912/ only with `--shots`.
 // Run alone with `node test/worlds.mjs [--shots]`.
 import fs from 'node:fs';
+import { isReadable } from '../js/order.js';
 import path from 'node:path';
 import { ROOT, startServer, loadPlaywright, launch } from './lib.mjs';
 import { openHome, state, until, iL } from './train.mjs';
@@ -122,7 +123,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
     const doneN = await page.evaluate(() => Object.entries(JSON.parse(localStorage.getItem('reading.v1')).lessons).filter(([, l]) => l.result === 'got-it').map(([n]) => Number(n)).sort((a, b) => a - b));
     const CURW = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')), WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
     const keys = doneN.map((n) => CURW.lessons[n - 1].sound), letters = new Set(keys.flatMap((k) => (k === 'c' ? ['c', 'k'] : [k])));
-    const fresh = WL.filter((w) => [...w].every((c) => letters.has(c))).length;
+    const fresh = WL.filter((w) => isReadable(w, letters)).length;
     await page.waitForFunction(() => !!document.querySelector('.gu-hero-read').textContent, null, { timeout: 4000 }).catch(() => {});
     const gh = await page.evaluate(() => ({ line: document.querySelector('.gu-hero-read').textContent, chips: [...document.querySelectorAll('.gu-hero-chips .gu-chip')].map((c) => c.textContent), r: (() => { const r = document.querySelector('.gu-hero').getBoundingClientRect(); return [r.left, r.right, innerWidth]; })() }));
     ok(doneN.length > 0 && gh.line === `Can read ${fresh} words` && gh.chips.length === keys.length, `${tag} Grownups: "Can read N words" matches a fresh count (${gh.line} vs ${fresh}) and one chip per sound (${gh.chips.length} of ${keys.length})`);

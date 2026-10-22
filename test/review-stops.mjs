@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, newPage, SEEN, showStop, doneThrough } from './lib.mjs';
-import { ORDER_SOUNDS, lettersOfSounds } from '../js/order.js';
+import { ORDER_SOUNDS, lettersOfSounds, isReadable } from '../js/order.js';
 import { checkpointStopIndex, finishedStop } from '../js/sequence.js';
 import { state, openHome, until } from './train.mjs';
 
@@ -131,7 +131,7 @@ export async function screenChecks({ browser, url, ok }) {
           if (await tgt.count()) { await tgt.click({ force: true }); await page.waitForTimeout(900); (await letterSets(page)).forEach((l) => letters.add(l)); }
         }
       }
-      const bad = [...letters].filter((l) => ![...l].every((ch) => taught.has(ch)));
+      const bad = [...letters].filter((l) => !isReadable(l, taught));
       ok(bad.length === 0 && letters.size > 0, `${k.id} step ${i + 1} (${a.task}): only letters taught by lesson ${k.after} show (${[...letters].join(' ')}${bad.length ? '; NEW: ' + bad.join(' ') : ''})`);
       if (a.task === 'check') {
         const glyphs = await page.locator('.opt-card').count();
@@ -188,7 +188,7 @@ export async function screenChecks({ browser, url, ok }) {
     await m.page.goto(url + `#/checkpoint/${k.id}/finish`);
     await m.page.waitForSelector('.review-message');
     const msg = await m.page.locator('.review-message').innerText();
-    const tg = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = WL.filter((w) => [...w].every((ch) => tg.has(ch)));
+    const tg = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = WL.filter((w) => isReadable(w, tg));
     const mm = /^Your child has learned (\d+) sounds\. Words made only from these sounds include: (.+)\. That's (\d+) words in all\.(?: Heart words learned so far, counted apart: (.+)\.)?$/.exec(msg.replace(/\s+/g, ' ').trim());
     ok(mm && Number(mm[1]) === k.after && Number(mm[3]) === fresh.length && mm[2].split(', ').every((w) => fresh.includes(w.toLowerCase())) && mm[2].split(', ').length <= 8 && /^(?!.*pronounce)/.test(msg), `${k.id}: the end message says ${k.after} sounds and ${fresh.length} words, a fresh count from the list; every example is readable (${msg.slice(0, 90)}...)`);
     const hearts = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')).lessons.slice(0, k.after).flatMap((L) => L.heart || []);

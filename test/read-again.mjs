@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, newPage, SEEN } from './lib.mjs';
-import { lettersOfSounds, ORDER_SOUNDS } from '../js/order.js';
+import { lettersOfSounds, ORDER_SOUNDS, isReadable } from '../js/order.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const ck = CUR.checkpoints.find((k) => k.id === 'r1');
@@ -25,7 +25,7 @@ export function dataChecks({ ok }) {
   const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, ck.after));
   const sight = (ck.sight || []).map((w) => w.toLowerCase());
   const words = ck.story.join(' ').toLowerCase().replace(/[.!?,]/g, '').split(/\s+/);
-  const bad = words.filter((w) => !sight.includes(w) && ![...w].every((c) => taught.has(c)));
+  const bad = words.filter((w) => !sight.includes(w) && !isReadable(w, taught));
   ok(bad.length === 0, `data: every word is spelt with the letters taught by lesson 4 or is a heart word the app already uses (${bad.join(', ') || 'none left over'})`);
   ok(ck.story.every((s) => s.split(' ').length <= 6), 'data: every sentence is short (6 words or fewer)');
   ok(!('words' in ck) && !('offHoldMs' in ck) && !('rounds' in ck), 'data: no microphone timings are left on the stop');
