@@ -161,6 +161,9 @@ const nextSub = async (page) => { await page.waitForFunction(() => { const b = d
   await page.waitForTimeout(900);
   const t = await page.evaluate(() => document.body.innerText);
   ok(/a word we learn by heart, because a part of it does not follow the sounds yet/.test(t), 'the first time, the grown-up reads what a heart word is');
+  ok(await page.evaluate(() => [...document.querySelectorAll('.proto.heart [aria-label]')].every((e) => !/^[a-z]$/i.test(e.getAttribute('aria-label').trim()))), 'no lone-letter aria-label (the one-letter word a is labelled "the word a")');
+  await tap(page, '.hw-tried'); await nextSub(page);
+  ok(await page.evaluate(() => [...document.querySelectorAll('.proto.heart [aria-label]')].every((e) => !/^[a-z]$/i.test(e.getAttribute('aria-label').trim()))), 'find-it: no lone-letter aria-label either');
   await ctx.close();
 }
 {

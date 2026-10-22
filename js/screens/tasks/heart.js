@@ -26,13 +26,14 @@ export const heartSvg = (cls = '') => h('svg', { class: 'hw-heart ' + cls, viewB
   h('path', { d: 'M16 28 C6 20 2 14 2 9 C2 4.5 5.5 2 9 2 C12 2 14.5 3.6 16 6.4 C17.5 3.6 20 2 23 2 C26.5 2 30 4.5 30 9 C30 14 26 20 16 28 Z', fill: '#E5484D', stroke: '#B8323A', 'stroke-width': 2, 'stroke-linejoin': 'round' }),
   h('path', { d: 'M8 8.5 C8.6 6.8 10 6 11.4 6', fill: 'none', stroke: 'rgba(255,255,255,.7)', 'stroke-width': 2, 'stroke-linecap': 'round' }));
 
-export const faceOf = (txt, font = false) => { const s = wordSvg(txt, { color: INK, all: true, font, label: txt }); s.style.width = `calc(var(--cap, 64px) * ${Number(s.dataset.width) / Number(s.dataset.height)})`; s.style.maxWidth = '100%'; return s; };
+// A one-letter word (a, I) is labelled "the word a": a screen reader must never read a lone letter, which it would say by name.
+export const faceOf = (txt, font = false, label = txt.length === 1 ? `the word ${txt}` : txt) => { const s = wordSvg(txt, { color: INK, all: true, font, label }); s.style.width = `calc(var(--cap, 64px) * ${Number(s.dataset.width) / Number(s.dataset.height)})`; s.style.maxWidth = '100%'; return s; };
 
 // The word as tiles, one per part: a regular part is plain, the heart part has the heart above it (hidden while `plain`).
 export function wordTiles(data, { plain = false } = {}) {
-  const tiles = data.parts.map((p) => h('div', { class: 'hw-tile ' + (p.heart ? 'heart-part' : 'regular'), dataset: { part: p.t, heart: p.heart ? '1' : '0' }, role: 'img', 'aria-label': p.heart ? `${p.t}, the heart part` : p.t },
-    ...(p.heart ? [h('span', { class: 'hw-heartwrap', 'aria-hidden': 'true' }, heartSvg())] : []), faceOf(p.t), ...(LINKED.has(p.t) ? [h('span', { class: 'hw-link', 'aria-hidden': 'true' })] : [])));
-  const el = h('div', { class: 'hw-word' + (plain ? ' plain' : ''), role: 'group', 'aria-label': data.word }, ...tiles);
+  const tiles = data.parts.map((p) => h('div', { class: 'hw-tile ' + (p.heart ? 'heart-part' : 'regular'), dataset: { part: p.t, heart: p.heart ? '1' : '0' }, role: 'img', 'aria-label': p.heart ? `${p.t}, the heart part` : `${p.t}, a regular part` },
+    ...(p.heart ? [h('span', { class: 'hw-heartwrap', 'aria-hidden': 'true' }, heartSvg())] : []), faceOf(p.t, false, 'letters'), ...(LINKED.has(p.t) ? [h('span', { class: 'hw-link', 'aria-hidden': 'true' })] : [])));
+  const el = h('div', { class: 'hw-word' + (plain ? ' plain' : ''), role: 'group', 'aria-label': `the word ${data.word}` }, ...tiles);
   return { el, tiles, hearts: tiles.filter((t) => t.dataset.heart === '1') };
 }
 
@@ -86,7 +87,7 @@ export function build(env) {
   // ---- meet: the child has a go, the heart shows the tricky part, the grown-up says it, the child reads it ----
   function meet(g, prompt, w, d) {
     const tiles = wordTiles(d, { plain: true });
-    const chip = h('p', { class: 'px-chip' }, 'Can you read it?');
+    const chip = h('p', { class: 'px-chip' }, 'Try to read it');
     const legend = h('p', { class: 'hw-legend', hidden: true }, heartSvg('small'), h('span', {}, 'The heart marks the part to know by heart.'));
     const slot = h('div', { class: 'hw-btns' });
     const judge = judgeBar({ onGot: () => got(), onHelp: () => help() });
@@ -116,7 +117,7 @@ export function build(env) {
       chip.textContent = 'Say it together once more';
       sayWord(w, prompt, () => g !== gen);
     }
-    return { el: h('div', { class: 'hw-col' }, chip, tiles.el, legend, h('div', { class: 'px-model hw-sayrow' }, prompt.el, slot), hint, judge.el), parts: () => [{ tts: 'Look at the word. Can you read it?' }], script: () => scriptFor('meet', d).say, gist: () => scriptFor('meet', d).gist, speak: () => scriptFor('meet', d).speak };
+    return { el: h('div', { class: 'hw-col' }, chip, tiles.el, legend, h('div', { class: 'px-model hw-sayrow' }, prompt.el, slot), hint, judge.el), parts: () => [{ tts: 'Look at the word. Try to read it.' }], script: () => scriptFor('meet', d).say, gist: () => scriptFor('meet', d).gist, speak: () => scriptFor('meet', d).speak };
   }
 
   // ---- find: three cards, then the phrase ----
@@ -125,7 +126,7 @@ export function build(env) {
     const order = [w, ...d.find].map((x, i) => ({ x, k: (i * 7 + w.length * 3 + w.charCodeAt(0)) % 5 })).sort((a, b) => a.k - b.k || a.x.localeCompare(b.x));
     let found = false, misses = 0;
     const chip = h('p', { class: 'px-chip hw-find-chip' }, 'Listen. Then touch the word');
-    const cards = order.map(({ x }) => h('button', { class: 'ri-tile wtile hw-w hw-card', type: 'button', 'aria-label': x, dataset: { word: x, right: x === w ? '1' : '0' }, onclick: () => pick(x, cardOf(x)) },
+    const cards = order.map(({ x }) => h('button', { class: 'ri-tile wtile hw-w hw-card', type: 'button', 'aria-label': x.length === 1 ? `the word ${x}` : x, dataset: { word: x, right: x === w ? '1' : '0' }, onclick: () => pick(x, cardOf(x)) },
       h('span', { class: 'hw-wheart', 'aria-hidden': 'true' }, heartSvg('small')), faceOf(x, true)));
     const cardOf = (x) => cards[order.findIndex((o) => o.x === x)];
     const row = h('div', { class: 'hw-cards', role: 'group', 'aria-label': 'Three words' }, ...cards);
