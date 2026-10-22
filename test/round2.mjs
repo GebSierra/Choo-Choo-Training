@@ -308,7 +308,7 @@ export async function landscapeChecks({ browser, url, ok }) {
   await page.waitForSelector('.home');
   const routes = [];
   for (const L of CUR.lessons) for (const t of tasksFor(L)) routes.push([`#/lesson/${L.number}/task/${t.index}`, `L${L.number} ${t.type}`]);
-  for (const k of CUR.checkpoints) routes.push([`#/checkpoint/${k.id}${k.kind === 'review' ? '/task/0' : ''}`, `Sound Sack ${k.id}`]);
+  for (const k of CUR.checkpoints) routes.push([`#/checkpoint/${k.id}${(k.kind === 'review' || k.kind === 'contrast') ? '/task/0' : ''}`, `Sound Sack ${k.id}`]);
   for (const [r, name] of routes) {
     await page.evaluate((h) => { location.hash = h; }, r);
     await page.waitForFunction((h) => location.hash === h && document.querySelector('.screen:not(.leaving) .task-stage') && !document.querySelector('.screen.leaving'), r);
