@@ -197,7 +197,7 @@ export async function screenChecks({ browser, url, ok }) {
     await ctx.close();
   }
   // New Sound for sh and th (390x844): the linked letters are drawn from their strokes, the grown-up note is there.
-  for (const [n, key, card, note] of [[26, 'sh', /shhh as in ship/, /Two letters, one sound/], [28, 'th', /th- as in thin/, /throat/]]) {
+  for (const [n, key, card, note] of [[26, 'sh', /These two letters make one sound: shhh, as in ship/, /Two letters, one sound/], [28, 'th', /These two letters make one sound: th-, as in thin/, /throat/]]) {
     const m = await newPage(browser, PHONE);
     await m.page.addInitScript(SPEECH_STUB);
     await m.page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: doneL(n - 1), settings: { seenScripts: SEEN, trainIntroDone: true, migrated1912: true, pace4: true }, firstRunDone: true })}))`);
