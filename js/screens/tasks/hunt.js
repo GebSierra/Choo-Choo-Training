@@ -86,7 +86,7 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
     const travel = Math.max(40, W - TRAIN_W - 26); // the fifth step ends at the station, in front of its platform
     train.style.setProperty('--travel', travel + 'px');
     train.style.transform = `translateX(${(travel * steps) / STEPS}px)`;
-    grid = skyCells(W, H, { goalW: 150 }); // the station's box stays inside the sky's goal reserve
+    grid = skyCells(W, H, { goalW: 150, cardW: card.offsetWidth, cardH: card.offsetHeight }); // the station's box stays inside the sky's goal reserve
     // The scene changed size (the parent script wrapped, or the phone turned): deal the sky again onto the new grid.
     if (first || steps < STEPS) dealSky();
   }

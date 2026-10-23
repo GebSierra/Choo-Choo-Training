@@ -70,6 +70,8 @@ export async function dataChecks({ ok }) {
   ok(CUR.sounds.ng.parentNote.includes('-ang') && CUR.sounds.ng.parentNote.includes('-ung') && CUR.sounds.nk.parentNote.includes('-ank') && CUR.sounds.nk.parentNote.includes('-unk'), 'ng and nk: taught as chunks -ang -ing -ong -ung and -ank -ink -onk -unk');
   ok(CUR.sounds.sh.hold === true && CUR.sounds.ch.hold === false && CUR.sounds.sh.sayItLike === 'shhh' && CUR.sounds.ch.sayItLike === 'ch-' && CUR.sounds.th.sayItLike === 'th-' && CUR.sounds.ck.sayItLike === 'k-' && CUR.sounds.wh.sayItLike === 'w-', 'notation: shhh (held), ch- th- k- w- (clipped)');
 
+  const { soundCardLines } = await import('../js/lessons.js');
+  ok(['sh', 'ch', 'th', 'ck', 'wh', 'ng', 'nk', 'q'].every((k) => /^These two letters make one sound: /.test(soundCardLines(CUR.sounds[k])[0])) && soundCardLines(CUR.sounds.sh)[0] === 'These two letters make one sound: shhh, as in ship.' && /^Two of the same letter make one sound: fff, as in puff\./.test(soundCardLines(CUR.sounds.ff)[0]) && /^The letters c and k make the same sound/.test(soundCardLines(CUR.sounds.c)[0]) && /^This letter says /.test(soundCardLines(CUR.sounds.m)[0]), 'sound card: every two-letter unit says "These two letters make one sound", never "This letter says"');
   // 3. digraphs are one unit everywhere
   ok(DIGRAPHS.join(' ') === 'sh ch th ck ff ll ss zz wh ng nk', 'units: the eleven digraphs are listed in js/order.js');
   const U = (w, n) => JSON.stringify(letterUnits(w, n));
