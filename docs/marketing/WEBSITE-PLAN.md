@@ -13,6 +13,7 @@ Written for the session that will build the site. Read this whole file before st
 - **Which branch deploys the website: `claude/choochoo-marketing-chat-mjzg8m`** (set it as the website project's production branch). Reason: `site/` stays out of `main`, so the app project and its tests never see it, and the website does not depend on any app file. When the owner wants a tidier name, rename or merge later; nothing else changes.
 - **Contact email: `hellopip@choochootraining.com`.** Used in the site footer and `site/privacy.html`.
 - **Buttons (app session's request).** A small header button **"Log in"** and the main button **"Start reading"**, both to the app (`APP_URL` in `site/main.js`). The line "First 5 lessons free. No card." sits under the main button, so the offer is still said once, next to the button.
+- **Pre-launch list (2026-10-23).** The main action is now **"Get early access"** under "Be the first to know": a grown-up's first name and email, collected with Netlify Forms (form name `early-access`, sign-ups in Netlify > Forms). The header keeps a small "Log in" to the app. Every Netlify build costs credits: **batch changes and push them together, never one by one.**
 - Full app-side requirements and the order of the move: `docs/DOMAIN-MOVE.md` on `main` (part D is ours). Our status and checklist: `DOMAIN-MOVE.md` in this folder.
 
 ## Goal

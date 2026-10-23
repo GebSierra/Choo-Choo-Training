@@ -39,7 +39,7 @@ if ("IntersectionObserver" in window) {
   const dock = document.getElementById("dock");
   const dockLink = dock.querySelector("a");
   const seen = new Set();
-  const watch = [document.getElementById("hero-cta"), document.querySelector("#founding .btn"), document.querySelector(".close .btn")];
+  const watch = [document.getElementById("hero-cta"), document.querySelector("#founding .btn"), document.querySelector(".close .signup")];
   let heroGone = false;
   const dio = new IntersectionObserver((entries) => {
     entries.forEach(en => {
@@ -76,3 +76,24 @@ if ("IntersectionObserver" in window) {
   (window.requestIdleCallback || ((f) => setTimeout(f, 200)))(draw);
   addEventListener("resize", () => { clearTimeout(t); t = setTimeout(draw, 150); });
 })();
+
+// Early-access forms (Netlify Forms): send in the background and say thanks in place; without JS the form posts to thanks.html
+$$("form.signup").forEach(f => f.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = f.querySelector("button");
+  btn.disabled = true;
+  try {
+    const r = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(new FormData(f)).toString() });
+    if (!r.ok) throw new Error(r.status);
+    f.classList.add("sent");
+    f.querySelector(".done").hidden = false;
+  } catch { f.submit(); } // fall back to a normal post
+  finally { btn.disabled = false; }
+}));
+// "Get early access" buttons jump to the top form and put the cursor in the name box
+$$("[data-join]").forEach(a => a.addEventListener("click", (e) => {
+  e.preventDefault();
+  const f = document.getElementById("join");
+  f.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+  setTimeout(() => f.querySelector("input[name=name]").focus({ preventScroll: true }), reduced ? 0 : 450);
+}));

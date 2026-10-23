@@ -1,7 +1,7 @@
 # Netlify project 2 of 2: the marketing website. Import the repo with Base directory = site (this file is read from there).
 # The app is a separate Netlify project (repo root, branch main).
 [build]
-  command = "rm -rf dist && mkdir dist && cp -r index.html privacy.html 404.html styles.css main.js sw.js icon.svg apple-touch-icon.png assets dist/"
+  command = "rm -rf dist && mkdir dist && cp -r index.html privacy.html 404.html thanks.html styles.css main.js sw.js icon.svg apple-touch-icon.png assets dist/"
   publish = "dist"
 
 # Hashed-by-content media never changes under the same name

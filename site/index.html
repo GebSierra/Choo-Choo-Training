@@ -47,7 +47,16 @@
   <div>
     <h1>Hear your child read their first word <span>this week</span>.</h1>
     <p>Our daughter went from knowing nothing to sounding out SAM and MA within 2 weeks.</p>
-    <div class="cta"><a class="btn" id="hero-cta" data-app href="https://app.choochootraining.com/">Start reading</a><small>First 5 lessons free. No card. Works on any phone.</small></div>
+    <div class="eyebrow be-first">Be the first to know</div>
+    <form class="signup" id="join" name="early-access" method="POST" action="thanks.html" data-netlify="true" netlify-honeypot="company">
+      <input type="hidden" name="form-name" value="early-access">
+      <p class="hp" hidden><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off"></label></p>
+      <label class="sr" for="join-name">Your first name</label><input id="join-name" name="name" autocomplete="given-name" placeholder="Your first name" required>
+      <label class="sr" for="join-email">Your email</label><input id="join-email" name="email" type="email" autocomplete="email" placeholder="Your email" required>
+      <button class="btn" type="submit" id="hero-cta">Get early access</button>
+      <p class="done" role="status" hidden>You're on the list! We'll email you when the train leaves the station. 🚂</p>
+    </form>
+    <p class="fine">Early families get the first 5 lessons free. A grown-up’s name and email only, no spam.</p>
     <ul class="facts">
       <li><b>1</b> sound per lesson</li>
       <li><b>10</b> minutes a day</li>
@@ -133,7 +142,7 @@
       <div class="admit">Admit one family · Lifetime</div>
       <h2>Founding Family ticket</h2>
       <p>Lifetime access for the first 100 families, plus 3 golden tickets to give your child's best friends. Tickets stop working at Winter Break.</p>
-      <a class="btn" data-app href="https://app.choochootraining.com/">Claim a seat</a>
+      <a class="btn" href="#join" data-join>Get early access</a>
     </div>
     <div class="side">
       <div class="count"><span data-left>63</span><small>seats left of <span data-total>100</span></small></div>
@@ -154,13 +163,21 @@
 <section class="close"><div class="wrap reveal">
   <img class="close-pip" src="assets/pip.png" alt="" width="223" height="294" loading="lazy">
   <h2>Tonight, your child reads you their bedtime story.</h2>
-  <a class="btn" data-app href="https://app.choochootraining.com/">All aboard, free</a>
+  <div class="eyebrow be-first">Be the first to know</div>
+  <form class="signup" id="join2" name="early-access" method="POST" action="thanks.html" data-netlify="true" netlify-honeypot="company">
+      <input type="hidden" name="form-name" value="early-access">
+      <p class="hp" hidden><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off"></label></p>
+      <label class="sr" for="join2-name">Your first name</label><input id="join2-name" name="name" autocomplete="given-name" placeholder="Your first name" required>
+      <label class="sr" for="join2-email">Your email</label><input id="join2-email" name="email" type="email" autocomplete="email" placeholder="Your email" required>
+      <button class="btn" type="submit">Get early access</button>
+      <p class="done" role="status" hidden>You're on the list! We'll email you when the train leaves the station. 🚂</p>
+    </form>
 </div></section>
 </main>
 
 <footer><div class="wrap"><span>© Choo Choo Training</span><span><a href="privacy.html">Privacy</a> · <a href="mailto:hellopip@choochootraining.com">Contact</a></span></div></footer>
 
-<div class="dock" id="dock" aria-hidden="true"><a class="btn" data-app href="https://app.choochootraining.com/" tabindex="-1">Start reading</a></div>
+<div class="dock" id="dock" aria-hidden="true"><a class="btn" href="#join" data-join tabindex="-1">Get early access</a></div>
 
 <script defer src="main.js"></script>
 </body>
