@@ -126,7 +126,7 @@ export async function scriptChecks({ browser, url, ok }) {
         for (const e of ev) if (e.type === 'tts') spokenAll.push([`L${L.number} ${t.type}`, e.text]);
         // Sounds off: nothing but the parent's framing sentences, so no clip plays and no sound text is spoken.
         if (!playSounds) ok(ev.every((e) => e.type === 'tts'), `L${L.number} ${t.type}: with sounds off the script plays no clip`);
-        if (playSounds) ok(ev.every((e) => e.type !== 'clip' || /^[a-z]\.(mp3|webm)$/.test(e.src)), `L${L.number} ${t.type}: any clip is a single sound's file`);
+        if (playSounds) ok(ev.every((e) => e.type !== 'clip' || /^[a-z]{1,2}\.(mp3|webm)$/.test(e.src)), `L${L.number} ${t.type}: any clip is a single sound's file`);
       }
     }
     ok(spokenAll.length > 20, `scripts read aloud (${playSounds ? 'sounds on' : 'sounds off'}): ${spokenAll.length} spoken lines collected`);

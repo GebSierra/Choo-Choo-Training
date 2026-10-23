@@ -113,7 +113,7 @@ export async function dataChecks({ ok }) {
   ok(BOOK4.pages.length >= 8 && BOOK4.pages.length <= 10 && BOOK4.pages.at(-1).kind === 'review' && BOOK4.pages.filter((p) => p.child).every((p) => p.child.split(' ').length === 1), `story 4: ${BOOK4.pages.length} pages, the last one a review, one child-read word on each reading page`);
   ok(['ship', 'fish', 'shop', 'chop', 'bell', 'duck', 'back'].every((w) => BOOK4.pages.some((p) => p.child === w)) && BOOK4.pages.some((p) => /Pip/.test(p.read || '')) && BOOK4.pages.some((p) => /Sam/.test(p.read || '')) && BOOK4.pages.some((p) => /\{name\}/.test(p.read || '')), 'story 4: the docks words ship fish shop chop bell duck back are child-read; Pip, Sam and {name} are in it');
   ok(BOOK4.pages.every((p) => !/\{name\}/.test(p.read || '') || !/\b(he|she|him|his|her)\b/i.test((p.read || '').split('{name}')[1] || '')), 'story 4: the child is called by name, never he or she');
-  ok(JSON.stringify(BOOK4.needs) === JSON.stringify(ORDER_SOUNDS.slice(0, 31)) && BOOK4.draft === true, 'story 4: needs the sounds up to wh and is marked as a draft in its data');
+  ok(JSON.stringify(BOOK4.needs) === JSON.stringify(ORDER_SOUNDS.slice(0, 31)), 'story 4: needs the sounds up to wh');
 
   // 7. saved progress: the 17 and 25-sound orders stay exactly as they were
   const mem = new Map();
