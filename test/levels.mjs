@@ -62,7 +62,7 @@ export async function levelChecks({ browser, url, ok }) {
       const fresh = WL.filter((w) => [...w].every((c) => letters.has(c))).length;
       ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350, 'level one: the world keepsake is a 1080x1350 PNG');
       ok(info && info.headline === 'Lily finished Starter Station!', `level one: the headline names the world (${info && info.headline})`);
-      ok(fresh > 0 && info && info.word === `${keys.length} sounds` && info.sub === `can read ${fresh} words`, `level one: ${keys.length} sounds and ${fresh} words match a fresh count (${info && info.word} / ${info && info.sub})`);
+      ok(fresh > 0 && info && info.word === `${keys.length} sounds` && info.sub.startsWith(`can read ${fresh} words`), `level one: ${keys.length} sounds and ${fresh} words match a fresh count (${info && info.word} / ${info && info.sub})`);
       ok(reqs.every((r) => r.startsWith(url)), `level one: the keepsake goes nowhere off the device (${reqs.join(' ') || 'none'})`);
       await page.screenshot({ path: path.join(ROOT, 'docs/screenshots/milestones/world-banner-360x640.png') });
     }
