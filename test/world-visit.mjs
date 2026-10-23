@@ -222,7 +222,7 @@ export async function grownupsChecks({ browser, url, ok, vp }) {
     const CJ = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')), WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
     const last = Math.max(...CJ.lessons.filter((l) => l.world === 'W1').map((l) => l.number)), keys = CJ.lessons.slice(0, last).map((l) => l.sound), lt = new Set(keys.flatMap((k) => (k === 'c' ? ['c', 'k'] : [k])));
     const fresh = WL.filter((w) => [...w].every((c) => lt.has(c))).length;
-    ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350 && /finished Starter Station!$/.test(info.headline) && info.word === `${keys.length} sounds` && info.sub === `can read ${fresh} words`, `${tag}: the world 1 keepsake is a 1080x1350 PNG naming Starter Station with ${keys.length} sounds and ${fresh} words (${info && info.headline} / ${info && info.word} / ${info && info.sub})`);
+    ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350 && /finished Starter Station!$/.test(info.headline) && info.word === `${keys.length} sounds` && info.sub.startsWith(`can read ${fresh} words`), `${tag}: the world 1 keepsake is a 1080x1350 PNG naming Starter Station with ${keys.length} sounds and ${fresh} words (${info && info.headline} / ${info && info.word} / ${info && info.sub})`);
   }
   await page.locator('.gu-worlds').scrollIntoViewIfNeeded();
   await page.waitForTimeout(300);

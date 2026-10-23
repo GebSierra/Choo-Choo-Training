@@ -3,6 +3,7 @@
 // disposal, the hidden-page pause, reduced motion, and the 2D fallback (no WebGL, or the Grownups switch off).
 // Run alone with `node test/train.mjs`.
 import fs from 'node:fs';
+import { tasksFor } from '../js/lessons.js';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { audit } from './audit.mjs';
@@ -603,11 +604,11 @@ export async function heatChecks({ browser, url, ok, log = () => {} }) {
   await until(page, () => window.__train && !window.__train.disposed && window.__train.frames > 0 && !window.__train.running, null, 15000);
   await page.waitForTimeout(2600); // Pip's hello wave
   await idle('Home after a lesson and back', true);
-  await page.evaluate(() => { location.hash = '#/lesson/3/task/3'; });
+  await page.evaluate((h) => { location.hash = h; }, `#/lesson/3/task/${tasksFor(CUR.lessons[2]).find((t) => t.type === 'hunt').index}`);
   await page.waitForSelector('.screen:not(.leaving) .sky-letter');
   await page.waitForTimeout(1500);
   await idle('Letter Hunt');
-  await page.evaluate(() => { location.hash = '#/lesson/3/task/7'; });
+  await page.evaluate((h) => { location.hash = h; }, `#/lesson/3/task/${tasksFor(CUR.lessons[2]).find((t) => t.type === 'practice').index}`);
   await page.waitForSelector('.screen:not(.leaving) .sack-card');
   await page.waitForTimeout(1500);
   await idle('Practicing Words');
