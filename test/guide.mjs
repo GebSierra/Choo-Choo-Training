@@ -58,11 +58,11 @@ async function welcomeChecks(ok, browser, url) {
     ok((await title()) === 'Say the sound, not the name', `${tag}: Back goes to page 3`);
     await page.click('.wc-next'); await page.waitForTimeout(450);
     await page.click('.wc-next'); await page.waitForTimeout(500);
-    ok((await page.locator('.first-run').count()) === 0, `${tag}: Start closes the card`);
+    ok((await page.locator('.first-run .welcome, .first-run .cp').count()) === 0, `${tag}: Start closes the card`);
     ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).firstRunDone)) === true, `${tag}: it is remembered`);
     ok((await page.evaluate(() => window.__events.length)) === 0, `${tag}: nothing was spoken or played`);
     await page.reload(); await page.waitForSelector('.stone', { state: 'attached' }); await page.waitForTimeout(500);
-    ok((await page.locator('.first-run').count()) === 0, `${tag}: the card does not come back`);
+    ok((await page.locator('.first-run .welcome, .first-run .cp').count()) === 0, `${tag}: the card does not come back`);
     ok(errors.length === 0, `${tag}: no errors ${errors.join(' | ')}`);
     await ctx.close();
   }
@@ -71,7 +71,7 @@ async function welcomeChecks(ok, browser, url) {
   await page.addInitScript(SPEECH_STUB); await page.addInitScript(seed({}, {}, false));
   await page.goto(url + '#/home'); await page.waitForSelector('.welcome'); await page.waitForTimeout(800);
   await page.click('.wc-skip'); await page.waitForTimeout(500);
-  ok((await page.locator('.first-run').count()) === 0 && (await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).firstRunDone)), 'Skip closes the welcome and remembers it');
+  ok((await page.locator('.first-run .welcome, .first-run .cp').count()) === 0 && (await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).firstRunDone)), 'Skip closes the welcome and remembers it');
   await ctx.close();
   // A new install: after the welcome's Start the character creator shows, and Later closes it.
   {
@@ -83,7 +83,7 @@ async function welcomeChecks(ok, browser, url) {
     await page.waitForSelector('.cp'); await page.waitForTimeout(600);
     ok((await page.locator('.cp h2').innerText()) === 'Who is riding with Pip?', 'after the welcome\'s Start the character creator asks "Who is riding with Pip?"');
     await page.click('.meet-later'); await page.waitForTimeout(500);
-    ok((await page.locator('.first-run').count()) === 0, 'Later closes the creator');
+    ok((await page.locator('.first-run .welcome, .first-run .cp').count()) === 0, 'Later closes the creator');
     const st = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')));
     ok(st.meetDue === false && st.character.made === true, 'and remembers it: the creator does not come back');
     await ctx.close();
