@@ -29,7 +29,7 @@ Last session finished every item of the previous handoff. Full `npm test` result
 - Still batch releases: only push to main when a release is ready (docs-only changes can ride along with the next one).
 
 ## ROADMAP
-- [ ] **Placement check live for new accounts (owner 2026-10-23):** offer it to a new child right after the character creator ("Already knows some letters? Take a short check" / "Start at lesson 1"); today it sits only under Grownups > Previews (developer mode).
+- [x] **(LIVE in 1.9.43) Placement check live for new accounts (owner 2026-10-23):** offer it to a new child right after the character creator ("Already knows some letters? Take a short check" / "Start at lesson 1"); today it sits only under Grownups > Previews (developer mode).
 - Owner rule (2026-10-22): when Claude makes a plan, execute it right away and tell the owner afterwards what was decided (no approval step needed), except for genuine owner decisions (money, legal, story/brand wording the owner writes).
 - [x] **Tricky Sounds contrast stops (LIVE in 1.9.41):** m/n after 9, h after 12, c/k-g after 14, b/d after 17, i/e after 18, f/v after 21, w/y after 22, s/z after 23; new games Two Tunnels and Which One?.
 - [ ] **STRIPE (owner in progress since 2026-10-12): revisit every session.** Check docs/OWNER-TODO.md "Stripe: close the loop" for where the owner is; ask once per session; when the `claude/stripe-billing` branch exists, review it (security: no keys in repo, webhook signature checked, entitlements via RLS), run the full suite, merge, release.

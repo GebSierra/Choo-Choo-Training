@@ -1660,9 +1660,9 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
   .sg-dot { width: 60px; height: 60px; }
   .pc-pad { gap: 8px; } .pc-welcome h2 { font-size: 25px; } .pc-note { font-size: 14px; }
   .pc-word { --cap: clamp(56px, 12dvh, 90px); padding: 12px; }
-  .pc-result { padding: 26px 14px 12px; } .pc-suggest { font-size: 21px; } .pc-why { font-size: 16px; }
+  .pc-result { padding: 18px 14px 8px; } .pc-suggest { font-size: 21px; } .pc-why { font-size: 16px; }
   .pc-teach { font-size: 17px; } .pc-pic { width: clamp(64px, 14dvh, 96px); height: clamp(64px, 14dvh, 96px); font-size: clamp(44px, 9dvh, 64px); }
-  .pc-sentence { padding: 14px 12px; } .pc-notes, .pc-line, .pc-skip { font-size: 14px; } .pc-result { gap: 6px; }
+  .pc-sentence { padding: 14px 12px; } .pc-notes, .pc-line, .pc-skip { font-size: 14px; } .pc-result { gap: 4px; }
 }
 
 /* Heart Word step (js/screens/tasks/heart.js; preview: js/screens/proto-heart.js) */
