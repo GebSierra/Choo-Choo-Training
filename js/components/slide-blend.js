@@ -118,12 +118,12 @@ export function slideBlend({ band, svg, host, lift, bar, accent, onTouch, onTap,
 
 // Puts a band over the focus element: the host's full width (kept 24 px from the screen's edges), at least 140 px tall (as far as the host allows), centred on
 // the focus. Kept in place when the host or the focus changes size.
-export function placeBand(band, host, focus, minH = 140) {
+export function placeBand(band, host, focus, minH = 140, keepBottom = 0) { // keepBottom: px at the host's bottom the band leaves free (the book's page arrows)
   const place = () => {
     const hr = host.getBoundingClientRect(), fr = focus.getBoundingClientRect();
     if (!hr.height || !fr.height) return;
-    const tall = Math.min(hr.height, Math.max(minH, fr.height + 80));
-    const top = Math.max(0, Math.min(hr.height - tall, fr.top - hr.top + fr.height / 2 - tall / 2));
+    const room = hr.height - keepBottom, tall = Math.min(room, Math.max(minH, fr.height + 80));
+    const top = Math.max(0, Math.min(room - tall, fr.top - hr.top + fr.height / 2 - tall / 2));
     // Never closer than 24 px to the screen's edges, so a swipe from the very edge is Android's Back gesture, not ours.
     const left = Math.max(0, 24 - hr.left), right = Math.max(0, 24 - (innerWidth - hr.right));
     Object.assign(band.style, { left: left + 'px', right: right + 'px', top: top + 'px', height: tall + 'px' });

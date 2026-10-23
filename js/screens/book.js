@@ -177,7 +177,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
     const band = h('span', { class: 'slide-band', 'aria-hidden': 'true' });
     host.append(band); bandEl = band;
     blend = slideBlend({ band, svg: c.sliderSvg, host, lift: c.sliderRow, bar, accent: null, onTouch: stopSweep, onTap: () => {} });
-    bandWatch = placeBand(band, host, c.sliderRow);
+    bandWatch = placeBand(band, host, c.sliderRow, 140, 56); // the band stops above the 48 px page arrows
     sweepAnim = startSweep(c.sliderRow.sweep);
     if (sweepAnim && bar.getBoundingClientRect().width) cue = handCue(host, bar); // in a spread the bar is hidden: the sweep alone shows the way
     bar.dataset.bar = '1';
