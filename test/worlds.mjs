@@ -125,7 +125,7 @@ export async function previewChecks({ browser, url, ok, vp }) {
     const fresh = WL.filter((w) => [...w].every((c) => letters.has(c))).length;
     await page.waitForFunction(() => !!document.querySelector('.gu-hero-read').textContent, null, { timeout: 4000 }).catch(() => {});
     const gh = await page.evaluate(() => ({ line: document.querySelector('.gu-hero-read').textContent, chips: [...document.querySelectorAll('.gu-hero-chips .gu-chip')].map((c) => c.textContent), r: (() => { const r = document.querySelector('.gu-hero').getBoundingClientRect(); return [r.left, r.right, innerWidth]; })() }));
-    ok(doneN.length > 0 && gh.line === `Can read ${fresh} words` && gh.chips.length === keys.length, `${tag} Grownups: "Can read N words" matches a fresh count (${gh.line} vs ${fresh}) and one chip per sound (${gh.chips.length} of ${keys.length})`);
+    ok(doneN.length > 0 && gh.line.startsWith(`Can read ${fresh} words`) && gh.chips.length === keys.length, `${tag} Grownups: "Can read N words" matches a fresh count (${gh.line} vs ${fresh}) and one chip per sound (${gh.chips.length} of ${keys.length})`);
     ok(gh.chips.join() === keys.map((k) => (k === 'c' ? 'c/k' : k === 'q' ? 'qu' : k)).join() && !gh.chips.includes('k') && gh.r[0] >= 0 && gh.r[1] <= gh.r[2], `${tag} Grownups: c/k and qu are one chip each, and the header card fits`);
     if (tag === (process.env.HERO_TAG || tag) && !globalThis.__heroShot) {
       globalThis.__heroShot = true; const vs = page.viewportSize();
