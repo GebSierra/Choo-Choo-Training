@@ -28,7 +28,7 @@ const fresh = () => ({
   order: ORDER, // the lesson order this state was saved under (js/order.js)
   lessons: {},
   checkpoints: {}, // bonus review games between lessons, by id: {result, completedAt, unlocked}
-  settings: { voiceURI: null, rate: 0.9, autoSpeak: false, playSounds: true, sfx: true, music: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {}, tipsSeen: [], migrated1912: true, pace4: true, speak0: true, layoutA: true, heartA: true, perDay: 4, restOverride: null, dev: false, devOpenAll: false, devNoLimit: false, newPractice: true },
+  settings: { voiceURI: null, rate: 0.9, autoSpeak: false, playSounds: true, sfx: true, music: true, sfxVolume: 0.6, fullInstructions: false, trainWorld: true, seenScripts: {}, tipsSeen: [], migrated1912: true, pace4: true, speak0: true, layoutA: true, heartA: true, perDay: 4, restOverride: null, dev: false, devOpenAll: false, devNoLimit: false, newPractice: true, placementOffered: false },
   character: cleanCharacter({}), // the child's figure and name (js/character.js): on this device only
   meetDue: true, // the character creator shows once, after the welcome card
   firstRunDone: false,
@@ -43,7 +43,7 @@ export function cleanSettings(s, d) {
   const num = (v, lo, hi, dflt) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : dflt);
   const out = { ...s, rate: num(s.rate, 0.7, 1.1, d.rate), sfxVolume: num(s.sfxVolume, 0, 1, d.sfxVolume) };
   for (const k of ['autoSpeak', 'playSounds', 'sfx', 'music', 'fullInstructions', 'trainWorld', 'migrated1912', 'pace4', 'speak0', 'layoutA', 'heartA']) if (typeof s[k] !== 'boolean') out[k] = d[k];
-  for (const k of ['dev', 'devOpenAll', 'devNoLimit', 'newPractice']) if (typeof s[k] !== 'boolean') out[k] = d[k];
+  for (const k of ['dev', 'devOpenAll', 'devNoLimit', 'newPractice', 'placementOffered']) if (typeof s[k] !== 'boolean') out[k] = d[k];
   if (![0, 1, 2, 3, 4].includes(s.perDay)) out.perDay = d.perDay; // new lessons per day: 1 to 4, or 0 for no limit
   if (typeof s.restOverride !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s.restOverride)) out.restOverride = null; // the local date a grown-up opened a resting lesson
   if (s.voiceURI !== null && typeof s.voiceURI !== 'string') out.voiceURI = d.voiceURI;
@@ -141,6 +141,11 @@ export function createStore() {
       }
       // Heart Words (docs/LESSON-REBUILD.md section 13) added a Heart Word task to lessons 3, 4, 6, 10 and 18 to 25, so a saved task number can now point at
       // another task. Same approach as layoutA: once, a lesson that is not finished starts its tasks again; finished lessons stay exactly as they were.
+      // The placement check is offered once, to a new child only: anyone with progress or a finished welcome counts as already offered.
+      if (typeof settings.placementOffered !== 'boolean') {
+        const started = p.firstRunDone === true || Object.values(lessons).some((l) => l && l.result) || Object.values(p.checkpoints && typeof p.checkpoints === 'object' ? p.checkpoints : {}).some((c) => c && c.result);
+        if (started) { migrated = true; settings = { ...settings, placementOffered: true }; }
+      }
       if (settings.heartA !== true) {
         migrated = true;
         for (const l of Object.values(lessons)) if (l.result !== 'got-it') l.tasksDone = [];

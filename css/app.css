@@ -2188,3 +2188,9 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 
 /* World 4: the thin bar that links the two letters of a digraph (never thickened by the per-spot stroke widths above) */
 .glyph path.glyph-link, .inline-glyph path.glyph-link { stroke-width: 4.5 !important; opacity: .55; }
+/* the placement offer after the character creator (js/components/welcome-card.js) */
+.first-card.offer { max-width: 380px; width: 100%; padding: 22px 20px; gap: 14px; }
+.first-card.offer h2 { font-size: 24px; margin: 0; } .first-card.offer p { font-size: 18px; margin: 0; }
+.first-card.offer .btn { min-height: 48px; width: 100%; font-size: 18px; }
+.gu-place { padding: 0 0 12px; } .gu-place-btn { width: 100%; min-height: 48px; white-space: normal; }
+@media (max-height: 460px) { .first-card.offer { padding: 12px 18px; gap: 8px; } .first-card.offer p { font-size: 16px; } }

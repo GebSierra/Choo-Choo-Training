@@ -229,7 +229,7 @@ export function home3dScreen(ctx, { canvas, gl, soft = false, preview = null, pl
   const root = h('div', { class: 'home home3d', role: 'region', 'aria-label': 'The railway of lessons', dataset: { renderer: 'webgl' } }, canvas, overlay.layer, h('div', { class: 'home-top' }, ...(region ? [] : [grown, mapBtn.el]), region ? null : devPill(store)), ...(fs ? [fs] : []), visiting ? visitChip(ctx, () => root) : null);
   if (theme.skyCss) root.style.background = theme.skyCss;
 
-  if (!region && !visiting) firstRunOverlay({ store, root });
+  if (!region && !visiting) firstRunOverlay({ store, root, router, ctx });
   // The pace limit's card: a tap on the resting station, or a lesson opened by its address (js/screens/lesson.js leaves ctx.restCard).
   const openRest = (n) => restCard({ host: root, store, onOpenAnyway: () => router.go(`/lesson/${n}`) });
   if (!region && ctx.restCard) { const n = ctx.restCard; ctx.restCard = null; whenShown(root, () => openRest(n)); }

@@ -156,7 +156,8 @@ export async function placementScreen(ctx) {
   let items = [], ipos = 0, aware = { right: 0 };
   let madeWords = [], made = null, realWords = [], real = null, sentence = null;
 
-  const back = () => { ctx.gate = { openedAt: ctx.guOpenedAt || Date.now() }; router.go('/grownups'); };
+  const fromOffer = ctx.placementFrom === 'offer'; ctx.placementFrom = null; // opened from the first-run card: later and back go Home
+  const back = () => { if (fromOffer) { router.go('/home'); return; } ctx.gate = { openedAt: ctx.guOpenedAt || Date.now() }; router.go('/grownups'); };
   const host = h('div', { class: 'pc-host' });
   const el = h('div', { class: 'proto placement', dataset: { phase: 'intro', seed: String(seed) } }, host);
   const setPhase = (p) => { phase = p; el.dataset.phase = p; };
@@ -376,7 +377,7 @@ export async function placementScreen(ctx) {
     if (r.notes.length) box.append(h('ul', { class: 'pc-notes' }, ...r.notes.map((n) => h('li', {}, n))));
     const open = () => router.go(`/lesson/${r.number}`);
     const start = h('button', { class: 'btn big pc-start', type: 'button', onclick: () => (r.number > 1 ? confirmStart(r, open) : open()) }, 'Start here', icon('arrowRight', 24));
-    const over = h('button', { class: 'btn small ghost pc-over', type: 'button', onclick: () => router.go('/lesson/1') }, 'Start from the beginning');
+    const over = h('button', { class: 'btn small ghost pc-over', type: 'button', onclick: () => router.go('/home') }, 'Start from the beginning');
     const kids = [chip('All done. Well done!'), box];
     if (r.soundPlay) kids.push(h('p', { class: 'pc-why pc-play' }, 'Start with Sound play.'), h('button', { class: 'btn small ghost pc-playbtn', type: 'button', onclick: () => router.go('/proto/play') }, 'Open Sound play'));
     kids.push(start, over);

@@ -522,7 +522,7 @@ async function startHere({ browser, url, ok }) {
     // "Start from the beginning": opens lesson 1, writes nothing
     const before = await store(page);
     await tapEl(page, sel(page, '.pc-over')); await page.waitForTimeout(500);
-    ok(page.url().endsWith('#/lesson/1') && (await store(page)) === before, `${vp.name} Start from the beginning opens lesson 1 and changes nothing`);
+    ok(page.url().endsWith('#/home') && (await store(page)) === before, `${vp.name} Start from the beginning goes Home and changes nothing`);
     await made.ctx.close();
     const m2 = await open(browser, url, vp); const p2 = m2.page; await begin(p2); await drive(p2, { letters: 'yyyynnn' });
     made.page = p2; made.ctx = m2.ctx; page = p2;

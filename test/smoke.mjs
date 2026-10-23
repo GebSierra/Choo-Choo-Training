@@ -672,6 +672,11 @@ for (const [name, raw] of [
   hp = await audit(page, 'home character creator');
   ok(hp.length === 0, hp.join(' | '));
   await page.click('.meet-later');
+  await page.waitForSelector('.first-card.offer'); // then the short placement offer (js/components/welcome-card.js)
+  await page.waitForTimeout(700);
+  hp = await audit(page, 'home placement offer');
+  ok(hp.length === 0, hp.join(' | '));
+  await page.click('.offer-start');
   await page.waitForTimeout(500);
   hp = await audit(page, 'home');
   ok(hp.length === 0, hp.join(' | '));

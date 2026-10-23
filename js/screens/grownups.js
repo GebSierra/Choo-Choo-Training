@@ -183,13 +183,15 @@ export function grownupsScreen(ctx) {
     return h('section', { class: 'gu-card' }, h('h2', { class: 'gu-h2' }, head), body);
   };
   const previewsFold = () => fold('Previews', h('p', { class: 'gu-note' }, 'Try new screens before they go live.'), h('div', { class: 'gu-previews' }, ...PREVIEWS.map(([key, label]) => h('button', { class: 'btn small preview-btn', type: 'button', dataset: { preview: key }, onclick: () => router.go(key === 'proto-f' ? '/proto/f' : key === 'proto-heart' ? '/proto/heart' : key === 'proto-play' ? '/proto/play' : key === 'proto-placement' ? '/proto/placement' : '/preview/' + key) }, label))));
+  const lessonsGroup = group('Lessons', 'Each station opens when the one before it is finished. Unlock opens a lesson early.');
+  lessonsGroup.append(h('div', { class: 'gu-place' }, h('button', { class: 'btn small ghost gu-place-btn', type: 'button', onclick: () => router.go('/proto/placement') }, 'Placement check: find the right starting lesson')));
   const root = h('div', { class: 'grownups' },
     h('header', { class: 'gu-head' }, h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back to the path', onclick: () => router.go('/home') }, icon('back', 28)), h('h1', {}, 'Grownups')),
     h('div', { class: 'gu-body' },
       hero,
       fold('Progress', ...progressBody({ curriculum, store })), // the journey board and a short summary for each world
       ...(worldsBox ? [worldsBox] : []),
-      group('Lessons', 'Each station opens when the one before it is finished. Unlock opens a lesson early.'), lessonsBox,
+      lessonsGroup, lessonsBox,
       sec('Your child', picker),
       sec('Sound and voice',
         h('h3', { class: 'gu-h3' }, 'Voice'),

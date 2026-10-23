@@ -359,7 +359,7 @@ export function mapScreen(ctx, preview = null, plan = null) {
   root.cleanup = () => { grown.cleanup(); timers.forEach(clearTimeout); timers.clear(); if (!preview) music.leaveHome(); };
   if (!preview) music.enterHome({ hold: () => celebrating || !!(gateHold && gateHold.active) });
 
-  if (!visiting) firstRunOverlay({ store, root });
+  if (!visiting) firstRunOverlay({ store, root, router: ctx.router, ctx });
   // The pace limit's card: a tap on the resting stone, or a lesson opened by its address (js/screens/lesson.js leaves ctx.restCard).
   function openRest(n) { restCard({ host: root, store, onOpenAnyway: () => router.go(`/lesson/${n}`) }); }
   if (ctx.restCard) { const n = ctx.restCard; ctx.restCard = null; whenShown(root, () => openRest(n)); }
