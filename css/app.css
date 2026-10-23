@@ -2177,3 +2177,9 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .which-word { font-size: clamp(44px, 15vmin, 88px); font-weight: 800; line-height: 1.1; }
 .which-glyph svg { height: clamp(48px, 16vmin, 96px); width: auto; display: block; }
 @media (orientation: landscape) and (max-height: 520px) { .which-card .pic-frame { width: min(100%, 64px); } .which-row { top: 74px; } .say-hear.which-hear { width: 56px; height: 56px; } .which-scene .say-prompt { left: 78px; } }
+/* the placement offer after the character creator (js/components/welcome-card.js) */
+.first-card.offer { max-width: 380px; width: 100%; padding: 22px 20px; gap: 14px; }
+.first-card.offer h2 { font-size: 24px; margin: 0; } .first-card.offer p { font-size: 18px; margin: 0; }
+.first-card.offer .btn { min-height: 48px; width: 100%; font-size: 18px; }
+.gu-place { padding: 0 0 12px; } .gu-place-btn { width: 100%; min-height: 48px; white-space: normal; }
+@media (max-height: 460px) { .first-card.offer { padding: 12px 18px; gap: 8px; } .first-card.offer p { font-size: 16px; } }

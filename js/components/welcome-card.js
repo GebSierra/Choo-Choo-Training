@@ -44,18 +44,33 @@ export function welcomeCard({ pages, onDone }) {
 
 // Both homes call this: the welcome card on the first run, then the character creator (once; also for a device that was
 // installed before the creator existed). The card is fixed in size and fades in and out. Nothing here is spoken.
-export function firstRunOverlay({ store, root }) {
+export function firstRunOverlay({ store, root, router = null, ctx = null }) {
   const welcome = !store.state.firstRunDone, meet = store.state.meetDue;
-  if (!welcome && !meet) return;
+  if (!welcome && !meet && !placementDue(store)) return;
   const frame = h('div', { class: 'first-run', role: 'dialog', 'aria-modal': 'true', 'aria-label': welcome ? 'Welcome' : 'Who is riding with Pip?' });
   const close = () => animate(frame, [{ opacity: 1 }, { opacity: 0 }], { duration: 200 }).finished.then(() => frame.remove());
   const show = (card) => {
     frame.replaceChildren(card);
     animate(card, [{ opacity: 0, transform: 'translateY(16px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: 500, easing: 'cubic-bezier(.34,1.56,.64,1)' });
   };
-  const picker = () => { frame.setAttribute('aria-label', 'Who is riding with Pip?'); show(h('div', { class: 'first-card meet' }, characterPicker({ store, mode: 'first', onDone: close }))); };
+  const answer = (go) => { store.setSetting('placementOffered', true); close(); if (go && router) { if (ctx) ctx.placementFrom = 'offer'; router.go('/proto/placement'); } };
+  const offer = () => { frame.setAttribute('aria-label', 'Where should we start?'); show(placementOffer({ onCheck: () => answer(true), onStart: () => answer(false) })); };
+  const afterPicker = () => (placementDue(store) ? offer() : close());
+  const picker = () => { frame.setAttribute('aria-label', 'Who is riding with Pip?'); show(h('div', { class: 'first-card meet' }, characterPicker({ store, mode: 'first', onDone: afterPicker }))); };
   if (welcome) {
-    show(welcomeCard({ pages: WELCOME, onDone: () => { store.setFirstRunDone(); if (store.state.meetDue) picker(); else close(); } }));
-  } else picker();
+    show(welcomeCard({ pages: WELCOME, onDone: () => { store.setFirstRunDone(); if (store.state.meetDue) picker(); else afterPicker(); } }));
+  } else if (meet) picker(); else offer();
   root.append(frame);
+}
+
+// Only a new child: nothing finished and the offer not yet answered (a signed-in family whose copy has progress never sees it).
+export const placementDue = (store) => store.settings.placementOffered !== true && !Object.values(store.state.lessons).some((l) => l && l.result) && !Object.values(store.state.checkpoints).some((c) => c && c.result);
+
+// The short grown-up card after the character creator. Neutral, nothing spoken.
+function placementOffer({ onCheck, onStart }) {
+  return h('div', { class: 'first-card offer' },
+    h('h2', {}, 'Where should we start?'),
+    h('p', {}, 'If your child already knows some letter sounds, a short check (about 5 minutes, you and your child together) finds the right first lesson. Or start at lesson 1.'),
+    h('button', { class: 'btn primary offer-check', type: 'button', onclick: onCheck }, 'Take the short check'),
+    h('button', { class: 'btn ghost offer-start', type: 'button', onclick: onStart }, 'Start at lesson 1'));
 }

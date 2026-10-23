@@ -59,7 +59,9 @@ export async function characterChecks({ browser, url, ok }) {
       await page.locator('.cp-hair button').nth(2).click(); }
     await page.click('.cp-done');
     await page.waitForTimeout(500);
-    ok((await page.locator('.first-run').count()) === 0, 'first run: All aboard closes the creator');
+    ok((await page.locator('.cp').count()) === 0 && (await page.locator('.first-card.offer').count()) === 1, 'first run: All aboard closes the creator and the placement offer follows');
+    await page.click('.offer-start'); await page.waitForTimeout(500);
+    ok((await page.locator('.first-run').count()) === 0, 'first run: "Start at lesson 1" closes the card');
     await page.reload();
     await page.waitForTimeout(900);
     const s = await stored(page);

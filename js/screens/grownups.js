@@ -190,6 +190,7 @@ export function grownupsScreen(ctx) {
       fold('Progress', ...progressBody({ curriculum, store })), // the journey board and a short summary for each world
       ...(worldsBox ? [worldsBox] : []),
       group('Lessons', 'Each station opens when the one before it is finished. Unlock opens a lesson early.'), lessonsBox,
+      h('div', { class: 'gu-place' }, h('button', { class: 'btn small ghost gu-place-btn', type: 'button', onclick: () => router.go('/proto/placement') }, 'Placement check: find the right starting lesson')),
       sec('Your child', picker),
       sec('Sound and voice',
         h('h3', { class: 'gu-h3' }, 'Voice'),
