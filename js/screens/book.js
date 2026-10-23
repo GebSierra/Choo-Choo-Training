@@ -255,6 +255,8 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
   // does not fit, the child's word and the text step down together, a size at a time. The word never goes below 36 px and
   // the text never below 16 px, so the word stays the biggest thing on the page.
   const CAPS = [84, 74, 66, 58, 52, 46, 41, 36];
+  // The Back and Next arrows (48 px, 5 px from the page bottom) must never sit over the child's word or its slide band: the word box ends above them.
+  const arrowsClear = (sheet, box) => !box || box.getBoundingClientRect().bottom + 8 <= sheet.getBoundingClientRect().bottom - 53;
   function fit() {
     for (const sheet of block.querySelectorAll('.book-sheet.is-live')) {
       const box = sheet.querySelector('.book-child'), rd = sheet.querySelector('.book-read'), art = sheet.querySelector('.book-art');
@@ -264,7 +266,7 @@ export function bookBuild({ checkpoint, book, store, refresh, setProgress, setDo
       const cap0 = box ? parseFloat(getComputedStyle(box).getPropertyValue('--cap')) || 78 : 0;
       const caps = box ? [cap0, ...CAPS.filter((k) => k < cap0)] : [cap0];
       const artWant = art && !sheet.classList.contains('kind-review') ? Math.min(150, sheet.clientHeight * 0.28) : 0;
-      const fits = () => sheet.scrollHeight <= sheet.clientHeight + 0.5 && (!box || box.getBoundingClientRect().width <= sheet.clientWidth) && (!art || art.offsetHeight >= artWant);
+      const fits = () => sheet.scrollHeight <= sheet.clientHeight + 0.5 && (!box || box.getBoundingClientRect().width <= sheet.clientWidth) && (!art || art.offsetHeight >= artWant) && arrowsClear(sheet, box);
       const tiles = sheet.querySelector('.book-tiles');
       if (tiles) { tiles.classList.remove('is-tight'); sheet.style.removeProperty('--art-min'); if (!fits()) { tiles.classList.add('is-tight'); sheet.style.setProperty('--art-min', '40px'); } }
       for (let step = 0; step < 16; step++) {

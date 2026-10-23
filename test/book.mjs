@@ -233,7 +233,7 @@ export async function bookFit({ browser, url, ok, sizes = FIT_SIZES, shot = null
     await page.goto(url + `#/checkpoint/${ck.id}`);
     await page.waitForSelector('.book-stage');
     await page.waitForTimeout(400);
-    const tag = `fit ${w}x${hgt}`;
+    const tag = `fit ${w}x${hgt} (${BOOK.id})`; // every book is run through this (the main loop calls useBook for each)
     const cov = await page.evaluate(() => { const p = document.querySelector('.cover-plate').getBoundingClientRect(); return [...document.querySelectorAll('.cover-plate .pip, .cover-plate .kid')].map((f) => f.getBoundingClientRect()).filter((q) => q.left < p.left - 1 || q.right > p.right + 1 || q.top < p.top - 1 || q.bottom > p.bottom + 1).length; });
     ok(cov === 0, `${tag}: Pip and the kid are fully inside the cover's picture`);
     await page.locator('.book-cover').click();
