@@ -2,6 +2,7 @@
 import { h } from './dom.js';
 import { GLYPHS, STROKE_WIDTH, XHEIGHT_TOP, BASELINE } from './glyphs.js';
 import { accentOf } from './theme.js';
+import { letterUnits } from './order.js';
 
 // An inline glyph of ours sized to sit in a line of Nunito: the x-height of the glyph box is .56em tall, a unit is .01047em,
 // and a tail below the baseline hangs below the line. Every taught letter is drawn this way in text a child reads.
@@ -13,6 +14,7 @@ function inlineGlyph(ch, color) {
   const svg = h('svg', { class: 'inline-glyph inline-' + ch, viewBox: `${g.minX - 1} ${top} ${g.maxX - g.minX + 2} ${bottom - top}`, 'aria-hidden': 'true', dataset: { letter: ch },
     style: { height: ((bottom - top) * UNIT).toFixed(3) + 'em', verticalAlign: (-0.03 - (bottom - (BASELINE + half)) * UNIT).toFixed(3) + 'em' } });
   g.strokes.forEach((s) => svg.append(h('path', { d: s.d, fill: 'none', stroke: color || 'currentColor', 'stroke-width': STROKE_WIDTH + 1.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })));
+  if (g.link) svg.append(h('path', { class: 'glyph-link', d: g.link, fill: 'none', stroke: color || 'currentColor', 'stroke-width': 4.5, 'stroke-linecap': 'round', opacity: 0.55 })); // a digraph's bar
   return svg;
 }
 
@@ -20,13 +22,13 @@ function inlineGlyph(ch, color) {
 const labelOf = (text) => (text.length > 1 ? text : 'this letter');
 
 // letterText("catfish", {tint: "a"}) -> <span aria-label="catfish">c, a, t, f, i, s and h drawn from our glyphs, the rest from the font.
-// tint: a taught letter whose occurrences get the accent color. label: false when a wrapper labels the whole sentence.
+// level: join the digraphs taught by that lesson. tint: a taught letter whose occurrences get the accent color. label: false when a wrapper labels the whole sentence.
 // only: draw just these letters from glyphs (parent text keeps to the one that needs it, the two-story "a").
-export function letterText(text, { tint, label = true, only } = {}) {
+export function letterText(text, { tint, label = true, only, level } = {}) {
   const span = h('span', { class: 'ltext', 'aria-label': label ? labelOf(text) : null, role: label ? 'text' : null });
   let run = '';
   const flush = () => { if (run) { span.append(h('span', { 'aria-hidden': 'true' }, run)); run = ''; } };
-  const chars = [...text];
+  const chars = level == null ? [...text] : letterUnits(text, level, true); // level: a lesson number; the digraphs taught by then are one unit each (sh, ch ...)
   for (let i = 0; i < chars.length; i++) {
     const ch = chars[i];
     if (ch === 'u' && chars[i - 1] === 'q' && GLYPHS.q && (!only || only.includes('q'))) continue; // the q glyph is "qu": its u is already drawn

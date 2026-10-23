@@ -5,12 +5,12 @@ import { ROOT } from './lib.mjs';
 import { scriptToParts, slowSounds, firstSoundOut } from '../js/scripts.js';
 import { GLYPHS } from '../js/glyphs.js';
 import { ACCENT } from '../js/theme.js';
-import { ORDER, ORDER_SOUNDS, soundOfLetter, spellingsOf, lettersOfSounds } from '../js/order.js';
+import { ORDER, ORDER_SOUNDS, soundOfLetter, spellingsOf, lettersOfSounds, letterUnits, isReadable } from '../js/order.js';
 import { sackPool, roundCaps, practiceRounds, heartTaught } from '../js/lessons.js';
 
 export const LETTER_NAMES = ['ay', 'bee', 'cee', 'see', 'dee', 'ee', 'ef', 'gee', 'aitch', 'eye', 'jay', 'kay', 'el', 'em', 'en', 'oh', 'pee', 'cue', 'ar', 'ess', 'tee', 'you', 'vee', 'double', 'ex', 'wye', 'zee'];
 // Picture words whose letters are all taught but are not spelt with the plain sounds (a schwa, ar, a long e), so they are only said (sayOnly), never shown as letters.
-export const IRREGULAR_PICTURES = ['wagon', 'yarn', 'zebra', 'queen'];
+export const IRREGULAR_PICTURES = ['wagon', 'yarn', 'zebra', 'queen', 'thumb', 'ball']; // thumb (silent b) and ball (the a before ll) are spelt with taught letters but not read that way
 // Words where s says z, which a child must not learn as an s word.
 export const S_SAYS_Z = ['as', 'is', 'his', 'has', 'was', 'does', 'goes', 'hers', 'ours', 'yours'];
 // Letters that look like each other, so they never stand together in a game or a Quick Check (mirror and look-alike pairs).
@@ -74,19 +74,23 @@ export function checkCurriculum(c, root = ROOT) {
   }
 
   // A clipped sound (t d g p h b l ...) is short: never written stretched ("ttt") anywhere in the data.
-  const clippedLetters = Object.values(c.sounds || {}).filter((x) => x.hold === false).flatMap((x) => [x.glyph, ...(x.alt || [])]);
+  const clippedLetters = Object.values(c.sounds || {}).filter((x) => x.hold === false).flatMap((x) => [x.glyph, ...(x.alt || [])]).filter((k) => k.length === 1); // single letters; the digraph notations (shhh, thhh) are checked below
+  const STRETCHED_DIGRAPH = /shhh|thhh/g; // the grown-up's held digraph (sh) and the buzzing th: not a stretched h-
   for (const [p, s] of strings) {
     if (/(^|\.)(image|clip)$/.test(p)) continue;
-    for (const k of clippedLetters) if (new RegExp(`${k}{3,}`, 'i').test(s)) err(`${p}: "${s}" stretches the clipped sound ${k}-`);
+    for (const k of clippedLetters) if (new RegExp(`${k}{3,}`, 'i').test(s.replace(STRETCHED_DIGRAPH, ''))) err(`${p}: "${s}" stretches the clipped sound ${k}-`);
   }
   // The parent's words for the sound: "aaa as in apple", "iii as in igloo" (stretched, as on the round card), never a bare letter.
+  // World 4: how the grown-up writes a digraph (docs/CURRICULUM.md): sh is held (shhh); ch, th (quiet), ck, wh, ng, nk are clipped (ch-, th-, k-, w-, ng-, nk-); ff is held (fff)
+  const DIGRAPH_TEXT = { sh: 'shhh', ch: 'ch-', th: 'th-', ck: 'k-', ff: 'fff', wh: 'w-', ng: 'ng-', nk: 'nk-' };
   for (const [k, sd] of Object.entries(c.sounds || {})) {
-    if (sd.asIn && !new RegExp(`\\b${k.repeat(3)} as in ${sd.asIn}`).test(`${sd.sayItLike} as in ${sd.asIn}`)) err(`sounds.${k}: sayItLike and asIn must read "${k.repeat(3)} as in ${sd.asIn}"`);
+    const heldText = DIGRAPH_TEXT[k] || k.repeat(3);
+    if (sd.asIn && !new RegExp(`\\b${heldText} as in ${sd.asIn}`).test(`${sd.sayItLike} as in ${sd.asIn}`)) err(`sounds.${k}: sayItLike and asIn must read "${heldText} as in ${sd.asIn}"`);
     if ('aioue'.includes(k) && sd.asIn && !new RegExp(`\\b${k.repeat(3)} as in ${sd.asIn}`).test(sd.howTo)) err(`sounds.${k}.howTo must say "${k.repeat(3)} as in ${sd.asIn}", never a bare letter`);
     const sayLetter = sd.alt && sd.alt.length ? sd.alt[0] : k; // c and k: the parent writes the sound as k-
-    const clippedText = k === 'x' ? 'ks-' : k === 'q' ? 'kw-' : `${sayLetter}-`; // x is two sounds (ks-) and qu says kw-
+    const clippedText = DIGRAPH_TEXT[k] || (k === 'x' ? 'ks-' : k === 'q' ? 'kw-' : `${sayLetter}-`); // x is two sounds (ks-) and qu says kw-
     if (sd.hold === false && sd.sayItLike !== clippedText) err(`sounds.${k}: a clipped sound is written "${clippedText}"`);
-    if (sd.hold === true && !/^(.)\1\1$/.test(sd.sayItLike) && !sd.asIn) err(`sounds.${k}: a held sound is written as a run like "fff"`);
+    if (sd.hold === true && !/^(.)\1\1$/.test(sd.sayItLike) && !sd.asIn && sd.sayItLike !== DIGRAPH_TEXT[k]) err(`sounds.${k}: a held sound is written as a run like "fff"`);
     for (const w of [...(sd.words || []), ...(sd.startWords || [])]) if (S_SAYS_Z.includes(w.word)) err(`sounds.${k}: "${w.word}" is a word where s says z`);
   }
 
@@ -129,14 +133,14 @@ export function checkCurriculum(c, root = ROOT) {
     if (s.clip !== null && !/\.(mp3|webm)$/.test(s.clip || '')) err(`sounds.${k}.clip must be .mp3 (a .webm next to it is tried second) or null`);
     if (typeof s.hold !== 'boolean') err(`sounds.${k}.hold must be true or false`);
     if (!GLYPHS[k]) err(`sounds.${k}: no glyph of ours for this taught letter`);
-    if (s.alt !== undefined && (!Array.isArray(s.alt) || !s.alt.length || s.alt.join() !== spellingsOf(k).slice(1).join() || !s.alt.every((x) => GLYPHS[x] && /^[a-z]$/.test(x)))) err(`sounds.${k}.alt must list the other spellings of order.js SPELLINGS, each with a glyph of ours`);
+    if (s.alt !== undefined && (!Array.isArray(s.alt) || !s.alt.length || s.alt.join() !== spellingsOf(k).slice(1).join() || !s.alt.every((x) => GLYPHS[x] && /^[a-z]{1,2}$/.test(x)))) err(`sounds.${k}.alt must list the other spellings of order.js SPELLINGS, each with a glyph of ours`);
     if (spellingsOf(k).length > 1 && s.alt === undefined) err(`sounds.${k}.alt missing (it has ${spellingsOf(k).length} spellings in order.js)`);
     if (s.glyph !== k) err(`sounds.${k}.glyph must equal its key`);
     if (s.glyph !== s.glyph.toLowerCase()) err(`sounds.${k}.glyph not lowercase`);
     if (s.sayItLike !== s.sayItLike.toLowerCase()) err(`sounds.${k}.sayItLike not lowercase`);
     for (const f of ['asIn', 'doNotSay']) if (s[f] && strayCaps(s[f])) err(`sounds.${k}.${f} has a capital letter`);
     if (strayCaps(s.howTo || '')) err(`sounds.${k}.howTo has a capital letter outside a sentence start`);
-    if (!Array.isArray(s.words) || !s.words.length) err(`sounds.${k}.words missing`);
+    if (!Array.isArray(s.words) || (!s.words.length && !s.noPictures)) err(`sounds.${k}.words missing (only a sound flagged noPictures may have none: no picture tile with that spelling exists yet)`);
     (s.words || []).forEach((w, i) => {
       if (w.word !== w.word.toLowerCase()) err(`sounds.${k}.words[${i}].word not lowercase`);
       if (w.word === 'as') err(`sounds.${k}.words[${i}] is "as"`);
@@ -207,9 +211,9 @@ export function checkCurriculum(c, root = ROOT) {
     for (const b of L.board) {
       const where = `lesson ${L.number}.board ${b.word}`;
       if (typeof b.word !== 'string' || b.word.length < 2 || b.word.length > 4) err(`${where}: a word of 2 to 4 letters`);
-      else if (![...b.word].every((ch) => lettersOfSounds(taught).has(ch))) err(`${where}: a letter is not taught by lesson ${L.number}`);
+      else if (!isReadable(b.word, lettersOfSounds(taught))) err(`${where}: a letter is not taught by lesson ${L.number}`);
       else if (S_SAYS_Z.includes(b.word)) err(`${where}: s says z`);
-      if (!taught.includes(b.target) || [...b.word].filter((ch) => soundOfLetter(ch) === b.target).length !== 1) err(`${where}: target ${b.target} must be taught and appear exactly once`);
+      if (!taught.includes(b.target) || letterUnits(b.word, L.number).filter((ch) => soundOfLetter(ch) === b.target).length !== 1) err(`${where}: target ${b.target} must be taught and appear exactly once`);
       if (seenW.has(b.word)) err(`lesson ${L.number}.board repeats ${b.word}`);
       seenW.add(b.word);
     }
@@ -232,12 +236,12 @@ export function checkCurriculum(c, root = ROOT) {
     if (w.image && !fs.existsSync(path.join(root, w.image))) err(`${p}.image missing on disk: ${w.image}`);
     if (letters && !letters.includes(w.word[0])) err(`${p} "${w.word}" must begin with ${letters.join(' or ')}`);
   };
-  for (const [k, s] of Object.entries(sounds)) (s.startWords || []).forEach((w, i) => { wordOk(w, `sounds.${k}.startWords[${i}]`); if (!spellingsOf(k).includes(w.word[0])) err(`sounds.${k}.startWords[${i}] "${w.word}" does not begin with ${spellingsOf(k).join(' or ')}`); });
+  for (const [k, s] of Object.entries(sounds)) (s.startWords || []).forEach((w, i) => { wordOk(w, `sounds.${k}.startWords[${i}]`); if (!spellingsOf(k).some((sp) => w.word.startsWith(sp))) err(`sounds.${k}.startWords[${i}] "${w.word}" does not begin with ${spellingsOf(k).join(' or ')}`); });
   // Practicing Words: every sound has a non-empty list of its own start words, and every lesson gets three different rounds.
   for (const [k, s] of Object.entries(sounds)) {
-    if (s.endOnly) { if ((s.practice || []).length || (s.startWords || []).length) err(`sounds.${k} is heard at the end of words: no practice or start words`); continue; }
+    if (s.endOnly || s.noPictures) { if ((s.practice || []).length || (s.startWords || []).length) err(`sounds.${k} is heard at the end of words: no practice or start words`); continue; }
     if (!Array.isArray(s.practice) || !s.practice.length) { err(`sounds.${k}.practice must be a non-empty list`); continue; }
-    s.practice.forEach((w) => { if (!(s.startWords || []).some((x) => x.word === w)) err(`sounds.${k}.practice "${w}" is not one of its startWords`); if (!spellingsOf(k).includes(w[0])) err(`sounds.${k}.practice "${w}" does not begin with ${k}`); });
+    s.practice.forEach((w) => { if (!(s.startWords || []).some((x) => x.word === w)) err(`sounds.${k}.practice "${w}" is not one of its startWords`); if (!spellingsOf(k).some((sp) => w.startsWith(sp))) err(`sounds.${k}.practice "${w}" does not begin with ${k}`); });
   }
   for (const L of c.lessons || []) {
     const r = practiceRounds(c, L);
@@ -271,7 +275,7 @@ export function checkCurriculum(c, root = ROOT) {
     const sight = [...(book.sight || []).map((w) => w.toLowerCase()), ...heartTaught(c, k.after).map((w) => w.toLowerCase())]; // a taught heart word is readable
     const readable = (text, where) => {
       for (const tok of text.split(' ').map((t) => t.replace(/[^\p{L}]/gu, '').toLowerCase()).filter(Boolean)) {
-        if (!sight.includes(tok) && ![...tok].every((ch) => k.needs.includes(ch))) err(`${p} ${where}: "${tok}" uses a letter that is not taught yet and is not a sight word`);
+        if (!sight.includes(tok) && !isReadable(tok, lettersOfSounds(k.needs))) err(`${p} ${where}: "${tok}" uses a letter that is not taught yet and is not a sight word`);
       }
     };
     const pages = book.pages || [];
@@ -307,7 +311,7 @@ export function checkCurriculum(c, root = ROOT) {
       if (typeof sentence !== 'string' || !/^[A-Z][A-Za-z !,]*[.!?]$/.test(sentence)) err(`${p}.story[${i}] must be one plain sentence (letters, spaces, a final . ! or ?)`);
       const words = String(sentence).toLowerCase().replace(/[.!?,]/g, '').split(/\s+/).filter(Boolean);
       if (words.length > 6) err(`${p}.story[${i}] is longer than 6 words`);
-      for (const w of words) if (!sight.includes(w) && ![...w].every((ch) => taught.has(ch))) err(`${p}.story[${i}] "${w}" is not readable by lesson ${k.after}`);
+      for (const w of words) if (!sight.includes(w) && !isReadable(w, taught)) err(`${p}.story[${i}] "${w}" is not readable by lesson ${k.after}`);
     });
     for (const f of ['words', 'rounds', 'offHoldMs', 'onHoldMs', 'gapMs', 'minRunMs', 'endMs']) if (f in k) err(`${p}.${f} belongs to the old Smooth Ride`);
     if (c.games && c.games.ride) err('games.ride is the old Smooth Ride text');
@@ -321,7 +325,7 @@ export function checkCurriculum(c, root = ROOT) {
     k.plan.forEach((a, i) => {
       const q = `${p}.plan[${i}]`;
       if (!['hunt', 'signals', 'wagons', 'board', 'check', 'read'].includes(a.task)) err(`${q}.task "${a.task}" is not one of the fun games, the first-word step or Ticket Check`);
-      if (a.task === 'read') { if (k.id !== 'v1' || !Array.isArray(a.words) || a.words.join() !== 'ma,mama') err(`${q}: the reading step is only in the first stop and reads ma, then mama`); else for (const w of a.words) if (![...w].every((ch) => lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)).has(ch))) err(`${q}: "${w}" is not readable by lesson ${k.after}`); }
+      if (a.task === 'read') { if (k.id !== 'v1' || !Array.isArray(a.words) || a.words.join() !== 'ma,mama') err(`${q}: the reading step is only in the first stop and reads ma, then mama`); else for (const w of a.words) if (!isReadable(w, lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)))) err(`${q}: "${w}" is not readable by lesson ${k.after}`); }
       const L = (c.lessons || []).find((x) => x.number === a.lesson);
       if (!L || a.lesson > k.after) return err(`${q}.lesson ${a.lesson} is not taught by lesson ${k.after}`);
       if (a.task === 'signals' && a.lesson < 2) err(`${q}: Green Light needs two sounds`);
@@ -330,7 +334,7 @@ export function checkCurriculum(c, root = ROOT) {
     });
     // the grown-up's end message: N sounds, W words counted from data/words-decodable.json, examples from it that use only taught letters
     const list = JSON.parse(fs.readFileSync(path.join(root, 'data/words-decodable.json'), 'utf8')).words;
-    const taughtK = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = list.filter((w) => [...w].every((ch) => taughtK.has(ch)));
+    const taughtK = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = list.filter((w) => isReadable(w, taughtK));
     if (!k.summary || k.summary.sounds !== k.after || k.summary.words !== fresh.length) err(`${p}.summary must say ${k.after} sounds and ${fresh.length} words (a fresh count of data/words-decodable.json)`);
     else if (!Array.isArray(k.summary.examples) || k.summary.examples.length < Math.min(fresh.length, 4) || k.summary.examples.length > 8 || !k.summary.examples.every((w) => fresh.includes(w.toLowerCase()))) err(`${p}.summary.examples must be 4 to 8 (all, when fewer exist) words of the list that use only taught letters`);
     if (k.plan[k.plan.length - 1].task !== 'check') err(`${p}: Ticket Check must come last`);
@@ -347,16 +351,16 @@ export function checkCurriculum(c, root = ROOT) {
     const keys = ORDER_SOUNDS.slice(0, k.after), taughtK = lettersOfSounds(keys);
     if (!Array.isArray(k.pair) || k.pair.length !== 2 || !k.pair.every((x) => keys.includes(x))) err(`${p}.pair must be two sounds taught by lesson ${k.after}`);
     if (!Array.isArray(k.sides) || k.sides.length !== 2) return err(`${p}.sides must be the two tunnels`);
-    const inSide = (side, w) => (k.mode === 'vowel' ? w.includes(side.letters[0]) : side.letters.includes(w[0]) || side.letters.some((l) => w.includes(l))) && !k.sides.some((o) => o !== side && o.letters.some((l) => w.includes(l) && (k.mode === 'vowel' || w[0] === l)));
+    const inSide = (side, w) => { const U = letterUnits(w, k.after); return (k.mode === 'vowel' ? w.includes(side.letters[0]) : side.letters.includes(U[0]) || side.letters.some((l) => U.includes(l))) && !k.sides.some((o) => o !== side && o.letters.some((l) => (k.mode === 'vowel' ? w.includes(l) : U.includes(l) && U[0] === l))); }; // units: th is one letter, not t then h
     k.sides.forEach((side, i) => {
       if (!side.letters.length || !side.letters.every((l) => taughtK.has(l))) err(`${p}.sides[${i}].letters must be taught letters`);
       if (!side.sign && !side.signText) err(`${p}.sides[${i}] needs a sign`);
       if ((side.words || []).length < 4) err(`${p}.sides[${i}] needs at least 4 words`);
-      for (const w of side.words || []) { if (![...w].every((ch) => taughtK.has(ch))) err(`${p}.sides[${i}] "${w}" uses a letter not taught by lesson ${k.after}`); if (!inSide(side, w)) err(`${p}.sides[${i}] "${w}" is not a word of this tunnel`); }
+      for (const w of side.words || []) { if (!isReadable(w, taughtK)) err(`${p}.sides[${i}] "${w}" uses a letter not taught by lesson ${k.after}`); if (!inSide(side, w)) err(`${p}.sides[${i}] "${w}" is not a word of this tunnel`); }
     });
     if (!Array.isArray(k.pairs) || !k.pairs.length) err(`${p}.pairs missing`);
     (k.pairs || []).forEach((pr, i) => {
-      for (const [n, w] of [['a', pr.a], ['b', pr.b]]) if (![...w].every((ch) => taughtK.has(ch))) err(`${p}.pairs[${i}].${n} "${w}" uses a letter not taught by lesson ${k.after}`);
+      for (const [n, w] of [['a', pr.a], ['b', pr.b]]) if (!isReadable(w, taughtK)) err(`${p}.pairs[${i}].${n} "${w}" uses a letter not taught by lesson ${k.after}`);
       if (pr.a === pr.b) err(`${p}.pairs[${i}] needs two different words`);
       if (pr.images) { if (!pr.images[pr.a] || !pr.images[pr.b]) err(`${p}.pairs[${i}].images must have a picture for both words or none`); }
     });
@@ -476,7 +480,7 @@ export function checkCurriculum(c, root = ROOT) {
   });
 
   const taught = new Set();
-  const clipped = Object.values(sounds).filter((x) => x.hold === false).map((x) => x.glyph);
+  const clipped = Object.values(sounds).filter((x) => x.hold === false).map((x) => x.glyph).filter((k) => k.length === 1);
   const taughtLetters = (L) => (c.lessons || []).slice(0, L.number).map((x) => x.sound);
   let css = '';
   try { css = fs.readFileSync(path.join(root, 'css/app.css'), 'utf8'); } catch { /* no stylesheet next to a test copy */ }
@@ -497,21 +501,22 @@ export function checkCurriculum(c, root = ROOT) {
       if (w.word === 'as' || S_SAYS_Z.includes(w.word)) err(`${p} "${w.word}" is a word where s says z`);
       if (isIsolated(w.word)) err(`${p} "${w.word}" is an isolated sound and is spoken by tts`);
       if (!w.showLetters && !w.emoji && !w.image) err(`${p} needs a picture when it does not show letters`);
-      if (w.showLetters) for (const ch of w.word) if (!allowedLetters.has(ch)) err(`${p} "${w.word}" uses untaught letter "${ch}"`);
+      if (w.showLetters && !isReadable(w.word, allowedLetters)) err(`${p} "${w.word}" uses an untaught letter or digraph`);
       // From lesson 7 on a picture word is shown as letters to slide under only when every letter is taught; otherwise it is only said (sayOnly).
-      if (!w.showLetters && L.number >= 7) { const readable = [...w.word].every((ch) => allowedLetters.has(ch)); if (!readable && w.sayOnly !== true) err(`${p} "${w.word}" has untaught letters and must be sayOnly`); if (readable && w.sayOnly && !IRREGULAR_PICTURES.includes(w.word)) err(`${p} "${w.word}" is decodable and must not be sayOnly`); }
+      if (!w.showLetters && L.number >= 7) { const readable = isReadable(w.word, allowedLetters); if (!readable && w.sayOnly !== true) err(`${p} "${w.word}" has untaught letters and must be sayOnly`); if (readable && w.sayOnly && !IRREGULAR_PICTURES.includes(w.word)) err(`${p} "${w.word}" is decodable and must not be sayOnly`); }
     });
     if (L.number >= 4) {
       const letterWords = (L.sayingSounds || []).filter((w) => w.showLetters), pictureWords = (L.sayingSounds || []).filter((w) => !w.showLetters);
       if (letterWords.length !== 3) err(`${lp}.sayingSounds needs three words that show letters`);
       if (!letterWords.some((w) => spellingsOf(L.sound).some((x) => w.word.includes(x)))) err(`${lp}.sayingSounds: at least one letter word must contain "${L.sound}"`);
       if (spellingsOf(L.sound).length > 1) for (const x of spellingsOf(L.sound)) if (![...letterWords, ...(sounds[L.sound] ? sounds[L.sound].words : [])].some((w) => w.word.includes(x))) err(`${lp}: no word with the spelling "${x}" of ${L.sound}`);
-      if (pictureWords.length < 1) err(`${lp}.sayingSounds needs a picture word from the sound's tiles`);
+      if (pictureWords.length < 1 && !(sounds[L.sound] && sounds[L.sound].noPictures)) err(`${lp}.sayingSounds needs a picture word from the sound's tiles`);
+      if (pictureWords.length && sounds[L.sound] && sounds[L.sound].noPictures) err(`${lp}.sayingSounds: a sound with noPictures has no picture word`);
       for (const w of pictureWords) if (!(sounds[L.sound] ? sounds[L.sound].words : []).some((x) => x.word === w.word && x.image === w.image)) err(`${lp}.sayingSounds picture word "${w.word}" is not one of the sound's tiles`);
-      for (const w of sounds[L.sound] ? sounds[L.sound].words : []) if ('aeiou'.includes(L.sound) || (sounds[L.sound] && sounds[L.sound].endOnly) ? !w.word.includes(L.sound) : !spellingsOf(L.sound).includes(w.word[0])) err(`sounds.${L.sound}.words "${w.word}" must ${'aeiou'.includes(L.sound) || (sounds[L.sound] && sounds[L.sound].endOnly) ? 'contain' : 'begin with'} the sound`);
+      for (const w of sounds[L.sound] ? sounds[L.sound].words : []) if ('aeiou'.includes(L.sound) || (sounds[L.sound] && sounds[L.sound].endOnly) ? !spellingsOf(L.sound).some((x) => w.word.includes(x)) : !spellingsOf(L.sound).some((x) => w.word.startsWith(x)) && !(sounds[L.sound] && sounds[L.sound].voiced && w.word.includes(L.sound))) err(`sounds.${L.sound}.words "${w.word}" must ${'aeiou'.includes(L.sound) || (sounds[L.sound] && sounds[L.sound].endOnly) ? 'contain' : 'begin with'} the sound`);
       for (const w of L.sayingSounds || []) { // held sounds may be stretched, clipped ones never
         const lines = [slowSounds(w.word, sounds), firstSoundOut(w.word, sounds)];
-        for (const t of lines) for (const k of clipped) if (t.includes(k.repeat(3))) err(`${lp}.sayingSounds "${w.word}": the parent script would stretch the clipped sound ${k}- ("${t}")`);
+        for (const t of lines) for (const k of clipped) if (t.replace(/shhh|thhh/g, '').includes(k.repeat(3))) err(`${lp}.sayingSounds "${w.word}": the parent script would stretch the clipped sound ${k}- ("${t}")`);
       }
       if (!ACCENT[L.sound]) err(`theme.js has no accent for "${L.sound}"`);
       else if (contrastOnWhite(ACCENT[L.sound]) < 3) err(`accent ${ACCENT[L.sound]} of "${L.sound}" is only ${contrastOnWhite(ACCENT[L.sound]).toFixed(2)}:1 on white (needs 3:1)`);
@@ -578,7 +583,7 @@ export function childReadProof(c, root = ROOT) {
   for (const { where, word, after } of items) {
     const w = word.toLowerCase();
     const taught = (c.lessons || []).slice(0, after).map((L) => L.sound);
-    if (!heartTaught(c, after).some((x) => x.toLowerCase() === w) && ![...w].every((ch) => lettersOfSounds(taught).has(ch))) errors.push(`proof: ${where} "${w}" is not readable by lesson ${after}`);
+    if (!heartTaught(c, after).some((x) => x.toLowerCase() === w) && !isReadable(w, lettersOfSounds(taught))) errors.push(`proof: ${where} "${w}" is not readable by lesson ${after}`);
     if (w.length > 1 && /q(?!u)/.test(w)) errors.push(`proof: ${where} "${w}": q is always followed by u (qu is one unit that says kw)`);
   }
   return { errors, count: items.length };
@@ -588,7 +593,7 @@ export function childReadProof(c, root = ROOT) {
 // that uses it and two wrong cards for the find-it round; the phrase and the cards use only decodable words or heart words taught by that lesson.
 export function checkHeartWords(c) {
   const errors = [], hw = c.heartWords || {}, seen = new Set();
-  const readable = (w, n) => heartTaught(c, n).some((x) => x.toLowerCase() === w) || [...w].every((ch) => lettersOfSounds(c.lessons.slice(0, n).map((L) => L.sound)).has(ch));
+  const readable = (w, n) => heartTaught(c, n).some((x) => x.toLowerCase() === w) || isReadable(w, lettersOfSounds(c.lessons.slice(0, n).map((L) => L.sound)));
   for (const L of c.lessons || []) {
     const list = L.heart || [];
     if (list.length > 2) errors.push(`heart: lesson ${L.number} teaches ${list.length} heart words (2 at most)`);

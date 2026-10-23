@@ -3,6 +3,7 @@
 // handwriting order on a 100 by 100 box (baseline y=80, x-height top y=38). The same strokes
 // drive the big letters, the slide track, the word rows and the trace guide.
 import { h, animate, reduced } from './dom.js';
+import { letterUnits } from './order.js';
 
 export const STROKE_WIDTH = 11.5;
 export const BASELINE = 80;
@@ -214,6 +215,24 @@ export const GLYPHS = {
   },
 };
 
+// ---- Digraphs (World 4): two letters, one sound, one unit. Each is built from the strokes of its two letters, set side by side, a little
+// squeezed sideways so it fits the same 100-wide box as every other glyph, and joined by a thin bar under the baseline (`link`: drawn, never
+// traced), so it reads as one linked tile. Doubled letters (ff, ll, ss, zz) are built the same way from one letter twice.
+const mapPath = (d, sx, dx) => d.replace(/([MLCA])([^MLCA]*)/g, (_, cmd, args) => {
+  const n = args.trim().split(/[\s,]+/).map(Number);
+  if (cmd === 'A') { n[0] *= sx; n[5] = n[5] * sx + dx; } else for (let i = 0; i < n.length; i += 2) n[i] = n[i] * sx + dx;
+  return cmd + n.map((v) => +v.toFixed(2)).join(' ') + ' ';
+}).trim();
+function digraph(a, b) {
+  const A = GLYPHS[a], B = GLYPHS[b], gap = 8, total = (A.maxX - A.minX) + gap + (B.maxX - B.minX);
+  const sx = Math.min(1, 88 / total), pad = (100 - total * sx) / 2;
+  const at = [pad - A.minX * sx, pad + ((A.maxX - A.minX) + gap) * sx - B.minX * sx];
+  const strokes = [[A, at[0]], [B, at[1]]].flatMap(([g, dx]) => g.strokes.map((s) => ({ d: mapPath(s.d, sx, dx), start: [s.start[0] * sx + dx, s.start[1]] })));
+  const x0 = pad - 2, x1 = 100 - pad + 2;
+  return { strokes, link: `M${x0} 89 L${x1} 89`, minX: x0 - 2, maxX: x1 + 2, minY: Math.min(A.minY, B.minY), maxY: Math.max(A.maxY, B.maxY, 89) };
+}
+for (const pair of ['sh', 'ch', 'th', 'wh', 'ck', 'ng', 'nk', 'ff', 'll', 'ss', 'zz']) GLYPHS[pair] = digraph(pair[0], pair[1]);
+
 const SPACING = 4;
 export const hasGlyph = (ch) => !!GLYPHS[ch];
 
@@ -233,6 +252,8 @@ function strokePath(d, color, extra = {}) {
   return h('path', { d, fill: 'none', stroke: color, 'stroke-width': STROKE_WIDTH, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', ...extra });
 }
 
+const linkPath = (d, color) => h('path', { d, fill: 'none', stroke: color || 'currentColor', 'stroke-width': 4.5, 'stroke-linecap': 'round', class: 'glyph-link', opacity: 0.55 });
+
 // One letter as an <svg>. opts: color, tight (crop to the x-height band), label.
 export function glyphSvg(ch, opts = {}) {
   const g = GLYPHS[ch];
@@ -241,6 +262,7 @@ export function glyphSvg(ch, opts = {}) {
   const svg = h('svg', { class: 'glyph ' + (opts.class || ''), viewBox: opts.tight === false ? '0 0 100 100' : `0 ${v.top} 100 ${v.h}`, role: 'img', 'aria-label': opts.label || 'letter', dataset: { letter: ch }, style: { '--vh': (v.h / BAND_H).toFixed(3) } });
   const grp = h('g', { class: 'glyph-strokes' });
   g.strokes.forEach((s, i) => grp.append(strokePath(s.d, opts.color || 'currentColor', { class: 'stroke', 'data-i': i })));
+  if (g.link) grp.append(linkPath(g.link, opts.color)); // a digraph's bar under the two letters
   svg.append(grp);
   return svg;
 }
@@ -266,7 +288,7 @@ const advance = (ch, reading = false) => {
 const READING_SIZE = 80;
 const READING_FONT = `700 ${READING_SIZE}px Andika, Nunito, system-ui, sans-serif`;
 try { if (typeof document !== 'undefined' && document.fonts && document.fonts.load) document.fonts.load(READING_FONT); } catch { /* the font loads when first used */ }
-const readingExtent = (ch) => ({ top: FONT_TALL.includes(ch) || /[A-Z0-9]/.test(ch) ? 20 : 38, bottom: FONT_TAIL.includes(ch) ? 98 : 82 });
+const readingExtent = (ch) => ({ top: [...ch].some((x) => FONT_TALL.includes(x)) || /[A-Z0-9]/.test(ch) ? 20 : 38, bottom: [...ch].some((x) => FONT_TAIL.includes(x)) ? 98 : 82 + (ch.length > 1 ? 6 : 0) });
 
 // A row of letters as one <svg>; each letter is its own <g class="glyph-letter"> for sweeps and highlights.
 // Our own glyphs draw every taught letter; opts.all adds the font for every other letter (without it only taught letters are drawn).
@@ -274,7 +296,8 @@ export function wordSvg(word, opts = {}) {
   let x = 0;
   const reading = !!opts.font;
   // the u after a q is part of q's glyph ("qu" is one unit), except in the reading font where every letter is its own
-  const letters = [...word].filter((c, i, a) => (opts.all || reading || hasGlyph(c)) && (reading || !(c === 'u' && a[i - 1] === 'q')));
+  // opts.level (a lesson number) joins the digraphs taught by then into one unit (sh, ch ... as one linked tile); a font word keeps them as one group too.
+  const letters = (reading ? (opts.level != null ? letterUnits(word, opts.level, true) : [...word]) : letterUnits(word, opts.level)).filter((c) => opts.all || reading || hasGlyph(c));
   const groups = [];
   for (const ch of letters) {
     if (reading || !hasGlyph(ch)) {
@@ -282,6 +305,7 @@ export function wordSvg(word, opts = {}) {
       const grp = h('g', { class: 'glyph-letter', transform: `translate(${x} 0)`, dataset: { letter: ch, x0: String(x), x1: String(x + w) } });
       const pop = h('g', { class: 'glyph-pop' }, h('text', { class: 'glyph-text', x: w / 2, y: BASELINE, 'text-anchor': 'middle', fill: opts.color || 'currentColor' }, ch));
       grp.append(h('ellipse', { class: 'glyph-halo', cx: w / 2, cy: 59, rx: w / 2 + 2, ry: 31 }), pop);
+      if (ch.length > 1) grp.append(h('path', { d: `M3 ${BASELINE + 9} L${w - 3} ${BASELINE + 9}`, class: 'glyph-link', fill: 'none', stroke: opts.color || 'currentColor', 'stroke-width': 4, 'stroke-linecap': 'round', opacity: 0.55 })); // a digraph's bar
       groups.push({ grp });
       x += w + SPACING;
       continue;
@@ -292,6 +316,7 @@ export function wordSvg(word, opts = {}) {
     // class alone (the outer group already carries its own translate).
     const pop = h('g', { class: 'glyph-pop' });
     g.strokes.forEach((s) => pop.append(strokePath(s.d, opts.color || 'currentColor', { class: 'stroke' })));
+    if (g.link) pop.append(linkPath(g.link, opts.color));
     grp.append(h('ellipse', { class: 'glyph-halo', cx: (g.minX + g.maxX) / 2, cy: 59, rx: (g.maxX - g.minX) / 2 + 6, ry: 31 }), pop);
     groups.push({ grp, x0: x, x1: x + (g.maxX - g.minX) });
     grp.dataset.x0 = String(x); grp.dataset.x1 = String(x + (g.maxX - g.minX));

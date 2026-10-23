@@ -11,7 +11,7 @@ export function letterFace(ch, color) {
 
 export function tintLetter(face, color) {
   if (face.classList.contains('font-letter')) face.style.color = color;
-  else face.querySelectorAll('path.stroke').forEach((p) => p.setAttribute('stroke', color));
+  else face.querySelectorAll('path.stroke, path.glyph-link').forEach((p) => p.setAttribute('stroke', color));
 }
 
 // The same letter with its box trimmed to the letter's own width, so it sits in the middle of a tile or card (the plain face

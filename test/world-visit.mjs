@@ -4,6 +4,7 @@
 // fit at 360x640, 390x844 and 915x412. Screenshots go to docs/screenshots/world-visit/ with `--shots`.
 // Run alone with `node test/world-visit.mjs [--shots]`.
 import fs from 'node:fs';
+import { isReadable } from '../js/order.js';
 import path from 'node:path';
 import { ROOT, startServer, loadPlaywright, launch } from './lib.mjs';
 import { openHome, state, until, iL } from './train.mjs';
@@ -50,8 +51,8 @@ const showTunnel = async (page, role) => {
 // ---- the pure parts: helpers, the store guard, the visit rules ----
 export function unitChecks(ok) {
   const st = (n) => ({ isDone: (k) => k <= n, currentLesson: (t) => (n >= t ? null : n + 1) });
-  ok(JSON.stringify(reachedWorlds(st(0), CUR).map((w) => w.id)) === '["W1"]' && JSON.stringify(reachedWorlds(st(7), CUR).map((w) => w.id)) === '["W1","W2"]' && JSON.stringify(reachedWorlds(st(17), CUR).map((w) => w.id)) === '["W1","W2","W3"]' && JSON.stringify(reachedWorlds(st(25), CUR).map((w) => w.id)) === '["W1","W2","W3"]', 'helpers: reachedWorlds lists the built worlds up to the current one (Sunny Hills is reached once Green Valley is done)');
-  ok(previousWorld(CUR, 'W1') === null && previousWorld(CUR, 'W2').id === 'W1' && previousWorld(CUR, 'W3').id === 'W2' && previousWorld(CUR, 'W4') === null, 'helpers: previousWorld names the built world before (W3 to W2 to W1), none for the first');
+  ok(JSON.stringify(reachedWorlds(st(0), CUR).map((w) => w.id)) === '["W1"]' && JSON.stringify(reachedWorlds(st(7), CUR).map((w) => w.id)) === '["W1","W2"]' && JSON.stringify(reachedWorlds(st(17), CUR).map((w) => w.id)) === '["W1","W2","W3"]' && JSON.stringify(reachedWorlds(st(25), CUR).map((w) => w.id)) === '["W1","W2","W3","W4"]' && JSON.stringify(reachedWorlds(st(33), CUR).map((w) => w.id)) === '["W1","W2","W3","W4"]', 'helpers: reachedWorlds lists the built worlds up to the current one (Sunny Hills is reached once Green Valley is done)');
+  ok(previousWorld(CUR, 'W1') === null && previousWorld(CUR, 'W2').id === 'W1' && previousWorld(CUR, 'W3').id === 'W2' && previousWorld(CUR, 'W4').id === 'W3' && previousWorld(CUR, 'W5') === null, 'helpers: previousWorld names the built world before (W3 to W2 to W1), none for the first');
   const ctx = (n, visit) => ({ store: st(n), curriculum: CUR, visit });
   ok(activeVisit(ctx(7, { world: 'W1' })).id === 'W1', 'visit: a reached earlier world can be visited');
   const c2 = ctx(7, { world: 'W2' });
@@ -221,7 +222,7 @@ export async function grownupsChecks({ browser, url, ok, vp }) {
     const info = await page.evaluate(async () => { const k = window.__keepsake; if (!k) return null; const b = await createImageBitmap(k.blob); return { w: b.width, h: b.height, type: k.type, headline: k.headline, word: k.word, sub: k.sub }; });
     const CJ = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')), WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
     const last = Math.max(...CJ.lessons.filter((l) => l.world === 'W1').map((l) => l.number)), keys = CJ.lessons.slice(0, last).map((l) => l.sound), lt = new Set(keys.flatMap((k) => (k === 'c' ? ['c', 'k'] : [k])));
-    const fresh = WL.filter((w) => [...w].every((c) => lt.has(c))).length;
+    const fresh = WL.filter((w) => isReadable(w, lt)).length;
     ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350 && /finished Starter Station!$/.test(info.headline) && info.word === `${keys.length} sounds` && info.sub.startsWith(`can read ${fresh} words`), `${tag}: the world 1 keepsake is a 1080x1350 PNG naming Starter Station with ${keys.length} sounds and ${fresh} words (${info && info.headline} / ${info && info.word} / ${info && info.sub})`);
   }
   await page.locator('.gu-worlds').scrollIntoViewIfNeeded();

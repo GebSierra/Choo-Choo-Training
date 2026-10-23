@@ -31,6 +31,7 @@ export function drawGlyph(g, ch, cx, cy, size, color) {
   g.scale(k, k);
   g.strokeStyle = color; g.lineWidth = STROKE_WIDTH; g.lineCap = 'round'; g.lineJoin = 'round';
   for (const s of def.strokes) g.stroke(new Path2D(s.d));
+  if (def.link) { g.lineWidth = 4.5; g.globalAlpha = 0.55; g.stroke(new Path2D(def.link)); } // a digraph's bar
   g.restore();
 }
 
@@ -39,7 +40,7 @@ export function drawGlyph(g, ch, cx, cy, size, color) {
 // by side at one size on a shared baseline; the others (e, j, w ... have no strokes yet) are set in Andika, a reading font.
 export function drawSpelling(g, text, cx, cy, size, color) {
   const toks = String(text).split(' ').filter(Boolean);
-  if (toks.length === 1 && [...toks[0]].length === 1 && GLYPHS[toks[0]]) { drawGlyph(g, toks[0], cx, cy, size, color); return; }
+  if (toks.length === 1 && GLYPHS[toks[0]]) { drawGlyph(g, toks[0], cx, cy, size, color); return; }
   const word = (w, x, y, boxW, boxH) => {
     const letters = [...w];
     if (letters.every((ch) => GLYPHS[ch])) {

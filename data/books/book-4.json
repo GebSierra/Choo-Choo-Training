@@ -1,0 +1,179 @@
+{
+  "id": "book-4",
+  "title": "Pip and the Docks",
+  "needs": [
+    "m",
+    "a",
+    "s",
+    "i",
+    "t",
+    "p",
+    "f",
+    "o",
+    "n",
+    "d",
+    "c",
+    "h",
+    "u",
+    "g",
+    "l",
+    "r",
+    "b",
+    "e",
+    "j",
+    "w",
+    "v",
+    "y",
+    "z",
+    "x",
+    "q",
+    "sh",
+    "ch",
+    "th",
+    "ck",
+    "ff",
+    "wh"
+  ],
+  "sight": [],
+  "pages": [
+    {
+      "scene": "track",
+      "read": "Toot toot! Pip’s train rolls to the very end of the line, right down by the Docks. The sea is bright blue and the gulls are calling! Pip hops off and says, \"Our tummies are rumbling! Let’s find a fun dockside snack!\"",
+      "art": {
+        "train": true,
+        "pip": "wave"
+      },
+      "tap": {
+        "on": "train",
+        "anim": "toot",
+        "label": "Pip's whistle"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "As they head down the wooden pier, a grand vessel with a tall smokestack glides into the harbor. Pip points across the water and says, \"Look at that huge ...\"",
+      "child": "ship",
+      "slider": "ship",
+      "art": {
+        "emoji": [
+          "🚢"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the ship"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "Suddenly, splash! A silver sea friend leaps out of the waves and lands right onto the wooden boards with a flop! Sam giggles and says, \"Look! It is a wiggly ...\"",
+      "child": "fish",
+      "slider": "fish",
+      "art": {
+        "emoji": [
+          "🐟"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "giggle",
+        "label": "the fish"
+      }
+    },
+    {
+      "scene": "station",
+      "kind": "drag",
+      "read": "\"Hold on tight! Let’s roll all the way down the pier!\""
+    },
+    {
+      "scene": "station",
+      "read": "At the end of the dock, they find a cozy little harbor store with a red-and-white striped roof. Pip smiles and says, \"I bet there’s a good treat inside this ...\"",
+      "child": "shop",
+      "slider": "shop",
+      "art": {
+        "emoji": [
+          "🏪"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the shop"
+      }
+    },
+    {
+      "scene": "picnic",
+      "read": "Inside, the friendly shopkeeper pulls out a big wooden board and a fresh, crunchy carrot. Chop, chop, chop! Sam asks, \"What is she doing with that carrot?\" Pip says, \"She will ...\"",
+      "child": "chop",
+      "slider": "chop",
+      "art": {
+        "emoji": [
+          "🥕"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the carrot"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "Ding-dong! Ding-dong! A loud chime rings across the harbor. The train is getting ready to leave! Pip checks his pocket watch and says, \"Listen! That is the ...\"",
+      "child": "bell",
+      "slider": "bell",
+      "art": {
+        "emoji": [
+          "🔔"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the bell"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "As they hurry back to the platform, a little yellow bird waddles along the dock wall and quacks happily at them. Pip waves and says, \"Good night, little ...\"",
+      "child": "duck",
+      "slider": "duck",
+      "art": {
+        "emoji": [
+          "🦆"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "giggle",
+        "label": "the duck"
+      }
+    },
+    {
+      "scene": "sunset",
+      "read": "The sun sets over the water, painting the harbor orange and pink. As everyone climbs back into the train car, Pip looks at {name} with a big smile and says, \"What a great trip! Next time, we should come ...\"",
+      "child": "back",
+      "slider": "back",
+      "art": {
+        "train": true,
+        "pip": "cheer",
+        "friend": true
+      }
+    },
+    {
+      "scene": "sunset",
+      "kind": "review",
+      "read": "Toot toot! You did it! Read all your words:",
+      "words": [
+        "ship",
+        "fish",
+        "shop",
+        "chop",
+        "bell",
+        "duck",
+        "back"
+      ]
+    }
+  ]
+}

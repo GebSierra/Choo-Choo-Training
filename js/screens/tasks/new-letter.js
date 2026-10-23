@@ -18,7 +18,7 @@ export function build({ lesson, sound, speech, store }) {
   const card = h('button', { class: 'letter-card big tappable' + (gs.length > 1 ? ' pair' : ''), type: 'button', 'aria-label': 'Watch the letter being written', onclick: draw }, ...gs);
   const tiles = h('div', { class: 'word-strip' }, sound.words.map((w) => {
     const t = h('button', { class: 'word-tile', type: 'button', 'aria-label': w.word, onclick: () => { speech.say([{ tts: w.word }]); animate(t, [{ transform: 'scale(1)' }, { transform: 'scale(.94)', offset: 0.35 }, { transform: 'scale(1)' }], { duration: 260 }); } },
-      h('span', { class: 'pic' }, picture(w)), h('span', { class: 'word' }, letterText(w.word, { tint: sound.glyph })));
+      h('span', { class: 'pic' }, picture(w)), h('span', { class: 'word' }, letterText(w.word, { tint: sound.glyph, level: lesson.number })));
     return t;
   }));
   const track = slideTrack({ letter: sound.glyph });

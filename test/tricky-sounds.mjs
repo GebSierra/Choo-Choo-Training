@@ -5,17 +5,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, newPage, SEEN, showStop, doneThrough } from './lib.mjs';
-import { ORDER_SOUNDS, lettersOfSounds } from '../js/order.js';
+import { ORDER_SOUNDS, lettersOfSounds, isReadable } from '../js/order.js';
 import { checkpointStopIndex, finishedStop } from '../js/sequence.js';
 import { tunnelRounds, whichRounds } from '../js/games-data.js';
 import { state, openHome, until, RAF_COUNT } from './train.mjs';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const STOPS = CUR.checkpoints.filter((k) => k.kind === 'contrast');
-const IDS = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8'];
-const AFTER = [9, 12, 14, 17, 18, 21, 22, 23];
-const PAIRS = ['m n', 'h a', 'c g', 'b d', 'i e', 'f v', 'w y', 's z'];
-const OLD_IDS = ['r1', 'b1', 'b2', 'b3', 'v1', 'v6', 'v2', 'v3', 'v4', 'v5', 'v7', 'v8', 'v9'];
+const IDS = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10'];
+const AFTER = [9, 12, 14, 17, 18, 21, 22, 23, 27, 28];
+const PAIRS = ['m n', 'h a', 'c g', 'b d', 'i e', 'f v', 'w y', 's z', 'sh ch', 'th t'];
+const OLD_IDS = ['r1', 'b1', 'b2', 'b3', 'b4', 'v1', 'v6', 'v2', 'v3', 'v4', 'v5', 'v7', 'v8', 'v9', 'v10', 'v11'];
 const SHOTS = process.argv.includes('--shots');
 const SHOT_DIR = path.join(ROOT, 'docs/screenshots/tricky-sounds');
 const SIZES = [{ name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }, { name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }, { name: '915x412', width: 915, height: 412, deviceScaleFactor: 2 }];
@@ -26,19 +26,19 @@ const shot = async (page, name) => { if (!SHOTS) return; fs.mkdirSync(SHOT_DIR, 
 const seq = (n) => { let s = n; return () => ((s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296); }; // a seeded random for the data checks
 
 export async function dataChecks({ ok }) {
-  ok(STOPS.length === 8 && STOPS.map((k) => k.id).join() === IDS.join() && STOPS.map((k) => k.after).join() === AFTER.join(), `data: eight Tricky Sounds stops x1 to x8 after lessons ${AFTER.join(', ')} (${STOPS.map((k) => k.id + '@' + k.after)})`);
+  ok(STOPS.length === 10 && STOPS.map((k) => k.id).join() === IDS.join() && STOPS.map((k) => k.after).join() === AFTER.join(), `data: ten Tricky Sounds stops x1 to x10 (x9 and x10 are World 4) after lessons ${AFTER.join(', ')} (${STOPS.map((k) => k.id + '@' + k.after)})`);
   ok(STOPS.every((k, i) => k.title === 'Tricky Sounds' && k.pair.join(' ') === PAIRS[i]), `data: titled Tricky Sounds, pairs ${PAIRS.join(' | ')}`);
   ok(OLD_IDS.every((id) => CUR.checkpoints.some((k) => k.id === id)) && new Set(CUR.checkpoints.map((k) => k.id)).size === CUR.checkpoints.length, 'data: every existing stop id is unchanged and all ids are distinct');
   ok(STOPS.every((k) => k.world === CUR.lessons.find((l) => l.number === k.after).world), 'data: each stop is in the world of the lesson it follows');
   for (const k of STOPS) {
     const tag = `data ${k.id}`, taught = taughtBy(k.after);
     const words = [...k.sides.flatMap((s) => s.words), ...k.pairs.flatMap((p) => [p.a, p.b])];
-    ok(words.every((w) => [...w].every((ch) => taught.has(ch))), `${tag}: every word is spelt with letters taught by lesson ${k.after} (${words.filter((w) => ![...w].every((ch) => taught.has(ch)))})`);
+    ok(words.every((w) => isReadable(w, taught)), `${tag}: every word is spelt with letters taught by lesson ${k.after} (${words.filter((w) => !isReadable(w, taught))})`);
     ok(k.plan.map((a) => a.task).join() === 'tunnels,which,signals,check', `${tag}: Two Tunnels, Which One?, Green Light, then Ticket Check`);
-    ok(k.quickCheck.kind === 'letter' && k.quickCheck.options.every((o) => [...o.glyph].every((ch) => taught.has(ch))) && k.quickCheck.options.filter((o) => o.correct).length === 1, `${tag}: Ticket Check is a letter question on taught letters`);
+    ok(k.quickCheck.kind === 'letter' && k.quickCheck.options.every((o) => isReadable(o.glyph, taught)) && k.quickCheck.options.filter((o) => o.correct).length === 1, `${tag}: Ticket Check is a letter question on taught letters`);
     ok(k.pairs.every((p) => !p.images || (fs.existsSync(path.join(ROOT, p.images[p.a])) && fs.existsSync(path.join(ROOT, p.images[p.b])))), `${tag}: a pair has pictures only when both exist on disk`);
     ok(/Let's listen closely\.$/.test(k.line) && /^Great listening!/.test(k.end) && !/\b(new letter|learn)\b/i.test(k.end), `${tag}: the opening line and the celebration`);
-    ok(k.id === 'x2' ? k.hint === "Breathe it out, like fogging a mirror: h-. No 'huh.'" : !k.hint, `${tag}: the h stop carries the breathing line, no other stop does`);
+    ok(k.id === 'x2' ? k.hint === "Breathe it out, like fogging a mirror: h-. No 'huh.'" : k.id === 'x10' ? /tongue peeks out between the teeth/.test(k.hint) : !k.hint, `${tag}: the h stop carries the breathing line, the th stop the tongue line, no other stop has one`);
     // the rounds
     const t = tunnelRounds(k, seq(7));
     ok(t.length === 6 && t.slice(0, 2).every((r) => r.kind === 'letter') && t.slice(2).every((r) => r.kind === 'word') && [0, 1].every((s) => t.filter((r) => r.side === s).length === 3 && t.filter((r) => r.kind === 'word' && r.side === s).length === 2), `${tag}: Two Tunnels is 6 rounds, 2 letters first then 4 words, balanced`);
@@ -125,7 +125,7 @@ export async function screenChecks({ browser, url, ok }) {
           const lamps = await page.locator('.signal').evaluateAll((els) => els.map((e) => e.dataset.letter));
           const tg = await page.locator('.signal[data-target="1"]').getAttribute('data-letter');
           lamps.forEach((l) => lit.add(l)); targets.push(tg);
-          ok(lamps.every((l) => [...l].every((ch) => taughtBy(k.after).has(ch))), `${k.id} Green Light: lamps hold only taught letters (${lamps})`);
+          ok(lamps.every((l) => isReadable(l, taughtBy(k.after))), `${k.id} Green Light: lamps hold only taught letters (${lamps})`);
           const mate = k.pair.find((p) => !(p === 'c' ? ['c', 'k'] : [p]).includes(tg));
           ok(lamps.some((l) => (mate === 'c' ? ['c', 'k'] : [mate]).includes(l)), `${k.id} Green Light round ${r + 1}: the other sound ${mate} is on a lamp (${lamps})`);
           await page.locator('.signal[data-target="1"]').click(); await page.waitForTimeout(1200);

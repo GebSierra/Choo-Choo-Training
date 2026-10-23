@@ -2,6 +2,7 @@
 // lesson 6, level two at lesson 17, the end of World 2). 3D, reduced motion, 2D, no replay on the next visit, replay from Grownups, and heat.
 // Run alone with `node test/levels.mjs`.
 import fs from 'node:fs';
+import { isReadable } from '../js/order.js';
 import path from 'node:path';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS } from './lib.mjs';
 import { openHome, state, iL, until, RAF_COUNT } from './train.mjs';
@@ -59,7 +60,7 @@ export async function levelChecks({ browser, url, ok }) {
       if (info) fs.writeFileSync(path.join(ROOT, 'docs/screenshots/milestones/keepsake-world.png'), Buffer.from(info.b64, 'base64'));
       const CURJ = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')), WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
       const keys = CURJ.lessons.slice(0, 6).map((l) => l.sound), letters = new Set(keys.flatMap((k) => (k === 'c' ? ['c', 'k'] : [k])));
-      const fresh = WL.filter((w) => [...w].every((c) => letters.has(c))).length;
+      const fresh = WL.filter((w) => isReadable(w, letters)).length;
       ok(info && info.type === 'image/png' && info.w === 1080 && info.h === 1350, 'level one: the world keepsake is a 1080x1350 PNG');
       ok(info && info.headline === 'Lily finished Starter Station!', `level one: the headline names the world (${info && info.headline})`);
       ok(fresh > 0 && info && info.word === `${keys.length} sounds` && info.sub.startsWith(`can read ${fresh} words`), `level one: ${keys.length} sounds and ${fresh} words match a fresh count (${info && info.word} / ${info && info.sub})`);
@@ -94,7 +95,7 @@ export async function levelChecks({ browser, url, ok }) {
     await page.waitForTimeout(250);
     ok((await page.locator('.level-replay').count()) === 1 && (await page.locator('.level-replay[data-level="L1"]').count()) === 1, 'Grownups: only the earned level has Play again');
     const txt = await page.evaluate(() => document.querySelector('#gu-fold-levels').innerText);
-    ok(txt.includes('Level one') && txt.includes('m a s i t p') && txt.includes('Level two') && txt.includes('Level three') && (txt.match(/Coming later/g) || []).length === 2, 'Grownups: levels list their sounds; the two unbuilt ones say "Coming later" (level three is World 3)');
+    ok(txt.includes('Level one') && txt.includes('m a s i t p') && txt.includes('Level two') && txt.includes('Level three') && (txt.match(/Coming later/g) || []).length === 1 && txt.includes('Level four'), 'Grownups: levels list their sounds; the one unbuilt level (five) says "Coming later" (level three is World 3, level four World 4)');
     ok(((await page.locator('.level-replay').boundingBox()).height) >= 48, 'Grownups: Play again is at least 48 px tall');
     await page.locator('.level-replay[data-level="L1"]').click();
     ok(await until(page, () => location.hash === '#/home' && window.__train && !window.__train.disposed && window.__train.level.id === 'L1', null, 6000), 'replay: Home opens with level one due');
@@ -113,7 +114,7 @@ export async function levelChecks({ browser, url, ok }) {
     await r.page.waitForTimeout(2500);
     ok((await r.page.evaluate(() => window.__train.level.id)) === null && (await r.page.locator('.level-banner').count()) === 0 && (await r.page.locator('.map-btn[data-stars="0"]').count()) === 1, 'before the threshold: five lessons, no celebration, no stars');
     await r.page.locator('.map-btn').click(); await r.page.waitForSelector('.jb .level-star');
-    ok((await r.page.locator('.jb .level-star').count()) === 3 && (await r.page.locator('.jb .level-star.on').count()) === 0, 'before the threshold: three empty star outlines (the built levels), now inside the journey board');
+    ok((await r.page.locator('.jb .level-star').count()) === 4 && (await r.page.locator('.jb .level-star.on').count()) === 0, 'before the threshold: four empty star outlines (the built levels), now inside the journey board');
     await r.page.locator('.jb-x').click();
     ok((await stored(r.page)).levels.seen === 0, 'before the threshold: seen stays 0');
     ok(r.errors.length === 0, 'before the threshold: errors ' + r.errors.join(' | '));

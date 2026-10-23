@@ -10,9 +10,9 @@ export const BOX = 56; // touch target of a letter
 // letter may be nudged by (jx, jy), which keeps at least 12 px between neighbours.
 // A short scene (a phone with the browser's bars showing) gives the grass less room; if that still leaves under 8
 // cells, the grid packs tighter (letters exactly 12 px apart, no nudging). The keep-outs are the art's real size.
-export function skyCells(W, H, { goalW = 150, count = 16 } = {}) {
+export function skyCells(W, H, { goalW = 150, count = 16, cardW = 0, cardH = 0 } = {}) { // cardW/cardH: the real size of the Find card (a digraph or a pair of spellings is wider than one letter)
   const bottom = H < 360 ? 50 : 92, y0 = 10, yMax = H - bottom;
-  const keepOut = [[0, 0, 120, 80], [W - 76, 0, W, 76], [W * 0.56 - 8, 0, W * 0.56 + 64, 72], [W - goalW - 20, H - (goalW * 0.84 + 50), W, H]];
+  const keepOut = [[0, 0, Math.max(120, cardW + 14), Math.max(80, cardH + 14)], [W - 76, 0, W, 76], [W * 0.56 - 8, 0, W * 0.56 + 64, 72], [W - goalW - 20, H - (goalW * 0.84 + 50), W, H]];
   const clear = (x, y) => !keepOut.some(([a, b, c2, d]) => x + BOX / 2 > a && x - BOX / 2 < c2 && y + BOX / 2 > b && y - BOX / 2 < d);
   const loose = () => {
     const cols = Math.max(1, Math.floor((W - 20) / 70)), rows = Math.max(1, Math.floor((yMax - y0) / 68));

@@ -5,15 +5,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, newPage, SEEN, showStop, doneThrough } from './lib.mjs';
-import { ORDER_SOUNDS, lettersOfSounds } from '../js/order.js';
+import { ORDER_SOUNDS, lettersOfSounds, isReadable } from '../js/order.js';
 import { checkpointStopIndex, finishedStop } from '../js/sequence.js';
 import { state, openHome, until } from './train.mjs';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const STOPS = CUR.checkpoints.filter((k) => k.kind === 'review');
-// Every world ends with a Review Stop (after 6, 17 and 25); the ids never change once saved, so the new stops are v6 to v9 and sit in lesson order.
-const AFTER = [3, 6, 9, 12, 15, 17, 20, 23, 25];
-const IDS = ['v1', 'v6', 'v2', 'v3', 'v4', 'v5', 'v7', 'v8', 'v9'];
+// Every world ends with a Review Stop (after 6, 17, 25 and 33); the ids never change once saved, so the new stops are v6 to v11 and sit in lesson order.
+const AFTER = [3, 6, 9, 12, 15, 17, 20, 23, 25, 30, 33];
+const IDS = ['v1', 'v6', 'v2', 'v3', 'v4', 'v5', 'v7', 'v8', 'v9', 'v10', 'v11'];
 const SHOTS = process.argv.includes('--shots');
 const SHOT_DIR = path.join(ROOT, 'docs/screenshots/review-stops');
 const SIZES = [{ name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }, { name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }, { name: '915x412', width: 915, height: 412, deviceScaleFactor: 2 }];
@@ -26,10 +26,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ---- data and the store, no browser ----
 export async function dataChecks({ ok }) {
-  ok(STOPS.length === 9 && STOPS.map((k) => k.after).join() === AFTER.join(), `data: nine review stops, after lessons ${AFTER.join(', ')} (${STOPS.map((k) => k.after)})`);
-  ok(STOPS.every((k, i) => k.id === IDS[i] && k.title === 'Review Stop'), 'data: ids v1 to v9 (v6 sits after lesson 6), titled Review Stop');
+  ok(STOPS.length === 11 && STOPS.map((k) => k.after).join() === AFTER.join(), `data: eleven review stops, after lessons ${AFTER.join(', ')} (${STOPS.map((k) => k.after)})`);
+  ok(STOPS.every((k, i) => k.id === IDS[i] && k.title === 'Review Stop'), 'data: ids v1 to v11 (v6 sits after lesson 6), titled Review Stop');
   ok(STOPS.every((k) => k.world === CUR.lessons.find((l) => l.number === k.after).world), 'data: each stop is in the world of the lesson it follows');
-  ok([6, 17, 25].every((n) => CUR.checkpoints.some((k) => k.kind === 'review' && k.after === n)) && CUR.checkpoints.find((k) => k.id === 'b2').after === 6, 'data: every world ends with a Review Stop (lessons 6, 17, 25); at lesson 6 it sits with Story 2');
+  ok([6, 17, 25, 33].every((n) => CUR.checkpoints.some((k) => k.kind === 'review' && k.after === n)) && CUR.checkpoints.find((k) => k.id === 'b2').after === 6, 'data: every world ends with a Review Stop (lessons 6, 17, 25, 33); at lesson 6 it sits with Story 2');
   ok(CUR.checkpoints.filter((k) => k.kind === 'review').find((k) => k.after === 25).mix === 'vowels' && [18, 13, 8, 4, 2].every((n) => CUR.checkpoints.find((k) => k.id === 'v9').plan.some((a) => a.lesson === n)), 'data: the last stop mixes all five short vowels (a i o u e)');
   for (const k of STOPS) {
     const tag = `data ${k.id}`;
@@ -131,7 +131,7 @@ export async function screenChecks({ browser, url, ok }) {
           if (await tgt.count()) { await tgt.click({ force: true }); await page.waitForTimeout(900); (await letterSets(page)).forEach((l) => letters.add(l)); }
         }
       }
-      const bad = [...letters].filter((l) => ![...l].every((ch) => taught.has(ch)));
+      const bad = [...letters].filter((l) => !isReadable(l, taught));
       ok(bad.length === 0 && letters.size > 0, `${k.id} step ${i + 1} (${a.task}): only letters taught by lesson ${k.after} show (${[...letters].join(' ')}${bad.length ? '; NEW: ' + bad.join(' ') : ''})`);
       if (a.task === 'check') {
         const glyphs = await page.locator('.opt-card').count();
@@ -188,7 +188,7 @@ export async function screenChecks({ browser, url, ok }) {
     await m.page.goto(url + `#/checkpoint/${k.id}/finish`);
     await m.page.waitForSelector('.review-message');
     const msg = await m.page.locator('.review-message').innerText();
-    const tg = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = WL.filter((w) => [...w].every((ch) => tg.has(ch)));
+    const tg = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = WL.filter((w) => isReadable(w, tg));
     const mm = /^Your child has learned (\d+) sounds\. Words made only from these sounds include: (.+)\. That's (\d+) words in all\.(?: Heart words learned so far, counted apart: (.+)\.)?$/.exec(msg.replace(/\s+/g, ' ').trim());
     ok(mm && Number(mm[1]) === k.after && Number(mm[3]) === fresh.length && mm[2].split(', ').every((w) => fresh.includes(w.toLowerCase())) && mm[2].split(', ').length <= 8 && /^(?!.*pronounce)/.test(msg), `${k.id}: the end message says ${k.after} sounds and ${fresh.length} words, a fresh count from the list; every example is readable (${msg.slice(0, 90)}...)`);
     const hearts = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')).lessons.slice(0, k.after).flatMap((L) => L.heart || []);
@@ -323,9 +323,9 @@ export async function homeChecks({ browser, url, ok }) {
   await g.page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await g.page.mouse.down(); await g.page.waitForTimeout(2250); await g.page.mouse.up();
   await g.page.waitForSelector('.grownups');
   const rows = await g.page.locator('.gu-row').allInnerTexts();
-  ok(await g.page.locator('.gu-world').count() === 3, 'grownups: with Green Valley done all three worlds are listed');
-  ok(rows.filter((r) => r.includes('Review Stop')).length === 9 && rows.some((r) => r.includes('Read It Again')) && !rows.some((r) => /Smooth/.test(r)), `grownups: nine Review Stops and Read It Again are listed (${rows.length} rows)`);
-  ok((await g.page.locator('.gu-row .ticket-art').count()) === 9 && (await g.page.locator('.gu-row .reread-art').count()) === 1, 'grownups: each stop kind has its own icon');
+  ok(await g.page.locator('.gu-world').count() === 4, 'grownups: with Green Valley done all four worlds that have lessons are listed (Digraph Docks too)');
+  ok(rows.filter((r) => r.includes('Review Stop')).length === 11 && rows.some((r) => r.includes('Read It Again')) && !rows.some((r) => /Smooth/.test(r)), `grownups: eleven Review Stops and Read It Again are listed (${rows.length} rows)`);
+  ok((await g.page.locator('.gu-row .ticket-art').count()) === 11 && (await g.page.locator('.gu-row .reread-art').count()) === 1, 'grownups: each stop kind has its own icon');
   await g.ctx.close();
 }
 

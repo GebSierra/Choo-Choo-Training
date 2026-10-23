@@ -46,7 +46,7 @@ export function build(ctx) {
     const mine = ++serial, r = rounds[round];
     cards.forEach((b, i) => {
       const c = r.cards[i];
-      b.replaceChildren(...(c.image ? [picture({ word: c.value, image: c.image })] : []), r.kind === 'letter' ? h('span', { class: 'which-glyph' }, glyphSvg(c.value, { color: accentOf(c.value), label: 'letter choice' })) : h('span', { class: 'which-word' }, letterText(c.value, { label: true })));
+      b.replaceChildren(...(c.image ? [picture({ word: c.value, image: c.image })] : []), r.kind === 'letter' ? h('span', { class: 'which-glyph' }, glyphSvg(c.value, { color: accentOf(c.value), label: 'letter choice' })) : h('span', { class: 'which-word' }, letterText(c.value, { label: true, level: ck.after })));
       b.classList.remove('go');
       b.classList.toggle('has-pic', !!c.image);
       b.dataset.word = c.value; b.dataset.target = i === r.target ? '1' : '0';

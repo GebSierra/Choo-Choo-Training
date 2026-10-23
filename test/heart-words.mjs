@@ -17,7 +17,7 @@ const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } }
 const SHOT_DIR = path.join(ROOT, 'docs/screenshots/heart-words');
 
 // ---- 1. placement: the plan of the curriculum table, spread so no lesson gets more than 2 ----
-const PLAN = { 3: ['a'], 4: ['I', 'is'], 6: ['the'], 10: ['to'], 18: ['he', 'me'], 19: ['be', 'go'], 20: ['no', 'so'], 21: ['we', 'want'], 22: ['was', 'my'], 23: ['you', 'of'], 24: ['said', 'do'], 25: ['does', 'are'] };
+const PLAN = { 3: ['a'], 4: ['I', 'is'], 6: ['the'], 10: ['to'], 18: ['he', 'me'], 19: ['be', 'go'], 20: ['no', 'so'], 21: ['we', 'want'], 22: ['was', 'my'], 23: ['you', 'of'], 24: ['said', 'do'], 25: ['does', 'are'], 26: ['she'], 28: ['they'], 31: ['what', 'where'] };
 for (const L of CUR.lessons) {
   const want = PLAN[L.number] || [];
   ok(JSON.stringify(L.heart || []) === JSON.stringify(want), `lesson ${L.number} teaches ${JSON.stringify(want)} (got ${JSON.stringify(L.heart || [])})`);
@@ -27,10 +27,10 @@ for (const L of CUR.lessons) {
   else ok(!types.includes('heart'), `lesson ${L.number}: no Heart Word step without a new heart word`);
 }
 const all = CUR.lessons.flatMap((L) => L.heart || []);
-ok(all.length === 21 && new Set(all).size === 21, 'the 21 heart words of units 2.1 to 2.11 are each taught once');
-ok(Object.keys(CUR.heartWords).length === 21, 'curriculum.heartWords holds all 21');
+ok(all.length === 25 && new Set(all).size === 25, 'the 25 heart words of units 2.1 to 3.3 (World 4 adds she, they, what, where) are each taught once');
+ok(Object.keys(CUR.heartWords).length === 25, 'curriculum.heartWords holds all 25');
 // every word of unit 2.x arrives at or after its unit starts, never before a book or story that uses it
-const UNIT_START = { a: 1, I: 4, is: 4, the: 6, to: 9, he: 18, me: 18, be: 18, go: 18, no: 18, so: 18, we: 19, want: 19, was: 19, my: 22, you: 22, of: 22, said: 22, do: 22, does: 22, are: 22 };
+const UNIT_START = { a: 1, I: 4, is: 4, the: 6, to: 9, he: 18, me: 18, be: 18, go: 18, no: 18, so: 18, we: 19, want: 19, was: 19, my: 22, you: 22, of: 22, said: 22, do: 22, does: 22, are: 22, she: 26, they: 28, what: 31, where: 31 };
 for (const L of CUR.lessons) for (const w of L.heart || []) ok(L.number >= UNIT_START[w], `${w} is not taught before its unit (lesson ${L.number})`);
 ok(heartTaught(CUR, 4).join(' ') === 'a I is', 'heartTaught: a, I, is by lesson 4 (Story 1 uses I and is)');
 ok(checkHeartWords(CUR).length === 0, 'live data passes checkHeartWords');

@@ -1196,6 +1196,290 @@
         "voice": true,
         "text": "Lift the back of your tongue (k), then round your lips (w). Say both quickly as one sound. Voice on."
       }
+    },
+    "sh": {
+      "glyph": "sh",
+      "sayItLike": "shhh",
+      "hold": true,
+      "doNotSay": null,
+      "howTo": "Say shhh as in ship, like asking for quiet. Hold it: shhh.",
+      "parentNote": "Two letters, one sound. Slide under both letters at once: shhh. Compare sip and ship: which one has the new sound?",
+      "asIn": "ship",
+      "clip": "assets/audio/sounds/sh.mp3",
+      "words": [
+        {
+          "word": "ship",
+          "image": "assets/images/mentava/web/sh/ship.webp"
+        },
+        {
+          "word": "shark",
+          "image": "assets/images/mentava/web/sh/shark.webp"
+        },
+        {
+          "word": "shoe",
+          "image": "assets/images/mentava/web/sh/shoe.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "ship",
+          "image": "assets/images/mentava/web/sh/ship.webp"
+        },
+        {
+          "word": "shark",
+          "image": "assets/images/mentava/web/sh/shark.webp"
+        },
+        {
+          "word": "shoe",
+          "image": "assets/images/mentava/web/sh/shoe.webp"
+        }
+      ],
+      "practice": [
+        "ship",
+        "shark",
+        "shoe"
+      ],
+      "mouth": {
+        "voice": false,
+        "text": "Round your lips a little and close your teeth. Blow a long stream of air. Voice off."
+      }
+    },
+    "ch": {
+      "glyph": "ch",
+      "sayItLike": "ch-",
+      "hold": false,
+      "doNotSay": "chuh",
+      "howTo": "Say ch- as in chip, like a quick sneeze. Short: ch-. Do not add uh.",
+      "parentNote": "Two letters, one sound. Say ch- like a quick sneeze, not chuh. Compare ship and chip: which one starts with the new sound?",
+      "asIn": "chip",
+      "clip": "assets/audio/sounds/ch.mp3",
+      "words": [
+        {
+          "word": "chair",
+          "image": "assets/images/mentava/web/ch/chair.webp"
+        },
+        {
+          "word": "cheese",
+          "image": "assets/images/mentava/web/ch/cheese.webp"
+        },
+        {
+          "word": "chick",
+          "image": "assets/images/mentava/web/ch/chick.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "chair",
+          "image": "assets/images/mentava/web/ch/chair.webp"
+        },
+        {
+          "word": "cheese",
+          "image": "assets/images/mentava/web/ch/cheese.webp"
+        },
+        {
+          "word": "chick",
+          "image": "assets/images/mentava/web/ch/chick.webp"
+        }
+      ],
+      "practice": [
+        "chair",
+        "cheese",
+        "chick"
+      ],
+      "mouth": {
+        "voice": false,
+        "text": "Round your lips, then let a quick burst of air out through your teeth, like a sneeze. Voice off."
+      }
+    },
+    "th": {
+      "glyph": "th",
+      "sayItLike": "th-",
+      "hold": false,
+      "doNotSay": "tuh or fuh",
+      "howTo": "Say th- as in thin: poke your tongue out between your teeth and blow. Do not add uh.",
+      "voiced": "thhh",
+      "voicedWords": [
+        "that",
+        "this",
+        "then",
+        "them",
+        "they",
+        "the"
+      ],
+      "parentNote": "The letters th make two sounds, with the tongue between the teeth for both. Put a hand on your throat. In that it buzzes (thhh). In thin it does not (th-). Say both and feel the difference. Quiet th is easy to mix up with f: compare fin and thin.",
+      "asIn": "thin",
+      "clip": "assets/audio/sounds/th.mp3",
+      "words": [
+        {
+          "word": "thumb",
+          "image": "assets/images/mentava/web/th-unvoiced/thumb.webp"
+        },
+        {
+          "word": "thunder",
+          "image": "assets/images/mentava/web/th-unvoiced/thunder.webp"
+        },
+        {
+          "word": "bath",
+          "image": "assets/images/mentava/web/th-unvoiced/bath.webp"
+        },
+        {
+          "word": "mother",
+          "image": "assets/images/mentava/web/th-voiced/mother.webp"
+        },
+        {
+          "word": "father",
+          "image": "assets/images/mentava/web/th-voiced/father.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "thumb",
+          "image": "assets/images/mentava/web/th-unvoiced/thumb.webp"
+        },
+        {
+          "word": "thunder",
+          "image": "assets/images/mentava/web/th-unvoiced/thunder.webp"
+        }
+      ],
+      "practice": [
+        "thumb",
+        "thunder"
+      ],
+      "mouth": {
+        "voice": false,
+        "text": "Poke your tongue tip out between your teeth and blow air, as in thin. Voice off."
+      }
+    },
+    "ck": {
+      "glyph": "ck",
+      "sayItLike": "k-",
+      "hold": false,
+      "doNotSay": "kuh",
+      "howTo": "ck says k-, the same sound as c and k. It comes right after a short vowel at the end of a word.",
+      "endOnly": true,
+      "parentNote": "Two letters, one sound: ck says k- and comes at the end of a short word, like back and duck. Slide under both letters at once.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/ck.mp3",
+      "words": [
+        {
+          "word": "duck",
+          "image": "assets/images/mentava/web/d/duck.webp"
+        },
+        {
+          "word": "sock",
+          "image": "assets/images/mentava/web/s/sock.webp"
+        },
+        {
+          "word": "stick",
+          "image": "assets/images/mentava/web/i/stick.webp"
+        },
+        {
+          "word": "rock",
+          "image": "assets/images/mentava/web/o/rock.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": false,
+        "text": "Lift the back of your tongue, then drop it with a quick puff of air, like c and k. Voice off."
+      }
+    },
+    "ff": {
+      "glyph": "ff",
+      "alt": [
+        "ll",
+        "ss",
+        "zz"
+      ],
+      "sayItLike": "fff",
+      "hold": true,
+      "doNotSay": null,
+      "howTo": "Two of the same letter say the same sound as one: ff says fff, ll says l-, ss says sss, zz says zzz.",
+      "endOnly": true,
+      "parentNote": "Doubled letters come right after a short vowel at the end of a short word: puff, bell, miss, buzz. Two letters, one sound: the same sound the single letter makes. Slide under both letters at once.",
+      "asIn": "puff",
+      "clip": "assets/audio/sounds/ff.mp3",
+      "words": [
+        {
+          "word": "ball",
+          "image": "assets/images/mentava/web/b/ball.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": false,
+        "text": "Two letters, one sound, the same as the single letter. Say it once: top teeth on your bottom lip for ff. Voice off."
+      }
+    },
+    "wh": {
+      "glyph": "wh",
+      "sayItLike": "w-",
+      "hold": false,
+      "doNotSay": "wuh",
+      "howTo": "wh says w-, the same sound as w. Round your lips, then open them quickly. Do not add uh.",
+      "noPictures": true,
+      "parentNote": "The letters wh say the same sound as w. Slide under both letters at once. Compare wig and whip: which one has the new letters?",
+      "asIn": "when",
+      "clip": "assets/audio/sounds/wh.mp3",
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Round your lips like a small O, then open them quickly, just like w. Voice on."
+      }
+    },
+    "ng": {
+      "glyph": "ng",
+      "sayItLike": "ng-",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "ng is one sound at the end of a word, like the end of sing. Hum through your nose with the back of your tongue up.",
+      "endOnly": true,
+      "parentNote": "The letters ng are taught as chunks: -ang, -ing, -ong, -ung. The vowel sounds a little different before ng, so read the whole chunk: rang, sing, long, hung.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/ng.mp3",
+      "words": [
+        {
+          "word": "ring",
+          "image": "assets/images/mentava/web/ng/ring.webp"
+        },
+        {
+          "word": "sing",
+          "image": "assets/images/mentava/web/ng/sing.webp"
+        },
+        {
+          "word": "wing",
+          "image": "assets/images/mentava/web/ng/wing.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Lift the back of your tongue to the roof of your mouth and hum through your nose. Voice on."
+      }
+    },
+    "nk": {
+      "glyph": "nk",
+      "sayItLike": "nk-",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "nk is n, then a quick k, at the end of a word, like the end of bank. Back of your tongue up, then a puff.",
+      "endOnly": true,
+      "noPictures": true,
+      "parentNote": "The letters nk are taught as chunks: -ank, -ink, -onk, -unk. Read the whole chunk: bank, pink, honk, junk.",
+      "asIn": null,
+      "clip": "assets/audio/sounds/nk.mp3",
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Lift the back of your tongue and hum through your nose, then end with a quick puff, like k. Voice on."
+      }
     }
   },
   "lessons": [
@@ -3810,6 +4094,874 @@
       ],
       "unit": "2.11",
       "world": "W3"
+    },
+    {
+      "number": 26,
+      "sound": "sh",
+      "review": [
+        "x",
+        "q"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "sh"
+        },
+        {
+          "tts": "as in ship."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "shop",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "fish",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "mash",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "ship",
+          "image": "assets/images/mentava/web/sh/ship.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "sh"
+          },
+          {
+            "tts": "as in ship?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says shhh as in ship?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "sh",
+            "correct": true
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          },
+          {
+            "glyph": "s",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "ship",
+          "target": "sh"
+        },
+        {
+          "word": "quit",
+          "target": "q"
+        },
+        {
+          "word": "shut",
+          "target": "sh"
+        },
+        {
+          "word": "six",
+          "target": "x"
+        }
+      ],
+      "middle": [
+        "signals",
+        "sounds",
+        "board",
+        "writing"
+      ],
+      "games": [
+        "signals",
+        "board"
+      ],
+      "heart": [
+        "she"
+      ],
+      "unit": "3.1",
+      "world": "W4"
+    },
+    {
+      "number": 27,
+      "sound": "ch",
+      "review": [
+        "q",
+        "sh"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "ch"
+        },
+        {
+          "tts": "as in chip."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "chop",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "much",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "rich",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "chick",
+          "image": "assets/images/mentava/web/ch/chick.webp",
+          "showLetters": false,
+          "sayOnly": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "ch"
+          },
+          {
+            "tts": "as in chip?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says ch- as in chip?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "ch",
+            "correct": true
+          },
+          {
+            "glyph": "sh",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "chip",
+          "target": "ch"
+        },
+        {
+          "word": "ship",
+          "target": "sh"
+        },
+        {
+          "word": "chop",
+          "target": "ch"
+        },
+        {
+          "word": "quit",
+          "target": "q"
+        }
+      ],
+      "middle": [
+        "writing",
+        "sounds",
+        "wagons"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "unit": "3.1",
+      "world": "W4"
+    },
+    {
+      "number": 28,
+      "sound": "th",
+      "review": [
+        "sh",
+        "ch"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "th"
+        },
+        {
+          "tts": "as in thin."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "that",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "thin",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "bath",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "thumb",
+          "image": "assets/images/mentava/web/th-unvoiced/thumb.webp",
+          "showLetters": false,
+          "sayOnly": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "th"
+          },
+          {
+            "tts": "as in thin?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says th- as in thin?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "th",
+            "correct": true
+          },
+          {
+            "glyph": "t",
+            "correct": false
+          },
+          {
+            "glyph": "sh",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "that",
+          "target": "th"
+        },
+        {
+          "word": "chat",
+          "target": "ch"
+        },
+        {
+          "word": "this",
+          "target": "th"
+        },
+        {
+          "word": "ship",
+          "target": "sh"
+        }
+      ],
+      "middle": [
+        "board",
+        "sounds",
+        "hunt",
+        "writing"
+      ],
+      "games": [
+        "board"
+      ],
+      "heart": [
+        "they"
+      ],
+      "unit": "3.2",
+      "world": "W4"
+    },
+    {
+      "number": 29,
+      "sound": "ck",
+      "review": [
+        "ch",
+        "th"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "ck"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "back",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "sick",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "duck",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "sock",
+          "image": "assets/images/mentava/web/s/sock.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "ck"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says k-?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "ck",
+            "correct": true
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          },
+          {
+            "glyph": "t",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "back",
+          "target": "ck"
+        },
+        {
+          "word": "bath",
+          "target": "th"
+        },
+        {
+          "word": "sack",
+          "target": "ck"
+        },
+        {
+          "word": "such",
+          "target": "ch"
+        }
+      ],
+      "middle": [
+        "writing",
+        "signals",
+        "sounds",
+        "wagons"
+      ],
+      "games": [
+        "signals",
+        "wagons"
+      ],
+      "unit": "3.3",
+      "world": "W4"
+    },
+    {
+      "number": 30,
+      "sound": "ff",
+      "review": [
+        "th",
+        "ck"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "ff"
+        },
+        {
+          "tts": "as in puff."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "puff",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "miss",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "buzz",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "ball",
+          "image": "assets/images/mentava/web/b/ball.webp",
+          "showLetters": false,
+          "sayOnly": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "ff"
+          },
+          {
+            "tts": "as in puff?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says fff as in puff?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "ff",
+            "correct": true
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          },
+          {
+            "glyph": "t",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "off",
+          "target": "ff"
+        },
+        {
+          "word": "sock",
+          "target": "ck"
+        },
+        {
+          "word": "sell",
+          "target": "ff"
+        },
+        {
+          "word": "that",
+          "target": "th"
+        }
+      ],
+      "middle": [
+        "hunt",
+        "sounds",
+        "board",
+        "writing"
+      ],
+      "games": [
+        "board"
+      ],
+      "unit": "3.3",
+      "world": "W4"
+    },
+    {
+      "number": 31,
+      "sound": "wh",
+      "review": [
+        "ck",
+        "ff"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "wh"
+        },
+        {
+          "tts": "as in when."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "when",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "whip",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "whiz",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "wh"
+          },
+          {
+            "tts": "as in when?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says w- as in when?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "wh",
+            "correct": true
+          },
+          {
+            "glyph": "w",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "when",
+          "target": "wh"
+        },
+        {
+          "word": "puff",
+          "target": "ff"
+        },
+        {
+          "word": "whip",
+          "target": "wh"
+        },
+        {
+          "word": "back",
+          "target": "ck"
+        }
+      ],
+      "middle": [
+        "signals",
+        "writing",
+        "sounds",
+        "board"
+      ],
+      "games": [
+        "signals",
+        "board"
+      ],
+      "heart": [
+        "what",
+        "where"
+      ],
+      "unit": "3.3",
+      "world": "W4"
+    },
+    {
+      "number": 32,
+      "sound": "ng",
+      "review": [
+        "ff",
+        "wh"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "ng"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "rang",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "long",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "hung",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "ring",
+          "image": "assets/images/mentava/web/ng/ring.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "ng"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says ng-?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "ng",
+            "correct": true
+          },
+          {
+            "glyph": "n",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "ring",
+          "target": "ng"
+        },
+        {
+          "word": "when",
+          "target": "wh"
+        },
+        {
+          "word": "wing",
+          "target": "ng"
+        },
+        {
+          "word": "puff",
+          "target": "ff"
+        }
+      ],
+      "middle": [
+        "writing",
+        "sounds",
+        "wagons",
+        "hunt"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "unit": "3.4",
+      "world": "W4"
+    },
+    {
+      "number": 33,
+      "sound": "nk",
+      "review": [
+        "wh",
+        "ng"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new sound:"
+        },
+        {
+          "clip": "nk"
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new letter. Your grown-up will say its sound."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "bank",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "pink",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "honk",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "nk"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says nk-?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "nk",
+            "correct": true
+          },
+          {
+            "glyph": "ng",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "board": [
+        {
+          "word": "bank",
+          "target": "nk"
+        },
+        {
+          "word": "rang",
+          "target": "ng"
+        },
+        {
+          "word": "sank",
+          "target": "nk"
+        },
+        {
+          "word": "when",
+          "target": "wh"
+        }
+      ],
+      "middle": [
+        "board",
+        "sounds",
+        "writing",
+        "signals"
+      ],
+      "games": [
+        "board",
+        "signals"
+      ],
+      "unit": "3.4",
+      "world": "W4"
     }
   ],
   "games": {
@@ -4057,6 +5209,86 @@
           "n",
           "h",
           "l"
+        ],
+        "sh": [
+          "s",
+          "t",
+          "h",
+          "m",
+          "a",
+          "f",
+          "p",
+          "n"
+        ],
+        "ch": [
+          "s",
+          "t",
+          "h",
+          "c",
+          "m",
+          "p",
+          "f",
+          "n"
+        ],
+        "th": [
+          "s",
+          "t",
+          "m",
+          "f",
+          "p",
+          "d",
+          "n",
+          "h"
+        ],
+        "ck": [
+          "m",
+          "a",
+          "s",
+          "i",
+          "t",
+          "p",
+          "f",
+          "d"
+        ],
+        "ff": [
+          "m",
+          "a",
+          "s",
+          "i",
+          "t",
+          "p",
+          "d",
+          "h"
+        ],
+        "wh": [
+          "m",
+          "a",
+          "s",
+          "i",
+          "t",
+          "p",
+          "f",
+          "d"
+        ],
+        "ng": [
+          "m",
+          "a",
+          "s",
+          "i",
+          "t",
+          "p",
+          "f",
+          "d"
+        ],
+        "nk": [
+          "m",
+          "a",
+          "s",
+          "i",
+          "t",
+          "p",
+          "f",
+          "d"
         ]
       }
     },
@@ -4156,6 +5388,47 @@
       ],
       "after": 22,
       "world": "W3"
+    },
+    {
+      "id": "b4",
+      "kind": "book",
+      "title": "Story 4",
+      "book": "book-4",
+      "needs": [
+        "m",
+        "a",
+        "s",
+        "i",
+        "t",
+        "p",
+        "f",
+        "o",
+        "n",
+        "d",
+        "c",
+        "h",
+        "u",
+        "g",
+        "l",
+        "r",
+        "b",
+        "e",
+        "j",
+        "w",
+        "v",
+        "y",
+        "z",
+        "x",
+        "q",
+        "sh",
+        "ch",
+        "th",
+        "ck",
+        "ff",
+        "wh"
+      ],
+      "after": 31,
+      "world": "W4"
     },
     {
       "id": "x1",
@@ -5050,6 +6323,231 @@
       "world": "W3"
     },
     {
+      "id": "x9",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 27,
+      "pair": [
+        "sh",
+        "ch"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "sh"
+          ],
+          "letters": [
+            "sh"
+          ],
+          "words": [
+            "ship",
+            "shop",
+            "shed",
+            "shin",
+            "shut"
+          ]
+        },
+        {
+          "sign": [
+            "ch"
+          ],
+          "letters": [
+            "ch"
+          ],
+          "words": [
+            "chip",
+            "chop",
+            "chat",
+            "chin",
+            "chug"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "ship",
+          "b": "chip"
+        },
+        {
+          "a": "shop",
+          "b": "chop"
+        },
+        {
+          "a": "shin",
+          "b": "chin"
+        }
+      ],
+      "line": "Two sounds that are easy to mix up: shhh as in ship and ch- as in chip. Let's listen closely.",
+      "end": "Great listening! Your child can tell shhh as in ship from ch- as in chip.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "ch"
+          },
+          {
+            "tts": "as in chip."
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says ch- as in chip?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "ch",
+            "correct": true
+          },
+          {
+            "glyph": "sh",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 27,
+          "pair": [
+            "sh",
+            "ch"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 27
+        }
+      ],
+      "world": "W4"
+    },
+    {
+      "id": "x10",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 28,
+      "pair": [
+        "th",
+        "t"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "th"
+          ],
+          "letters": [
+            "th"
+          ],
+          "words": [
+            "thin",
+            "that",
+            "this",
+            "then",
+            "thud"
+          ]
+        },
+        {
+          "sign": [
+            "t"
+          ],
+          "letters": [
+            "t"
+          ],
+          "words": [
+            "tin",
+            "ten",
+            "tap",
+            "tub",
+            "tip"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "thin",
+          "b": "tin"
+        },
+        {
+          "a": "then",
+          "b": "ten"
+        }
+      ],
+      "hint": "For th the tongue peeks out between the teeth. For t it stays behind the teeth.",
+      "line": "Two sounds that are easy to mix up: th- as in thin and t-. Let's listen closely.",
+      "end": "Great listening! Your child can tell th- as in thin from t-.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "th"
+          },
+          {
+            "tts": "as in thin."
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says th- as in thin?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "th",
+            "correct": true
+          },
+          {
+            "glyph": "t",
+            "correct": false
+          },
+          {
+            "glyph": "m",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 28,
+          "pair": [
+            "th",
+            "t"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 28
+        }
+      ],
+      "world": "W4"
+    },
+    {
       "id": "v1",
       "kind": "review",
       "title": "Review Stop",
@@ -5499,6 +6997,141 @@
         }
       ],
       "world": "W3"
+    },
+    {
+      "id": "v10",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 30,
+      "summary": {
+        "sounds": 30,
+        "words": 306,
+        "examples": [
+          "that",
+          "this",
+          "thin",
+          "bath",
+          "back",
+          "sack",
+          "sick",
+          "sock"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so",
+          "we",
+          "want",
+          "was",
+          "my",
+          "you",
+          "of",
+          "said",
+          "do",
+          "does",
+          "are",
+          "she",
+          "they"
+        ]
+      },
+      "plan": [
+        {
+          "task": "signals",
+          "lesson": 30
+        },
+        {
+          "task": "hunt",
+          "lesson": 28
+        },
+        {
+          "task": "board",
+          "lesson": 29
+        },
+        {
+          "task": "check",
+          "lesson": 26
+        }
+      ],
+      "world": "W4"
+    },
+    {
+      "id": "v11",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 33,
+      "mix": "digraphs",
+      "summary": {
+        "sounds": 33,
+        "words": 337,
+        "examples": [
+          "when",
+          "whip",
+          "whiz",
+          "ring",
+          "sing",
+          "king",
+          "wing",
+          "rang"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so",
+          "we",
+          "want",
+          "was",
+          "my",
+          "you",
+          "of",
+          "said",
+          "do",
+          "does",
+          "are",
+          "she",
+          "they",
+          "what",
+          "where"
+        ]
+      },
+      "plan": [
+        {
+          "task": "wagons",
+          "lesson": 33
+        },
+        {
+          "task": "signals",
+          "lesson": 31
+        },
+        {
+          "task": "hunt",
+          "lesson": 29
+        },
+        {
+          "task": "board",
+          "lesson": 27
+        },
+        {
+          "task": "check",
+          "lesson": 30
+        }
+      ],
+      "world": "W4"
     }
   ],
   "gameDistractors": [
@@ -5798,7 +7431,8 @@
       "image": "assets/images/mentava/web/ch/chair.webp",
       "avoid": [
         "t",
-        "s"
+        "s",
+        "sh"
       ]
     },
     {
@@ -5806,7 +7440,8 @@
       "image": "assets/images/mentava/web/ch/cheese.webp",
       "avoid": [
         "t",
-        "s"
+        "s",
+        "sh"
       ]
     },
     {
@@ -5814,7 +7449,8 @@
       "image": "assets/images/mentava/web/ch/chick.webp",
       "avoid": [
         "t",
-        "s"
+        "s",
+        "sh"
       ]
     },
     {
@@ -5931,10 +7567,13 @@
         "sh",
         "ch",
         "th",
+        "ck",
+        "ff",
+        "wh",
         "ng",
-        "ck"
+        "nk"
       ],
-      "after": null
+      "after": 33
     },
     {
       "id": "L5",
@@ -5969,8 +7608,11 @@
         "sh",
         "ch",
         "th",
-        "ng",
         "ck",
+        "ff",
+        "wh",
+        "ng",
+        "nk",
         "bl",
         "st"
       ],
@@ -6087,6 +7729,43 @@
         "x",
         "q"
       ]
+    },
+    {
+      "id": "3.1",
+      "stage": 3,
+      "sounds": [
+        "sh",
+        "ch"
+      ]
+    },
+    {
+      "id": "3.2",
+      "stage": 3,
+      "sounds": [
+        "th"
+      ]
+    },
+    {
+      "id": "3.3",
+      "stage": 3,
+      "sounds": [
+        "ck",
+        "ff",
+        "wh"
+      ]
+    },
+    {
+      "id": "3.4",
+      "stage": 3,
+      "sounds": [
+        "ng",
+        "nk"
+      ]
+    },
+    {
+      "id": "3.5",
+      "stage": 3,
+      "sounds": []
     }
   ],
   "worlds": [
@@ -6615,6 +8294,81 @@
       "find": [
         "quit",
         "zip"
+      ]
+    },
+    "she": {
+      "word": "she",
+      "parts": [
+        {
+          "t": "sh"
+        },
+        {
+          "t": "e",
+          "heart": true
+        }
+      ],
+      "tricky": "The vowel at the end of the word says its name.",
+      "phrase": "she is a hen",
+      "find": [
+        "shop",
+        "shed"
+      ]
+    },
+    "they": {
+      "word": "they",
+      "parts": [
+        {
+          "t": "th"
+        },
+        {
+          "t": "ey",
+          "heart": true
+        }
+      ],
+      "tricky": "The letters ey say long a here.",
+      "phrase": "they can go",
+      "find": [
+        "then",
+        "thin"
+      ]
+    },
+    "what": {
+      "word": "what",
+      "parts": [
+        {
+          "t": "wh"
+        },
+        {
+          "t": "a",
+          "heart": true
+        },
+        {
+          "t": "t"
+        }
+      ],
+      "tricky": "The letter a says \"u\" here.",
+      "phrase": "what is it",
+      "find": [
+        "when",
+        "whip"
+      ]
+    },
+    "where": {
+      "word": "where",
+      "parts": [
+        {
+          "t": "wh"
+        },
+        {
+          "t": "ere",
+          "heart": true
+        }
+      ],
+      "tricky": "The letters ere say \"air\" here.",
+      "phrase": "where is Dad",
+      "find": [
+        "when",
+        "whiz"
       ]
     }
   }

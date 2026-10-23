@@ -1,5 +1,5 @@
 // Data rules shared by the tap games and tools/gen-lessons.mjs. No DOM here.
-import { soundOfLetter, spellingsOf, lettersOfSounds, letterUnits } from './order.js';
+import { soundOfLetter, spellingsOf, lettersOfSounds, letterUnits, isReadable } from './order.js';
 export const LOOKALIKE = ['da','db','dp','dq','dg','bp','bq','bh','pq','pg','nm','nh','nr','nu','hb','hk','hl','li','lt','lj','lf','tf','fi','oc','oa','rn','rh','kh','kb','kl','ec','eo','ea','es','ji','jl','jt','jg','jy','wm','wv','wu','vy','vu','yu','yg','yj','zs','zn','xk','xz','xy','qg','qp','qa','qd','qb'];
 export const looksLike = (a, b) => LOOKALIKE.includes(a + b) || LOOKALIKE.includes(b + a);
 export const order = (curriculum) => curriculum.lessons.map((L) => L.sound);
@@ -32,7 +32,8 @@ export function parade(target, others, { size = 8, hits = 3, rng = Math.random }
   return Array.from({ length: size }, (_, i) => (at.has(i) ? target : others[i % others.length]));
 }
 
-// Short real words for Station Board: every letter keeps its basic sound; no names, no s said as z, no ng/nk/ck.
+// Short real words for Station Board: every letter keeps its basic sound; no names, no s said as z. The digraph words (sh ch th ck ff ll ss zz wh ng nk, World 4) only
+// appear once their digraph is taught (isReadable): until then no ng/nk/ck word can be read.
 // tools/gen-lessons.mjs keeps only the words spelt with taught sounds, so later lessons pick up more by themselves.
 export const WORD_BANK = `am an at it in if us up on ox ax
 sat sit set sap sip sad sag sun sum six sis
@@ -62,6 +63,15 @@ milk silk gift lift soft left raft
 help held melt felt belt
 spin spot spit spat stop step stem slip slap slim slid sled flat flap flip flag frog grab grin drip drop drum plan plum snap snip snug swim twin trip trap trot glad clap clip club crab crib
 stamp stand twist`.split(/\s+/).filter(Boolean);
+// World 4 words (lessons 26 on): digraphs and doubled letters. Kept apart so lessons 1 to 25 never gain a word (a double-letter word such as hill is readable earlier).
+export const DOCKS_BANK = `ship shop shed shut shin fish dish wish mash cash rush
+chip chop chat chin chug much such rich
+that this then them thin thud bath moth math path
+back sack pack neck deck sick kick pick sock rock duck luck
+puff huff cuff off bell tell sell hill bill kiss moss buzz jazz
+when whip whiz whim
+ring sing king wing rang sang song long hung rung gong
+bank sank tank pink sink link honk junk bunk`.split(/\s+/).filter(Boolean);
 const dist = (a, b) => {
   if (a.length === b.length) { let d = 0; for (let i = 0; i < a.length; i++) d += a[i] !== b[i]; return d; }
   const m = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
@@ -69,15 +79,15 @@ const dist = (a, b) => {
   for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) m[i][j] = Math.min(m[i - 1][j] + 1, m[i][j - 1] + 1, m[i - 1][j - 1] + (a[i - 1] !== b[j - 1]));
   return m[a.length][b.length];
 };
-const once = (w, k) => letterUnits(w).filter((c) => soundOfLetter(c) === k).length === 1; // k is a sound key: c and k count together
+const once = (w, k, n) => letterUnits(w, n).filter((c) => soundOfLetter(c) === k).length === 1; // k is a sound key: c and k count together
 // The words of lesson n: up to 4 letters, all taught; each round's target sound appears exactly once in its word; each
 // next word is the closest to the last one (fewest letters changed; ties go to the bank order). Null when a round has no word.
 export function boardWords(order, n, rounds = 4) {
   const taught = lettersOfSounds(order.slice(0, n));
-  const pool = WORD_BANK.filter((w) => w.length <= 4 && [...w].every((c) => taught.has(c)));
+  const pool = [...WORD_BANK, ...(n >= 26 ? DOCKS_BANK : [])].filter((w) => w.length <= 4 && isReadable(w, taught));
   const out = []; let prev = null; const turns = {};
   for (const k of roundTargets(order, n, rounds)) {
-    let c = pool.filter((w) => once(w, k) && !out.some((o) => o.word === w));
+    let c = pool.filter((w) => once(w, k, n) && !out.some((o) => o.word === w));
     // A sound with two spellings (c, k): its rounds take them in turn, so both letters are met (a c word, then a k word ...).
     const spell = spellingFor(k, turns[k] || 0), spelt = c.filter((w) => w.includes(spell));
     turns[k] = (turns[k] || 0) + 1;
