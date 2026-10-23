@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
+import { letterUnits } from '../js/order.js';
 import { ROOT, startServer, loadPlaywright, launch, VIEWPORTS, newPage, touchDrag, SEEN } from './lib.mjs';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
@@ -134,7 +135,7 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
     ok(!body.includes('{name}'), `${tag} page ${n + 1}: no {name} left in the text`);
     if (/\{name\}/.test(pg.read)) ok(/Lily/.test(await page.locator('.book-read').innerText()), `${tag}: page ${n + 1} says Lily`);
     if (pg.child) {
-      const want = [...pg.child.replace(/ /g, '')].length;
+      const want = pg.child.split(' ').reduce((n, w) => n + letterUnits(w, ck.after).length, 0); // the units joined by the book's lesson (ss in miss only from lesson 30, sh in ship from 26)
       lens.push(await page.locator('.book-child .glyph-letter').count());
       ok(lens[lens.length - 1] === want, `${tag} page ${n + 1}: ${want} drawn letters in "${pg.child}" (${lens[lens.length - 1]})`);
     }

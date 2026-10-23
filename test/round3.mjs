@@ -105,7 +105,7 @@ export async function traceChecks({ browser, url, ok }) {
 // What a parent hears when the script is read aloud, for every task of every new lesson: never a single letter or a run of
 // one letter, never a clipped sound stretched, and with the sounds off (the default) the sentences that hold a sound are left out.
 export async function scriptChecks({ browser, url, ok }) {
-  const clipped = Object.values(CUR.sounds).filter((s) => s.hold === false).map((s) => s.glyph);
+  const clipped = Object.values(CUR.sounds).filter((s) => s.hold === false).map((s) => s.glyph).filter((g) => g.length === 1); // single letters; the digraphs are written by their own notation (th- is clipped, the buzzing thhh and shhh are held)
   for (const playSounds of [false, true]) {
     const made = await newPage(browser, VIEWPORTS[2]);
     const { page, errors } = made;
@@ -133,7 +133,7 @@ export async function scriptChecks({ browser, url, ok }) {
     for (const [where, text] of spokenAll) {
       ok(!isIsolated(text), `${where}: "${text}" is not a single letter or a run of one letter`);
       ok(!/(^|\s)[a-z]-/.test(text) || /\b(ex|e)-/i.test(text), `${where}: "${text}" holds a written sound (t-) that must not go to text to speech`);
-      for (const k of clipped) ok(!new RegExp(`${k}{3}`, 'i').test(text), `${where}: "${text}" stretches the clipped sound ${k}`);
+      for (const k of clipped) ok(!new RegExp(`${k}{3}`, 'i').test(text.replace(/shhh|thhh/gi, '')), `${where}: "${text}" stretches the clipped sound ${k}`);
     }
     ok(errors.length === 0, `scripts: errors ${errors.join(' | ')}`);
     await made.ctx.close();
