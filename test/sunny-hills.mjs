@@ -35,9 +35,9 @@ const settled = (page, ms = 25000) => until(page, () => window.__train && window
 // ---- data and the store, no browser ----
 export async function dataChecks({ ok }) {
   // 1. the order and the count
-  ok(ORDER_SOUNDS.length === 33 && ORDER_SOUNDS.slice(0, 17).join('') === 'masitpfondchuglrb' && ORDER_SOUNDS.slice(17, 25).join('') === 'ejwvyzxq', 'order: the first 17 unchanged, then e j w v y z x q appended (World 4 follows, test/digraph-docks.mjs)');
+  ok(ORDER_SOUNDS.length === 42 && ORDER_SOUNDS.slice(0, 17).join('') === 'masitpfondchuglrb' && ORDER_SOUNDS.slice(17, 25).join('') === 'ejwvyzxq', 'order: the first 17 unchanged, then e j w v y z x q appended (World 4 and World 5 follow, test/digraph-docks.mjs and test/blend-bay.mjs)');
   ok(ORDER === ORDER_SOUNDS.join(' ') && PRIOR_ORDERS.includes('m a s i t p f o n d c h u g l r b') && ORDER.startsWith(PRIOR_ORDERS[0] + ' ') && ORDER !== LEGACY_ORDER, 'order: the string the 1.9.33 to 1.9.36 saves carry is a prefix of the new one (so nothing is reset)');
-  ok(SOUNDS.join(' ') === ORDER && CUR.lessons.length === 33 && Object.keys(CUR.sounds).join(' ') === ORDER, 'data: 33 lessons (25 of them before World 4), one sound each, in order');
+  ok(SOUNDS.join(' ') === ORDER && CUR.lessons.length === 42 && Object.keys(CUR.sounds).join(' ') === ORDER, 'data: 42 lessons (25 of them before World 4), one sound each, in order');
   ok(CUR.lessons.slice(17, 25).every((L) => L.world === 'W3') && lessonsIn(CUR, 'W3').length === 8 && CUR.worlds[2].name === 'Sunny Hills', 'data: lessons 18 to 25 are World 3, Sunny Hills');
   const UNIT = { 18: '2.9', 19: '2.10', 20: '2.10', 21: '2.10', 22: '2.11', 23: '2.11', 24: '2.11', 25: '2.11' };
   ok(CUR.lessons.slice(17, 25).every((L) => L.unit === UNIT[L.number]), 'data: e is unit 2.9, j w v unit 2.10, y z x qu unit 2.11');
@@ -78,7 +78,7 @@ export async function dataChecks({ ok }) {
   ok(ck.v6.plan.every((a) => a.lesson <= 6) && ck.v7.plan.every((a) => a.lesson <= 20) && ck.v8.plan.every((a) => a.lesson <= 23), 'stops: no review stop shows a sound that is not taught yet');
   ok(ck.v9.mix === 'vowels' && [2, 4, 8, 13, 18].every((n) => ck.v9.plan.some((a) => a.lesson === n)) && ['a', 'i', 'o', 'u', 'e'].every((v) => ck.v9.plan.some((a) => CUR.lessons[a.lesson - 1].sound === v)), 'stops: the last Review Stop has an activity on each short vowel a i o u e');
   ok(ck.b3.kind === 'book' && ck.b3.book === 'book-3' && ck.b3.world === 'W3' && JSON.stringify(ck.b3.needs) === JSON.stringify(ORDER_SOUNDS.slice(0, 22)), 'stops: Story 3 is in World 3, after lesson 22 (y), and needs the sounds up to y');
-  ok(CUR.levels.map((v) => v.after).join() === '6,17,25,33,' && CUR.levels[2].car === 'flatbed' && CUR.levels[2].needs.length === 25, 'levels: level three comes after lesson 25 (the end of World 3); level four (World 4) is tested in test/digraph-docks.mjs, level five is still to build');
+  ok(CUR.levels.map((v) => v.after).join() === '6,17,25,33,42' && CUR.levels[2].car === 'flatbed' && CUR.levels[2].needs.length === 25, 'levels: level three comes after lesson 25 (the end of World 3); levels four and five (Worlds 4 and 5) are tested in test/digraph-docks.mjs and test/blend-bay.mjs');
 
   // 5. Story 3
   const sight = (BOOK3.sight || []).map((w) => w.toLowerCase());

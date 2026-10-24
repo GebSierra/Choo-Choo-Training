@@ -12,24 +12,24 @@ import { state, openHome, until } from './train.mjs';
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const STOPS = CUR.checkpoints.filter((k) => k.kind === 'review');
 // Every world ends with a Review Stop (after 6, 17, 25 and 33); the ids never change once saved, so the new stops are v6 to v11 and sit in lesson order.
-const AFTER = [3, 6, 9, 12, 15, 17, 20, 23, 25, 30, 33];
-const IDS = ['v1', 'v6', 'v2', 'v3', 'v4', 'v5', 'v7', 'v8', 'v9', 'v10', 'v11'];
+const AFTER = [3, 6, 9, 12, 15, 17, 20, 23, 25, 30, 33, 38, 42];
+const IDS = ['v1', 'v6', 'v2', 'v3', 'v4', 'v5', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13'];
 const SHOTS = process.argv.includes('--shots');
 const SHOT_DIR = path.join(ROOT, 'docs/screenshots/review-stops');
 const SIZES = [{ name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 }, { name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }, { name: '915x412', width: 915, height: 412, deviceScaleFactor: 2 }];
 const PHONE = SIZES[1];
-const ALLOWED = ['hunt', 'signals', 'wagons', 'board', 'check', 'read'];
-const NAMES = { read: 'Read a Word', hunt: 'Letter Hunt', signals: 'Green Light', wagons: 'Wagon Parade', board: 'Station Board', check: 'Ticket Check' };
+const ALLOWED = ['hunt', 'signals', 'wagons', 'board', 'check', 'read', 'chains'];
+const NAMES = { read: 'Read a Word', hunt: 'Letter Hunt', signals: 'Green Light', wagons: 'Wagon Parade', board: 'Station Board', chains: 'Add a Car', check: 'Ticket Check' };
 const taughtBy = (n) => lettersOfSounds(ORDER_SOUNDS.slice(0, n));
 const shot = async (page, name) => { if (!SHOTS) return; fs.mkdirSync(SHOT_DIR, { recursive: true }); await page.screenshot({ path: path.join(SHOT_DIR, name + '.png') }); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ---- data and the store, no browser ----
 export async function dataChecks({ ok }) {
-  ok(STOPS.length === 11 && STOPS.map((k) => k.after).join() === AFTER.join(), `data: eleven review stops, after lessons ${AFTER.join(', ')} (${STOPS.map((k) => k.after)})`);
-  ok(STOPS.every((k, i) => k.id === IDS[i] && k.title === 'Review Stop'), 'data: ids v1 to v11 (v6 sits after lesson 6), titled Review Stop');
+  ok(STOPS.length === 13 && STOPS.map((k) => k.after).join() === AFTER.join(), `data: thirteen review stops, after lessons ${AFTER.join(', ')} (${STOPS.map((k) => k.after)})`);
+  ok(STOPS.every((k, i) => k.id === IDS[i] && k.title === 'Review Stop'), 'data: ids v1 to v13 (v6 sits after lesson 6), titled Review Stop');
   ok(STOPS.every((k) => k.world === CUR.lessons.find((l) => l.number === k.after).world), 'data: each stop is in the world of the lesson it follows');
-  ok([6, 17, 25, 33].every((n) => CUR.checkpoints.some((k) => k.kind === 'review' && k.after === n)) && CUR.checkpoints.find((k) => k.id === 'b2').after === 6, 'data: every world ends with a Review Stop (lessons 6, 17, 25, 33); at lesson 6 it sits with Story 2');
+  ok([6, 17, 25, 33, 42].every((n) => CUR.checkpoints.some((k) => k.kind === 'review' && k.after === n)) && CUR.checkpoints.find((k) => k.id === 'b2').after === 6, 'data: every world ends with a Review Stop (lessons 6, 17, 25, 33, 42); at lesson 6 it sits with Story 2');
   ok(CUR.checkpoints.filter((k) => k.kind === 'review').find((k) => k.after === 25).mix === 'vowels' && [18, 13, 8, 4, 2].every((n) => CUR.checkpoints.find((k) => k.id === 'v9').plan.some((a) => a.lesson === n)), 'data: the last stop mixes all five short vowels (a i o u e)');
   for (const k of STOPS) {
     const tag = `data ${k.id}`;

@@ -21,7 +21,7 @@ const WANT = {
   // W3 Sunny Hills is a real world now (lessons 18 to 25 and four stops): its preview shows locked real stations, not placeholders
   W3: { real: true, sounds: ['e', 'j', 'w', 'v', 'y', 'z', 'x', 'q'], stops: 16, lessons: 8, checkpoints: 8, next: 'Digraph Docks', theme: 'sunny-hills' },
   W4: { real: true, sounds: ['sh', 'ch', 'th', 'ck', 'ff', 'wh', 'ng', 'nk'], stops: 13, lessons: 8, checkpoints: 5, next: 'Blend Bay', theme: 'digraph-docks' }, // W4 Digraph Docks is a real world now (lessons 26 to 33 and five stops)
-  W5: { sounds: ['st ft', 'nd mp nt', 'sp sk sn', 'sw sm sl', 'bl cl fl', 'pl gl', 'br tr cr', 'dr fr gr'], next: 'Endings Junction', theme: 'blend-bay' },
+  W5: { real: true, sounds: ['st', 'nd', 'sp', 'sn', 'bl', 'pl', 'br', 'dr', 'mix'], stops: 14, lessons: 9, checkpoints: 5, next: 'Endings Junction', theme: 'blend-bay' }, // W5 Blend Bay is a real world now (lessons 34 to 42 and five stops)
   W6: { sounds: ['s es', 'ing', 'ed', 'sun set', 'nap kin'], next: 'Silent E Summit', theme: 'endings-junction' },
   W7: { sounds: ['we me he', 'a_e', 'i_e', 'o_e', 'u_e', 'e_e'], next: 'Vowel Team Town', theme: 'silent-e-summit' },
 };

@@ -39,15 +39,15 @@ const settled = (page, ms = 25000) => until(page, () => window.__train && window
 // ---- data and the store, no browser ----
 export async function dataChecks({ ok }) {
   // 1. the order and the count
-  ok(ORDER_SOUNDS.length === 33 && ORDER_SOUNDS.slice(0, 25).join(' ') === 'm a s i t p f o n d c h u g l r b e j w v y z x q' && ORDER_SOUNDS.slice(25).join(' ') === 'sh ch th ck ff wh ng nk', 'order: 33 sounds, the first 25 unchanged, then sh ch th ck ff wh ng nk appended');
-  ok(ORDER === ORDER_SOUNDS.join(' ') && PRIOR_ORDERS.length === 2 && PRIOR_ORDERS[0] === ORDER_SOUNDS.slice(0, 17).join(' ') && PRIOR_ORDERS[1] === ORDER_SOUNDS.slice(0, 25).join(' ') && ORDER.startsWith(PRIOR_ORDERS[1] + ' ') && ORDER !== LEGACY_ORDER, 'order: the 17-sound and the 25-sound strings that older saves carry are prefixes of the new one (so nothing is reset)');
-  ok(SOUNDS.join(' ') === ORDER && CUR.lessons.length === 33 && Object.keys(CUR.sounds).join(' ') === ORDER, 'data: 33 lessons, one sound each, in order');
-  ok(CUR.lessons.slice(25).every((L) => L.world === 'W4') && lessonsIn(CUR, 'W4').length === 8 && CUR.worlds[3].name === 'Digraph Docks', 'data: lessons 26 to 33 are World 4, Digraph Docks');
+  ok(ORDER_SOUNDS.length === 42 && ORDER_SOUNDS.slice(0, 25).join(' ') === 'm a s i t p f o n d c h u g l r b e j w v y z x q' && ORDER_SOUNDS.slice(25, 33).join(' ') === 'sh ch th ck ff wh ng nk', 'order: the first 25 unchanged, then sh ch th ck ff wh ng nk appended (World 5 follows, test/blend-bay.mjs)');
+  ok(ORDER === ORDER_SOUNDS.join(' ') && PRIOR_ORDERS.length === 3 && PRIOR_ORDERS[0] === ORDER_SOUNDS.slice(0, 17).join(' ') && PRIOR_ORDERS[1] === ORDER_SOUNDS.slice(0, 25).join(' ') && ORDER.startsWith(PRIOR_ORDERS[1] + ' ') && ORDER !== LEGACY_ORDER, 'order: the 17-sound and the 25-sound strings that older saves carry are prefixes of the new one (so nothing is reset)');
+  ok(SOUNDS.join(' ') === ORDER && CUR.lessons.length === 42 && Object.keys(CUR.sounds).join(' ') === ORDER, 'data: 42 lessons (33 before World 5), one sound each, in order');
+  ok(CUR.lessons.slice(25, 33).every((L) => L.world === 'W4') && lessonsIn(CUR, 'W4').length === 8 && CUR.worlds[3].name === 'Digraph Docks', 'data: lessons 26 to 33 are World 4, Digraph Docks');
   const UNIT = { 26: '3.1', 27: '3.1', 28: '3.2', 29: '3.3', 30: '3.3', 31: '3.3', 32: '3.4', 33: '3.4' };
-  ok(CUR.lessons.slice(25).every((L) => L.unit === UNIT[L.number]) && CUR.units.filter((u) => u.stage === 3).map((u) => u.id).join() === '3.1,3.2,3.3,3.4,3.5', 'data: sh ch are unit 3.1, th unit 3.2, ck ff wh unit 3.3, ng nk unit 3.4 (3.5 is the mixed review, the last Review Stop)');
+  ok(CUR.lessons.slice(25, 33).every((L) => L.unit === UNIT[L.number]) && CUR.units.filter((u) => u.stage === 3).map((u) => u.id).join() === '3.1,3.2,3.3,3.4,3.5', 'data: sh ch are unit 3.1, th unit 3.2, ck ff wh unit 3.3, ng nk unit 3.4 (3.5 is the mixed review, the last Review Stop)');
   // 2. the words of each lesson, and decodability proven from scratch: a digraph is only readable once its lesson is taught
   for (const [n, words] of Object.entries(WORDS)) ok(CUR.lessons[n - 1].sayingSounds.filter((w) => w.showLetters).map((w) => w.word).join(' ') === words, `lesson ${n} (${SOUNDS[n - 1]}): reading words are ${words}`);
-  for (const L of CUR.lessons.slice(25)) {
+  for (const L of CUR.lessons.slice(25, 33)) {
     const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, L.number));
     const read = [...L.sayingSounds.filter((w) => w.showLetters).map((w) => w.word), ...(L.board || []).map((b) => b.word), ...L.quickCheck.options.filter((o) => o.glyph).map((o) => o.glyph)];
     ok(read.length >= 6 && read.every((w) => isReadable(w, taught)), `lesson ${L.number}: every child-read word uses only letters and digraphs taught by it (${read.join(' ')})`);
@@ -85,7 +85,7 @@ export async function dataChecks({ ok }) {
 
   // 4. the stops
   const ck = Object.fromEntries(CUR.checkpoints.map((k) => [k.id, k]));
-  ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,b4:31,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,x9:27,x10:28,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25,v10:30,v11:33', 'stops: ids and places (nothing old moves; x9 after 27, x10 after 28, v10 after 30, b4 after 31, v11 after 33)');
+  ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,b4:31,b5:40,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,x9:27,x10:28,x11:35,x12:41,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25,v10:30,v11:33,v12:38,v13:42', 'stops: ids and places (nothing old moves; x9 after 27, x10 after 28, v10 after 30, b4 after 31, v11 after 33)');
   const nodes = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   for (const w of ['W1', 'W2', 'W3', 'W4']) {
     const last = nodes.filter((n) => (n.lesson ? n.lesson.world : n.checkpoint.world) === w).at(-1);
@@ -98,7 +98,7 @@ export async function dataChecks({ ok }) {
   ok(ck.v11.mix === 'digraphs' && ck.v11.after === 33 && ck.v11.plan.some((a) => a.lesson === 33) && ck.v11.plan.some((a) => a.lesson === 31) && ck.v11.plan.some((a) => a.lesson === 29) && ck.v11.plan.some((a) => a.lesson === 27) && ck.v11.plan.at(-1).task === 'check' && ck.v11.world === 'W4', 'Review Stop v11 (the end of the world) mixes the digraphs: games on lessons 33, 31, 29 and 27 deal each lesson sound with the digraphs before it');
   ok(ck.v10.summary.sounds === 30 && ck.v11.summary.sounds === 33 && ck.v11.summary.words > ck.v9.summary.words && ck.v11.summary.hearts.includes('what') && ck.v11.summary.hearts.includes('they') && ck.v11.summary.hearts.includes('she'), 'Review Stop messages: counted words grow with the digraph words; the heart words are listed');
   ok(ck.b4.kind === 'book' && ck.b4.book === 'book-4' && ck.b4.world === 'W4' && ck.b4.after === 31 && JSON.stringify(ck.b4.needs) === JSON.stringify(ORDER_SOUNDS.slice(0, 31)), 'stops: Story 4 is in World 4, after lesson 31 (wh), and needs the sounds up to wh');
-  ok(CUR.levels.map((v) => v.after).join() === '6,17,25,33,' && CUR.levels[3].car === 'tanker' && CUR.levels[3].needs.length === 33, 'levels: level four comes after lesson 33 (the end of World 4), level five is still to build');
+  ok(CUR.levels.map((v) => v.after).join() === '6,17,25,33,42' && CUR.levels[3].car === 'tanker' && CUR.levels[3].needs.length === 33, 'levels: level four comes after lesson 33 (the end of World 4), level five after 42 (test/blend-bay.mjs)');
 
   // 5. heart words
   const hw = (n) => (CUR.lessons[n - 1].heart || []).join();

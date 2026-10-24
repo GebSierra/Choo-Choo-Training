@@ -17,11 +17,11 @@ const CHARACTER = { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit:
 
 // Lessons 1..n done, each finished at noon (UTC) on October n 2026, so dates read the same in any time zone.
 const dated = (n) => Object.fromEntries(Array.from({ length: n }, (_, i) => [i + 1, { tasksDone: [], result: 'got-it', completedAt: `2026-10-${String(i + 1).padStart(2, '0')}T12:00:00.000Z` }]));
-const stars = (n) => (n >= 33 ? 4 : n >= 25 ? 3 : n >= 17 ? 2 : n >= 6 ? 1 : 0);
+const stars = (n) => (n >= 42 ? 5 : n >= 33 ? 4 : n >= 25 ? 3 : n >= 17 ? 2 : n >= 6 ? 1 : 0);
 // The Home with n lessons done and nothing due (no level party, no crossing): the world last seen is the current one.
 const seed = (n, settings = {}, extra = {}) => {
-  const cur = n >= 25 ? 'W4' : n >= 17 ? 'W3' : n >= 6 ? 'W2' : 'W1'; // the world the child last saw: the crossings are past
-  return state(n, { migrated1912: true, pace4: true, trainDone: n, ...settings }, { lessons: dated(n), levels: { seen: stars(n), earned: stars(n) ? { L1: '2026-10-06T12:00:00.000Z', ...(stars(n) > 1 ? { L2: '2026-10-17T12:00:00.000Z' } : {}), ...(stars(n) > 2 ? { L3: '2026-10-25T12:00:00.000Z' } : {}), ...(stars(n) > 3 ? { L4: '2026-10-30T12:00:00.000Z' } : {}) } : {} }, worlds: { seen: cur }, character: CHARACTER, meetDue: false, ...extra });
+  const cur = n >= 33 ? 'W5' : n >= 25 ? 'W4' : n >= 17 ? 'W3' : n >= 6 ? 'W2' : 'W1'; // the world the child last saw: the crossings are past
+  return state(n, { migrated1912: true, pace4: true, trainDone: n, ...settings }, { lessons: dated(n), levels: { seen: stars(n), earned: stars(n) ? { L1: '2026-10-06T12:00:00.000Z', ...(stars(n) > 1 ? { L2: '2026-10-17T12:00:00.000Z' } : {}), ...(stars(n) > 2 ? { L3: '2026-10-25T12:00:00.000Z' } : {}), ...(stars(n) > 3 ? { L4: '2026-10-30T12:00:00.000Z' } : {}), ...(stars(n) > 4 ? { L5: '2026-11-05T12:00:00.000Z' } : {}) } : {} }, worlds: { seen: cur }, character: CHARACTER, meetDue: false, ...extra });
 };
 const settle = (page) => until(page, () => window.__train && window.__train.frames > 1 && !window.__train.running, null, 20000);
 const idle = async (page) => {
@@ -44,8 +44,8 @@ export async function journeyChecks({ browser, url, ok }) {
   const vp = SHOT_VPS[0];
 
   // ---- 1. The map button where the star board was, on the 3D Home, for three points in the journey ----
-  for (const [n, want] of [[2, { cur: 0, done: [], stars: 0, curName: 'Starter Station' }], [7, { cur: 1, done: [0], stars: 1, curName: 'Green Valley' }], [17, { cur: 2, done: [0, 1], stars: 2, curName: 'Sunny Hills' }], [25, { cur: 3, done: [0, 1, 2], stars: 3, curName: 'Digraph Docks' }], [33, { cur: 3, done: [0, 1, 2], stars: 4, curName: 'Digraph Docks', allDone: true }]]) {
-    const tag = `lesson ${n === 33 ? 'all done' : n + 1}`;
+  for (const [n, want] of [[2, { cur: 0, done: [], stars: 0, curName: 'Starter Station' }], [7, { cur: 1, done: [0], stars: 1, curName: 'Green Valley' }], [17, { cur: 2, done: [0, 1], stars: 2, curName: 'Sunny Hills' }], [25, { cur: 3, done: [0, 1, 2], stars: 3, curName: 'Digraph Docks' }], [33, { cur: 4, done: [0, 1, 2, 3], stars: 4, curName: 'Blend Bay' }], [42, { cur: 4, done: [0, 1, 2, 3, 4], stars: 5, curName: 'Blend Bay', allDone: true }]]) {
+    const tag = `lesson ${n === 42 ? 'all done' : n + 1}`;
     const { ctx, page, errors } = await openHome(browser, url, vp, seed(n), { init: [RAF_COUNT] });
     ok(await settle(page), `${tag}: the 3D Home settles`);
     ok((await page.locator('.home-top .map-btn').count()) === 1 && (await page.locator('.map-btn').getAttribute('aria-label')) === 'Journey map', `${tag}: one map button in the top bar, labelled "Journey map"`);

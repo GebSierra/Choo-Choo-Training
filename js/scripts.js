@@ -1,4 +1,4 @@
-import { soundOfLetter, letterUnits, ORDER_SOUNDS } from './order.js';
+import { soundOfLetter, letterUnits, blendAtUnits, ORDER_SOUNDS } from './order.js';
 const ALL = ORDER_SOUNDS.length; // scripts are for the grown-up: a digraph is one sound in every word (the child's own rows join them by lesson)
 // Parent scripts are shown as text. To read one aloud, isolated sounds (mmm, aaammm, sss) become
 // recorded clips and everything else goes to text to speech. Nothing is ever a single letter.
@@ -22,9 +22,18 @@ export const soundText = (ch, sounds, word) => {
 };
 // A word sound by sound, for a parent to say slowly with no pause: held sounds stretched, clipped ones short: "t-aaa".
 // A doubled letter (miss, buzz) is one sound, not two: "mmmiiisss", never "mmmiiissssss".
-export const slowSounds = (word, sounds, level = ALL) => letterUnits(word, level).filter((c, i, a) => c !== a[i - 1]).map((c) => soundText(c, sounds, word)).join('');
+// World 5: a blend pair is said as one glide (pl-aaannnt-), from the lesson's own table; without that table its letters are said one by one.
+const blendOf = (units, i, sounds, level) => { const pair = units[i] + (units[i + 1] || ''); return pair.length === 2 && units[i].length === 1 && units[i + 1].length === 1 && blendAtUnits([units[i], units[i + 1]], level).length && sounds && sounds[soundOfLetter(pair)] && sounds[soundOfLetter(pair)].blend ? pair : null; };
+export const slowSounds = (word, sounds, level = ALL) => {
+  const units = letterUnits(word, level), out = [];
+  for (let i = 0; i < units.length; i++) {
+    const pair = blendOf(units, i, sounds, level);
+    if (pair) { out.push(soundText(pair, sounds, word)); i++; } else if (units[i] !== units[i - 1]) out.push(soundText(units[i], sounds, word));
+  }
+  return out.join('');
+};
 // A picture word: only its first sound is brought out, held ("sssun") or short ("t-iger"); the rest stays as it is.
-export const firstSoundOut = (word, sounds, level = ALL) => { const u = letterUnits(word, level)[0], n = u === 'q' ? 2 : u.length; return soundText(u, sounds, word) + word.slice(n); };
+export const firstSoundOut = (word, sounds, level = ALL) => { const units = letterUnits(word, level), pair = blendOf(units, 0, sounds, level); if (pair) return soundText(pair, sounds, word) + word.slice(2); const u = units[0], n = u === 'q' ? 2 : u.length; return soundText(u, sounds, word) + word.slice(n); };
 
 // A sound token is only stretched runs (mmm) and short sounds with a dash (t-): "t-aaag-". It is shown, never spoken by text to speech.
 const PIECE = /([a-z])\1{2,}|(?:kw|ks|ch|th|ng|nk|[bcdfgpt][lr]|[a-z])-/g; // [bcdfgpt][lr]: a short-sound blend (bl- cl- fl- pl- gl- br- tr- cr- dr- fr- gr-) is shown, never spoken
