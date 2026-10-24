@@ -690,3 +690,61 @@ Level four (tanker) is earned after lesson 33 (every sound taught); its "Coming 
 New: `test/digraph-docks.mjs` (in `npm test`, before smoke). Changed deliberately: `check-content` (digraph notation, `noPictures`, units for the board and tunnel rules, `isReadable` everywhere), `store` (the order string), `phase-b` (33 lessons, the stop list, level four, units on the board, thumb and ball are said only),
 `sunny-hills`, `review-stops`, `tricky-sounds`, `heart-words`, `worlds`, `regions`, `world-visit`, `journey`, `levels`, `lib` and `read-again` (counts, stop lists, `isReadable`; see git log). Screenshots (390x844): docs/screenshots/digraph-docks/.
 
+## 15. World 5, Blend Bay: lessons 34 to 42
+
+Units 4.1 to 4.5 of docs/CURRICULUM.md. Built with no version change; nothing is pushed. All data comes from `node tools/gen-lessons.mjs` (`TABLE`, `MOUTH`, `CONTRAST`, `REVIEW_PLANS`, `CHAINS`).
+
+### The teaching point: a blend is not a new sound
+Digraphs (World 4) are one sound written with two letters. Blends are two sounds, so **each letter keeps its own sound, there is no new letter unit and no new taught letter**.
+`letterUnits` never joins a blend (stop is s t o p, crash is c r a sh); `isReadable` is unchanged; a blend is two plain letters side by side with **no bar** (`js/glyphs.js`: the digraph builder without its `link`, `blend: true`).
+What the lessons teach is the glide: hold the s and slide ("ssstop", not "suh-top"); glide into l or r ("block", not "buh-lock"); the n or m melts into the vowel (sad/sand).
+
+### Order, units, world
+`ORDER_SOUNDS` gains `st nd sp sn bl pl br dr mix` (42 lessons). The key names the lesson's blend family and `SPELLINGS`/`BLENDS` list its pairs (like ff ll ss zz): the first pair is the glyph, the rest are `alt`.
+`PRIOR_ORDERS` gains the 33-sound string, a prefix of the current order, so every older save is read as it is.
+
+| Lesson | Key | Pairs | Unit | Saying Sounds letter words | Picture word | Add a Car chains (a sample) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 34 | st | st ft | 4.1 | lost soft gift | nest | pat past, lot lost, lit lift |
+| 35 | nd | nd mp nt | 4.1 | hand lamp jump | tent | sad sand, cap camp, bet bent |
+| 36 | sp | sp sk (st again, at the start) | 4.2 | stop spin skip | stick | top stop, pin spin, sip skip |
+| 37 | sn | sn sw sm sl | 4.2 | snap swim smash slip | snail (said only) | sap snap, lip slip, wing swing |
+| 38 | bl | bl cl fl | 4.3 | block clap flag | cloud (said only) | cap clap, lag flag, lock block |
+| 39 | pl | pl gl | 4.3 | plan plum glad | glue (said only) | pan plan, pug plug, lad glad |
+| 40 | br | br tr cr | 4.4 | brush trip crib | crab | rip trip, cab crab, rush brush |
+| 41 | dr | dr fr gr | 4.4 | drop frog grin | fruit (said only) | rip drip, fog frog, rum drum |
+| 42 | mix | st mp (both ends of stamp) | 4.5 | stamp crust blend frost plant crash think | none | rust crust, pant plant, band bland |
+
+Adjustments to the proposal: lesson 36 teaches sp and sk only and meets **st again at the start** (stop, step, top to stop), because st was already taught in 34 and a second key for the same two letters would break the game rules (`soundOfLetter`); the s-blends sn sw sm sl stay in 37 (four pairs, so four Saying Sounds words). Lesson 42 has a key of its own (`mix`, no glyph of its own: it shows st and mp) so every lesson still has one sound key; the letter games never deal it (`NO_GLYPH`).
+
+### The lesson frame for a blend (a variant, not a new frame)
+- **New Blend** (task `newLetter`, named New Blend): the pair glyphs (two plain letters, no bar) and a blend card: "Two sounds, glided together. Each letter keeps its own sound." with one row per pair ("s + t  ssst-, as in last"), the howTo and "Do not say suh-t". The grown-up gist is `Glide ssst- as in last.`
+- **Watch My Mouth**: the glide in words (the mouth text lists how each pair of the family is made).
+- **Saying Sounds**: the word is drawn letter by letter with each blend under one soft bracket (`wordSvg` `blend-mark`, `in-blend` on its two letters); the slide blends sound by sound as before. 5-sound words (stamp, crust, blend, frost, plant) fit 360x640.
+- **Add a Car** (new task `chains`, `js/screens/tasks/chains.js`, in every middle instead of the Station Board, which finds one letter's sound in a word): a word is a train of letter cars with a gap; the child taps the right car of three, the new word couples in and shows its blend (top, stop). The grown-up prompt reads "Say: top. Add a car to make stop." (gist `Add a car: top to stop.`); the recording of the new word plays only when the speaker is tapped. A wrong car does nothing. Four chains a lesson (`lesson.chains`: from, to, at, letter, options; every word decodable by the lesson, no wrong car makes a word of the list). Review Stops can use it (`chains`).
+- Letter Hunt, Wagon Parade and Track Tracing work on the pair glyphs unchanged; Green Light and the Station Board are not in blend middles. Ticket Check is a letter question about a pair ("Which letters say ssst- as in last?"; lesson 42 asks which letters are at the end of lamp).
+- Grown-up notation: `ssst-`, `ffft-`, `nnnd-`, `mmmp-`, `nnnt-`, `sssp-`, `sssk-`, `sssnnn`, `sssw-`, `sssmmm`, `sssl-`, `bl- cl- fl- pl- gl- br- tr- cr- dr- fr- gr-` (a held first sound is stretched, two short sounds glide). Shown, never spoken by the phone (`scripts.js` knows the glide tokens); blend sounds have no recording (`clip: null`).
+
+### Words and counting
+`data/words-decodable.json` gains `blendWords` (194 words). They are counted apart: a World 5 word counts only once every blend it uses is taught (`isReadableBlends`); the old `words` keep their letters-only rule, so no Review Stop before World 5 changes (v1 to v11 are byte for byte the same). A blend is not a sound: the Review Stop message says "33 sounds and 14 blends" (then 22), and Grownups chips show one chip per lesson listing its pairs.
+
+### Stops
+| Stop | After lesson | Notes |
+| --- | --- | --- |
+| **x11** Tricky Sounds | 35 | with and without the melted n or m: sand/sad, camp/cap, bent/bet, lamp/lap (tunnels sort a word by how it ends: nd mp nt against d p t) |
+| **v12** Review Stop | 38 | mid-world: Letter Hunt bl, Wagon Parade sp, Add a Car sn, Ticket Check nd |
+| **b5** Story 5 | 40 | DRAFT (below) |
+| **x12** Tricky Sounds | 41 | bl against br (l and r are the classic mix-up): blush/brush, bled/bred, blink/brink. tr against dr is not a mix-up to fix: tr sounds like chr and dr like jr in normal speech |
+| **v13** Review Stop | 42 | the end of the world, `mix: 'blends'`: Wagon Parade dr, Letter Hunt br, Add a Car (mixed), Green Light pl, Ticket Check bl |
+
+### Story 5 (`data/books/book-5.json`, stop b5 after lesson 40) DRAFT, pending owner approval
+"Pip at the Bay", 10 pages, a child-read word on seven (sand, crab, swim, flag, clap, trip, stop), Pip, Sam and {name}, no he or she for the child. Marked `"draft": true`. The scenes reuse the existing backdrops (there is no beach backdrop yet).
+
+### Levels, crossing, saves
+Level five (dome) is earned after lesson 42 (the placeholder is gone). The W4 to W5 crossing, the Home of World 5, going back, Grownups and the keepsakes are data-driven. Appending to `ORDER` keeps every save unchanged.
+
+### Pictures
+Existing tiles are used where the word and the first sound are right (nest vest tent hand jump stick star snail snake cloud glue crab train tree cry fruit); a lesson shows none for a word without a tile, never a wrong one. The 36 missing pictures and their prompts are in docs/IMAGE-PROMPTS.md ("World 5 additions").
+
+### Tests
+New: `test/blend-bay.mjs` (in `npm test`, before smoke). Screenshots (390x844 and one 360x640): docs/screenshots/blend-bay/.

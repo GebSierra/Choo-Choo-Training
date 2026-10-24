@@ -333,6 +333,49 @@ Lessons 26 to 33 (sh ch th ck ff(ll ss zz) wh ng nk) use the tiles that exist in
 | nk | skunk | new, no current file | a black and white skunk with a big tail |
 | nk | monkey | new, no current file | a brown monkey hanging from a branch |
 
+## World 5 additions (new, no current file)
+
+Lessons 34 to 42 (blends: st ft, nd mp nt, sp sk, sn sw sm sl, bl cl fl, pl gl, br tr cr, dr fr gr, mixed review) use the tiles that exist: e/nest e/tent v/vest h/hand j/jump i/stick ar/star s/snail s/snake ow/cloud oo-moon/glue a/crab ae/train t/tree ie/cry oo-moon/fruit. A blend is not a new sound, so no new folder is needed: put each new image in the folder of its first sound (the folder path is shown in the file name column). Until a picture exists a lesson shows none for that word, never a wrong one. Same style as the rest of the set (flat, friendly, one object, plain background, 512 px, under 70 KB as .webp).
+
+| folder | word | current file | prompt |
+|---|---|---|---|
+| ft | gift | new, no current file | a wrapped present with a ribbon bow, front on |
+| ft | raft | new, no current file | a small wooden raft of logs on calm water |
+| mp | lamp | new, no current file | a table lamp with a yellow shade, lit |
+| mp | camp | new, no current file | a small orange tent with a campfire beside it (or use the word camp only when the tent is a camp scene) |
+| mp | stamp | new, no current file | a postage stamp with a small picture and a wavy edge |
+| sp | spoon | new, no current file | a silver spoon, side-on |
+| sp | spider | new, no current file | a friendly spider hanging from a thread |
+| sk | skate | new, no current file | one ice skate with a blade and a laced boot |
+| sk | skunk | new, no current file | a black and white skunk with a big tail |
+| st | stop sign | new, no current file | a red octagon stop sign on a pole (file name: stop) |
+| sn | snow | new, no current file | a snowman with a carrot nose, or falling flakes on a hill (file name: snow) |
+| sw | swing | new, no current file | a child swing hanging from a tree branch |
+| sw | swan | new, no current file | a white swan on the water |
+| sm | smile | new, no current file | a round yellow smiling face |
+| sl | sled | new, no current file | a red sled on a snowy slope |
+| sl | slide | new, no current file | a playground slide with a ladder |
+| bl | block | new, no current file | a stack of three coloured toy building blocks |
+| bl | black | new, no current file | a black cat in front of a plain background (file name: black) |
+| cl | clock | new, no current file | a round wall clock with two hands |
+| cl | clam | new, no current file | an open clam shell with a pearl |
+| fl | flag | new, no current file | a small red flag on a pole waving |
+| fl | flower | new, no current file | a red flower with green stem and leaves |
+| pl | plum | new, no current file | a purple plum with a leaf |
+| pl | plane | new, no current file | a small passenger aeroplane flying |
+| gl | globe | new, no current file | a world globe on a stand |
+| gl | glass | new, no current file | a clear drinking glass with water |
+| br | brush | new, no current file | a paint brush with a wooden handle and red paint on the tip |
+| br | bridge | new, no current file | a stone bridge over a stream |
+| tr | truck | new, no current file | a red pick-up truck, side-on |
+| cr | crown | new, no current file | a golden crown with three points |
+| cr | crib | new, no current file | a baby crib with bars and a blanket |
+| dr | drum | new, no current file | a red drum with two sticks |
+| dr | dress | new, no current file | a small blue dress on a hanger |
+| fr | frog | new, no current file | a green frog sitting on a lily pad |
+| gr | grapes | new, no current file | a bunch of purple grapes with a leaf |
+| gr | grass | new, no current file | a patch of tall green grass |
+
 ## Hard to picture
 
 - **sit** (i): a verb, not a noun. The prompt shows a child sitting cross-legged; check that it reads as "sitting" and not as a generic child.

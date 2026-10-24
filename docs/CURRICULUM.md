@@ -391,6 +391,8 @@ Children learn that two letters can team up to make one new sound. The app shows
 ### Stage 4: Blends (Grade 1)
 Blends are two sounds side by side, each still heard, unlike digraphs, which make one new sound.
 
+**Built (World 5, Blend Bay, lessons 34 to 42; docs/LESSON-REBUILD.md section 15).** Nine lessons: 34 ending st ft, 35 nd mp nt (unit 4.1), 36 sp sk with st at the start, 37 sn sw sm sl (4.2), 38 bl cl fl, 39 pl gl (4.3), 40 br tr cr, 41 dr fr gr (4.4), 42 mixed review, blends at both ends (4.5). A blend is not a new sound and no letter is new: each letter keeps its own sound, the app shows two plain letters with no linking bar (a digraph has one), and the lesson teaches gliding. Tricky Sounds after 35 (with and without the melted n or m: sad/sand, cap/camp) and after 41 (bl against br); Story 5 after 40; Review Stops after 38 and 42. No new heart words.
+
 | Unit | New patterns | Example words | Heart words | Teaching and pronunciation notes |
 | --- | --- | --- | --- | --- |
 | 4.1 | Ending blends: st, ft, then nd, mp, nt | lost, best, soft, gift, and, hand, lamp, jump, tent | | Ending blends come first because the start of the word reads normally. st and ft before nd, mp, nt: in those the n or m melts into the vowel, so the app highlights it and drills sad/sand, cap/camp, bet/bent |
