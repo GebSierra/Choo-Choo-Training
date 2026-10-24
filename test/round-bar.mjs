@@ -9,7 +9,7 @@ import { tasksFor } from '../js/lessons.js';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
 const STOPS = CUR.checkpoints.filter((k) => k.kind === 'review');
-const tokens = (t) => (t.match(/\b([a-z])\1{2}\b|\b(?:kw|ks|[a-z])-/g) || []);
+const tokens = (t) => (t.match(/\b([a-z])\1{2}\b|\b(?:sh|th)hh\b|\b(?:kw|ks|ch|th|ng|nk|[a-z])-/g) || []); // two-letter sounds too: shhh, thhh, ch-, th-, ng-, nk-
 
 let failures = 0, checks = 0;
 const ok = (c, m) => { checks++; if (!c) { failures++; console.error('FAIL: ' + m); } };
