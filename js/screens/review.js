@@ -45,7 +45,7 @@ export function reviewTaskScreen(ctx, id, idx = 0) {
   const lesson = tricky ? { ...base, games: ['signals'], ...(step.task === 'check' ? { quickCheck: ck.quickCheck } : {}) } : { ...base, games: ck.plan.map((p) => p.task).filter((t) => TAP_GAMES.includes(t)) };
   const sound = curriculum.sounds[step.task === 'check' && tricky ? ck.quickCheck.options[0].glyph : lesson.sound];
   const shell = makeShell({ ctx, title: task.name, color: task.color, steps: ck.plan.length, pos: index, from: lastIndex[ck.id] === undefined ? -1 : lastIndex[ck.id], isLast, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to the path', stepNoun: 'Game', kicker: `${tricky ? ck.title : 'Review Stop'} · ${index + 1} of ${ck.plan.length}`, autoAdvance: true, world: ck.world || 'W1',
-    tip: tricky ? (ck.hint ? ck.hint + ' ' : '') + TIP_CONTRAST : TIP, tipKey: tricky ? 'tip:contrast' : 'tip:review', autoOpen: !['hunt', 'signals', 'wagons', 'board', 'tunnels', 'which'].includes(task.type), seenKeys: [task.type] });
+    tip: tricky ? (ck.hint ? ck.hint + ' ' : '') + TIP_CONTRAST : TIP, tipKey: tricky ? 'tip:contrast' : 'tip:review', autoOpen: !['hunt', 'signals', 'wagons', 'board', 'tunnels', 'which', 'chains'].includes(task.type), seenKeys: [task.type] });
   // Nothing new: the Letter Hunt balloons and the lamps and wagons the games fill up with (games-data.js otherLetters) only ever carry letters
   // taught by this stop. A lesson's own list also holds letters that come later.
   const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, ck.after));

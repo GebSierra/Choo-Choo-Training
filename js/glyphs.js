@@ -3,7 +3,7 @@
 // handwriting order on a 100 by 100 box (baseline y=80, x-height top y=38). The same strokes
 // drive the big letters, the slide track, the word rows and the trace guide.
 import { h, animate, reduced } from './dom.js';
-import { letterUnits, BLENDS } from './order.js';
+import { letterUnits, blendAtUnits, BLENDS } from './order.js';
 
 export const STROKE_WIDTH = 11.5;
 export const BASELINE = 80;
@@ -326,11 +326,20 @@ export function wordSvg(word, opts = {}) {
     x += g.maxX - g.minX + SPACING;
   }
   const width = Math.max(1, x - SPACING);
+  // World 5: a blend is two letters that each keep their sound, shown as two plain letters under one soft bracket (never joined like a digraph).
+  const marks = opts.level != null && !reading ? blendAtUnits(letters, opts.level).filter((i) => groups[i + 1]) : [];
+  for (const i of marks) {
+    const x0 = Number(groups[i].grp.dataset.x0), x1 = Number(groups[i + 1].grp.dataset.x1), y = BASELINE + 13;
+    groups[i].grp.classList.add('in-blend'); groups[i + 1].grp.classList.add('in-blend');
+    const mark = h('path', { d: `M${x0 + 2} ${y - 6} L${x0 + 2} ${y} L${x1 - 2} ${y} L${x1 - 2} ${y - 6}`, class: 'blend-mark', fill: 'none', stroke: opts.color || 'currentColor', 'stroke-width': 4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.55 });
+    groups[i].mark = mark;
+  }
   const half = STROKE_WIDTH / 2 + 3;
   const ext = reading ? readingExtent : extent;
-  const top = Math.min(BAND_TOP, ...letters.map((c) => ext(c).top - (reading ? 2 : half))), bottom = Math.max(BAND_BOTTOM, ...letters.map((c) => ext(c).bottom + (reading ? 2 : half)));
+  const top = Math.min(BAND_TOP, ...letters.map((c) => ext(c).top - (reading ? 2 : half))), bottom = Math.max(BAND_BOTTOM, marks.length ? BASELINE + 19 : 0, ...letters.map((c) => ext(c).bottom + (reading ? 2 : half)));
   const svg = h('svg', { class: 'glyph word-glyphs ' + (reading ? 'reading-font ' : '') + (opts.class || ''), viewBox: `0 ${top} ${width} ${bottom - top}`, role: 'img', 'aria-label': opts.label || 'letters' });
   groups.forEach((g) => svg.append(g.grp));
+  groups.forEach((g) => { if (g.mark) svg.append(g.mark); });
   svg.dataset.width = String(width);
   svg.dataset.height = String(bottom - top);
   return svg;

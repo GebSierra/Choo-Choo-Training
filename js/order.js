@@ -44,6 +44,12 @@ export function blendSpans(word, lesson = ORDER_SOUNDS.length) {
   }
   return out;
 }
+// The same, over a word's units (letterUnits): the unit index where each taught blend starts (a blend is two single-letter units side by side).
+export function blendAtUnits(units, lesson = ORDER_SOUNDS.length) {
+  const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, lesson)), out = [];
+  for (let u = 0; u < units.length - 1; u++) if (units[u].length === 1 && units[u + 1].length === 1 && ALL_PAIRS.includes(units[u] + units[u + 1]) && taught.has(units[u] + units[u + 1])) { out.push(u); u++; }
+  return out;
+}
 // Every blend pair a word uses (taught or not), as strings: stamp -> st, mp.
 export function blendPairsIn(word) {
   const units = letterUnits(word, ORDER_SOUNDS.length, true), out = [];

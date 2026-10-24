@@ -15,6 +15,7 @@ export const TASK_TYPES = {
   read:    { name: 'Read a Word', color: 'sun', dark: true, label: "Today we'll read" }, // the first Review Stop's ma and mama
   tunnels: { name: 'Two Tunnels', color: 'sky', dark: true, label: "Today we'll sort" }, // Tricky Sounds (checkpoint kind contrast)
   which:   { name: 'Which One?', color: 'sun', dark: true, label: "Today we'll listen" },
+  chains:  { name: 'Add a Car', color: 'sun', dark: true, label: "Today we'll build" }, // World 5: a letter car makes a new word (top, stop)
   check:   { name: 'Ticket Check',   color: 'blue',   dark: true,  label: "Today we'll check" },
 };
 
@@ -26,7 +27,8 @@ export function tasksFor(lesson) {
   const list = [];
   if (lesson.review && lesson.review.length) list.push('review');
   list.push('newLetter', 'mouth', ...(lesson.heart && lesson.heart.length ? ['heart'] : []), ...(lesson.middle || ['sounds', 'writing', 'hunt']), 'practice', 'check');
-  return list.map((type, index) => ({ type, index, ...TASK_TYPES[type] }));
+  // A blend lesson (World 5): New Sound is New Blend. A blend is not a new sound: each letter keeps its own.
+  return list.map((type, index) => ({ type, index, ...TASK_TYPES[type], ...(type === 'newLetter' && lesson.blend ? { name: 'New Blend' } : {}) }));
 }
 
 // Spoken lines have a quiet variant for when the grown up says the sound (the default). Both live in curriculum.json.
@@ -39,7 +41,7 @@ export const lessonByNumber = (curriculum, n) => curriculum.lessons.find((l) => 
 export function targetsFor(task, lesson) {
   switch (task.type) {
     case 'review': return lesson.review.map((g) => ({ glyph: g }));
-    case 'newLetter': case 'mouth': case 'writing': case 'hunt': case 'signals': case 'wagons': case 'board': case 'practice': case 'check': return spellingsOf(lesson.sound).map((g) => ({ glyph: g }));
+    case 'newLetter': case 'mouth': case 'writing': case 'hunt': case 'signals': case 'wagons': case 'board': case 'practice': case 'check': case 'chains': return spellingsOf(lesson.sound).map((g) => ({ glyph: g }));
     case 'heart': return (lesson.heart || []).map((w) => ({ text: w }));
     case 'sounds': return lesson.sayingSounds.slice(0, 3).map((w) => ({ text: w.word }));
     default: return [];
@@ -56,11 +58,11 @@ export const fit = (...options) => options.find((o) => o.length <= GIST_MAX) || 
 // Sound cards are built from the sounds table: "This letter says mmm. Hold it. Do not say muh."
 export const spellings = (sound) => [sound.glyph, ...(sound.alt || [])];
 // Two letters, one sound: sh ch th ck wh ng nk, qu (key q) and the doubled letters (ff ll ss zz). c and k keep their own wording.
-export const isTwoLetterSound = (sound) => sound.glyph.length > 1 || sound.glyph === 'q';
-export const sayLine = (sound) => (sound.glyph === 'ff' ? `Two of the same letter make one sound: ${sound.sayItLike}${sound.asIn ? `, as in ${sound.asIn}` : ''}.` : isTwoLetterSound(sound) ? `These two letters make one sound: ${sound.sayItLike}${sound.asIn ? `, as in ${sound.asIn}` : ''}.` : sound.alt && sound.alt.length ? `The letters ${spellings(sound).join(' and ')} make the same sound: ${soundPhrase(sound)}.` : `This letter says ${soundPhrase(sound)}.`);
+export const isTwoLetterSound = (sound) => !sound.blend && (sound.glyph.length > 1 || sound.glyph === 'q'); // a blend is two sounds, each letter keeps its own
+export const sayLine = (sound) => (sound.blend ? `Each letter keeps its sound. Glide them together: ${sound.pairs.map((p) => p.say).join(', ')}.` : sound.glyph === 'ff' ? `Two of the same letter make one sound: ${sound.sayItLike}${sound.asIn ? `, as in ${sound.asIn}` : ''}.` : isTwoLetterSound(sound) ? `These two letters make one sound: ${sound.sayItLike}${sound.asIn ? `, as in ${sound.asIn}` : ''}.` : sound.alt && sound.alt.length ? `The letters ${spellings(sound).join(' and ')} make the same sound: ${soundPhrase(sound)}.` : `This letter says ${soundPhrase(sound)}.`);
 export function soundCardLines(sound) {
   const lines = [sayLine(sound)];
-  if (sound.hold) lines.push('Hold it.');
+  if (sound.hold && !sound.blend) lines.push('Hold it.');
   if (sound.doNotSay) lines.push(`Do not say ${sound.doNotSay}.`);
   return lines;
 }

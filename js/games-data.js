@@ -1,5 +1,5 @@
 // Data rules shared by the tap games and tools/gen-lessons.mjs. No DOM here.
-import { soundOfLetter, spellingsOf, lettersOfSounds, letterUnits, isReadable } from './order.js';
+import { soundOfLetter, spellingsOf, lettersOfSounds, letterUnits, isReadable, NO_GLYPH } from './order.js';
 export const LOOKALIKE = ['da','db','dp','dq','dg','bp','bq','bh','pq','pg','nm','nh','nr','nu','hb','hk','hl','li','lt','lj','lf','tf','fi','oc','oa','rn','rh','kh','kb','kl','ec','eo','ea','es','ji','jl','jt','jg','jy','wm','wv','wu','vy','vu','yu','yg','yj','zs','zn','xk','xz','xy','qg','qp','qa','qd','qb'];
 export const looksLike = (a, b) => LOOKALIKE.includes(a + b) || LOOKALIKE.includes(b + a);
 export const order = (curriculum) => curriculum.lessons.map((L) => L.sound);
@@ -20,7 +20,7 @@ export function otherLetters(curriculum, n, target, count) {
   const pad = curriculum.games.hunt.distractors[curriculum.lessons[n - 1].sound] || [];
   const key = soundOfLetter(target), mine = spellingsOf(key);
   const out = [];
-  for (const k of [...taught, ...pad]) if (out.length < count && soundOfLetter(k) !== key && !mine.some((m) => looksLike(k, m)) && !out.includes(k)) out.push(k);
+  for (const k of [...taught, ...pad]) if (out.length < count && !NO_GLYPH.includes(k) && soundOfLetter(k) !== key && !mine.some((m) => looksLike(k, m)) && !out.includes(k)) out.push(k);
   return out;
 }
 // The letter a round shows for a sound: its spellings take turns (c, k, c ...), so a child sees both. `turn` counts the sound's rounds.

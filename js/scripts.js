@@ -9,6 +9,8 @@ export function stretchLetters(word) { return [...word].map((c) => c.repeat(3)).
 // A sound with two spellings (c and k) is written with its sound letter: "k-" for c and for k alike.
 export const soundText = (ch, sounds, word) => {
   const s = sounds && sounds[soundOfLetter(ch)];
+  // World 5: a blend pair (st, bl ...) is written as its glide (ssst-, bl-), from the lesson's own table; every letter keeps its sound
+  if (s && s.blend && ch.length > 1) { const pair = (s.pairs || []).find((x) => x.g === ch); return pair ? pair.say : s.sayItLike; }
   // th is one lesson with two kinds: the buzzing one (that, this) is written "thhh", the quiet one (thin, bath) "th-"
   if (ch === 'th' && s && s.voiced) return s.voicedWords && s.voicedWords.includes(word) ? s.voiced : s.sayItLike;
   // a double letter (ff, ll, ss, zz) says the single letter's sound; ck says k-
@@ -25,10 +27,10 @@ export const slowSounds = (word, sounds, level = ALL) => letterUnits(word, level
 export const firstSoundOut = (word, sounds, level = ALL) => { const u = letterUnits(word, level)[0], n = u === 'q' ? 2 : u.length; return soundText(u, sounds, word) + word.slice(n); };
 
 // A sound token is only stretched runs (mmm) and short sounds with a dash (t-): "t-aaag-". It is shown, never spoken by text to speech.
-const PIECE = /([a-z])\1{2,}|(?:kw|ks|ch|th|ng|nk|[a-z])-/g;
+const PIECE = /([a-z])\1{2,}|(?:kw|ks|ch|th|ng|nk|[bcdfgpt][lr]|[a-z])-/g; // [bcdfgpt][lr]: a short-sound blend (bl- cl- fl- pl- gl- br- tr- cr- dr- fr- gr-) is shown, never spoken
 const isPure = (core) => core.replace(PIECE, '') === '';
 const pieceKey = (p) => (p.startsWith('kw') ? 'q' : p.startsWith('ks') ? 'x' : /^(ch|th|ng|nk)-/.test(p) ? p.slice(0, 2) : soundOfLetter(p[0])); // kw- is the sound of qu, ks- of x, ch- th- ng- nk- of the digraphs
-const isSoundy = (core) => /([a-z])\1{2,}/.test(core) || /(^|-)(?:kw|ks|ch|th|ng|nk|[a-z])-/.test(core);
+const isSoundy = (core) => /([a-z])\1{2,}/.test(core) || /(^|-)(?:kw|ks|ch|th|ng|nk|[bcdfgpt][lr]|[a-z])-/.test(core);
 
 // quiet (the default, when the grown up says the sounds): any sentence that contains a sound is left out,
 // so only the framing sentences are read ("Now you try. Slide the letter as you say it.").
