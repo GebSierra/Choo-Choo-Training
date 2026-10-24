@@ -37,7 +37,7 @@ export function build(ctx) {
   // sayFirst (the prototype lesson's review): the child says the sound before hearing it, so the sound and its bell wait for the first tap.
   const sayFirst = !!ctx.sayFirst;
   if (sayFirst) { card.classList.add('say-first'); card.firstChild.textContent = 'Say it, then find it!'; }
-  const hear = h('button', { class: 'say-hear wagon-hear', type: 'button', 'aria-label': 'Hear the sound again', onclick: () => saySound(ctx, target, prompt) }, icon('speaker', 32));
+  const hear = h('button', { class: 'say-hear wagon-hear', type: 'button', 'aria-label': 'Hear the sound again', onclick: () => saySound(ctx, target, prompt, { play: true }) }, icon('speaker', 32));
   const rail = h('div', { class: 'parade-rail', 'aria-hidden': 'true' });
   const lane = h('div', { class: 'parade' + (still ? ' still' : '') });
   const trainHop = h('div', { class: 'train-hop', style: { width: TRAIN_W + 'px', flex: '0 0 auto' } }, engineSvg());

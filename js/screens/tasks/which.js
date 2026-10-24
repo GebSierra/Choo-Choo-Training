@@ -38,9 +38,9 @@ export function build(ctx) {
   async function say(again) {
     const mine = serial, r = cur();
     if (done && !again) return;
-    if (r.kind === 'letter') { await saySound(ctx, r.cards[r.target].key, prompt, { stale: () => mine !== serial }); return; }
+    if (r.kind === 'letter') { await saySound(ctx, r.cards[r.target].key, prompt, { stale: () => mine !== serial, play: !!again }); return; }
     prompt.show(lineOf(r), r.word);
-    if (ctx.store.settings.playSounds) await speech.say([{ word: r.word }]); // a recording of the word if one exists, otherwise silence
+    if (again && ctx.store.settings.playSounds) await speech.say([{ word: r.word }]); // a recording of the word if one exists, otherwise silence
   }
   function newRound() {
     const mine = ++serial, r = rounds[round];

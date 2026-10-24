@@ -89,7 +89,7 @@ export function fishingScreen(ctx) {
   const letterBox = h('div', { class: 'fish-letter' });
   const hint = h('div', { class: 'fish-hint' });
   const card = h('div', { class: 'fish-card', role: 'status' }, letterBox, h('div', { class: 'fish-words' }, h('div', { class: 'fish-say' }, 'Say it, then catch it!'), hint),
-    h('button', { class: 'icon-btn fish-replay', type: 'button', 'aria-label': 'Hear the sound again', onclick: () => ask() }, icon('speaker', 26)));
+    h('button', { class: 'icon-btn fish-replay', type: 'button', 'aria-label': 'Hear the sound again', onclick: () => ask(true) }, icon('speaker', 26)));
   const prompt = { show: (t) => { hint.textContent = t; }, hide: () => { hint.textContent = 'Catch the fish that says this.'; } };
 
   // ---- the scene ----
@@ -161,7 +161,7 @@ export function fishingScreen(ctx) {
     card.dataset.target = target;
     ask();
   }
-  function ask() { const my = round; return saySound(ctx, target, prompt, { stale: () => dead || my !== round }); }
+  function ask(play) { const my = round; return saySound(ctx, target, prompt, { stale: () => dead || my !== round, play: !!play }); }
 
   function start() {
     for (const f of [...fish]) { f.anim && f.anim.cancel(); f.el.remove(); fish.delete(f); }

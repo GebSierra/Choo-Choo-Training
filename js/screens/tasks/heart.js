@@ -55,10 +55,10 @@ export function build(env) {
   const data = (w) => curriculum.heartWords[w];
 
   // The grown-up says the word: the recording when one can play, else the prompt "Say: the". Never the phone's voice.
-  async function sayWord(w, prompt, stale = () => false) {
+  async function sayWord(w, prompt, stale = () => false, play = false) {
     const C = clipOf(w);
-    if (store.settings.playSounds && !speech.missing.includes(C.key)) {
-      prompt.hide();
+    if (play && store.settings.playSounds && !speech.missing.includes(C.key)) {
+      prompt.show(`Say: ${w}`, C.key);
       await speech.say([{ src: C.src, key: C.key }]);
       if (stale()) return 'stale';
       if (!speech.missing.includes(C.key)) return 'clip';
@@ -100,7 +100,7 @@ export function build(env) {
       legend.hidden = false; fadeIn(legend);
       tiles.hearts.forEach((t) => { t.classList.add('lit'); T.later(() => t.classList.remove('lit'), 1200); });
       if (!reduced()) tiles.hearts.forEach((t) => popAnim(t.querySelector('.hw-heart')));
-      slot.replaceChildren(hearBtn('Hear it', () => sayWord(w, prompt, () => g !== gen), { compact: true }));
+      slot.replaceChildren(hearBtn('Hear it', () => sayWord(w, prompt, () => g !== gen, true), { compact: true }));
       sayWord(w, prompt, () => g !== gen);
       judge.show(); fadeIn(judge.el);
       refresh();

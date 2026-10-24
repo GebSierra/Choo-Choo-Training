@@ -19,15 +19,14 @@ export function sayPrompt() {
 // lead: text before the sound on the prompt (Station Board: "This is sad."); with a clip only the lead shows.
 // stale: a function; when it says true after the clip attempt, the game has moved on and nothing is shown.
 // extra: more words after the prompt for the grown-up ("Say: fff, a long breath through your teeth").
-export async function saySound(ctx, key, prompt, { lead = '', stale = () => false, extra = '' } = {}) {
+export async function saySound(ctx, key, prompt, { lead = '', stale = () => false, extra = '', play = false } = {}) {
   const full = (lead ? `Say: ${lead} Tap ${soundText(key, ctx.curriculum.sounds)}.` : sayLine(key, ctx.curriculum.sounds)) + extra;
-  if (clipReady(ctx, key)) {
-    if (lead) prompt.show(`Say: ${lead}`, key); else prompt.hide();
+  prompt.show(lead && clipReady(ctx, key) ? `Say: ${lead}` : full, key); // the grown-up prompt is always visible; nothing plays unless a speaker was tapped (play: true)
+  if (play && clipReady(ctx, key)) {
     await ctx.speech.say([{ clip: key }]);
     if (stale()) return 'stale';
     if (!ctx.speech.missing.includes(key)) return 'clip';
   }
-  prompt.show(full, key);
   return 'prompt';
 }
 
@@ -36,14 +35,13 @@ export async function saySound(ctx, key, prompt, { lead = '', stale = () => fals
 // stretched text always comes from slowSounds, never by hand. Resolves 'clip', 'prompt' or 'stale'.
 export const blendLine = (word, sounds) => `Say: ${slowSounds(word.toLowerCase(), sounds)}`;
 export const blendReady = ({ store, speech }, word) => !!store.settings.playSounds && !speech.missingBlends.includes(word.toLowerCase());
-export async function sayBlend(ctx, word, prompt, { stale = () => false } = {}) {
+export async function sayBlend(ctx, word, prompt, { stale = () => false, play = false } = {}) {
   const w = word.toLowerCase();
-  if (blendReady(ctx, w)) {
-    prompt.hide();
+  prompt.show(blendLine(w, ctx.curriculum.sounds), w);
+  if (play && blendReady(ctx, w)) {
     await ctx.speech.say([{ blend: w }]);
     if (stale()) return 'stale';
     if (!ctx.speech.missingBlends.includes(w)) return 'clip';
   }
-  prompt.show(blendLine(w, ctx.curriculum.sounds), w);
   return 'prompt';
 }
