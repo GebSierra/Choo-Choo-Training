@@ -3,7 +3,7 @@
 // handwriting order on a 100 by 100 box (baseline y=80, x-height top y=38). The same strokes
 // drive the big letters, the slide track, the word rows and the trace guide.
 import { h, animate, reduced } from './dom.js';
-import { letterUnits } from './order.js';
+import { letterUnits, BLENDS } from './order.js';
 
 export const STROKE_WIDTH = 11.5;
 export const BASELINE = 80;
@@ -232,6 +232,9 @@ function digraph(a, b) {
   return { strokes, link: `M${x0} 89 L${x1} 89`, minX: x0 - 2, maxX: x1 + 2, minY: Math.min(A.minY, B.minY), maxY: Math.max(A.maxY, B.maxY, 89) };
 }
 for (const pair of ['sh', 'ch', 'th', 'wh', 'ck', 'ng', 'nk', 'ff', 'll', 'ss', 'zz']) GLYPHS[pair] = digraph(pair[0], pair[1]);
+// Blends (World 5) are NOT one sound: each letter keeps its own sound, so a blend pair is two plain letters side by side with NO bar between them (a digraph has one).
+// It exists only as the glyph of a lesson key or a card in a blend lesson; words are still drawn letter by letter (letterUnits never joins a blend).
+for (const pair of Object.values(BLENDS).flat()) { const g = digraph(pair[0], pair[1]); delete g.link; g.minY = Math.min(g.minY, 38); g.maxY = Math.min(g.maxY, 96); g.blend = true; GLYPHS[pair] = g; }
 
 const SPACING = 4;
 export const hasGlyph = (ch) => !!GLYPHS[ch];

@@ -49,9 +49,18 @@
   --wh: #1D4ED8; --wh-tint: rgba(29,78,216,.12);
   --ng: #BE123C; --ng-tint: rgba(190,18,60,.12);
   --nk: #4D7C0F; --nk-tint: rgba(77,124,15,.12);
+  --st: #0F766E; --st-tint: rgba(15,118,110,.12);
+  --nd: #0E7490; --nd-tint: rgba(14,116,144,.12);
+  --sp: #7E22CE; --sp-tint: rgba(126,34,206,.12);
+  --sn: #BE185D; --sn-tint: rgba(190,24,93,.12);
+  --bl: #1E40AF; --bl-tint: rgba(30,64,175,.12);
+  --pl: #A16207; --pl-tint: rgba(161,98,7,.12);
+  --br: #9A3412; --br-tint: rgba(154,52,18,.12);
+  --dr: #166534; --dr-tint: rgba(22,101,52,.12);
+  --mix: #475569; --mix-tint: rgba(71,85,105,.12);
   /* fills that carry white text: green darkened for contrast */
   --m-fill: var(--m); --a-fill: var(--a); --s-fill: #1E8E5E;
-  --t-fill: #AD6417; --f-fill: #108286; --d-fill: #8659E9; --g-fill: #C34A88; --i-fill: #A3690C; --n-fill: #2B6CB0; --p-fill: #C2417A; --h-fill: #7A5C3E; --b-fill: #5667F2; --l-fill: #60801F; --o-fill: #9B3FC4; --c-fill: #0B7396; --k-fill: #0B7396; --u-fill: #CC4F2A; --r-fill: #2E8A2E; --e-fill: #B3472F; --j-fill: #6A4FC4; --w-fill: #1F7A8C; --v-fill: #A33B7A; --y-fill: #8A6D00; --z-fill: #2E7D32; --x-fill: #C2410C; --q-fill: #3F51B5; --sh-fill: #0B6E99; --ch-fill: #B45309; --th-fill: #6D28D9; --ck-fill: #9D174D; --ff-fill: #047857; --wh-fill: #1D4ED8; --ng-fill: #BE123C; --nk-fill: #4D7C0F;
+  --t-fill: #AD6417; --f-fill: #108286; --d-fill: #8659E9; --g-fill: #C34A88; --i-fill: #A3690C; --n-fill: #2B6CB0; --p-fill: #C2417A; --h-fill: #7A5C3E; --b-fill: #5667F2; --l-fill: #60801F; --o-fill: #9B3FC4; --c-fill: #0B7396; --k-fill: #0B7396; --u-fill: #CC4F2A; --r-fill: #2E8A2E; --e-fill: #B3472F; --j-fill: #6A4FC4; --w-fill: #1F7A8C; --v-fill: #A33B7A; --y-fill: #8A6D00; --z-fill: #2E7D32; --x-fill: #C2410C; --q-fill: #3F51B5; --sh-fill: #0B6E99; --ch-fill: #B45309; --th-fill: #6D28D9; --ck-fill: #9D174D; --ff-fill: #047857; --wh-fill: #1D4ED8; --ng-fill: #BE123C; --nk-fill: #4D7C0F; --st-fill: #0F766E; --nd-fill: #0E7490; --sp-fill: #7E22CE; --sn-fill: #BE185D; --bl-fill: #1E40AF; --pl-fill: #A16207; --br-fill: #9A3412; --dr-fill: #166534; --mix-fill: #475569;
   --sky: #5DE0F0; --violet: #5A4BD6; --coral: #F0556A; --sun: #FFD166; --mint: #5FE3B0; --lilac: #CDC4F8; --blue: #7DB8F5;
   --radius: 24px;
   --shadow: 0 6px 20px rgba(60,40,20,.12);

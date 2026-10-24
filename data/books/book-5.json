@@ -1,0 +1,197 @@
+{
+  "id": "book-5",
+  "title": "Pip at the Bay",
+  "draft": true,
+  "needs": [
+    "m",
+    "a",
+    "s",
+    "i",
+    "t",
+    "p",
+    "f",
+    "o",
+    "n",
+    "d",
+    "c",
+    "h",
+    "u",
+    "g",
+    "l",
+    "r",
+    "b",
+    "e",
+    "j",
+    "w",
+    "v",
+    "y",
+    "z",
+    "x",
+    "q",
+    "sh",
+    "ch",
+    "th",
+    "ck",
+    "ff",
+    "wh",
+    "ng",
+    "nk",
+    "st",
+    "nd",
+    "sp",
+    "sn",
+    "bl",
+    "pl",
+    "br"
+  ],
+  "sight": [],
+  "pages": [
+    {
+      "scene": "track",
+      "read": "Toot toot! Pip’s train rolls down to the sparkling Bay. The blue water goes swish, swish, swish! Pip, {name} and Sam hop off the train. Pip says, \"Let’s play at the beach!\"",
+      "art": {
+        "train": true,
+        "pip": "wave"
+      },
+      "tap": {
+        "on": "train",
+        "anim": "toot",
+        "label": "Pip's whistle"
+      }
+    },
+    {
+      "scene": "picnic",
+      "read": "Their feet go squish in the warm, soft beach. Sam scoops up a big handful and giggles. \"Look at me! I am digging in the ...\"",
+      "child": "sand",
+      "slider": "sand",
+      "art": {
+        "emoji": [
+          "🏖️"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "giggle",
+        "label": "the sand"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "Then something small and red scuttles out from behind a rock! Pip jumps back and says, \"Ooh! It is a pinching ...\"",
+      "child": "crab",
+      "slider": "crab",
+      "art": {
+        "emoji": [
+          "🦀"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the crab"
+      }
+    },
+    {
+      "scene": "track",
+      "kind": "drag",
+      "read": "\"Hold on tight! Let’s roll all along the Bay!\""
+    },
+    {
+      "scene": "meadow",
+      "read": "The water is calm and sparkly. {name} and Sam kick off their shoes. Pip says, \"The water is just right. Let’s go for a ...\"",
+      "child": "swim",
+      "slider": "swim",
+      "art": {
+        "emoji": [
+          "🏊"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the swimmer"
+      }
+    },
+    {
+      "scene": "picnic",
+      "read": "Sam builds a tall sand castle. It needs something on top! Pip says, \"Let’s put a bright little ...\"",
+      "child": "flag",
+      "slider": "flag",
+      "art": {
+        "emoji": [
+          "🚩"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the flag"
+      }
+    },
+    {
+      "scene": "hill",
+      "read": "The castle is done! Everyone cheers. Pip says, \"Great job! Let’s all ...\"",
+      "child": "clap",
+      "slider": "clap",
+      "art": {
+        "emoji": [
+          "👏"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the clapping hands"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "The sun is getting low. Pip checks his pocket watch and smiles. \"What a fun day at the Bay! It was a great ...\"",
+      "child": "trip",
+      "slider": "trip",
+      "art": {
+        "emoji": [
+          "🧳"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "giggle",
+        "label": "the suitcase"
+      }
+    },
+    {
+      "scene": "sunset",
+      "read": "Toot toot! All aboard! The train starts to roll, but Sam shouts, \"Wait! I left my bucket!\" Pip pulls the brake lever, and the train comes to a ...",
+      "child": "stop",
+      "slider": "stop",
+      "art": {
+        "train": true,
+        "pip": "cheer",
+        "friend": true,
+        "emoji": [
+          "🛑"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the stop sign"
+      }
+    },
+    {
+      "scene": "sunset",
+      "kind": "review",
+      "read": "Toot toot! You did it! Read all your words:",
+      "words": [
+        "sand",
+        "crab",
+        "swim",
+        "flag",
+        "clap",
+        "trip",
+        "stop"
+      ]
+    }
+  ]
+}
