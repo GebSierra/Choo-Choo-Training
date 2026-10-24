@@ -17,10 +17,13 @@ import { landscape, trainBar } from './practice-world.js';
 // setDone(true) also pulses the button once, so a parent sees that the game is finished.
 //   const current = build({ ...env, refresh: shell.refresh, setProgress: shell.setPos });
 //   return shell.mount(current, advance);
+// Runs fn with speech.say muted, so a task's again() restarts quietly (owner 2026-10-24: nothing plays unless a speaker is tapped).
+function silentlyWith(speech, fn) { const say = speech.say; speech.say = () => Promise.resolve(); try { return fn(); } finally { speech.say = say; } }
 // current is {el, parts(), script(), again(), next?(), onShow?(), cleanup?(), flush?, lockScroll?}.
 // lockScroll: the activity never scrolls and ignores pan gestures (tasks where a finger slides across the screen).
 export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKeys, backLabel = 'Back', stepNoun = 'Step', seenKeys = [], autoOpen = true, skipUntilDone = false, tip = null, tipKey = '', noScript = false, noAgain = false, autoAdvance = false, world = null, kicker = '' }) {
   const { router, speech, store } = ctx;
+  const silently = (fn) => silentlyWith(speech, fn);
   const themed = !!world && store.settings.newPractice === true;
   let current = null, doneHook = () => {};
   const scriptText = h('p', { class: 'script-text' });
@@ -119,7 +122,7 @@ export function makeShell({ ctx, title, color, steps, pos, from, isLast, soundKe
         stage.addEventListener('pointerdown', () => { if (isOpen) closeScript(); }, true);
       }
 
-      const again = h('button', { class: 'btn again', type: 'button', onclick: () => { cancelAuto(); closeScript(); current.again(); refreshAll(); } }, icon('redo', 22), 'Again');
+      const again = h('button', { class: 'btn again', type: 'button', onclick: () => { cancelAuto(); closeScript(); silently(() => current.again()); refreshAll(); } }, icon('redo', 22), 'Again'); // owner 2026-10-24: Again restarts the activity without playing anything; sound only from a speaker button
       const nextText = h('span', {}, skipUntilDone ? 'Skip' : isLast ? 'Finish' : 'Next');
       const next = h('button', { class: 'btn next', type: 'button', disabled: true, onclick: () => { closeScript(); if (current.next && current.next()) { dimNext(); refreshAll(); return; } goNext(); } }, nextText, icon('arrowRight', 22));
       doneHook = (done) => {

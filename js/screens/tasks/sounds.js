@@ -19,7 +19,8 @@ export function build({ lesson, curriculum, speech, refresh }) {
   const cur = () => list[i];
   const partsFor = () => {
     const w = cur();
-    if (w.showLetters) return [...letterUnits(w.word, lesson.number).filter(hasGlyph).map((c) => ({ clip: soundOfLetter(c) })), { pause: 300 }, { word: w.word }];
+    // Owner (2026-10-24): no letter-by-letter clips here; they played on their own and sounded like a wrong word. The grown-up says the
+    // stretched word from the Say this bar; only a recording of the whole word plays, and only when the speaker is tapped.
     return [{ word: w.word }];
   };
   const stopSweep = () => { if (sweepAnim) { sweepAnim.cancel(); sweepAnim = null; } if (cue) { cue.stop(); cue = null; cueStage.classList.remove('cueing'); } };
@@ -70,7 +71,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
     };
     tapStage = () => { if (revealed) speech.say(partsFor()); else reveal(); };
     stage.addEventListener('click', () => { if (blend && blend.swallowClick()) return; tapStage(); });
-    const nextWord = h('button', { class: 'btn ghost small', type: 'button', onclick: () => { i = (i + 1) % list.length; show(); speech.say(partsFor()); } }, 'Next word');
+    const nextWord = h('button', { class: 'btn ghost small', type: 'button', onclick: () => { i = (i + 1) % list.length; show(); } }, 'Next word');
     body.replaceChildren(stage, nextWord);
     refresh();
   }
@@ -98,7 +99,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
       const w = cur(), stretched = w.showLetters ? slowSounds(w.word, sounds) : firstSoundOut(w.word, sounds);
       return `${stretched}, then ${w.word}.`;
     },
-    again: () => { show(); speech.say(partsFor()); },
+    again: () => { show(); },
     cleanup: teardown,
   };
 }
