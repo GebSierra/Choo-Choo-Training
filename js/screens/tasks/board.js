@@ -27,7 +27,7 @@ export function build(ctx) {
   let round = 0, locked = true, done = false, tiles = [], W = 0, serial = 0, endAnims = [];
 
   const prompt = sayPrompt();
-  const hear = h('button', { class: 'say-hear board-hear', type: 'button', 'aria-label': 'Hear the sound again', onclick: () => saySound(ctx, words[round].target, prompt, { lead: `This is ${words[round].word}.` }) }, icon('speaker', 32));
+  const hear = h('button', { class: 'say-hear board-hear', type: 'button', 'aria-label': 'Hear the sound again', onclick: () => saySound(ctx, words[round].target, prompt, { lead: `This is ${words[round].word}.`, play: true }) }, icon('speaker', 32));
   const row = h('div', { class: 'flap-row' });
   const board = h('div', { class: 'flap-board', role: 'group', 'aria-label': 'station board' }, h('span', { class: 'flap-chain l', 'aria-hidden': 'true' }), h('span', { class: 'flap-chain r', 'aria-hidden': 'true' }), row);
   const wall = h('div', { class: 'station-wall', 'aria-hidden': 'true' }, h('span', { class: 'wall-clock' }, h('i'), h('i')));

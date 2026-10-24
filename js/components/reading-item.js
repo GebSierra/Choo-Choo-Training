@@ -90,7 +90,7 @@ export function readingItem(ctx, { kind = 'word', heart = [], onGot, onHelped })
   async function soundStep() {
     setPhase('sound');
     const key = text[tricky].toLowerCase(), g = gen;
-    setPanel("This letter's sound:", btn('Hear it again', () => saySound(ctx, key, prompt, { stale: stale(g) })), btn('Now blend the word', () => blendStep(), 'ghost go'));
+    setPanel("This letter's sound:", btn('Hear it again', () => saySound(ctx, key, prompt, { stale: stale(g), play: true })), btn('Now blend the word', () => blendStep(), 'ghost go'));
     await saySound(ctx, key, prompt, { stale: stale(g) });
   }
 
@@ -112,9 +112,9 @@ export function readingItem(ctx, { kind = 'word', heart = [], onGot, onHelped })
   function blendStep() {
     setPhase('blend');
     const g = gen, w = bare(text);
-    const model = () => { lightLetters(); return sayBlend(ctx, w, prompt, { stale: stale(g) }); };
+    const model = (play) => { lightLetters(); return sayBlend(ctx, w, prompt, { stale: stale(g), play: !!play }); };
     setPanel('Say the whole word. Then have your child say it after you.',
-      btn('Hear it again', () => { model(); }),
+      btn('Hear it again', () => { model(true); }),
       btn('Hear the word', () => speech.say([{ word: w }])),
       btn('Done', () => complete(), 'ghost go'));
     model();
@@ -128,16 +128,15 @@ export function readingItem(ctx, { kind = 'word', heart = [], onGot, onHelped })
     const again = () => setAgain();
     if (heart.includes(w)) {
       setPanel(`"${w}" is a heart word. Say it, then have your child say it.`, ...(w.length > 1 ? [btn('Hear the word', () => speech.say([{ word: w }]))] : []), btn('Read the whole line again', again, 'ghost go'));
-      if (w.length > 1) speech.say([{ word: w }]);
       return;
     }
-    const model = () => {
+    const model = (play) => {
       letters.forEach((l) => l.classList.remove('lit', 'current'));
       letters.forEach((l, i) => { l.style.setProperty('--accent', accentOf(l.dataset.letter.toLowerCase())); T.later(() => { if (g === gen) { letters.forEach((x, k) => x.classList.toggle('current', k === i)); l.classList.add('lit'); } }, i * LIGHT_MS); });
       T.later(() => { if (g === gen) letters.forEach((x) => x.classList.remove('current')); }, letters.length * LIGHT_MS);
-      return sayBlend(ctx, w, prompt, { stale: stale(g) });
+      return sayBlend(ctx, w, prompt, { stale: stale(g), play: !!play });
     };
-    setPanel('Say the tricky word together. Then your child says it alone.', btn('Hear it again', () => { model(); }), btn('Read the whole line again', again, 'ghost go'));
+    setPanel('Say the tricky word together. Then your child says it alone.', btn('Hear it again', () => { model(true); }), btn('Read the whole line again', again, 'ghost go'));
     model();
   }
 

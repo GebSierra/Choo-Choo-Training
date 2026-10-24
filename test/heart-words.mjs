@@ -130,8 +130,10 @@ const nextSub = async (page) => { await page.waitForFunction(() => { const b = d
 {
   const { ctx, page, errors } = await open(6, PHONE, { clip: true });
   await tap(page, '.hw-tried'); await page.waitForTimeout(300);
-  ok((await clips(page)).includes('the.mp3'), 'a recorded clip of the word plays when one exists');
-  ok((await promptText(page)) === null, 'with a recording no "Say:" prompt shows');
+  ok(!(await clips(page)).includes('the.mp3'), 'no autoplay: the recording does not play on its own');
+  await tap(page, '.px-hear'); await page.waitForTimeout(300);
+  ok((await clips(page)).includes('the.mp3'), 'a recorded clip of the word plays when the speaker is tapped');
+  ok(/^Say: the/.test((await promptText(page)) || ''), 'the grown-up "Say:" prompt stays visible');
   ok(errors.length === 0, 'recording: no errors ' + errors.join(' | '));
   await ctx.close();
 }

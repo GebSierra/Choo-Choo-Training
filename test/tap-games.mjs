@@ -88,7 +88,7 @@ export async function signalChecks({ browser, url, ok, CUR }) {
     await page.waitForFunction(() => window.__events.some((e) => e.type === 'clip' && e.src === 'a.mp3'), null, { timeout: 2000 }).catch(() => {});
     ok((await clips(page)).includes('a.mp3'), 'Green Light clip path: a.mp3 played');
     await page.waitForTimeout(200);
-    ok(await page.evaluate(() => document.querySelector('.say-prompt').hidden), 'Green Light clip path: the prompt is hidden');
+    ok(await page.evaluate(() => !document.querySelector('.say-prompt').hidden), 'Green Light clip path: the grown-up prompt stays visible (no autoplay rule)');
     ok((await ttsAll(page)).every((t) => !/^\s*a+\s*$/i.test(t)), 'Green Light clip path: no bare sound spoken by the phone voice');
     ok(errors.length === 0, 'Green Light clip path: errors ' + errors.join(' | '));
     await ctx.close();
@@ -124,7 +124,7 @@ export async function signalChecks({ browser, url, ok, CUR }) {
     await tapEl(page, page.locator('.signal[data-target="0"]').first());
     await page.waitForTimeout(700);
     ok((await roundOf(page, 'signals')) === 0 && (await popCount(page)) === p0, 'Green Light: a wrong tap leaves the round and adds no pop');
-    ok((await clips(page)).length === c0 + 1, 'Green Light: a wrong tap plays the sound again');
+    ok((await clips(page)).length === c0, 'Green Light: a wrong tap plays nothing (no autoplay rule)');
     ok(await page.evaluate(() => !document.querySelector('.signal.go')), 'Green Light: a wrong tap turns no lamp green');
     let lastSlot = -1, moved = 0;
     for (let r = 1; r <= 5; r++) {
@@ -218,7 +218,7 @@ export async function wagonChecks({ browser, url, ok, CUR }) {
     await page.waitForTimeout(250);
     ok((await page.locator('.no-x').count()) >= 1, 'Wagon Parade: a wrong tap shows a soft red cross');
     ok((await popCount(page)) === p0 && (await roundOf(page, 'wagons')) === 0, 'Wagon Parade: a wrong tap adds no pop and leaves the round');
-    ok((await clips(page)).length === c0 + 1 && (await clips(page)).every((c) => c === 'm.mp3'), 'Wagon Parade: a wrong tap plays m.mp3 too');
+    ok((await clips(page)).length === c0, 'Wagon Parade: a wrong tap plays nothing (no autoplay rule)');
     // right taps: three targets in the first parade
     const gone = () => page.locator('.parade-wagon[style*="pointer-events"]').count();
     let got = 0;
@@ -229,7 +229,7 @@ export async function wagonChecks({ browser, url, ok, CUR }) {
       await page.touchscreen.tap(t.x, t.y);
       await page.waitForTimeout(450);
       const g = await gone().catch(() => 3);
-      if (g > got || (await roundOf(page, 'wagons')) === 1) { got++; ok((await clips(page)).length === n0 + 1, `Wagon Parade: right tap ${got} plays the sound`); }
+      if (g > got || (await roundOf(page, 'wagons')) === 1) { got++; ok((await clips(page)).length === n0, `Wagon Parade: right tap ${got} plays nothing (no autoplay rule)`); }
     }
     ok(got === 3, `Wagon Parade: three targets tapped (${got})`);
     await page.waitForTimeout(100);

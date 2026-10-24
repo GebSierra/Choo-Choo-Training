@@ -14,7 +14,6 @@ export function build({ lesson, curriculum, speech, refresh }) {
   const el = h('div', { class: 'review' }, dots, holder);
   const sound = () => curriculum.sounds[keys[i]];
   let track = null, revealed = false;
-  const say = () => speech.say([{ clip: sound().glyph }, { tts: sound().words[0].word }]);
 
   // Retrieval first: the answer (the sound card and the recording) stays hidden until the grown-up taps "Show the sound" after the
   // child has tried, or presses Again.
@@ -24,7 +23,6 @@ export function build({ lesson, curriculum, speech, refresh }) {
     const slot = holder.querySelector('.review-help');
     if (slot) slot.replaceWith(soundCard(sound()));
     el.dataset.revealed = '1';
-    say();
     refresh();
   }
   function show() {

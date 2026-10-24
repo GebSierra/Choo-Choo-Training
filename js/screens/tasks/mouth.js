@@ -20,7 +20,7 @@ export function build(env) {
   const stale = (g) => () => g !== gen;
 
   const art = h('div', { class: 'mouth-art' }, grownupSvg());
-  const hear = h('button', { class: 'btn small ghost px-hear', type: 'button', 'aria-label': 'Hear the sound', onclick: () => saySound(env, key, prompt, { stale: stale(gen) }) }, icon('speaker', 22), h('span', { class: 'px-hear-label' }, 'Hear it'));
+  const hear = h('button', { class: 'btn small ghost px-hear', type: 'button', 'aria-label': 'Hear the sound', onclick: () => saySound(env, key, prompt, { stale: stale(gen), play: true }) }, icon('speaker', 22), h('span', { class: 'px-hear-label' }, 'Hear it'));
 
   // "How to make this sound": a small panel under the buttons, closed until asked for.
   const m = sound.mouth || { voice: null, text: sound.howTo };

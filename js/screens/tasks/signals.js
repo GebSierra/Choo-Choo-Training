@@ -46,7 +46,7 @@ export function build(ctx) {
   const seat = () => train.querySelector('.pip-seat');
   const setPip = (pose) => { const s = seat(), old = s.firstChild, p = pipSvg({ pose }); for (const k of ['x', 'y', 'width', 'height']) p.setAttribute(k, old.getAttribute(k)); s.replaceChildren(p); };
   const say = () => saySound(ctx, targets[round], prompt, { stale: () => done || locked });
-  function hearAgain() { if (!done) saySound(ctx, targets[round], prompt, { stale: () => false }); }
+  function hearAgain() { if (!done) saySound(ctx, targets[round], prompt, { stale: () => false, play: true }); }
 
   function layout(w, hgt) {
     const first = !W;
