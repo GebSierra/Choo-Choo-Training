@@ -89,6 +89,7 @@ with the date.
 ## Content and recordings
 - [ ] **Record the letter sounds** in the recording studio: https://app.choochootraining.com/tools/studio.html (47 items;
   stops and resumes where you left off). Until a sound is recorded, the app shows a "Say: mmm" prompt for the grown-up.
+- [ ] **Whole-word and heart-word recordings (2026-10-24):** the speaker buttons now play only YOUR recordings (the phone never says sounds or words, and nothing plays on its own). Record each reading word and heart word so a tap on a speaker plays your voice; until a word is recorded, the screen shows "Say: ..." for the grown-up. Claude will add the word list to the recording studio (tools/studio.html) when you are ready to record.
 - [ ] Optional: the heart-word clips ("th" buzzing, the "uh" in "the") and the blend models, also in the studio.
 - [ ] Consider a hired voice actor for the sounds before selling.
 
