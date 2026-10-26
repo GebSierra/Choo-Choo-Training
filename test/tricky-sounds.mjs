@@ -152,7 +152,7 @@ export async function screenChecks({ browser, url, ok }) {
     await page.waitForSelector('.tunnels .tcar');
     await page.waitForTimeout(900);
     const signs = await page.locator('.tunnel-sign').allInnerTexts();
-    ok((await page.locator('.tunnel').count()) === 2 && (id !== 'x2' || ['a', 'o', 'i', ''].includes(signs[1].trim())) && (await page.locator('.tunnel-sign svg').count()) === (id === 'x2' ? 1 : 2), `${id} tunnels: two tunnels with their signs (${signs.map((s) => s.trim()).join(' | ')})`);
+    ok((await page.locator('.tunnel').count()) === 2 && (id !== 'x2' || ['a', 'o', 'i', ''].includes(signs[1].trim())) && (await page.locator('.tunnel-sign svg').count()) === 2, `${id} tunnels: two tunnels with their signs (${signs.map((s) => s.trim()).join(' | ')})`);
     ok((await first(page)) === 'Which tunnel is it for?', `${id} tunnels: the gist is one wording`);
     await shot(page, `${id}-two-tunnels-390x844`);
     const stars = () => page.locator('.star-row').getAttribute('data-filled');
