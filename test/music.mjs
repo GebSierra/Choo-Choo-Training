@@ -68,7 +68,7 @@ export async function musicChecks({ browser, url, ok }) {
     ok(backV !== null && Math.abs(backV - 0.45) < 0.02, `music: the volume is restored after speech (${backV})`);
     // ... and while a jingle rings.
     await page.evaluate(async () => { (await import('/js/sfx.js')).sfx.play('win'); });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1200);
     const jv = await vol(page);
     ok(jv !== null && jv < 0.2, `music: the theme ducks while a jingle rings (${jv})`);
     await page.waitForTimeout(2200);

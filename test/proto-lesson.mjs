@@ -153,7 +153,7 @@ async function walk(browser, url, ok, mode) {
   ok(true, T('"Hear it" appears after a moment'));
   await shotOf(page, '02b-review-hear-it');
   await tapEl(page, sel(page, '.judge-btn.help')); await page.waitForTimeout(700);
-  if (clipMode) { ok((await clips(page)).includes('p.mp3'), T('Help plays the p recording')); ok((await prompt(page)) === null, T('no prompt while the recording plays')); }
+  if (clipMode) { ok(!(await clips(page)).includes('p.mp3'), T('Help plays nothing on its own (owner 2026-10-24)')); ok((await prompt(page)) !== null, T('Help shows the grown-up prompt')); }
   else ok((await prompt(page)) === 'Say: p-', T(`Help shows the prompt for p (${await prompt(page)})`));
   ok(/comes back/.test((await text(page, '.ri-panel')) || ''), T('Help says the card comes back'));
   await shotOf(page, '02c-review-help');
@@ -171,7 +171,7 @@ async function walk(browser, url, ok, mode) {
   ok(/Tap the letter that was tricky/.test((await text(page, '.ri-panel')) || ''), T('Help asks for the tricky letter'));
   await tapEl(page, sel(page, '.ltile:nth-child(2)')); await page.waitForTimeout(600);
   ok(await sel(page, '.ltile.tricky').count() === 1 && (await page.evaluate(() => document.querySelector('.ltile.tricky').dataset.i)) === '1', T('the tapped letter lights'));
-  if (clipMode) ok((await clips(page)).includes('a.mp3'), T("the tricky letter's recording plays")); else ok((await prompt(page)) === 'Say: aaa (as in apple)', T(`its sound shows (${await prompt(page)})`));
+  if (clipMode) ok(!(await clips(page)).includes('a.mp3') && (await prompt(page)) !== null, T("the tricky letter's sound shows as a prompt; nothing plays on its own")); else ok((await prompt(page)) === 'Say: aaa (as in apple)', T(`its sound shows (${await prompt(page)})`));
   await shotOf(page, '02d-review-word-help');
   await tapEl(page, btnByText(page, 'Now blend the word')); await page.waitForTimeout(800);
   if (clipMode) ok((await clips(page)).includes('sat.mp3'), T('the blend model plays')); else ok((await prompt(page)) === 'Say: sssaaat-', T(`the blend model shows (${await prompt(page)})`));
