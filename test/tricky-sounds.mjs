@@ -144,7 +144,7 @@ export async function screenChecks({ browser, url, ok }) {
     await m.ctx.close();
   }
 
-  // Two Tunnels: right and wrong, on x2 (h and no h) and x5 (i and e), with a swipe on x1
+  // Two Tunnels: right and wrong, on x2 (h and a) and x5 (i and e), with a swipe on x1
   for (const id of ['x2', 'x5', 'x1']) {
     const k = STOPS.find((c) => c.id === id);
     const m = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${id}/task/0`);
@@ -152,7 +152,7 @@ export async function screenChecks({ browser, url, ok }) {
     await page.waitForSelector('.tunnels .tcar');
     await page.waitForTimeout(900);
     const signs = await page.locator('.tunnel-sign').allInnerTexts();
-    ok((await page.locator('.tunnel').count()) === 2 && (id !== 'x2' || signs[1].trim() === 'no h') && (await page.locator('.tunnel-sign svg').count()) === (id === 'x2' ? 1 : 2), `${id} tunnels: two tunnels with their signs (${signs.map((s) => s.trim()).join(' | ')})`);
+    ok((await page.locator('.tunnel').count()) === 2 && (id !== 'x2' || signs[1].trim() === 'a') && (await page.locator('.tunnel-sign svg').count()) === (id === 'x2' ? 1 : 2), `${id} tunnels: two tunnels with their signs (${signs.map((s) => s.trim()).join(' | ')})`);
     ok((await first(page)) === 'Which tunnel is it for?', `${id} tunnels: the gist is one wording`);
     await shot(page, `${id}-two-tunnels-390x844`);
     const stars = () => page.locator('.star-row').getAttribute('data-filled');
