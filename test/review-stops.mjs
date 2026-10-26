@@ -323,9 +323,9 @@ export async function homeChecks({ browser, url, ok }) {
   await g.page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await g.page.mouse.down(); await g.page.waitForTimeout(2250); await g.page.mouse.up();
   await g.page.waitForSelector('.grownups');
   const rows = await g.page.locator('.gu-row').allInnerTexts();
-  ok(await g.page.locator('.gu-world').count() === 4, 'grownups: with Green Valley done all four worlds that have lessons are listed (Digraph Docks too)');
-  ok(rows.filter((r) => r.includes('Review Stop')).length === 11 && rows.some((r) => r.includes('Read It Again')) && !rows.some((r) => /Smooth/.test(r)), `grownups: eleven Review Stops and Read It Again are listed (${rows.length} rows)`);
-  ok((await g.page.locator('.gu-row .ticket-art').count()) === 11 && (await g.page.locator('.gu-row .reread-art').count()) === 1, 'grownups: each stop kind has its own icon');
+  ok(await g.page.locator('.gu-world').count() === 5, 'grownups: with Green Valley done all five worlds that have lessons are listed (Blend Bay too)');
+  ok(rows.filter((r) => r.includes('Review Stop')).length === 13 && rows.some((r) => r.includes('Read It Again')) && !rows.some((r) => /Smooth/.test(r)), `grownups: thirteen Review Stops and Read It Again are listed (${rows.length} rows)`);
+  ok((await g.page.locator('.gu-row .ticket-art').count()) === 13 && (await g.page.locator('.gu-row .reread-art').count()) === 1, 'grownups: each stop kind has its own icon');
   await g.ctx.close();
 }
 
