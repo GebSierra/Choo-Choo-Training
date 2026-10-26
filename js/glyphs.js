@@ -235,6 +235,7 @@ for (const pair of ['sh', 'ch', 'th', 'wh', 'ck', 'ng', 'nk', 'ff', 'll', 'ss', 
 // Blends (World 5) are NOT one sound: each letter keeps its own sound, so a blend pair is two plain letters side by side with NO bar between them (a digraph has one).
 // It exists only as the glyph of a lesson key or a card in a blend lesson; words are still drawn letter by letter (letterUnits never joins a blend).
 for (const pair of Object.values(BLENDS).flat()) { const g = digraph(pair[0], pair[1]); delete g.link; g.minY = Math.min(g.minY, 38); g.maxY = Math.min(g.maxY, 96); g.blend = true; GLYPHS[pair] = g; }
+GLYPHS.mix = GLYPHS.st; // the mixed review (lesson 42) wears the st badge on the path, the lesson list and the finish card; the letter games never deal it (order.js NO_GLYPH)
 
 const SPACING = 4;
 export const hasGlyph = (ch) => !!GLYPHS[ch];
