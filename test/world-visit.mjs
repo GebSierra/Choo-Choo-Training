@@ -52,7 +52,7 @@ const showTunnel = async (page, role) => {
 export function unitChecks(ok) {
   const st = (n) => ({ isDone: (k) => k <= n, currentLesson: (t) => (n >= t ? null : n + 1) });
   ok(JSON.stringify(reachedWorlds(st(0), CUR).map((w) => w.id)) === '["W1"]' && JSON.stringify(reachedWorlds(st(7), CUR).map((w) => w.id)) === '["W1","W2"]' && JSON.stringify(reachedWorlds(st(17), CUR).map((w) => w.id)) === '["W1","W2","W3"]' && JSON.stringify(reachedWorlds(st(25), CUR).map((w) => w.id)) === '["W1","W2","W3","W4"]' && JSON.stringify(reachedWorlds(st(33), CUR).map((w) => w.id)) === '["W1","W2","W3","W4","W5"]' && JSON.stringify(reachedWorlds(st(42), CUR).map((w) => w.id)) === '["W1","W2","W3","W4","W5"]', 'helpers: reachedWorlds lists the built worlds up to the current one (Sunny Hills is reached once Green Valley is done)');
-  ok(previousWorld(CUR, 'W1') === null && previousWorld(CUR, 'W2').id === 'W1' && previousWorld(CUR, 'W3').id === 'W2' && previousWorld(CUR, 'W4').id === 'W3' && previousWorld(CUR, 'W5') === null, 'helpers: previousWorld names the built world before (W3 to W2 to W1), none for the first');
+  ok(previousWorld(CUR, 'W1') === null && previousWorld(CUR, 'W2').id === 'W1' && previousWorld(CUR, 'W3').id === 'W2' && previousWorld(CUR, 'W4').id === 'W3' && previousWorld(CUR, 'W5').id === 'W4' && previousWorld(CUR, 'W6') === null, 'helpers: previousWorld names the built world before (W3 to W2 to W1), none for the first');
   const ctx = (n, visit) => ({ store: st(n), curriculum: CUR, visit });
   ok(activeVisit(ctx(7, { world: 'W1' })).id === 'W1', 'visit: a reached earlier world can be visited');
   const c2 = ctx(7, { world: 'W2' });

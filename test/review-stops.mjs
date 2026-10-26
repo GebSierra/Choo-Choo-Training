@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { SPEECH_STUB } from './stubs.mjs';
 import { ROOT, startServer, loadPlaywright, launch, newPage, SEEN, showStop, doneThrough } from './lib.mjs';
-import { ORDER_SOUNDS, lettersOfSounds, isReadable } from '../js/order.js';
+import { ORDER_SOUNDS, lettersOfSounds, isReadable, isReadableBlends, isBlendKey } from '../js/order.js';
 import { checkpointStopIndex, finishedStop } from '../js/sequence.js';
 import { state, openHome, until } from './train.mjs';
 
@@ -176,7 +176,7 @@ export async function screenChecks({ browser, url, ok }) {
   await b.ctx.close();
 
   // the opening card of every stop, the end message of every stop, and v1's first word
-  const WL = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
+  const WJ = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')), WL = [...WJ.words, ...WJ.blendWords]; // World 5: blendWords count once their blends are taught
   const HEART = ['is', 'as', 'was', 'of', 'the', 'to', 'you', 'she', 'he', 'me', 'be', 'we', 'his', 'has', 'no', 'go', 'so'];
   ok(WL.every((w) => /^[a-z]{2,}$/.test(w) && !HEART.includes(w) && !/(.)\1/.test(w)) && new Set(WL).size === WL.length, 'words list: lowercase, no repeats, no heart words, no double letters');
   for (const k of STOPS) {
@@ -188,9 +188,9 @@ export async function screenChecks({ browser, url, ok }) {
     await m.page.goto(url + `#/checkpoint/${k.id}/finish`);
     await m.page.waitForSelector('.review-message');
     const msg = await m.page.locator('.review-message').innerText();
-    const tg = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = WL.filter((w) => isReadable(w, tg));
-    const mm = /^Your child has learned (\d+) sounds\. Words made only from these sounds include: (.+)\. That's (\d+) words in all\.(?: Heart words learned so far, counted apart: (.+)\.)?$/.exec(msg.replace(/\s+/g, ' ').trim());
-    ok(mm && Number(mm[1]) === k.after && Number(mm[3]) === fresh.length && mm[2].split(', ').every((w) => fresh.includes(w.toLowerCase())) && mm[2].split(', ').length <= 8 && /^(?!.*pronounce)/.test(msg), `${k.id}: the end message says ${k.after} sounds and ${fresh.length} words, a fresh count from the list; every example is readable (${msg.slice(0, 90)}...)`);
+    const tg = lettersOfSounds(ORDER_SOUNDS.slice(0, k.after)), fresh = WL.filter((w) => (WJ.blendWords.includes(w) ? isReadableBlends(w, tg) : isReadable(w, tg))), nSounds = ORDER_SOUNDS.slice(0, k.after).filter((x) => !isBlendKey(x)).length;
+    const mm = /^Your child has learned (\d+) sounds(?: and \d+ blends)?\. Words made only from these sounds include: (.+)\. That's (\d+) words in all\.(?: Heart words learned so far, counted apart: (.+)\.)?$/.exec(msg.replace(/\s+/g, ' ').trim());
+    ok(mm && Number(mm[1]) === nSounds && Number(mm[3]) === fresh.length && mm[2].split(', ').every((w) => fresh.includes(w.toLowerCase())) && mm[2].split(', ').length <= 8 && /^(?!.*pronounce)/.test(msg), `${k.id}: the end message says ${nSounds} sounds and ${fresh.length} words, a fresh count from the list; every example is readable (${msg.slice(0, 90)}...)`);
     const hearts = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8')).lessons.slice(0, k.after).flatMap((L) => L.heart || []);
     ok(mm && (mm[4] || '') === hearts.join(', '), `${k.id}: the message lists the ${hearts.length} heart words taught so far, counted apart from the word count`);
     if (k.id === 'v1' || k.id === 'v9') await shot(m.page, `${k.id}-end-message-390x844`);

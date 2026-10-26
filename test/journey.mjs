@@ -44,7 +44,7 @@ export async function journeyChecks({ browser, url, ok }) {
   const vp = SHOT_VPS[0];
 
   // ---- 1. The map button where the star board was, on the 3D Home, for three points in the journey ----
-  for (const [n, want] of [[2, { cur: 0, done: [], stars: 0, curName: 'Starter Station' }], [7, { cur: 1, done: [0], stars: 1, curName: 'Green Valley' }], [17, { cur: 2, done: [0, 1], stars: 2, curName: 'Sunny Hills' }], [25, { cur: 3, done: [0, 1, 2], stars: 3, curName: 'Digraph Docks' }], [33, { cur: 4, done: [0, 1, 2, 3], stars: 4, curName: 'Blend Bay' }], [42, { cur: 4, done: [0, 1, 2, 3, 4], stars: 5, curName: 'Blend Bay', allDone: true }]]) {
+  for (const [n, want] of [[2, { cur: 0, done: [], stars: 0, curName: 'Starter Station' }], [7, { cur: 1, done: [0], stars: 1, curName: 'Green Valley' }], [17, { cur: 2, done: [0, 1], stars: 2, curName: 'Sunny Hills' }], [25, { cur: 3, done: [0, 1, 2], stars: 3, curName: 'Digraph Docks' }], [33, { cur: 4, done: [0, 1, 2, 3], stars: 4, curName: 'Blend Bay' }], [42, { cur: 4, done: [0, 1, 2, 3], stars: 5, curName: 'Blend Bay', allDone: true }]]) {
     const tag = `lesson ${n === 42 ? 'all done' : n + 1}`;
     const { ctx, page, errors } = await openHome(browser, url, vp, seed(n), { init: [RAF_COUNT] });
     ok(await settle(page), `${tag}: the 3D Home settles`);
@@ -70,7 +70,7 @@ export async function journeyChecks({ browser, url, ok }) {
     }));
     ok(d.n === 11 && d.locks === 10 - want.done.length && d.ticks === want.done.length + (want.allDone ? 1 : 0), `${tag}: ${d.locks} locks on the later worlds and ${d.ticks} gold tick(s) on the finished ones`);
     ok(d.train.length === 1 && d.train[0] === CUR.worlds[want.cur].id && d.here === 'You are here' && d.name === want.curName && /you are here/.test(d.label), `${tag}: "You are here" and the train at ${want.curName} (${d.train})`);
-    ok(d.lit === want.stars && d.lit + d.outline === 4 && d.count === String(want.stars) && d.tally === `${want.stars} of 4`, `${tag}: the gold stars are inside the board (${d.lit} lit, ${d.outline} outline, "${d.tally}")`);
+    ok(d.lit === want.stars && d.lit + d.outline === 5 && d.count === String(want.stars) && d.tally === `${want.stars} of 5`, `${tag}: the gold stars are inside the board (${d.lit} lit, ${d.outline} outline, "${d.tally}")`);
     ok(d.more === !!want.allDone, `${tag}: the "more worlds are coming" line only when everything built is finished`);
     if (n === 2) ok(d.stations === '1.1:later,1.2:later,1.3:later,2.1:here,2.2:later,2.3:later', `${tag}: unit track (${d.stations})`);
     if (n === 7) { ok(d.stations === '2.4:here,2.5:later,2.6:later,2.7:later,2.8:later', `${tag}: world 2 unit track (${d.stations})`); await shotTo(page, 'board-' + vp.name); }

@@ -68,7 +68,7 @@ export async function dataChecks({ ok }) {
 
   // 4. the stops: every world ends with a Review Stop, Story 3 after lesson 22, level three after lesson 25
   const ck = Object.fromEntries(CUR.checkpoints.map((k) => [k.id, k]));
-  ok(CUR.checkpoints.filter((k) => !['b4', 'x9', 'x10', 'v10', 'v11'].includes(k.id)).map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25', 'stops: ids and places (v1 to v5, r1, b1, b2 never move; Tricky Sounds x1 to x8 sit before the Review Stop of their lesson; v6 after 6; b3 after 22; v7, v8, v9 after 20, 23, 25)');
+  ok(CUR.checkpoints.filter((k) => !['b4', 'b5', 'x9', 'x10', 'x11', 'x12', 'v10', 'v11', 'v12', 'v13'].includes(k.id)).map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25', 'stops: ids and places (v1 to v5, r1, b1, b2 never move; Tricky Sounds x1 to x8 sit before the Review Stop of their lesson; v6 after 6; b3 after 22; v7, v8, v9 after 20, 23, 25)');
   const nodes = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   for (const w of ['W1', 'W2', 'W3']) {
     const last = nodes.filter((n) => (n.lesson ? n.lesson.world : n.checkpoint.world) === w).at(-1);
