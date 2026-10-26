@@ -27,8 +27,9 @@ export function build(ctx) {
   let rounds = tunnelRounds(ck), round = 0, locked = true, done = false, serial = 0, drag = null, W = 0;
   const stars = starRow(rounds.length);
   const tunnels = ck.sides.map((side, i) => {
-    const sign = h('span', { class: 'tunnel-sign' }, side.sign ? side.sign.map((ch) => glyphSvg(ch, { color: accentOf(ch), label: 'letter' })) : h('span', { class: 'tunnel-text' }, side.signText));
-    const b = h('button', { class: 'tunnel', type: 'button', dataset: { side: String(i) }, 'aria-label': side.signText ? `Tunnel: ${side.signText}` : 'Tunnel for ' + side.letters.join(' or ') }, tunnelSvg(), sign);
+    const shown = side.variants ? side.variants[0] : side;
+    const sign = h('span', { class: 'tunnel-sign' }, shown.sign ? shown.sign.map((ch) => glyphSvg(ch, { color: accentOf(ch), label: 'letter' })) : h('span', { class: 'tunnel-text' }, side.signText));
+    const b = h('button', { class: 'tunnel', type: 'button', dataset: { side: String(i) }, 'aria-label': side.signText ? `Tunnel: ${side.signText}` : 'Tunnel for ' + shown.letters.join(' or ') }, tunnelSvg(), sign);
     b.addEventListener('click', () => choose(i));
     return b;
   });
@@ -51,6 +52,7 @@ export function build(ctx) {
   }
   function newRound() {
     const mine = ++serial, r = rounds[round];
+    if (ck.sides[1].variants && r.variant != null) { const v = ck.sides[1].variants[r.variant]; const sg = tunnels[1].querySelector('.tunnel-sign'); sg.replaceChildren(...v.sign.map((ch) => glyphSvg(ch, { color: accentOf(ch), label: 'letter' }))); tunnels[1].setAttribute('aria-label', 'Tunnel for ' + v.letters.join(' or ')); tunnels[1].dataset.variant = v.letters[0]; }
     face.replaceChildren(r.kind === 'letter' ? glyphSvg(r.value, { color: accentOf(r.value), label: 'letter on the car' }) : letterText(r.value, { label: true, level: ck.after }));
     face.dataset.kind = r.kind;
     car.dataset.side = String(r.side); car.dataset.kind = r.kind; car.dataset.value = r.value;
