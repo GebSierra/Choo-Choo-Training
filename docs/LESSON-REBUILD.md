@@ -726,7 +726,7 @@ Adjustments to the proposal: lesson 36 teaches sp and sk only and meets **st aga
 - Grown-up notation: `ssst-`, `ffft-`, `nnnd-`, `mmmp-`, `nnnt-`, `sssp-`, `sssk-`, `sssnnn`, `sssw-`, `sssmmm`, `sssl-`, `bl- cl- fl- pl- gl- br- tr- cr- dr- fr- gr-` (a held first sound is stretched, two short sounds glide). Shown, never spoken by the phone (`scripts.js` knows the glide tokens); blend sounds have no recording (`clip: null`).
 
 ### Words and counting
-`data/words-decodable.json` gains `blendWords` (194 words). They are counted apart: a World 5 word counts only once every blend it uses is taught (`isReadableBlends`); the old `words` keep their letters-only rule, so no Review Stop before World 5 changes (v1 to v11 are byte for byte the same). A blend is not a sound: the Review Stop message says "33 sounds and 14 blends" (then 22), and Grownups chips show one chip per lesson listing its pairs.
+`data/words-decodable.json` gains `blendWords` (178 words). They are counted apart: a World 5 word counts only once every blend it uses is taught (`isReadableBlends`); the old `words` keep their letters-only rule, so no Review Stop before World 5 changes (v1 to v11 are byte for byte the same). A blend is not a sound: the Review Stop message says "33 sounds and 14 blends" (then 22), and Grownups chips show one chip per lesson listing its pairs.
 
 ### Stops
 | Stop | After lesson | Notes |

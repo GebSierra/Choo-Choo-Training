@@ -275,7 +275,12 @@ export async function screenChecks({ browser, url, ok }) {
   }
   // Grownups lists World 5 and the reading count.
   {
-    const { ctx, page, errors } = await openHome(browser, url, PHONE, seed(36), { route: '#/grownups' });
+    const { ctx, page, errors } = await openHome(browser, url, PHONE, seed(36));
+    await page.waitForTimeout(2500);
+    const gb = await page.locator('.home-top button').first().boundingBox();
+    await page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2);
+    await page.mouse.down(); await page.waitForTimeout(2300); await page.mouse.up();
+    await page.waitForSelector('.grownups', { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(2500);
     const txt = await page.locator('body').innerText();
     ok(/Blend Bay/.test(txt) && /of 42/.test(txt), `Grownups: World 5, Blend Bay is listed and the lesson count is of 42 (${txt.replace(/\s+/g, ' ').slice(0, 260)})`);
