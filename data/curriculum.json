@@ -7387,22 +7387,83 @@
             "hop",
             "hot",
             "him"
-          ]
+          ],
+          "byVariant": {
+            "a": [
+              "hat",
+              "ham",
+              "hand"
+            ],
+            "o": [
+              "hot",
+              "hop"
+            ],
+            "i": [
+              "hit",
+              "him"
+            ]
+          }
         },
         {
-          "signText": "no h",
+          "sign": [
+            "a"
+          ],
           "letters": [
             "a",
-            "i",
-            "o"
+            "o",
+            "i"
           ],
           "words": [
             "at",
-            "it",
             "am",
-            "as",
             "an",
-            "on"
+            "and",
+            "on",
+            "odd",
+            "it",
+            "in",
+            "if"
+          ],
+          "variants": [
+            {
+              "sign": [
+                "a"
+              ],
+              "letters": [
+                "a"
+              ],
+              "words": [
+                "at",
+                "am",
+                "an",
+                "and"
+              ]
+            },
+            {
+              "sign": [
+                "o"
+              ],
+              "letters": [
+                "o"
+              ],
+              "words": [
+                "on",
+                "odd"
+              ]
+            },
+            {
+              "sign": [
+                "i"
+              ],
+              "letters": [
+                "i"
+              ],
+              "words": [
+                "it",
+                "in",
+                "if"
+              ]
+            }
           ]
         }
       ],
@@ -7412,20 +7473,20 @@
           "b": "at"
         },
         {
+          "a": "hot",
+          "b": "on"
+        },
+        {
           "a": "hit",
           "b": "it"
         },
         {
-          "a": "ham",
-          "b": "am"
-        },
-        {
-          "a": "has",
-          "b": "as"
+          "a": "hand",
+          "b": "and"
         }
       ],
       "hint": "Breathe it out, like fogging a mirror: h-. No 'huh.'",
-      "line": "Easy to miss: the breath sound h-. A word can start with it or not, like hat and at. Let's listen closely.",
+      "line": "Easy to miss: the breath sound h-. Hat starts with h-, at does not. Let's listen closely.",
       "end": "Great listening! Your child can hear when a word starts with h- and when it does not.",
       "quickCheck": {
         "prompt": [

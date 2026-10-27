@@ -147,6 +147,21 @@ const mix = (list, rng) => { const a = [...list]; for (let i = a.length - 1; i >
 const spread = (list, key, rng) => { for (let t = 0; t < 40; t++) { const a = mix(list, rng); if (!a.some((x, i) => i > 1 && key(x) === key(a[i - 1]) && key(x) === key(a[i - 2]))) return a; } return list; };
 // Two Tunnels: six rounds, the first two a letter (one for each tunnel), then four words (two for each). Each round: { kind: 'letter' | 'word', value, side }.
 export function tunnelRounds(ck, rng = Math.random) {
+  // A side with `variants` (the h stop: a, o, i) shows one variant per round; the other side's words then follow that variant
+  // (hat with a, hot with o, hit with i) when it lists `byVariant` words.
+  const vs = ck.sides[1].variants;
+  if (vs) {
+    const order = mix(vs.map((_, i) => i), rng);
+    const pick = (i) => order[i % order.length];
+    const out = [];
+    mix([0, 1], rng).forEach((side, i) => { const v = pick(i); out.push({ kind: 'letter', side, variant: v, value: side ? vs[v].letters[0] : mix(ck.sides[0].letters, rng)[0] }); });
+    for (let i = 0; i < 4; i++) {
+      const v = pick(i + 2), side = i % 2;
+      const pool = side ? vs[v].words : ((ck.sides[0].byVariant && ck.sides[0].byVariant[vs[v].letters[0]]) || ck.sides[0].words);
+      out.push({ kind: 'word', side, variant: v, value: mix(pool, rng)[0] });
+    }
+    return out;
+  }
   const letters = mix([0, 1], rng).map((side) => ({ kind: 'letter', side, value: mix(ck.sides[side].letters, rng)[0] }));
   const words = [0, 1].flatMap((side) => mix(ck.sides[side].words, rng).slice(0, 2).map((value) => ({ kind: 'word', side, value })));
   return [...letters, ...spread(words, (r) => r.side, rng)];
