@@ -281,3 +281,8 @@ regions W3/W4 (`#/world/<id>`), pace limit, developer mode, finishing a lesson c
 - ORDER item 4 is done: a Story or Smooth Ride next in line holds the train (`checkpointStopIndex`, js/sequence.js). After a lesson's
   "Yes, go on" the app returns Home by itself after 1.2 s and the ride plays. The "Did you know?" card shows on each lesson open
   (bottom-right X only; `window.__noTips` is set by test/lib.mjs). Details: README, "Lesson tips, auto-return and story stops".
+
+## Owner request 2026-10-27: "Ride again" after World 1
+- At the end of World 1 (after its Review Stop), offer the grown-up a "Ride again from the first letter" choice. It starts at Lesson 1, not the placement check.
+- Nothing is erased: the first ride's history is kept. Each station finished again gets a star on the map. The grown-up can carry on to World 2 at any time.
+- Also reachable from Grown-ups settings. Builder: Sonnet worktree; release after review and tests.
