@@ -638,7 +638,7 @@ button img, .word-tile img, .pic-frame img { pointer-events: none; -webkit-user-
 .hunt-goal { right: 8px; bottom: 22px; pointer-events: none; }
 
 
-.goal-glow { position: absolute; left: -20%; right: -20%; top: -14%; bottom: -8%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,230,150,.85), rgba(255,230,150,0)); opacity: 0; transition: opacity 500ms ease; }
+.goal-glow { position: absolute; left: -10%; right: -10%; top: -14%; bottom: -8%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,230,150,.85), rgba(255,230,150,0)); opacity: 0; transition: opacity 500ms ease; }
 .hunt-goal.done .goal-glow { opacity: 1; }
 .spark { z-index: 6; }
 .art-train, .art-crate, .art-wag { display: block; width: 150px; } .art-sig { display: block; width: 74px; }
