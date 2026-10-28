@@ -32,6 +32,8 @@ const fresh = () => ({
   character: cleanCharacter({}), // the child's figure and name (js/character.js): on this device only
   meetDue: true, // the character creator shows once, after the welcome card
   firstRunDone: false,
+  ride: 1, // which ride the train is on (js/components/ride-again.js): 1 is the first time through; 2 and up after a grown-up chose "Ride again"
+  rideUpTo: 0, // the last lesson of the ride in progress (0: none). A lesson finished again on a ride gets lessons[n].redone = ride, which shows a star.
   worlds: { seen: null }, // the world the child last saw on Home (js/worlds.js planHome): a crossing plays once, then this moves on
   levels: { seen: null, earned: {} }, // milestones (js/levels.js): how many were earned when Home last opened, and when each was
   lastOpened: null,
@@ -94,7 +96,7 @@ export function createStore() {
       const reorder = !legacy && !current && typeof p.lastOpened === 'string';
       let lessons = {};
       for (const [n, l] of Object.entries(reorder ? {} : p.lessons)) {
-        if (l && typeof l === 'object' && !Array.isArray(l)) lessons[n] = { ...l, tasksDone: Array.isArray(l.tasksDone) ? l.tasksDone.filter(Number.isInteger) : [] };
+        if (l && typeof l === 'object' && !Array.isArray(l)) { const { redone, ...rest } = l; lessons[n] = { ...rest, ...(Number.isInteger(redone) && redone >= 2 && redone <= 99 ? { redone } : {}), tasksDone: Array.isArray(l.tasksDone) ? l.tasksDone.filter(Number.isInteger) : [] }; }
       }
       // A lesson counts as done only by its own result (isDone is strict since phase B). Older saves (no order, or the legacy one) counted a lesson
       // as done when a later one was: write that down once, in the numbering the save was made under, before any mapping.
@@ -158,7 +160,7 @@ export function createStore() {
       }
       // A stop counted as done when the lesson after it was (derived); that is now written down for a mapped save (World 1 stops sit after lesson 4 and 6, as before).
       if (legacy) for (const [id, after] of Object.entries({ r1: 4, b1: 4, b2: 6 })) if (top > after && !(checkpoints[id] && checkpoints[id].result === 'got-it')) checkpoints[id] = { ...(checkpoints[id] || {}), result: 'got-it', completedAt: (checkpoints[id] && checkpoints[id].completedAt) || null };
-      return { ...f, ...p, savedAt: Number.isFinite(p.savedAt) && p.savedAt > 0 ? p.savedAt : 0, order: ORDER, lessons, checkpoints, character: cleanCharacter(p.character), levels: cleanLevels(p.levels), worlds: cleanWorlds(p.worlds), meetDue: typeof p.meetDue === 'boolean' ? p.meetDue : typeof p.lastOpened === 'string', settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
+      return { ...f, ...p, savedAt: Number.isFinite(p.savedAt) && p.savedAt > 0 ? p.savedAt : 0, order: ORDER, ride: Number.isInteger(p.ride) && p.ride >= 1 && p.ride <= 99 ? p.ride : 1, rideUpTo: Number.isInteger(p.rideUpTo) && p.rideUpTo >= 0 && p.rideUpTo <= 999 ? p.rideUpTo : 0, lessons, checkpoints, character: cleanCharacter(p.character), levels: cleanLevels(p.levels), worlds: cleanWorlds(p.worlds), meetDue: typeof p.meetDue === 'boolean' ? p.meetDue : typeof p.lastOpened === 'string', settings: cleanSettings({ ...f.settings, ...settings }, f.settings) };
     } catch { return fresh(); }
   }
   function write() {
@@ -190,7 +192,24 @@ export function createStore() {
     isNaturallyUnlocked(n) { return n === 1 || lesson(n).unlocked === true || this.isDone(n) || this.earlierDone(n); },
     isUnlocked(n) { return this.devOpenAll || this.isNaturallyUnlocked(n); },
     get devOpenAll() { return state.settings.dev === true && state.settings.devOpenAll === true; },
+    // ---- Ride again (docs/NEXT.md): a second ride from the first letter. Results are never erased; isDone stays true, so later lessons stay reachable. ----
+    get ride() { return state.ride; },
+    // On a ride after the first, a lesson (up to rideUpTo) that is done but not yet finished again on this ride is the next station in order.
+    lapPending(n) { return state.ride > 1 && n <= state.rideUpTo && this.isDone(n) && (lesson(n).redone || 0) < state.ride; },
+    lapActive() { for (let n = 1; n <= state.rideUpTo; n++) if (this.lapPending(n)) return true; return false; },
+    isRedone(n) { return (lesson(n).redone || 0) >= 2; }, // finished again on a later ride: shows a star
+    shownDone(n) { return this.isDone(n) && !this.lapPending(n); }, // the map's tick: done, and not waiting to be ridden again
+    // Start the next ride at lesson 1. Every lesson up to upTo starts its tasks again; results, dates and earlier stars stay.
+    rideAgain(upTo) {
+      if (practice || !(upTo >= 1)) return;
+      state.ride = Math.min(99, state.ride + 1); state.rideUpTo = upTo;
+      for (let n = 1; n <= upTo; n++) if (state.lessons[n]) state.lessons[n] = { ...state.lessons[n], tasksDone: [] };
+      const { trainDone, ...rest } = state.settings; state.settings = rest; // the next Home look only records the count: no ride plays for the new start
+      save();
+    },
+    endRide() { if (practice || !state.rideUpTo) return; state.rideUpTo = 0; save(); }, // go on without finishing the ride; stars stay
     currentLesson(total) {
+      for (let n = 1; n <= state.rideUpTo && n <= total; n++) if (this.lapPending(n)) return n;
       for (let n = 1; n <= total; n++) if (this.isNaturallyUnlocked(n) && !this.isDone(n)) return n;
       return null;
     },
@@ -212,6 +231,7 @@ export function createStore() {
     setResult(n, result) {
       if (practice) return;
       const l = { ...lesson(n), result, completedAt: new Date().toISOString() };
+      if (result === 'got-it' && this.isDone(n) && state.ride > 1 && n <= state.rideUpTo) l.redone = state.ride; // finished again on this ride
       if (result === 'got-it' && !this.isDone(n)) l.doneAt = Date.now(); // first time done (a lesson already completed by a later one does not count as new)
       state.lessons[n] = l; save();
     },

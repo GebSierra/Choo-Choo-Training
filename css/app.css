@@ -2194,3 +2194,17 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .first-card.offer .btn { min-height: 48px; width: 100%; font-size: 18px; }
 .gu-place { padding: 0 0 12px; } .gu-place-btn { width: 100%; min-height: 48px; white-space: normal; }
 @media (max-height: 460px) { .first-card.offer { padding: 12px 18px; gap: 8px; } .first-card.offer p { font-size: 16px; } }
+
+/* Ride again (js/components/ride-again.js): the grown-up's card after World 1 and in Grown-ups; stars on stations finished again */
+.ride-card { width: min(100%, 420px); background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; display: grid; gap: 10px; text-align: center; }
+.ride-card.in-grownups { width: 100%; box-shadow: none; padding: 0; text-align: left; }
+.ride-card h3 { font-size: 20px; font-weight: 800; display: flex; gap: 6px; align-items: center; justify-content: center; }
+.ride-card.in-grownups h3 { font-size: 18px; justify-content: flex-start; }
+.ride-note { margin: 0; font-size: 16px; line-height: 1.35; color: var(--muted); }
+.ride-btn { min-height: 48px; min-width: 48px; }
+.ride-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.ride-actions .ride-btn { flex: 1 1 140px; }
+.ride-btn[disabled] { opacity: .5; }
+.finish-extras { display: grid; gap: 10px; justify-items: center; width: 100%; }
+.stone-star { position: absolute; left: -6px; top: -6px; width: 26px; height: 26px; display: grid; place-items: center; pointer-events: none; filter: drop-shadow(0 1px 0 rgba(30,33,64,.25)); }
+.lo-star { color: #E8A93A; margin-left: 8px; font-size: 24px; }

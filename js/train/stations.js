@@ -187,7 +187,7 @@ const cyl = (bag, r, h, color, seg = 12) => { const m = new THREE.Mesh(bag.geo(`
 const at = (obj, x, y, z) => { obj.position.set(x, y, z); return obj; };
 
 // The round sign on its post, with the number plate (lessons) and, when done, the gold star on top.
-function signPost(bag, { tex, plate, state, rim }) {
+function signPost(bag, { tex, plate, state, rim, redone = false }) {
   const post = new THREE.Group();
   post.add(at(cyl(bag, 0.08, 2.3, PAL.woodLight), 0, 1.15, 0));
   const sign = new THREE.Group();
@@ -208,6 +208,13 @@ function signPost(bag, { tex, plate, state, rim }) {
     star.rotation.z = -0.2;
     star.castShadow = true;
     sign.add(star);
+  }
+  if (redone) { // finished again on a later ride (Ride again): a second star on the other side of the sign
+    const star2 = new THREE.Mesh(bag.geo('star', starGeometry), bag.paint(PAL.sun, { emissive: '#F0A93B', emissiveIntensity: 0.25, roughness: 0.4 }));
+    star2.position.set(-0.56, 0.62, 0.12);
+    star2.rotation.z = 0.2;
+    star2.castShadow = true;
+    sign.add(star2);
   }
   post.add(sign);
   if (plate) {
@@ -272,7 +279,7 @@ export function buildStop(bag, line, node, s, state) {
   }
   const tex = signTexture(bag, { glyph: node.glyph, accent: node.accent || '#B9874C', locked, icon: node.kind === 'lesson' ? null : node.icon || 'crate' });
   const plate = node.kind === 'lesson' && node.number ? plateTexture(bag, String(node.number)) : null; // a region's placeholder station has no lesson number
-  const sp = signPost(bag, { tex, plate, state, rim: locked ? '#DDD6CA' : '#FFFFFF' });
+  const sp = signPost(bag, { tex, plate, state, redone: !!node.redone, rim: locked ? '#DDD6CA' : '#FFFFFF' });
   sp.post.position.set(o * 3.05, 0, 1.25);
   sp.post.rotation.y = -p.heading;          // the sign faces the camera, whatever way the line turns
   sp.sign.rotation.x = -0.42;               // and leans back a little toward it

@@ -44,7 +44,7 @@ export function lessonScreen(ctx, n) {
 
   const header = h('header', { class: 'lo-head' },
     h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back', onclick: () => router.back() }, icon('back', 28)),
-    h('div', { class: 'lo-title' }, h('h1', {}, `Lesson ${lesson.number}`), h('p', {}, richText(sound.alt ? `Today: ${spellings(sound).join(' and ')} make the same sound, ${soundPhrase(sound)}.` : `Today: the sound ${soundPhrase(sound)}.`, { every: true }))),
+    h('div', { class: 'lo-title' }, h('h1', {}, `Lesson ${lesson.number}`, store.isRedone(lesson.number) ? h('span', { class: 'lo-star', role: 'img', 'aria-label': 'Finished again' }, '★') : null), h('p', {}, richText(sound.alt ? `Today: ${spellings(sound).join(' and ')} make the same sound, ${soundPhrase(sound)}.` : `Today: the sound ${soundPhrase(sound)}.`, { every: true }))),
     speakButton({ speech, getParts: () => introParts(lesson, store), label: 'Hear the lesson intro', accent }));
 
   const cards = tasks.map((t, i) => {

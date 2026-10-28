@@ -24,6 +24,12 @@ export function worldDone(store, curriculum, worldId) {
   const ls = lessonsIn(curriculum, worldId);
   return ls.length > 0 && ls.every((l) => store.isDone(l.number));
 }
+// The world is complete when its lessons are done and so is its last Review Stop (the point where "Ride again" is offered).
+export const lastReviewIn = (curriculum, worldId) => checkpointsIn(curriculum, worldId).filter((k) => k.kind === 'review').sort((a, b) => b.after - a.after)[0] || null;
+export function worldComplete(store, curriculum, worldId) {
+  const rv = lastReviewIn(curriculum, worldId);
+  return worldDone(store, curriculum, worldId) && (!rv || store.isCheckpointDone(rv));
+}
 // The world of the first lesson that is open and not done, else the last world that has lessons.
 export function currentWorld(store, curriculum) {
   const n = store.currentLesson(curriculum.lessons.length);

@@ -17,6 +17,7 @@ import { kidSvg } from '../art/kid.js';
 import { keepsakeButton } from '../components/keepsake.js';
 import { worldKeepsake } from '../components/level-banner.js';
 import { currentWorld, reachedWorlds, lessonsIn, worldDone } from '../worlds.js';
+import { rideAgainCard, rideReady } from '../components/ride-again.js';
 import { goToWorld } from '../visit.js';
 import { readingProgress } from '../reading-count.js';
 import { progressBody } from '../components/progress-card.js';
@@ -206,6 +207,7 @@ export function grownupsScreen(ctx) {
         h('p', { class: 'gu-note' }, 'The theme song plays once when the railway opens.'),
         h('p', { class: 'gu-note' }, 'Little musical sounds when something is finished: a star, a train at its station, a lesson done. They never say a letter or a word, and there is no sound for a wrong touch.')),
       sec('Pace', h('div', { class: 'gu-field' }, h('span', {}, 'New lessons per day'), h('div', { class: 'gu-choices', role: 'group', 'aria-label': 'New lessons per day' }, ...paceBtns)), h('p', { class: 'gu-note' }, 'Short, daily practice works better than long sessions.')),
+      sec('Ride again', rideAgainCard({ store, curriculum, router, enabled: rideReady(store, curriculum) || store.lapActive(), className: 'in-grownups' })),
       ...[accountCard(ctx.account, store)].filter(Boolean),
       group('Help and the thinking behind the app'),
       sec('Install', h('p', {}, 'Chrome on Android: open the menu, then Add to Home screen, then Install. Edge on Android: open the menu, then Add to phone, then Install. It works offline after the first visit.')),

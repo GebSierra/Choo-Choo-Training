@@ -165,7 +165,7 @@ function scenery(g, next = null, nav = {}) {
 }
 
 // A stone on the path. A lesson shows its letter and number; a checkpoint ({title}) shows a small crate instead.
-function stone(g, i, what, state, onTap, speech, character, resting = false) {
+function stone(g, i, what, state, onTap, speech, character, resting = false, redone = false) {
   const sound = what.sound;
   const accent = sound ? `var(--${sound.glyph})` : '#C99A5B';
   const name = sound ? `Lesson ${what.number}` : what.title;
@@ -175,8 +175,9 @@ function stone(g, i, what, state, onTap, speech, character, resting = false) {
   const badge = state === 'done'
     ? h('span', { class: 'stone-badge done' }, h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, 'aria-hidden': 'true' }, h('path', { d: 'M5 12.5l4.5 4.5L19 7.5', class: 'tick', fill: 'none', stroke: '#fff', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })))
     : state === 'locked' ? h('span', { class: 'stone-badge lock' }, icon('lock', 16)) : resting ? moonBadge() : null;
-  const btn = h('button', { class: `stone is-${state}${resting ? ' is-resting' : ''}`, type: 'button', style: { '--accent': accent }, 'aria-label': `${name}${state === 'locked' ? ', locked' : state === 'done' ? ', done' : resting ? ', resting until tomorrow' : ''}`, 'aria-disabled': state === 'locked' ? 'true' : null, onclick: () => onTap(btn, state) },
-    state === 'current' && !resting ? h('span', { class: 'stone-ring' }) : null, h('span', { class: 'stone-base' }), top, badge,
+  const star = redone ? h('span', { class: 'stone-star', 'aria-hidden': 'true' }, h('svg', { viewBox: '0 0 24 24', width: 20, height: 20 }, h('path', { d: 'M12 2.4l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 16.6 6.2 19.9l1.4-6.4L2.7 9.1l6.5-.7z', fill: '#FFD166', stroke: '#E8A93A', 'stroke-width': 1.4, 'stroke-linejoin': 'round' }))) : null;
+  const btn = h('button', { class: `stone is-${state}${resting ? ' is-resting' : ''}`, type: 'button', style: { '--accent': accent }, 'aria-label': `${name}${redone ? ', finished again, star' : ''}${state === 'locked' ? ', locked' : state === 'done' ? ', done' : resting ? ', resting until tomorrow' : ''}`, 'aria-disabled': state === 'locked' ? 'true' : null, onclick: () => onTap(btn, state) },
+    state === 'current' && !resting ? h('span', { class: 'stone-ring' }) : null, h('span', { class: 'stone-base' }), top, badge, star,
     state === 'current' && character ? h('span', { class: 'stone-kid', 'aria-hidden': 'true' }, kidSvg({ ...character, pose: 'wave' })) : null);
   const p = g.stones[i];
   const wrap = h('div', { class: 'stone-wrap', style: { '--px': p.px + '%', '--py': p.py + 'px', '--lx': p.lx + 'px', '--ly': p.ly + '%' } });
@@ -325,19 +326,19 @@ export function mapScreen(ctx, preview = null, plan = null) {
       return stone(g, i, c, state === 'open' ? 'unlocked' : state, tap((btn, st) => { if (st === 'locked') wobble(btn); else router.go(`/checkpoint/${c.id}`); }), speech, store.character());
     }
     const l = node.lesson;
-    const state = store.isDone(l.number) ? 'done' : (!store.isUnlocked(l.number) ? 'locked' : (l.number === current ? 'current' : 'open'));
+    const state = store.shownDone(l.number) ? 'done' : (!store.isUnlocked(l.number) ? 'locked' : (l.number === current ? 'current' : 'open'));
     if (l.number === current && hold < 0) { currentIndex = i; found = true; }
     const resting = state === 'current' && store.isResting(l.number); // today's pace limit is reached
-    return stone(g, i, { sound: curriculum.sounds[l.sound], number: l.number }, l.number === current && hold >= 0 ? 'unlocked' : state === 'open' ? 'current' : state, tap((btn, st) => {
+    return stone(g, i, { sound: curriculum.sounds[l.sound], number: l.number }, l.number === current && hold >= 0 ? 'unlocked' : state === 'open' ? (store.lapPending(l.number) ? 'unlocked' : 'current') : state, tap((btn, st) => {
       if (st === 'locked') wobble(btn); else if (resting) openRest(l.number); else router.go(`/lesson/${l.number}`);
-    }), speech, store.character(), resting);
+    }), speech, store.character(), resting, store.isRedone(l.number));
   });
   if (!found) currentIndex = nodes.length - 1;
   if (hold >= 0) currentIndex = hold;
   if (preview) currentIndex = preview.mode === 'in' ? 0 : nodes.length - 1; // a previewed world opens at its start (arriving) or its end (leaving)
   stones.forEach((s) => scene.append(s));
   // A station was just finished: the figure rides to the next stone (the simple version of the 3D sequence).
-  const fromStop = preview || visiting ? -1 : finishedStop(store, nodes.map((n) => { const own = n.checkpoint ? store.checkpoint(n.checkpoint.id) : store.lesson(n.lesson.number); return own.result === 'got-it' ? own.completedAt || null : false; }), currentIndex);
+  const fromStop = preview || visiting ? -1 : finishedStop(store, nodes.map((n) => { const own = n.checkpoint ? store.checkpoint(n.checkpoint.id) : store.lesson(n.lesson.number); return own.result === 'got-it' && (n.checkpoint || store.shownDone(n.lesson.number)) ? own.completedAt || null : false; }), currentIndex);
 
   const grown = holdButton({ label: 'Grownups · hold', caption: null, hint: 'Press and hold', className: 'pill-hold', onComplete: () => { ctx.gate = { openedAt: Date.now() }; router.go('/grownups'); } });
   const top = h('div', { class: 'home-top' }, grown, mapBtn.el, devPill(store));

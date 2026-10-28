@@ -7,6 +7,8 @@ import { sfx } from '../sfx.js';
 import { pipSvg } from '../art/pip.js';
 import { kidSvg } from '../art/kid.js';
 import { keepsakeButton, keepsakeStory } from '../components/keepsake.js';
+import { rideAgainCard } from '../components/ride-again.js';
+import { lastReviewIn, worldDone } from '../worlds.js';
 
 // A warm, short celebration (polish B): the letter on a little wagon ticket, a gold star, one burst of confetti that settles
 // and stays (CSS only, finite; reduced motion shows the settled picture), and the two figures cheering. The parent still
@@ -107,6 +109,9 @@ const storyKeepsake = (store, ck) => keepsakeButton({ filename: 'story.png', opt
 } });
 
 export function checkpointFinishScreen({ store, router, curriculum, speech }, id) {
+  const rv = (curriculum.checkpoints || []).find((c) => c.id === id);
+  // The end of World 1 (its last lesson done, and this is its last Review Stop): offer the grown-up a ride again from the first letter.
+  const ride = rv && rv.kind === 'review' && rv.world === 'W1' && lastReviewIn(curriculum, 'W1')?.id === rv.id && worldDone(store, curriculum, 'W1') && !store.lapActive() ? rideAgainCard({ store, curriculum, router, before: () => store.setCheckpointResult(rv.id, 'got-it') }) : null;
   const ck = (curriculum.checkpoints || []).find((c) => c.id === id);
   if (!ck || !store.isCheckpointUnlocked(ck)) { queueMicrotask(() => router.replace('/home')); return h('div'); }
   return finishView({
@@ -116,7 +121,7 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
     accent: ck.kind === 'book' ? '#E5484D' : ck.kind === 'reread' ? '#3E9C8B' : ck.kind === 'review' ? '#5A8FE0' : ck.kind === 'contrast' ? '#7B61D6' : '#C99A5B', // a book's red cover, a teal reading book, a blue ticket, a crate's wood
     armedLabel: 'Yes, back to path',
     armedNote: 'Tap again to go back to the path.',
-    extra: ck.kind === 'contrast' ? h('p', { class: 'review-message' }, ck.end) : ck.kind === 'review' && ck.summary ? reviewMessage(ck.summary) : ck.kind === 'book' ? storyKeepsake(store, ck) : null,
+    extra: ck.kind === 'contrast' ? h('p', { class: 'review-message' }, ck.end) : ck.kind === 'review' && ck.summary ? h('div', { class: 'finish-extras' }, reviewMessage(ck.summary), ride) : ride ? ride : ck.kind === 'book' ? storyKeepsake(store, ck) : null,
     onContinue: () => store.setCheckpointResult(ck.id, 'got-it'),
     onPractice: () => {
       if (!store.isCheckpointDone(ck)) store.setCheckpointResult(ck.id, 'practice-again'); // keep the best result
