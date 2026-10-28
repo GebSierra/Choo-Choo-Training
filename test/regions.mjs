@@ -22,7 +22,7 @@ const WANT = {
   W3: { real: true, sounds: ['e', 'j', 'w', 'v', 'y', 'z', 'x', 'q'], stops: 16, lessons: 8, checkpoints: 8, next: 'Digraph Docks', theme: 'sunny-hills' },
   W4: { real: true, sounds: ['sh', 'ch', 'th', 'ck', 'ff', 'wh', 'ng', 'nk'], stops: 13, lessons: 8, checkpoints: 5, next: 'Blend Bay', theme: 'digraph-docks' }, // W4 Digraph Docks is a real world now (lessons 26 to 33 and five stops)
   W5: { real: true, sounds: ['st', 'nd', 'sp', 'sn', 'bl', 'pl', 'br', 'dr', 'mix'], stops: 14, lessons: 9, checkpoints: 5, next: 'Endings Junction', theme: 'blend-bay' }, // W5 Blend Bay is a real world now (lessons 34 to 42 and five stops)
-  W6: { sounds: ['s es', 'ing', 'ed', 'sun set', 'nap kin'], next: 'Silent E Summit', theme: 'endings-junction' },
+  W6: { real: true, sounds: ['end-s', 'end-es', 'end-ing', 'end-ed', 'end-ted', 'join', 'beats', 'endmix'], stops: 13, lessons: 8, checkpoints: 5, next: 'Silent E Summit', theme: 'endings-junction' }, // W6 Endings Junction is a real world now (lessons 43 to 50 and five stops)
   W7: { sounds: ['we me he', 'a_e', 'i_e', 'o_e', 'u_e', 'e_e'], next: 'Vowel Team Town', theme: 'silent-e-summit' },
 };
 const CALL_MARGIN = 15;

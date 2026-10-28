@@ -114,9 +114,9 @@ export async function previewChecks({ browser, url, ok, vp }) {
     worlds: [...document.querySelectorAll('.gu-world')].map((w) => ({ id: w.dataset.world, open: w.querySelector('.gu-fold').getAttribute('aria-expanded'), hidden: w.querySelector('.gu-fold-body').hidden, units: [...w.querySelectorAll('.gu-unit strong')].map((u) => u.textContent) })),
     rows: document.querySelectorAll('.gu-row').length, note: document.querySelector('.gu-body > .gu-list > .gu-note').textContent,
   }));
-  ok(g.worlds.length === 5 && g.worlds[0].open === 'true' && [1, 2, 3, 4].every((i) => g.worlds[i].open === 'false' && g.worlds[i].hidden), `${tag} list: five worlds with lessons (Blend Bay too), only the current one open (${JSON.stringify(g.worlds.map((w) => w.id + w.open))})`);
+  ok(g.worlds.length === 6 && g.worlds[0].open === 'true' && [1, 2, 3, 4, 5].every((i) => g.worlds[i].open === 'false' && g.worlds[i].hidden), `${tag} list: six worlds with lessons (Blend Bay and Endings Junction too), only the current one open (${JSON.stringify(g.worlds.map((w) => w.id + w.open))})`);
   ok(g.worlds[0].units.join() === 'Unit 2.1,Unit 2.2,Unit 2.3' && g.worlds[1].units.join() === 'Unit 2.4,Unit 2.5,Unit 2.6,Unit 2.7,Unit 2.8' && g.worlds[2].units.join() === 'Unit 2.9,Unit 2.10,Unit 2.11', `${tag} list: units group the rows (${g.worlds.map((w) => w.units.join(' ')).join(' / ')})`);
-  ok(/6 more worlds/.test(g.note), `${tag} list: the later worlds are noted`);
+  ok(/5 more worlds/.test(g.note), `${tag} list: the later worlds are noted`);
   await shot(page, 'grownups-top', tag);
   {
     // the reading line and the letter chips, counted from the lessons actually done in this save

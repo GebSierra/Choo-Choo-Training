@@ -131,7 +131,7 @@ export async function screenChecks({ browser, url, ok }) {
           if (await tgt.count()) { await tgt.click({ force: true }); await page.waitForTimeout(900); (await letterSets(page)).forEach((l) => letters.add(l)); }
         }
       }
-      const bad = [...letters].filter((l) => !isReadable(l, taught));
+      const bad = [...letters].filter((l) => !isReadable(l, taught) && !taught.has(l)); // World 6: the car of a taught word part (end-ing ...) is its own key
       ok(bad.length === 0 && letters.size > 0, `${k.id} step ${i + 1} (${a.task}): only letters taught by lesson ${k.after} show (${[...letters].join(' ')}${bad.length ? '; NEW: ' + bad.join(' ') : ''})`);
       if (a.task === 'check') {
         const glyphs = await page.locator('.opt-card').count();
@@ -178,7 +178,7 @@ export async function screenChecks({ browser, url, ok }) {
   // the opening card of every stop, the end message of every stop, and v1's first word
   const WJ = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')), WL = [...WJ.words, ...WJ.blendWords, ...WJ.endingWords]; // World 5: blendWords count once their blends are taught; World 6: endingWords once their word part is taught too
   const HEART = ['is', 'as', 'was', 'of', 'the', 'to', 'you', 'she', 'he', 'me', 'be', 'we', 'his', 'has', 'no', 'go', 'so'];
-  ok(WL.every((w) => /^[a-z]{2,}$/.test(w) && !HEART.includes(w) && !/(.)\1/.test(w)) && new Set(WL).size === WL.length, 'words list: lowercase, no repeats, no heart words, no double letters');
+  ok(WL.every((w) => /^[a-z]{2,}$/.test(w) && !HEART.includes(w)) && [...WJ.words, ...WJ.blendWords].every((w) => !/(.)\1/.test(w)) && new Set(WL).size === WL.length, 'words list: lowercase, no repeats, no heart words, no double letters (World 6 words may double a letter: hills, dresses, rabbit)');
   for (const k of STOPS) {
     const m = await seeded(browser, url, PHONE, k.after, `#/checkpoint/${k.id}`);
     await m.page.waitForSelector('.review-intro');
