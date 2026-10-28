@@ -538,7 +538,7 @@ function reviewSummary(after) {
   const readable = WORD_LIST.filter((w) => readableNow(w, taught));
   const newPairs = new Set(sounds.filter((k) => k in BLENDS).slice(-3).flatMap((k) => BLENDS[k])); // World 5: the words that use the newest blends lead
   const newParts = new Set(sounds.filter((k) => WORD_PART_KEYS.includes(k)).slice(-3)); // World 6: the words that use the newest word parts lead
-  const score = (w) => (met.has(w) ? 100 : 0) + (after > 33 ? blendPairsIn(w).filter((q) => newPairs.has(q)).length * 40 : 0) + (after > 42 && PARTS.has(w) && newParts.has(PARTS.get(w).key) ? 40 : 0) + [...new Set(letterUnits(w, taught))].filter((ch) => newest.has(ch)).length * 10 + Math.min(w.length, 4);
+  const score = (w) => (met.has(w) ? 100 : 0) + (after > 33 && after <= 42 ? blendPairsIn(w).filter((q) => newPairs.has(q)).length * 40 : 0) + (after > 42 && PARTS.has(w) && newParts.has(PARTS.get(w).key) ? 160 : 0) + [...new Set(letterUnits(w, taught))].filter((ch) => newest.has(ch)).length * 10 + Math.min(w.length, 4);
   const examples = readable.map((w, i) => ({ w, i })).sort((a, b) => score(b.w) - score(a.w) || a.i - b.i).slice(0, 8).map((x) => (NAMES.has(x.w) ? x.w[0].toUpperCase() + x.w.slice(1) : x.w)); // names are shown capitalised (Sam)
   const blends = new Set(sounds.flatMap((k) => (isBlendKey(k) && k !== 'mix' ? BLENDS[k] : []))).size;
   const endings = new Set(sounds.filter((k) => k in ENDED).map((k) => ENDED[k].suffix)).size; // -s -es -ing -ed: an ending is a word part, not a sound
