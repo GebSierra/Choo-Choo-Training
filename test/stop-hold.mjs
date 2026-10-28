@@ -114,7 +114,9 @@ export async function stopHoldChecks({ browser, url, ok }) {
       // stop still waiting, so the ride is the short hop from the lesson before it; it never starts past the stop that holds the train.
       if (first === SAME[0]) ok(t.arriving && t.from === idxOf(first), `${tag} (3D): the ride starts at ${first} (${t.from}, want ${idxOf(first)})`);
       else ok(t.from < t.cur, `${tag} (3D): the ride runs towards ${second} and never starts past it (${t.from} to ${t.cur})`);
-      ok(await until(page, () => !window.__train.running), `${tag} (3D): the ride ends`);
+      // Not just !running: for the first 600 ms after Home opens the ride has not begun and the frame loop is idle (running is false), so wait until the figure has
+      // finished its hop off at the held stop (kid.phase is '' only before the ride's toot and after it) and the train has settled there.
+      ok(await until(page, (n) => !window.__train.running && window.__train.kid.index === n && window.__train.kid.phase === '', idxOf(second), 25000), `${tag} (3D): the ride ends`);
       const e = await page.evaluate(() => ({ kid: window.__train.kid.index, s: window.__train.trainS, stop: window.__train.stopS, at: window.__train.engineAt }));
       ok(e.kid === idxOf(second) && Math.abs(e.s - (e.stop[idxOf(second)] + e.at)) < 0.01, `${tag} (3D): the train stands at ${second} (kid ${e.kid})`);
       const cls = await page.evaluate(() => [...document.querySelectorAll('.station-btn')].map((b) => b.className));
