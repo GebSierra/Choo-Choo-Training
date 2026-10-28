@@ -3,7 +3,7 @@
 // handwriting order on a 100 by 100 box (baseline y=80, x-height top y=38). The same strokes
 // drive the big letters, the slide track, the word rows and the trace guide.
 import { h, animate, reduced } from './dom.js';
-import { letterUnits, blendAtUnits, BLENDS } from './order.js';
+import { letterUnits, blendAtUnits, chunkSpans, BLENDS } from './order.js';
 
 export const STROKE_WIDTH = 11.5;
 export const BASELINE = 80;
@@ -237,6 +237,33 @@ for (const pair of ['sh', 'ch', 'th', 'wh', 'ck', 'ng', 'nk', 'ff', 'll', 'ss', 
 for (const pair of Object.values(BLENDS).flat()) { const g = digraph(pair[0], pair[1]); delete g.link; g.minY = Math.min(g.minY, 38); g.maxY = Math.min(g.maxY, 96); g.blend = true; GLYPHS[pair] = g; }
 GLYPHS.mix = GLYPHS.st; // the mixed review (lesson 42) wears the st badge on the path, the lesson list and the finish card; the letter games never deal it (order.js NO_GLYPH)
 
+// ---- Endings (World 6) are WORD PARTS, not sounds and not letters. An ending is drawn as a little car coupled to the word: its letters inside a rounded frame with a coupler
+// stub on the left ("-ing"). The frame and the stub are `link` (drawn, never traced); the letters are the ending's own strokes, traced in order. -ed that says an extra beat
+// has two beat dots above the frame. The glyph name is the lesson key (end-s end-es end-ing end-ed end-ted).
+function endCar(letters, mark) {
+  const gs = letters.map((c) => GLYPHS[c]), gap = 6, STUB = 14, PAD = 10, T = 28, B = 100, R0 = 12;
+  const raw = gs.reduce((t, g) => t + (g.maxX - g.minX), 0) + gap * (gs.length - 1);
+  const sx = Math.min(1, (96 - STUB - 2 * PAD) / raw), tw = raw * sx, W = STUB + 2 * PAD + tw, off = (100 - W) / 2;
+  let x = off + STUB + PAD;
+  const strokes = gs.flatMap((g) => { const dx = x - g.minX * sx; x += (g.maxX - g.minX + gap) * sx; return g.strokes.map((s) => ({ d: mapPath(s.d, sx, dx), start: [+(s.start[0] * sx + dx).toFixed(2), s.start[1]] })); });
+  const L = +(off + STUB).toFixed(2), Rt = +(off + W).toFixed(2);
+  const top = `H${Rt - R0}`;
+  let link = `M${L + R0} ${T} ${top} Q${Rt} ${T} ${Rt} ${T + R0} V${B - R0} Q${Rt} ${B} ${Rt - R0} ${B} H${L + R0} Q${L} ${B} ${L} ${B - R0} V${T + R0} Q${L} ${T} ${L + R0} ${T} M${+(off).toFixed(2)} 64 L${L} 64`;
+  let minY = T - 5, maxY = B;
+  if (mark === 'beat') { const cx = (L + Rt) / 2; link += ` M${cx - 9} 14 L${cx - 8.99} 14 M${cx + 9} 14 L${cx + 9.01} 14`; minY = 10; } // two dots: the extra beat
+  return { strokes, link, minX: +(off - 2).toFixed(2), maxX: +(Rt + 2).toFixed(2), minY, maxY, end: true };
+}
+GLYPHS['end-s'] = endCar(['s']);
+GLYPHS['end-es'] = endCar(['e', 's']);
+GLYPHS['end-ing'] = endCar(['i', 'n', 'g']);
+GLYPHS['end-ed'] = endCar(['e', 'd']);
+GLYPHS['end-ted'] = endCar(['e', 'd'], 'beat');
+// Compound words: two short word cars coupled. Two-beat words: two claps over a bracket split in the middle. The mixed review (lesson 51) wears the -ing car on the path.
+const carBox = (x0, x1) => `M${x0 + 8} 38 H${x1 - 8} Q${x1} 38 ${x1} 46 V${74} Q${x1} 84 ${x1 - 8} 84 H${x0 + 8} Q${x0} 84 ${x0} 76 V46 Q${x0} 38 ${x0 + 8} 38`;
+GLYPHS.join = { strokes: [{ d: carBox(6, 44), start: [6, 60] }, { d: carBox(56, 94), start: [56, 60] }], link: 'M44 62 L56 62', minX: 2, maxX: 98, minY: 38, maxY: 84, end: true };
+GLYPHS.beats = { strokes: [{ d: 'M40 50 A10 10 0 1 0 20 50 A10 10 0 1 0 40 50', start: [40, 50] }, { d: 'M80 50 A10 10 0 1 0 60 50 A10 10 0 1 0 80 50', start: [80, 50] }], link: 'M16 70 L16 80 L84 80 L84 70 M50 70 L50 80', minX: 6, maxX: 94, minY: 38, maxY: 84, end: true };
+GLYPHS.endmix = GLYPHS['end-ing'];
+
 const SPACING = 4;
 export const hasGlyph = (ch) => !!GLYPHS[ch];
 
@@ -294,6 +321,13 @@ const READING_FONT = `700 ${READING_SIZE}px Andika, Nunito, system-ui, sans-seri
 try { if (typeof document !== 'undefined' && document.fonts && document.fonts.load) document.fonts.load(READING_FONT); } catch { /* the font loads when first used */ }
 const readingExtent = (ch) => ({ top: [...ch].some((x) => FONT_TALL.includes(x)) || /[A-Z0-9]/.test(ch) ? 20 : 38, bottom: [...ch].some((x) => FONT_TAIL.includes(x)) ? 98 : 82 + (ch.length > 1 ? 6 : 0) });
 
+// The units of a word that make each chunk of a compound or two-beat word: spans are over the written letters (order.js chunkSpans), units can be a digraph (bath: b a th).
+const CHUNK_GAP = 14;
+function chunkUnits(units, spans) {
+  const start = []; let at = 0;
+  for (const u of units) { start.push(at); at += u.length; }
+  return spans.map((sp) => ({ from: start.indexOf(sp.at), to: start.findIndex((st, i) => st + units[i].length === sp.at + sp.len) })).filter((c) => c.from >= 0 && c.to >= c.from);
+}
 // A row of letters as one <svg>; each letter is its own <g class="glyph-letter"> for sweeps and highlights.
 // Our own glyphs draw every taught letter; opts.all adds the font for every other letter (without it only taught letters are drawn).
 export function wordSvg(word, opts = {}) {
@@ -303,7 +337,12 @@ export function wordSvg(word, opts = {}) {
   // opts.level (a lesson number) joins the digraphs taught by then into one unit (sh, ch ... as one linked tile); a font word keeps them as one group too.
   const letters = (reading ? (opts.level != null ? letterUnits(word, opts.level, true) : [...word]) : letterUnits(word, opts.level)).filter((c) => opts.all || reading || hasGlyph(c));
   const groups = [];
-  for (const ch of letters) {
+  // World 6: a compound or two-beat word (sunset, napkin) that its lesson has taught is drawn as its chunks, a gap between them and a bracket under each.
+  const spans = opts.level != null && !reading ? chunkSpans(word, opts.level) : null;
+  const chunks = spans ? chunkUnits(letters, spans) : [];
+  const breakBefore = new Set(chunks.slice(1).map((c) => c.from));
+  for (const [li, ch] of letters.entries()) {
+    if (breakBefore.has(li)) x += CHUNK_GAP;
     if (reading || !hasGlyph(ch)) {
       const w = advance(ch, reading);
       const grp = h('g', { class: 'glyph-letter', transform: `translate(${x} 0)`, dataset: { letter: ch, x0: String(x), x1: String(x + w) } });
@@ -335,12 +374,18 @@ export function wordSvg(word, opts = {}) {
     const mark = h('path', { d: `M${x0 + 2} ${y - 6} L${x0 + 2} ${y} L${x1 - 2} ${y} L${x1 - 2} ${y - 6}`, class: 'blend-mark', fill: 'none', stroke: opts.color || 'currentColor', 'stroke-width': 4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.55 });
     groups[i].mark = mark;
   }
+  const cmarks = chunks.filter((c) => groups[c.from] && groups[c.to]);
+  for (const c of cmarks) {
+    const x0 = Number(groups[c.from].grp.dataset.x0), x1 = Number(groups[c.to].grp.dataset.x1), y = BASELINE + 24;
+    for (let i = c.from; i <= c.to; i++) groups[i].grp.classList.add('in-chunk');
+    groups[c.from].cmark = h('path', { d: `M${x0 + 2} ${y - 7} L${x0 + 2} ${y} L${x1 - 2} ${y} L${x1 - 2} ${y - 7}`, class: 'chunk-mark', fill: 'none', stroke: opts.color || 'currentColor', 'stroke-width': 4.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.6 });
+  }
   const half = STROKE_WIDTH / 2 + 3;
   const ext = reading ? readingExtent : extent;
-  const top = Math.min(BAND_TOP, ...letters.map((c) => ext(c).top - (reading ? 2 : half))), bottom = Math.max(BAND_BOTTOM, marks.length ? BASELINE + 19 : 0, ...letters.map((c) => ext(c).bottom + (reading ? 2 : half)));
+  const top = Math.min(BAND_TOP, ...letters.map((c) => ext(c).top - (reading ? 2 : half))), bottom = Math.max(BAND_BOTTOM, marks.length ? BASELINE + 19 : 0, cmarks.length ? BASELINE + 30 : 0, ...letters.map((c) => ext(c).bottom + (reading ? 2 : half)));
   const svg = h('svg', { class: 'glyph word-glyphs ' + (reading ? 'reading-font ' : '') + (opts.class || ''), viewBox: `0 ${top} ${width} ${bottom - top}`, role: 'img', 'aria-label': opts.label || 'letters' });
   groups.forEach((g) => svg.append(g.grp));
-  groups.forEach((g) => { if (g.mark) svg.append(g.mark); });
+  groups.forEach((g) => { if (g.mark) svg.append(g.mark); if (g.cmark) svg.append(g.cmark); });
   svg.dataset.width = String(width);
   svg.dataset.height = String(bottom - top);
   return svg;

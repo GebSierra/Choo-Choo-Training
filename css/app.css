@@ -58,9 +58,17 @@
   --br: #9A3412; --br-tint: rgba(154,52,18,.12);
   --dr: #166534; --dr-tint: rgba(22,101,52,.12);
   --mix: #475569; --mix-tint: rgba(71,85,105,.12);
+  --end-s: #0369A1; --end-s-tint: rgba(3,105,161,.12);
+  --end-es: #A21CAF; --end-es-tint: rgba(162,28,175,.12);
+  --end-ing: #15803D; --end-ing-tint: rgba(21,128,61,.12);
+  --end-ed: #DC2626; --end-ed-tint: rgba(220,38,38,.12);
+  --end-ted: #0F766E; --end-ted-tint: rgba(15,118,110,.12);
+  --join: #3F6212; --join-tint: rgba(63,98,18,.12);
+  --beats: #7C2D12; --beats-tint: rgba(124,45,18,.12);
+  --endmix: #475569; --endmix-tint: rgba(71,85,105,.12);
   /* fills that carry white text: green darkened for contrast */
   --m-fill: var(--m); --a-fill: var(--a); --s-fill: #1E8E5E;
-  --t-fill: #AD6417; --f-fill: #108286; --d-fill: #8659E9; --g-fill: #C34A88; --i-fill: #A3690C; --n-fill: #2B6CB0; --p-fill: #C2417A; --h-fill: #7A5C3E; --b-fill: #5667F2; --l-fill: #60801F; --o-fill: #9B3FC4; --c-fill: #0B7396; --k-fill: #0B7396; --u-fill: #CC4F2A; --r-fill: #2E8A2E; --e-fill: #B3472F; --j-fill: #6A4FC4; --w-fill: #1F7A8C; --v-fill: #A33B7A; --y-fill: #8A6D00; --z-fill: #2E7D32; --x-fill: #C2410C; --q-fill: #3F51B5; --sh-fill: #0B6E99; --ch-fill: #B45309; --th-fill: #6D28D9; --ck-fill: #9D174D; --ff-fill: #047857; --wh-fill: #1D4ED8; --ng-fill: #BE123C; --nk-fill: #4D7C0F; --st-fill: #0F766E; --nd-fill: #0E7490; --sp-fill: #7E22CE; --sn-fill: #BE185D; --bl-fill: #1E40AF; --pl-fill: #A16207; --br-fill: #9A3412; --dr-fill: #166534; --mix-fill: #475569;
+  --t-fill: #AD6417; --f-fill: #108286; --d-fill: #8659E9; --g-fill: #C34A88; --i-fill: #A3690C; --n-fill: #2B6CB0; --p-fill: #C2417A; --h-fill: #7A5C3E; --b-fill: #5667F2; --l-fill: #60801F; --o-fill: #9B3FC4; --c-fill: #0B7396; --k-fill: #0B7396; --u-fill: #CC4F2A; --r-fill: #2E8A2E; --e-fill: #B3472F; --j-fill: #6A4FC4; --w-fill: #1F7A8C; --v-fill: #A33B7A; --y-fill: #8A6D00; --z-fill: #2E7D32; --x-fill: #C2410C; --q-fill: #3F51B5; --sh-fill: #0B6E99; --ch-fill: #B45309; --th-fill: #6D28D9; --ck-fill: #9D174D; --ff-fill: #047857; --wh-fill: #1D4ED8; --ng-fill: #BE123C; --nk-fill: #4D7C0F; --st-fill: #0F766E; --nd-fill: #0E7490; --sp-fill: #7E22CE; --sn-fill: #BE185D; --bl-fill: #1E40AF; --pl-fill: #A16207; --br-fill: #9A3412; --dr-fill: #166534; --mix-fill: #475569; --end-s-fill: #0369A1; --end-es-fill: #A21CAF; --end-ing-fill: #15803D; --end-ed-fill: #DC2626; --end-ted-fill: #0F766E; --join-fill: #3F6212; --beats-fill: #7C2D12; --endmix-fill: #475569;
   --sky: #5DE0F0; --violet: #5A4BD6; --coral: #F0556A; --sun: #FFD166; --mint: #5FE3B0; --lilac: #CDC4F8; --blue: #7DB8F5;
   --radius: 24px;
   --shadow: 0 6px 20px rgba(60,40,20,.12);
