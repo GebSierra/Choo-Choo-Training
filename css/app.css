@@ -2237,3 +2237,19 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .blend-card .blend-rows li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
 .blend-card .br-pair { font-weight: 800; letter-spacing: .06em; color: var(--accent); min-width: 3.4em; }
 .blend-card .br-say strong { font-size: 1.15em; }
+
+/* World 5 blend card in short landscape: smaller type so the three pairs fit under the letter card without scrolling */
+@media (orientation: landscape) and (max-height: 520px) {
+  .new-letter .blend-card { padding: 10px 12px; gap: 8px; grid-template-columns: 36px 1fr; }
+  .new-letter .blend-card.lead .sc-first, .new-letter .blend-card .sc-first { font-size: 16px; line-height: 1.2; }
+  .new-letter .blend-card .blend-rows { margin: 4px 0; gap: 2px; }
+  .new-letter .blend-card .blend-rows li { font-size: 15px; gap: 8px; flex-wrap: nowrap; }
+  .new-letter .blend-card .sc-rules { font-size: 14px; margin: 0; }
+}
+
+/* Placement result with many known sounds (World 5 brings 42): compact chips, and the list scrolls inside the card on short screens so Start here stays in view */
+.pc-kchip { font-size: 22px; min-width: 34px; padding: 2px 8px; }
+@media (max-height: 700px), (orientation: landscape) and (max-height: 520px) {
+  .pc-known { gap: 4px; max-height: 16dvh; overflow-y: auto; overscroll-behavior: contain; }
+  .pc-kchip { font-size: 18px; min-width: 30px; padding: 1px 6px; border-radius: 10px; }
+}
