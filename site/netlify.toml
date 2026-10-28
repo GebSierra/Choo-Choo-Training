@@ -3,6 +3,9 @@
 [build]
   command = "rm -rf dist && mkdir dist && cp -r index.html privacy.html 404.html thanks.html styles.css main.js sw.js icon.svg apple-touch-icon.png assets dist/"
   publish = "dist"
+  # Save build credits: skip the build when nothing that is deployed changed (docs, tools/, README, this file).
+  # Exit 0 = skip. On a first build, or if git cannot compare, it builds.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':!tools' ':!README.md' ':!netlify.toml'"
 
 # Hashed-by-content media never changes under the same name
 [[headers]]
