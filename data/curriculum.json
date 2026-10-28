@@ -6977,14 +6977,12 @@
         }
       ],
       "middle": [
-        "signals",
         "sounds",
-        "hunt",
-        "writing"
+        "couple",
+        "writing",
+        "hunt"
       ],
-      "games": [
-        "signals"
-      ],
+      "games": [],
       "unit": "5.1",
       "world": "W6"
     },
@@ -7119,6 +7117,7 @@
       "middle": [
         "writing",
         "sounds",
+        "couple",
         "wagons"
       ],
       "games": [
@@ -7261,14 +7260,12 @@
         }
       ],
       "middle": [
-        "wagons",
+        "couple",
         "sounds",
         "hunt",
         "writing"
       ],
-      "games": [
-        "wagons"
-      ],
+      "games": [],
       "unit": "5.2",
       "world": "W6"
     },
@@ -7401,13 +7398,12 @@
         }
       ],
       "middle": [
-        "writing",
-        "signals",
         "sounds",
+        "writing",
+        "couple",
         "wagons"
       ],
       "games": [
-        "signals",
         "wagons"
       ],
       "unit": "5.3",
@@ -7544,12 +7540,10 @@
       "middle": [
         "hunt",
         "sounds",
-        "wagons",
+        "couple",
         "writing"
       ],
-      "games": [
-        "wagons"
-      ],
+      "games": [],
       "unit": "5.3",
       "world": "W6"
     },
@@ -7728,14 +7722,11 @@
         }
       ],
       "middle": [
-        "signals",
-        "writing",
         "sounds",
-        "hunt"
+        "split",
+        "couple"
       ],
-      "games": [
-        "signals"
-      ],
+      "games": [],
       "unit": "5.4",
       "world": "W6"
     },
@@ -7914,14 +7905,11 @@
         }
       ],
       "middle": [
-        "writing",
+        "split",
         "sounds",
-        "wagons",
-        "hunt"
+        "couple"
       ],
-      "games": [
-        "wagons"
-      ],
+      "games": [],
       "unit": "5.4",
       "world": "W6"
     },
@@ -8110,14 +8098,11 @@
         }
       ],
       "middle": [
-        "hunt",
         "sounds",
-        "writing",
-        "signals"
+        "couple",
+        "split"
       ],
-      "games": [
-        "signals"
-      ],
+      "games": [],
       "unit": "5.5",
       "world": "W6"
     }

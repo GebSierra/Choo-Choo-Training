@@ -13,6 +13,6 @@ export function dueLevel(store, curriculum) {
   return seen === null || earned.length <= seen ? null : earned[earned.length - 1];
 }
 export const bannerText = (v) => `Level ${NUMBER_WORDS[v.n - 1]} complete!`;
-// Special cars in train order: coach, flatbed, tanker, dome, then the caboose last.
-const CAR_ORDER = ['coach', 'flatbed', 'tanker', 'dome', 'caboose'];
+// Special cars in train order: coach, flatbed, tanker, dome, boxcar, then the caboose last.
+const CAR_ORDER = ['coach', 'flatbed', 'tanker', 'dome', 'boxcar', 'caboose'];
 export const carsOf = (levels) => CAR_ORDER.filter((k) => levels.some((v) => v.car === k));

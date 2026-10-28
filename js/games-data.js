@@ -127,7 +127,11 @@ export const MIDDLES = [
 export const EXTRA_MIDDLES = { 20: ['hunt', 'sounds', 'wagons', 'board', 'writing'],
   34: ['sounds', 'chains', 'writing', 'hunt'], 35: ['writing', 'sounds', 'wagons', 'chains'], 36: ['sounds', 'hunt', 'chains', 'writing'], 37: ['chains', 'sounds', 'writing', 'wagons'],
   38: ['hunt', 'sounds', 'writing', 'chains'], 39: ['sounds', 'chains', 'wagons', 'writing'], 40: ['writing', 'chains', 'sounds', 'hunt'], 41: ['sounds', 'writing', 'chains', 'wagons'],
-  42: ['sounds', 'chains', 'writing'] };
+  42: ['sounds', 'chains', 'writing'],
+  // World 6 (43 to 50): an ending is a word part, so the letter games deal its car (Letter Hunt, Wagon Parade) and the new games couple ending cars and word cars on ('couple') and split bigger words ('split').
+  // The bigger-word lessons (48 to 50) have no car of their own to trace or hunt, so they split and couple instead of tracing.
+  43: ['sounds', 'couple', 'writing', 'hunt'], 44: ['writing', 'sounds', 'couple', 'wagons'], 45: ['couple', 'sounds', 'hunt', 'writing'], 46: ['sounds', 'writing', 'couple', 'wagons'],
+  47: ['hunt', 'sounds', 'couple', 'writing'], 48: ['sounds', 'split', 'couple'], 49: ['split', 'sounds', 'couple'], 50: ['sounds', 'couple', 'split'] };
 export const TAP_GAMES = ['signals', 'wagons', 'board'];
 // The middle of lesson n: its pattern, with a game the lesson cannot hold (Green Light needs a second sound; Station Board needs
 // its words) swapped for Letter Hunt or Wagon Parade, whichever is not already there.
@@ -162,6 +166,8 @@ export function tunnelRounds(ck, rng = Math.random) {
     }
     return out;
   }
+  // World 6 (mode 'says'): the tunnels are marked with what the ending says (sss, zzz), not with letters, so every round is a word, three for each tunnel.
+  if (!ck.sides[0].letters.length) return spread([0, 1].flatMap((side) => mix(ck.sides[side].words, rng).slice(0, 3).map((value) => ({ kind: 'word', side, value }))), (r) => r.side, rng);
   const letters = mix([0, 1], rng).map((side) => ({ kind: 'letter', side, value: mix(ck.sides[side].letters, rng)[0] }));
   const words = [0, 1].flatMap((side) => mix(ck.sides[side].words, rng).slice(0, 2).map((value) => ({ kind: 'word', side, value })));
   return [...letters, ...spread(words, (r) => r.side, rng)];

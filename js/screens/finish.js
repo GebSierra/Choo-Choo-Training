@@ -97,7 +97,8 @@ export function finishScreen({ store, router, curriculum, speech }, n) {
 // The same two-step finish for a checkpoint (the sound sack): "Yes" goes back to the path, where its stone shows a tick.
 // The end of a Review Stop (owner): how many sounds, example words, and W, the number of words of data/words-decodable.json that use only the
 // letters taught so far (counted by tools/gen-lessons.mjs, stored on the stop as `summary`). "Read", never "pronounce".
-export const reviewMessageText = (s) => `Your child has learned ${s.sounds} sounds${s.blends ? ` and ${s.blends} blends` : ''}. Words made only from these sounds include: ${s.examples.join(', ')}. That's ${s.words} words in all.` + (s.hearts && s.hearts.length ? ` Heart words learned so far, counted apart: ${s.hearts.join(', ')}.` : '');
+const learned = (s) => { const l = [`${s.sounds} sounds`, s.blends ? `${s.blends} blends` : '', s.endings ? `${s.endings} word endings` : ''].filter(Boolean); return l.length > 1 ? `${l.slice(0, -1).join(', ')} and ${l[l.length - 1]}` : l[0]; }; // an ending is a word part, not a sound
+export const reviewMessageText = (s) => `Your child has learned ${learned(s)}. Words made only from these ${s.endings ? 'sounds and word parts' : 'sounds'} include: ${s.examples.join(', ')}. That's ${s.words} words in all.` + (s.hearts && s.hearts.length ? ` Heart words learned so far, counted apart: ${s.hearts.join(', ')}.` : '');
 const reviewMessage = (s) => h('p', { class: 'review-message' }, reviewMessageText(s));
 
 // The end of a story: a grown-up's "Save this moment" button (a picture made on this device; nothing is uploaded).

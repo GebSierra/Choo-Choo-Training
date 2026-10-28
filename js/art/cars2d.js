@@ -1,5 +1,5 @@
-// The five special cars as small flat SVG icons (the level banner): caboose red with a cupola, coach sky-blue with three
-// windows, flatbed navy with a wooden block, tanker mint with a round tank, dome lilac with a pale dome. Same palette
+// The six special cars as small flat SVG icons (the level banner): caboose red with a cupola, coach sky-blue with three
+// windows, flatbed navy with a wooden block, tanker mint with a round tank, dome lilac with a pale dome, box car coral with a sliding door. Same palette
 // as the 3D cars in js/train/train.js and the rest of the train world.
 import { h } from '../dom.js';
 import { TRAIN } from './train2d.js';
@@ -29,6 +29,11 @@ const BODY = {
     h('rect', { x: 26, y: 20, width: 148, height: 62, rx: 31, fill: MINT }), h('rect', { x: 26, y: 20, width: 148, height: 14, rx: 7, fill: 'rgba(255,255,255,.35)' }),
     h('rect', { x: 62, y: 20, width: 6, height: 62, fill: 'rgba(0,0,0,.12)' }), h('rect', { x: 132, y: 20, width: 6, height: 62, fill: 'rgba(0,0,0,.12)' }),
     h('rect', { x: 92, y: 10, width: 16, height: 12, rx: 4, fill: C.sun }),
+  ],
+  boxcar: () => [
+    h('rect', { x: 18, y: 30, width: 164, height: 58, rx: 8, fill: '#F2956B' }), h('rect', { x: 18, y: 30, width: 164, height: 7, rx: 3.5, fill: C.sun }),
+    h('rect', { x: 66, y: 44, width: 68, height: 44, rx: 4, fill: '#C9693F' }), h('rect', { x: 100, y: 44, width: 4, height: 44, fill: 'rgba(0,0,0,.18)' }), h('rect', { x: 72, y: 56, width: 22, height: 5, rx: 2.5, fill: '#FFF6D6' }),
+    h('rect', { x: 40, y: 46, width: 12, height: 20, rx: 3, fill: '#FFF6D6' }), h('rect', { x: 148, y: 46, width: 12, height: 20, rx: 3, fill: '#FFF6D6' }),
   ],
   dome: () => [
     h('rect', { x: 18, y: 44, width: 164, height: 44, rx: 10, fill: LILAC }), h('rect', { x: 18, y: 44, width: 164, height: 7, rx: 3.5, fill: C.sun }),

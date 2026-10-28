@@ -16,6 +16,8 @@ export const TASK_TYPES = {
   tunnels: { name: 'Two Tunnels', color: 'sky', dark: true, label: "Today we'll sort" }, // Tricky Sounds (checkpoint kind contrast)
   which:   { name: 'Which One?', color: 'sun', dark: true, label: "Today we'll listen" },
   chains:  { name: 'Add a Car', color: 'sun', dark: true, label: "Today we'll build" }, // World 5: a letter car makes a new word (top, stop)
+  couple:  { name: 'Couple a Car', color: 'sun', dark: true, label: "Today we'll couple" }, // World 6: an ending car or a word car couples on to make a new word (jump, jumping; sun, sunset)
+  split:   { name: 'Clap, Split, Glue', color: 'lilac', dark: true, label: "Today we'll split" }, // World 6: clap the beats, split a bigger word in two, glue it back (nap-kin)
   check:   { name: 'Ticket Check',   color: 'blue',   dark: true,  label: "Today we'll check" },
 };
 
@@ -27,8 +29,9 @@ export function tasksFor(lesson) {
   const list = [];
   if (lesson.review && lesson.review.length) list.push('review');
   list.push('newLetter', 'mouth', ...(lesson.heart && lesson.heart.length ? ['heart'] : []), ...(lesson.middle || ['sounds', 'writing', 'hunt']), 'practice', 'check');
-  // A blend lesson (World 5): New Sound is New Blend. A blend is not a new sound: each letter keeps its own.
-  return list.map((type, index) => ({ type, index, ...TASK_TYPES[type], ...(type === 'newLetter' && lesson.blend ? { name: 'New Blend' } : {}) }));
+  // A blend lesson (World 5): New Sound is New Blend. A blend is not a new sound: each letter keeps its own. A word-part lesson (World 6) is New Ending, or Bigger Words: an ending is not a sound either.
+  const newName = lesson.part === 'ending' ? 'New Ending' : lesson.part ? 'Bigger Words' : lesson.blend ? 'New Blend' : null;
+  return list.map((type, index) => ({ type, index, ...TASK_TYPES[type], ...(type === 'newLetter' && newName ? { name: newName } : {}) }));
 }
 
 // Spoken lines have a quiet variant for when the grown up says the sound (the default). Both live in curriculum.json.
@@ -41,7 +44,7 @@ export const lessonByNumber = (curriculum, n) => curriculum.lessons.find((l) => 
 export function targetsFor(task, lesson) {
   switch (task.type) {
     case 'review': return lesson.review.map((g) => ({ glyph: g }));
-    case 'newLetter': case 'mouth': case 'writing': case 'hunt': case 'signals': case 'wagons': case 'board': case 'practice': case 'check': case 'chains': return spellingsOf(lesson.sound).map((g) => ({ glyph: g }));
+    case 'newLetter': case 'mouth': case 'writing': case 'hunt': case 'signals': case 'wagons': case 'board': case 'practice': case 'check': case 'chains': case 'couple': case 'split': return spellingsOf(lesson.sound).map((g) => ({ glyph: g }));
     case 'heart': return (lesson.heart || []).map((w) => ({ text: w }));
     case 'sounds': return lesson.sayingSounds.slice(0, 3).map((w) => ({ text: w.word }));
     default: return [];
@@ -57,12 +60,14 @@ export const fit = (...options) => options.find((o) => o.length <= GIST_MAX) || 
 
 // Sound cards are built from the sounds table: "This letter says mmm. Hold it. Do not say muh."
 export const spellings = (sound) => [sound.glyph, ...(sound.alt || [])];
+// World 6: an ending is a word part, not a new sound. The first line of its card.
+export const PART_LINE = { ending: 'A word ending, not a new sound. Find the base word first, then the ending.', chunk: 'Bigger words are built from smaller pieces. Clap the beats, split, read each chunk, glue.', mix: 'Endings and bigger words, all together.' };
 // Two letters, one sound: sh ch th ck wh ng nk, qu (key q) and the doubled letters (ff ll ss zz). c and k keep their own wording.
-export const isTwoLetterSound = (sound) => !sound.blend && (sound.glyph.length > 1 || sound.glyph === 'q'); // a blend is two sounds, each letter keeps its own
-export const sayLine = (sound) => (sound.blend ? `Each letter keeps its sound. Glide them together: ${sound.pairs.map((p) => p.say).join(', ')}.` : sound.glyph === 'ff' ? `Two of the same letter make one sound: ${sound.sayItLike}${sound.asIn ? `, as in ${sound.asIn}` : ''}.` : isTwoLetterSound(sound) ? `These two letters make one sound: ${sound.sayItLike}${sound.asIn ? `, as in ${sound.asIn}` : ''}.` : sound.alt && sound.alt.length ? `The letters ${spellings(sound).join(' and ')} make the same sound: ${soundPhrase(sound)}.` : `This letter says ${soundPhrase(sound)}.`);
+export const isTwoLetterSound = (sound) => !sound.blend && !sound.part && (sound.glyph.length > 1 || sound.glyph === 'q'); // a blend is two sounds, each letter keeps its own
+export const sayLine = (sound) => (sound.part ? PART_LINE[sound.part] : sound.blend ? `Each letter keeps its sound. Glide them together: ${sound.pairs.map((p) => p.say).join(', ')}.` : sound.glyph === 'ff' ? `Two of the same letter make one sound: ${sound.sayItLike}${sound.asIn ? `, as in ${sound.asIn}` : ''}.` : isTwoLetterSound(sound) ? `These two letters make one sound: ${sound.sayItLike}${sound.asIn ? `, as in ${sound.asIn}` : ''}.` : sound.alt && sound.alt.length ? `The letters ${spellings(sound).join(' and ')} make the same sound: ${soundPhrase(sound)}.` : `This letter says ${soundPhrase(sound)}.`);
 export function soundCardLines(sound) {
   const lines = [sayLine(sound)];
-  if (sound.hold && !sound.blend) lines.push('Hold it.');
+  if (sound.hold && !sound.blend && !sound.part) lines.push('Hold it.');
   if (sound.doNotSay) lines.push(`Do not say ${sound.doNotSay}.`);
   return lines;
 }

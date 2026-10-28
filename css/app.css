@@ -2246,3 +2246,18 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .blend-card .blend-rows li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
 .blend-card .br-pair { font-weight: 800; letter-spacing: .06em; color: var(--accent); min-width: 3.4em; }
 .blend-card .br-say strong { font-size: 1.15em; }
+/* World 6, Endings Junction: Couple a Car (an ending car or a word car couples on), Clap, Split, Glue, the car of a word part */
+.chain-car.end { width: var(--ew, 100px); }
+.chain-car.end .glyph { height: 58%; width: auto; max-width: 90%; } .chain-car.end .word-glyphs { height: auto; width: 82%; max-height: 66%; }
+.chain-car.choice.end { width: 100px; height: 88px; } .chain-car.choice.end .glyph { height: 58px; } .chain-car.choice.end .word-glyphs { width: 84px; max-height: 54px; }
+.chain-car.gap.end { height: calc(var(--cw, 60px) * 1.25); }
+.chain-track .coupler { flex: 0 0 auto; width: 16px; height: 8px; margin: 0 -6px 16px; border-radius: 4px; background: #2B2D5C; position: relative; z-index: 1; }
+.couple-choices { gap: 10px; }
+.couple-track .chain-car.end.fresh { height: calc(var(--cw, 60px) * 1.25); }
+.split-track { align-items: flex-end; }
+.split-gap { position: absolute; width: 48px; min-height: 48px; padding: 0; border: 0; background: transparent; z-index: 3; cursor: pointer; touch-action: manipulation; }
+.split-gap::before { content: ''; position: absolute; left: 50%; top: 8px; bottom: 8px; border-left: 3px dashed rgba(60,40,20,.38); transform: translateX(-1.5px); }
+.split-gap:disabled { pointer-events: none; opacity: 0; }
+.split-track.apart .chain-car.chunk-a { background: #E7F4FF; border-color: #7DB8F5; } .split-track.apart .chain-car.chunk-b { background: #FFF0E0; border-color: #E8A93A; }
+.glue-btn { position: absolute; left: 50%; bottom: 142px; transform: translateX(-50%); z-index: 4; min-width: 150px; min-height: 52px; }
+.part-card .br-pair { min-width: 5.2em; }
