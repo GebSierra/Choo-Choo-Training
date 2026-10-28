@@ -139,3 +139,8 @@ with the date.
 
 ## Done
 - (nothing yet)
+
+## World 5 Blend Bay (live in 1.9.46)
+- Approve or edit Story 5 "Pip at the Bay" (data/books/book-5.json, still marked draft). Check page 2 ("warm, soft beach") and page 8 ("his pocket watch").
+- Make the 36 World 5 pictures: prompts are in docs/IMAGE-PROMPTS.md under "World 5 additions". A beach backdrop for Story 5 would help too.
+- Record the World 5 words (blend words have no recordings yet).
