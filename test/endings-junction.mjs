@@ -260,6 +260,25 @@ export async function screenChecks({ browser, url, ok }) {
     ok(m.errors.length === 0, `${title} ${n}: no errors ${m.errors.join(' | ')}`);
     await m.ctx.close();
   }
+  // The lesson overview says word ending, never "the sound" (an ending is not a sound), and the Letter Review of earlier word parts has no picture word to trip over.
+  for (const [n, want] of [[43, 'Today: the word ending -s, as in cats.'], [44, 'Today: the word ending -es, as in boxes.'], [45, 'Today: the word ending -ing, as in jumping.'], [47, 'Today: the word ending -ed, as in landed.'], [48, 'Today: bigger words, as in sunset.'], [50, 'Today: endings and bigger words together.']]) {
+    const m = await newPage(browser, PHONE);
+    await seedPage(m, n - 1);
+    await m.page.goto(url + `#/lesson/${n}`);
+    await m.page.waitForSelector('.lo-title p');
+    const t = (await m.page.locator('.lo-title p').textContent()).replace(/\s+/g, ' ').trim();
+    ok(t === want, `Lesson ${n} overview: "${t}"`);
+    if (n === 48) {
+      await m.page.goto(url + `#/lesson/${n}/task/0`);
+      await m.page.waitForSelector('.review');
+      await m.page.getByText('Show it').click();
+      await m.page.waitForTimeout(300);
+      await m.page.locator('button[aria-label="Hear this again"]').first().click();
+      await m.page.waitForTimeout(300);
+      ok(m.errors.length === 0, `Letter Review of two word parts: Show it, then the speaker, no errors ${m.errors.join(' | ')}`);
+    }
+    await m.ctx.close();
+  }
   // Saying Sounds: the ending is one car coupled to the base word; every gist fits the collapsed bar (28 characters) and names the base word and the ending.
   for (const n of [43, 44, 45, 46, 47, 48, 49, 50]) {
     const m = await newPage(browser, n === 45 ? SMALL : PHONE);
@@ -411,7 +430,7 @@ export async function screenChecks({ browser, url, ok }) {
     await m.page.goto(url + `#/checkpoint/${id}/task/1`);
     await m.page.waitForSelector('.which-card', { timeout: 10000 });
     await m.page.waitForTimeout(900);
-    const w = await m.page.evaluate(() => ({ cards: [...document.querySelectorAll('.which-card')].map((c) => c.dataset.word), pic: document.querySelectorAll('.which-card .pic, .which-card img').length, prompt: document.querySelector('.say-prompt') && document.querySelector('.say-prompt').textContent, gist: (document.querySelector('.script-first') || {}).textContent, overflow: document.documentElement.scrollWidth > innerWidth }));
+    const w = await m.page.evaluate(() => ({ cards: [...document.querySelectorAll('.which-card')].map((c) => c.dataset.word), pic: document.querySelectorAll('.which-card .pic, .which-card img').length, prompt: (document.querySelector('.say-prompt .say-text') || {}).textContent, gist: (document.querySelector('.script-first') || {}).textContent, overflow: document.documentElement.scrollWidth > innerWidth }));
     const stop = CUR.checkpoints.find((k) => k.id === id);
     ok(w.cards.length === 2 && stop.pairs.some((p) => w.cards.includes(p.a) && w.cards.includes(p.b)) && w.pic === 0 && /^Say: /.test(w.prompt) && w.gist.length <= 28 && !w.overflow, `${id}: Which One? shows a base word and the same word with its ending, no picture (${w.cards}; ${w.prompt}; "${w.gist}")`);
     ok(await noSound(m.page), `${id}: Which One? plays nothing on its own`);
@@ -421,7 +440,7 @@ export async function screenChecks({ browser, url, ok }) {
   // Review Stops v14 and v15: each step opens the right game.
   for (const [id, n, names] of [['v14', 46, ['Letter Hunt', 'Couple a Car', 'Wagon Parade', 'Green Light', 'Ticket Check']], ['v15', 50, ['Couple a Car', 'Clap, Split, Glue', 'Letter Hunt', 'Wagon Parade', 'Ticket Check']]]) {
     const m = await newPage(browser, PHONE);
-    await seedPage(m, n - 1);
+    await seedPage(m, n);
     for (const [i, name] of names.entries()) {
       await m.page.goto(url + `#/checkpoint/${id}/task/${i}`);
       await m.page.waitForTimeout(1300);

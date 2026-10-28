@@ -2,6 +2,7 @@ import { h, animate, icon } from '../dom.js';
 import { glyphSvg } from '../glyphs.js';
 import { speakButton } from '../components/speak-button.js';
 import { tasksFor, lessonByNumber, targetsFor, soundPhrase, introParts, spellings } from '../lessons.js';
+import { wordPartsOf } from '../order.js';
 import { richText, letterText } from '../letters.js';
 import { tipCard, nextTip, loadTips } from '../components/tip-card.js';
 import { heartSvg } from './tasks/heart.js';
@@ -44,7 +45,7 @@ export function lessonScreen(ctx, n) {
 
   const header = h('header', { class: 'lo-head' },
     h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Back', onclick: () => router.back() }, icon('back', 28)),
-    h('div', { class: 'lo-title' }, h('h1', {}, `Lesson ${lesson.number}`, store.isRedone(lesson.number) ? h('span', { class: 'lo-star', role: 'img', 'aria-label': 'Finished again' }, '★') : null), h('p', {}, richText(sound.alt ? `Today: ${spellings(sound).join(' and ')} make the same sound, ${soundPhrase(sound)}.` : `Today: the sound ${soundPhrase(sound)}.`, { every: true }))),
+    h('div', { class: 'lo-title' }, h('h1', {}, `Lesson ${lesson.number}`, store.isRedone(lesson.number) ? h('span', { class: 'lo-star', role: 'img', 'aria-label': 'Finished again' }, '★') : null), h('p', {}, richText(sound.alt ? `Today: ${spellings(sound).join(' and ')} make the same sound, ${soundPhrase(sound)}.` : sound.part === 'ending' ? `Today: the word ending ${sound.parts[0].asIn ? '-' + sound.parts[0].asIn.slice(wordPartsOf(sound.parts[0].asIn).parts[0].length) : ''}, as in ${sound.parts[0].asIn}.` : sound.part === 'chunk' ? `Today: bigger words, as in ${sound.parts[0].asIn}.` : sound.part ? 'Today: endings and bigger words together.' : `Today: the sound ${soundPhrase(sound)}.`, { every: true }))),
     speakButton({ speech, getParts: () => introParts(lesson, store), label: 'Hear the lesson intro', accent }));
 
   const cards = tasks.map((t, i) => {

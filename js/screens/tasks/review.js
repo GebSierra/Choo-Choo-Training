@@ -33,7 +33,7 @@ export function build({ lesson, curriculum, speech, refresh }) {
     holder.replaceChildren();
     const g = glyphSvg(s.glyph, { color: accentOf(s.glyph), label: 'review letter' });
     track = slideTrack({ letter: s.glyph });
-    holder.append(h('div', { class: 'letter-card' }, g), track, h('button', { class: 'btn small ghost review-help', type: 'button', onclick: reveal }, icon('speaker', 20), 'Show the sound'));
+    holder.append(h('div', { class: 'letter-card' }, g), track, h('button', { class: 'btn small ghost review-help', type: 'button', onclick: reveal }, icon('speaker', 20), s.part ? 'Show it' : 'Show the sound'));
     dots.replaceChildren(...(keys.length > 1 ? keys.map((k, j) => h('i', { class: j === i ? 'on' : '' })) : []));
     drawIn(g, { per: 380 });
     refresh();
@@ -41,9 +41,10 @@ export function build({ lesson, curriculum, speech, refresh }) {
   show();
   return {
     el,
-    parts: () => (revealed ? [{ clip: sound().glyph }, { tts: sound().words[0].word }] : [{ tts: 'What sound does this letter make?' }]),
+    // A word part (World 6: an ending, or the two pieces of a bigger word) is not a sound and has no picture word: the phone says only a question, never the part itself.
+    parts: () => (sound().part ? (revealed ? [] : [{ tts: 'What is this word part?' }]) : revealed ? [{ clip: sound().glyph }, ...(sound().words[0] ? [{ tts: sound().words[0].word }] : [])] : [{ tts: 'What sound does this letter make?' }]),
     // Review: the child tries first. Stuck: say it together. Still stuck: the grown-up says it, the child says it after.
-    script: () => 'Ask your child to say the sound of this letter. Your child can slide a finger under it. If they are stuck, say the sound together. Still stuck? Say it yourself, then have your child say it after you.',
+    script: () => sound().part ? 'Ask your child to read this word part (an ending, or a way to build a bigger word). Your child can slide a finger under it. If they are stuck, say it together. Still stuck? Say it yourself, then have your child say it after you.' : 'Ask your child to say the sound of this letter. Your child can slide a finger under it. If they are stuck, say the sound together. Still stuck? Say it yourself, then have your child say it after you.',
     gist: () => 'Let your child say it first.',
     again: () => { show(); reveal(); },
     cleanup: () => track.cleanup(),

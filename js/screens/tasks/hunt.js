@@ -293,7 +293,7 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
     el, flush: true,
     parts: () => say,
     gist: () => `Find ${soundPhrase(sound)}.`,
-    script: () => `Say: 'Find the letter that says ${soundPhrase(sound)}.' Your child says the sound back, then touches the letter. If they are stuck, say it together.`,
+    script: () => (sound.part ? `Say: 'Find the car that says ${soundPhrase(sound)}.' Your child says it back, then touches the car. If they are stuck, say it together.` : `Say: 'Find the letter that says ${soundPhrase(sound)}.' Your child says the sound back, then touches the letter. If they are stuck, say it together.`),
     again: () => { again(); speech.say(say); },
     cleanup: () => { T.clear(); hints.stop(); sky.replaceChildren(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
   };
