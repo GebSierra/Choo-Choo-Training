@@ -135,7 +135,7 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
     ok(!body.includes('{name}'), `${tag} page ${n + 1}: no {name} left in the text`);
     if (/\{name\}/.test(pg.read)) ok(/Lily/.test(await page.locator('.book-read').innerText()), `${tag}: page ${n + 1} says Lily`);
     if (pg.child) {
-      const want = pg.child.split(' ').reduce((n, w) => n + letterUnits(w, ck.after).length, 0); // the units joined by the book's lesson (ss in miss only from lesson 30, sh in ship from 26)
+      const want = pg.child.split(' ').reduce((n, w) => n + letterUnits(w, ck.after, false, false).length, 0); // the book keeps the letters of a word ending (no joined ending car, so the child reads real letters); the units joined by the book's lesson (ss in miss only from lesson 30, sh in ship from 26)
       lens.push(await page.locator('.book-child .glyph-letter').count());
       ok(lens[lens.length - 1] === want, `${tag} page ${n + 1}: ${want} drawn letters in "${pg.child}" (${lens[lens.length - 1]})`);
     }

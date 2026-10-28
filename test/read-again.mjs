@@ -116,7 +116,7 @@ export async function readAgainChecks({ browser, url, ok }) {
   ok((await q(page, '.finish h1').innerText()) === 'You read it again!', 'finish: the heading');
   ok(await page.evaluate(() => !JSON.parse(localStorage.getItem('reading.v1')).checkpoints || !(JSON.parse(localStorage.getItem('reading.v1')).checkpoints.r1 || {}).result), 'finish: nothing is saved before the grown-up says yes');
   await page.waitForTimeout(1700);
-  await q(page, '.got').click(); await page.waitForTimeout(1700); await q(page, '.got').click();
+  await q(page, '.got').click(); // one tap (1.9.47): Yes saves and goes on
   await page.waitForTimeout(400);
   ok(await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).checkpoints.r1.result === 'got-it'), 'finish: the grown-up\'s Yes saves r1 as got-it');
   const text = await page.evaluate(() => document.body.innerText);

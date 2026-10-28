@@ -24,7 +24,7 @@ CUR.lessons.forEach((L, i) => {
   ok(s.at(-1) === 'check', `lesson ${L.number} ends with Ticket Check`);
   ok(s.at(-2) === 'practice', `lesson ${L.number}: the closing review comes just before Ticket Check`);
   ok(mid.length >= 2 && mid.length <= (L.number === 20 ? 5 : 4), `lesson ${L.number}: the middle holds 2 to 4 activities (5 for w, which gets extra practice) (${mid.join(', ')})`);
-  ok(mid.includes('sounds') && mid.includes('writing'), `lesson ${L.number}: the middle has blending practice and Track Tracing`);
+  ok(mid.includes('sounds') && (mid.includes('writing') || L.number >= 48), `lesson ${L.number}: the middle has blending practice and Track Tracing (Endings Junction 48 to 50 have the word-part games instead, no tracing)`);
   ok(!s.includes('words') && !s.includes('story'), `lesson ${L.number}: no Word Cars, no Sound Story`);
   if (i) ok(seqs[i - 1].join() !== s.join() && seqs[i - 1].slice(seqs[i - 1].indexOf('mouth') + 1, -2).filter((t) => t !== 'heart').join() !== mid.join(), `lessons ${L.number - 1} and ${L.number} have different middles`);
 });
@@ -34,7 +34,7 @@ ok(CUR.lessons.every((L) => !('sayingWords' in L)), 'no lesson carries Word Cars
 ok(!/Word Cars|Sound Story/.test(read('js/lessons.js')) && !fs.existsSync(path.join(ROOT, 'js/screens/tasks/words.js')) && !fs.existsSync(path.join(ROOT, 'js/screens/tasks/story.js')), 'the Word Cars and Sound Story screens are gone from the code');
 
 // ---- 2. every sound has its "How to make this sound" text ----
-for (const [k, s] of Object.entries(CUR.sounds)) ok(s.mouth && typeof s.mouth.text === 'string' && s.mouth.text.length > 10 && typeof s.mouth.voice === 'boolean', `sound ${k} has Watch My Mouth text and a voice flag`);
+for (const [k, s] of Object.entries(CUR.sounds)) ok(s.mouth && typeof s.mouth.text === 'string' && s.mouth.text.length > 10 && (typeof s.mouth.voice === 'boolean' || (s.mouth.voice === null && /^end-/.test(k))), `sound ${k} has Watch My Mouth text and a voice flag`);
 ok(CUR.sounds.m.mouth.text === 'Lips together. Hum through your nose. Voice on.', 'm: "Lips together. Hum through your nose. Voice on."');
 ok(MOUTH_SCRIPT === 'It helps your child to see someone else make the sound. Put a finger at the side of your mouth (this draws their eyes to your mouth) and ask your child to look at your mouth. Make the sound, then have them say it after you.', 'the Watch My Mouth script is the owner\'s text');
 
@@ -76,7 +76,7 @@ for (const L of CUR.lessons) {
   await page.click('.mouth-how-btn');
   await page.waitForTimeout(300);
   const panel = await page.locator('.mouth-how').innerText();
-  ok(await page.locator('.mouth-how').isVisible() && panel.includes(mouth.text) && panel.includes(mouth.voice ? 'Voice on' : 'Voice off'), `lesson ${L.number}: the panel shows "${mouth.text}"`);
+  ok(await page.locator('.mouth-how').isVisible() && panel.includes(mouth.text) && (mouth.voice === null ? !/Voice o/.test(panel) : panel.includes(mouth.voice ? 'Voice on' : 'Voice off')), `lesson ${L.number}: the panel shows "${mouth.text}"`);
   ok(await page.evaluate(() => { const r = document.querySelector('.mouth-how').getBoundingClientRect(), n = document.querySelector('.btn.next').getBoundingClientRect(); return r.bottom <= n.top && r.right <= innerWidth && r.left >= 0; }), `lesson ${L.number}: the open panel clears the Next button`);
   await page.click('.script-toggle');
   await page.waitForTimeout(400);

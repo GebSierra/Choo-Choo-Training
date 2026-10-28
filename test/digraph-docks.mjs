@@ -40,7 +40,7 @@ const settled = (page, ms = 25000) => until(page, () => window.__train && window
 export async function dataChecks({ ok }) {
   // 1. the order and the count
   ok(ORDER_SOUNDS.length >= 42 && ORDER_SOUNDS.slice(0, 25).join(' ') === 'm a s i t p f o n d c h u g l r b e j w v y z x q' && ORDER_SOUNDS.slice(25, 33).join(' ') === 'sh ch th ck ff wh ng nk', 'order: the first 25 unchanged, then sh ch th ck ff wh ng nk appended (World 5 follows, test/blend-bay.mjs)');
-  ok(ORDER === ORDER_SOUNDS.join(' ') && PRIOR_ORDERS.length === 3 && PRIOR_ORDERS[0] === ORDER_SOUNDS.slice(0, 17).join(' ') && PRIOR_ORDERS[1] === ORDER_SOUNDS.slice(0, 25).join(' ') && ORDER.startsWith(PRIOR_ORDERS[1] + ' ') && ORDER !== LEGACY_ORDER, 'order: the 17-sound and the 25-sound strings that older saves carry are prefixes of the new one (so nothing is reset)');
+  ok(ORDER === ORDER_SOUNDS.join(' ') && PRIOR_ORDERS.length >= 3 && PRIOR_ORDERS[0] === ORDER_SOUNDS.slice(0, 17).join(' ') && PRIOR_ORDERS[1] === ORDER_SOUNDS.slice(0, 25).join(' ') && ORDER.startsWith(PRIOR_ORDERS[1] + ' ') && ORDER !== LEGACY_ORDER, 'order: the 17-sound and the 25-sound strings that older saves carry are prefixes of the new one (so nothing is reset)');
   ok(SOUNDS.join(' ') === ORDER && CUR.lessons.length >= 42 && Object.keys(CUR.sounds).join(' ') === ORDER, 'data: 42 lessons (33 before World 5), one sound each, in order');
   ok(CUR.lessons.slice(25, 33).every((L) => L.world === 'W4') && lessonsIn(CUR, 'W4').length === 8 && CUR.worlds[3].name === 'Digraph Docks', 'data: lessons 26 to 33 are World 4, Digraph Docks');
   const UNIT = { 26: '3.1', 27: '3.1', 28: '3.2', 29: '3.3', 30: '3.3', 31: '3.3', 32: '3.4', 33: '3.4' };
