@@ -68,10 +68,10 @@ const taughtSet = (ctx) => (ctx == null ? null : typeof ctx === 'number' ? lette
 // The letters of a word as written units: "qu" is one unit (q, whose glyph includes its u), so the u after a q is dropped: quit -> q i t.
 // `ctx` (a lesson number, or the Set from lettersOfSounds) also joins the digraphs taught by then into one unit: ship -> sh i p, bell -> b e ll.
 // Without ctx only qu is joined (older callers); keepU keeps the u after a q (the reading font draws every letter).
-export function letterUnits(word, ctx, keepU = false) {
+export function letterUnits(word, ctx, keepU = false, joinEndings = !keepU) {
   const taught = taughtSet(ctx);
   // World 6: an ending a lesson has taught is one unit, last (jump + end-ing). The reading font (keepU) draws every letter, so it keeps the letters.
-  if (taught && !keepU) { const key = endingKeyOf(word); if (key && taught.has(key)) return [...letterUnits(word.slice(0, word.length - ENDED[key].suffix.length), ctx), key]; }
+  if (taught && joinEndings) { const key = endingKeyOf(word); if (key && taught.has(key)) return [...letterUnits(word.slice(0, word.length - ENDED[key].suffix.length), ctx), key]; }
   const a = [...word], out = [];
   for (let i = 0; i < a.length; i++) {
     if (!keepU && a[i] === 'u' && a[i - 1] === 'q') continue;
