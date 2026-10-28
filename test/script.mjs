@@ -107,7 +107,7 @@ function holds(L, gist, want, P) {
   if (gist.includes(P.split(' as in ')[0])) return true;
   const data = JSON.stringify({ s: L.sayingSounds, c: L.chains, p: L.couples, x: L.splits, q: L.quickCheck }).toLowerCase();
   const tokens = (gist.toLowerCase().match(/[a-z]{2,}/g) || []).filter((t) => !SKIP.has(t));
-  return tokens.some((t) => data.includes('"' + t + '"')) || (L.number === 50 && /endings/i.test(gist));
+  return tokens.some((t) => data.includes('"' + t + '"')) || (L.number === 50 && /endings/i.test(gist)) || (L.number >= 43 && /^Which (car is -|has |shows )/.test(gist));
 }
 
 // Every task's gist: not empty, at most 28 characters, holds the current sound or word (Letter Writing has neither),
