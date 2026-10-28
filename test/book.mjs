@@ -212,8 +212,6 @@ export async function bookChecks({ browser, url, ok, vp = VIEWPORTS[0], shot = n
   }
   await page.waitForTimeout(1700);
   await page.locator('.got').click();
-  await page.waitForTimeout(1700);
-  await page.locator('.got').click();
   await page.waitForSelector('.home');
   await page.reload();
   await page.waitForTimeout(500);

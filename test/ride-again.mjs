@@ -71,6 +71,7 @@ for (const vp of SIZES) {
   const { ctx, page, errors } = await openPage(vp, seed(6), `#/checkpoint/${lastW1.id}/finish`);
   await page.waitForSelector('.ride-start', { timeout: 6000 });
   await page.waitForTimeout(1700);
+  ok((await page.locator('.finish .btn.got, .finish .btn.practice').count()) === 2 && (await page.locator('.back-path').count()) === 0, `${vp.name}: the finish screen keeps exactly its two buttons beside the card`);
   ok(await page.locator('.ride-start').innerText() === 'Ride again from the first letter', `${vp.name}: the card offers "Ride again from the first letter"`);
   const text = await page.locator('.ride-card').innerText();
   ok(!/\b(your son|your daughter|colour|favourite)\b/i.test(text) && /your child/i.test(text), `${vp.name}: neutral wording, American English`);

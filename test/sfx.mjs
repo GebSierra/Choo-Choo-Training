@@ -140,7 +140,7 @@ export async function sfxChecks({ browser, url, ok }) {
     await ctx.close();
   }
 
-  // 5. The slide track and the slide-to-blend word each sparkle at the end; the finish screen and its second Yes have jingles.
+  // 5. The slide track and the slide-to-blend word each sparkle at the end; the finish screen and its Yes have jingles.
   {
     const { ctx, page, errors } = await open(browser, url, vp, { route: `#/lesson/2/task/1` });
     await page.waitForSelector('.slide-track');
@@ -173,11 +173,7 @@ export async function sfxChecks({ browser, url, ok }) {
     await clear(page);
     await page.click('.btn.got');
     await page.waitForTimeout(300);
-    ok((await notes(page)).length === 0, 'Finish screen: the first Yes tap makes no sound');
-    await page.waitForTimeout(1700);
-    await page.click('.btn.got');
-    await page.waitForTimeout(300);
-    ok(of(await notes(page), 'unlock').bells.length === 6, 'Finish screen: the second Yes plays the unlock flourish');
+    ok(of(await notes(page), 'unlock').bells.length === 6, 'Finish screen: the one Yes tap plays the unlock flourish');
     ok(errors.length === 0, 'slide and finish sfx: errors ' + errors.join(' | '));
     await ctx.close();
   }

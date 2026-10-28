@@ -123,9 +123,7 @@ export async function visit3dChecks({ browser, url, ok, vp }) {
   await page.evaluate(() => { location.hash = '#/lesson/1/finish'; });
   await page.waitForSelector('.finish');
   await page.waitForTimeout(1700);
-  await page.locator('.finish .got').click();
-  await page.waitForTimeout(1700);
-  await page.locator('.finish .got').click();
+  await page.locator('.finish .got').click(); // one tap; the railway opens by itself
   ok(await world3d(page, 'W1') && await page.locator('.screen:not(.leaving) .visit-chip').count() === 1, `${tag}: finishing a replayed lesson returns to the visited world`);
   ok(progress(await stored(page)) === progress(s0), `${tag}: replaying lesson 1 to its end changed nothing (no result, no doneAt, no train place)`);
   await page.evaluate(() => { location.hash = '#/lesson/1'; });
@@ -136,9 +134,7 @@ export async function visit3dChecks({ browser, url, ok, vp }) {
   await page.evaluate(() => { location.hash = '#/checkpoint/b1/finish'; });
   await page.waitForSelector('.finish');
   await page.waitForTimeout(1700);
-  await page.locator('.finish .got').click();
-  await page.waitForTimeout(1700);
-  await page.locator('.finish .got').click();
+  await page.locator('.finish .got').click(); // one tap; the railway opens by itself
   ok(await world3d(page, 'W1') && await page.locator('.screen:not(.leaving) .visit-chip').count() === 1 && progress(await stored(page)) === progress(s0), `${tag}: finishing a replayed stop returns to the visited world and changes nothing`);
 
   // on to the current world: the visit ends, and a reload also opens the current world
@@ -180,9 +176,7 @@ export async function replayRealChecks({ browser, url, ok }) {
   await page.evaluate(() => { location.hash = '#/lesson/8/finish'; });
   await page.waitForSelector('.finish');
   await page.waitForTimeout(1700);
-  await page.locator('.finish .got').click();
-  await page.waitForTimeout(1700);
-  await page.locator('.finish .got').click();
+  await page.locator('.finish .got').click(); // one tap; the railway opens by itself
   await page.waitForTimeout(2500);
   const s = await stored(page);
   ok(s.lessons[8] && s.lessons[8].result === 'got-it', 'replay: finishing a lesson of the current world is recorded even mid-visit (the visit ends)');
@@ -267,9 +261,7 @@ export async function flatVisitChecks({ browser, url, ok, vp }) {
   await page.evaluate(() => { location.hash = '#/lesson/1/finish'; });
   await page.waitForSelector('.finish');
   await page.waitForTimeout(1700);
-  await page.locator('.finish .got').click();
-  await page.waitForTimeout(1700);
-  await page.locator('.finish .got').click();
+  await page.locator('.finish .got').click(); // one tap; the railway opens by itself
   ok(await until(page, () => document.querySelectorAll('.stone').length === 11 && !!document.querySelector('.visit-chip'), null, 8000) && progress(await stored(page)) === progress(s0), `${tag}: finishing a replayed lesson returns to the visited world and changes nothing`);
   await page.waitForTimeout(2500); // the glide to the last stone
   await page.locator('.scene-tunnel.tappable[data-role="forward"]').scrollIntoViewIfNeeded();

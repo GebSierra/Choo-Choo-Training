@@ -321,14 +321,10 @@ await sackGrownupsChecks({ browser, url, ok });
   await page.click('.btn.next');
   await page.waitForSelector('.finish');
   ok(page.url().endsWith('#/lesson/1/finish'), 'last Next opens the finish screen');
-  await page.click('.btn.got');
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[1]?.result ?? null)) === null, 'the first Yes tap arms without storing got-it');
-  ok(await page.locator('.btn.got').isDisabled(), 'the armed Yes is dimmed for 1.5 s');
-  await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
-  await page.click('.btn.got'); // the second tap records got-it and goes back to the railway
+  await page.click('.btn.got'); // one tap records got-it; the railway opens by itself after the success moment
+  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[1]?.result ?? null)) === 'got-it', 'one Yes tap stores got-it');
   await page.waitForSelector('.stone', { state: 'attached' });
-  ok(page.url().endsWith('#/home'), 'the second Yes tap lands on the railway home');
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[1].result)) === 'got-it', 'the second Yes tap stores got-it');
+  ok(page.url().endsWith('#/home'), 'one Yes tap lands on the railway home by itself');
   await page.waitForTimeout(600);
   ok((await page.locator('.stone.is-done').count()) === 1 && (await page.locator('.stone.is-current').count()) === 1, 'got it: lesson 1 done, lesson 2 current');
   // 1.8.5: after a lesson the station-complete sequence plays (the camera follows the train); let it finish first
@@ -472,21 +468,17 @@ for (const [name, raw] of [
   ok(await page.locator('.btn.next').isDisabled(), 'Next is disabled right after a task loads');
   await page.waitForTimeout(1150);
   ok(await page.locator('.btn.next').isEnabled(), 'Next is enabled after one second');
-  // Fix 9: the finish screen ignores taps at first; Yes takes two taps; practice keeps the best result.
+  // Fix 9: the finish screen ignores taps at first; Yes takes one tap; "Not yet" keeps the best result and goes to the path.
   await page.goto(url + '#/lesson/2/finish');
   await page.waitForSelector('.finish');
   ok(await page.locator('.btn.got').isDisabled() && await page.locator('.btn.practice').isDisabled(), 'finish ignores taps for the first 1.5 s');
   const stored = (n) => page.evaluate((k) => JSON.parse(localStorage.getItem('reading.v1')).lessons[k]?.result ?? null, n);
   await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
+  ok((await page.locator('.finish .btn').allInnerTexts()).map((t) => t.trim()).join('|') === 'Yes, go on|Not yet, back to the path' && (await page.locator('.back-path, .finish-note').count()) === 0, 'finish has exactly two buttons: "Yes, go on" and "Not yet, back to the path"');
   await page.click('.btn.got');
-  ok(/Yes, back to path/.test(await page.locator('.btn.got').innerText()) && page.url().endsWith('#/lesson/2/finish'), 'first Yes tap only arms the button');
-  ok(/Tap again to go back to the path\./.test(await page.locator('.finish-note').innerText()), 'armed note says "Tap again to go back to the path."');
-  ok(await page.locator('.btn.got').isDisabled(), 'after the arming tap the button is disabled');
-  await page.waitForTimeout(1700);
-  ok(await page.locator('.btn.got').isEnabled(), 'the armed button wakes after 1.5 s');
-  await page.click('.btn.got');
+  ok((await stored(2)) === 'got-it', 'one Yes tap stores got-it at once');
   await page.waitForFunction(() => location.hash === '#/home', null, { timeout: 4000 }).catch(() => {});
-  ok(page.url().endsWith('#/home'), 'second Yes tap goes back to the railway home');
+  ok(page.url().endsWith('#/home'), 'Yes goes back to the railway home by itself');
   {
     // The final lesson: Yes goes back to the path. A fresh page, with every lesson before it done and itself not yet.
     const LAST = CUR.lessons.length;
@@ -496,22 +488,22 @@ for (const [name, raw] of [
     await fin.page.goto(url + `#/lesson/${LAST}/finish`);
     await fin.page.waitForSelector('.finish');
     await fin.page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
-    await fin.page.click('.btn.got');
-    ok(/Tap again to go back to the path\./.test(await fin.page.locator('.finish-note').innerText()), 'final lesson note');
     const lastStored = () => fin.page.evaluate((k) => JSON.parse(localStorage.getItem('reading.v1')).lessons[k]?.result ?? null, LAST);
-    ok((await lastStored()) === null, `the arming tap on lesson ${LAST} does not store got-it`);
-    await fin.page.waitForTimeout(1700);
+    ok((await lastStored()) === null, `lesson ${LAST} is not stored before the tap`);
     await fin.page.click('.btn.got');
+    ok((await lastStored()) === 'got-it', `one tap on lesson ${LAST} stores got-it`);
     await fin.page.waitForSelector('.home');
-    ok((await lastStored()) === 'got-it', `the second tap on lesson ${LAST} stores got-it`);
     await fin.ctx.close();
   }
   await page.goto(url + '#/lesson/2/finish');
   await page.waitForSelector('.finish');
+  await page.waitForFunction(() => !document.querySelector('.btn.practice').disabled, null, { timeout: 3000 });
+  const tasksBefore = await page.evaluate(() => JSON.stringify(JSON.parse(localStorage.getItem('reading.v1')).lessons[2].tasksDone));
   await page.click('.btn.practice');
-  await page.waitForSelector('.lesson-overview');
-  ok(page.url().endsWith('#/lesson/2'), 'practice again opens this lesson overview');
-  ok((await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[2].result)) === 'got-it', 'practice again after got-it keeps the best result');
+  await page.waitForFunction(() => location.hash === '#/home', null, { timeout: 4000 }).catch(() => {});
+  ok(page.url().endsWith('#/home'), '"Not yet, back to the path" goes to the railway home');
+  ok((await stored(2)) === 'got-it', '"Not yet" after got-it keeps the best result');
+  ok(await page.evaluate(() => JSON.stringify(JSON.parse(localStorage.getItem('reading.v1')).lessons[2].tasksDone)) === tasksBefore, '"Not yet" does not restart the lesson (its tasks are left as they were)');
   await page.goto(url + '#/lesson/3');
   await page.waitForSelector('.lesson-overview');
   ok(page.url().endsWith('#/lesson/3'), 'lesson 3 stays unlocked after practicing lesson 2 again');

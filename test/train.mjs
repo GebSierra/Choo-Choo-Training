@@ -281,16 +281,14 @@ const justDone = (settings = {}) => state(4, { trainAt: iN, trainDone: 3, ...set
 export async function sequenceChecks({ browser, url, ok, shot }) {
   const vp = VIEWPORTS[0];
   {
-    // The lesson finish: the second Yes goes back to the railway (not the next overview), and the sequence plays there.
+    // The lesson finish: one Yes goes back to the railway (not the next overview), and the sequence plays there.
     const { ctx, page, errors } = await openHome(browser, url, vp, justDone(), { route: '#/lesson/4/finish', init: [RAF_COUNT] });
     await page.waitForSelector('.finish');
     await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
     await page.click('.btn.got');
-    ok(page.url().endsWith('#/lesson/4/finish'), 'finish: the first Yes only arms the button');
-    await page.waitForTimeout(1700);
-    await page.click('.btn.got');
+    ok(await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[4].result) === 'got-it', 'finish: one Yes tap records got-it');
     await page.waitForFunction(() => location.hash === '#/home', null, { timeout: 4000 }).catch(() => {});
-    ok(page.url().endsWith('#/home'), `finish: the second Yes lands on the railway home (${page.url().split('#')[1]})`);
+    ok(page.url().endsWith('#/home'), `finish: Yes lands on the railway home by itself (${page.url().split('#')[1]})`);
     await until(page, () => window.__train && window.__train.frames > 0);
     await page.mouse.click(3, 300);
     ok(await until(page, () => window.__train.startTootAt !== null, null, 8000), 'finish: the station-complete sequence toots');
@@ -366,20 +364,18 @@ export async function sequenceChecks({ browser, url, ok, shot }) {
 // Lesson finish, auto-return and the checkpoint stop (1.9.31): after "Yes, go on" the railway opens by itself and the figure rides
 // to the next station; a Story or Smooth Ride that comes next holds the train (the figure stands beside it, it is the current stop).
 const kidSeed = { character: { name: 'Lily', skin: 3, hair: 'braids', hairColor: 1, outfit: 'dress', made: true } };
-const tapYesTwice = async (page) => {
+const tapYes = async (page) => {
   await page.waitForSelector('.finish');
-  await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
-  await page.click('.btn.got');
   await page.waitForFunction(() => !document.querySelector('.btn.got').disabled, null, { timeout: 3000 });
   await page.click('.btn.got');
 };
 export async function autoReturnChecks({ browser, url, ok, shot }) {
   const vp = VIEWPORTS[0];
   {
-    // lesson 2 finished with a lesson next: Yes twice, no extra tap, and the figure rides to lesson 3
+    // lesson 2 finished with a lesson next: one Yes tap, no extra tap, and the figure rides to lesson 3
     const PHASES = () => { window.__phases = []; setInterval(() => { const p = window.__train && window.__train.kid.phase; if (p !== undefined && window.__phases[window.__phases.length - 1] !== p) window.__phases.push(p); }, 16); };
     const { ctx, page, errors } = await openHome(browser, url, vp, state(1, { trainAt: iL(2), trainDone: 1 }, kidSeed), { route: '#/lesson/2/finish', init: [PHASES] });
-    await tapYesTwice(page);
+    await tapYes(page);
     await page.waitForTimeout(450);
     ok(page.url().endsWith('#/lesson/2/finish') && await page.evaluate(() => !!document.querySelector('.finish')), 'auto-return: the success moment stays for a short time first');
     ok(await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[2].result) === 'got-it', 'auto-return: "Yes" records got-it at once');
@@ -399,15 +395,20 @@ export async function autoReturnChecks({ browser, url, ok, shot }) {
     await ctx.close();
   }
   {
-    // "Not yet, practice again" behaves as before: back to the overview, no return to the railway
-    const { ctx, page, errors } = await openHome(browser, url, vp, state(1, { trainAt: iL(2), trainDone: 1 }, kidSeed), { route: '#/lesson/2/finish' });
+    // "Not yet, back to the path": the railway opens at once, the result is practice-again, the lesson is NOT restarted, and no ride plays
+    const seedP = state(1, { trainAt: iL(2), trainDone: 1, layoutA: true, heartA: true }, { ...kidSeed, lessons: { ...doneThrough(1), 2: { tasksDone: [0, 1], result: null } } });
+    const { ctx, page, errors } = await openHome(browser, url, vp, seedP, { route: '#/lesson/2/finish' });
     await page.waitForSelector('.finish');
+    ok(await page.evaluate(() => [...document.querySelectorAll('.finish .btn')].map((b) => b.textContent.trim()).join('|')) === 'Yes, go on|Not yet, back to the path', 'not yet: the finish screen has exactly the two buttons');
     await page.waitForFunction(() => !document.querySelector('.btn.practice').disabled, null, { timeout: 3000 });
     await page.click('.btn.practice');
-    await page.waitForSelector('.lesson-overview');
-    await page.waitForTimeout(1800);
-    ok(page.url().endsWith('#/lesson/2') && await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[2].result) === 'practice-again', '"Not yet, practice again" goes back to the lesson, no auto-return');
-    ok(errors.length === 0, 'practice again: errors ' + errors.join(' | '));
+    await page.waitForFunction(() => location.hash === '#/home', null, { timeout: 3000 }).catch(() => {});
+    const st = await page.evaluate(() => JSON.parse(localStorage.getItem('reading.v1')).lessons[2]);
+    ok(page.url().endsWith('#/home') && st.result === 'practice-again', `"Not yet, back to the path" goes to the railway with practice-again (${page.url().split('#')[1]}, ${st.result})`);
+    ok(st.tasksDone.join() === '0,1', 'not yet: the lesson is not restarted (its finished tasks stay)');
+    await until(page, () => window.__train && window.__train.frames > 0);
+    ok(!(await train(page)).arriving, 'not yet: no ride plays');
+    ok(errors.length === 0, 'not yet: errors ' + errors.join(' | '));
     await ctx.close();
   }
   {
@@ -461,7 +462,7 @@ export async function autoReturnChecks({ browser, url, ok, shot }) {
   {
     // reduced motion: it still returns by itself, with no ride animation
     const { ctx, page, errors } = await openHome(browser, url, vp, state(1, { trainAt: iL(2), trainDone: 1 }, kidSeed), { route: '#/lesson/2/finish', extra: { reducedMotion: 'reduce' } });
-    await tapYesTwice(page);
+    await tapYes(page);
     await page.waitForFunction(() => location.hash === '#/home', null, { timeout: 3500 }).catch(() => {});
     ok(page.url().endsWith('#/home'), 'reduced motion auto-return: it still goes back to the railway by itself');
     await until(page, () => window.__train && window.__train.frames > 0);

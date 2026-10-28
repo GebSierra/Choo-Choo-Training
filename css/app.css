@@ -495,7 +495,6 @@ body.night { background: var(--night); }
 .finish .btn.got { background: var(--s-fill); } .finish .btn.chosen { box-shadow: 0 0 0 4px var(--ink), var(--shadow); }
 .finish .btn.practice { background: #F3F4FB; }
 .btn.secondary { background: var(--ink); color: #fff; }
-.finish-note { min-height: 24px; color: var(--muted); font-weight: 700; }
 .back-path { min-width: 220px; }
 @media (orientation: landscape) and (max-height: 520px) {
   /* the stage takes the whole height on the left; the title, dots, script and buttons stack at the top of the narrow right column */

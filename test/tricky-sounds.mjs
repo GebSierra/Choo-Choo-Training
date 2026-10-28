@@ -225,7 +225,7 @@ export async function screenChecks({ browser, url, ok }) {
   ok((await m.page.locator('.finish h1').innerText()) === 'Tricky Sounds, done!' && (await m.page.locator('.review-message').innerText()) === k.end, 'finish: the heading and the grown-up\'s celebration');
   ok(await m.page.evaluate(() => { const c = JSON.parse(localStorage.getItem('reading.v1')).checkpoints; return !c.x4; }), 'finish: nothing is saved until the grown-up says yes');
   await m.page.waitForTimeout(1700);
-  await m.page.locator('.got').click(); await m.page.waitForTimeout(1700); await m.page.locator('.got').click();
+  await m.page.locator('.got').click();
   await m.page.waitForSelector('.home, .home3d, .map-scroll', { timeout: 8000 }).catch(() => {});
   ok(await m.page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); return s.checkpoints.x4.result === 'got-it' && s.lessons[18] === undefined; }), 'finish: Yes saves x4 as got-it and writes no lesson');
   ok(m.errors.length === 0, `finish: no errors ${m.errors.join(' | ')}`);

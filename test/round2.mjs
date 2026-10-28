@@ -229,15 +229,16 @@ export async function layoutChecks({ browser, url, ok, vp }) {
     ok(await page.evaluate(() => !document.querySelector('.btn.next').disabled), `${tag} Writing: Next is open with nothing drawn (a child who cannot draw it yet can move on)`);
     await ctx.close();
   }
-  // 21: the finish screen: two columns in landscape, the label for the grown-up, a one-line practice button at 360.
+  // 21: the finish screen: two columns in landscape, the label for the grown-up, two one-line 48 px buttons (Yes, go on / Not yet, back to the path).
   {
     const { ctx, page } = await open(browser, url, vp, '#/lesson/2/finish');
     await page.waitForSelector('.finish');
     await page.waitForTimeout(700);
-    const f = await page.evaluate(() => { const g = document.querySelector('.finish-glyph').getBoundingClientRect(), c = document.querySelector('.finish-card').getBoundingClientRect(), bk = document.querySelector('.back-path').getBoundingClientRect(), h1 = document.querySelector('.finish h1').getBoundingClientRect(), p = document.querySelector('.btn.practice'); return { g, c, bk, h1, label: document.querySelector('.finish-for').textContent, pw: p.scrollWidth > p.clientWidth, ph: p.getBoundingClientRect().height, shadow: getComputedStyle(document.querySelector('.finish-wagon')).boxShadow, scroll: document.documentElement.scrollHeight - innerHeight }; });
+    const f = await page.evaluate(() => { const g = document.querySelector('.finish-glyph').getBoundingClientRect(), c = document.querySelector('.finish-card').getBoundingClientRect(), btns = [...document.querySelectorAll('.finish .btn')].map((b) => { const r = b.getBoundingClientRect(); return { t: b.textContent.trim(), h: r.height, w: r.width, l: r.left, r: r.right, wrap: b.scrollWidth > b.clientWidth }; }), h1 = document.querySelector('.finish h1').getBoundingClientRect(), p = document.querySelector('.btn.practice'); return { g, c, btns, h1, label: document.querySelector('.finish-for').textContent, pw: p.scrollWidth > p.clientWidth, ph: p.getBoundingClientRect().height, shadow: getComputedStyle(document.querySelector('.finish-wagon')).boxShadow, scroll: document.documentElement.scrollHeight - innerHeight }; });
     ok(f.label === 'For the grown-up' && f.shadow.includes('0.12') || f.shadow.includes('rgba') , `${tag} finish: the card is labelled "For the grown-up" and the letter sits on its wagon with a tinted rim (polish B: was the tinted panel)`);
-    ok(!f.pw && f.ph < 80, `${tag} finish: "Not yet, practice again" fits on one line (${Math.round(f.ph)} px tall)`);
-    if (land) ok(f.g.right <= f.c.left && f.h1.right <= f.c.left + 1 && f.bk.left >= f.c.left - 1 && f.bk.top >= f.c.bottom && f.scroll <= 1, `${tag} finish: glyph and heading left, card and back button right, no scrolling`);
+    ok(!f.pw && f.ph < 80, `${tag} finish: "Not yet, back to the path" fits on one line (${Math.round(f.ph)} px tall)`);
+    ok(f.btns.length === 2 && f.btns[0].t === 'Yes, go on' && f.btns[1].t === 'Not yet, back to the path' && f.btns.every((b) => b.h >= 47.5 && !b.wrap && b.l >= 0 && b.r <= vp.width + 0.5), `${tag} finish: exactly two buttons, each at least 48 px and inside the screen (${JSON.stringify(f.btns)})`);
+    if (land) ok(f.g.right <= f.c.left && f.h1.right <= f.c.left + 1 && f.btns.every((b) => b.l >= f.c.left - 1) && f.scroll <= 1, `${tag} finish: glyph and heading left, card with both buttons right, no scrolling`);
     await ctx.close();
   }
   // 22: the lesson overview.

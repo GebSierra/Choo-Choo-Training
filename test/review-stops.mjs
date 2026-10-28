@@ -161,7 +161,7 @@ export async function screenChecks({ browser, url, ok }) {
   ok((await page.locator('.finish h1').innerText()) === "That's the review stop.", 'run: the finish heading');
   ok(await page.evaluate(() => { const c = JSON.parse(localStorage.getItem('reading.v1')).checkpoints; return !c || !(c.v2 || {}).result; }), 'run: playing it saves nothing until the grown-up says yes');
   await page.waitForTimeout(1700);
-  await page.locator('.got').click(); await page.waitForTimeout(1700); await page.locator('.got').click();
+  await page.locator('.got').click();
   await page.waitForSelector('.home, .home3d, .map-scroll', { timeout: 8000 }).catch(() => {});
   ok(await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('reading.v1')); return s.checkpoints.v2.result === 'got-it' && s.lessons[10] === undefined && s.lessons[3].result === 'got-it'; }), 'run: Yes saves v2 as got-it and does not write any lesson');
   ok(errors.length === 0, `run: no errors ${errors.join(' | ')}`);

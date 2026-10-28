@@ -13,9 +13,9 @@ import { lastReviewIn, worldDone } from '../worlds.js';
 // A warm, short celebration (polish B): the letter on a little wagon ticket, a gold star, one burst of confetti that settles
 // and stays (CSS only, finite; reduced motion shows the settled picture), and the two figures cheering. The parent still
 // decides whether the child got it.
-// Taps are ignored for the first 1.5 s, and "Yes" takes two taps, so a child cannot move on by accident.
-// The first Yes tap only arms the button (and dims it for 1.5 s); the second records "got it" (onContinue) and, for a lesson, goes back
-// to the railway by itself after LESSON_RETURN_MS (a checkpoint goes back at once).
+// Taps are ignored for the first 1.5 s, so a child cannot move on by accident. Two buttons only: "Yes, go on" records "got it"
+// (onContinue) with one tap and goes to the railway by itself after LESSON_RETURN_MS (lessons and checkpoints alike);
+// "Not yet, back to the path" records practice-again (best result kept) and goes to the railway at once.
 // 22 pieces, each with its resting place around the wagon (--tx/--ty from its centre, --r turn), a colour, a shape and a delay.
 const CONFETTI = ['#E5484D', '#FFD166', '#5FE3B0', '#5DE0F0', '#5A4BD6', '#F0556A'];
 export function confetti() {
@@ -32,43 +32,36 @@ export const LESSON_RETURN_MS = 1200;
 const STAR_PATH = 'M12 2.4l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 16.6 6.2 19.9l1.4-6.4L2.7 9.1l6.5-.7z';
 const goldStar = () => h('span', { class: 'finish-star', 'aria-hidden': 'true' }, h('svg', { viewBox: '0 0 24 24', width: 56, height: 56 }, h('path', { d: STAR_PATH, fill: '#FFD166', stroke: '#E8A93A', 'stroke-width': 1.4, 'stroke-linejoin': 'round' })));
 
-function finishView({ speech, router, character, heading, badge, accent, armedLabel, armedNote, onContinue, onPractice, returnMs = 0, extra = null }) {
-  const note = h('p', { class: 'finish-note', 'aria-live': 'polite' });
-  let armed = false, armTimer = 0, goTimer = 0, left = false; // the first "Yes" tap has been made; the second one has recorded it
-  const label = h('span', {}, 'Yes, go on');
+function finishView({ speech, router, character, heading, badge, accent, onContinue, onPractice, returnMs = LESSON_RETURN_MS, extra = null }) {
+  let goTimer = 0, left = false; // one tap on either button is final
   const gotIt = h('button', { class: 'btn big got', type: 'button', disabled: true, onclick: () => {
-    if (armed) {
-      if (left) return;
-      left = true; sfx.play('unlock'); onContinue();
-      // The grown-up needs no extra tap: after a short success moment the railway opens by itself, where the child's figure
-      // boards the train and rides to the next station (the reward; js/sequence.js).
-      for (const b of [gotIt, again, back]) b.disabled = true;
-      goTimer = setTimeout(() => router.go('/home'), returnMs);
-      return;
-    }
-    armed = true;
-    note.textContent = armedNote;
-    gotIt.classList.add('chosen');
-    label.textContent = armedLabel;
-    gotIt.disabled = true;
-    armTimer = setTimeout(() => { gotIt.disabled = false; }, 1500);
-  } });
-  gotIt.append(icon('check', 24), label);
-  const again = h('button', { class: 'btn big ghost practice', type: 'button', disabled: true, onclick: onPractice }, icon('redo', 22), 'Not yet, practice again');
-  const back = h('button', { class: 'btn secondary back-path', type: 'button', disabled: true, onclick: () => router.go('/home') }, 'Back to path');
+    if (left) return;
+    left = true; sfx.play('unlock'); onContinue();
+    // The grown-up needs no extra tap: after a short success moment the railway opens by itself, where the child's figure
+    // boards the train and rides to the next station (the reward; js/sequence.js).
+    for (const b of [gotIt, again]) b.disabled = true;
+    goTimer = setTimeout(() => router.go('/home'), returnMs);
+  } }, icon('check', 24), h('span', {}, 'Yes, go on'));
+  // "Not yet" records practice-again (only when not done yet; onPractice keeps the best result) and opens the railway, where any station can be picked to redo.
+  const again = h('button', { class: 'btn big ghost practice', type: 'button', disabled: true, onclick: () => {
+    if (left) return;
+    left = true;
+    for (const b of [gotIt, again]) b.disabled = true;
+    onPractice();
+    router.go('/home');
+  } }, icon('redo', 22), 'Not yet, back to the path');
   const ring = h('span', { class: 'finish-ring', style: { '--accent': accent } });
   const root = h('div', { class: 'finish' },
     h('div', { class: 'finish-glyph', style: { '--accent': accent } }, confetti(), ring, h('span', { class: 'finish-chassis', 'aria-hidden': 'true' }, h('i', { class: 'fw-wheel' }), h('i', { class: 'fw-wheel' })), h('span', { class: 'finish-wagon' }, badge), goldStar(), h('span', { class: 'finish-pip' }, pipSvg({ pose: 'cheer' })), h('span', { class: 'finish-kid', 'aria-hidden': 'true' }, kidSvg({ ...character, pose: 'cheer' }))),
     h('h1', {}, heading),
     extra,
-    h('section', { class: 'finish-card' }, h('p', { class: 'finish-for' }, 'For the grown-up'), h('p', { class: 'finish-q' }, 'Did your child get it?'), h('div', { class: 'finish-choices' }, gotIt, again), note),
-    back);
+    h('section', { class: 'finish-card' }, h('p', { class: 'finish-for' }, 'For the grown-up'), h('p', { class: 'finish-q' }, 'Did your child get it?'), h('div', { class: 'finish-choices' }, gotIt, again)));
   animate(badge, [{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 480, easing: 'cubic-bezier(.34,1.56,.64,1)' });
   animate(ring, [{ transform: 'scale(.8)', opacity: 0 }, { transform: 'scale(.9)', opacity: .7, offset: .2 }, { transform: 'scale(1.5)', opacity: 0 }], { duration: 560, delay: 420, easing: 'cubic-bezier(.2,.8,.2,1)' });
   // The voice says "Good job." first; the jingle waits for it to finish (see sfx.js).
   const t = setTimeout(() => { speech.autoSay([{ tts: 'Good job.' }]); sfx.play('lesson'); }, 500);
-  const ready = setTimeout(() => { for (const b of [gotIt, again, back]) b.disabled = false; }, 1500);
-  root.cleanup = () => { clearTimeout(t); clearTimeout(ready); clearTimeout(armTimer); clearTimeout(goTimer); };
+  const ready = setTimeout(() => { for (const b of [gotIt, again]) b.disabled = false; }, 1500);
+  root.cleanup = () => { clearTimeout(t); clearTimeout(ready); clearTimeout(goTimer); };
   return root;
 }
 
@@ -82,14 +75,9 @@ export function finishScreen({ store, router, curriculum, speech }, n) {
     badge: glyphSvg(lesson.sound, { color: accentOf(lesson.sound), label: 'lesson letter' }),
     accent: accentOf(lesson.sound),
     // Yes goes back to the railway, where the station-complete sequence rides the train to the next stop (js/sequence.js).
-    armedLabel: 'Yes, back to path',
-    armedNote: 'Tap again to go back to the path.',
     onContinue: () => store.setResult(num, 'got-it'),
-    returnMs: LESSON_RETURN_MS,
     onPractice: () => {
       if (!store.isDone(num)) store.setResult(num, 'practice-again'); // keep the best result
-      store.resetLessonTasks(num);
-      router.go(`/lesson/${num}`);
     },
   });
 }
@@ -119,13 +107,10 @@ export function checkpointFinishScreen({ store, router, curriculum, speech }, id
     heading: ck.kind === 'book' ? "That's the end of the story." : ck.kind === 'reread' ? 'You read it again!' : ck.kind === 'contrast' ? 'Tricky Sounds, done!' : `That's the ${ck.title.toLowerCase()}.`,
     badge: stopIcon(ck),
     accent: ck.kind === 'book' ? '#E5484D' : ck.kind === 'reread' ? '#3E9C8B' : ck.kind === 'review' ? '#5A8FE0' : ck.kind === 'contrast' ? '#7B61D6' : '#C99A5B', // a book's red cover, a teal reading book, a blue ticket, a crate's wood
-    armedLabel: 'Yes, back to path',
-    armedNote: 'Tap again to go back to the path.',
     extra: ck.kind === 'contrast' ? h('p', { class: 'review-message' }, ck.end) : ck.kind === 'review' && ck.summary ? h('div', { class: 'finish-extras' }, reviewMessage(ck.summary), ride) : ride ? ride : ck.kind === 'book' ? storyKeepsake(store, ck) : null,
     onContinue: () => store.setCheckpointResult(ck.id, 'got-it'),
     onPractice: () => {
       if (!store.isCheckpointDone(ck)) store.setCheckpointResult(ck.id, 'practice-again'); // keep the best result
-      router.go(`/checkpoint/${ck.id}`);
     },
   });
 }
