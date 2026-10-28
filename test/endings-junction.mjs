@@ -266,7 +266,7 @@ export async function screenChecks({ browser, url, ok }) {
     await seedPage(m, n - 1);
     await m.page.goto(url + `#/lesson/${n}`);
     await m.page.waitForSelector('.lo-title p');
-    const t = (await m.page.locator('.lo-title p').textContent()).replace(/\s+/g, ' ').trim();
+    const t = await m.page.evaluate(() => { const c = document.querySelector('.lo-title p').cloneNode(true); c.querySelectorAll('svg[data-letter]').forEach((g) => g.replaceWith(g.dataset.letter)); return c.textContent.replace(/\s+/g, ' ').trim(); }); // the letter a is drawn from our glyph: read it back as its letter
     ok(t === want, `Lesson ${n} overview: "${t}"`);
     if (n === 48) {
       await m.page.goto(url + `#/lesson/${n}/task/0`);
@@ -386,7 +386,7 @@ export async function screenChecks({ browser, url, ok }) {
       await m.page.locator('.split-gap[data-right="1"]').click();
       await m.page.waitForTimeout(500);
       if (r === 0) {
-        const a = await m.page.evaluate(() => ({ step: document.querySelector('.split-game').dataset.step, a: document.querySelectorAll('.chunk-a').length, b: document.querySelectorAll('.chunk-b').length, glue: !document.querySelector('.glue-btn').hidden && document.querySelector('.glue-btn').getBoundingClientRect().height >= 48, prompt: document.querySelector('.say-prompt').textContent, gaps: [...document.querySelectorAll('.split-gap')].every((x) => x.disabled) }));
+        const a = await m.page.evaluate(() => ({ step: document.querySelector('.split-game').dataset.step, a: document.querySelectorAll('.chunk-a').length, b: document.querySelectorAll('.chunk-b').length, glue: !document.querySelector('.glue-btn').classList.contains('off') && document.querySelector('.glue-btn').getBoundingClientRect().height >= 48, prompt: document.querySelector('.say-prompt').textContent, gaps: [...document.querySelectorAll('.split-gap')].every((x) => x.disabled) }));
         ok(a.step === 'glue' && a.a === 3 && a.b === 3 && a.glue && /glue/i.test(a.prompt) && a.gaps, `Split: the right gap slides the chunks apart (${w.parts.join(' | ')}) and Glue appears (${JSON.stringify(a)})`);
         await shot(m.page, 'clap-split-glue-apart');
       }
@@ -463,7 +463,7 @@ export async function screenChecks({ browser, url, ok }) {
     await m.page.goto(url + `#/lesson/47/task/${at(47, 'check')}`);
     await m.page.waitForSelector('.check');
     await m.page.waitForTimeout(800);
-    const c = await m.page.evaluate(() => ({ prompt: document.querySelector('.check-prompt').textContent, cards: [...document.querySelectorAll('.opt-card svg.glyph')].map((g) => g.dataset.letter), gist: (document.querySelector('.script-first') || {}).textContent }));
+    const c = await m.page.evaluate(() => ({ prompt: (() => { const e = document.querySelector('.check-prompt').cloneNode(true); e.querySelectorAll('svg[data-letter]').forEach((g) => g.replaceWith(g.dataset.letter)); return e.textContent; })(), cards: [...document.querySelectorAll('.opt-card svg.glyph')].map((g) => g.dataset.letter), gist: (document.querySelector('.script-first') || {}).textContent }));
     ok(/extra beat/.test(c.prompt) && c.cards.sort().join() === ['end-ed', 'end-ing', 'end-ted'].join() && c.gist === 'Which has an extra beat?', `Ticket Check 47: asks for the -ed with an extra beat among three cars (${c.prompt}; ${c.cards})`);
     ok(await noSound(m.page), 'Ticket Check 47: nothing plays on its own');
     ok(m.errors.length === 0, `Ticket Check 47: no errors ${m.errors.join(' | ')}`);

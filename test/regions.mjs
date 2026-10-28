@@ -41,7 +41,7 @@ export function dataChecks(ok) {
   ok(['W5', 'W6', 'W7'].every((w) => { const n = worldSounds(CUR, w).length; return n >= 4 && n <= 10; }), 'themes: W5 to W7 each list four to ten placeholder stations');
   ok(DEFAULT_THEME.ground === '#4FC97E' && DEFAULT_THEME.fog === '#FFF6E5' && DEFAULT_THEME.mountain.low === '#62C34C' && DEFAULT_THEME.skyCss === null, 'themes: the default is exactly the original colours (grass, fog, mountain) and the page sky');
   ok(Object.keys(WANT).every((w) => worldSounds(CUR, w).join() === WANT[w].sounds.join()) && worldSounds(CUR, 'W1').length > 0, 'themes: the placeholder sounds (W3 from units 2.9 to 2.11, W4 to W7 listed from docs/CURRICULUM.md stages 3 to 6)');
-  ok(CUR.lessons.every((l) => ['W1', 'W2', 'W3', 'W4', 'W5'].includes(l.world)), 'data: no lessons beyond world 5 (World 6 and later are still only regions)');
+  ok(CUR.lessons.every((l) => ['W1', 'W2', 'W3', 'W4', 'W5', 'W6'].includes(l.world)), 'data: no lessons beyond world 6 (World 7 and later are still only regions)');
 }
 
 // polish B: the Starter Station props are baked into at most two meshes (one solid, one water): at most 2 draw calls, 3 with the shadow pass, far under the 8 allowed.

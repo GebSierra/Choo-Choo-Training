@@ -30,19 +30,22 @@ export function build(ctx) {
   const splitAt = (it) => { const u = unitsOf(it); let n = 0, at = 0; for (const x of u) { at += x.length; n++; if (at >= it.parts[0].length) break; } return n; };
   const hear = h('button', { class: 'say-hear board-hear', type: 'button', 'aria-label': 'Hear the word', onclick: () => speech.say([{ word: cur().word }]) }, icon('speaker', 26));
   const track = h('div', { class: 'chain-track split-track', role: 'group', 'aria-label': 'the word, in letter cars' });
-  const glue = h('button', { class: 'btn primary big glue-btn', type: 'button', hidden: true, onclick: () => doGlue() }, 'Glue it!');
+  const glue = h('button', { class: 'btn primary big glue-btn off', type: 'button', disabled: true, 'aria-hidden': 'true', tabindex: '-1', onclick: () => doGlue() }, 'Glue it!');
+  const showGlue = (on) => { glue.classList.toggle('off', !on); glue.disabled = !on; glue.setAttribute('aria-hidden', String(!on)); glue.tabIndex = on ? 0 : -1; };
   const wall = h('div', { class: 'station-wall', 'aria-hidden': 'true' });
   const platform = h('div', { class: 'station-platform', 'aria-hidden': 'true' });
   const stars = starRow(rounds);
   const scene = h('div', { class: 'farm board-scene chains-scene split-scene' }, huntBackdrop());
-  scene.append(wall, platform, track, glue, prompt.el, hear);
+  const stack = h('div', { class: 'couple-stack' }, track, glue); // one column under the prompt: the word, then Glue
+  scene.append(wall, platform, stack, prompt.el, hear);
   const el = h('div', { class: 'game board-game chains-game split-game', dataset: { round: '0', state: 'playing', word: '', step: 'split' } }, scene, stars.el);
 
   const sizeCars = () => {
     const n = Math.max(unitsOf(cur()).length, 1);
     scene.style.setProperty('--cw', Math.max(44, Math.min(60, Math.floor((W - 44 - 4 * (n - 1) - APART) / n))) + 'px');
   };
-  const stopWatching = watchSize(scene, (w) => { const first = !W; W = w; if (first) show(); sizeCars(); placeGaps(); });
+  const place = () => { const s = scene.getBoundingClientRect(), p = prompt.el.getBoundingClientRect(); if (s.height && p.height) scene.style.setProperty('--stack-top', Math.max(96, Math.round(p.bottom - s.top + 8)) + 'px'); };
+  const stopWatching = watchSize(scene, (w) => { const first = !W; W = w; if (first) show(); sizeCars(); place(); placeGaps(); });
 
   // The gaps are real buttons, 48 px wide and as tall as a car, laid over the border between two cars.
   function placeGaps() {
@@ -68,8 +71,9 @@ export function build(ctx) {
     });
     track.replaceChildren(...cars, ...gaps);
     track.classList.remove('solved', 'apart');
-    glue.hidden = true;
+    showGlue(false);
     prompt.show(`Say: ${it.word}. Clap the beats: ${it.parts.join('-')}.`);
+    place();
     locked = false;
     if (ctx.refresh) ctx.refresh();
     T.later(placeGaps, 40); // once, after the cars are laid out; never a loop
@@ -89,7 +93,7 @@ export function build(ctx) {
     track.querySelectorAll('.split-gap').forEach((x) => { x.disabled = true; });
     sfx.play('pop', { step: round });
     prompt.show(`Say: ${it.parts.join(' ... ')}. Now glue them.`);
-    glue.hidden = false;
+    showGlue(true);
     locked = false;
     if (ctx.refresh) ctx.refresh();
   }
@@ -100,7 +104,7 @@ export function build(ctx) {
     const it = cur();
     el.dataset.step = 'done-round';
     cars.forEach((c, k) => animate(c, [{ transform: `translateX(${k <= cut ? -APART / 2 : APART / 2}px)` }, { transform: 'translateX(0)' }], { duration: reduced() ? 1 : 320, fill: 'forwards', easing: 'ease-in-out' }));
-    glue.hidden = true;
+    showGlue(false);
     track.classList.add('solved');
     const o = scene.getBoundingClientRect(), r = track.getBoundingClientRect();
     sparkle(scene, r.left - o.left + r.width / 2, r.top - o.top + r.height / 2, { count: 11, size: [10, 20], reach: [34, 70] });

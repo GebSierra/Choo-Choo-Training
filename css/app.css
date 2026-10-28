@@ -2259,6 +2259,10 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .split-gap::before { content: ''; position: absolute; left: 50%; top: 8px; bottom: 8px; border-left: 3px dashed rgba(60,40,20,.38); transform: translateX(-1.5px); }
 .split-gap:disabled { pointer-events: none; opacity: 0; }
 .split-track.apart .chain-car.chunk-a { background: #E7F4FF; border-color: #7DB8F5; } .split-track.apart .chain-car.chunk-b { background: #FFF0E0; border-color: #E8A93A; }
-.split-scene .glue-btn { position: absolute; left: 50%; bottom: 156px; margin: 0; transform: translateX(-50%); z-index: 4; min-width: 160px; min-height: 52px; }
-.split-scene .glue-btn[hidden] { display: none; }
+.couple-scene .say-hear, .split-scene .say-hear { width: 56px; height: 56px; bottom: 8px; }
+.couple-stack { position: absolute; left: 0; right: 0; top: var(--stack-top, 110px); bottom: 70px; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 8px; padding: 0 12px; box-sizing: border-box; }
+.couple-stack .chain-track, .couple-stack .chain-choices { position: relative; left: auto; right: auto; top: auto; bottom: auto; width: 100%; padding: 0; box-sizing: border-box; }
+.split-scene .glue-btn { margin: 0; min-width: 160px; min-height: 52px; }
+.split-scene .glue-btn.off { visibility: hidden; }
+@media (max-height: 700px) { .couple-scene .chain-car.choice.end { height: 76px; } .couple-scene .chain-car.choice.end .glyph { height: 50px; } }
 .part-card .br-pair { min-width: 5.2em; }

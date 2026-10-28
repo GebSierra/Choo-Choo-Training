@@ -33,7 +33,8 @@ export function build(ctx) {
   const platform = h('div', { class: 'station-platform', 'aria-hidden': 'true' });
   const stars = starRow(rounds);
   const scene = h('div', { class: 'farm board-scene chains-scene couple-scene' }, huntBackdrop());
-  scene.append(wall, platform, track, choices, prompt.el, hear);
+  const stack = h('div', { class: 'couple-stack' }, track, choices); // the track and the cars share one column under the prompt, so they never overlap at any height
+  scene.append(wall, platform, stack, prompt.el, hear);
   const el = h('div', { class: 'game board-game chains-game couple-game', dataset: { round: '0', state: 'playing', word: '' } }, scene, stars.el);
 
   const baseCar = (u) => h('span', { class: 'chain-car', dataset: { letter: u } }, letterFace(u, INK));
@@ -44,7 +45,9 @@ export function build(ctx) {
     scene.style.setProperty('--cw', Math.max(40, Math.min(56, Math.floor((W - 28 - EW - 14 - 4 * n) / n))) + 'px');
     scene.style.setProperty('--ew', EW + 'px');
   };
-  const stopWatching = watchSize(scene, (w) => { const first = !W; W = w; if (first) show(); sizeCars(); });
+  // the column starts under the prompt, which is one to three lines tall depending on the width
+  const place = () => { const s = scene.getBoundingClientRect(), p = prompt.el.getBoundingClientRect(); if (s.height && p.height) scene.style.setProperty('--stack-top', Math.max(96, Math.round(p.bottom - s.top + 8)) + 'px'); };
+  const stopWatching = watchSize(scene, (w) => { const first = !W; W = w; if (first) show(); sizeCars(); place(); });
 
   function show() {
     const item = cur();
@@ -58,6 +61,7 @@ export function build(ctx) {
       return b;
     }));
     prompt.show(`Say: ${item.from}. Add a car to make ${item.to}.`);
+    place();
     locked = false;
     if (ctx.refresh) ctx.refresh();
   }
