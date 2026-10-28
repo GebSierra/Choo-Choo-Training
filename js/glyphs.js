@@ -241,17 +241,17 @@ GLYPHS.mix = GLYPHS.st; // the mixed review (lesson 42) wears the st badge on th
 // stub on the left ("-ing"). The frame and the stub are `link` (drawn, never traced); the letters are the ending's own strokes, traced in order. -ed that says an extra beat
 // has two beat dots above the frame. The glyph name is the lesson key (end-s end-es end-ing end-ed end-ted).
 function endCar(letters, mark) {
-  const gs = letters.map((c) => GLYPHS[c]), gap = 6, STUB = 14, PAD = 10, T = 28, B = 100, R0 = 12;
-  const raw = gs.reduce((t, g) => t + (g.maxX - g.minX), 0) + gap * (gs.length - 1);
-  const sx = Math.min(1, (96 - STUB - 2 * PAD) / raw), tw = raw * sx, W = STUB + 2 * PAD + tw, off = (100 - W) / 2;
+  const gs = letters.map((c) => GLYPHS[c]), gap = 4, STUB = 12, PAD = 8, T = 14, B = 100, R0 = 12;
+  const raw = gs.reduce((t, g) => t + (g.maxX - g.minX), 0) + gap * (gs.length - 1), W = STUB + 2 * PAD + raw;
+  // The letters keep their own size and stroke (no squeezing), so a long ending is a wide glyph: the box is as wide as the car (glyphSvg uses `wide`), centred in 100 units when it is narrower.
+  const off = W < 100 ? (100 - W) / 2 : 0;
   let x = off + STUB + PAD;
-  const strokes = gs.flatMap((g) => { const dx = x - g.minX * sx; x += (g.maxX - g.minX + gap) * sx; return g.strokes.map((s) => ({ d: mapPath(s.d, sx, dx), start: [+(s.start[0] * sx + dx).toFixed(2), s.start[1]] })); });
+  const strokes = gs.flatMap((g) => { const dx = x - g.minX; x += g.maxX - g.minX + gap; return g.strokes.map((s) => ({ d: mapPath(s.d, 1, dx), start: [+(s.start[0] + dx).toFixed(2), s.start[1]] })); });
   const L = +(off + STUB).toFixed(2), Rt = +(off + W).toFixed(2);
-  const top = `H${Rt - R0}`;
-  let link = `M${L + R0} ${T} ${top} Q${Rt} ${T} ${Rt} ${T + R0} V${B - R0} Q${Rt} ${B} ${Rt - R0} ${B} H${L + R0} Q${L} ${B} ${L} ${B - R0} V${T + R0} Q${L} ${T} ${L + R0} ${T} M${+(off).toFixed(2)} 64 L${L} 64`;
-  let minY = T - 5, maxY = B;
-  if (mark === 'beat') { const cx = (L + Rt) / 2; link += ` M${cx - 9} 14 L${cx - 8.99} 14 M${cx + 9} 14 L${cx + 9.01} 14`; minY = 10; } // two dots: the extra beat
-  return { strokes, link, minX: +(off - 2).toFixed(2), maxX: +(Rt + 2).toFixed(2), minY, maxY, end: true };
+  let link = `M${L + R0} ${T} H${Rt - R0} Q${Rt} ${T} ${Rt} ${T + R0} V${B - R0} Q${Rt} ${B} ${Rt - R0} ${B} H${L + R0} Q${L} ${B} ${L} ${B - R0} V${T + R0} Q${L} ${T} ${L + R0} ${T} M${+(off).toFixed(2)} 64 L${L} 64`;
+  let minY = T;
+  if (mark === 'beat') { const cx = (L + Rt) / 2; link += ` M${cx - 9} 4 L${cx - 8.99} 4 M${cx + 9} 4 L${cx + 9.01} 4`; minY = 0; } // two dots: the extra beat
+  return { strokes, link, minX: +(off - 2).toFixed(2), maxX: +(Rt + 2).toFixed(2), minY, maxY: B, end: true, wide: W > 100 };
 }
 GLYPHS['end-s'] = endCar(['s']);
 GLYPHS['end-es'] = endCar(['e', 's']);
@@ -259,9 +259,11 @@ GLYPHS['end-ing'] = endCar(['i', 'n', 'g']);
 GLYPHS['end-ed'] = endCar(['e', 'd']);
 GLYPHS['end-ted'] = endCar(['e', 'd'], 'beat');
 // Compound words: two short word cars coupled. Two-beat words: two claps over a bracket split in the middle. The mixed review (lesson 51) wears the -ing car on the path.
-const carBox = (x0, x1) => `M${x0 + 8} 38 H${x1 - 8} Q${x1} 38 ${x1} 46 V${74} Q${x1} 84 ${x1 - 8} 84 H${x0 + 8} Q${x0} 84 ${x0} 76 V46 Q${x0} 38 ${x0 + 8} 38`;
-GLYPHS.join = { strokes: [{ d: carBox(6, 44), start: [6, 60] }, { d: carBox(56, 94), start: [56, 60] }], link: 'M44 62 L56 62', minX: 2, maxX: 98, minY: 38, maxY: 84, end: true };
-GLYPHS.beats = { strokes: [{ d: 'M40 50 A10 10 0 1 0 20 50 A10 10 0 1 0 40 50', start: [40, 50] }, { d: 'M80 50 A10 10 0 1 0 60 50 A10 10 0 1 0 80 50', start: [80, 50] }], link: 'M16 70 L16 80 L84 80 L84 70 M50 70 L50 80', minX: 6, maxX: 94, minY: 38, maxY: 84, end: true };
+const carBox = (x0, x1) => `M${x0 + 8} 38 H${x1 - 8} Q${x1} 38 ${x1} 46 V74 Q${x1} 84 ${x1 - 8} 84 H${x0 + 8} Q${x0} 84 ${x0} 76 V46 Q${x0} 38 ${x0 + 8} 38`;
+const dot = (x, y) => `M${x} ${y} L${x + 0.01} ${y}`;
+// join: two little cars coupled, a plus between them (sun + set). beats: two hops along the ground (two beats: nap-kin).
+GLYPHS.join = { strokes: [{ d: 'M40 62 L60 62', start: [40, 62] }, { d: 'M50 52 L50 72', start: [50, 52] }], link: `${carBox(2, 34)} ${carBox(66, 98)} M34 62 L40 62 M60 62 L66 62 ${dot(12, 90)} ${dot(24, 90)} ${dot(76, 90)} ${dot(88, 90)}`, minX: 0, maxX: 100, minY: 36, maxY: 92, end: true };
+GLYPHS.beats = { strokes: [{ d: 'M10 78 Q27 22 44 78', start: [10, 78] }, { d: 'M56 78 Q73 22 90 78', start: [56, 78] }], link: 'M4 88 L96 88', minX: 4, maxX: 96, minY: 36, maxY: 90, end: true };
 GLYPHS.endmix = GLYPHS['end-ing'];
 
 const SPACING = 4;
@@ -290,7 +292,7 @@ export function glyphSvg(ch, opts = {}) {
   const g = GLYPHS[ch];
   const v = glyphView(ch);
   // --vh: how much taller than the x-height band this letter's box is, so fixed-height spots can scale to match.
-  const svg = h('svg', { class: 'glyph ' + (opts.class || ''), viewBox: opts.tight === false ? '0 0 100 100' : `0 ${v.top} 100 ${v.h}`, role: 'img', 'aria-label': opts.label || 'letter', dataset: { letter: ch }, style: { '--vh': (v.h / BAND_H).toFixed(3) } });
+  const svg = h('svg', { class: 'glyph ' + (opts.class || ''), viewBox: opts.tight === false ? '0 0 100 100' : g.wide ? `${g.minX} ${v.top} ${g.maxX - g.minX} ${v.h}` : `0 ${v.top} 100 ${v.h}`, role: 'img', 'aria-label': opts.label || 'letter', dataset: { letter: ch }, style: { '--vh': (v.h / BAND_H).toFixed(3) } });
   const grp = h('g', { class: 'glyph-strokes' });
   g.strokes.forEach((s, i) => grp.append(strokePath(s.d, opts.color || 'currentColor', { class: 'stroke', 'data-i': i })));
   if (g.link) grp.append(linkPath(g.link, opts.color)); // a digraph's bar under the two letters
