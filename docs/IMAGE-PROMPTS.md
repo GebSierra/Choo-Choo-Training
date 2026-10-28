@@ -385,3 +385,37 @@ Lessons 34 to 42 (blends: st ft, nd mp nt, sp sk, sn sw sm sl, bl cl fl, pl gl, 
 - **nose** (n) and **leg** (l): body parts can look odd in cartoon form; show the part alone, centred.
 - **oo-moon** has only one word, so the tile must read as "moon" at a glance: a crescent moon is clearer than a full moon.
 - **hat** and **cat** each appear in two phonics folders. Make one image per folder (same picture is fine), so the folder paths stay correct.
+
+## World 6 additions (new, no current file)
+
+Lessons 43 to 50 (word parts: -s, -es, -ing, -ed in two ways, compound words, two-beat words, mixed review) show **no pictures yet**: no tile shows a word with an ending, a compound word or a two-beat word, and a picture of the base word (one cat for "cats") would be wrong, so the lessons show none rather than a wrong one. These are the pictures that would let the lessons show them later. Each shows the whole word, not the base word. Folder names are the lesson keys (`end-s`, `end-es`, `end-ing`, `end-ed`, `join`, `beats`).
+
+| folder | word | current file | prompt |
+|---|---|---|---|
+| end-s | cats | new, no current file | two cats sitting side by side, one grey and one orange |
+| end-s | dogs | new, no current file | two dogs sitting side by side, one brown and one spotted |
+| end-s | bugs | new, no current file | three small friendly bugs in a row (a ladybug, a beetle and a bee) |
+| end-s | maps | new, no current file | two folded paper maps with a dotted trail and a red X |
+| end-es | boxes | new, no current file | a stack of three cardboard boxes, tied with string |
+| end-es | dishes | new, no current file | a neat stack of three round plates, side-on |
+| end-es | buses | new, no current file | two little yellow school buses in a row, side-on |
+| end-ing | jumping | new, no current file | a child in mid-jump with both arms up, feet off the ground |
+| end-ing | fishing | new, no current file | a child sitting on a dock holding a fishing rod, a small fish on the line |
+| end-ing | singing | new, no current file | a child with an open mouth singing, with two music notes floating |
+| end-ing | resting | new, no current file | a child sitting against a tree with eyes closed, relaxed |
+| end-ing | helping | new, no current file | two children carrying one big box together |
+| end-ed | landed | new, no current file | a small airplane touching down on a runway |
+| end-ed | filled | new, no current file | a tall glass filled to the top with water |
+| end-ed | melted | new, no current file | a puddle of melted ice cream with a cone lying beside it |
+| join | sunset | new, no current file | an orange sun half-sunk behind green hills, pink sky |
+| join | catfish | new, no current file | a friendly grey catfish with long whiskers, side-on |
+| join | bathtub | new, no current file | a white bathtub full of bubbles |
+| join | hotdog | new, no current file | a hot dog in a bun with a squiggle of mustard |
+| join | backpack | new, no current file | a red backpack with two straps, front on |
+| beats | napkin | new, no current file | a folded paper napkin with a small pattern |
+| beats | rabbit | new, no current file | a white rabbit sitting up with long ears |
+| beats | picnic | new, no current file | a picnic basket on a checkered blanket |
+| beats | kitten | new, no current file | a small kitten with big eyes sitting up |
+| beats | basket | new, no current file | an empty woven basket with a handle |
+
+Story 6 ("Pip at Endings Junction", `data/books/book-6.json`, a draft) reuses the existing backdrops (meadow, track, station, hill, picnic, sunset); a junction backdrop (rails crossing, a signal lamp, a turntable) would suit it.

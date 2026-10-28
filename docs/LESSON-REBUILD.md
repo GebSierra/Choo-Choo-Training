@@ -748,3 +748,74 @@ Existing tiles are used where the word and the first sound are right (nest vest 
 
 ### Tests
 New: `test/blend-bay.mjs` (in `npm test`, before smoke). Screenshots (390x844 and one 360x640): docs/screenshots/blend-bay/.
+
+## 16. World 6, Endings Junction: lessons 43 to 50
+
+Units 5.1 to 5.5 of docs/CURRICULUM.md. Built with no version change; nothing is pushed. All data comes from `node tools/gen-lessons.mjs` (`TABLE`, `MOUTH`, `CONTRAST`, `REVIEW_PLANS`, `COUPLES`, `SPLITS`).
+
+### The teaching point: an ending is a word part, not a sound
+A digraph is one sound written with two letters (World 4). A blend is two sounds that glide (World 5). **An ending is neither: it is a piece of a word.** No letter is new and no sound is new; the child learns to find the base word, then the ending (jump + -ing), and for a longer word to clap the beats, split, read each chunk and glue (nap | kin).
+So the app never calls an ending a sound: the card says "A word ending, not a new sound. Find the base word first, then the ending."; the grown-up notes say "word part"; the counts are kept apart (below).
+
+### Order, units, world
+`ORDER_SOUNDS` gains `end-s end-es end-ing end-ed end-ted join beats endmix` (50 lessons). The key is the lesson's word part **and** its glyph, so a lesson has one key like every other. `PRIOR_ORDERS` gains the 42-sound string (a prefix of the current order), so every older save is read as it is (the live 1.9.46 saves included).
+
+| Lesson | Key | Unit | Word part | Saying Sounds words | Notation | Couple a Car / Split (a sample) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 43 | end-s | 5.1 | -s says sss after a quiet sound, zzz after a buzzing one | cats maps dogs bugs | sss, zzz | cat cats, dog dogs |
+| 44 | end-es | 5.1 | -es adds a whole beat after s x sh ch | boxes wishes buses dishes | iz- | box boxes, cat cats |
+| 45 | end-ing | 5.2 | -ing, one chunk | jumping fishing resting singing helping | ing- | jump jumping |
+| 46 | end-ed | 5.3 | -ed says t- or d-, one beat | jumped picked filled spilled | t-, d- | jump jumped, fill filled |
+| 47 | end-ted | 5.3 | -ed says id-, a whole extra beat, after t or d | landed rested lifted melted | id- | land landed |
+| 48 | join | 5.4 | compound words: two short words glued | sunset catfish bathtub bedbug hotdog | sun-set | sun + set; split sun, set |
+| 49 | beats | 5.4 | two-beat words: clap, split between the two consonants, glue | napkin rabbit picnic kitten basket | nap-kin | nap + kin; split nap, kin |
+| 50 | endmix | 5.5 | mixed review: endings and bigger words | cats boxes jumping jumped landed sunset napkin | all of them | mixed |
+
+Choices (deviations from the one-lesson-per-unit-item reading of the curriculum):
+- -s is **one lesson with two sounds** (like th): s says sss after a quiet sound and zzz after a buzzing one. The Tricky Sounds stop right after it sorts them. A second lesson for zzz would need a second glyph for the same spelling; one key per lesson and one glyph per key is the rule the games rely on.
+- -ed is two lessons: t- or d- (one beat; the same quiet/buzzing rule as -s), then id- (a whole extra beat). Their glyphs are the same letters; the extra-beat car has two dots above it.
+- Eight lessons, not nine: the curriculum's unit 5.5 (mixed review) is lesson 50 with a key of its own (`endmix`, like `mix` in World 5), so every lesson still has one key; the letter games never deal it (`NO_GLYPH`).
+
+### Words: `ENDED`, `CHUNKS`, `PARTS` (js/order.js)
+`ENDED` lists, for each ending key, the base words by what the ending says; `CHUNKS` lists the compound and two-beat words as `a+b`. `PARTS` maps every word to its key and parts. Every base word is a real short-vowel word with its spelling unchanged (no doubled letter, no dropped e: those are taught later), so a base is always readable by itself.
+`letterUnits(word, lesson)` puts a **taught** ending last as **one unit named like its key** (jumping at 45 is `j u m p end-ing`; before 45 it is `j u m p i ng`); the reading font and the decodability rules still see letters. A compound or two-beat word keeps every letter (`chunkSpans(word, lesson)` gives its chunks once the lesson has taught them). `isReadableEndings(word, taught)` = readable with blends and the word part taught (jumping counts from lesson 45, landed from 47).
+Old data check: `-s` words that were already in `data/words-decodable.json` (maps taps mats pits sits sips tips) keep counting as before; `endingWords` holds the 201 new ones and never repeats an older word.
+
+### Glyphs (js/glyphs.js)
+Each ending is a **little car coupled to the word**: its letters at their normal size inside a rounded frame with a coupler stub on the left (the frame and stub are `link`: drawn, never traced; the letters are traced). A long ending is a wide glyph (`wide`: `glyphSvg` uses the glyph's own width). `end-ted` has two dots above its car. `join` is two little cars and a plus; `beats` is two hops along the ground; `endmix` wears the -ing car. In a word row (`wordSvg` with a lesson number) the ending car sits after the base word, and a taught compound or two-beat word is drawn as two chunks with a gap and a bracket under each (`chunk-mark`). Accents: `--end-s` ... in css/app.css and js/theme.js.
+
+### The lesson frame for a word part (a variant, not a new frame)
+- **New Ending / Bigger Words** (task `newLetter`): the car big, a card ("A word ending, not a new sound. ..." with rows like `cat + -s  sss, as in cats`). The grown-up gist is `Say cat, then sss: cats.`
+- **Watch My Mouth**: the mouth text for the sounds in the part; for -s and -ed the voice badge is left out (it depends on the word: `voice: null`).
+- **Saying Sounds**: the base word, then the ending car as one chunk to slide under; the gist is `jump + ing- = jumping` (or `sun-set, then sunset.`); the grown-up script says "find the base word first, then the ending" or "clap the beats".
+- **Couple a Car** (new task `couple`, js/screens/tasks/couple.js): a base word is a train of letter cars with a coupler and a gap; the child taps the car that couples on to make the new word. An ending item takes an ending car (wrong cars: other taught endings, never the other -ed, then plain letters that make no word); a bigger-word item takes a word car (sun + set; wrong word cars make no word). Prompt `Say: jump. Add a car to make jumping.`, gist `Add a car: jump to jumping.` The recording of the word plays only when the speaker is tapped.
+- **Clap, Split, Glue** (new task `split`, js/screens/tasks/split.js): a bigger word is a row of letter cars (at most six, so every gap is a 48 px target); the child taps the gap where it splits, the chunks slide apart, Glue slides them back. A wrong gap only wobbles. Gist `Clap it: nap-kin.`
+- Letter Hunt, Wagon Parade and Track Tracing work on the car glyphs unchanged (the lesson 48 to 50 middles have no Hunt or tracing: there is no letter to trace). Green Light is only in the mid-world Review Stop. No Station Board (it finds one letter's sound in a word).
+- Ticket Check asks for a car ("Which car is the ending -ing, as in jumping?").
+- Notation shown to the grown-up, never spoken by the phone: `sss zzz iz- ing- t- d- id- sun-set nap-kin` (`scripts.js` knows `iz- id- ing-`; they are shown, never turned into text to speech).
+
+### Stops
+| Stop | After lesson | Notes |
+| --- | --- | --- |
+| **x13** Tricky Sounds | 43 | the ending -s says sss or zzz: two tunnels marked sss and zzz, words on the cars (cats maps hats / dogs bugs pens), then Which One? with the base word against the word with its ending (cat/cats) and Ticket Check. No Green Light (the two sounds share one car). New `mode: 'says'` |
+| **v14** Review Stop | 46 | mid-world: Letter Hunt -ed, Couple a Car -ing, Wagon Parade -es, Green Light -s, Ticket Check -ing |
+| **x14** Tricky Sounds | 47 | -ed with one beat (jumped filled) against -ed with an extra beat (landed rested); Which One? jump/jumped, land/landed |
+| **b6** Story 6 | 49 | DRAFT (below) |
+| **v15** Review Stop | 50 | the end of the world, `mix: 'endings'`: Couple a Car (mixed), Clap Split Glue, Letter Hunt -ed, Wagon Parade -ed, Ticket Check -ing |
+
+The end message names the counts apart: "Your child has learned 33 sounds, 22 blends and 4 word endings. Words made only from these sounds and word parts include: ..." (v1 to v13 read exactly as before; v14 has 665 words, v15 716). The examples lead with the newest word parts.
+
+### Story 6 (`data/books/book-6.json`, stop b6 after lesson 49) DRAFT, pending owner approval
+"Pip at Endings Junction", 10 pages, a child-read word on seven of them (cats, boxes, jumping, landed, picnic, hotdog, sunset), Pip, Sam and {name}, no he or she anywhere. Marked `"draft": true`. The scenes reuse the existing backdrops.
+
+### Levels, crossing, saves
+Level six (a coral box car before the caboose) is earned after lesson 50. The W5 to W6 crossing, the Home of World 6, going back, Grownups and the keepsakes are data-driven. Appending to `ORDER` keeps every save unchanged.
+
+### Counting
+`data/words-decodable.json` gains `endingWords` (201 words). They are counted apart and only once the word part is taught (`isReadableEndings`); the older lists keep their rules. `readingProgress` returns `sounds` (still the letters and digraphs: 33), `blends` (22) and `endings` (4: -s -es -ing -ed); the Grownups chips show one chip per word part (-s -es -ing -ed, -ed beat, compound words, two beats). "Can read N words" counts every readable word, endings included.
+
+### Pictures
+No tile shows a word with an ending, a compound word or a two-beat word, and a picture of the base word would be wrong, so these lessons show none (`noPictures`). The 25 pictures that would help and their prompts are in docs/IMAGE-PROMPTS.md ("World 6 additions").
+
+### Tests
+New: `test/endings-junction.mjs` (in `npm test`, before no-autoplay). Changed deliberately: `store` (the order string), `check-content` (word parts, mode says, couple and split, the box car, the counts), `blend-bay` (scoped to its nine lessons) and the suites whose counts follow the data (see git log). Screenshots (390x844 and some 360x640): docs/screenshots/endings-junction/.
