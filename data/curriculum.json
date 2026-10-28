@@ -1480,6 +1480,436 @@
         "voice": true,
         "text": "Lift the back of your tongue and hum through your nose, then end with a quick puff, like k. Voice on."
       }
+    },
+    "st": {
+      "glyph": "st",
+      "blend": true,
+      "pairs": [
+        {
+          "g": "st",
+          "say": "ssst-",
+          "asIn": "last"
+        },
+        {
+          "g": "ft",
+          "say": "ffft-",
+          "asIn": "soft"
+        }
+      ],
+      "alt": [
+        "ft"
+      ],
+      "sayItLike": "ssst-",
+      "hold": false,
+      "doNotSay": "suh-t",
+      "howTo": "Say the s and the t as one smooth glide: ssst-. Keep the s going, then tap the t. Do not add uh between them.",
+      "parentNote": "A blend is two sounds said close together. Each letter keeps its own sound: s says sss and t says t-. At the end of a word the s and t glide together: last, nest, soft, gift.",
+      "asIn": "last",
+      "clip": null,
+      "words": [
+        {
+          "word": "nest",
+          "image": "assets/images/mentava/web/e/nest.webp"
+        },
+        {
+          "word": "vest",
+          "image": "assets/images/mentava/web/v/vest.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": false,
+        "text": "Hold the s: teeth together, thin air. Then tap your tongue behind your top teeth for t. Glide. Voice off."
+      }
+    },
+    "nd": {
+      "glyph": "nd",
+      "blend": true,
+      "pairs": [
+        {
+          "g": "nd",
+          "say": "nnnd-",
+          "asIn": "hand"
+        },
+        {
+          "g": "mp",
+          "say": "mmmp-",
+          "asIn": "lamp"
+        },
+        {
+          "g": "nt",
+          "say": "nnnt-",
+          "asIn": "tent"
+        }
+      ],
+      "alt": [
+        "mp",
+        "nt"
+      ],
+      "sayItLike": "nnnd-",
+      "hold": false,
+      "doNotSay": "nuh-d",
+      "howTo": "Say the n or m and then the d, p or t straight after it, no uh between. The n or m melts into the vowel, so listen for it.",
+      "parentNote": "The n or m in nd, mp and nt melts into the vowel, so it is easy to leave out: sad becomes sand, cap becomes camp. Say the word slowly and let your child hear the nnn or mmm before the last sound. The next stop, Tricky Sounds, practices exactly this.",
+      "asIn": "hand",
+      "clip": null,
+      "words": [
+        {
+          "word": "tent",
+          "image": "assets/images/mentava/web/e/tent.webp"
+        },
+        {
+          "word": "hand",
+          "image": "assets/images/mentava/web/h/hand.webp"
+        },
+        {
+          "word": "jump",
+          "image": "assets/images/mentava/web/j/jump.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Hum the n or m, tongue up behind your top teeth. Then tap out d, p or t. The hum melts into the vowel. Voice on."
+      }
+    },
+    "sp": {
+      "glyph": "sp",
+      "blend": true,
+      "pairs": [
+        {
+          "g": "sp",
+          "say": "sssp-",
+          "asIn": "spin"
+        },
+        {
+          "g": "sk",
+          "say": "sssk-",
+          "asIn": "skip"
+        }
+      ],
+      "alt": [
+        "sk"
+      ],
+      "sayItLike": "sssp-",
+      "hold": false,
+      "doNotSay": "suh-p",
+      "howTo": "Hold the s and slide straight into the next sound: sssp-. Do not say suh-p. st works the same way: ssstop.",
+      "parentNote": "Hold the s, then slide into the next sound: sssp-in, not suh-pin. The pair st from lesson 34 now comes at the start of words too: stop, step. Chains add a missing sound to make a new word: top, stop.",
+      "asIn": "spin",
+      "clip": null,
+      "words": [
+        {
+          "word": "stick",
+          "image": "assets/images/mentava/web/i/stick.webp"
+        },
+        {
+          "word": "star",
+          "image": "assets/images/mentava/web/ar/star.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": false,
+        "text": "Hold the s, then slide straight into p (lips pop) or k (back of the tongue). Glide, no uh. Voice off."
+      }
+    },
+    "sn": {
+      "glyph": "sn",
+      "blend": true,
+      "pairs": [
+        {
+          "g": "sn",
+          "say": "sssnnn",
+          "asIn": "snap"
+        },
+        {
+          "g": "sw",
+          "say": "sssw-",
+          "asIn": "swim"
+        },
+        {
+          "g": "sm",
+          "say": "sssmmm",
+          "asIn": "smash"
+        },
+        {
+          "g": "sl",
+          "say": "sssl-",
+          "asIn": "slip"
+        }
+      ],
+      "alt": [
+        "sw",
+        "sm",
+        "sl"
+      ],
+      "sayItLike": "sssnnn",
+      "hold": true,
+      "doNotSay": "suh-n",
+      "howTo": "Hold the s and slide into the next sound: sssnnn. Do not say suh-n. The same for sw, sm and sl.",
+      "parentNote": "Four more s-blends: sn, sw, sm, sl. Hold the s, then slide into the next sound. Try a chain: sap, snap; lip, slip; wing, swing.",
+      "asIn": "snap",
+      "clip": null,
+      "words": [
+        {
+          "word": "snail",
+          "image": "assets/images/mentava/web/s/snail.webp"
+        },
+        {
+          "word": "snake",
+          "image": "assets/images/mentava/web/s/snake.webp"
+        }
+      ],
+      "startWords": [
+        {
+          "word": "snail",
+          "image": "assets/images/mentava/web/s/snail.webp"
+        },
+        {
+          "word": "snake",
+          "image": "assets/images/mentava/web/s/snake.webp"
+        }
+      ],
+      "practice": [
+        "snail",
+        "snake"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Hold the s, then slide into n or m (hum), w (round lips) or l (tongue up). Glide, no uh. Voice on."
+      }
+    },
+    "bl": {
+      "glyph": "bl",
+      "blend": true,
+      "pairs": [
+        {
+          "g": "bl",
+          "say": "bl-",
+          "asIn": "block"
+        },
+        {
+          "g": "cl",
+          "say": "cl-",
+          "asIn": "clap"
+        },
+        {
+          "g": "fl",
+          "say": "fl-",
+          "asIn": "flag"
+        }
+      ],
+      "alt": [
+        "cl",
+        "fl"
+      ],
+      "sayItLike": "bl-",
+      "hold": false,
+      "doNotSay": "buh-l",
+      "howTo": "Glide the first sound straight into l: bl-, cl-, fl-. Say block, not buh-lock.",
+      "parentNote": "The l-blends: bl, cl, fl. Glide the first sound straight into l: block, not buh-lock. Keep it quick and smooth.",
+      "asIn": "block",
+      "clip": null,
+      "words": [
+        {
+          "word": "cloud",
+          "image": "assets/images/mentava/web/ow/cloud.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Say the first sound and glide straight into l, tongue behind your top teeth. Quick, no uh. Voice on."
+      }
+    },
+    "pl": {
+      "glyph": "pl",
+      "blend": true,
+      "pairs": [
+        {
+          "g": "pl",
+          "say": "pl-",
+          "asIn": "plan"
+        },
+        {
+          "g": "gl",
+          "say": "gl-",
+          "asIn": "glad"
+        }
+      ],
+      "alt": [
+        "gl"
+      ],
+      "sayItLike": "pl-",
+      "hold": false,
+      "doNotSay": "puh-l",
+      "howTo": "Glide the first sound straight into l: pl-, gl-. Say plan, not puh-lan.",
+      "parentNote": "Two more l-blends: pl and gl. Glide into l: plan, not puh-lan; glad, not guh-lad.",
+      "asIn": "plan",
+      "clip": null,
+      "words": [
+        {
+          "word": "glue",
+          "image": "assets/images/mentava/web/oo-moon/glue.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Pop the p or g and glide straight into l, tongue behind your top teeth. No uh. Voice on."
+      }
+    },
+    "br": {
+      "glyph": "br",
+      "blend": true,
+      "pairs": [
+        {
+          "g": "br",
+          "say": "br-",
+          "asIn": "brush"
+        },
+        {
+          "g": "tr",
+          "say": "tr-",
+          "asIn": "trip"
+        },
+        {
+          "g": "cr",
+          "say": "cr-",
+          "asIn": "crab"
+        }
+      ],
+      "alt": [
+        "tr",
+        "cr"
+      ],
+      "sayItLike": "br-",
+      "hold": false,
+      "doNotSay": "buh-r",
+      "howTo": "Glide the first sound straight into r: br-, tr-, cr-. Say brush, not buh-rush.",
+      "parentNote": "The r-blends start here: br, tr, cr. Glide into r. Note that tr often sounds close to chr (trip) and that is normal speech.",
+      "asIn": "brush",
+      "clip": null,
+      "words": [
+        {
+          "word": "crab",
+          "image": "assets/images/mentava/web/a/crab.webp"
+        },
+        {
+          "word": "train",
+          "image": "assets/images/mentava/web/ae/train.webp"
+        },
+        {
+          "word": "tree",
+          "image": "assets/images/mentava/web/t/tree.webp"
+        },
+        {
+          "word": "cry",
+          "image": "assets/images/mentava/web/ie/cry.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Say the first sound and glide straight into r, tongue pulled back. Quick, no uh. Voice on."
+      }
+    },
+    "dr": {
+      "glyph": "dr",
+      "blend": true,
+      "pairs": [
+        {
+          "g": "dr",
+          "say": "dr-",
+          "asIn": "drum"
+        },
+        {
+          "g": "fr",
+          "say": "fr-",
+          "asIn": "frog"
+        },
+        {
+          "g": "gr",
+          "say": "gr-",
+          "asIn": "grin"
+        }
+      ],
+      "alt": [
+        "fr",
+        "gr"
+      ],
+      "sayItLike": "dr-",
+      "hold": false,
+      "doNotSay": "duh-r",
+      "howTo": "Glide the first sound straight into r: dr-, fr-, gr-. Say drum, not duh-rum.",
+      "parentNote": "The last r-blends: dr, fr, gr. Glide into r. Note that dr often sounds close to jr (drip) and that is normal speech.",
+      "asIn": "drum",
+      "clip": null,
+      "words": [
+        {
+          "word": "fruit",
+          "image": "assets/images/mentava/web/oo-moon/fruit.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Say d, f or g and glide straight into r, tongue pulled back. No uh. Voice on."
+      }
+    },
+    "mix": {
+      "glyph": "st",
+      "blend": true,
+      "pairs": [
+        {
+          "g": "st",
+          "say": "ssst-",
+          "asIn": "stamp"
+        },
+        {
+          "g": "mp",
+          "say": "mmmp-",
+          "asIn": "stamp"
+        }
+      ],
+      "alt": [
+        "mp"
+      ],
+      "sayItLike": "ssst-",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "Blends can come at the start of a word, at the end, or both: stamp, crust, plant. Glide each pair, with no uh.",
+      "parentNote": "The longest short-vowel words yet: stamp, crust, blend, frost, plant (five sounds each). Let your child slide under the whole word, gliding each blend. crash, flesh and think mix blends with digraphs.",
+      "asIn": "stamp",
+      "clip": null,
+      "words": [
+        {
+          "word": "stick",
+          "image": "assets/images/mentava/web/i/stick.webp"
+        },
+        {
+          "word": "tent",
+          "image": "assets/images/mentava/web/e/tent.webp"
+        },
+        {
+          "word": "crab",
+          "image": "assets/images/mentava/web/a/crab.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Glide each pair, at the start, the end, or both: stamp. Keep every letter sound, no uh. Voice on."
+      }
     }
   },
   "lessons": [
@@ -4962,6 +5392,1264 @@
       ],
       "unit": "3.4",
       "world": "W4"
+    },
+    {
+      "number": 34,
+      "sound": "st",
+      "blend": true,
+      "review": [
+        "ng",
+        "nk"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new blend."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new blend. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "lost",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "soft",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "gift",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "nest",
+          "image": "assets/images/mentava/web/e/nest.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letters make the blend?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letters."
+          }
+        ],
+        "promptText": "Which letters say ssst- as in last?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letters.",
+        "gist": "Which says ssst-?",
+        "script": "Say: 'Which letters say ssst- as in last?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "st",
+            "correct": true
+          },
+          {
+            "glyph": "ft",
+            "correct": false
+          },
+          {
+            "glyph": "sh",
+            "correct": false
+          }
+        ]
+      },
+      "chains": [
+        {
+          "from": "pat",
+          "to": "past",
+          "at": 2,
+          "letter": "s",
+          "options": [
+            "s",
+            "l",
+            "z"
+          ]
+        },
+        {
+          "from": "bet",
+          "to": "best",
+          "at": 2,
+          "letter": "s",
+          "options": [
+            "s",
+            "r",
+            "d"
+          ]
+        },
+        {
+          "from": "lot",
+          "to": "lost",
+          "at": 2,
+          "letter": "s",
+          "options": [
+            "s",
+            "m",
+            "z"
+          ]
+        },
+        {
+          "from": "lit",
+          "to": "lift",
+          "at": 2,
+          "letter": "f",
+          "options": [
+            "f",
+            "r",
+            "d"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "chains",
+        "writing",
+        "hunt"
+      ],
+      "games": [],
+      "unit": "4.1",
+      "world": "W5"
+    },
+    {
+      "number": 35,
+      "sound": "nd",
+      "blend": true,
+      "review": [
+        "nk",
+        "st"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new blend."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new blend. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "hand",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "lamp",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "jump",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "tent",
+          "image": "assets/images/mentava/web/e/tent.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letters make the blend?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letters."
+          }
+        ],
+        "promptText": "Which letters say nnnd- as in hand?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letters.",
+        "gist": "Which says nnnd-?",
+        "script": "Say: 'Which letters say nnnd- as in hand?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "nd",
+            "correct": true
+          },
+          {
+            "glyph": "mp",
+            "correct": false
+          },
+          {
+            "glyph": "st",
+            "correct": false
+          }
+        ]
+      },
+      "chains": [
+        {
+          "from": "sad",
+          "to": "sand",
+          "at": 2,
+          "letter": "n",
+          "options": [
+            "n",
+            "l",
+            "t"
+          ]
+        },
+        {
+          "from": "cap",
+          "to": "camp",
+          "at": 2,
+          "letter": "m",
+          "options": [
+            "m",
+            "k",
+            "t"
+          ]
+        },
+        {
+          "from": "bet",
+          "to": "bent",
+          "at": 2,
+          "letter": "n",
+          "options": [
+            "n",
+            "w",
+            "f"
+          ]
+        },
+        {
+          "from": "ten",
+          "to": "tent",
+          "at": 3,
+          "letter": "t",
+          "options": [
+            "t",
+            "r",
+            "c"
+          ]
+        },
+        {
+          "from": "lap",
+          "to": "lamp",
+          "at": 2,
+          "letter": "m",
+          "options": [
+            "m",
+            "k",
+            "t"
+          ]
+        },
+        {
+          "from": "had",
+          "to": "hand",
+          "at": 2,
+          "letter": "n",
+          "options": [
+            "n",
+            "l",
+            "t"
+          ]
+        }
+      ],
+      "middle": [
+        "writing",
+        "sounds",
+        "wagons",
+        "chains"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "unit": "4.1",
+      "world": "W5"
+    },
+    {
+      "number": 36,
+      "sound": "sp",
+      "blend": true,
+      "review": [
+        "st",
+        "nd"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new blend."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new blend. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "stop",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "spin",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "skip",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "stick",
+          "image": "assets/images/mentava/web/i/stick.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letters make the blend?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letters."
+          }
+        ],
+        "promptText": "Which letters say sssp- as in spin?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letters.",
+        "gist": "Which says sssp-?",
+        "script": "Say: 'Which letters say sssp- as in spin?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "sp",
+            "correct": true
+          },
+          {
+            "glyph": "sk",
+            "correct": false
+          },
+          {
+            "glyph": "st",
+            "correct": false
+          }
+        ]
+      },
+      "chains": [
+        {
+          "from": "top",
+          "to": "stop",
+          "at": 0,
+          "letter": "s",
+          "options": [
+            "s",
+            "j",
+            "p"
+          ]
+        },
+        {
+          "from": "pin",
+          "to": "spin",
+          "at": 0,
+          "letter": "s",
+          "options": [
+            "s",
+            "j",
+            "r"
+          ]
+        },
+        {
+          "from": "pot",
+          "to": "spot",
+          "at": 0,
+          "letter": "s",
+          "options": [
+            "s",
+            "j",
+            "r"
+          ]
+        },
+        {
+          "from": "sip",
+          "to": "skip",
+          "at": 1,
+          "letter": "k",
+          "options": [
+            "k",
+            "c",
+            "m"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "hunt",
+        "chains",
+        "writing"
+      ],
+      "games": [],
+      "unit": "4.2",
+      "world": "W5"
+    },
+    {
+      "number": 37,
+      "sound": "sn",
+      "blend": true,
+      "review": [
+        "nd",
+        "sp"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new blend."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new blend. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "snap",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "swim",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "smash",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "slip",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "snail",
+          "image": "assets/images/mentava/web/s/snail.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letters make the blend?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letters."
+          }
+        ],
+        "promptText": "Which letters say sssnnn as in snap?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letters.",
+        "gist": "Which says sssnnn?",
+        "script": "Say: 'Which letters say sssnnn as in snap?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "sn",
+            "correct": true
+          },
+          {
+            "glyph": "sw",
+            "correct": false
+          },
+          {
+            "glyph": "sp",
+            "correct": false
+          }
+        ]
+      },
+      "chains": [
+        {
+          "from": "sap",
+          "to": "snap",
+          "at": 1,
+          "letter": "n",
+          "options": [
+            "n",
+            "r",
+            "c"
+          ]
+        },
+        {
+          "from": "lip",
+          "to": "slip",
+          "at": 0,
+          "letter": "s",
+          "options": [
+            "s",
+            "w",
+            "h"
+          ]
+        },
+        {
+          "from": "wing",
+          "to": "swing",
+          "at": 0,
+          "letter": "s",
+          "options": [
+            "s",
+            "k",
+            "r"
+          ]
+        },
+        {
+          "from": "mash",
+          "to": "smash",
+          "at": 0,
+          "letter": "s",
+          "options": [
+            "s",
+            "k",
+            "t"
+          ]
+        }
+      ],
+      "middle": [
+        "chains",
+        "sounds",
+        "writing",
+        "wagons"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "unit": "4.2",
+      "world": "W5"
+    },
+    {
+      "number": 38,
+      "sound": "bl",
+      "blend": true,
+      "review": [
+        "sp",
+        "sn"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new blend."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new blend. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "block",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "clap",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "flag",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "cloud",
+          "image": "assets/images/mentava/web/ow/cloud.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letters make the blend?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letters."
+          }
+        ],
+        "promptText": "Which letters say bl- as in block?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letters.",
+        "gist": "Which says bl-?",
+        "script": "Say: 'Which letters say bl- as in block?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "bl",
+            "correct": true
+          },
+          {
+            "glyph": "cl",
+            "correct": false
+          },
+          {
+            "glyph": "fl",
+            "correct": false
+          }
+        ]
+      },
+      "chains": [
+        {
+          "from": "lack",
+          "to": "black",
+          "at": 0,
+          "letter": "b",
+          "options": [
+            "b",
+            "r",
+            "d"
+          ]
+        },
+        {
+          "from": "cap",
+          "to": "clap",
+          "at": 1,
+          "letter": "l",
+          "options": [
+            "l",
+            "p",
+            "z"
+          ]
+        },
+        {
+          "from": "lip",
+          "to": "flip",
+          "at": 0,
+          "letter": "f",
+          "options": [
+            "f",
+            "z",
+            "j"
+          ]
+        },
+        {
+          "from": "lag",
+          "to": "flag",
+          "at": 0,
+          "letter": "f",
+          "options": [
+            "f",
+            "n",
+            "w"
+          ]
+        },
+        {
+          "from": "lock",
+          "to": "block",
+          "at": 0,
+          "letter": "b",
+          "options": [
+            "b",
+            "z",
+            "k"
+          ]
+        }
+      ],
+      "middle": [
+        "hunt",
+        "sounds",
+        "writing",
+        "chains"
+      ],
+      "games": [],
+      "unit": "4.3",
+      "world": "W5"
+    },
+    {
+      "number": 39,
+      "sound": "pl",
+      "blend": true,
+      "review": [
+        "sn",
+        "bl"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new blend."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new blend. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "plan",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "plum",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "glad",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "glue",
+          "image": "assets/images/mentava/web/oo-moon/glue.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letters make the blend?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letters."
+          }
+        ],
+        "promptText": "Which letters say pl- as in plan?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letters.",
+        "gist": "Which says pl-?",
+        "script": "Say: 'Which letters say pl- as in plan?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "pl",
+            "correct": true
+          },
+          {
+            "glyph": "gl",
+            "correct": false
+          },
+          {
+            "glyph": "bl",
+            "correct": false
+          }
+        ]
+      },
+      "chains": [
+        {
+          "from": "pan",
+          "to": "plan",
+          "at": 1,
+          "letter": "l",
+          "options": [
+            "l",
+            "r",
+            "b"
+          ]
+        },
+        {
+          "from": "pug",
+          "to": "plug",
+          "at": 1,
+          "letter": "l",
+          "options": [
+            "l",
+            "r",
+            "b"
+          ]
+        },
+        {
+          "from": "pot",
+          "to": "plot",
+          "at": 1,
+          "letter": "l",
+          "options": [
+            "l",
+            "r",
+            "b"
+          ]
+        },
+        {
+          "from": "lad",
+          "to": "glad",
+          "at": 0,
+          "letter": "g",
+          "options": [
+            "g",
+            "p",
+            "z"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "chains",
+        "wagons",
+        "writing"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "unit": "4.3",
+      "world": "W5"
+    },
+    {
+      "number": 40,
+      "sound": "br",
+      "blend": true,
+      "review": [
+        "bl",
+        "pl"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new blend."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new blend. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "brush",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "trip",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "crib",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "crab",
+          "image": "assets/images/mentava/web/a/crab.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letters make the blend?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letters."
+          }
+        ],
+        "promptText": "Which letters say br- as in brush?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letters.",
+        "gist": "Which says br-?",
+        "script": "Say: 'Which letters say br- as in brush?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "br",
+            "correct": true
+          },
+          {
+            "glyph": "cr",
+            "correct": false
+          },
+          {
+            "glyph": "bl",
+            "correct": false
+          }
+        ]
+      },
+      "chains": [
+        {
+          "from": "rip",
+          "to": "trip",
+          "at": 0,
+          "letter": "t",
+          "options": [
+            "t",
+            "c",
+            "l"
+          ]
+        },
+        {
+          "from": "cab",
+          "to": "crab",
+          "at": 1,
+          "letter": "r",
+          "options": [
+            "r",
+            "s",
+            "d"
+          ]
+        },
+        {
+          "from": "rush",
+          "to": "brush",
+          "at": 0,
+          "letter": "b",
+          "options": [
+            "b",
+            "w",
+            "h"
+          ]
+        },
+        {
+          "from": "rag",
+          "to": "brag",
+          "at": 0,
+          "letter": "b",
+          "options": [
+            "b",
+            "w",
+            "h"
+          ]
+        },
+        {
+          "from": "rib",
+          "to": "crib",
+          "at": 0,
+          "letter": "c",
+          "options": [
+            "c",
+            "w",
+            "g"
+          ]
+        }
+      ],
+      "middle": [
+        "writing",
+        "chains",
+        "sounds",
+        "hunt"
+      ],
+      "games": [],
+      "unit": "4.4",
+      "world": "W5"
+    },
+    {
+      "number": 41,
+      "sound": "dr",
+      "blend": true,
+      "review": [
+        "pl",
+        "br"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new blend."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new blend. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "drop",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "frog",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "grin",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "fruit",
+          "image": "assets/images/mentava/web/oo-moon/fruit.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letters make the blend?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letters."
+          }
+        ],
+        "promptText": "Which letters say dr- as in drum?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letters.",
+        "gist": "Which says dr-?",
+        "script": "Say: 'Which letters say dr- as in drum?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "dr",
+            "correct": true
+          },
+          {
+            "glyph": "fr",
+            "correct": false
+          },
+          {
+            "glyph": "tr",
+            "correct": false
+          }
+        ]
+      },
+      "chains": [
+        {
+          "from": "rip",
+          "to": "drip",
+          "at": 0,
+          "letter": "d",
+          "options": [
+            "d",
+            "f",
+            "m"
+          ]
+        },
+        {
+          "from": "fog",
+          "to": "frog",
+          "at": 1,
+          "letter": "r",
+          "options": [
+            "r",
+            "t",
+            "d"
+          ]
+        },
+        {
+          "from": "rum",
+          "to": "drum",
+          "at": 0,
+          "letter": "d",
+          "options": [
+            "d",
+            "s",
+            "c"
+          ]
+        },
+        {
+          "from": "gin",
+          "to": "grin",
+          "at": 1,
+          "letter": "r",
+          "options": [
+            "r",
+            "t",
+            "d"
+          ]
+        },
+        {
+          "from": "rub",
+          "to": "grub",
+          "at": 0,
+          "letter": "g",
+          "options": [
+            "g",
+            "s",
+            "c"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "writing",
+        "chains",
+        "wagons"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "unit": "4.4",
+      "world": "W5"
+    },
+    {
+      "number": 42,
+      "sound": "mix",
+      "blend": true,
+      "review": [
+        "br",
+        "dr"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new blend."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new blend. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "stamp",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "crust",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "blend",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "frost",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "plant",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "crash",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "think",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letters make the blend?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letters."
+          }
+        ],
+        "promptText": "Which letters are at the end of lamp?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letters.",
+        "gist": "Which is at the end of lamp?",
+        "script": "Say: 'Which letters are at the end of lamp?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "mp",
+            "correct": true
+          },
+          {
+            "glyph": "sp",
+            "correct": false
+          },
+          {
+            "glyph": "br",
+            "correct": false
+          }
+        ]
+      },
+      "chains": [
+        {
+          "from": "rust",
+          "to": "crust",
+          "at": 0,
+          "letter": "c",
+          "options": [
+            "c",
+            "g",
+            "m"
+          ]
+        },
+        {
+          "from": "pant",
+          "to": "plant",
+          "at": 1,
+          "letter": "l",
+          "options": [
+            "l",
+            "w",
+            "f"
+          ]
+        },
+        {
+          "from": "band",
+          "to": "bland",
+          "at": 1,
+          "letter": "l",
+          "options": [
+            "l",
+            "w",
+            "g"
+          ]
+        },
+        {
+          "from": "sand",
+          "to": "stand",
+          "at": 1,
+          "letter": "t",
+          "options": [
+            "t",
+            "w",
+            "f"
+          ]
+        },
+        {
+          "from": "lump",
+          "to": "plump",
+          "at": 0,
+          "letter": "p",
+          "options": [
+            "p",
+            "b",
+            "j"
+          ]
+        },
+        {
+          "from": "camp",
+          "to": "cramp",
+          "at": 1,
+          "letter": "r",
+          "options": [
+            "r",
+            "d",
+            "k"
+          ]
+        },
+        {
+          "from": "last",
+          "to": "blast",
+          "at": 0,
+          "letter": "b",
+          "options": [
+            "b",
+            "t",
+            "f"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "chains",
+        "writing"
+      ],
+      "games": [],
+      "unit": "4.5",
+      "world": "W5"
     }
   ],
   "games": {
@@ -5289,6 +6977,96 @@
           "p",
           "f",
           "d"
+        ],
+        "st": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "e"
+        ],
+        "nd": [
+          "m",
+          "o",
+          "h",
+          "u",
+          "b",
+          "a",
+          "e",
+          "g"
+        ],
+        "sp": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "b",
+          "a",
+          "e"
+        ],
+        "sn": [
+          "m",
+          "o",
+          "h",
+          "u",
+          "b",
+          "a",
+          "e",
+          "g"
+        ],
+        "bl": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "e",
+          "t"
+        ],
+        "pl": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "e",
+          "t"
+        ],
+        "br": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "e",
+          "s"
+        ],
+        "dr": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "e",
+          "s"
+        ],
+        "mix": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "e"
         ]
       }
     },
@@ -5429,6 +7207,56 @@
       ],
       "after": 31,
       "world": "W4"
+    },
+    {
+      "id": "b5",
+      "kind": "book",
+      "title": "Story 5",
+      "book": "book-5",
+      "needs": [
+        "m",
+        "a",
+        "s",
+        "i",
+        "t",
+        "p",
+        "f",
+        "o",
+        "n",
+        "d",
+        "c",
+        "h",
+        "u",
+        "g",
+        "l",
+        "r",
+        "b",
+        "e",
+        "j",
+        "w",
+        "v",
+        "y",
+        "z",
+        "x",
+        "q",
+        "sh",
+        "ch",
+        "th",
+        "ck",
+        "ff",
+        "wh",
+        "ng",
+        "nk",
+        "st",
+        "nd",
+        "sp",
+        "sn",
+        "bl",
+        "pl",
+        "br"
+      ],
+      "after": 40,
+      "world": "W5"
     },
     {
       "id": "x1",
@@ -6609,6 +8437,253 @@
       "world": "W4"
     },
     {
+      "id": "x11",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 35,
+      "pair": [
+        "nd",
+        "d"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "nd",
+            "mp",
+            "nt"
+          ],
+          "letters": [
+            "nd",
+            "mp",
+            "nt"
+          ],
+          "words": [
+            "sand",
+            "hand",
+            "lamp",
+            "camp",
+            "bent",
+            "tent"
+          ]
+        },
+        {
+          "sign": [
+            "d",
+            "p",
+            "t"
+          ],
+          "letters": [
+            "d",
+            "p",
+            "t"
+          ],
+          "words": [
+            "sad",
+            "had",
+            "lap",
+            "cap",
+            "bet",
+            "pat"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "sand",
+          "b": "sad"
+        },
+        {
+          "a": "camp",
+          "b": "cap"
+        },
+        {
+          "a": "bent",
+          "b": "bet"
+        },
+        {
+          "a": "lamp",
+          "b": "lap"
+        }
+      ],
+      "mode": "ends",
+      "hint": "Listen for the nnn or mmm that melts into the vowel: sand has it, sad does not.",
+      "line": "Easy to miss: the n or m that melts into the vowel. Sand has it, sad does not. Let's listen closely.",
+      "end": "Great listening! Your child can hear the n or m in sand, camp and tent, and when it is missing.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "nd"
+          },
+          {
+            "tts": "as in hand."
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says nnnd- as in hand?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "nd",
+            "correct": true
+          },
+          {
+            "glyph": "d",
+            "correct": false
+          },
+          {
+            "glyph": "mp",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 35,
+          "pair": [
+            "nd",
+            "d"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 35
+        }
+      ],
+      "world": "W5"
+    },
+    {
+      "id": "x12",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 41,
+      "pair": [
+        "bl",
+        "br"
+      ],
+      "sides": [
+        {
+          "sign": [
+            "bl"
+          ],
+          "letters": [
+            "bl"
+          ],
+          "words": [
+            "black",
+            "block",
+            "blob",
+            "blot",
+            "blush",
+            "bled"
+          ]
+        },
+        {
+          "sign": [
+            "br"
+          ],
+          "letters": [
+            "br"
+          ],
+          "words": [
+            "brag",
+            "brat",
+            "brim",
+            "brush",
+            "brisk",
+            "brick"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "blush",
+          "b": "brush"
+        },
+        {
+          "a": "bled",
+          "b": "bred"
+        },
+        {
+          "a": "blink",
+          "b": "brink"
+        }
+      ],
+      "hint": "For bl the tongue touches behind the top teeth. For br it pulls back and stays away.",
+      "line": "Two sounds that are easy to mix up: bl- as in block and br- as in brush. Let's listen closely.",
+      "end": "Great listening! Your child can tell bl- as in block from br- as in brush.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which letter says"
+          },
+          {
+            "clip": "br"
+          },
+          {
+            "tts": "as in brush."
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the letter."
+          }
+        ],
+        "promptText": "Which letter says br- as in brush?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the letter.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "br",
+            "correct": true
+          },
+          {
+            "glyph": "bl",
+            "correct": false
+          },
+          {
+            "glyph": "cr",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "signals",
+          "lesson": 41,
+          "pair": [
+            "bl",
+            "br"
+          ]
+        },
+        {
+          "task": "check",
+          "lesson": 41
+        }
+      ],
+      "world": "W5"
+    },
+    {
       "id": "v1",
       "kind": "review",
       "title": "Review Stop",
@@ -7193,6 +9268,145 @@
         }
       ],
       "world": "W4"
+    },
+    {
+      "id": "v12",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 38,
+      "summary": {
+        "sounds": 33,
+        "blends": 14,
+        "words": 460,
+        "examples": [
+          "flag",
+          "slip",
+          "spin",
+          "snap",
+          "swim",
+          "clap",
+          "club",
+          "skip"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so",
+          "we",
+          "want",
+          "was",
+          "my",
+          "you",
+          "of",
+          "said",
+          "do",
+          "does",
+          "are",
+          "she",
+          "they",
+          "what",
+          "where"
+        ]
+      },
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 38
+        },
+        {
+          "task": "wagons",
+          "lesson": 36
+        },
+        {
+          "task": "chains",
+          "lesson": 37
+        },
+        {
+          "task": "check",
+          "lesson": 35
+        }
+      ],
+      "world": "W5"
+    },
+    {
+      "id": "v13",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 42,
+      "mix": "blends",
+      "summary": {
+        "sounds": 33,
+        "blends": 22,
+        "words": 515,
+        "examples": [
+          "frog",
+          "trip",
+          "glad",
+          "crab",
+          "crib",
+          "drop",
+          "plan",
+          "plum"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so",
+          "we",
+          "want",
+          "was",
+          "my",
+          "you",
+          "of",
+          "said",
+          "do",
+          "does",
+          "are",
+          "she",
+          "they",
+          "what",
+          "where"
+        ]
+      },
+      "plan": [
+        {
+          "task": "wagons",
+          "lesson": 41
+        },
+        {
+          "task": "hunt",
+          "lesson": 40
+        },
+        {
+          "task": "chains",
+          "lesson": 42
+        },
+        {
+          "task": "signals",
+          "lesson": 39
+        },
+        {
+          "task": "check",
+          "lesson": 38
+        }
+      ],
+      "world": "W5"
     }
   ],
   "gameDistractors": [
@@ -7674,10 +9888,17 @@
         "wh",
         "ng",
         "nk",
+        "st",
+        "nd",
+        "sp",
+        "sn",
         "bl",
-        "st"
+        "pl",
+        "br",
+        "dr",
+        "mix"
       ],
-      "after": null
+      "after": 42
     }
   ],
   "units": [
@@ -7827,6 +10048,45 @@
       "id": "3.5",
       "stage": 3,
       "sounds": []
+    },
+    {
+      "id": "4.1",
+      "stage": 4,
+      "sounds": [
+        "st",
+        "nd"
+      ]
+    },
+    {
+      "id": "4.2",
+      "stage": 4,
+      "sounds": [
+        "sp",
+        "sn"
+      ]
+    },
+    {
+      "id": "4.3",
+      "stage": 4,
+      "sounds": [
+        "bl",
+        "pl"
+      ]
+    },
+    {
+      "id": "4.4",
+      "stage": 4,
+      "sounds": [
+        "br",
+        "dr"
+      ]
+    },
+    {
+      "id": "4.5",
+      "stage": 4,
+      "sounds": [
+        "mix"
+      ]
     }
   ],
   "worlds": [

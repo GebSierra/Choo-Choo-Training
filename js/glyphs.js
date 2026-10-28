@@ -3,7 +3,7 @@
 // handwriting order on a 100 by 100 box (baseline y=80, x-height top y=38). The same strokes
 // drive the big letters, the slide track, the word rows and the trace guide.
 import { h, animate, reduced } from './dom.js';
-import { letterUnits } from './order.js';
+import { letterUnits, blendAtUnits, BLENDS } from './order.js';
 
 export const STROKE_WIDTH = 11.5;
 export const BASELINE = 80;
@@ -232,6 +232,10 @@ function digraph(a, b) {
   return { strokes, link: `M${x0} 89 L${x1} 89`, minX: x0 - 2, maxX: x1 + 2, minY: Math.min(A.minY, B.minY), maxY: Math.max(A.maxY, B.maxY, 89) };
 }
 for (const pair of ['sh', 'ch', 'th', 'wh', 'ck', 'ng', 'nk', 'ff', 'll', 'ss', 'zz']) GLYPHS[pair] = digraph(pair[0], pair[1]);
+// Blends (World 5) are NOT one sound: each letter keeps its own sound, so a blend pair is two plain letters side by side with NO bar between them (a digraph has one).
+// It exists only as the glyph of a lesson key or a card in a blend lesson; words are still drawn letter by letter (letterUnits never joins a blend).
+for (const pair of Object.values(BLENDS).flat()) { const g = digraph(pair[0], pair[1]); delete g.link; g.minY = Math.min(g.minY, 38); g.maxY = Math.min(g.maxY, 96); g.blend = true; GLYPHS[pair] = g; }
+GLYPHS.mix = GLYPHS.st; // the mixed review (lesson 42) wears the st badge on the path, the lesson list and the finish card; the letter games never deal it (order.js NO_GLYPH)
 
 const SPACING = 4;
 export const hasGlyph = (ch) => !!GLYPHS[ch];
@@ -323,11 +327,20 @@ export function wordSvg(word, opts = {}) {
     x += g.maxX - g.minX + SPACING;
   }
   const width = Math.max(1, x - SPACING);
+  // World 5: a blend is two letters that each keep their sound, shown as two plain letters under one soft bracket (never joined like a digraph).
+  const marks = opts.level != null && !reading ? blendAtUnits(letters, opts.level).filter((i) => groups[i + 1]) : [];
+  for (const i of marks) {
+    const x0 = Number(groups[i].grp.dataset.x0), x1 = Number(groups[i + 1].grp.dataset.x1), y = BASELINE + 13;
+    groups[i].grp.classList.add('in-blend'); groups[i + 1].grp.classList.add('in-blend');
+    const mark = h('path', { d: `M${x0 + 2} ${y - 6} L${x0 + 2} ${y} L${x1 - 2} ${y} L${x1 - 2} ${y - 6}`, class: 'blend-mark', fill: 'none', stroke: opts.color || 'currentColor', 'stroke-width': 4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.55 });
+    groups[i].mark = mark;
+  }
   const half = STROKE_WIDTH / 2 + 3;
   const ext = reading ? readingExtent : extent;
-  const top = Math.min(BAND_TOP, ...letters.map((c) => ext(c).top - (reading ? 2 : half))), bottom = Math.max(BAND_BOTTOM, ...letters.map((c) => ext(c).bottom + (reading ? 2 : half)));
+  const top = Math.min(BAND_TOP, ...letters.map((c) => ext(c).top - (reading ? 2 : half))), bottom = Math.max(BAND_BOTTOM, marks.length ? BASELINE + 19 : 0, ...letters.map((c) => ext(c).bottom + (reading ? 2 : half)));
   const svg = h('svg', { class: 'glyph word-glyphs ' + (reading ? 'reading-font ' : '') + (opts.class || ''), viewBox: `0 ${top} ${width} ${bottom - top}`, role: 'img', 'aria-label': opts.label || 'letters' });
   groups.forEach((g) => svg.append(g.grp));
+  groups.forEach((g) => { if (g.mark) svg.append(g.mark); });
   svg.dataset.width = String(width);
   svg.dataset.height = String(bottom - top);
   return svg;

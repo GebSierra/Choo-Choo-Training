@@ -27,8 +27,8 @@ export function build({ lesson, sound, speech, store }) {
     el,
     parts: () => introParts(lesson, store),
     // I do, we do, you do: the grown-up models, then they slide together, then the child slides alone.
-    script: () => `I do: say ${soundPhrase(sound)}. We do: slide a finger under the letter and say it together. You do: your child slides under the letter and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}`,
-    gist: () => fit(`I do: say ${soundPhrase(sound)}.`, `Say ${soundPhrase(sound)}.`),
+    script: () => (sound.blend ? `I do: say each pair slowly and smooth: ${sound.pairs.map((p) => p.say).join(', ')}. Each letter keeps its own sound, so glide with no uh in between. We do: slide a finger under the two letters and say it together. You do: your child slides under the letters and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}` : `I do: say ${soundPhrase(sound)}. We do: slide a finger under the letter and say it together. You do: your child slides under the letter and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}`),
+    gist: () => (sound.blend ? fit(`Glide ${sound.sayItLike} as in ${sound.asIn}.`, `Glide ${sound.sayItLike}.`) : fit(`I do: say ${soundPhrase(sound)}.`, `Say ${soundPhrase(sound)}.`)),
     cleanup: () => track.cleanup(),
     again: () => { draw(); speech.say(introParts(lesson, store)); },
   };

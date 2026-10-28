@@ -18,8 +18,9 @@ import { build as check } from './tasks/check.js';
 import { build as read } from './tasks/first-word.js';
 import { build as tunnels } from './tasks/tunnels.js';
 import { build as which } from './tasks/which.js';
+import { build as chains } from './tasks/chains.js';
 
-export const BUILDERS = { review, newLetter, mouth, heart, sounds, writing, hunt, signals, wagons, board, practice, check, read, tunnels, which };
+export const BUILDERS = { review, newLetter, mouth, heart, sounds, writing, hunt, signals, wagons, board, practice, check, read, tunnels, which, chains };
 let lastIndex = {}; // remembers the previous task per lesson so the progress pill can glide
 
 export function taskScreen(ctx, n, idx) {
@@ -36,7 +37,7 @@ export function taskScreen(ctx, n, idx) {
   const shell = makeShell({ ctx, title: task.name, color: task.color, steps: tasks.length, pos, from: tasks.findIndex((t) => t.index === lastIndex[lesson.number]), isLast, soundKeys: Object.keys(curriculum.sounds), backLabel: 'Back to lesson', stepNoun: 'Task', autoAdvance: true, world: worldOf(curriculum, lesson.number)?.id || 'W1',
     // The parent script opens by itself the first time this kind of task, or this lesson, is opened on the device.
     tip: tipFor(lesson.number, task.type), tipKey: `tip:${lesson.number}:${task.type}`,
-    autoOpen: !['hunt', 'signals', 'wagons', 'board', 'practice'].includes(task.type), seenKeys: [task.type, ...(pos === 0 && !store.lesson(lesson.number).tasksDone.length ? [`lesson:${lesson.number}`] : [])] });
+    autoOpen: !['hunt', 'signals', 'wagons', 'board', 'practice', 'chains'].includes(task.type), seenKeys: [task.type, ...(pos === 0 && !store.lesson(lesson.number).tasksDone.length ? [`lesson:${lesson.number}`] : [])] });
   const current = BUILDERS[task.type]({ ...ctx, lesson, sound, refresh: shell.refresh, setDone: shell.setDone });
 
   const advance = () => {

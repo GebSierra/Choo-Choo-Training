@@ -1,5 +1,5 @@
 // Data rules shared by the tap games and tools/gen-lessons.mjs. No DOM here.
-import { soundOfLetter, spellingsOf, lettersOfSounds, letterUnits, isReadable } from './order.js';
+import { soundOfLetter, spellingsOf, lettersOfSounds, letterUnits, isReadable, NO_GLYPH } from './order.js';
 export const LOOKALIKE = ['da','db','dp','dq','dg','bp','bq','bh','pq','pg','nm','nh','nr','nu','hb','hk','hl','li','lt','lj','lf','tf','fi','oc','oa','rn','rh','kh','kb','kl','ec','eo','ea','es','ji','jl','jt','jg','jy','wm','wv','wu','vy','vu','yu','yg','yj','zs','zn','xk','xz','xy','qg','qp','qa','qd','qb'];
 export const looksLike = (a, b) => LOOKALIKE.includes(a + b) || LOOKALIKE.includes(b + a);
 export const order = (curriculum) => curriculum.lessons.map((L) => L.sound);
@@ -20,7 +20,7 @@ export function otherLetters(curriculum, n, target, count) {
   const pad = curriculum.games.hunt.distractors[curriculum.lessons[n - 1].sound] || [];
   const key = soundOfLetter(target), mine = spellingsOf(key);
   const out = [];
-  for (const k of [...taught, ...pad]) if (out.length < count && soundOfLetter(k) !== key && !mine.some((m) => looksLike(k, m)) && !out.includes(k)) out.push(k);
+  for (const k of [...taught, ...pad]) if (out.length < count && !NO_GLYPH.includes(k) && soundOfLetter(k) !== key && !mine.some((m) => looksLike(k, m)) && !out.includes(k)) out.push(k);
   return out;
 }
 // The letter a round shows for a sound: its spellings take turns (c, k, c ...), so a child sees both. `turn` counts the sound's rounds.
@@ -123,7 +123,11 @@ export const MIDDLES = [
   ['hunt', 'writing', 'sounds', 'wagons'],
 ];
 // Lesson 20 (w): its name, double-u, does not contain its sound, so it gets one more game than the other lessons.
-export const EXTRA_MIDDLES = { 20: ['hunt', 'sounds', 'wagons', 'board', 'writing'] };
+// World 5 (34 to 42): a blend is no new sound, so the middle swaps the Station Board (it finds one letter's sound in a word) for Add a Car ('chains': a letter car makes a new word).
+export const EXTRA_MIDDLES = { 20: ['hunt', 'sounds', 'wagons', 'board', 'writing'],
+  34: ['sounds', 'chains', 'writing', 'hunt'], 35: ['writing', 'sounds', 'wagons', 'chains'], 36: ['sounds', 'hunt', 'chains', 'writing'], 37: ['chains', 'sounds', 'writing', 'wagons'],
+  38: ['hunt', 'sounds', 'writing', 'chains'], 39: ['sounds', 'chains', 'wagons', 'writing'], 40: ['writing', 'chains', 'sounds', 'hunt'], 41: ['sounds', 'writing', 'chains', 'wagons'],
+  42: ['sounds', 'chains', 'writing'] };
 export const TAP_GAMES = ['signals', 'wagons', 'board'];
 // The middle of lesson n: its pattern, with a game the lesson cannot hold (Green Light needs a second sound; Station Board needs
 // its words) swapped for Letter Hunt or Wagon Parade, whichever is not already there.

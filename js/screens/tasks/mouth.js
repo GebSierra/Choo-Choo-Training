@@ -38,7 +38,7 @@ export function build(env) {
   } }, icon('mouth', 22), h('span', { class: 'mouth-how-label' }, 'How to make this sound'));
 
   // c and k: one sound, two spellings - said once, here, so the child sees both letters
-  const same = sound.alt && sound.alt.length ? h('p', { class: 'mouth-same' }, richText(`${spellings(sound).join(' and ')} make the same sound.`, { every: true })) : null;
+  const same = sound.alt && sound.alt.length && !sound.blend ? h('p', { class: 'mouth-same' }, richText(`${spellings(sound).join(' and ')} make the same sound.`, { every: true })) : null;
   const el = h('div', { class: 'proto mouth-task', dataset: { sound: key } }, h('div', { class: 'ns-body' }, art, same, prompt.el, h('div', { class: 'px-btns' }, hear, how), panel));
 
   // With no recording to play, the prompt is shown at once; with one, only if the shell's auto-play finds it missing.

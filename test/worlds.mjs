@@ -25,20 +25,20 @@ export const SHOT_VIEWPORTS = [
 // ---- pure checks: the data and the helpers ----
 export function dataChecks(ok) {
   ok(CUR.worlds.length === 11 && CUR.worlds.every((w, i) => w.n === i + 1 && w.id === `W${i + 1}`), 'data: eleven worlds, n 1 to 11');
-  ok(new Set(CUR.units.map((u) => u.id)).size === CUR.units.length && CUR.units.length === 19, 'data: nineteen unique units (1.1 to 1.3, 2.1 to 2.11, 3.1 to 3.5)');
-  const want = { 1: '2.1', 2: '2.1', 3: '2.1', 4: '2.2', 5: '2.2', 6: '2.3', 7: '2.4', 8: '2.4', 9: '2.5', 10: '2.5', 11: '2.6', 12: '2.6', 13: '2.7', 14: '2.7', 15: '2.7', 16: '2.8', 17: '2.8', 18: '2.9', 19: '2.10', 20: '2.10', 21: '2.10', 22: '2.11', 23: '2.11', 24: '2.11', 25: '2.11', 26: '3.1', 27: '3.1', 28: '3.2', 29: '3.3', 30: '3.3', 31: '3.3', 32: '3.4', 33: '3.4' };
-  ok(CUR.lessons.every((l) => l.unit === want[l.number]), 'data: every lesson is in the unit of its sound (f o 2.4, n d 2.5, c h 2.6, u g l 2.7, r b 2.8, e 2.9, j w v 2.10, y z x q 2.11, sh ch 3.1, th 3.2, ck ff wh 3.3, ng nk 3.4)');
-  ok(CUR.lessons.slice(0, 6).every((l) => l.world === 'W1') && CUR.lessons.slice(6, 17).every((l) => l.world === 'W2') && CUR.lessons.slice(17, 25).every((l) => l.world === 'W3') && CUR.lessons.slice(25).every((l) => l.world === 'W4'), 'data: lessons 1 to 6 are in world 1, 7 to 17 in world 2, 18 to 25 in world 3, 26 to 33 in world 4');
+  ok(new Set(CUR.units.map((u) => u.id)).size === CUR.units.length && CUR.units.length === 24, 'data: twenty-four unique units (1.1 to 1.3, 2.1 to 2.11, 3.1 to 3.5, 4.1 to 4.5)');
+  const want = { 1: '2.1', 2: '2.1', 3: '2.1', 4: '2.2', 5: '2.2', 6: '2.3', 7: '2.4', 8: '2.4', 9: '2.5', 10: '2.5', 11: '2.6', 12: '2.6', 13: '2.7', 14: '2.7', 15: '2.7', 16: '2.8', 17: '2.8', 18: '2.9', 19: '2.10', 20: '2.10', 21: '2.10', 22: '2.11', 23: '2.11', 24: '2.11', 25: '2.11', 26: '3.1', 27: '3.1', 28: '3.2', 29: '3.3', 30: '3.3', 31: '3.3', 32: '3.4', 33: '3.4', 34: '4.1', 35: '4.1', 36: '4.2', 37: '4.2', 38: '4.3', 39: '4.3', 40: '4.4', 41: '4.4', 42: '4.5' };
+  ok(CUR.lessons.every((l) => l.unit === want[l.number]), 'data: every lesson is in the unit of its sound (f o 2.4, n d 2.5, c h 2.6, u g l 2.7, r b 2.8, e 2.9, j w v 2.10, y z x q 2.11, sh ch 3.1, th 3.2, ck ff wh 3.3, ng nk 3.4, st nd 4.1, sp sn 4.2, bl pl 4.3, br dr 4.4, mix 4.5)');
+  ok(CUR.lessons.slice(0, 6).every((l) => l.world === 'W1') && CUR.lessons.slice(6, 17).every((l) => l.world === 'W2') && CUR.lessons.slice(17, 25).every((l) => l.world === 'W3') && CUR.lessons.slice(25, 33).every((l) => l.world === 'W4') && CUR.lessons.slice(33).every((l) => l.world === 'W5'), 'data: lessons 1 to 6 are in world 1, 7 to 17 in world 2, 18 to 25 in world 3, 26 to 33 in world 4, 34 to 42 in world 5');
   ok(CUR.checkpoints.every((k) => k.world === CUR.lessons.find((l) => l.number === k.after).world), 'data: a checkpoint is in the world of its lesson');
   ok(JSON.stringify(unitsIn(CUR, 'W1').map((u) => u.id)) === '["1.1","1.2","1.3","2.1","2.2","2.3"]' && unitsIn(CUR, 'W2').length === 5 && unitsIn(CUR, 'W3').length === 3, 'data: worlds 1 to 3 hold the units the plan lists');
   ok(unitsIn(CUR, 'W4').length === 5 && unitsIn(CUR, 'W11').length === 6 && unitsIn(CUR, 'W4')[0].id === '3.1', 'data: worlds 4 to 11 list their stage units by id');
   ok(unitsIn(CUR, 'W2').map((u) => u.sounds.join('')).join(' ') === 'fo nd ckh ugl rb', 'data: units 2.4 to 2.8 carry their sounds');
   ok(worldOf(CUR, 8).id === 'W2' && worldOf(CUR, 3).id === 'W1' && worldOf(CUR, 99) === null, 'helpers: worldOf');
-  ok(lessonsIn(CUR, 'W1').length === 6 && lessonsIn(CUR, 'W2').length === 11 && lessonsIn(CUR, 'W3').length === 8 && lessonsIn(CUR, 'W4').length === 8 && lessonsIn(CUR, 'W5').length === 0, 'helpers: lessonsIn');
+  ok(lessonsIn(CUR, 'W1').length === 6 && lessonsIn(CUR, 'W2').length === 11 && lessonsIn(CUR, 'W3').length === 8 && lessonsIn(CUR, 'W4').length === 8 && lessonsIn(CUR, 'W5').length === 9 && lessonsIn(CUR, 'W6').length === 0, 'helpers: lessonsIn');
   const fake = (done) => ({ isDone: (n) => n <= done, currentLesson: (t) => (done >= t ? null : done + 1) });
   ok(unitDone(fake(3), CUR, '2.1') && !unitDone(fake(2), CUR, '2.1') && !unitDone(fake(17), CUR, '1.1'), 'helpers: unitDone needs every lesson of the unit, and a unit with none is not done');
-  ok(currentWorld(fake(0), CUR).id === 'W1' && currentWorld(fake(6), CUR).id === 'W2' && currentWorld(fake(17), CUR).id === 'W3' && currentWorld(fake(25), CUR).id === 'W4' && currentWorld(fake(33), CUR).id === 'W4', 'helpers: currentWorld follows the first unfinished lesson, else the last world with lessons');
-  ok(currentUnit(fake(4), CUR, 'W1').id === '2.2' && worldDone(fake(6), CUR, 'W1') && !worldDone(fake(5), CUR, 'W1') && nextWorld(CUR, 'W1').id === 'W2' && nextWorld(CUR, 'W2').id === 'W3' && nextWorld(CUR, 'W3').id === 'W4' && nextWorld(CUR, 'W4') === null, 'helpers: currentUnit, worldDone, nextWorld');
+  ok(currentWorld(fake(0), CUR).id === 'W1' && currentWorld(fake(6), CUR).id === 'W2' && currentWorld(fake(17), CUR).id === 'W3' && currentWorld(fake(25), CUR).id === 'W4' && currentWorld(fake(33), CUR).id === 'W5' && currentWorld(fake(42), CUR).id === 'W5', 'helpers: currentWorld follows the first unfinished lesson, else the last world with lessons');
+  ok(currentUnit(fake(4), CUR, 'W1').id === '2.2' && worldDone(fake(6), CUR, 'W1') && !worldDone(fake(5), CUR, 'W1') && nextWorld(CUR, 'W1').id === 'W2' && nextWorld(CUR, 'W2').id === 'W3' && nextWorld(CUR, 'W3').id === 'W4' && nextWorld(CUR, 'W4').id === 'W5' && nextWorld(CUR, 'W5') === null, 'helpers: currentUnit, worldDone, nextWorld');
   // 1.9.14: what the Home shows (planHome): the world to build, and whether its crossing is due
   const plan = (done, seen) => { const st = { seen }; const store = { ...fake(done), worlds: () => st, setWorlds: (p) => Object.assign(st, p) }; const first = planHome(store, CUR); return { first, again: planHome(store, CUR), st }; };
   let pl = plan(4, null);
@@ -114,9 +114,9 @@ export async function previewChecks({ browser, url, ok, vp }) {
     worlds: [...document.querySelectorAll('.gu-world')].map((w) => ({ id: w.dataset.world, open: w.querySelector('.gu-fold').getAttribute('aria-expanded'), hidden: w.querySelector('.gu-fold-body').hidden, units: [...w.querySelectorAll('.gu-unit strong')].map((u) => u.textContent) })),
     rows: document.querySelectorAll('.gu-row').length, note: document.querySelector('.gu-body > .gu-list > .gu-note').textContent,
   }));
-  ok(g.worlds.length === 4 && g.worlds[0].open === 'true' && g.worlds[1].open === 'false' && g.worlds[1].hidden && g.worlds[2].open === 'false' && g.worlds[2].hidden && g.worlds[3].open === 'false' && g.worlds[3].hidden, `${tag} list: four worlds with lessons (Digraph Docks too), only the current one open (${JSON.stringify(g.worlds.map((w) => w.id + w.open))})`);
+  ok(g.worlds.length === 5 && g.worlds[0].open === 'true' && [1, 2, 3, 4].every((i) => g.worlds[i].open === 'false' && g.worlds[i].hidden), `${tag} list: five worlds with lessons (Blend Bay too), only the current one open (${JSON.stringify(g.worlds.map((w) => w.id + w.open))})`);
   ok(g.worlds[0].units.join() === 'Unit 2.1,Unit 2.2,Unit 2.3' && g.worlds[1].units.join() === 'Unit 2.4,Unit 2.5,Unit 2.6,Unit 2.7,Unit 2.8' && g.worlds[2].units.join() === 'Unit 2.9,Unit 2.10,Unit 2.11', `${tag} list: units group the rows (${g.worlds.map((w) => w.units.join(' ')).join(' / ')})`);
-  ok(/7 more worlds/.test(g.note), `${tag} list: the later worlds are noted`);
+  ok(/6 more worlds/.test(g.note), `${tag} list: the later worlds are noted`);
   await shot(page, 'grownups-top', tag);
   {
     // the reading line and the letter chips, counted from the lessons actually done in this save
@@ -502,11 +502,11 @@ export async function liveOtherChecks({ browser, url, ok }) {
   {
     // a finished world shown again (the gateway preview of world 1 once it is done): its six wagons stand on the siding and the
     // train pulls none; the engine carries world 1's upgrade
-    const done6 = state(33, { trainDone: 33, trainAt: 0 }, { lessons: doneL(33), levels: { seen: 4, earned: { ...L1, L2: '2026-10-17T10:00:00.000Z', L3: '2026-10-25T10:00:00.000Z', L4: '2026-10-30T10:00:00.000Z' } }, worlds: { seen: 'W4' }, character: CHARACTER, meetDue: false }); // with every built world done the current world is the last one, Digraph Docks, so the gateway preview shows world 1 again
+    const done6 = state(42, { trainDone: 42, trainAt: 0 }, { lessons: doneL(42), levels: { seen: 5, earned: { ...L1, L2: '2026-10-17T10:00:00.000Z', L3: '2026-10-25T10:00:00.000Z', L4: '2026-10-30T10:00:00.000Z', L5: '2026-11-05T10:00:00.000Z' } }, worlds: { seen: 'W5' }, character: CHARACTER, meetDue: false }); // with every built world done the current world is the last one, Blend Bay, so the gateway preview shows world 1 again
     const { ctx, page, errors } = await openHome(browser, url, vp, done6, { init: [RAF_COUNT], route: '#/preview/gateway' });
     ok(await until(page, () => window.__train && window.__train.world === 'W1' && window.__train.frames > 1, null, 20000), 'siding: world 1 is shown again');
     const t = await page.evaluate(() => ({ wagons: window.__train.wagons, parked: window.__train.parked, up: window.__train.engineUpgrade, world: window.__train.world }));
-    ok(t.wagons === 0 && t.parked === 6 && t.up === 4, `siding: the six letter wagons stand on the siding, none on the train, the engine carries one upgrade for each of the four finished worlds (${JSON.stringify(t)})`);
+    ok(t.wagons === 0 && t.parked === 6 && t.up === 5, `siding: the six letter wagons stand on the siding, none on the train, the engine carries one upgrade for each of the five finished worlds (${JSON.stringify(t)})`);
     await page.evaluate(() => window.__train.show(100));
     await page.waitForTimeout(500);
     await liveShot(page, 'w1-siding', vp.name);

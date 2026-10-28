@@ -19,7 +19,7 @@ check(Object.keys(s.state.lessons).length === 0 && Object.keys(s.state.checkpoin
 check(s.settings.rate === 1 && s.settings.trainIntroDone === true && s.settings.trainAt === undefined, 'case 1: settings kept, trainAt dropped');
 check(s.settings.seenScripts.newLetter && s.settings.seenScripts['tip:1:newLetter'] && !('lesson:4' in s.settings.seenScripts), 'case 1: seenScripts lesson: keys dropped only');
 check(s.character().name === 'Lily' && s.state.firstRunDone === true && s.currentLesson(17) === 1, 'case 1: name, welcome kept; starts at lesson 1');
-check(JSON.parse(mem.get('reading.v1')).order === ORDER && ORDER === 'm a s i t p f o n d c h u g l r b e j w v y z x q sh ch th ck ff wh ng nk', 'case 1: migrated state saved with the order');
+check(JSON.parse(mem.get('reading.v1')).order === ORDER && ORDER === 'm a s i t p f o n d c h u g l r b e j w v y z x q sh ch th ck ff wh ng nk st nd sp sn bl pl br dr mix', 'case 1: migrated state saved with the order');
 
 s = open(old({ order: ORDER }));
 check(Object.keys(s.state.lessons).length === 6 && s.settings.trainAt === 5, 'case 2: same order keeps lessons');

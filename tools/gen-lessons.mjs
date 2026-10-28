@@ -7,12 +7,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT } from '../test/lib.mjs';
 import { usedImages } from './precache-images.mjs';
-import { boardWords, middleFor, TAP_GAMES } from '../js/games-data.js';
-import { ORDER_SOUNDS, spellingsOf, soundOfLetter, lettersOfSounds, letterUnits, isReadable } from '../js/order.js';
+import { boardWords, middleFor, TAP_GAMES, WORD_BANK, DOCKS_BANK } from '../js/games-data.js';
+import { ORDER_SOUNDS, BLENDS, isBlendKey, spellingsOf, soundOfLetter, lettersOfSounds, letterUnits, isReadable, isReadableBlends, blendPairsIn } from '../js/order.js';
 
 const FILE = path.join(ROOT, 'data/curriculum.json');
 const tile = (folder, word) => ({ word, image: `assets/images/mentava/web/${folder}/${word}.webp` });
-const lastLesson = Number(process.argv[2] || 33);
+const lastLesson = Number(process.argv[2] || 42);
 
 // sound, how to say it, tiles (folder/word; the word begins with the sound), letter words (only letters taught so far),
 // one picture word for Saying Sounds, the Quick Check and the games' distractor letters.
@@ -131,6 +131,56 @@ const TABLE = [
     tiles: [], start: [], words: ['bank', 'pink', 'honk'], pic: null,
     qc: { kind: 'letter', others: ['ng', 'm'] }, hunt: 'masitpfd',
     note: 'The letters nk are taught as chunks: -ank, -ink, -onk, -unk. Read the whole chunk: bank, pink, honk, junk.' },
+
+  // ---- Blend Bay (World 5, lessons 34 to 42): blends are NOT new sounds. Each letter keeps its own sound, so no new letter unit and no new taught letter: the lesson teaches
+  // gliding two sounds together ("ssstop", not "suh-top"). `blend` lists the lesson's pairs (js/order.js BLENDS): g the two letters, say how the grown-up writes the glide
+  // (a held first sound is stretched: ssst-; two short sounds glide: bl-), asIn an example word. The first pair is the lesson's glyph, the rest are `alt`. practice: only
+  // lesson 37 has a picture that starts with its first pair (snail, snake); the rest are met in the tiles and the words. qc: the Ticket Check, a letter question about a pair.
+  { n: 34, k: 'st', blend: [{ g: 'st', say: 'ssst-', asIn: 'last' }, { g: 'ft', say: 'ffft-', asIn: 'soft' }], practice: [], hold: false, not: 'suh-t',
+    how: 'Say the s and the t as one smooth glide: ssst-. Keep the s going, then tap the t. Do not add uh between them.',
+    tiles: ['e/nest', 'v/vest'], start: [], words: ['lost', 'soft', 'gift'], pic: 'nest',
+    qc: { kind: 'letter', target: 'st', others: ['ft', 'sh'] }, hunt: 'mohnuabe',
+    note: 'A blend is two sounds said close together. Each letter keeps its own sound: s says sss and t says t-. At the end of a word the s and t glide together: last, nest, soft, gift.' },
+  { n: 35, k: 'nd', blend: [{ g: 'nd', say: 'nnnd-', asIn: 'hand' }, { g: 'mp', say: 'mmmp-', asIn: 'lamp' }, { g: 'nt', say: 'nnnt-', asIn: 'tent' }], practice: [], hold: false, not: 'nuh-d',
+    how: 'Say the n or m and then the d, p or t straight after it, no uh between. The n or m melts into the vowel, so listen for it.',
+    tiles: ['e/tent', 'h/hand', 'j/jump'], start: [], words: ['hand', 'lamp', 'jump'], pic: 'tent',
+    qc: { kind: 'letter', target: 'nd', others: ['mp', 'st'] }, hunt: 'mohubaeg',
+    note: 'The n or m in nd, mp and nt melts into the vowel, so it is easy to leave out: sad becomes sand, cap becomes camp. Say the word slowly and let your child hear the nnn or mmm before the last sound. The next stop, Tricky Sounds, practices exactly this.' },
+  { n: 36, k: 'sp', blend: [{ g: 'sp', say: 'sssp-', asIn: 'spin' }, { g: 'sk', say: 'sssk-', asIn: 'skip' }], practice: [], hold: false, not: 'suh-p',
+    how: 'Hold the s and slide straight into the next sound: sssp-. Do not say suh-p. st works the same way: ssstop.',
+    tiles: ['i/stick', 'ar/star'], start: [], words: ['stop', 'spin', 'skip'], pic: 'stick',
+    qc: { kind: 'letter', target: 'sp', others: ['sk', 'st'] }, hunt: 'mohnubae',
+    note: 'Hold the s, then slide into the next sound: sssp-in, not suh-pin. The pair st from lesson 34 now comes at the start of words too: stop, step. Chains add a missing sound to make a new word: top, stop.' },
+  { n: 37, k: 'sn', blend: [{ g: 'sn', say: 'sssnnn', asIn: 'snap' }, { g: 'sw', say: 'sssw-', asIn: 'swim' }, { g: 'sm', say: 'sssmmm', asIn: 'smash' }, { g: 'sl', say: 'sssl-', asIn: 'slip' }], practice: ['snail', 'snake'], hold: true, not: 'suh-n',
+    how: 'Hold the s and slide into the next sound: sssnnn. Do not say suh-n. The same for sw, sm and sl.',
+    tiles: ['s/snail', 's/snake'], words: ['snap', 'swim', 'smash', 'slip'], pic: 'snail',
+    qc: { kind: 'letter', target: 'sn', others: ['sw', 'sp'] }, hunt: 'mohubaeg',
+    note: 'Four more s-blends: sn, sw, sm, sl. Hold the s, then slide into the next sound. Try a chain: sap, snap; lip, slip; wing, swing.' },
+  { n: 38, k: 'bl', blend: [{ g: 'bl', say: 'bl-', asIn: 'block' }, { g: 'cl', say: 'cl-', asIn: 'clap' }, { g: 'fl', say: 'fl-', asIn: 'flag' }], practice: [], hold: false, not: 'buh-l',
+    how: 'Glide the first sound straight into l: bl-, cl-, fl-. Say block, not buh-lock.',
+    tiles: ['ow/cloud'], start: [], words: ['block', 'clap', 'flag'], pic: 'cloud',
+    qc: { kind: 'letter', target: 'bl', others: ['cl', 'fl'] }, hunt: 'mohnuaet',
+    note: 'The l-blends: bl, cl, fl. Glide the first sound straight into l: block, not buh-lock. Keep it quick and smooth.' },
+  { n: 39, k: 'pl', blend: [{ g: 'pl', say: 'pl-', asIn: 'plan' }, { g: 'gl', say: 'gl-', asIn: 'glad' }], practice: [], hold: false, not: 'puh-l',
+    how: 'Glide the first sound straight into l: pl-, gl-. Say plan, not puh-lan.',
+    tiles: ['oo-moon/glue'], start: [], words: ['plan', 'plum', 'glad'], pic: 'glue',
+    qc: { kind: 'letter', target: 'pl', others: ['gl', 'bl'] }, hunt: 'mohnuaet',
+    note: 'Two more l-blends: pl and gl. Glide into l: plan, not puh-lan; glad, not guh-lad.' },
+  { n: 40, k: 'br', blend: [{ g: 'br', say: 'br-', asIn: 'brush' }, { g: 'tr', say: 'tr-', asIn: 'trip' }, { g: 'cr', say: 'cr-', asIn: 'crab' }], practice: [], hold: false, not: 'buh-r',
+    how: 'Glide the first sound straight into r: br-, tr-, cr-. Say brush, not buh-rush.',
+    tiles: ['a/crab', 'ae/train', 't/tree', 'ie/cry'], start: [], words: ['brush', 'trip', 'crib'], pic: 'crab',
+    qc: { kind: 'letter', target: 'br', others: ['cr', 'bl'] }, hunt: 'mohnuaes',
+    note: 'The r-blends start here: br, tr, cr. Glide into r. Note that tr often sounds close to chr (trip) and that is normal speech.' },
+  { n: 41, k: 'dr', blend: [{ g: 'dr', say: 'dr-', asIn: 'drum' }, { g: 'fr', say: 'fr-', asIn: 'frog' }, { g: 'gr', say: 'gr-', asIn: 'grin' }], practice: [], hold: false, not: 'duh-r',
+    how: 'Glide the first sound straight into r: dr-, fr-, gr-. Say drum, not duh-rum.',
+    tiles: ['oo-moon/fruit'], start: [], words: ['drop', 'frog', 'grin'], pic: 'fruit',
+    qc: { kind: 'letter', target: 'dr', others: ['fr', 'tr'] }, hunt: 'mohnuaes',
+    note: 'The last r-blends: dr, fr, gr. Glide into r. Note that dr often sounds close to jr (drip) and that is normal speech.' },
+  { n: 42, k: 'mix', blend: [{ g: 'st', say: 'ssst-', asIn: 'stamp' }, { g: 'mp', say: 'mmmp-', asIn: 'stamp' }], practice: [], hold: false, not: null,
+    how: 'Blends can come at the start of a word, at the end, or both: stamp, crust, plant. Glide each pair, with no uh.',
+    tiles: ['i/stick', 'e/tent', 'a/crab'], start: [], words: ['stamp', 'crust', 'blend', 'frost', 'plant', 'crash', 'think'], pic: null,
+    qc: { kind: 'letter', target: 'mp', others: ['sp', 'br'], text: 'Which letters are at the end of lamp?' }, hunt: 'mohnuabe',
+    note: 'The longest short-vowel words yet: stamp, crust, blend, frost, plant (five sounds each). Let your child slide under the whole word, gliding each blend. crash, flesh and think mix blends with digraphs.' },
 ];
 
 // Heart words (docs/CURRICULUM.md section 12): n is the lesson that teaches the word (never more than 2 a lesson). `parts` are [letters, heart]: the regular
@@ -188,6 +238,9 @@ const UNITS = [
   // Stage 3, Digraph Docks (World 4): 3.1 sh ch, 3.2 th, 3.3 ck ff(ll ss zz) wh, 3.4 ng nk, 3.5 mixed review (no new sound)
   { id: '3.1', stage: 3, sounds: ['sh', 'ch'] }, { id: '3.2', stage: 3, sounds: ['th'] }, { id: '3.3', stage: 3, sounds: ['ck', 'ff', 'wh'] },
   { id: '3.4', stage: 3, sounds: ['ng', 'nk'] }, { id: '3.5', stage: 3, sounds: [] },
+  // Stage 4, Blend Bay (World 5): 4.1 ending blends st ft, nd mp nt (34, 35), 4.2 s-blends (36, 37), 4.3 l-blends (38, 39), 4.4 r-blends (40, 41), 4.5 mixed review (42)
+  { id: '4.1', stage: 4, sounds: ['st', 'nd'] }, { id: '4.2', stage: 4, sounds: ['sp', 'sn'] }, { id: '4.3', stage: 4, sounds: ['bl', 'pl'] },
+  { id: '4.4', stage: 4, sounds: ['br', 'dr'] }, { id: '4.5', stage: 4, sounds: ['mix'] },
 ];
 const stageUnits = (stage, count) => Array.from({ length: count }, (_, i) => `${stage}.${i + 1}`);
 // PLACEHOLDER names: the owner will choose the real ones. Colours come from the house palette (css/app.css).
@@ -225,9 +278,12 @@ const REREAD = {
 const BOOK3 = { id: 'b3', kind: 'book', title: 'Story 3', book: 'book-3', needs: ORDER_SOUNDS.slice(0, 22) };
 // Story 4 (World 4, after lesson 31 wh): data/books/book-4.json. DRAFT: the owner approves the story text.
 const BOOK4 = { id: 'b4', kind: 'book', title: 'Story 4', book: 'book-4', needs: ORDER_SOUNDS.slice(0, 31) };
-const books = (c.checkpoints || []).filter((k) => k.kind === 'book' && k.id !== 'b3' && k.id !== 'b4');
-c.checkpoints = [REREAD, ...books, BOOK3, BOOK4];
+// Story 5 (World 5, after lesson 40 br tr cr): data/books/book-5.json. DRAFT: the owner approves the story text.
+const BOOK5 = { id: 'b5', kind: 'book', title: 'Story 5', book: 'book-5', needs: ORDER_SOUNDS.slice(0, 40) };
+const books = (c.checkpoints || []).filter((k) => k.kind === 'book' && !['b3', 'b4', 'b5'].includes(k.id));
+c.checkpoints = [REREAD, ...books, BOOK3, BOOK4, BOOK5];
 
+const fitG = (...o) => o.find((x) => x.length <= 28) || o[o.length - 1];
 const phrase = (e) => (e.asIn ? `${e.say} as in ${e.asIn}` : e.say);
 const QUIET = [{ tts: 'Today we learn a new letter. Your grown-up will say its sound.' }];
 
@@ -238,32 +294,38 @@ const ALL_AVOID = { ...Object.fromEntries(POOL_ADD.map(([t, a]) => [t.split('/')
 for (const w of c.gameDistractors) { const a = ALL_AVOID[w.word]; if (a && a.length) w.avoid = [...new Set([...(w.avoid || []), ...a])]; }
 
 
+for (const e of TABLE.filter((t) => t.blend)) {
+  e.say = e.blend[0].say; e.asIn = e.blend[0].asIn; e.alt = e.blend.slice(1).map((b) => b.g);
+  if (spellingsOf(e.k).join() !== [e.blend[0].g, ...e.alt].join()) throw new Error(`lesson ${e.n}: js/order.js SPELLINGS for ${e.k} must list ${[e.blend[0].g, ...e.alt]}`);
+}
 for (const e of TABLE.filter((t) => t.n <= lastLesson)) {
   const words = e.tiles.map((t) => tile(...t.split('/')));
   const start = (e.start ? e.start.map((t) => tile(...t.split('/'))) : words).filter((w) => spellingsOf(e.k).some((sp) => w.word.startsWith(sp)));
-  c.sounds[e.k] = { glyph: e.k, ...(e.alt ? { alt: e.alt } : {}), sayItLike: e.say, hold: e.hold, doNotSay: e.not, howTo: e.how, ...(e.endOnly ? { endOnly: true } : {}), ...(e.noPictures ? { noPictures: true } : {}), ...(e.voiced ? { voiced: e.voiced, voicedWords: e.voicedWords } : {}), ...(e.note ? { parentNote: e.note } : {}), asIn: e.asIn || null, clip: `assets/audio/sounds/${e.k}.mp3`, words, startWords: start, practice: e.practice };
+  c.sounds[e.k] = { glyph: e.blend ? e.blend[0].g : e.k, ...(e.blend ? { blend: true, pairs: e.blend } : {}), ...(e.alt ? { alt: e.alt } : {}), sayItLike: e.say, hold: e.hold, doNotSay: e.not, howTo: e.how, ...(e.endOnly ? { endOnly: true } : {}), ...(e.noPictures ? { noPictures: true } : {}), ...(e.voiced ? { voiced: e.voiced, voicedWords: e.voicedWords } : {}), ...(e.note ? { parentNote: e.note } : {}), asIn: e.asIn || null, clip: e.blend ? null : `assets/audio/sounds/${e.k}.mp3`, words, startWords: start, practice: e.practice };
   const pickPicture = (w) => words.find((x) => x.word === w) || (() => { throw new Error('no tile for ' + w); })();
   // Every word a child reads must be spelt with the letters taught up to this lesson. A picture word whose letters are not all taught yet
   // (from lesson 7 on) is only said, never shown as letters to slide under: sayOnly (js/screens/tasks/sounds.js).
   const taughtNow = lettersOfSounds(ORDER_SOUNDS.slice(0, e.n));
-  for (const w of e.words) if (!isReadable(w, taughtNow)) throw new Error(`lesson ${e.n}: "${w}" uses a letter that is not taught yet`);
+  for (const w of e.words) if (!(e.blend ? isReadableBlends : isReadable)(w, taughtNow)) throw new Error(`lesson ${e.n}: "${w}" uses a letter or a blend that is not taught yet`);
   const picOnly = e.pic && (e.sayOnly || (e.n >= 7 && !isReadable(e.pic, taughtNow)));
   const sayingSounds = [...e.words.map((w) => ({ word: w, emoji: null, showLetters: true })), ...(e.pic ? [{ ...pickPicture(e.pic), showLetters: false, ...(picOnly ? { sayOnly: true } : {}) }] : [])];
   const asInTail = e.asIn ? [{ tts: `as in ${e.asIn}.` }] : [];
   const qTail = e.asIn ? [{ tts: `as in ${e.asIn}?` }] : [];
   let options;
-  if (e.qc.kind === 'letter') options = [e.k, ...e.qc.others].map((g, i) => ({ glyph: g, correct: i === 0 }));
+  if (e.qc.kind === 'letter') options = [e.qc.target || e.k, ...e.qc.others].map((g, i) => ({ glyph: g, correct: i === 0 }));
   else {
     options = [{ ...pickPicture(e.qc.word), correct: true }, ...e.qc.others.map((w) => { const t = c.gameDistractors.find((x) => x.word === w); if (!t) throw new Error('no pool word ' + w); return { word: t.word, image: t.image, correct: false }; })];
   }
   const ask = e.qc.kind === 'letter' ? 'Which letter says' : 'Which picture starts with';
   const quiet = e.qc.kind === 'letter' ? 'Listen to your grown-up. Then touch the letter.' : 'Listen. Touch the one that starts the same.';
+  const qb = e.blend ? (() => { const t = e.blend.find((b) => b.g === (e.qc.target || e.k)) || e.blend[0], q = 'Listen to your grown-up. Then touch the letters.'; const text = e.qc.text || `Which letters say ${t.say} as in ${t.asIn}?`;
+    return { prompt: [{ tts: 'Which letters make the blend?' }], promptQuiet: [{ tts: q }], promptText: text, promptTextQuiet: q, gist: fitG(e.qc.text ? 'Which is at the end of lamp?' : `Which says ${t.say}?`, `Ask: ${t.say}?`), script: e.qc.text ? "Say: 'Which letters are at the end of lamp?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly." : `Say: 'Which letters say ${t.say} as in ${t.asIn}?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.` }; })() : null;
   c.lessons.push({
-    number: e.n, sound: e.k, review: e.n >= 3 ? [c.lessons[e.n - 3].sound, c.lessons[e.n - 2].sound] : [],
-    intro: [{ tts: 'Today we learn a new sound:' }, { clip: e.k }, ...asInTail],
-    introQuiet: QUIET,
+    number: e.n, sound: e.k, ...(e.blend ? { blend: true } : {}), review: e.n >= 3 ? [c.lessons[e.n - 3].sound, c.lessons[e.n - 2].sound] : [],
+    intro: e.blend ? [{ tts: 'Today we learn a new blend.' }] : [{ tts: 'Today we learn a new sound:' }, { clip: e.k }, ...asInTail],
+    introQuiet: e.blend ? [{ tts: 'Today we learn a new blend. Your grown-up will say it.' }] : QUIET,
     sayingSounds,
-    quickCheck: {
+    quickCheck: e.blend ? { ...qb, kind: 'letter', options } : {
       prompt: [{ tts: ask }, { clip: e.k }, ...qTail], promptQuiet: [{ tts: quiet }],
       promptText: `${ask} ${phrase(e)}?`, promptTextQuiet: quiet, kind: e.qc.kind, options,
     },
@@ -287,7 +349,7 @@ for (const L of c.lessons) { const b = boardWords(c.lessons.map((x) => x.sound),
 // in most stops, a different mix at every stop, and Ticket Check last. Picked by hand, then checked here and in test/check-content.mjs.
 // Every world ends with a Review Stop (owner rule, World 3 build): after lessons 6, 17 and 25 (the end of Starter Station, Green Valley and Sunny Hills),
 // with more inside the worlds. The ids are fixed (never renumbered: a saved result is keyed by id), so v1 to v5 stay where they were and the new stops are v6 to v9.
-const REVIEW_AFTER = [[3, 'v1'], [6, 'v6'], [9, 'v2'], [12, 'v3'], [15, 'v4'], [17, 'v5'], [20, 'v7'], [23, 'v8'], [25, 'v9'], [30, 'v10'], [33, 'v11']];
+const REVIEW_AFTER = [[3, 'v1'], [6, 'v6'], [9, 'v2'], [12, 'v3'], [15, 'v4'], [17, 'v5'], [20, 'v7'], [23, 'v8'], [25, 'v9'], [30, 'v10'], [33, 'v11'], [38, 'v12'], [42, 'v13']];
 const REVIEW_PLANS = {
   // three sounds only: Green Light needs a fourth letter for its lamps. The first stop also has the child's first word: ma, then mama (the 'read' step)
   3: [['hunt', 3], ['wagons', 2], ['hunt', 1], ['read', 3, ['ma', 'mama']], ['check', 2]],
@@ -304,6 +366,9 @@ const REVIEW_PLANS = {
   // Digraph Docks: the middle stop leans on th ck ff (with sh from before); the last stop mixes all the digraphs (the games deal each lesson's sound with the earlier ones)
   30: [['signals', 30], ['hunt', 28], ['board', 29], ['check', 26]],
   33: [['wagons', 33], ['signals', 31], ['hunt', 29], ['board', 27], ['check', 30]],
+  // Blend Bay: the middle stop leans on the three newest blend lessons (36 37 38) and an older one; the last stop mixes every family (each game deals its lesson's pairs with the ones before it)
+  38: [['hunt', 38], ['wagons', 36], ['chains', 37], ['check', 35]],
+  42: [['wagons', 41], ['hunt', 40], ['chains', 42], ['signals', 39], ['check', 38]],
 };
 // Ticket Check is always a letter question (lessons 2, 4, 6 ...): its wrong cards are letters taught by then, where a picture question
 // shows pictures (and their words) that begin with letters not taught yet.
@@ -311,14 +376,54 @@ const REVIEW_PLANS = {
 const NAMES = new Set(['sam', 'tim', 'pam', 'pip', 'kim', 'ben', 'ted', 'dan', 'meg', 'jen', 'jim', 'tom', 'bob', 'nan', 'pat']);
 // data/words-decodable.json use only the letters taught by then. W is counted here, never typed. The examples are a sample of those words,
 // favouring words the child has already met in the lessons and books, then words that use the newest letters; at most 8 (all of them when fewer).
-const WORD_LIST = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8')).words;
-const met = new Set([...c.lessons.flatMap((L) => [...L.sayingSounds.map((w) => w.word), ...(L.board || []).map((b) => b.word)]), ...Object.values(c.sounds).flatMap((x) => x.words.map((w) => w.word))]);
+const WORDS_JSON = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8'));
+const WORD_LIST = [...WORDS_JSON.words, ...(WORDS_JSON.blendWords || [])];
+const BLEND_ONLY = new Set(WORDS_JSON.blendWords || []);
+for (const w of BLEND_ONLY) if (WORDS_JSON.words.includes(w) || !isReadableBlends(w, lettersOfSounds(ORDER_SOUNDS))) throw new Error('blendWords: "' + w + '" is in the old list or is not readable once every blend is taught');
+const readableNow = (w, taught) => (BLEND_ONLY.has(w) ? isReadableBlends(w, taught) : isReadable(w, taught));
+// The words a child has met in the lessons: those of lessons 1 to 33 for every stop (as before World 5, so no earlier stop changes), and of the World 5 lessons up to the stop's own.
+const metBy = (after) => new Set([...c.lessons.filter((L) => L.number <= Math.max(33, after)).flatMap((L) => [...L.sayingSounds.map((w) => w.word), ...(L.board || []).map((b) => b.word)]), ...Object.entries(c.sounds).filter(([k]) => ORDER_SOUNDS.indexOf(k) < Math.max(33, after)).flatMap(([, x]) => x.words.map((w) => w.word))]);
+// Add a Car (task 'chains', js/screens/tasks/chains.js): a word train gains one letter car to make a new word (top, stop). `from` and `to` differ by one letter unit; the
+// child picks the car from three (the right one and two that make no word there). Every word is spelt with letters, digraphs and blends taught by the lesson.
+const CHAINS = {
+  34: [['pat', 'past'], ['bet', 'best'], ['lot', 'lost'], ['lit', 'lift']],
+  35: [['sad', 'sand'], ['cap', 'camp'], ['bet', 'bent'], ['ten', 'tent'], ['lap', 'lamp'], ['had', 'hand']],
+  36: [['top', 'stop'], ['pin', 'spin'], ['pot', 'spot'], ['sip', 'skip']],
+  37: [['sap', 'snap'], ['lip', 'slip'], ['wing', 'swing'], ['mash', 'smash']],
+  38: [['lack', 'black'], ['cap', 'clap'], ['lip', 'flip'], ['lag', 'flag'], ['lock', 'block']],
+  39: [['pan', 'plan'], ['pug', 'plug'], ['pot', 'plot'], ['lad', 'glad']],
+  40: [['rip', 'trip'], ['cab', 'crab'], ['rush', 'brush'], ['rag', 'brag'], ['rib', 'crib']],
+  41: [['rip', 'drip'], ['fog', 'frog'], ['rum', 'drum'], ['gin', 'grin'], ['rub', 'grub']],
+  42: [['rust', 'crust'], ['pant', 'plant'], ['band', 'bland'], ['sand', 'stand'], ['lump', 'plump'], ['camp', 'cramp'], ['last', 'blast']],
+};
+const KNOWN = new Set([...WORD_LIST, ...WORD_BANK, ...DOCKS_BANK]);
+const CAR_LETTERS = [...'bcdfghjklmnprstwz'];
+function chainsFor(n) {
+  const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, n));
+  return (CHAINS[n] || []).map(([from, to]) => {
+    for (const w of [from, to]) if (!isReadableBlends(w, taught)) throw new Error(`lesson ${n} chain: "${w}" is not readable by lesson ${n}`);
+    const a = letterUnits(from, n), b = letterUnits(to, n);
+    const at = b.findIndex((u, i) => u !== a[i]);
+    if (b.length !== a.length + 1 || at < 0 || b.filter((_, i) => i !== at).join('') !== a.join('')) throw new Error(`lesson ${n} chain ${from} to ${to}: not one added letter`);
+    const letter = b[at], form = (u) => [...a.slice(0, at), u, ...a.slice(at)].join('');
+    const fake = CAR_LETTERS.filter((u) => u !== letter && u !== a[at - 1] && u !== a[at] && !KNOWN.has(form(u)) && !(u + letter === 'sc') && ![letter + u, u + letter].some((x) => x === 'xx'));
+    const opts = [letter, fake[(n + at) % fake.length], fake[(n + at + 5) % fake.length]];
+    if (new Set(opts).size < 3) throw new Error(`lesson ${n} chain ${from}: no distractors`);
+    return { from, to, at, letter, options: opts };
+  });
+}
+for (const L of c.lessons) { delete L.chains; if (CHAINS[L.number]) L.chains = chainsFor(L.number); }
+
+
 function reviewSummary(after) {
+  const met = metBy(after);
   const sounds = ORDER_SOUNDS.slice(0, after), taught = lettersOfSounds(sounds), newest = lettersOfSounds(sounds.slice(-3));
-  const readable = WORD_LIST.filter((w) => isReadable(w, taught));
-  const score = (w) => (met.has(w) ? 100 : 0) + [...new Set(letterUnits(w, taught))].filter((ch) => newest.has(ch)).length * 10 + Math.min(w.length, 4);
+  const readable = WORD_LIST.filter((w) => readableNow(w, taught));
+  const newPairs = new Set(sounds.filter((k) => k in BLENDS).slice(-3).flatMap((k) => BLENDS[k])); // World 5: the words that use the newest blends lead
+  const score = (w) => (met.has(w) ? 100 : 0) + (after > 33 ? blendPairsIn(w).filter((q) => newPairs.has(q)).length * 40 : 0) + [...new Set(letterUnits(w, taught))].filter((ch) => newest.has(ch)).length * 10 + Math.min(w.length, 4);
   const examples = readable.map((w, i) => ({ w, i })).sort((a, b) => score(b.w) - score(a.w) || a.i - b.i).slice(0, 8).map((x) => (NAMES.has(x.w) ? x.w[0].toUpperCase() + x.w.slice(1) : x.w)); // names are shown capitalised (Sam)
-  return { sounds: sounds.length, words: readable.length, examples, hearts: HEART.filter((x) => x.n <= after).map((x) => x.w) };
+  const blends = new Set(sounds.flatMap((k) => (isBlendKey(k) && k !== 'mix' ? BLENDS[k] : []))).size;
+  return { sounds: sounds.filter((k) => !isBlendKey(k)).length, ...(blends ? { blends } : {}), words: readable.length, examples, hearts: HEART.filter((x) => x.n <= after).map((x) => x.w) };
 }
 REVIEW_AFTER.forEach(([after, id]) => {
   if (after > c.lessons.length) return;
@@ -327,12 +432,13 @@ REVIEW_AFTER.forEach(([after, id]) => {
     if (lesson > after || !L) throw new Error(`review stop after ${after}: lesson ${lesson} is not taught yet`);
     if (task === 'signals' && lesson < 2) throw new Error('Green Light needs two sounds');
     if (task === 'check' && L.quickCheck.kind !== 'letter') throw new Error(`review stop after ${after}: lesson ${lesson}'s Ticket Check is a picture question`);
+    if (task === 'chains' && !(L.chains || []).length) throw new Error(`review stop after ${after}: lesson ${lesson} has no chains`);
     if (task === 'board' && !L.board) throw new Error(`review stop after ${after}: lesson ${lesson} has no Station Board words`);
     if (task === 'read') for (const w of words) if (!isReadable(w, lettersOfSounds(ORDER_SOUNDS.slice(0, after)))) throw new Error(`review stop after ${after}: "${w}" is not readable yet`);
     return { task, lesson, ...(words ? { words } : {}) };
   });
   if (plan[plan.length - 1].task !== 'check') throw new Error('Ticket Check comes last');
-  c.checkpoints.push({ id, kind: 'review', title: 'Review Stop', after, ...(after === 25 ? { mix: 'vowels' } : after === 33 ? { mix: 'digraphs' } : {}), summary: reviewSummary(after), plan });
+  c.checkpoints.push({ id, kind: 'review', title: 'Review Stop', after, ...(after === 25 ? { mix: 'vowels' } : after === 33 ? { mix: 'digraphs' } : after === 42 ? { mix: 'blends' } : {}), summary: reviewSummary(after), plan });
 });
 
 // Tricky Sounds (checkpoint kind "contrast", ids x1 to x8; docs/LESSON-REBUILD.md section 12): a stop that sets two easily mixed sounds side by side.
@@ -375,23 +481,32 @@ const CONTRAST = [
   { id: 'x10', after: 28, pair: ['th', 't'], check: ['th', 't', 'm'], hint: 'For th the tongue peeks out between the teeth. For t it stays behind the teeth.',
     sides: [{ sign: ['th'], letters: ['th'], words: ['thin', 'that', 'this', 'then', 'thud'] }, { sign: ['t'], letters: ['t'], words: ['tin', 'ten', 'tap', 'tub', 'tip'] }],
     pairs: [['thin', 'tin'], ['then', 'ten']] },
+  // Blend Bay: the melted n or m (sad / sand, cap / camp: mode 'ends', the word is sorted by how it ends), then bl against br (l and r are the classic mix-up, blush / brush).
+  // A blend lesson's pairs are not new sounds: the tunnels sort a pair (nd mp nt) against the same ending with no n or m (d p t).
+  { id: 'x11', after: 35, pair: ['nd', 'd'], check: ['nd', 'd', 'mp'], mode: 'ends', hint: 'Listen for the nnn or mmm that melts into the vowel: sand has it, sad does not.',
+    line: "Easy to miss: the n or m that melts into the vowel. Sand has it, sad does not. Let's listen closely.", end: 'Great listening! Your child can hear the n or m in sand, camp and tent, and when it is missing.',
+    sides: [{ sign: ['nd', 'mp', 'nt'], letters: ['nd', 'mp', 'nt'], words: ['sand', 'hand', 'lamp', 'camp', 'bent', 'tent'] }, { sign: ['d', 'p', 't'], letters: ['d', 'p', 't'], words: ['sad', 'had', 'lap', 'cap', 'bet', 'pat'] }],
+    pairs: [['sand', 'sad'], ['camp', 'cap'], ['bent', 'bet'], ['lamp', 'lap']] },
+  { id: 'x12', after: 41, pair: ['bl', 'br'], check: ['br', 'bl', 'cr'], hint: 'For bl the tongue touches behind the top teeth. For br it pulls back and stays away.',
+    sides: [{ sign: ['bl'], letters: ['bl'], words: ['black', 'block', 'blob', 'blot', 'blush', 'bled'] }, { sign: ['br'], letters: ['br'], words: ['brag', 'brat', 'brim', 'brush', 'brisk', 'brick'] }],
+    pairs: [['blush', 'brush'], ['bled', 'bred'], ['blink', 'brink']] },
 ];
 const contrastStops = [];
 const say2 = (k) => { const s = c.sounds[k]; return s.asIn ? `${s.sayItLike} as in ${s.asIn}` : s.sayItLike; };
 for (const x of CONTRAST) {
   if (x.after > c.lessons.length) continue;
   const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, x.after));
-  const first = (side, w) => (x.mode === 'vowel' ? w.includes(side.letters[0]) && !x.sides.some((o) => o !== side && w.includes(o.letters[0])) : side.letters.some((l) => w.startsWith(l)) && !x.sides.some((o) => o !== side && o.letters.some((l) => l.length > 1 && w.startsWith(l))));
+  const first = (side, w) => (x.mode === 'ends' ? side.letters.some((l) => w.endsWith(l)) && !x.sides.some((o) => o !== side && o.letters.some((l) => l.length > 1 && w.endsWith(l))) : x.mode === 'vowel' ? w.includes(side.letters[0]) && !x.sides.some((o) => o !== side && w.includes(o.letters[0])) : side.letters.some((l) => w.startsWith(l)) && !x.sides.some((o) => o !== side && o.letters.some((l) => l.length > 1 && w.startsWith(l))));
   const inSide = (side, w) => side.letters.some((l) => w.includes(l)) && !x.sides.some((o) => o !== side && o.letters.some((l) => w.includes(l))); // a pair may differ at the end (am / an)
-  for (const side of x.sides) for (const w of side.words) if (!isReadable(w, taught) || !first(side, w)) throw new Error(`${x.id}: "${w}" is not a decodable word of its tunnel`);
-  for (const [a, b] of x.pairs) if (![a, b].every((w, i) => isReadable(w, taught) && (first(x.sides[i], w) || inSide(x.sides[i], w)))) throw new Error(`${x.id}: pair ${a}/${b} is not decodable or sits in the wrong tunnel`);
+  for (const side of x.sides) for (const w of side.words) if (!(x.after >= 34 ? isReadableBlends : isReadable)(w, taught) || !first(side, w)) throw new Error(`${x.id}: "${w}" is not a decodable word of its tunnel`);
+  for (const [a, b] of x.pairs) if (![a, b].every((w, i) => (x.after >= 34 ? isReadableBlends : isReadable)(w, taught) && (first(x.sides[i], w) || inSide(x.sides[i], w)))) throw new Error(`${x.id}: pair ${a}/${b} is not decodable or sits in the wrong tunnel`);
   for (const k of [...x.pair, ...x.check]) if (!taught.has(k) && !ORDER_SOUNDS.slice(0, x.after).includes(k)) throw new Error(`${x.id}: ${k} is not taught yet`);
   const [key, mate, other] = x.check;
   const ask = 'Which letter says', quiet = 'Listen to your grown-up. Then touch the letter.';
   const sk = c.sounds[key], tail = sk.asIn ? [{ tts: `as in ${sk.asIn}.` }] : [];
   const pairs = x.pairs.map(([a, b]) => { const ia = tileFor(a), ib = tileFor(b); return { a, b, ...(ia && ib ? { images: { [a]: ia, [b]: ib } } : {}) }; });
   const A = x.pair.map(say2);
-  contrastStops.push({ id: x.id, kind: 'contrast', title: 'Tricky Sounds', after: x.after, pair: x.pair, sides: x.sides, pairs, ...(x.whichLetters ? { whichLetters: x.whichLetters } : {}), ...(x.hint ? { hint: x.hint } : {}),
+  contrastStops.push({ id: x.id, kind: 'contrast', title: 'Tricky Sounds', after: x.after, pair: x.pair, sides: x.sides, pairs, ...(x.whichLetters ? { whichLetters: x.whichLetters } : {}), ...(x.mode === 'ends' ? { mode: 'ends' } : {}), ...(x.hint ? { hint: x.hint } : {}),
     line: x.line || `Two sounds that are easy to mix up: ${A[0]} and ${A[1]}. Let's listen closely.`,
     end: x.end || `Great listening! Your child can tell ${A[0]} from ${A[1]}.`,
     quickCheck: { prompt: [{ tts: ask }, { clip: key }, ...tail], promptQuiet: [{ tts: quiet }], promptText: `${ask} ${say2(key)}?`, promptTextQuiet: quiet, kind: 'letter', options: [key, mate, other].map((g, i) => ({ glyph: g, correct: i === 0 })) },
@@ -438,6 +553,16 @@ const MOUTH = {
   wh: { voice: true, text: 'Round your lips like a small O, then open them quickly, just like w. Voice on.' },
   ng: { voice: true, text: 'Lift the back of your tongue to the roof of your mouth and hum through your nose. Voice on.' },
   nk: { voice: true, text: 'Lift the back of your tongue and hum through your nose, then end with a quick puff, like k. Voice on.' },
+  // Blend Bay: two sounds that glide together; each letter keeps its own sound
+  st: { voice: false, text: 'Hold the s: teeth together, thin air. Then tap your tongue behind your top teeth for t. Glide. Voice off.' },
+  nd: { voice: true, text: 'Hum the n or m, tongue up behind your top teeth. Then tap out d, p or t. The hum melts into the vowel. Voice on.' },
+  sp: { voice: false, text: 'Hold the s, then slide straight into p (lips pop) or k (back of the tongue). Glide, no uh. Voice off.' },
+  sn: { voice: true, text: 'Hold the s, then slide into n or m (hum), w (round lips) or l (tongue up). Glide, no uh. Voice on.' },
+  bl: { voice: true, text: 'Say the first sound and glide straight into l, tongue behind your top teeth. Quick, no uh. Voice on.' },
+  pl: { voice: true, text: 'Pop the p or g and glide straight into l, tongue behind your top teeth. No uh. Voice on.' },
+  br: { voice: true, text: 'Say the first sound and glide straight into r, tongue pulled back. Quick, no uh. Voice on.' },
+  dr: { voice: true, text: 'Say d, f or g and glide straight into r, tongue pulled back. No uh. Voice on.' },
+  mix: { voice: true, text: 'Glide each pair, at the start, the end, or both: stamp. Keep every letter sound, no uh. Voice on.' },
 };
 for (const [k, m] of Object.entries(MOUTH)) if (c.sounds[k]) c.sounds[k].mouth = m;
 for (const k of Object.keys(c.sounds)) if (!MOUTH[k]) throw new Error('no Watch My Mouth text for ' + k);
@@ -455,6 +580,7 @@ for (const L of c.lessons) {
   L.games = L.middle.filter((t) => TAP_GAMES.includes(t));
 }
 
+
 // Heart words: the table above, into the data. A lesson names the words it teaches (`heart`); `heartWords` holds each word's parts and its phrase.
 // The step sits in tasksFor (js/lessons.js) after Watch My Mouth. Never more than 2 a lesson.
 c.heartWords = {};
@@ -470,13 +596,13 @@ for (const x of HEART.filter((y) => y.n <= c.lessons.length)) {
 // Milestones (docs/PLAN-v1.9.md). A level is earned when its `after` lesson is done; after is null while a needed sound
 // is not built yet. Keep levels 4 to 15 sounds apart. Level two is the end of Green Valley (World 2): all 17 sounds of lessons 1 to 17; level three is the end of Sunny Hills (World 3): all 25
 // (k is the second spelling of c, so it is not a separate need). Later levels name the sounds still to build.
-const ALL33 = ORDER_SOUNDS, ALL25 = ORDER_SOUNDS.slice(0, 25), ALL17 = ORDER_SOUNDS.slice(0, 17);
+const ALL42 = ORDER_SOUNDS, ALL33 = ORDER_SOUNDS.slice(0, 33), ALL25 = ORDER_SOUNDS.slice(0, 25), ALL17 = ORDER_SOUNDS.slice(0, 17);
 const LEVELS = [
   { id: 'L1', n: 1, car: 'caboose', needs: ['m', 'a', 's', 'i', 't', 'p'] },
   { id: 'L2', n: 2, car: 'coach', needs: ALL17 },
   { id: 'L3', n: 3, car: 'flatbed', needs: ALL25 },
   { id: 'L4', n: 4, car: 'tanker', needs: ALL33 },
-  { id: 'L5', n: 5, car: 'dome', needs: [...ALL33, 'bl', 'st'] },
+  { id: 'L5', n: 5, car: 'dome', needs: ALL42 },
 ];
 const builtAt = (s) => { const i = c.lessons.findIndex((L) => L.sound === s); return i < 0 ? null : i + 1; };
 c.levels = LEVELS.map((v) => { const at = v.needs.map(builtAt); return { ...v, after: at.includes(null) ? null : Math.max(...at) }; });

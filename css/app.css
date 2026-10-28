@@ -49,9 +49,18 @@
   --wh: #1D4ED8; --wh-tint: rgba(29,78,216,.12);
   --ng: #BE123C; --ng-tint: rgba(190,18,60,.12);
   --nk: #4D7C0F; --nk-tint: rgba(77,124,15,.12);
+  --st: #0F766E; --st-tint: rgba(15,118,110,.12);
+  --nd: #0E7490; --nd-tint: rgba(14,116,144,.12);
+  --sp: #7E22CE; --sp-tint: rgba(126,34,206,.12);
+  --sn: #BE185D; --sn-tint: rgba(190,24,93,.12);
+  --bl: #1E40AF; --bl-tint: rgba(30,64,175,.12);
+  --pl: #A16207; --pl-tint: rgba(161,98,7,.12);
+  --br: #9A3412; --br-tint: rgba(154,52,18,.12);
+  --dr: #166534; --dr-tint: rgba(22,101,52,.12);
+  --mix: #475569; --mix-tint: rgba(71,85,105,.12);
   /* fills that carry white text: green darkened for contrast */
   --m-fill: var(--m); --a-fill: var(--a); --s-fill: #1E8E5E;
-  --t-fill: #AD6417; --f-fill: #108286; --d-fill: #8659E9; --g-fill: #C34A88; --i-fill: #A3690C; --n-fill: #2B6CB0; --p-fill: #C2417A; --h-fill: #7A5C3E; --b-fill: #5667F2; --l-fill: #60801F; --o-fill: #9B3FC4; --c-fill: #0B7396; --k-fill: #0B7396; --u-fill: #CC4F2A; --r-fill: #2E8A2E; --e-fill: #B3472F; --j-fill: #6A4FC4; --w-fill: #1F7A8C; --v-fill: #A33B7A; --y-fill: #8A6D00; --z-fill: #2E7D32; --x-fill: #C2410C; --q-fill: #3F51B5; --sh-fill: #0B6E99; --ch-fill: #B45309; --th-fill: #6D28D9; --ck-fill: #9D174D; --ff-fill: #047857; --wh-fill: #1D4ED8; --ng-fill: #BE123C; --nk-fill: #4D7C0F;
+  --t-fill: #AD6417; --f-fill: #108286; --d-fill: #8659E9; --g-fill: #C34A88; --i-fill: #A3690C; --n-fill: #2B6CB0; --p-fill: #C2417A; --h-fill: #7A5C3E; --b-fill: #5667F2; --l-fill: #60801F; --o-fill: #9B3FC4; --c-fill: #0B7396; --k-fill: #0B7396; --u-fill: #CC4F2A; --r-fill: #2E8A2E; --e-fill: #B3472F; --j-fill: #6A4FC4; --w-fill: #1F7A8C; --v-fill: #A33B7A; --y-fill: #8A6D00; --z-fill: #2E7D32; --x-fill: #C2410C; --q-fill: #3F51B5; --sh-fill: #0B6E99; --ch-fill: #B45309; --th-fill: #6D28D9; --ck-fill: #9D174D; --ff-fill: #047857; --wh-fill: #1D4ED8; --ng-fill: #BE123C; --nk-fill: #4D7C0F; --st-fill: #0F766E; --nd-fill: #0E7490; --sp-fill: #7E22CE; --sn-fill: #BE185D; --bl-fill: #1E40AF; --pl-fill: #A16207; --br-fill: #9A3412; --dr-fill: #166534; --mix-fill: #475569;
   --sky: #5DE0F0; --violet: #5A4BD6; --coral: #F0556A; --sun: #FFD166; --mint: #5FE3B0; --lilac: #CDC4F8; --blue: #7DB8F5;
   --radius: 24px;
   --shadow: 0 6px 20px rgba(60,40,20,.12);
@@ -2208,3 +2217,24 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .finish-extras { display: grid; gap: 10px; justify-items: center; width: 100%; }
 .stone-star { position: absolute; left: -6px; top: -6px; width: 26px; height: 26px; display: grid; place-items: center; pointer-events: none; filter: drop-shadow(0 1px 0 rgba(30,33,64,.25)); }
 .lo-star { color: #E8A93A; margin-left: 8px; font-size: 24px; }
+/* World 5, Blend Bay: Add a Car (a word train that gains a letter car), the blend card, and the blend bracket under two letters */
+.chains-scene .chain-track { position: absolute; left: 0; right: 0; top: max(120px, calc(104px + (100% - 340px) * .2)); z-index: 2; display: flex; justify-content: center; align-items: flex-end; gap: 8px; padding: 0 14px; box-sizing: border-box; }
+.chains-scene .chain-choices { position: absolute; left: 0; right: 0; bottom: 134px; z-index: 2; display: flex; justify-content: center; gap: 18px; }
+.chain-car { position: relative; flex: 0 0 auto; width: var(--cw, 60px); height: calc(var(--cw, 60px) * 1.25); box-sizing: border-box; display: grid; place-items: center; padding: 0; border-radius: 10px; background: #FFF8EC; border: 4px solid #C99A5B; box-shadow: 0 4px 0 rgba(60,40,20,.2); font: inherit; }
+.chain-car::before, .chain-car::after { content: ''; position: absolute; bottom: -11px; width: 15px; height: 15px; border-radius: 50%; background: #2B2D5C; box-shadow: inset 0 0 0 3px #6B6F9E; }
+.chain-car::before { left: 16%; } .chain-car::after { right: 16%; }
+.chain-track .chain-car + .chain-car { margin-left: 2px; }
+.chain-car .glyph { height: 56%; width: auto; } .chain-car .glyph path { stroke-width: 13; }
+.chain-car .font-letter { font-size: calc(var(--cw, 60px) * .8); line-height: 1; }
+.chain-car.gap { background: rgba(255,255,255,.35); border-style: dashed; border-color: #FFD166; box-shadow: none; }
+.chain-car.gap b { font-size: 30px; color: #FFD166; font-weight: 800; }
+.chain-car.choice { width: 72px; height: 88px; cursor: pointer; touch-action: manipulation; }
+.chain-car.choice .glyph { height: 52px; } .chain-car.choice .font-letter { font-size: 58px; }
+.chain-car.choice.used { opacity: .35; }
+.chain-track.solved .chain-car:not(.gap) { background: #FFE9A8; border-color: #FFD166; }
+.chain-car.blend-start, .chain-car.blend-end { box-shadow: 0 4px 0 rgba(60,40,20,.2), 0 10px 0 -4px #6C5CE7; }
+.chain-car.blend-start { margin-right: -8px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; } .chain-car.blend-end { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+.blend-card .blend-rows { list-style: none; margin: 6px 0; padding: 0; display: grid; gap: 4px; }
+.blend-card .blend-rows li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.blend-card .br-pair { font-weight: 800; letter-spacing: .06em; color: var(--accent); min-width: 3.4em; }
+.blend-card .br-say strong { font-size: 1.15em; }

@@ -7,6 +7,7 @@ export const ACCENT = {
   o: '#9B3FC4', c: '#0E7FA8', u: '#E0603A', r: '#3C9D3C',
   e: '#B3472F', j: '#6A4FC4', w: '#1F7A8C', v: '#A33B7A', y: '#8A6D00', z: '#2E7D32', x: '#C2410C', q: '#3F51B5', // World 3, lessons 18 to 25
   sh: '#0B6E99', ch: '#B45309', th: '#6D28D9', ck: '#9D174D', ff: '#047857', wh: '#1D4ED8', ng: '#BE123C', nk: '#4D7C0F', // World 4, lessons 26 to 33 (ll, ss and zz take ff's colour through SPELLINGS)
+  st: '#0F766E', nd: '#0E7490', sp: '#7E22CE', sn: '#BE185D', bl: '#1E40AF', pl: '#A16207', br: '#9A3412', dr: '#166534', mix: '#475569', // World 5, lessons 34 to 42 (a blend is no new sound; its pairs take their lesson's colour through SPELLINGS)
   // lessons added in phase B (k is the second spelling of c and takes its colour)
 };
 export const accentOf = (g) => ACCENT[g] || ACCENT[soundOfLetter(g)] || '#6C5CE7';
