@@ -25,6 +25,7 @@ const SHOT_DIR = path.join(ROOT, 'docs/screenshots/blend-bay');
 const PHONE = { name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 };
 const SMALL = { name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 };
 const SOUNDS = CUR.lessons.map((L) => L.sound);
+const W5L = CUR.lessons.slice(33, 42); // World 6 (Endings Junction) comes after these nine; test/endings-junction.mjs covers it
 const shot = async (page, name) => { if (!SHOTS) return; fs.mkdirSync(SHOT_DIR, { recursive: true }); await page.screenshot({ path: path.join(SHOT_DIR, name + '.png') }); };
 
 // The reading words of each new lesson (Saying Sounds); docs/LESSON-REBUILD.md section 15.
@@ -46,17 +47,17 @@ const seedPage = async (m, n, extra = {}) => { await m.page.addInitScript(SPEECH
 // ---- data and the store, no browser ----
 export async function dataChecks({ ok }) {
   // 1. the order and the count
-  ok(ORDER_SOUNDS.length === 42 && ORDER_SOUNDS.slice(0, 33).join(' ') === 'm a s i t p f o n d c h u g l r b e j w v y z x q sh ch th ck ff wh ng nk' && ORDER_SOUNDS.slice(33).join(' ') === 'st nd sp sn bl pl br dr mix', 'order: 42 sounds, the first 33 unchanged, the nine blend lessons appended');
-  ok(ORDER === ORDER_SOUNDS.join(' ') && PRIOR_ORDERS.length === 3 && PRIOR_ORDERS[2] === ORDER_SOUNDS.slice(0, 33).join(' ') && ORDER.startsWith(PRIOR_ORDERS[2] + ' ') && ORDER.startsWith(PRIOR_ORDERS[1] + ' ') && ORDER.startsWith(PRIOR_ORDERS[0] + ' '), 'order: the 17, 25 and 33-sound strings are prefixes of the current one (PRIOR_ORDERS)');
-  ok(SOUNDS.join(' ') === ORDER && CUR.lessons.length === 42 && Object.keys(CUR.sounds).join(' ') === ORDER, 'data: 42 lessons, one key each, in order');
-  ok(CUR.lessons.slice(33).every((L) => L.world === 'W5' && L.blend === true) && lessonsIn(CUR, 'W5').length === 9 && CUR.worlds[4].name === 'Blend Bay' && CUR.lessons.slice(0, 33).every((L) => !L.blend), 'data: lessons 34 to 42 are World 5, Blend Bay, and the only blend lessons');
+  ok(ORDER_SOUNDS.length >= 42 && ORDER_SOUNDS.slice(0, 33).join(' ') === 'm a s i t p f o n d c h u g l r b e j w v y z x q sh ch th ck ff wh ng nk' && ORDER_SOUNDS.slice(33, 42).join(' ') === 'st nd sp sn bl pl br dr mix', 'order: 42 sounds, the first 33 unchanged, the nine blend lessons appended');
+  ok(ORDER === ORDER_SOUNDS.join(' ') && PRIOR_ORDERS.length >= 3 && PRIOR_ORDERS[2] === ORDER_SOUNDS.slice(0, 33).join(' ') && ORDER.startsWith(PRIOR_ORDERS[2] + ' ') && ORDER.startsWith(PRIOR_ORDERS[1] + ' ') && ORDER.startsWith(PRIOR_ORDERS[0] + ' '), 'order: the 17, 25 and 33-sound strings are prefixes of the current one (PRIOR_ORDERS)');
+  ok(SOUNDS.join(' ') === ORDER && CUR.lessons.length >= 42 && Object.keys(CUR.sounds).join(' ') === ORDER, 'data: the 42 lessons of Worlds 1 to 5 (and any after them), one key each, in order');
+  ok(W5L.every((L) => L.world === 'W5' && L.blend === true) && lessonsIn(CUR, 'W5').length === 9 && CUR.worlds[4].name === 'Blend Bay' && CUR.lessons.slice(0, 33).every((L) => !L.blend), 'data: lessons 34 to 42 are World 5, Blend Bay, and the only blend lessons');
   const UNIT = { 34: '4.1', 35: '4.1', 36: '4.2', 37: '4.2', 38: '4.3', 39: '4.3', 40: '4.4', 41: '4.4', 42: '4.5' };
-  ok(CUR.lessons.slice(33).every((L) => L.unit === UNIT[L.number]) && CUR.units.filter((u) => u.stage === 4).map((u) => u.id).join() === '4.1,4.2,4.3,4.4,4.5', 'data: units 4.1 to 4.5 (ending blends, s-blends, l-blends, r-blends, mixed review)');
+  ok(W5L.every((L) => L.unit === UNIT[L.number]) && CUR.units.filter((u) => u.stage === 4).map((u) => u.id).join() === '4.1,4.2,4.3,4.4,4.5', 'data: units 4.1 to 4.5 (ending blends, s-blends, l-blends, r-blends, mixed review)');
   ok(Object.entries(PAIRS).every(([n, p]) => spellingsOf(CUR.lessons[n - 1].sound).join(' ') === p) && Object.values(BLENDS).flat().length === 22, 'order: each blend lesson lists its pairs (22 pairs in all: st ft nd mp nt sp sk sn sw sm sl bl cl fl pl gl br tr cr dr fr gr)');
-  ok(CUR.lessons.slice(33).every((L) => CUR.sounds[L.sound].blend === true && CUR.sounds[L.sound].clip === null && CUR.sounds[L.sound].pairs.map((p) => p.g).join(' ') === PAIRS[L.number]), 'data: every blend sound lists its pairs with the grown-up notation and has no recording (the grown-up says it)');
+  ok(W5L.every((L) => CUR.sounds[L.sound].blend === true && CUR.sounds[L.sound].clip === null && CUR.sounds[L.sound].pairs.map((p) => p.g).join(' ') === PAIRS[L.number]), 'data: every blend sound lists its pairs with the grown-up notation and has no recording (the grown-up says it)');
   // 2. the words of each lesson, and decodability proven from scratch
   for (const [n, words] of Object.entries(WORDS)) ok(CUR.lessons[n - 1].sayingSounds.filter((w) => w.showLetters).map((w) => w.word).join(' ') === words, `lesson ${n} (${SOUNDS[n - 1]}): reading words are ${words}`);
-  for (const L of CUR.lessons.slice(33)) {
+  for (const L of W5L) {
     const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, L.number));
     const read = [...L.sayingSounds.filter((w) => w.showLetters).map((w) => w.word), ...(L.chains || []).flatMap((c) => [c.from, c.to])];
     ok(read.length >= 6 && read.every((w) => isReadableBlends(w, taught)), `lesson ${L.number}: every child-read word uses only letters, digraphs and blends taught by it (${read.join(' ')})`);
@@ -82,11 +83,11 @@ export async function dataChecks({ ok }) {
   // 4. the grown-up's notation (a held first sound is stretched, two short sounds glide; never a letter name, never the phone's voice)
   const say = (k, g) => CUR.sounds[k].pairs.find((p) => p.g === g).say;
   ok(say('st', 'st') === 'ssst-' && say('st', 'ft') === 'ffft-' && say('nd', 'mp') === 'mmmp-' && say('sn', 'sn') === 'sssnnn' && say('sn', 'sm') === 'sssmmm' && say('bl', 'cl') === 'cl-' && say('br', 'tr') === 'tr-' && say('dr', 'gr') === 'gr-', 'notation: ssst- ffft- mmmp- sssnnn sssmmm cl- tr- gr-');
-  ok(CUR.lessons.slice(33).every((L) => soundCardLines(CUR.sounds[L.sound])[0].startsWith('Each letter keeps its sound. Glide them together: ')), 'cards: the sound card says each letter keeps its sound and the blend is a glide');
+  ok(W5L.every((L) => soundCardLines(CUR.sounds[L.sound])[0].startsWith('Each letter keeps its sound. Glide them together: ')), 'cards: the sound card says each letter keeps its sound and the blend is a glide');
   ok(slowSounds('stop', CUR.sounds) === 'ssst-ooop-' && !/uh/.test(CUR.sounds.st.howTo.replace('Do not add uh', '')), 'scripts: stop is said ssst-ooop- (the s held, then glide); no uh');
-  ok(CUR.lessons.slice(33).every((L) => L.quickCheck.gist.length <= 28 && L.quickCheck.kind === 'letter' && L.quickCheck.options.length === 3 && L.quickCheck.options.filter((o) => o.correct).length === 1), 'Ticket Check: a letter question, three cards, one right, the grown-up gist at most 28 characters');
+  ok(W5L.every((L) => L.quickCheck.gist.length <= 28 && L.quickCheck.kind === 'letter' && L.quickCheck.options.length === 3 && L.quickCheck.options.filter((o) => o.correct).length === 1), 'Ticket Check: a letter question, three cards, one right, the grown-up gist at most 28 characters');
   // 5. Add a Car: one letter car makes a new word
-  for (const L of CUR.lessons.slice(33)) {
+  for (const L of W5L) {
     const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, L.number));
     ok(L.chains.length >= 4 && L.chains.every((c) => {
       const a = letterUnits(c.from, L.number), b = letterUnits(c.to, L.number);
@@ -94,11 +95,11 @@ export async function dataChecks({ ok }) {
     }), `lesson ${L.number}: ${L.chains.length} Add a Car chains, each one added letter, three distinct cars, the new word uses a blend (${L.chains.map((c) => c.from + '>' + c.to).join(' ')})`);
   }
   const known = new Set([...WJ.words, ...WJ.blendWords]);
-  ok(CUR.lessons.slice(33).every((L) => L.chains.every((c) => c.options.slice(1).every((o) => !known.has([...letterUnits(c.from, L.number).slice(0, c.at), o, ...letterUnits(c.from, L.number).slice(c.at)].join(''))))), 'chains: a wrong car never makes a word of the list');
-  ok(['top>stop', 'sad>sand', 'cap>camp', 'sap>snap'].every((x) => CUR.lessons.slice(33).some((L) => L.chains.some((c) => `${c.from}>${c.to}` === x))), 'chains: top stop, sad sand, cap camp and sap snap are in');
+  ok(W5L.every((L) => L.chains.every((c) => c.options.slice(1).every((o) => !known.has([...letterUnits(c.from, L.number).slice(0, c.at), o, ...letterUnits(c.from, L.number).slice(c.at)].join(''))))), 'chains: a wrong car never makes a word of the list');
+  ok(['top>stop', 'sad>sand', 'cap>camp', 'sap>snap'].every((x) => W5L.some((L) => L.chains.some((c) => `${c.from}>${c.to}` === x))), 'chains: top stop, sad sand, cap camp and sap snap are in');
   // 6. stops
   const ck = Object.fromEntries(CUR.checkpoints.map((k) => [k.id, k]));
-  ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,b4:31,b5:40,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,x9:27,x10:28,x11:35,x12:41,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25,v10:30,v11:33,v12:38,v13:42', 'stops: ids and places (older ids never renumbered)');
+  ok(CUR.checkpoints.filter((k) => k.after <= 42).map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,b4:31,b5:40,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,x9:27,x10:28,x11:35,x12:41,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25,v10:30,v11:33,v12:38,v13:42', 'stops: ids and places (older ids never renumbered)');
   const nodes = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   for (const w of ['W1', 'W2', 'W3', 'W4', 'W5']) {
     const last = nodes.filter((n) => (n.lesson ? n.lesson.world : n.checkpoint.world) === w).at(-1);
@@ -112,7 +113,7 @@ export async function dataChecks({ ok }) {
   ok(ck.v11.summary.words === 337 && ck.v11.summary.sounds === 33 && !('blends' in ck.v11.summary) && ck.v12.summary.sounds === 33 && ck.v12.summary.blends === 14 && ck.v13.summary.blends === 22 && ck.v13.summary.words > ck.v12.summary.words && ck.v12.summary.words > ck.v11.summary.words, `Review Stops: a blend is not a sound (33 sounds, 14 then 22 blends), the word count grows (${ck.v11.summary.words}, ${ck.v12.summary.words}, ${ck.v13.summary.words})`);
   ok(ck.b5.kind === 'book' && ck.b5.book === 'book-5' && ck.b5.world === 'W5' && ck.b5.after === 40 && JSON.stringify(ck.b5.needs) === JSON.stringify(ORDER_SOUNDS.slice(0, 40)), 'stops: Story 5 is in World 5, after lesson 40 (br tr cr)');
   // 7. levels, counts
-  ok(CUR.levels.map((v) => v.after).join() === '6,17,25,33,42' && CUR.levels[4].car === 'dome' && CUR.levels[4].needs.length === 42, 'levels: level five (dome) comes after lesson 42, the placeholder is gone');
+  ok(CUR.levels.slice(0, 5).map((v) => v.after).join() === '6,17,25,33,42' && CUR.levels[4].car === 'dome' && CUR.levels[4].needs.length === 42, 'levels: level five (dome) comes after lesson 42, the placeholder is gone');
   const words = [...WJ.words, ...WJ.blendWords]; words.blend = new Set(WJ.blendWords);
   const cnt = (n) => countReadable(words, ORDER_SOUNDS.slice(0, n));
   ok(cnt(33) === 337 && cnt(34) > cnt(33) && cnt(35) > cnt(34) && cnt(42) > cnt(38) && cnt(42) === ck.v13.summary.words && cnt(38) === ck.v12.summary.words, `reading count: Can read N words grows with the blend words (${cnt(33)}, ${cnt(34)}, ${cnt(35)}, ${cnt(38)}, ${cnt(42)})`);
@@ -283,7 +284,7 @@ export async function screenChecks({ browser, url, ok }) {
     await page.waitForSelector('.grownups', { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(2500);
     const txt = await page.locator('body').innerText();
-    ok(/Blend Bay/.test(txt) && /of 42/.test(txt), `Grownups: World 5, Blend Bay is listed and the lesson count is of 42 (${txt.replace(/\s+/g, ' ').slice(0, 260)})`);
+    ok(/Blend Bay/.test(txt) && /of 50/.test(txt), `Grownups: World 5, Blend Bay is listed and the lesson count is of 50 (${txt.replace(/\s+/g, ' ').slice(0, 260)})`);
     ok(errors.length === 0, `Grownups: no errors ${errors.join(' | ')}`);
     await ctx.close();
   }
