@@ -11,7 +11,7 @@ import { letterUnits } from '../../order.js';
 
 const INK = '#1E2140';
 const NEXT_MS = 1000;
-const APART = 26; // how far the two chunks slide apart, in px
+const APART = 22; // how far the two chunks slide apart, in px
 
 // Clap, Split, Glue (World 6, Endings Junction). A bigger word is a row of letter cars. The grown-up claps its beats; the child taps the gap where the word splits (between the
 // two short words of a compound word, or between the two middle consonants of a two-beat word). The two chunks slide apart; "Glue" slides them back together and the word is
@@ -40,7 +40,7 @@ export function build(ctx) {
 
   const sizeCars = () => {
     const n = Math.max(unitsOf(cur()).length, 1);
-    scene.style.setProperty('--cw', Math.max(44, Math.min(60, Math.floor((W - 28 - 4 * (n - 1) - APART) / n))) + 'px');
+    scene.style.setProperty('--cw', Math.max(44, Math.min(60, Math.floor((W - 44 - 4 * (n - 1) - APART) / n))) + 'px');
   };
   const stopWatching = watchSize(scene, (w) => { const first = !W; W = w; if (first) show(); sizeCars(); placeGaps(); });
 

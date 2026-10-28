@@ -251,10 +251,10 @@ export async function screenChecks({ browser, url, ok }) {
     await m.page.goto(url + `#/lesson/${n}/task/1`);
     await m.page.waitForSelector('.new-letter');
     await m.page.waitForTimeout(2800);
-    const d = await m.page.evaluate(() => ({ cards: [...document.querySelectorAll('.letter-card svg.glyph')].map((g) => ({ key: g.dataset.letter, strokes: g.querySelectorAll('path.stroke').length, links: g.querySelectorAll('path.glyph-link').length, w: g.getBoundingClientRect().width, h: g.getBoundingClientRect().height })), rows: [...document.querySelectorAll('.blend-rows li')].map((li) => li.textContent), card: document.querySelector('.part-card') && document.querySelector('.part-card').textContent, overflow: document.documentElement.scrollWidth > innerWidth, tiles: document.querySelectorAll('.word-tile').length, body: document.body.innerText }));
+    const d = await m.page.evaluate(() => ({ cards: [...document.querySelectorAll('.letter-card svg.glyph')].map((g) => ({ key: g.dataset.letter, strokes: g.querySelectorAll('path.stroke').length, links: g.querySelectorAll('path.glyph-link').length, w: g.getBoundingClientRect().width, h: g.getBoundingClientRect().height })), rows: [...document.querySelectorAll('.blend-rows li')].map((li) => li.textContent), card: document.querySelector('.part-card') && document.querySelector('.part-card').textContent, overflow: document.documentElement.scrollWidth > innerWidth, tiles: document.querySelectorAll('.word-tile').length, body: document.body.innerText, gist: (document.querySelector('.script-first') || {}).textContent || '' }));
     ok(d.cards.length === 1 && d.cards[0].key === KEYS[n] && d.cards[0].strokes === GLYPHS[KEYS[n]].strokes.length && (n < 48 ? d.cards[0].links === 1 : true) && d.cards[0].w > 40 && !d.overflow, `${title} ${n}: the ${KEYS[n]} glyph is drawn (${JSON.stringify(d.cards)})`);
     ok(/not a new sound|Bigger words are built/.test(d.card) && rows.every((r, i) => d.rows[i] && d.rows[i].includes(r)) && d.tiles === 0, `${title} ${n}: the card says an ending is a word part, not a new sound, and lists ${rows.join(' | ')} (${d.rows.join(' | ')})`);
-    ok(new RegExp(title).test(d.body) && !/Hold it/.test(d.body), `${title} ${n}: the step is called ${title}`);
+    ok(new RegExp(title).test(d.body) && !/Hold it/.test(d.body) && d.gist.length > 0 && d.gist.length <= 28, `${title} ${n}: the step is called ${title}, the grown-up gist fits ("${d.gist}")`);
     ok(await noSound(m.page), `${title} ${n}: nothing plays on its own`);
     await shot(m.page, `new-ending-${n}`);
     ok(m.errors.length === 0, `${title} ${n}: no errors ${m.errors.join(' | ')}`);
@@ -372,8 +372,9 @@ export async function screenChecks({ browser, url, ok }) {
         await shot(m.page, 'clap-split-glue-apart');
       }
       await m.page.locator('.glue-btn').click();
-      await m.page.waitForTimeout(r < 3 ? 1300 : 300);
-      if (r === 0) ok(/napkin!/.test(await m.page.locator('.say-prompt').textContent()) || r > 0, 'Split: Glue puts the word back together');
+      await m.page.waitForTimeout(350);
+      if (r === 0) ok(/napkin!/.test(await m.page.locator('.say-prompt').textContent()) && (await m.page.locator('.split-track.solved').count()) === 1, 'Split: Glue puts the word back together (Say: napkin!)');
+      if (r < 3) await m.page.waitForTimeout(1100);
     }
     await m.page.waitForFunction(() => document.querySelector('.split-game').dataset.state === 'done', null, { timeout: 5000 });
     ok(await noSound(m.page), 'Split: still nothing played after four words');
@@ -393,7 +394,7 @@ export async function screenChecks({ browser, url, ok }) {
     const t = await m.page.evaluate(() => ({ signs: [...document.querySelectorAll('.tunnel-text')].map((e) => e.textContent), stars: document.querySelectorAll('.star-slot').length, overflow: document.documentElement.scrollWidth > innerWidth, tunnels: [...document.querySelectorAll('.tunnel')].map((b) => { const r = b.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; }) }));
     ok(t.signs.join() === signs && t.stars === 6 && !t.overflow && t.tunnels.every(([w, h]) => w >= 48 && h >= 48), `${id}: two tunnels marked ${signs}, six rounds, 48 px targets (${JSON.stringify(t)})`);
     for (let r = 0; r < 6; r++) {
-      await m.page.waitForTimeout(r ? 1000 : 300);
+      await m.page.waitForTimeout(r ? 1800 : 300);
       const car = await m.page.evaluate(() => { const c = document.querySelector('.tcar'); return { side: c.dataset.side, kind: c.dataset.kind, value: c.dataset.value }; });
       if (r === 0) {
         const side = CUR.checkpoints.find((k) => k.id === id).sides[Number(car.side)];

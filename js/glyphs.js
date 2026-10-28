@@ -258,7 +258,7 @@ GLYPHS['end-es'] = endCar(['e', 's']);
 GLYPHS['end-ing'] = endCar(['i', 'n', 'g']);
 GLYPHS['end-ed'] = endCar(['e', 'd']);
 GLYPHS['end-ted'] = endCar(['e', 'd'], 'beat');
-// Compound words: two short word cars coupled. Two-beat words: two claps over a bracket split in the middle. The mixed review (lesson 51) wears the -ing car on the path.
+// Compound words: two short word cars coupled. Two-beat words: two hops along the ground. The mixed review (lesson 50) wears the -ing car on the path.
 const carBox = (x0, x1) => `M${x0 + 8} 38 H${x1 - 8} Q${x1} 38 ${x1} 46 V74 Q${x1} 84 ${x1 - 8} 84 H${x0 + 8} Q${x0} 84 ${x0} 76 V46 Q${x0} 38 ${x0 + 8} 38`;
 const dot = (x, y) => `M${x} ${y} L${x + 0.01} ${y}`;
 // join: two little cars coupled, a plus between them (sun + set). beats: two hops along the ground (two beats: nap-kin).

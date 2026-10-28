@@ -29,7 +29,7 @@ export const BLENDS = { st: ['st', 'ft'], nd: ['nd', 'mp', 'nt'], sp: ['sp', 'sk
 export const SPELLINGS = { c: ['c', 'k'], ff: ['ff', 'll', 'ss', 'zz'], ...BLENDS, mix: ['st', 'mp'] }; // mix (lesson 42) shows st and mp: blends at both ends of stamp
 // A blend lesson's key. 'mix' (lesson 42) has no pair of its own, so it has no glyph and the letter games never deal it.
 export const isBlendKey = (key) => key in BLENDS || key === 'mix';
-export const NO_GLYPH = ['mix', 'endmix']; // 'endmix' (World 6, lesson 51) has no part of its own either
+export const NO_GLYPH = ['mix', 'endmix']; // 'endmix' (World 6, lesson 50) has no part of its own either
 export const spellingsOf = (key) => SPELLINGS[key] || [key];
 // The sound key a written letter belongs to ('k' belongs to 'c'; every other letter is its own key).
 export const soundOfLetter = (ch) => { for (const [key, list] of Object.entries(SPELLINGS)) if (list.includes(ch)) return key; return ch; };

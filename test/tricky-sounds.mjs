@@ -11,7 +11,7 @@ import { tunnelRounds, whichRounds } from '../js/games-data.js';
 import { state, openHome, until, RAF_COUNT } from './train.mjs';
 
 const CUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/curriculum.json'), 'utf8'));
-const STOPS = CUR.checkpoints.filter((k) => k.kind === 'contrast');
+const STOPS = CUR.checkpoints.filter((k) => k.kind === 'contrast' && k.mode !== 'says'); // x1 to x12 sort two sounds; the World 6 stops (x13, x14, mode says) sort what an ending says and are in test/endings-junction.mjs
 const IDS = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8', 'x9', 'x10', 'x11', 'x12'];
 const AFTER = [9, 12, 14, 17, 18, 21, 22, 23, 27, 28, 35, 41];
 const PAIRS = ['m n', 'h a', 'c g', 'b d', 'i e', 'f v', 'w y', 's z', 'sh ch', 'th t', 'nd d', 'bl br'];
