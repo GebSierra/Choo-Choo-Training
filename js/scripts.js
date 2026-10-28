@@ -1,4 +1,4 @@
-import { soundOfLetter, letterUnits, blendAtUnits, ORDER_SOUNDS } from './order.js';
+import { soundOfLetter, letterUnits, blendAtUnits, endingSay, ORDER_SOUNDS } from './order.js';
 const ALL = ORDER_SOUNDS.length; // scripts are for the grown-up: a digraph is one sound in every word (the child's own rows join them by lesson)
 // Parent scripts are shown as text. To read one aloud, isolated sounds (mmm, aaammm, sss) become
 // recorded clips and everything else goes to text to speech. Nothing is ever a single letter.
@@ -11,6 +11,8 @@ export const soundText = (ch, sounds, word) => {
   const s = sounds && sounds[soundOfLetter(ch)];
   // World 5: a blend pair (st, bl ...) is written as its glide (ssst-, bl-), from the lesson's own table; every letter keeps its sound
   if (s && s.blend && ch.length > 1) { const pair = (s.pairs || []).find((x) => x.g === ch); return pair ? pair.say : s.sayItLike; }
+  // World 6: an ending car (or a compound or two-beat word) is a word part: it is written as what the ending says in this word (sss or zzz, iz-, ing-, t- or d-, id-), never as letters
+  if (s && s.part && ch === s.glyph) return (word && endingSay(word)) || s.sayItLike;
   // th is one lesson with two kinds: the buzzing one (that, this) is written "thhh", the quiet one (thin, bath) "th-"
   if (ch === 'th' && s && s.voiced) return s.voicedWords && s.voicedWords.includes(word) ? s.voiced : s.sayItLike;
   // a double letter (ff, ll, ss, zz) says the single letter's sound; ck says k-
@@ -36,10 +38,10 @@ export const slowSounds = (word, sounds, level = ALL) => {
 export const firstSoundOut = (word, sounds, level = ALL) => { const units = letterUnits(word, level), pair = blendOf(units, 0, sounds, level); if (pair) return soundText(pair, sounds, word) + word.slice(2); const u = units[0], n = u === 'q' ? 2 : u.length; return soundText(u, sounds, word) + word.slice(n); };
 
 // A sound token is only stretched runs (mmm) and short sounds with a dash (t-): "t-aaag-". It is shown, never spoken by text to speech.
-const PIECE = /([a-z])\1{2,}|(?:kw|ks|ch|th|ng|nk|[bcdfgpt][lr]|[a-z])-/g; // [bcdfgpt][lr]: a short-sound blend (bl- cl- fl- pl- gl- br- tr- cr- dr- fr- gr-) is shown, never spoken
+const PIECE = /([a-z])\1{2,}|(?:kw|ks|ch|th|ng|nk|iz|id|ing|[bcdfgpt][lr]|[a-z])-/g; // [bcdfgpt][lr]: a short-sound blend (bl- cl- fl- pl- gl- br- tr- cr- dr- fr- gr-) is shown, never spoken; iz- id- ing-: the World 6 endings (-es, -ed after t or d, -ing), shown, never spoken
 const isPure = (core) => core.replace(PIECE, '') === '';
-const pieceKey = (p) => (p.startsWith('kw') ? 'q' : p.startsWith('ks') ? 'x' : /^(ch|th|ng|nk)-/.test(p) ? p.slice(0, 2) : soundOfLetter(p[0])); // kw- is the sound of qu, ks- of x, ch- th- ng- nk- of the digraphs
-const isSoundy = (core) => /([a-z])\1{2,}/.test(core) || /(^|-)(?:kw|ks|ch|th|ng|nk|[bcdfgpt][lr]|[a-z])-/.test(core);
+const pieceKey = (p) => (/^(iz|id|ing)-/.test(p) ? null : p.startsWith('kw') ? 'q' : p.startsWith('ks') ? 'x' : /^(ch|th|ng|nk)-/.test(p) ? p.slice(0, 2) : soundOfLetter(p[0])); // kw- is the sound of qu, ks- of x, ch- th- ng- nk- of the digraphs
+const isSoundy = (core) => /([a-z])\1{2,}/.test(core) || /(^|-)(?:kw|ks|ch|th|ng|nk|iz|id|ing|[bcdfgpt][lr]|[a-z])-/.test(core);
 
 // quiet (the default, when the grown up says the sounds): any sentence that contains a sound is left out,
 // so only the framing sentences are read ("Now you try. Slide the letter as you say it.").

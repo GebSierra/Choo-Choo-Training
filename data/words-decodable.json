@@ -1,5 +1,5 @@
 {
-  "about": "A curated list of common, child-friendly real words that a child can read by sounding out with plain letter sounds (short vowels, one sound per letter, qu as one unit). No heart words (is, as, was, of, the ...), no rude or obscure words, no double letters (ff, ll, ss, zz). The World 4 digraph words (sh, ch, th, ck, wh, ng, nk) are counted only by the stops after their lesson. tools/gen-lessons.mjs counts, for each Review Stop, how many of these words use only the letters taught by that stop (the number W the grown-up sees) and picks the example words from them. Add words here, never to the counts by hand. World 5 (Blend Bay): blendWords are counted apart from words, each one only once every blend it uses is taught (a blend is two letters that each keep their own sound; no new letter is taught).",
+  "about": "A curated list of common, child-friendly real words that a child can read by sounding out with plain letter sounds (short vowels, one sound per letter, qu as one unit). No heart words (is, as, was, of, the ...), no rude or obscure words, no double letters (ff, ll, ss, zz). The World 4 digraph words (sh, ch, th, ck, wh, ng, nk) are counted only by the stops after their lesson. tools/gen-lessons.mjs counts, for each Review Stop, how many of these words use only the letters taught by that stop (the number W the grown-up sees) and picks the example words from them. Add words here, never to the counts by hand. World 5 (Blend Bay): blendWords are counted apart from words, each one only once every blend it uses is taught (a blend is two letters that each keep their own sound; no new letter is taught). World 6 (Endings Junction): endingWords are counted apart, each one only once every letter, blend and word part it uses is taught (an ending, a compound word or a two-beat word is a word part, not a sound; no letter is new). Words already in the lists above are not repeated.",
   "words": [
     "am", "ma", "mama", "sam", "at", "it", "sit", "sat", "sip", "sap", "tip", "tap", "pat", "pit", "mat", "map", "tim",
     "spat", "spit", "past", "mast", "mist", "stamp", "pasta", "taps", "maps", "mats", "pits", "sips", "tips", "sits",
@@ -44,5 +44,29 @@
     "crack", "cramp", "crest", "craft", "drag", "drink", "drift", "drank", "drunk", "fret", "frock",
     "frost", "fresh", "grip", "grub", "grit", "grunt", "grasp", "grand", "stand", "stump",
     "stomp", "stunt", "stink", "stunk", "bland", "blank", "clamp", "clump", "frisk"
+  ],
+  "endingWords": [
+    "cats", "hats", "bats", "rats", "pets", "nuts", "caps", "lips", "cups", "kits", "chips",
+    "ships", "shops", "ducks", "socks", "rocks", "packs", "kicks", "licks", "necks", "decks",
+    "jets", "vets", "dogs", "bugs", "pens", "beds", "tubs", "hens", "pigs", "bibs", "jobs", "rugs",
+    "jugs", "webs", "wigs", "legs", "lids", "kids", "dads", "hills", "bells", "tells", "cans",
+    "fans", "vans", "pans", "tins", "pins", "buns", "suns", "drums", "frogs", "plans", "swims",
+    "boxes", "foxes", "mixes", "waxes", "wishes", "dishes", "fishes", "rushes", "mashes", "buses",
+    "kisses", "misses", "passes", "hisses", "messes", "dresses", "fusses", "buzzes", "fizzes",
+    "lunches", "bunches", "benches", "jumping", "fishing", "resting", "singing", "helping",
+    "camping", "lifting", "picking", "kicking", "packing", "melting", "bending", "hunting",
+    "sinking", "honking", "banging", "ringing", "sniffing", "yelling", "filling", "spilling",
+    "selling", "telling", "smelling", "spelling", "kissing", "missing", "passing", "buzzing",
+    "puffing", "nesting", "landing", "sending", "lending", "banking", "thinking", "tracking",
+    "rushing", "wishing", "dashing", "crashing", "licking", "ticking", "jumped", "wished",
+    "picked", "kicked", "packed", "helped", "camped", "rushed", "fixed", "mixed", "sniffed",
+    "puffed", "huffed", "passed", "kissed", "missed", "hissed", "bumped", "pumped", "limped",
+    "stamped", "licked", "filled", "spilled", "yelled", "smelled", "spelled", "drilled", "buzzed",
+    "banged", "landed", "rested", "lifted", "melted", "hunted", "ended", "handed", "sanded",
+    "nested", "listed", "lasted", "tested", "dented", "planted", "tilted", "drifted", "gifted",
+    "added", "sunset", "catfish", "bathtub", "bedbug", "hotdog", "backpack", "sandbox", "catnap",
+    "cobweb", "hilltop", "laptop", "pigpen", "bobcat", "uphill", "upset", "dustpan", "fishnet",
+    "handstand", "sunfish", "napkin", "rabbit", "picnic", "kitten", "basket", "magnet", "insect",
+    "helmet", "puppet", "trumpet", "muffin", "pumpkin", "rocket", "pocket"
   ]
 }

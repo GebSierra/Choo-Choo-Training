@@ -103,14 +103,14 @@ export function build(ctx) {
   });
   function again() { T.clear(); hints.arm(); rounds = tunnelRounds(ck); round = 0; done = false; el.dataset.state = 'playing'; stars.reset(); scene.querySelectorAll('.steam-puff').forEach((p) => p.remove()); newRound(); }
 
-  const [a, b] = ck.pair.map((k) => soundPhrase(ctx.curriculum.sounds[k]));
+  const [a, b] = (ck.pair || []).map((k) => soundPhrase(ctx.curriculum.sounds[k]));
   const which = ck.sides[1].signText ? `the word ${ck.pair[0]}-` : ck.mode === 'vowel' ? 'the middle sound' : 'the first sound';
   const prompt = [{ tts: 'Which tunnel is it for?' }];
   return {
     el, flush: true,
     parts: () => prompt,
     gist: () => 'Which tunnel is it for?', // one wording in every round
-    script: () => `Say: 'Which tunnel does the car go in?' Your child looks at the letter or word on the car, says it, and listens for ${ck.sides[1].signText ? 'the breath sound ' + a : 'the sound'}. Then your child taps the tunnel, or slides the car to it. ${ck.sides[1].signText ? '' : `Listen for ${which}: ${a} or ${b}. `}If the car rolls back, say both sounds slowly together and try again.${ck.hint ? ' ' + ck.hint : ''}`,
+    script: () => ck.tunnelLine ? `Say: 'Which tunnel does the car go in?' ${ck.tunnelLine} Then your child taps the tunnel, or slides the car to it. If the car rolls back, say the word slowly together and try again.${ck.hint ? ' ' + ck.hint : ''}` : `Say: 'Which tunnel does the car go in?' Your child looks at the letter or word on the car, says it, and listens for ${ck.sides[1].signText ? 'the breath sound ' + a : 'the sound'}. Then your child taps the tunnel, or slides the car to it. ${ck.sides[1].signText ? '' : `Listen for ${which}: ${a} or ${b}. `}If the car rolls back, say both sounds slowly together and try again.${ck.hint ? ' ' + ck.hint : ''}`,
     again: () => { again(); speech.say(prompt); },
     cleanup: () => { T.clear(); hints.stop(); stop(); },
   };

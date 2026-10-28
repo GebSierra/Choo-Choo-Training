@@ -6,7 +6,7 @@ import { slideBlend, placeBand, startSweep, handCue } from '../../components/sli
 import { picture } from '../../components/picture.js';
 import { accentOf } from '../../theme.js';
 import { fit } from '../../lessons.js';
-import { soundOfLetter, letterUnits, startSound } from '../../order.js';
+import { soundOfLetter, letterUnits, startSound, wordPartsOf, endingSay } from '../../order.js';
 
 // Task 5: stretch the sounds, then say the word. Words that show letters can be slid under with a finger; a picture word
 // shows its letters, slidable in the same way, once the picture is tapped.
@@ -87,6 +87,13 @@ export function build({ lesson, curriculum, speech, refresh }) {
       // the grown-up steps in only after a failed try (together, then say it and have the child say it after).
       const first = lesson.number === 1, held = sounds[startSound(w.word)] && sounds[startSound(w.word)].hold === false ? 'with a short first sound' : 'stretching the first sound';
       const help = 'If they are stuck, sound it out together. Still stuck? Say it yourself, then have your child say it after you.';
+      // World 6: a word with an ending, or a compound or two-beat word. The child finds the base word and the ending (or the two chunks), then glues them.
+      const part = w.showLetters ? wordPartsOf(w.word) : null;
+      if (part && lesson.part) {
+        const ending = part.parts.length === 2 && part.key.startsWith('end-');
+        const how = ending ? `Find the base word first (${part.parts[0]}), then the ending car (${endingSay(w.word)}).` : `Clap the beats (${part.parts.join('-')}), then read each chunk.`;
+        return `Let your child try first. Your child slides a finger under the word and says it. ${how} Tap the word to show it. ${help} (Smooth and joined: ${slowSounds(w.word, sounds)}. Then fast: ${w.word}.)`;
+      }
       if (w.sayOnly) return `Let your child say the word first. Tap the picture to hear it. If they are stuck, say it together. Still stuck? Say it yourself, then have your child say it after you. (Slowly, ${held}: ${firstSoundOut(w.word, sounds)}. Then fast: ${w.word}.)`;
       if (!w.showLetters) return first
         ? `I do: say the word slowly, ${held}: ${firstSoundOut(w.word, sounds)}. Then say it fast: ${w.word}. We do: tap the picture. Slide a finger under the word and say it together, slowly. You do: your child slides and says the word. ${help}`
@@ -96,7 +103,9 @@ export function build({ lesson, curriculum, speech, refresh }) {
         : `Let your child try first: your child slides a finger under the word and says it. Tap the word to show it. ${help} (Smooth and joined: ${slowSounds(w.word, sounds)}. Then fast: ${w.word}.)`;
     },
     gist: () => {
-      const w = cur(), stretched = w.showLetters ? slowSounds(w.word, sounds) : firstSoundOut(w.word, sounds);
+      const w = cur(), part = w.showLetters && lesson.part ? wordPartsOf(w.word) : null;
+      if (part) return part.parts.length === 2 && part.key.startsWith('end-') ? fit(`${part.parts[0]} + ${endingSay(w.word)} = ${w.word}`, `${w.word}: ${part.parts[0]} + ${endingSay(w.word)}`, w.word) : fit(`${part.parts.join('-')}, then ${w.word}.`, `${part.parts.join('-')} = ${w.word}`, w.word);
+      const stretched = w.showLetters ? slowSounds(w.word, sounds) : firstSoundOut(w.word, sounds);
       return `${stretched}, then ${w.word}.`;
     },
     again: () => { show(); },

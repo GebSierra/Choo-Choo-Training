@@ -144,3 +144,9 @@ with the date.
 - Approve or edit Story 5 "Pip at the Bay" (data/books/book-5.json, still marked draft). Check page 2 ("warm, soft beach") and page 8 ("his pocket watch").
 - Make the 36 World 5 pictures: prompts are in docs/IMAGE-PROMPTS.md under "World 5 additions". A beach backdrop for Story 5 would help too.
 - Record the World 5 words (blend words have no recordings yet).
+
+## World 6 Endings Junction (built, not released yet)
+- Approve or edit Story 6 "Pip at Endings Junction" (data/books/book-6.json, marked draft; the text uses no he or she at all). It reads one word on seven pages: cats, boxes, jumping, landed, picnic, hotdog, sunset.
+- Make the 25 World 6 pictures if you want the lessons to show them: prompts are in docs/IMAGE-PROMPTS.md under "World 6 additions". Until then these lessons show no pictures (a picture of the base word would be wrong).
+- Record the World 6 words (the grown-up taps the speaker to hear a recording of the word; there are none yet for the 201 new words, the compound and the two-beat words).
+- Check the wording of the new cards: "A word ending, not a new sound. Find the base word first, then the ending." and the notation iz- ing- t- d- id- shown to the grown-up.

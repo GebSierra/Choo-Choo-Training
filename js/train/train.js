@@ -163,7 +163,7 @@ function buildCar(bag, glyph, accent) {
 }
 
 // A level's special car: the same chassis, wheels and coupler as a letter wagon, with its own body (docs/PLAN-v1.9.md, Levels).
-const SPECIAL_COLORS = { sky: '#7DB8F5', mint: '#5FE3B0', lilac: '#CDC4F8', pale: '#EDE8FF', cream: '#FFF6D6' };
+const SPECIAL_COLORS = { sky: '#7DB8F5', mint: '#5FE3B0', lilac: '#CDC4F8', pale: '#EDE8FF', cream: '#FFF6D6', coral: '#F2956B', coralDark: '#C9693F' };
 function buildSpecial(bag, kind) {
   const g = new THREE.Group();
   g.name = 'special-' + kind;
@@ -195,6 +195,10 @@ function buildSpecial(bag, kind) {
     tank.rotation.x = Math.PI / 2; tank.castShadow = true;
     for (const z of [-0.55, 0.55]) { const b = add(new THREE.Mesh(bag.geo('tankband', () => new THREE.CylinderGeometry(0.6, 0.6, 0.07, 28)), bag.paint(PAL.sun)), 0, 1.3, z); b.rotation.x = Math.PI / 2; }
     add(new THREE.Mesh(bag.geo('tankcap', () => new THREE.CylinderGeometry(0.14, 0.14, 0.14, 12)), bag.paint(PAL.sun)), 0, 1.92, 0);
+  } else if (kind === 'boxcar') { // World 6: a coral box car with a sliding door and a roof walk
+    add(block(bag, 1.26, 0.78, 1.8, SPECIAL_COLORS.coral, { r: 0.1 }), 0, 1.0, 0);
+    add(block(bag, 1.32, 0.08, 1.86, PAL.sun, { r: 0.03 }), 0, 1.43, 0);
+    for (const side of [-1, 1]) { add(block(bag, 0.06, 0.56, 0.7, SPECIAL_COLORS.coralDark, { r: 0.03 }), side * 0.64, 0.98, 0); add(block(bag, 0.07, 0.05, 0.74, SPECIAL_COLORS.cream, { r: 0.02 }), side * 0.65, 1.08, 0); }
   } else { // dome
     add(block(bag, 1.26, 0.7, 1.8, SPECIAL_COLORS.lilac, { r: 0.12 }), 0, 0.95, 0);
     add(block(bag, 1.32, 0.08, 1.86, PAL.sun, { r: 0.03 }), 0, 1.3, 0);

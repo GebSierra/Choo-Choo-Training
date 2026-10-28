@@ -22,7 +22,7 @@ const WANT = {
   W3: { real: true, sounds: ['e', 'j', 'w', 'v', 'y', 'z', 'x', 'q'], stops: 16, lessons: 8, checkpoints: 8, next: 'Digraph Docks', theme: 'sunny-hills' },
   W4: { real: true, sounds: ['sh', 'ch', 'th', 'ck', 'ff', 'wh', 'ng', 'nk'], stops: 13, lessons: 8, checkpoints: 5, next: 'Blend Bay', theme: 'digraph-docks' }, // W4 Digraph Docks is a real world now (lessons 26 to 33 and five stops)
   W5: { real: true, sounds: ['st', 'nd', 'sp', 'sn', 'bl', 'pl', 'br', 'dr', 'mix'], stops: 14, lessons: 9, checkpoints: 5, next: 'Endings Junction', theme: 'blend-bay' }, // W5 Blend Bay is a real world now (lessons 34 to 42 and five stops)
-  W6: { sounds: ['s es', 'ing', 'ed', 'sun set', 'nap kin'], next: 'Silent E Summit', theme: 'endings-junction' },
+  W6: { real: true, sounds: ['end-s', 'end-es', 'end-ing', 'end-ed', 'end-ted', 'join', 'beats', 'endmix'], stops: 13, lessons: 8, checkpoints: 5, next: 'Silent E Summit', theme: 'endings-junction' }, // W6 Endings Junction is a real world now (lessons 43 to 50 and five stops)
   W7: { sounds: ['we me he', 'a_e', 'i_e', 'o_e', 'u_e', 'e_e'], next: 'Vowel Team Town', theme: 'silent-e-summit' },
 };
 const CALL_MARGIN = 15;
@@ -41,7 +41,7 @@ export function dataChecks(ok) {
   ok(['W5', 'W6', 'W7'].every((w) => { const n = worldSounds(CUR, w).length; return n >= 4 && n <= 10; }), 'themes: W5 to W7 each list four to ten placeholder stations');
   ok(DEFAULT_THEME.ground === '#4FC97E' && DEFAULT_THEME.fog === '#FFF6E5' && DEFAULT_THEME.mountain.low === '#62C34C' && DEFAULT_THEME.skyCss === null, 'themes: the default is exactly the original colours (grass, fog, mountain) and the page sky');
   ok(Object.keys(WANT).every((w) => worldSounds(CUR, w).join() === WANT[w].sounds.join()) && worldSounds(CUR, 'W1').length > 0, 'themes: the placeholder sounds (W3 from units 2.9 to 2.11, W4 to W7 listed from docs/CURRICULUM.md stages 3 to 6)');
-  ok(CUR.lessons.every((l) => ['W1', 'W2', 'W3', 'W4', 'W5'].includes(l.world)), 'data: no lessons beyond world 5 (World 6 and later are still only regions)');
+  ok(CUR.lessons.every((l) => ['W1', 'W2', 'W3', 'W4', 'W5', 'W6'].includes(l.world)), 'data: no lessons beyond world 6 (World 7 and later are still only regions)');
 }
 
 // polish B: the Starter Station props are baked into at most two meshes (one solid, one water): at most 2 draw calls, 3 with the shadow pass, far under the 8 allowed.

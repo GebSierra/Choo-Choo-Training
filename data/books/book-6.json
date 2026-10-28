@@ -1,0 +1,208 @@
+{
+  "id": "book-6",
+  "title": "Pip at Endings Junction",
+  "draft": true,
+  "needs": [
+    "m",
+    "a",
+    "s",
+    "i",
+    "t",
+    "p",
+    "f",
+    "o",
+    "n",
+    "d",
+    "c",
+    "h",
+    "u",
+    "g",
+    "l",
+    "r",
+    "b",
+    "e",
+    "j",
+    "w",
+    "v",
+    "y",
+    "z",
+    "x",
+    "q",
+    "sh",
+    "ch",
+    "th",
+    "ck",
+    "ff",
+    "wh",
+    "ng",
+    "nk",
+    "st",
+    "nd",
+    "sp",
+    "sn",
+    "bl",
+    "pl",
+    "br",
+    "dr",
+    "mix",
+    "end-s",
+    "end-es",
+    "end-ing",
+    "end-ed",
+    "end-ted",
+    "join",
+    "beats"
+  ],
+  "sight": [],
+  "pages": [
+    {
+      "scene": "track",
+      "read": "Toot toot! Pip’s train rolls into Endings Junction, where little word parts hook onto words. Pip, {name} and Sam hop off the train. Pip says, \"Let’s explore!\"",
+      "art": {
+        "train": true,
+        "pip": "wave"
+      },
+      "tap": {
+        "on": "train",
+        "anim": "toot",
+        "label": "Pip's whistle"
+      }
+    },
+    {
+      "scene": "meadow",
+      "read": "Two fluffy animals pad out of the tall grass. Sam gasps. \"Look, Pip! Two little ...\"",
+      "child": "cats",
+      "slider": "cats",
+      "art": {
+        "emoji": [
+          "🐱",
+          "🐱"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "giggle",
+        "label": "the two cats"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "Sam knocks on a tall pile of wooden crates by the track. Pip chuckles, \"Wow, {name}! Look at all these ...\"",
+      "child": "boxes",
+      "slider": "boxes",
+      "art": {
+        "emoji": [
+          "📦",
+          "📦"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the boxes"
+      }
+    },
+    {
+      "scene": "track",
+      "kind": "drag",
+      "read": "\"Hold on tight! Let’s roll through the junction!\""
+    },
+    {
+      "scene": "hill",
+      "read": "Something fast zips across the hill. Pip points. \"{name}, look! A bunny is ...\"",
+      "child": "jumping",
+      "slider": "jumping",
+      "art": {
+        "emoji": [
+          "🐇"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the bunny"
+      }
+    },
+    {
+      "scene": "meadow",
+      "read": "The bunny leaps high over the tracks! {name} and Sam hold their breath. Plop! Pip says, \"The bunny just ...\"",
+      "child": "landed",
+      "slider": "landed",
+      "art": {
+        "emoji": [
+          "🌿"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the soft grass"
+      }
+    },
+    {
+      "scene": "picnic",
+      "read": "All that hopping makes everyone hungry. Sam spreads out a checkered blanket. Pip grins, \"It is time for a ...\"",
+      "child": "picnic",
+      "slider": "picnic",
+      "art": {
+        "emoji": [
+          "🧺"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "giggle",
+        "label": "the picnic basket"
+      }
+    },
+    {
+      "scene": "picnic",
+      "read": "Pip hands out warm food on soft buns. {name} takes a big bite and says, \"Yum! My favorite is a ...\"",
+      "child": "hotdog",
+      "slider": "hotdog",
+      "art": {
+        "emoji": [
+          "🌭"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the hotdog"
+      }
+    },
+    {
+      "scene": "sunset",
+      "read": "The sky glows orange and pink over the junction. Sam sighs. \"What a beautiful ...\"",
+      "child": "sunset",
+      "slider": "sunset",
+      "art": {
+        "train": true,
+        "pip": "cheer",
+        "friend": true,
+        "emoji": [
+          "🌅"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the sunset"
+      }
+    },
+    {
+      "scene": "sunset",
+      "kind": "review",
+      "read": "Toot toot! You did it! Read all your words:",
+      "words": [
+        "cats",
+        "boxes",
+        "jumping",
+        "landed",
+        "picnic",
+        "hotdog",
+        "sunset"
+      ]
+    }
+  ]
+}

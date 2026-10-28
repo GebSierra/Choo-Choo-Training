@@ -413,6 +413,8 @@ children can read with short vowels alone.
 | 5.4 | Compound and 2-syllable short-vowel words | sunset, catfish, bathtub, napkin, rabbit, picnic | | Split between the two consonants, read each chunk, then glue: nap + kin. Clap the beats first |
 | 5.5 | Mixed review | Endings and 2-syllable words | | Stories grow to several short pages |
 
+**Built (World 6, Endings Junction, lessons 43 to 50; docs/LESSON-REBUILD.md section 16).** Eight lessons: 43 -s (sss after a quiet sound, zzz after a buzzing one), 44 -es (unit 5.1), 45 -ing (5.2), 46 -ed says t or d, 47 -ed says id, a whole extra beat (5.3), 48 compound words, 49 two-beat words (5.4), 50 mixed review (5.5). An ending is a word part, not a new sound and not a new letter: the app shows it as a little car coupled to the base word, teaches "find the base word, then the ending", and for bigger words "clap the beats, split, glue". New games Couple a Car and Clap, Split, Glue. Tricky Sounds after 43 (-s says sss or zzz) and 47 (-ed one beat or an extra beat); Story 6 after 49; Review Stops after 46 and 50. No new heart words.
+
 ### Stage 6: Long Vowels, Part 1: Open Vowels and Silent E (Grade 1)
 The first two ways a vowel "says its name": alone at the end of a word, and with help from a silent e. Every silent-e
 pattern is taught with its short-vowel partner.

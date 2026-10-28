@@ -165,7 +165,7 @@ export function build(ctx) {
     el, flush: true,
     parts: () => parts,
     gist: () => `Light for ${soundPhrase(roundSound())}.`, // one wording in every round and lesson (a long vowel phrase used to push only its own rounds to a shorter form)
-    script: () => `Say: 'Listen. Which light says ${soundPhrase(roundSound())}?' The recording plays. If it does not, say the sound shown at the top. Your child taps the light. If they are stuck, say the sound together.`,
+    script: () => (roundSound().part ? `Say: 'Listen. Which light has ${soundPhrase(roundSound())}?' If there is no recording, say what is shown at the top. Your child taps the light. If they are stuck, say it together.` : `Say: 'Listen. Which light says ${soundPhrase(roundSound())}?' The recording plays. If it does not, say the sound shown at the top. Your child taps the light. If they are stuck, say the sound together.`),
     again: () => { again(); speech.say(parts); },
     cleanup: () => { T.clear(); hints.stop(); stopWatching(); endAnims.forEach((a) => a.cancel()); },
   };

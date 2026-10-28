@@ -1910,6 +1910,214 @@
         "voice": true,
         "text": "Glide each pair, at the start, the end, or both: stamp. Keep every letter sound, no uh. Voice on."
       }
+    },
+    "end-s": {
+      "glyph": "end-s",
+      "part": "ending",
+      "parts": [
+        {
+          "say": "sss",
+          "asIn": "cats"
+        },
+        {
+          "say": "zzz",
+          "asIn": "dogs"
+        }
+      ],
+      "sayItLike": "sss",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "Say the word, then add the ending -s. After a quiet sound it says sss: cats. After a buzzing sound it says zzz: dogs.",
+      "noPictures": true,
+      "parentNote": "An ending is a word part, not a new sound. Your child finds the base word first (cat), then the ending (-s): cats. The ending -s says sss after a quiet sound (cats, maps) and zzz after a buzzing one (dogs, bugs). There is no rule to memorize: say the word and let your child listen. The next stop, Tricky Sounds, sorts them.",
+      "asIn": "cats",
+      "clip": null,
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": null,
+        "text": "Say cats: air only, no buzz (sss). Say dogs: touch your throat and feel the buzz (zzz)."
+      }
+    },
+    "end-es": {
+      "glyph": "end-es",
+      "part": "ending",
+      "parts": [
+        {
+          "say": "iz-",
+          "asIn": "boxes"
+        }
+      ],
+      "sayItLike": "iz-",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "Say the word, then add the ending -es. It adds a whole extra beat: box, boxes. Clap it: box-es.",
+      "noPictures": true,
+      "parentNote": "The ending -es comes after the sounds s, x, sh and ch, where just -s would be hard to say. It adds a whole extra beat: box-es, wish-es. Clap the beats with your child. As always, find the base word first, then the ending.",
+      "asIn": "boxes",
+      "clip": null,
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Say box, then boxes. Feel your chin drop a second time on -es: that is the extra beat. Voice on."
+      }
+    },
+    "end-ing": {
+      "glyph": "end-ing",
+      "part": "ending",
+      "parts": [
+        {
+          "say": "ing-",
+          "asIn": "jumping"
+        }
+      ],
+      "sayItLike": "ing-",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "Say the base word first, then add the ending -ing: jump, jumping. The ending -ing is one chunk.",
+      "noPictures": true,
+      "parentNote": "Find the base word first (jump), then add the ending chunk -ing and read it as one piece: jumping. Your child does not sound out i, n and g one at a time. Every base word here keeps its spelling: nothing is dropped and no letter is doubled.",
+      "asIn": "jumping",
+      "clip": null,
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Say jump, then jumping. The -ing is a short i, then the hum of ng. Voice on."
+      }
+    },
+    "end-ed": {
+      "glyph": "end-ed",
+      "part": "ending",
+      "parts": [
+        {
+          "say": "t-",
+          "asIn": "jumped"
+        },
+        {
+          "say": "d-",
+          "asIn": "filled"
+        }
+      ],
+      "sayItLike": "t-",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "Say the base word, then add the ending -ed. After a quiet sound it says t-: jumped. After a buzzing sound it says d-: filled. The spelling is always -ed.",
+      "noPictures": true,
+      "parentNote": "The spelling is always -ed, but it is not always said the same. It says t- after a quiet sound (jumped, picked) and d- after a buzzing sound (filled, spilled). Say the word and let your child listen. The next lesson adds the third way: a whole extra beat.",
+      "asIn": "jumped",
+      "clip": null,
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": null,
+        "text": "Say jumped: a quick t, no buzz. Say filled: a quick d, feel the buzz in your throat."
+      }
+    },
+    "end-ted": {
+      "glyph": "end-ted",
+      "part": "ending",
+      "parts": [
+        {
+          "say": "id-",
+          "asIn": "landed"
+        }
+      ],
+      "sayItLike": "id-",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "After t or d, the ending -ed is a whole extra beat: land, landed. Clap it: land-ed.",
+      "noPictures": true,
+      "parentNote": "After the sounds t or d, -ed adds a whole beat of its own: land-ed, rest-ed. The car with two dots above it is the extra-beat -ed. Clap the beats: land has one, landed has two.",
+      "asIn": "landed",
+      "clip": null,
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Say landed: your chin drops twice, land-ed. The -ed is a whole beat of its own. Voice on."
+      }
+    },
+    "join": {
+      "glyph": "join",
+      "part": "chunk",
+      "parts": [
+        {
+          "say": "sun-set",
+          "asIn": "sunset"
+        }
+      ],
+      "sayItLike": "sun-set",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "Two short words can be glued into one big word: sun and set make sunset. Read each short word, then glue them.",
+      "noPictures": true,
+      "parentNote": "A compound word is two short words glued together. Your child reads each short word (sun, set), then glues them: sunset. Clap the beats first: sun-set has two. Both little words are words your child already reads.",
+      "asIn": "sunset",
+      "clip": null,
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Say sun, then set, then sunset. Your chin drops once for each short word. Voice on."
+      }
+    },
+    "beats": {
+      "glyph": "beats",
+      "part": "chunk",
+      "parts": [
+        {
+          "say": "nap-kin",
+          "asIn": "napkin"
+        }
+      ],
+      "sayItLike": "nap-kin",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "Clap the beats, split the word between the two middle consonants, read each chunk, then glue them: nap-kin.",
+      "noPictures": true,
+      "parentNote": "Big words are easier in chunks. Clap the beats first (nap-kin has two). Split between the two consonants in the middle: nap | kin. Read each chunk with its short vowel, then glue them. A chunk does not have to be a word on its own.",
+      "asIn": "napkin",
+      "clip": null,
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Clap the beats of napkin: nap-kin has two. Your chin drops once on each beat. Voice on."
+      }
+    },
+    "endmix": {
+      "glyph": "endmix",
+      "part": "mix",
+      "parts": [
+        {
+          "say": "-s -es -ing -ed",
+          "asIn": null
+        }
+      ],
+      "sayItLike": "-s -es -ing -ed",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "Find the base word and the ending, or clap the beats, split and glue: cats, boxes, jumping, jumped, landed, sunset, napkin.",
+      "noPictures": true,
+      "parentNote": "The mixed review: endings (-s, -es, -ing, -ed in its three ways) and bigger words (compound and two-beat). For an ending word, find the base word first, then the ending. For a bigger word, clap the beats, split, read each chunk, and glue.",
+      "asIn": null,
+      "clip": null,
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Say each word and listen for the ending or the beats. Clap if it helps. Voice on."
+      }
     }
   },
   "lessons": [
@@ -6650,6 +6858,1253 @@
       "games": [],
       "unit": "4.5",
       "world": "W5"
+    },
+    {
+      "number": 43,
+      "sound": "end-s",
+      "part": "ending",
+      "review": [
+        "dr",
+        "mix"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new word ending."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new word ending. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "cats",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "maps",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "dogs",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "bugs",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which car is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the car."
+          }
+        ],
+        "promptText": "Which car is the ending -s, as in cats?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the car.",
+        "gist": "Which car is -s?",
+        "script": "Say: 'Which car is the ending -s, as in cats?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "end-s",
+            "correct": true
+          },
+          {
+            "glyph": "sh",
+            "correct": false
+          },
+          {
+            "glyph": "ch",
+            "correct": false
+          }
+        ]
+      },
+      "couples": [
+        {
+          "from": "cat",
+          "to": "cats",
+          "kind": "ending",
+          "part": "end-s",
+          "options": [
+            "end-s",
+            "p",
+            "f"
+          ]
+        },
+        {
+          "from": "dog",
+          "to": "dogs",
+          "kind": "ending",
+          "part": "end-s",
+          "options": [
+            "end-s",
+            "n",
+            "k"
+          ]
+        },
+        {
+          "from": "map",
+          "to": "maps",
+          "kind": "ending",
+          "part": "end-s",
+          "options": [
+            "end-s",
+            "m",
+            "f"
+          ]
+        },
+        {
+          "from": "bug",
+          "to": "bugs",
+          "kind": "ending",
+          "part": "end-s",
+          "options": [
+            "end-s",
+            "k",
+            "m"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "couple",
+        "writing",
+        "hunt"
+      ],
+      "games": [],
+      "unit": "5.1",
+      "world": "W6"
+    },
+    {
+      "number": 44,
+      "sound": "end-es",
+      "part": "ending",
+      "review": [
+        "mix",
+        "end-s"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new word ending."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new word ending. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "boxes",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "wishes",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "buses",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "dishes",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which car is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the car."
+          }
+        ],
+        "promptText": "Which car is the ending -es, as in boxes?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the car.",
+        "gist": "Which car is -es?",
+        "script": "Say: 'Which car is the ending -es, as in boxes?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "end-es",
+            "correct": true
+          },
+          {
+            "glyph": "end-s",
+            "correct": false
+          },
+          {
+            "glyph": "sh",
+            "correct": false
+          }
+        ]
+      },
+      "couples": [
+        {
+          "from": "box",
+          "to": "boxes",
+          "kind": "ending",
+          "part": "end-es",
+          "options": [
+            "end-es",
+            "end-s",
+            "k"
+          ]
+        },
+        {
+          "from": "wish",
+          "to": "wishes",
+          "kind": "ending",
+          "part": "end-es",
+          "options": [
+            "end-es",
+            "end-s",
+            "j"
+          ]
+        },
+        {
+          "from": "cat",
+          "to": "cats",
+          "kind": "ending",
+          "part": "end-s",
+          "options": [
+            "end-s",
+            "end-es",
+            "m"
+          ]
+        },
+        {
+          "from": "bus",
+          "to": "buses",
+          "kind": "ending",
+          "part": "end-es",
+          "options": [
+            "end-es",
+            "end-s",
+            "p"
+          ]
+        },
+        {
+          "from": "dish",
+          "to": "dishes",
+          "kind": "ending",
+          "part": "end-es",
+          "options": [
+            "end-es",
+            "end-s",
+            "n"
+          ]
+        }
+      ],
+      "middle": [
+        "writing",
+        "sounds",
+        "couple",
+        "wagons"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "unit": "5.1",
+      "world": "W6"
+    },
+    {
+      "number": 45,
+      "sound": "end-ing",
+      "part": "ending",
+      "review": [
+        "end-s",
+        "end-es"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new word ending."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new word ending. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "jumping",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "fishing",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "resting",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "singing",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "helping",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which car is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the car."
+          }
+        ],
+        "promptText": "Which car is the ending -ing, as in jumping?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the car.",
+        "gist": "Which car is -ing?",
+        "script": "Say: 'Which car is the ending -ing, as in jumping?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "end-ing",
+            "correct": true
+          },
+          {
+            "glyph": "end-es",
+            "correct": false
+          },
+          {
+            "glyph": "end-s",
+            "correct": false
+          }
+        ]
+      },
+      "couples": [
+        {
+          "from": "jump",
+          "to": "jumping",
+          "kind": "ending",
+          "part": "end-ing",
+          "options": [
+            "end-ing",
+            "end-es",
+            "end-s"
+          ]
+        },
+        {
+          "from": "fish",
+          "to": "fishing",
+          "kind": "ending",
+          "part": "end-ing",
+          "options": [
+            "end-ing",
+            "end-s",
+            "end-es"
+          ]
+        },
+        {
+          "from": "dog",
+          "to": "dogs",
+          "kind": "ending",
+          "part": "end-s",
+          "options": [
+            "end-s",
+            "end-ing",
+            "end-es"
+          ]
+        },
+        {
+          "from": "rest",
+          "to": "resting",
+          "kind": "ending",
+          "part": "end-ing",
+          "options": [
+            "end-ing",
+            "end-s",
+            "end-es"
+          ]
+        },
+        {
+          "from": "sing",
+          "to": "singing",
+          "kind": "ending",
+          "part": "end-ing",
+          "options": [
+            "end-ing",
+            "end-es",
+            "end-s"
+          ]
+        }
+      ],
+      "middle": [
+        "couple",
+        "sounds",
+        "hunt",
+        "writing"
+      ],
+      "games": [],
+      "unit": "5.2",
+      "world": "W6"
+    },
+    {
+      "number": 46,
+      "sound": "end-ed",
+      "part": "ending",
+      "review": [
+        "end-es",
+        "end-ing"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new word ending."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new word ending. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "jumped",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "picked",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "filled",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "spilled",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which car is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the car."
+          }
+        ],
+        "promptText": "Which car is the ending -ed, as in jumped?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the car.",
+        "gist": "Which car is -ed?",
+        "script": "Say: 'Which car is the ending -ed, as in jumped?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "end-ed",
+            "correct": true
+          },
+          {
+            "glyph": "end-ing",
+            "correct": false
+          },
+          {
+            "glyph": "end-s",
+            "correct": false
+          }
+        ]
+      },
+      "couples": [
+        {
+          "from": "jump",
+          "to": "jumped",
+          "kind": "ending",
+          "part": "end-ed",
+          "options": [
+            "end-ed",
+            "end-es",
+            "end-ing"
+          ]
+        },
+        {
+          "from": "fill",
+          "to": "filled",
+          "kind": "ending",
+          "part": "end-ed",
+          "options": [
+            "end-ed",
+            "end-ing",
+            "end-s"
+          ]
+        },
+        {
+          "from": "pick",
+          "to": "picked",
+          "kind": "ending",
+          "part": "end-ed",
+          "options": [
+            "end-ed",
+            "end-s",
+            "end-es"
+          ]
+        },
+        {
+          "from": "spill",
+          "to": "spilled",
+          "kind": "ending",
+          "part": "end-ed",
+          "options": [
+            "end-ed",
+            "end-es",
+            "end-ing"
+          ]
+        },
+        {
+          "from": "help",
+          "to": "helping",
+          "kind": "ending",
+          "part": "end-ing",
+          "options": [
+            "end-ing",
+            "end-ed",
+            "end-s"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "writing",
+        "couple",
+        "wagons"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "unit": "5.3",
+      "world": "W6"
+    },
+    {
+      "number": 47,
+      "sound": "end-ted",
+      "part": "ending",
+      "review": [
+        "end-ing",
+        "end-ed"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new word ending."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new word ending. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "landed",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "rested",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "lifted",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "melted",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which car is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the car."
+          }
+        ],
+        "promptText": "Which car is -ed with an extra beat, as in landed?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the car.",
+        "gist": "Which has an extra beat?",
+        "script": "Say: 'Which car is -ed with an extra beat, as in landed?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "end-ted",
+            "correct": true
+          },
+          {
+            "glyph": "end-ed",
+            "correct": false
+          },
+          {
+            "glyph": "end-ing",
+            "correct": false
+          }
+        ]
+      },
+      "couples": [
+        {
+          "from": "land",
+          "to": "landed",
+          "kind": "ending",
+          "part": "end-ted",
+          "options": [
+            "end-ted",
+            "end-ing",
+            "end-s"
+          ]
+        },
+        {
+          "from": "rest",
+          "to": "rested",
+          "kind": "ending",
+          "part": "end-ted",
+          "options": [
+            "end-ted",
+            "end-s",
+            "end-es"
+          ]
+        },
+        {
+          "from": "lift",
+          "to": "lifted",
+          "kind": "ending",
+          "part": "end-ted",
+          "options": [
+            "end-ted",
+            "end-es",
+            "end-ing"
+          ]
+        },
+        {
+          "from": "melt",
+          "to": "melted",
+          "kind": "ending",
+          "part": "end-ted",
+          "options": [
+            "end-ted",
+            "end-ing",
+            "end-s"
+          ]
+        },
+        {
+          "from": "fill",
+          "to": "filled",
+          "kind": "ending",
+          "part": "end-ed",
+          "options": [
+            "end-ed",
+            "end-s",
+            "end-es"
+          ]
+        }
+      ],
+      "middle": [
+        "hunt",
+        "sounds",
+        "couple",
+        "writing"
+      ],
+      "games": [],
+      "unit": "5.3",
+      "world": "W6"
+    },
+    {
+      "number": 48,
+      "sound": "join",
+      "part": "chunk",
+      "review": [
+        "end-ed",
+        "end-ted"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn about bigger words."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn about bigger words. Your grown-up will help."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "sunset",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "catfish",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "bathtub",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "bedbug",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "hotdog",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which car is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the car."
+          }
+        ],
+        "promptText": "Which one shows two words joined, as in sunset?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the car.",
+        "gist": "Which shows two words?",
+        "script": "Say: 'Which one shows two words joined, as in sunset?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "join",
+            "correct": true
+          },
+          {
+            "glyph": "end-ing",
+            "correct": false
+          },
+          {
+            "glyph": "end-s",
+            "correct": false
+          }
+        ]
+      },
+      "couples": [
+        {
+          "from": "sun",
+          "to": "sunset",
+          "kind": "word",
+          "part": "set",
+          "options": [
+            "set",
+            "pig",
+            "mug"
+          ]
+        },
+        {
+          "from": "cat",
+          "to": "catfish",
+          "kind": "word",
+          "part": "fish",
+          "options": [
+            "fish",
+            "pen",
+            "sun"
+          ]
+        },
+        {
+          "from": "bath",
+          "to": "bathtub",
+          "kind": "word",
+          "part": "tub",
+          "options": [
+            "tub",
+            "pig",
+            "cup"
+          ]
+        },
+        {
+          "from": "bed",
+          "to": "bedbug",
+          "kind": "word",
+          "part": "bug",
+          "options": [
+            "bug",
+            "jug",
+            "pig"
+          ]
+        },
+        {
+          "from": "hot",
+          "to": "hotdog",
+          "kind": "word",
+          "part": "dog",
+          "options": [
+            "dog",
+            "pen",
+            "sit"
+          ]
+        },
+        {
+          "from": "back",
+          "to": "backpack",
+          "kind": "word",
+          "part": "pack",
+          "options": [
+            "pack",
+            "fish",
+            "sun"
+          ]
+        }
+      ],
+      "splits": [
+        {
+          "word": "sunset",
+          "parts": [
+            "sun",
+            "set"
+          ]
+        },
+        {
+          "word": "catfish",
+          "parts": [
+            "cat",
+            "fish"
+          ]
+        },
+        {
+          "word": "bathtub",
+          "parts": [
+            "bath",
+            "tub"
+          ]
+        },
+        {
+          "word": "bedbug",
+          "parts": [
+            "bed",
+            "bug"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "split",
+        "couple"
+      ],
+      "games": [],
+      "unit": "5.4",
+      "world": "W6"
+    },
+    {
+      "number": 49,
+      "sound": "beats",
+      "part": "chunk",
+      "review": [
+        "end-ted",
+        "join"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn about bigger words."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn about bigger words. Your grown-up will help."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "napkin",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "rabbit",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "picnic",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "kitten",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "basket",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which car is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the car."
+          }
+        ],
+        "promptText": "Which one shows two beats, as in napkin?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the car.",
+        "gist": "Which shows two beats?",
+        "script": "Say: 'Which one shows two beats, as in napkin?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "beats",
+            "correct": true
+          },
+          {
+            "glyph": "join",
+            "correct": false
+          },
+          {
+            "glyph": "end-ed",
+            "correct": false
+          }
+        ]
+      },
+      "couples": [
+        {
+          "from": "nap",
+          "to": "napkin",
+          "kind": "word",
+          "part": "kin",
+          "options": [
+            "kin",
+            "tin",
+            "pen"
+          ]
+        },
+        {
+          "from": "rab",
+          "to": "rabbit",
+          "kind": "word",
+          "part": "bit",
+          "options": [
+            "bit",
+            "but",
+            "bun"
+          ]
+        },
+        {
+          "from": "pic",
+          "to": "picnic",
+          "kind": "word",
+          "part": "nic",
+          "options": [
+            "nic",
+            "nip",
+            "tic"
+          ]
+        },
+        {
+          "from": "kit",
+          "to": "kitten",
+          "kind": "word",
+          "part": "ten",
+          "options": [
+            "ten",
+            "tin",
+            "pen"
+          ]
+        },
+        {
+          "from": "bas",
+          "to": "basket",
+          "kind": "word",
+          "part": "ket",
+          "options": [
+            "ket",
+            "ten",
+            "pit"
+          ]
+        },
+        {
+          "from": "mag",
+          "to": "magnet",
+          "kind": "word",
+          "part": "net",
+          "options": [
+            "net",
+            "pet",
+            "ten"
+          ]
+        }
+      ],
+      "splits": [
+        {
+          "word": "napkin",
+          "parts": [
+            "nap",
+            "kin"
+          ]
+        },
+        {
+          "word": "rabbit",
+          "parts": [
+            "rab",
+            "bit"
+          ]
+        },
+        {
+          "word": "picnic",
+          "parts": [
+            "pic",
+            "nic"
+          ]
+        },
+        {
+          "word": "kitten",
+          "parts": [
+            "kit",
+            "ten"
+          ]
+        }
+      ],
+      "middle": [
+        "split",
+        "sounds",
+        "couple"
+      ],
+      "games": [],
+      "unit": "5.4",
+      "world": "W6"
+    },
+    {
+      "number": 50,
+      "sound": "endmix",
+      "part": "mix",
+      "review": [
+        "join",
+        "beats"
+      ],
+      "intro": [
+        {
+          "tts": "Today we practice endings and bigger words."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we practice endings and bigger words. Your grown-up will help."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "cats",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "boxes",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "jumping",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "jumped",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "landed",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "sunset",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "napkin",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which car is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the car."
+          }
+        ],
+        "promptText": "Which car is the ending -ing, as in jumping?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the car.",
+        "gist": "Which car is -ing?",
+        "script": "Say: 'Which car is the ending -ing, as in jumping?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "end-ing",
+            "correct": true
+          },
+          {
+            "glyph": "end-ed",
+            "correct": false
+          },
+          {
+            "glyph": "end-es",
+            "correct": false
+          }
+        ]
+      },
+      "couples": [
+        {
+          "from": "cat",
+          "to": "cats",
+          "kind": "ending",
+          "part": "end-s",
+          "options": [
+            "end-s",
+            "end-ed",
+            "end-ted"
+          ]
+        },
+        {
+          "from": "box",
+          "to": "boxes",
+          "kind": "ending",
+          "part": "end-es",
+          "options": [
+            "end-es",
+            "end-ted",
+            "end-s"
+          ]
+        },
+        {
+          "from": "jump",
+          "to": "jumping",
+          "kind": "ending",
+          "part": "end-ing",
+          "options": [
+            "end-ing",
+            "end-s",
+            "end-es"
+          ]
+        },
+        {
+          "from": "land",
+          "to": "landed",
+          "kind": "ending",
+          "part": "end-ted",
+          "options": [
+            "end-ted",
+            "end-ing",
+            "end-s"
+          ]
+        },
+        {
+          "from": "sun",
+          "to": "sunset",
+          "kind": "word",
+          "part": "set",
+          "options": [
+            "set",
+            "pig",
+            "mug"
+          ]
+        },
+        {
+          "from": "nap",
+          "to": "napkin",
+          "kind": "word",
+          "part": "kin",
+          "options": [
+            "kin",
+            "tin",
+            "pen"
+          ]
+        }
+      ],
+      "splits": [
+        {
+          "word": "hotdog",
+          "parts": [
+            "hot",
+            "dog"
+          ]
+        },
+        {
+          "word": "basket",
+          "parts": [
+            "bas",
+            "ket"
+          ]
+        },
+        {
+          "word": "backpack",
+          "parts": [
+            "back",
+            "pack"
+          ]
+        },
+        {
+          "word": "magnet",
+          "parts": [
+            "mag",
+            "net"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "couple",
+        "split"
+      ],
+      "games": [],
+      "unit": "5.5",
+      "world": "W6"
     }
   ],
   "games": {
@@ -7067,6 +8522,86 @@
           "a",
           "b",
           "e"
+        ],
+        "end-s": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "e"
+        ],
+        "end-es": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "t"
+        ],
+        "end-ing": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "b",
+          "a",
+          "e"
+        ],
+        "end-ed": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "s"
+        ],
+        "end-ted": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "s"
+        ],
+        "join": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "e"
+        ],
+        "beats": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "e"
+        ],
+        "endmix": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "s"
         ]
       }
     },
@@ -7257,6 +8792,65 @@
       ],
       "after": 40,
       "world": "W5"
+    },
+    {
+      "id": "b6",
+      "kind": "book",
+      "title": "Story 6",
+      "book": "book-6",
+      "needs": [
+        "m",
+        "a",
+        "s",
+        "i",
+        "t",
+        "p",
+        "f",
+        "o",
+        "n",
+        "d",
+        "c",
+        "h",
+        "u",
+        "g",
+        "l",
+        "r",
+        "b",
+        "e",
+        "j",
+        "w",
+        "v",
+        "y",
+        "z",
+        "x",
+        "q",
+        "sh",
+        "ch",
+        "th",
+        "ck",
+        "ff",
+        "wh",
+        "ng",
+        "nk",
+        "st",
+        "nd",
+        "sp",
+        "sn",
+        "bl",
+        "pl",
+        "br",
+        "dr",
+        "mix",
+        "end-s",
+        "end-es",
+        "end-ing",
+        "end-ed",
+        "end-ted",
+        "join",
+        "beats"
+      ],
+      "after": 49,
+      "world": "W6"
     },
     {
       "id": "x1",
@@ -8684,6 +10278,219 @@
       "world": "W5"
     },
     {
+      "id": "x13",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 43,
+      "pair": [],
+      "sides": [
+        {
+          "signText": "sss",
+          "letters": [],
+          "says": [
+            "sss"
+          ],
+          "words": [
+            "cats",
+            "maps",
+            "hats",
+            "cups",
+            "ducks",
+            "lips"
+          ]
+        },
+        {
+          "signText": "zzz",
+          "letters": [],
+          "says": [
+            "zzz"
+          ],
+          "words": [
+            "dogs",
+            "bugs",
+            "pens",
+            "beds",
+            "tubs",
+            "hens"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "cat",
+          "b": "cats"
+        },
+        {
+          "a": "dog",
+          "b": "dogs"
+        },
+        {
+          "a": "map",
+          "b": "maps"
+        },
+        {
+          "a": "bug",
+          "b": "bugs"
+        }
+      ],
+      "mode": "says",
+      "hint": "Touch your throat: sss has no buzz, zzz buzzes.",
+      "tunnelLine": "Your child reads the word on the car and listens to the end of it. Quiet sss: cats, maps. Buzzing zzz: dogs, bugs. Touch your throat to feel the difference.",
+      "line": "Easy to mix up: the ending -s says sss in cats and zzz in dogs. Let's listen closely.",
+      "end": "Great listening! Your child can hear when the ending -s says sss and when it says zzz.",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which car is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the car."
+          }
+        ],
+        "promptText": "Which car is the ending -s, as in cats?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the car.",
+        "gist": "Which car is -s?",
+        "script": "Say: 'Which car is the ending -s, as in cats?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "end-s",
+            "correct": true
+          },
+          {
+            "glyph": "sh",
+            "correct": false
+          },
+          {
+            "glyph": "ch",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "check",
+          "lesson": 43
+        }
+      ],
+      "world": "W6"
+    },
+    {
+      "id": "x14",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 47,
+      "pair": [],
+      "sides": [
+        {
+          "signText": "one beat",
+          "letters": [],
+          "says": [
+            "t-",
+            "d-"
+          ],
+          "words": [
+            "jumped",
+            "picked",
+            "kicked",
+            "filled",
+            "spilled",
+            "helped"
+          ]
+        },
+        {
+          "signText": "extra beat",
+          "letters": [],
+          "says": [
+            "id-"
+          ],
+          "words": [
+            "landed",
+            "rested",
+            "lifted",
+            "melted",
+            "hunted",
+            "handed"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "jump",
+          "b": "jumped"
+        },
+        {
+          "a": "land",
+          "b": "landed"
+        },
+        {
+          "a": "rest",
+          "b": "rested"
+        },
+        {
+          "a": "fill",
+          "b": "filled"
+        }
+      ],
+      "mode": "says",
+      "hint": "Clap the beats: jumped has one, landed has two.",
+      "tunnelLine": "Your child reads the word on the car and claps its beats. One beat: jumped, filled. Two beats, with -ed an extra beat of its own: landed, rested.",
+      "line": "Easy to mix up: the ending -ed. Jumped and filled have one beat, landed has an extra beat. Let's listen closely.",
+      "end": "Great listening! Your child can hear when -ed is one beat (jumped, filled) and when it adds an extra beat (landed).",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which car is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the car."
+          }
+        ],
+        "promptText": "Which car is -ed with an extra beat, as in landed?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the car.",
+        "gist": "Which has an extra beat?",
+        "script": "Say: 'Which car is -ed with an extra beat, as in landed?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "end-ted",
+            "correct": true
+          },
+          {
+            "glyph": "end-ed",
+            "correct": false
+          },
+          {
+            "glyph": "end-s",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "check",
+          "lesson": 47
+        }
+      ],
+      "world": "W6"
+    },
+    {
       "id": "v1",
       "kind": "review",
       "title": "Review Stop",
@@ -9407,6 +11214,151 @@
         }
       ],
       "world": "W5"
+    },
+    {
+      "id": "v14",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 46,
+      "summary": {
+        "sounds": 33,
+        "blends": 22,
+        "endings": 4,
+        "words": 665,
+        "examples": [
+          "boxes",
+          "wishes",
+          "dishes",
+          "buses",
+          "jumping",
+          "fishing",
+          "resting",
+          "singing"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so",
+          "we",
+          "want",
+          "was",
+          "my",
+          "you",
+          "of",
+          "said",
+          "do",
+          "does",
+          "are",
+          "she",
+          "they",
+          "what",
+          "where"
+        ]
+      },
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 46
+        },
+        {
+          "task": "couple",
+          "lesson": 45
+        },
+        {
+          "task": "wagons",
+          "lesson": 44
+        },
+        {
+          "task": "signals",
+          "lesson": 43
+        },
+        {
+          "task": "check",
+          "lesson": 45
+        }
+      ],
+      "world": "W6"
+    },
+    {
+      "id": "v15",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 50,
+      "mix": "endings",
+      "summary": {
+        "sounds": 33,
+        "blends": 22,
+        "endings": 4,
+        "words": 716,
+        "examples": [
+          "landed",
+          "rested",
+          "lifted",
+          "melted",
+          "sunset",
+          "catfish",
+          "bathtub",
+          "bedbug"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so",
+          "we",
+          "want",
+          "was",
+          "my",
+          "you",
+          "of",
+          "said",
+          "do",
+          "does",
+          "are",
+          "she",
+          "they",
+          "what",
+          "where"
+        ]
+      },
+      "plan": [
+        {
+          "task": "couple",
+          "lesson": 50
+        },
+        {
+          "task": "split",
+          "lesson": 49
+        },
+        {
+          "task": "hunt",
+          "lesson": 47
+        },
+        {
+          "task": "wagons",
+          "lesson": 46
+        },
+        {
+          "task": "check",
+          "lesson": 45
+        }
+      ],
+      "world": "W6"
     }
   ],
   "gameDistractors": [
@@ -9899,6 +11851,64 @@
         "mix"
       ],
       "after": 42
+    },
+    {
+      "id": "L6",
+      "n": 6,
+      "car": "boxcar",
+      "needs": [
+        "m",
+        "a",
+        "s",
+        "i",
+        "t",
+        "p",
+        "f",
+        "o",
+        "n",
+        "d",
+        "c",
+        "h",
+        "u",
+        "g",
+        "l",
+        "r",
+        "b",
+        "e",
+        "j",
+        "w",
+        "v",
+        "y",
+        "z",
+        "x",
+        "q",
+        "sh",
+        "ch",
+        "th",
+        "ck",
+        "ff",
+        "wh",
+        "ng",
+        "nk",
+        "st",
+        "nd",
+        "sp",
+        "sn",
+        "bl",
+        "pl",
+        "br",
+        "dr",
+        "mix",
+        "end-s",
+        "end-es",
+        "end-ing",
+        "end-ed",
+        "end-ted",
+        "join",
+        "beats",
+        "endmix"
+      ],
+      "after": 50
     }
   ],
   "units": [
@@ -10086,6 +12096,44 @@
       "stage": 4,
       "sounds": [
         "mix"
+      ]
+    },
+    {
+      "id": "5.1",
+      "stage": 5,
+      "sounds": [
+        "end-s",
+        "end-es"
+      ]
+    },
+    {
+      "id": "5.2",
+      "stage": 5,
+      "sounds": [
+        "end-ing"
+      ]
+    },
+    {
+      "id": "5.3",
+      "stage": 5,
+      "sounds": [
+        "end-ed",
+        "end-ted"
+      ]
+    },
+    {
+      "id": "5.4",
+      "stage": 5,
+      "sounds": [
+        "join",
+        "beats"
+      ]
+    },
+    {
+      "id": "5.5",
+      "stage": 5,
+      "sounds": [
+        "endmix"
       ]
     }
   ],

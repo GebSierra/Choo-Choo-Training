@@ -6,6 +6,17 @@ import { letterText } from '../../letters.js';
 import { picture } from '../../components/picture.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase, introParts, fit } from '../../lessons.js';
+import { wordPartsOf } from '../../order.js';
+
+// World 6: what the grown-up does for a word part. An ending: say the base word, then the ending, then the whole word; slide under the base word and then the ending car.
+const exampleOf = (sound) => { const p = sound.parts && sound.parts[0] && sound.parts[0].asIn ? wordPartsOf(sound.parts[0].asIn) : null; return p ? { word: sound.parts[0].asIn, base: p.parts[0], say: sound.parts[0].say } : null; };
+const partScript = (sound) => {
+  const ex = exampleOf(sound), note = sound.parentNote ? ' ' + sound.parentNote : '';
+  if (sound.part === 'ending' && ex) return `I do: say the base word, then the ending, then the whole word: ${ex.base} ... ${ex.say} ... ${ex.word}. We do: slide a finger under the base word, then under the ending car, and say it together. You do: your child slides and says the word alone.${note}`;
+  if (sound.part === 'chunk' && ex) return `I do: clap the beats, then say each chunk, then the whole word: ${ex.say.replace('-', ' ... ')} ... ${ex.word}. We do: slide a finger under each chunk and say it together. You do: your child slides and says the word alone.${note}`;
+  return `Say each word, find the base word and its ending (or clap the beats), then say the whole word. Your child slides a finger under it and says it.${note}`;
+};
+const partGist = (sound) => { const ex = exampleOf(sound); if (sound.part === 'ending' && ex) return fit(`Say ${ex.base}, then ${ex.say}: ${ex.word}.`, `${ex.base} + ${ex.say} = ${ex.word}`, 'Base word, then ending.'); if (sound.part === 'chunk' && ex) return fit(`Clap ${ex.say}, then glue.`, 'Clap, split, glue.'); return 'Endings and bigger words.'; };
 
 // Task 2: the new letter, its sound card, the slide track and the example pictures.
 export function build({ lesson, sound, speech, store }) {
@@ -27,8 +38,8 @@ export function build({ lesson, sound, speech, store }) {
     el,
     parts: () => introParts(lesson, store),
     // I do, we do, you do: the grown-up models, then they slide together, then the child slides alone.
-    script: () => (sound.blend ? `I do: say each pair slowly and smooth: ${sound.pairs.map((p) => p.say).join(', ')}. Each letter keeps its own sound, so glide with no uh in between. We do: slide a finger under the two letters and say it together. You do: your child slides under the letters and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}` : `I do: say ${soundPhrase(sound)}. We do: slide a finger under the letter and say it together. You do: your child slides under the letter and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}`),
-    gist: () => (sound.blend ? fit(`Glide ${sound.sayItLike} as in ${sound.asIn}.`, `Glide ${sound.sayItLike}.`) : fit(`I do: say ${soundPhrase(sound)}.`, `Say ${soundPhrase(sound)}.`)),
+    script: () => (sound.part ? partScript(sound) : sound.blend ? `I do: say each pair slowly and smooth: ${sound.pairs.map((p) => p.say).join(', ')}. Each letter keeps its own sound, so glide with no uh in between. We do: slide a finger under the two letters and say it together. You do: your child slides under the letters and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}` : `I do: say ${soundPhrase(sound)}. We do: slide a finger under the letter and say it together. You do: your child slides under the letter and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}`),
+    gist: () => (sound.part ? partGist(sound) : sound.blend ? fit(`Glide ${sound.sayItLike} as in ${sound.asIn}.`, `Glide ${sound.sayItLike}.`) : fit(`I do: say ${soundPhrase(sound)}.`, `Say ${soundPhrase(sound)}.`)),
     cleanup: () => track.cleanup(),
     again: () => { draw(); speech.say(introParts(lesson, store)); },
   };
