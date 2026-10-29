@@ -2,7 +2,7 @@
 import { h } from './dom.js';
 import { GLYPHS, STROKE_WIDTH, XHEIGHT_TOP, BASELINE } from './glyphs.js';
 import { accentOf } from './theme.js';
-import { letterUnits } from './order.js';
+import { letterUnits, patternSpans } from './order.js';
 
 // An inline glyph of ours sized to sit in a line of Nunito: the x-height of the glyph box is .56em tall, a unit is .01047em,
 // and a tail below the baseline hangs below the line. Every taught letter is drawn this way in text a child reads.
@@ -29,8 +29,13 @@ export function letterText(text, { tint, label = true, only, level } = {}) {
   let run = '';
   const flush = () => { if (run) { span.append(h('span', { 'aria-hidden': 'true' }, run)); run = ''; } };
   const chars = level == null ? [...text] : letterUnits(text, level, true, true); // level: a lesson number; the digraphs taught by then are one unit each (sh, ch ...)
+  // World 7: once its lesson has taught the pattern, the silent e of a word is drawn dim (it makes no sound)
+  const pat = level == null ? null : patternSpans(text, level);
+  let silentI = -1;
+  if (pat && pat.e != null) { let at = 0; chars.forEach((u, i) => { if (at <= pat.e && pat.e < at + u.length) silentI = i; at += u.length; }); }
   for (let i = 0; i < chars.length; i++) {
     const ch = chars[i];
+    if (i === silentI) { flush(); const node = GLYPHS[ch] && (!only || only.includes(ch)) ? inlineGlyph(ch, null) : h('span', { 'aria-hidden': 'true' }, ch); node.classList.add('silent-e'); span.append(node); continue; }
     if (ch === 'u' && chars[i - 1] === 'q' && GLYPHS.q && (!only || only.includes('q'))) continue; // the q glyph is "qu": its u is already drawn
     const isTint = tint && ch === tint;
     if (GLYPHS[ch] && (!only || only.includes(ch))) { flush(); span.append(inlineGlyph(ch, isTint ? accentOf(ch) : null)); }

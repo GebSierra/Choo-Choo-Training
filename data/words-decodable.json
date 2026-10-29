@@ -1,5 +1,5 @@
 {
-  "about": "A curated list of common, child-friendly real words that a child can read by sounding out with plain letter sounds (short vowels, one sound per letter, qu as one unit). No heart words (is, as, was, of, the ...), no rude or obscure words, no double letters (ff, ll, ss, zz). The World 4 digraph words (sh, ch, th, ck, wh, ng, nk) are counted only by the stops after their lesson. tools/gen-lessons.mjs counts, for each Review Stop, how many of these words use only the letters taught by that stop (the number W the grown-up sees) and picks the example words from them. Add words here, never to the counts by hand. World 5 (Blend Bay): blendWords are counted apart from words, each one only once every blend it uses is taught (a blend is two letters that each keep their own sound; no new letter is taught). World 6 (Endings Junction): endingWords are counted apart, each one only once every letter, blend and word part it uses is taught (an ending, a compound word or a two-beat word is a word part, not a sound; no letter is new). Words already in the lists above are not repeated.",
+  "about": "A curated list of common, child-friendly real words that a child can read by sounding out with plain letter sounds (short vowels, one sound per letter, qu as one unit). No heart words (is, as, was, of, the ...), no rude or obscure words, no double letters (ff, ll, ss, zz). The World 4 digraph words (sh, ch, th, ck, wh, ng, nk) are counted only by the stops after their lesson. tools/gen-lessons.mjs counts, for each Review Stop, how many of these words use only the letters taught by that stop (the number W the grown-up sees) and picks the example words from them. Add words here, never to the counts by hand. World 5 (Blend Bay): blendWords are counted apart from words, each one only once every blend it uses is taught (a blend is two letters that each keep their own sound; no new letter is taught). World 6 (Endings Junction): endingWords are counted apart, each one only once every letter, blend and word part it uses is taught (an ending, a compound word or a two-beat word is a word part, not a sound; no letter is new). World 7 (Silent E Summit): patternWords are counted apart, each one only once every letter, blend, word part and long-vowel pattern it uses is taught (a silent-e word or a vowel at the end of a word says its name; a pattern is not a sound and no letter is new). Heart words that follow a pattern (he, me, go, my ...) stay heart words and are not in these lists. Words already in the lists above are not repeated.",
   "words": [
     "am", "ma", "mama", "sam", "at", "it", "sit", "sat", "sip", "sap", "tip", "tap", "pat", "pit", "mat", "map", "tim",
     "spat", "spit", "past", "mast", "mist", "stamp", "pasta", "taps", "maps", "mats", "pits", "sips", "tips", "sits",
@@ -68,5 +68,17 @@
     "cobweb", "hilltop", "laptop", "pigpen", "bobcat", "uphill", "upset", "dustpan", "fishnet",
     "handstand", "sunfish", "napkin", "rabbit", "picnic", "kitten", "basket", "magnet", "insect",
     "helmet", "puppet", "trumpet", "muffin", "pumpkin", "rocket", "pocket"
+  ],
+  "patternWords": [
+    "hi", "by", "fly", "cry", "try", "dry", "fry", "sky", "shy", "spy", "cape", "cake", "make", "bake", "lake", "take",
+    "wake", "name", "game", "same", "came", "late", "gate", "hate", "date", "safe", "wave", "save", "cave", "gave",
+    "shape", "shade", "plane", "snake", "grape", "frame", "flame", "skate", "state", "jade", "made", "fade", "wade",
+    "lane", "mane", "cane", "pane", "sale", "tale", "male", "pale", "maze", "blaze", "brave", "crane", "crate", "grade",
+    "trade", "blame", "shake", "flake", "stake", "tape", "mate", "rate", "fate", "kite", "bike", "hike", "like", "time",
+    "dime", "lime", "line", "mine", "nine", "pine", "fine", "five", "dive", "hive", "wide", "ride", "side", "hide",
+    "slide", "smile", "while", "white", "shine", "slime", "drive", "crime", "bride", "pride", "stripe", "bite", "site",
+    "mite", "wine", "dine", "spine", "pipe", "ripe", "hope", "rope", "home", "bone", "note", "joke", "poke", "woke",
+    "stone", "stove", "globe", "smoke", "hole", "pole", "mole", "vote", "rode", "code", "robe", "cone", "slope", "cube",
+    "cute", "mule", "mute", "tube", "flute", "tune", "rule", "prune", "plume", "dune", "eve", "pete", "theme", "steve"
   ]
 }

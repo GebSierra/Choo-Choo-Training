@@ -66,6 +66,13 @@
   --join: #3F6212; --join-tint: rgba(63,98,18,.12);
   --beats: #7C2D12; --beats-tint: rgba(124,45,18,.12);
   --endmix: #475569; --endmix-tint: rgba(71,85,105,.12);
+  --open: #0C4A6E; --open-tint: rgba(12,74,110,.12);
+  --a_e: #9F1239; --a_e-tint: rgba(159,18,57,.12);
+  --i_e: #854D0E; --i_e-tint: rgba(133,77,14,.12);
+  --o_e: #6B21A8; --o_e-tint: rgba(107,33,168,.12);
+  --u_e: #065F46; --u_e-tint: rgba(6,95,70,.12);
+  --e_e: #1E3A8A; --e_e-tint: rgba(30,58,138,.12);
+  --semix: #475569; --semix-tint: rgba(71,85,105,.12);
   /* fills that carry white text: green darkened for contrast */
   --m-fill: var(--m); --a-fill: var(--a); --s-fill: #1E8E5E;
   --t-fill: #AD6417; --f-fill: #108286; --d-fill: #8659E9; --g-fill: #C34A88; --i-fill: #A3690C; --n-fill: #2B6CB0; --p-fill: #C2417A; --h-fill: #7A5C3E; --b-fill: #5667F2; --l-fill: #60801F; --o-fill: #9B3FC4; --c-fill: #0B7396; --k-fill: #0B7396; --u-fill: #CC4F2A; --r-fill: #2E8A2E; --e-fill: #B3472F; --j-fill: #6A4FC4; --w-fill: #1F7A8C; --v-fill: #A33B7A; --y-fill: #8A6D00; --z-fill: #2E7D32; --x-fill: #C2410C; --q-fill: #3F51B5; --sh-fill: #0B6E99; --ch-fill: #B45309; --th-fill: #6D28D9; --ck-fill: #9D174D; --ff-fill: #047857; --wh-fill: #1D4ED8; --ng-fill: #BE123C; --nk-fill: #4D7C0F; --st-fill: #0F766E; --nd-fill: #0E7490; --sp-fill: #7E22CE; --sn-fill: #BE185D; --bl-fill: #1E40AF; --pl-fill: #A16207; --br-fill: #9A3412; --dr-fill: #166534; --mix-fill: #475569; --end-s-fill: #0369A1; --end-es-fill: #A21CAF; --end-ing-fill: #15803D; --end-ed-fill: #DC2626; --end-ted-fill: #0F766E; --join-fill: #3F6212; --beats-fill: #7C2D12; --endmix-fill: #475569;
@@ -2282,3 +2289,8 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 @media (max-height: 700px) { .couple-scene .chain-car.choice.end { height: 76px; } .couple-scene .chain-car.choice.end .glyph { height: 50px; } }
 .part-card .br-pair { min-width: 5.2em; }
 .which-word:has(svg[class*="inline-end-"]) { font-size: clamp(34px, 11vmin, 66px); } /* a word with an ending car is wider: it still fits its card */
+
+/* World 7, Silent E Summit: the silent e is dim (it makes no sound) and the jump arc runs from the e to the vowel; the vowel says its name. Shown only once the pattern is taught. */
+.glyph-letter.silent-e { opacity: .42; } .glyph-letter.silent-e.lit { opacity: .7; }
+.silent-e { opacity: .42; }
+.silent-arc { pointer-events: none; }

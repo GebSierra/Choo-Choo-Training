@@ -1,5 +1,5 @@
 // Data rules shared by the tap games and tools/gen-lessons.mjs. No DOM here.
-import { soundOfLetter, spellingsOf, lettersOfSounds, letterUnits, isReadable, NO_GLYPH } from './order.js';
+import { soundOfLetter, spellingsOf, lettersOfSounds, letterUnits, isReadable, NO_GLYPH, isEndKey, isPatternKey } from './order.js';
 export const LOOKALIKE = ['da','db','dp','dq','dg','bp','bq','bh','pq','pg','nm','nh','nr','nu','hb','hk','hl','li','lt','lj','lf','tf','fi','oc','oa','rn','rh','kh','kb','kl','ec','eo','ea','es','ji','jl','jt','jg','jy','wm','wv','wu','vy','vu','yu','yg','yj','zs','zn','xk','xz','xy','qg','qp','qa','qd','qb'];
 export const looksLike = (a, b) => LOOKALIKE.includes(a + b) || LOOKALIKE.includes(b + a);
 export const order = (curriculum) => curriculum.lessons.map((L) => L.sound);
@@ -20,7 +20,8 @@ export function otherLetters(curriculum, n, target, count) {
   const pad = curriculum.games.hunt.distractors[curriculum.lessons[n - 1].sound] || [];
   const key = soundOfLetter(target), mine = spellingsOf(key);
   const out = [];
-  for (const k of [...taught, ...pad]) if (out.length < count && !NO_GLYPH.includes(k) && soundOfLetter(k) !== key && !mine.some((m) => looksLike(k, m)) && !out.includes(k)) out.push(k);
+  const patternRound = isPatternKey(key); // World 7: a pattern card is dealt with other patterns and plain letters, never with the train cars of World 6
+  for (const k of [...taught, ...pad]) if (out.length < count && !NO_GLYPH.includes(k) && !(patternRound && isEndKey(k)) && soundOfLetter(k) !== key && !mine.some((m) => looksLike(k, m)) && !out.includes(k)) out.push(k);
   return out;
 }
 // The letter a round shows for a sound: its spellings take turns (c, k, c ...), so a child sees both. `turn` counts the sound's rounds.
@@ -131,7 +132,11 @@ export const EXTRA_MIDDLES = { 20: ['hunt', 'sounds', 'wagons', 'board', 'writin
   // World 6 (43 to 50): an ending is a word part, so the letter games deal its car (Letter Hunt, Wagon Parade) and the new games couple ending cars and word cars on ('couple') and split bigger words ('split').
   // The bigger-word lessons (48 to 50) have no car of their own to trace or hunt, so they split and couple instead of tracing.
   43: ['sounds', 'couple', 'writing', 'hunt'], 44: ['writing', 'sounds', 'couple', 'wagons'], 45: ['couple', 'sounds', 'hunt', 'writing'], 46: ['sounds', 'writing', 'couple', 'wagons'],
-  47: ['hunt', 'sounds', 'couple', 'writing'], 48: ['sounds', 'split', 'couple'], 49: ['split', 'sounds', 'couple'], 50: ['sounds', 'couple', 'split'] };
+  47: ['hunt', 'sounds', 'couple', 'writing'], 48: ['sounds', 'split', 'couple'], 49: ['split', 'sounds', 'couple'], 50: ['sounds', 'couple', 'split'],
+  // World 7 (51 to 57): a long-vowel pattern is not a sound, so the letter games deal its card (Letter Hunt, Wagon Parade, Track Tracing) and the new game Magic e Car ('magic') couples an e car on to a short
+  // word and makes its long partner (cap, cape). The open-vowel lesson has no e to couple; the mixed review has no card of its own to trace or hunt, so it only reads and couples.
+  51: ['sounds', 'writing', 'hunt', 'wagons'], 52: ['sounds', 'magic', 'writing', 'hunt'], 53: ['writing', 'sounds', 'magic', 'wagons'], 54: ['hunt', 'sounds', 'magic', 'writing'],
+  55: ['sounds', 'writing', 'magic', 'wagons'], 56: ['magic', 'sounds', 'hunt', 'writing'], 57: ['sounds', 'magic'] };
 export const TAP_GAMES = ['signals', 'wagons', 'board'];
 // The middle of lesson n: its pattern, with a game the lesson cannot hold (Green Light needs a second sound; Station Board needs
 // its words) swapped for Letter Hunt or Wagon Parade, whichever is not already there.

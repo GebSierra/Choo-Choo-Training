@@ -2118,6 +2118,265 @@
         "voice": true,
         "text": "Say each word and listen for the ending or the beats. Clap if it helps. Voice on."
       }
+    },
+    "open": {
+      "glyph": "open",
+      "pattern": "open",
+      "forms": [
+        {
+          "say": "eeee",
+          "asIn": "me"
+        },
+        {
+          "say": "ohhh",
+          "asIn": "go"
+        },
+        {
+          "say": "iyyy",
+          "asIn": "hi"
+        }
+      ],
+      "sayItLike": "eeee",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "A vowel at the end of a word says its name: me, go, hi. The letter y at the end of a short word says long i: my, by, fly.",
+      "parentNote": "This is a pattern, not a new sound. When a vowel is the last letter of a short word, it says its name: me, he, go, no, hi. The letter y at the end says long i: my, by, fly. Your child already knows some of these as heart words (he, me, go, my); now they see why.",
+      "asIn": "me",
+      "clip": null,
+      "words": [
+        {
+          "word": "cry",
+          "image": "assets/images/mentava/web/ie/cry.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [
+        "cry"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Say me, go, hi. Listen to the last sound: it is the name of the letter. Your mouth stays open at the end. Voice on."
+      }
+    },
+    "a_e": {
+      "glyph": "a_e",
+      "pattern": "split",
+      "forms": [
+        {
+          "say": "ayyy",
+          "asIn": "cake",
+          "short": "cap",
+          "long": "cape"
+        }
+      ],
+      "sayItLike": "ayyy",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "The silent e makes the a say its name: cap becomes cape. The e makes no sound. It jumps back over one consonant to the a.",
+      "parentNote": "A pattern, not a new sound. Say cap, then cape. The silent e makes no sound, but it makes the a say its name. Show the jump: the e jumps back over the p to the a. Teach the short word and its partner together: cap and cape, man and mane.",
+      "asIn": "cake",
+      "clip": null,
+      "words": [
+        {
+          "word": "cake",
+          "image": "assets/images/mentava/web/ae/cake.webp"
+        },
+        {
+          "word": "gate",
+          "image": "assets/images/mentava/web/g/gate.webp"
+        },
+        {
+          "word": "snake",
+          "image": "assets/images/mentava/web/s/snake.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [
+        "cake",
+        "gate"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Say cap: your mouth opens wide. Say cape: your mouth starts open and glides to a smile (ay). The e makes no sound. Voice on."
+      }
+    },
+    "i_e": {
+      "glyph": "i_e",
+      "pattern": "split",
+      "forms": [
+        {
+          "say": "iyyy",
+          "asIn": "kite",
+          "short": "kit",
+          "long": "kite"
+        }
+      ],
+      "sayItLike": "iyyy",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "The silent e makes the i say its name: kit becomes kite. The e makes no sound. It jumps back over one consonant to the i.",
+      "parentNote": "The same idea with i. Say kit, then kite. The silent e jumps back over the t to the i, and the i says its name. Try kit and kite, pin and pine, rid and ride.",
+      "asIn": "kite",
+      "clip": null,
+      "words": [
+        {
+          "word": "kite",
+          "image": "assets/images/mentava/web/ie/kite.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [
+        "kite"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Say kit: your mouth stays small. Say kite: your mouth opens wide and glides up to a smile (eye). The e makes no sound. Voice on."
+      }
+    },
+    "o_e": {
+      "glyph": "o_e",
+      "pattern": "split",
+      "forms": [
+        {
+          "say": "ohhh",
+          "asIn": "bone",
+          "short": "hop",
+          "long": "hope"
+        }
+      ],
+      "sayItLike": "ohhh",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "The silent e makes the o say its name: hop becomes hope. The e makes no sound. It jumps back over one consonant to the o.",
+      "parentNote": "The same idea with o. Say hop, then hope. The silent e jumps back over the p to the o, and the o says its name. Try hop and hope, rod and rode, not and note.",
+      "asIn": "bone",
+      "clip": null,
+      "words": [
+        {
+          "word": "bone",
+          "image": "assets/images/mentava/web/oe/bone.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [
+        "bone"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Say hop: your mouth opens wide. Say hope: your lips start round and stay round (oh). The e makes no sound. Voice on."
+      }
+    },
+    "u_e": {
+      "glyph": "u_e",
+      "pattern": "split",
+      "forms": [
+        {
+          "say": "yooo",
+          "asIn": "cube",
+          "short": "cub",
+          "long": "cube"
+        },
+        {
+          "say": "oooo",
+          "asIn": "tube",
+          "short": "tub",
+          "long": "tube"
+        }
+      ],
+      "sayItLike": "yooo",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "The silent e makes the u say its name: cub becomes cube. The u has two long sounds: yoo as in cube, and oo as in tube. Try one, then the other, and pick the real word.",
+      "parentNote": "The long u has two sounds. In cube and cute it says yoo. In tube and flute it says oo. If a word does not sound right one way, try the other, and let your child pick the real word. Say cub, then cube; tub, then tube.",
+      "asIn": "cube",
+      "clip": null,
+      "words": [
+        {
+          "word": "cube",
+          "image": "assets/images/mentava/web/ue-you/cube.webp"
+        },
+        {
+          "word": "mule",
+          "image": "assets/images/mentava/web/ue-you/mule.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [
+        "cube",
+        "mule"
+      ],
+      "mouth": {
+        "voice": true,
+        "text": "Say cub, then cube: your lips glide from a smile to round (yoo). Tube just says oo, with round lips. The e makes no sound. Voice on."
+      }
+    },
+    "e_e": {
+      "glyph": "e_e",
+      "pattern": "split",
+      "forms": [
+        {
+          "say": "eeee",
+          "asIn": "eve",
+          "short": "pet",
+          "long": "pete"
+        }
+      ],
+      "sayItLike": "eeee",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "The silent e makes the first e say its name: them becomes theme. This pattern is rare. The e at the end makes no sound.",
+      "noPictures": true,
+      "parentNote": "This pattern is rare: only a few words use it (eve, Pete, theme). It works like the others: the silent e makes the first e say its name. Say them, then theme.",
+      "asIn": "eve",
+      "clip": null,
+      "words": [],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Say them, then theme: your mouth smiles wide and stays there (ee). The last e makes no sound. Voice on."
+      }
+    },
+    "semix": {
+      "glyph": "semix",
+      "pattern": "mix",
+      "forms": [
+        {
+          "say": "ayyy iyyy ohhh yooo",
+          "asIn": null
+        }
+      ],
+      "sayItLike": "ayyy iyyy ohhh yooo",
+      "hold": false,
+      "doNotSay": null,
+      "howTo": "Short vowel, or long vowel with a silent e? Say the word and listen: cap, cape; kit, kite; hop, hope; cub, cube.",
+      "parentNote": "The mixed review: every pattern together, with its short-vowel partner. Say the word, then ask whether the vowel says its name. English words do not end in v, so have, give and live get an e that does not change the vowel.",
+      "asIn": null,
+      "clip": null,
+      "words": [
+        {
+          "word": "cake",
+          "image": "assets/images/mentava/web/ae/cake.webp"
+        },
+        {
+          "word": "kite",
+          "image": "assets/images/mentava/web/ie/kite.webp"
+        },
+        {
+          "word": "bone",
+          "image": "assets/images/mentava/web/oe/bone.webp"
+        },
+        {
+          "word": "cube",
+          "image": "assets/images/mentava/web/ue-you/cube.webp"
+        }
+      ],
+      "startWords": [],
+      "practice": [],
+      "mouth": {
+        "voice": true,
+        "text": "Say each word and listen to the vowel: short, or its name? Voice on."
+      }
     }
   },
   "lessons": [
@@ -8105,6 +8364,969 @@
       "games": [],
       "unit": "5.5",
       "world": "W6"
+    },
+    {
+      "number": 51,
+      "sound": "open",
+      "pattern": "open",
+      "review": [
+        "beats",
+        "endmix"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new pattern: vowels at the end of a word."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new pattern: vowels at the end of a word. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "me",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "go",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "hi",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "fly",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "cry",
+          "image": "assets/images/mentava/web/ie/cry.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which one is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the card."
+          }
+        ],
+        "promptText": "Which one has a vowel at the end, as in go?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the card.",
+        "gist": "Which ends with a vowel?",
+        "script": "Say: 'Which one has a vowel at the end, as in go?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its letters together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "open",
+            "correct": true
+          },
+          {
+            "glyph": "end-ing",
+            "correct": false
+          },
+          {
+            "glyph": "end-s",
+            "correct": false
+          }
+        ]
+      },
+      "middle": [
+        "sounds",
+        "writing",
+        "hunt",
+        "wagons"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "heart": [
+        "bye"
+      ],
+      "unit": "6.1",
+      "world": "W7"
+    },
+    {
+      "number": 52,
+      "sound": "a_e",
+      "pattern": "split",
+      "review": [
+        "endmix",
+        "open"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new pattern: the silent e."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new pattern: the silent e. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "cape",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "game",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "lane",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "shade",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "cake",
+          "image": "assets/images/mentava/web/ae/cake.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which one is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the card."
+          }
+        ],
+        "promptText": "Which one has the letter a and a silent e, as in cake?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the card.",
+        "gist": "Which has a and silent e?",
+        "script": "Say: 'Which one has the letter a and a silent e, as in cake?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its letters together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "a_e",
+            "correct": true
+          },
+          {
+            "glyph": "open",
+            "correct": false
+          },
+          {
+            "glyph": "end-ing",
+            "correct": false
+          }
+        ]
+      },
+      "magic": [
+        {
+          "from": "cap",
+          "to": "cape",
+          "vowel": 1,
+          "options": [
+            "e",
+            "w",
+            "y"
+          ]
+        },
+        {
+          "from": "tap",
+          "to": "tape",
+          "vowel": 1,
+          "options": [
+            "e",
+            "x",
+            "j"
+          ]
+        },
+        {
+          "from": "mad",
+          "to": "made",
+          "vowel": 1,
+          "options": [
+            "e",
+            "z",
+            "k"
+          ]
+        },
+        {
+          "from": "man",
+          "to": "mane",
+          "vowel": 1,
+          "options": [
+            "e",
+            "y",
+            "v"
+          ]
+        },
+        {
+          "from": "hat",
+          "to": "hate",
+          "vowel": 1,
+          "options": [
+            "e",
+            "j",
+            "w"
+          ]
+        },
+        {
+          "from": "can",
+          "to": "cane",
+          "vowel": 1,
+          "options": [
+            "e",
+            "k",
+            "x"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "magic",
+        "writing",
+        "hunt"
+      ],
+      "games": [],
+      "unit": "6.2",
+      "world": "W7"
+    },
+    {
+      "number": 53,
+      "sound": "i_e",
+      "pattern": "split",
+      "review": [
+        "open",
+        "a_e"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new pattern: the silent e."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new pattern: the silent e. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "bike",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "hike",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "time",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "slide",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "kite",
+          "image": "assets/images/mentava/web/ie/kite.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which one is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the card."
+          }
+        ],
+        "promptText": "Which one has the letter i and a silent e, as in kite?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the card.",
+        "gist": "Which has i and silent e?",
+        "script": "Say: 'Which one has the letter i and a silent e, as in kite?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its letters together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "i_e",
+            "correct": true
+          },
+          {
+            "glyph": "a_e",
+            "correct": false
+          },
+          {
+            "glyph": "open",
+            "correct": false
+          }
+        ]
+      },
+      "magic": [
+        {
+          "from": "kit",
+          "to": "kite",
+          "vowel": 1,
+          "options": [
+            "e",
+            "x",
+            "j"
+          ]
+        },
+        {
+          "from": "pin",
+          "to": "pine",
+          "vowel": 1,
+          "options": [
+            "e",
+            "j",
+            "x"
+          ]
+        },
+        {
+          "from": "bit",
+          "to": "bite",
+          "vowel": 1,
+          "options": [
+            "e",
+            "y",
+            "v"
+          ]
+        },
+        {
+          "from": "rid",
+          "to": "ride",
+          "vowel": 1,
+          "options": [
+            "e",
+            "j",
+            "w"
+          ]
+        },
+        {
+          "from": "dim",
+          "to": "dime",
+          "vowel": 1,
+          "options": [
+            "e",
+            "k",
+            "x"
+          ]
+        },
+        {
+          "from": "fin",
+          "to": "fine",
+          "vowel": 1,
+          "options": [
+            "e",
+            "v",
+            "z"
+          ]
+        }
+      ],
+      "middle": [
+        "writing",
+        "sounds",
+        "magic",
+        "wagons"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "unit": "6.3",
+      "world": "W7"
+    },
+    {
+      "number": 54,
+      "sound": "o_e",
+      "pattern": "split",
+      "review": [
+        "a_e",
+        "i_e"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new pattern: the silent e."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new pattern: the silent e. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "hope",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "rope",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "home",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "stone",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "bone",
+          "image": "assets/images/mentava/web/oe/bone.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which one is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the card."
+          }
+        ],
+        "promptText": "Which one has the letter o and a silent e, as in hope?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the card.",
+        "gist": "Which has o and silent e?",
+        "script": "Say: 'Which one has the letter o and a silent e, as in hope?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its letters together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "o_e",
+            "correct": true
+          },
+          {
+            "glyph": "a_e",
+            "correct": false
+          },
+          {
+            "glyph": "i_e",
+            "correct": false
+          }
+        ]
+      },
+      "magic": [
+        {
+          "from": "hop",
+          "to": "hope",
+          "vowel": 1,
+          "options": [
+            "e",
+            "z",
+            "k"
+          ]
+        },
+        {
+          "from": "rod",
+          "to": "rode",
+          "vowel": 1,
+          "options": [
+            "e",
+            "y",
+            "v"
+          ]
+        },
+        {
+          "from": "not",
+          "to": "note",
+          "vowel": 1,
+          "options": [
+            "e",
+            "j",
+            "w"
+          ]
+        },
+        {
+          "from": "cod",
+          "to": "code",
+          "vowel": 1,
+          "options": [
+            "e",
+            "k",
+            "x"
+          ]
+        },
+        {
+          "from": "rob",
+          "to": "robe",
+          "vowel": 1,
+          "options": [
+            "e",
+            "v",
+            "z"
+          ]
+        },
+        {
+          "from": "slop",
+          "to": "slope",
+          "vowel": 2,
+          "options": [
+            "e",
+            "w",
+            "y"
+          ]
+        }
+      ],
+      "middle": [
+        "hunt",
+        "sounds",
+        "magic",
+        "writing"
+      ],
+      "games": [],
+      "unit": "6.3",
+      "world": "W7"
+    },
+    {
+      "number": 55,
+      "sound": "u_e",
+      "pattern": "split",
+      "review": [
+        "i_e",
+        "o_e"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new pattern: the silent e."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new pattern: the silent e. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "cute",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "tube",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "flute",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "tune",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "cube",
+          "image": "assets/images/mentava/web/ue-you/cube.webp",
+          "showLetters": false
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which one is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the card."
+          }
+        ],
+        "promptText": "Which one has the letter u and a silent e, as in cube?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the card.",
+        "gist": "Which has u and silent e?",
+        "script": "Say: 'Which one has the letter u and a silent e, as in cube?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its letters together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "u_e",
+            "correct": true
+          },
+          {
+            "glyph": "o_e",
+            "correct": false
+          },
+          {
+            "glyph": "i_e",
+            "correct": false
+          }
+        ]
+      },
+      "magic": [
+        {
+          "from": "cub",
+          "to": "cube",
+          "vowel": 1,
+          "options": [
+            "e",
+            "y",
+            "v"
+          ]
+        },
+        {
+          "from": "cut",
+          "to": "cute",
+          "vowel": 1,
+          "options": [
+            "e",
+            "j",
+            "w"
+          ]
+        },
+        {
+          "from": "tub",
+          "to": "tube",
+          "vowel": 1,
+          "options": [
+            "e",
+            "k",
+            "x"
+          ]
+        },
+        {
+          "from": "mut",
+          "to": "mute",
+          "vowel": 1,
+          "options": [
+            "e",
+            "v",
+            "z"
+          ]
+        },
+        {
+          "from": "plum",
+          "to": "plume",
+          "vowel": 2,
+          "options": [
+            "e",
+            "w",
+            "y"
+          ]
+        },
+        {
+          "from": "dun",
+          "to": "dune",
+          "vowel": 1,
+          "options": [
+            "e",
+            "x",
+            "j"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "writing",
+        "magic",
+        "wagons"
+      ],
+      "games": [
+        "wagons"
+      ],
+      "unit": "6.4",
+      "world": "W7"
+    },
+    {
+      "number": 56,
+      "sound": "e_e",
+      "pattern": "split",
+      "review": [
+        "o_e",
+        "u_e"
+      ],
+      "intro": [
+        {
+          "tts": "Today we learn a new pattern: the silent e."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we learn a new pattern: the silent e. Your grown-up will say it."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "eve",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "pete",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "theme",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which one is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the card."
+          }
+        ],
+        "promptText": "Which one has two e letters, as in theme?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the card.",
+        "gist": "Which has two e letters?",
+        "script": "Say: 'Which one has two e letters, as in theme?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its letters together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "e_e",
+            "correct": true
+          },
+          {
+            "glyph": "u_e",
+            "correct": false
+          },
+          {
+            "glyph": "a_e",
+            "correct": false
+          }
+        ]
+      },
+      "magic": [
+        {
+          "from": "them",
+          "to": "theme",
+          "vowel": 2,
+          "options": [
+            "e",
+            "j",
+            "w"
+          ]
+        },
+        {
+          "from": "pet",
+          "to": "pete",
+          "vowel": 1,
+          "options": [
+            "e",
+            "k",
+            "x"
+          ]
+        },
+        {
+          "from": "kit",
+          "to": "kite",
+          "vowel": 1,
+          "options": [
+            "e",
+            "v",
+            "z"
+          ]
+        },
+        {
+          "from": "hop",
+          "to": "hope",
+          "vowel": 1,
+          "options": [
+            "e",
+            "w",
+            "y"
+          ]
+        }
+      ],
+      "middle": [
+        "magic",
+        "sounds",
+        "hunt",
+        "writing"
+      ],
+      "games": [],
+      "heart": [
+        "have"
+      ],
+      "unit": "6.4",
+      "world": "W7"
+    },
+    {
+      "number": 57,
+      "sound": "semix",
+      "pattern": "mix",
+      "review": [
+        "u_e",
+        "e_e"
+      ],
+      "intro": [
+        {
+          "tts": "Today we practice all the patterns."
+        }
+      ],
+      "introQuiet": [
+        {
+          "tts": "Today we practice all the patterns. Your grown-up will help."
+        }
+      ],
+      "sayingSounds": [
+        {
+          "word": "cape",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "kite",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "hope",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "cube",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "theme",
+          "emoji": null,
+          "showLetters": true
+        },
+        {
+          "word": "fly",
+          "emoji": null,
+          "showLetters": true
+        }
+      ],
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which one is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the card."
+          }
+        ],
+        "promptText": "Which one has the letter o and a silent e, as in hope?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the card.",
+        "gist": "Which has o and silent e?",
+        "script": "Say: 'Which one has the letter o and a silent e, as in hope?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its letters together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "o_e",
+            "correct": true
+          },
+          {
+            "glyph": "i_e",
+            "correct": false
+          },
+          {
+            "glyph": "u_e",
+            "correct": false
+          }
+        ]
+      },
+      "magic": [
+        {
+          "from": "cap",
+          "to": "cape",
+          "vowel": 1,
+          "options": [
+            "e",
+            "k",
+            "x"
+          ]
+        },
+        {
+          "from": "kit",
+          "to": "kite",
+          "vowel": 1,
+          "options": [
+            "e",
+            "v",
+            "z"
+          ]
+        },
+        {
+          "from": "hop",
+          "to": "hope",
+          "vowel": 1,
+          "options": [
+            "e",
+            "w",
+            "y"
+          ]
+        },
+        {
+          "from": "cub",
+          "to": "cube",
+          "vowel": 1,
+          "options": [
+            "e",
+            "x",
+            "j"
+          ]
+        },
+        {
+          "from": "pin",
+          "to": "pine",
+          "vowel": 1,
+          "options": [
+            "e",
+            "v",
+            "z"
+          ]
+        },
+        {
+          "from": "tub",
+          "to": "tube",
+          "vowel": 1,
+          "options": [
+            "e",
+            "y",
+            "v"
+          ]
+        }
+      ],
+      "middle": [
+        "sounds",
+        "magic"
+      ],
+      "games": [],
+      "heart": [
+        "give",
+        "live"
+      ],
+      "unit": "6.5",
+      "world": "W7"
     }
   ],
   "games": {
@@ -8602,6 +9824,76 @@
           "a",
           "b",
           "s"
+        ],
+        "open": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "s"
+        ],
+        "a_e": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "s"
+        ],
+        "i_e": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "s"
+        ],
+        "o_e": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "s"
+        ],
+        "u_e": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "s"
+        ],
+        "e_e": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "s"
+        ],
+        "semix": [
+          "m",
+          "o",
+          "h",
+          "n",
+          "u",
+          "a",
+          "b",
+          "s"
         ]
       }
     },
@@ -8851,6 +10143,72 @@
       ],
       "after": 49,
       "world": "W6"
+    },
+    {
+      "id": "b7",
+      "kind": "book",
+      "title": "Story 7",
+      "book": "book-7",
+      "needs": [
+        "m",
+        "a",
+        "s",
+        "i",
+        "t",
+        "p",
+        "f",
+        "o",
+        "n",
+        "d",
+        "c",
+        "h",
+        "u",
+        "g",
+        "l",
+        "r",
+        "b",
+        "e",
+        "j",
+        "w",
+        "v",
+        "y",
+        "z",
+        "x",
+        "q",
+        "sh",
+        "ch",
+        "th",
+        "ck",
+        "ff",
+        "wh",
+        "ng",
+        "nk",
+        "st",
+        "nd",
+        "sp",
+        "sn",
+        "bl",
+        "pl",
+        "br",
+        "dr",
+        "mix",
+        "end-s",
+        "end-es",
+        "end-ing",
+        "end-ed",
+        "end-ted",
+        "join",
+        "beats",
+        "endmix",
+        "open",
+        "a_e",
+        "i_e",
+        "o_e",
+        "u_e",
+        "e_e"
+      ],
+      "after": 56,
+      "world": "W7"
     },
     {
       "id": "x1",
@@ -10491,6 +11849,120 @@
       "world": "W6"
     },
     {
+      "id": "x15",
+      "kind": "contrast",
+      "title": "Tricky Sounds",
+      "after": 55,
+      "pair": [],
+      "sides": [
+        {
+          "signText": "short vowel",
+          "letters": [],
+          "says": [
+            "short"
+          ],
+          "words": [
+            "cap",
+            "kit",
+            "hop",
+            "cub",
+            "tap",
+            "pin"
+          ]
+        },
+        {
+          "signText": "long vowel",
+          "letters": [],
+          "says": [
+            "long"
+          ],
+          "words": [
+            "cape",
+            "kite",
+            "hope",
+            "cube",
+            "tape",
+            "pine"
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "a": "cap",
+          "b": "cape"
+        },
+        {
+          "a": "kit",
+          "b": "kite"
+        },
+        {
+          "a": "hop",
+          "b": "hope"
+        },
+        {
+          "a": "cub",
+          "b": "cube"
+        },
+        {
+          "a": "tap",
+          "b": "tape"
+        },
+        {
+          "a": "pin",
+          "b": "pine"
+        }
+      ],
+      "mode": "says",
+      "hint": "Listen to the vowel: does it say its name (cape) or its short sound (cap)?",
+      "tunnelLine": "Your child reads the word on the car and listens to the vowel. Short vowel: cap, kit, hop, cub. Long vowel, with a silent e: cape, kite, hope, cube.",
+      "line": "Easy to mix up: a short vowel and a long vowel. Cap has a short a, cape has a silent e and the a says its name. Let's listen closely.",
+      "end": "Great listening! Your child can hear when a vowel says its short sound (cap) and when a silent e makes it say its name (cape).",
+      "quickCheck": {
+        "prompt": [
+          {
+            "tts": "Which one is the right one?"
+          }
+        ],
+        "promptQuiet": [
+          {
+            "tts": "Listen to your grown-up. Then touch the card."
+          }
+        ],
+        "promptText": "Which one has the letter a and a silent e, as in cape?",
+        "promptTextQuiet": "Listen to your grown-up. Then touch the card.",
+        "gist": "Which has a and silent e?",
+        "script": "Say: 'Which one has the letter a and a silent e, as in cape?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its letters together.",
+        "kind": "letter",
+        "options": [
+          {
+            "glyph": "a_e",
+            "correct": true
+          },
+          {
+            "glyph": "i_e",
+            "correct": false
+          },
+          {
+            "glyph": "o_e",
+            "correct": false
+          }
+        ]
+      },
+      "plan": [
+        {
+          "task": "tunnels"
+        },
+        {
+          "task": "which"
+        },
+        {
+          "task": "check",
+          "lesson": 55
+        }
+      ],
+      "world": "W7"
+    },
+    {
       "id": "v1",
       "kind": "review",
       "title": "Review Stop",
@@ -11359,6 +12831,158 @@
         }
       ],
       "world": "W6"
+    },
+    {
+      "id": "v16",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 54,
+      "summary": {
+        "sounds": 33,
+        "blends": 22,
+        "endings": 4,
+        "patterns": 4,
+        "words": 841,
+        "examples": [
+          "cape",
+          "cake",
+          "game",
+          "gate",
+          "shade",
+          "snake",
+          "lane",
+          "kite"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so",
+          "we",
+          "want",
+          "was",
+          "my",
+          "you",
+          "of",
+          "said",
+          "do",
+          "does",
+          "are",
+          "she",
+          "they",
+          "what",
+          "where",
+          "bye"
+        ]
+      },
+      "plan": [
+        {
+          "task": "hunt",
+          "lesson": 54
+        },
+        {
+          "task": "magic",
+          "lesson": 53
+        },
+        {
+          "task": "wagons",
+          "lesson": 52
+        },
+        {
+          "task": "signals",
+          "lesson": 51
+        },
+        {
+          "task": "check",
+          "lesson": 53
+        }
+      ],
+      "world": "W7"
+    },
+    {
+      "id": "v17",
+      "kind": "review",
+      "title": "Review Stop",
+      "after": 57,
+      "mix": "patterns",
+      "summary": {
+        "sounds": 33,
+        "blends": 22,
+        "endings": 4,
+        "patterns": 6,
+        "words": 856,
+        "examples": [
+          "hope",
+          "rope",
+          "home",
+          "bone",
+          "stone",
+          "cube",
+          "cute",
+          "mule"
+        ],
+        "hearts": [
+          "a",
+          "I",
+          "is",
+          "the",
+          "to",
+          "he",
+          "me",
+          "be",
+          "go",
+          "no",
+          "so",
+          "we",
+          "want",
+          "was",
+          "my",
+          "you",
+          "of",
+          "said",
+          "do",
+          "does",
+          "are",
+          "she",
+          "they",
+          "what",
+          "where",
+          "bye",
+          "have",
+          "give",
+          "live"
+        ]
+      },
+      "plan": [
+        {
+          "task": "magic",
+          "lesson": 57
+        },
+        {
+          "task": "hunt",
+          "lesson": 55
+        },
+        {
+          "task": "wagons",
+          "lesson": 54
+        },
+        {
+          "task": "signals",
+          "lesson": 53
+        },
+        {
+          "task": "check",
+          "lesson": 56
+        }
+      ],
+      "world": "W7"
     }
   ],
   "gameDistractors": [
@@ -11909,6 +13533,71 @@
         "endmix"
       ],
       "after": 50
+    },
+    {
+      "id": "L7",
+      "n": 7,
+      "car": "gondola",
+      "needs": [
+        "m",
+        "a",
+        "s",
+        "i",
+        "t",
+        "p",
+        "f",
+        "o",
+        "n",
+        "d",
+        "c",
+        "h",
+        "u",
+        "g",
+        "l",
+        "r",
+        "b",
+        "e",
+        "j",
+        "w",
+        "v",
+        "y",
+        "z",
+        "x",
+        "q",
+        "sh",
+        "ch",
+        "th",
+        "ck",
+        "ff",
+        "wh",
+        "ng",
+        "nk",
+        "st",
+        "nd",
+        "sp",
+        "sn",
+        "bl",
+        "pl",
+        "br",
+        "dr",
+        "mix",
+        "end-s",
+        "end-es",
+        "end-ing",
+        "end-ed",
+        "end-ted",
+        "join",
+        "beats",
+        "endmix",
+        "open",
+        "a_e",
+        "i_e",
+        "o_e",
+        "u_e",
+        "e_e",
+        "semix"
+      ],
+      "after": 57
     }
   ],
   "units": [
@@ -12134,6 +13823,43 @@
       "stage": 5,
       "sounds": [
         "endmix"
+      ]
+    },
+    {
+      "id": "6.1",
+      "stage": 6,
+      "sounds": [
+        "open"
+      ]
+    },
+    {
+      "id": "6.2",
+      "stage": 6,
+      "sounds": [
+        "a_e"
+      ]
+    },
+    {
+      "id": "6.3",
+      "stage": 6,
+      "sounds": [
+        "i_e",
+        "o_e"
+      ]
+    },
+    {
+      "id": "6.4",
+      "stage": 6,
+      "sounds": [
+        "u_e",
+        "e_e"
+      ]
+    },
+    {
+      "id": "6.5",
+      "stage": 6,
+      "sounds": [
+        "semix"
       ]
     }
   ],
@@ -12738,6 +14464,103 @@
       "find": [
         "when",
         "whiz"
+      ]
+    },
+    "bye": {
+      "word": "bye",
+      "parts": [
+        {
+          "t": "b"
+        },
+        {
+          "t": "y",
+          "heart": true
+        },
+        {
+          "t": "e",
+          "heart": true
+        }
+      ],
+      "tricky": "The letter y says long i here, and the e makes no sound.",
+      "phrase": "bye Dad",
+      "find": [
+        "bad",
+        "bug"
+      ]
+    },
+    "have": {
+      "word": "have",
+      "parts": [
+        {
+          "t": "h"
+        },
+        {
+          "t": "a",
+          "heart": true
+        },
+        {
+          "t": "v"
+        },
+        {
+          "t": "e",
+          "heart": true
+        }
+      ],
+      "tricky": "English words do not end in v, so this e does not change the a. The a says its short sound.",
+      "phrase": "I have a hat",
+      "find": [
+        "hat",
+        "had"
+      ]
+    },
+    "give": {
+      "word": "give",
+      "parts": [
+        {
+          "t": "g"
+        },
+        {
+          "t": "i",
+          "heart": true
+        },
+        {
+          "t": "v"
+        },
+        {
+          "t": "e",
+          "heart": true
+        }
+      ],
+      "tricky": "English words do not end in v, so this e does not change the i. The i says its short sound.",
+      "phrase": "give a hug",
+      "find": [
+        "gift",
+        "gum"
+      ]
+    },
+    "live": {
+      "word": "live",
+      "parts": [
+        {
+          "t": "l"
+        },
+        {
+          "t": "i",
+          "heart": true
+        },
+        {
+          "t": "v"
+        },
+        {
+          "t": "e",
+          "heart": true
+        }
+      ],
+      "tricky": "English words do not end in v, so this e does not change the i. The i says its short sound.",
+      "phrase": "I live in a hut",
+      "find": [
+        "lid",
+        "lip"
       ]
     }
   }

@@ -1,4 +1,4 @@
-// Builds lessons 4 to 50 (i t p f o n d c h u g l r b e j w v y z x qu sh ch th ck ff wh ng nk, the blends, and the World 6 word parts: js/order.js) into data/curriculum.json from one compact table, so twenty-two lessons are never
+// Builds lessons 4 to 57 (i t p f o n d c h u g l r b e j w v y z x qu sh ch th ck ff wh ng nk, the blends, the World 6 word parts and the World 7 long-vowel patterns: js/order.js) into data/curriculum.json from one compact table, so twenty-two lessons are never
 // hand-edited. Lessons 1 to 3, the sounds m a s and checkpoint c1 keep their hand-made data; every lesson (1 to 25) then gets the
 // same treatment at the end: its `middle` task list (js/games-data.js MIDDLES), its `games`, and every sound its "Watch my mouth" panel.
 // Run: node tools/gen-lessons.mjs [last lesson, default 25]      (then: node test/check-content.mjs)
@@ -8,11 +8,11 @@ import path from 'node:path';
 import { ROOT } from '../test/lib.mjs';
 import { usedImages } from './precache-images.mjs';
 import { boardWords, middleFor, TAP_GAMES, WORD_BANK, DOCKS_BANK } from '../js/games-data.js';
-import { ORDER_SOUNDS, BLENDS, isBlendKey, spellingsOf, soundOfLetter, lettersOfSounds, letterUnits, isReadable, isReadableBlends, blendPairsIn, isReadableEndings, endingKeyOf, endingSay, wordPartsOf, ENDED, CHUNKS, PARTS, WORD_PART_KEYS, isEndKey } from '../js/order.js';
+import { ORDER_SOUNDS, BLENDS, isBlendKey, spellingsOf, soundOfLetter, lettersOfSounds, letterUnits, isReadable, isReadableBlends, blendPairsIn, isReadableEndings, endingKeyOf, endingSay, wordPartsOf, ENDED, CHUNKS, PARTS, WORD_PART_KEYS, isEndKey, PATTERN_KEYS, isPatternKey, PAT, patternOf, isReadablePatterns, vowelLength } from '../js/order.js';
 
 const FILE = path.join(ROOT, 'data/curriculum.json');
 const tile = (folder, word) => ({ word, image: `assets/images/mentava/web/${folder}/${word}.webp` });
-const lastLesson = Number(process.argv[2] || 50);
+const lastLesson = Number(process.argv[2] || 57);
 
 // sound, how to say it, tiles (folder/word; the word begins with the sound), letter words (only letters taught so far),
 // one picture word for Saying Sounds, the Quick Check and the games' distractor letters.
@@ -225,6 +225,44 @@ const TABLE = [
     tiles: [], start: [], words: ['cats', 'boxes', 'jumping', 'jumped', 'landed', 'sunset', 'napkin'], pic: null,
     qc: { kind: 'letter', target: 'end-ing', others: ['end-ed', 'end-es'], text: 'Which car is the ending -ing, as in jumping?', gist: 'Which car is -ing?', script: "Say: 'Which car is the ending -ing, as in jumping?'" }, hunt: 'mohnuabs',
     note: 'The mixed review: endings (-s, -es, -ing, -ed in its three ways) and bigger words (compound and two-beat). For an ending word, find the base word first, then the ending. For a bigger word, clap the beats, split, read each chunk, and glue.' },
+  // ---- Silent E Summit (World 7, lessons 51 to 57): a long-vowel PATTERN is not a new sound, a new letter or a word part. The vowel says its name. `pattern` is the kind: 'open' (51: a vowel
+  // at the end of a word), 'split' (52 to 56: a silent e jumps back over one consonant to the vowel) or 'mix' (57). `forms` lists what the card shows: a short word and its long partner (cap, cape) with how the
+  // grown-up writes the vowel (ayyy iyyy ohhh yooo oooo eeee: shown, never spoken). The key is also the glyph (a vowel, a slot and an e with a jump arc: js/glyphs.js). Pictures: only where a tile fits.
+  { n: 51, k: 'open', pattern: 'open', forms: [{ say: 'eeee', asIn: 'me' }, { say: 'ohhh', asIn: 'go' }, { say: 'iyyy', asIn: 'hi' }], practice: ['cry'], hold: false, not: null,
+    how: 'A vowel at the end of a word says its name: me, go, hi. The letter y at the end of a short word says long i: my, by, fly.',
+    tiles: ['ie/cry'], start: [], words: ['me', 'go', 'hi', 'fly'], pic: 'cry',
+    qc: { kind: 'letter', target: 'open', others: ['end-ing', 'end-s'], text: 'Which one has a vowel at the end, as in go?', gist: 'Which ends with a vowel?', script: "Say: 'Which one has a vowel at the end, as in go?'" }, hunt: 'mohnuabs',
+    note: 'This is a pattern, not a new sound. When a vowel is the last letter of a short word, it says its name: me, he, go, no, hi. The letter y at the end says long i: my, by, fly. Your child already knows some of these as heart words (he, me, go, my); now they see why.' },
+  { n: 52, k: 'a_e', pattern: 'split', forms: [{ say: 'ayyy', asIn: 'cake', short: 'cap', long: 'cape' }], practice: ['cake', 'gate'], hold: false, not: null,
+    how: 'The silent e makes the a say its name: cap becomes cape. The e makes no sound. It jumps back over one consonant to the a.',
+    tiles: ['ae/cake', 'g/gate', 's/snake'], start: [], words: ['cape', 'game', 'lane', 'shade'], pic: 'cake',
+    qc: { kind: 'letter', target: 'a_e', others: ['open', 'end-ing'], text: 'Which one has the letter a and a silent e, as in cake?', gist: 'Which has a and silent e?', script: "Say: 'Which one has the letter a and a silent e, as in cake?'" }, hunt: 'mohnuabs',
+    note: 'A pattern, not a new sound. Say cap, then cape. The silent e makes no sound, but it makes the a say its name. Show the jump: the e jumps back over the p to the a. Teach the short word and its partner together: cap and cape, man and mane.' },
+  { n: 53, k: 'i_e', pattern: 'split', forms: [{ say: 'iyyy', asIn: 'kite', short: 'kit', long: 'kite' }], practice: ['kite'], hold: false, not: null,
+    how: 'The silent e makes the i say its name: kit becomes kite. The e makes no sound. It jumps back over one consonant to the i.',
+    tiles: ['ie/kite'], start: [], words: ['bike', 'hike', 'time', 'slide'], pic: 'kite',
+    qc: { kind: 'letter', target: 'i_e', others: ['a_e', 'open'], text: 'Which one has the letter i and a silent e, as in kite?', gist: 'Which has i and silent e?', script: "Say: 'Which one has the letter i and a silent e, as in kite?'" }, hunt: 'mohnuabs',
+    note: 'The same idea with i. Say kit, then kite. The silent e jumps back over the t to the i, and the i says its name. Try kit and kite, pin and pine, rid and ride.' },
+  { n: 54, k: 'o_e', pattern: 'split', forms: [{ say: 'ohhh', asIn: 'bone', short: 'hop', long: 'hope' }], practice: ['bone'], hold: false, not: null,
+    how: 'The silent e makes the o say its name: hop becomes hope. The e makes no sound. It jumps back over one consonant to the o.',
+    tiles: ['oe/bone'], start: [], words: ['hope', 'rope', 'home', 'stone'], pic: 'bone',
+    qc: { kind: 'letter', target: 'o_e', others: ['a_e', 'i_e'], text: 'Which one has the letter o and a silent e, as in hope?', gist: 'Which has o and silent e?', script: "Say: 'Which one has the letter o and a silent e, as in hope?'" }, hunt: 'mohnuabs',
+    note: 'The same idea with o. Say hop, then hope. The silent e jumps back over the p to the o, and the o says its name. Try hop and hope, rod and rode, not and note.' },
+  { n: 55, k: 'u_e', pattern: 'split', forms: [{ say: 'yooo', asIn: 'cube', short: 'cub', long: 'cube' }, { say: 'oooo', asIn: 'tube', short: 'tub', long: 'tube' }], practice: ['cube', 'mule'], hold: false, not: null,
+    how: 'The silent e makes the u say its name: cub becomes cube. The u has two long sounds: yoo as in cube, and oo as in tube. Try one, then the other, and pick the real word.',
+    tiles: ['ue-you/cube', 'ue-you/mule'], start: [], words: ['cute', 'tube', 'flute', 'tune'], pic: 'cube',
+    qc: { kind: 'letter', target: 'u_e', others: ['o_e', 'i_e'], text: 'Which one has the letter u and a silent e, as in cube?', gist: 'Which has u and silent e?', script: "Say: 'Which one has the letter u and a silent e, as in cube?'" }, hunt: 'mohnuabs',
+    note: 'The long u has two sounds. In cube and cute it says yoo. In tube and flute it says oo. If a word does not sound right one way, try the other, and let your child pick the real word. Say cub, then cube; tub, then tube.' },
+  { n: 56, k: 'e_e', pattern: 'split', forms: [{ say: 'eeee', asIn: 'eve', short: 'pet', long: 'pete' }], noPictures: true, practice: [], hold: false, not: null,
+    how: 'The silent e makes the first e say its name: them becomes theme. This pattern is rare. The e at the end makes no sound.',
+    tiles: [], start: [], words: ['eve', 'pete', 'theme'], pic: null,
+    qc: { kind: 'letter', target: 'e_e', others: ['u_e', 'a_e'], text: 'Which one has two e letters, as in theme?', gist: 'Which has two e letters?', script: "Say: 'Which one has two e letters, as in theme?'" }, hunt: 'mohnuabs',
+    note: 'This pattern is rare: only a few words use it (eve, Pete, theme). It works like the others: the silent e makes the first e say its name. Say them, then theme.' },
+  { n: 57, k: 'semix', pattern: 'mix', forms: [{ say: 'ayyy iyyy ohhh yooo', asIn: null }], practice: [], hold: false, not: null,
+    how: 'Short vowel, or long vowel with a silent e? Say the word and listen: cap, cape; kit, kite; hop, hope; cub, cube.',
+    tiles: ['ae/cake', 'ie/kite', 'oe/bone', 'ue-you/cube'], start: [], words: ['cape', 'kite', 'hope', 'cube', 'theme', 'fly'], pic: null,
+    qc: { kind: 'letter', target: 'o_e', others: ['i_e', 'u_e'], text: 'Which one has the letter o and a silent e, as in hope?', gist: 'Which has o and silent e?', script: "Say: 'Which one has the letter o and a silent e, as in hope?'" }, hunt: 'mohnuabs',
+    note: 'The mixed review: every pattern together, with its short-vowel partner. Say the word, then ask whether the vowel says its name. English words do not end in v, so have, give and live get an e that does not change the vowel.' },
 ];
 
 // Heart words (docs/CURRICULUM.md section 12): n is the lesson that teaches the word (never more than 2 a lesson). `parts` are [letters, heart]: the regular
@@ -259,6 +297,11 @@ const HEART = [
   { n: 28, w: 'they', parts: P('th', ['ey']), tricky: 'The letters ey say long a here.', phrase: 'they can go', find: ['then', 'thin'] },
   { n: 31, w: 'what', parts: P('wh', ['a'], 't'), tricky: 'The letter a says "u" here.', phrase: 'what is it', find: ['when', 'whip'] },
   { n: 31, w: 'where', parts: P('wh', ['ere']), tricky: 'The letters ere say "air" here.', phrase: 'where is Dad', find: ['when', 'whiz'] },
+  // World 7: bye (51, a silent e at the end of a word that is not a pattern: y says long i); have (56) give and live (57): English words do not end in v, so the e does not change the vowel
+  { n: 51, w: 'bye', parts: P('b', ['y'], ['e']), tricky: 'The letter y says long i here, and the e makes no sound.', phrase: 'bye Dad', find: ['bad', 'bug'] },
+  { n: 56, w: 'have', parts: P('h', ['a'], 'v', ['e']), tricky: 'English words do not end in v, so this e does not change the a. The a says its short sound.', phrase: 'I have a hat', find: ['hat', 'had'] },
+  { n: 57, w: 'give', parts: P('g', ['i'], 'v', ['e']), tricky: 'English words do not end in v, so this e does not change the i. The i says its short sound.', phrase: 'give a hug', find: ['gift', 'gum'] },
+  { n: 57, w: 'live', parts: P('l', ['i'], 'v', ['e']), tricky: 'English words do not end in v, so this e does not change the i. The i says its short sound.', phrase: 'I live in a hut', find: ['lid', 'lip'] },
 ];
 
 // Words for the wrong cards of the Sound Sack and Quick Check: tiles whose word begins with none of the sounds taught so far.
@@ -288,6 +331,9 @@ const UNITS = [
   // Stage 5, Endings Junction (World 6): 5.1 -s and -es (43, 44), 5.2 -ing (45), 5.3 -ed (46, 47), 5.4 compound and two-beat words (48, 49), 5.5 mixed review (50)
   { id: '5.1', stage: 5, sounds: ['end-s', 'end-es'] }, { id: '5.2', stage: 5, sounds: ['end-ing'] }, { id: '5.3', stage: 5, sounds: ['end-ed', 'end-ted'] },
   { id: '5.4', stage: 5, sounds: ['join', 'beats'] }, { id: '5.5', stage: 5, sounds: ['endmix'] },
+  // Stage 6, Silent E Summit (World 7): 6.1 open vowels (51), 6.2 a_e (52), 6.3 i_e and o_e (53, 54), 6.4 u_e and e_e (55, 56), 6.5 mixed review (57)
+  { id: '6.1', stage: 6, sounds: ['open'] }, { id: '6.2', stage: 6, sounds: ['a_e'] }, { id: '6.3', stage: 6, sounds: ['i_e', 'o_e'] },
+  { id: '6.4', stage: 6, sounds: ['u_e', 'e_e'] }, { id: '6.5', stage: 6, sounds: ['semix'] },
 ];
 const stageUnits = (stage, count) => Array.from({ length: count }, (_, i) => `${stage}.${i + 1}`);
 // PLACEHOLDER names: the owner will choose the real ones. Colours come from the house palette (css/app.css).
@@ -329,8 +375,10 @@ const BOOK4 = { id: 'b4', kind: 'book', title: 'Story 4', book: 'book-4', needs:
 const BOOK5 = { id: 'b5', kind: 'book', title: 'Story 5', book: 'book-5', needs: ORDER_SOUNDS.slice(0, 40) };
 // Story 6 (World 6, after lesson 49 beats): data/books/book-6.json. DRAFT: the owner approves the story text.
 const BOOK6 = { id: 'b6', kind: 'book', title: 'Story 6', book: 'book-6', needs: ORDER_SOUNDS.slice(0, 49) };
-const books = (c.checkpoints || []).filter((k) => k.kind === 'book' && !['b3', 'b4', 'b5', 'b6'].includes(k.id));
-c.checkpoints = [REREAD, ...books, BOOK3, BOOK4, BOOK5, BOOK6];
+// Story 7 (World 7, after lesson 56 e_e): data/books/book-7.json. DRAFT: the owner approves the story text.
+const BOOK7 = { id: 'b7', kind: 'book', title: 'Story 7', book: 'book-7', needs: ORDER_SOUNDS.slice(0, 56) };
+const books = (c.checkpoints || []).filter((k) => k.kind === 'book' && !['b3', 'b4', 'b5', 'b6', 'b7'].includes(k.id));
+c.checkpoints = [REREAD, ...books, BOOK3, BOOK4, BOOK5, BOOK6, BOOK7];
 
 const fitG = (...o) => o.find((x) => x.length <= 28) || o[o.length - 1];
 const phrase = (e) => (e.asIn ? `${e.say} as in ${e.asIn}` : e.say);
@@ -338,6 +386,9 @@ const QUIET = [{ tts: 'Today we learn a new letter. Your grown-up will say its s
 // World 6: what the opening card says for a word part (ending, compound or two-beat word, mixed review)
 const INTRO = { ending: 'Today we learn a new word ending.', chunk: 'Today we learn about bigger words.', mix: 'Today we practice endings and bigger words.' };
 const INTRO_QUIET = { ending: 'Your grown-up will say it.', chunk: 'Your grown-up will help.', mix: 'Your grown-up will help.' };
+// World 7: what the opening card says for a long-vowel pattern
+const INTRO_PAT = { open: 'Today we learn a new pattern: vowels at the end of a word.', split: 'Today we learn a new pattern: the silent e.', mix: 'Today we practice all the patterns.' };
+const INTRO_PAT_QUIET = { open: 'Your grown-up will say it.', split: 'Your grown-up will say it.', mix: 'Your grown-up will help.' };
 
 // The shared pool of wrong cards: the old words plus a few more, each with the sounds it must not appear next to.
 const have = new Set(c.gameDistractors.map((w) => w.word));
@@ -351,17 +402,19 @@ for (const e of TABLE.filter((t) => t.blend)) {
   if (spellingsOf(e.k).join() !== [e.blend[0].g, ...e.alt].join()) throw new Error(`lesson ${e.n}: js/order.js SPELLINGS for ${e.k} must list ${[e.blend[0].g, ...e.alt]}`);
 }
 for (const e of TABLE.filter((t) => t.part)) { e.say = e.parts[0].say; e.asIn = e.parts[0].asIn; }
+for (const e of TABLE.filter((t) => t.pattern)) { e.say = e.forms[0].say; e.asIn = e.forms[0].asIn; }
 for (const e of TABLE.filter((t) => t.n <= lastLesson)) {
   const words = e.tiles.map((t) => tile(...t.split('/')));
   const start = (e.start ? e.start.map((t) => tile(...t.split('/'))) : words).filter((w) => spellingsOf(e.k).some((sp) => w.word.startsWith(sp)));
-  c.sounds[e.k] = { glyph: e.blend ? e.blend[0].g : e.k, ...(e.blend ? { blend: true, pairs: e.blend } : {}), ...(e.part ? { part: e.part, parts: e.parts } : {}), ...(e.alt ? { alt: e.alt } : {}), sayItLike: e.say, hold: e.hold, doNotSay: e.not, howTo: e.how, ...(e.endOnly ? { endOnly: true } : {}), ...(e.noPictures ? { noPictures: true } : {}), ...(e.voiced ? { voiced: e.voiced, voicedWords: e.voicedWords } : {}), ...(e.note ? { parentNote: e.note } : {}), asIn: e.asIn || null, clip: e.blend || e.part ? null : `assets/audio/sounds/${e.k}.mp3`, words, startWords: start, practice: e.practice };
+  c.sounds[e.k] = { glyph: e.blend ? e.blend[0].g : e.k, ...(e.blend ? { blend: true, pairs: e.blend } : {}), ...(e.part ? { part: e.part, parts: e.parts } : {}), ...(e.pattern ? { pattern: e.pattern, forms: e.forms } : {}), ...(e.alt ? { alt: e.alt } : {}), sayItLike: e.say, hold: e.hold, doNotSay: e.not, howTo: e.how, ...(e.endOnly ? { endOnly: true } : {}), ...(e.noPictures ? { noPictures: true } : {}), ...(e.voiced ? { voiced: e.voiced, voicedWords: e.voicedWords } : {}), ...(e.note ? { parentNote: e.note } : {}), asIn: e.asIn || null, clip: e.blend || e.part || e.pattern ? null : `assets/audio/sounds/${e.k}.mp3`, words, startWords: start, practice: e.practice };
   const pickPicture = (w) => words.find((x) => x.word === w) || (() => { throw new Error('no tile for ' + w); })();
   // Every word a child reads must be spelt with the letters taught up to this lesson. A picture word whose letters are not all taught yet
   // (from lesson 7 on) is only said, never shown as letters to slide under: sayOnly (js/screens/tasks/sounds.js).
   const taughtNow = lettersOfSounds(ORDER_SOUNDS.slice(0, e.n));
-  for (const w of e.words) if (!(e.part ? isReadableEndings : e.blend ? isReadableBlends : isReadable)(w, taughtNow)) throw new Error(`lesson ${e.n}: "${w}" uses a letter, a blend or a word part that is not taught yet`);
+  for (const w of e.words) if (!(e.pattern ? isReadablePatterns : e.part ? isReadableEndings : e.blend ? isReadableBlends : isReadable)(w, taughtNow)) throw new Error(`lesson ${e.n}: "${w}" uses a letter, a blend or a word part that is not taught yet`);
   if (e.part === 'ending' && !e.words.some((w) => endingKeyOf(w) === e.k)) throw new Error(`lesson ${e.n}: no reading word uses the ending ${e.k}`);
   if (e.part === 'chunk' && !e.words.every((w) => (wordPartsOf(w) || {}).key === e.k)) throw new Error(`lesson ${e.n}: every reading word must be a ${e.k} word`);
+  if (e.pattern && e.pattern !== 'mix' && !e.words.some((w) => (patternOf(w) || {}).key === e.k)) throw new Error(`lesson ${e.n}: no reading word uses the pattern ${e.k}`);
   const picOnly = e.pic && (e.sayOnly || (e.n >= 7 && !isReadable(e.pic, taughtNow)));
   const sayingSounds = [...e.words.map((w) => ({ word: w, emoji: null, showLetters: true })), ...(e.pic ? [{ ...pickPicture(e.pic), showLetters: false, ...(picOnly ? { sayOnly: true } : {}) }] : [])];
   const asInTail = e.asIn ? [{ tts: `as in ${e.asIn}.` }] : [];
@@ -375,14 +428,16 @@ for (const e of TABLE.filter((t) => t.n <= lastLesson)) {
   const quiet = e.qc.kind === 'letter' ? 'Listen to your grown-up. Then touch the letter.' : 'Listen. Touch the one that starts the same.';
   const qp = e.part ? (() => { const q = 'Listen to your grown-up. Then touch the car.';
     return { prompt: [{ tts: 'Which car is the right one?' }], promptQuiet: [{ tts: q }], promptText: e.qc.text, promptTextQuiet: q, gist: e.qc.gist, script: e.qc.script + " Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together." }; })() : null;
+  const qpat = e.pattern ? (() => { const q = 'Listen to your grown-up. Then touch the card.';
+    return { prompt: [{ tts: 'Which one is the right one?' }], promptQuiet: [{ tts: q }], promptText: e.qc.text, promptTextQuiet: q, gist: e.qc.gist, script: e.qc.script + " Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its letters together." }; })() : null;
   const qb = e.blend ? (() => { const t = e.blend.find((b) => b.g === (e.qc.target || e.k)) || e.blend[0], q = 'Listen to your grown-up. Then touch the letters.'; const text = e.qc.text || `Which letters say ${t.say} as in ${t.asIn}?`;
     return { prompt: [{ tts: 'Which letters make the blend?' }], promptQuiet: [{ tts: q }], promptText: text, promptTextQuiet: q, gist: fitG(e.qc.text ? 'Which is at the end of lamp?' : `Which says ${t.say}?`, `Ask: ${t.say}?`), script: e.qc.text ? "Say: 'Which letters are at the end of lamp?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly." : `Say: 'Which letters say ${t.say} as in ${t.asIn}?' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the blend together, slowly.` }; })() : null;
   c.lessons.push({
-    number: e.n, sound: e.k, ...(e.blend ? { blend: true } : {}), ...(e.part ? { part: e.part } : {}), review: e.n >= 3 ? [c.lessons[e.n - 3].sound, c.lessons[e.n - 2].sound] : [],
-    intro: e.part ? [{ tts: INTRO[e.part] }] : e.blend ? [{ tts: 'Today we learn a new blend.' }] : [{ tts: 'Today we learn a new sound:' }, { clip: e.k }, ...asInTail],
-    introQuiet: e.part ? [{ tts: `${INTRO[e.part]} ${INTRO_QUIET[e.part]}` }] : e.blend ? [{ tts: 'Today we learn a new blend. Your grown-up will say it.' }] : QUIET,
+    number: e.n, sound: e.k, ...(e.blend ? { blend: true } : {}), ...(e.part ? { part: e.part } : {}), ...(e.pattern ? { pattern: e.pattern } : {}), review: e.n >= 3 ? [c.lessons[e.n - 3].sound, c.lessons[e.n - 2].sound] : [],
+    intro: e.pattern ? [{ tts: INTRO_PAT[e.pattern] }] : e.part ? [{ tts: INTRO[e.part] }] : e.blend ? [{ tts: 'Today we learn a new blend.' }] : [{ tts: 'Today we learn a new sound:' }, { clip: e.k }, ...asInTail],
+    introQuiet: e.pattern ? [{ tts: `${INTRO_PAT[e.pattern]} ${INTRO_PAT_QUIET[e.pattern]}` }] : e.part ? [{ tts: `${INTRO[e.part]} ${INTRO_QUIET[e.part]}` }] : e.blend ? [{ tts: 'Today we learn a new blend. Your grown-up will say it.' }] : QUIET,
     sayingSounds,
-    quickCheck: e.part ? { ...qp, kind: 'letter', options } : e.blend ? { ...qb, kind: 'letter', options } : {
+    quickCheck: e.pattern ? { ...qpat, kind: 'letter', options } : e.part ? { ...qp, kind: 'letter', options } : e.blend ? { ...qb, kind: 'letter', options } : {
       prompt: [{ tts: ask }, { clip: e.k }, ...qTail], promptQuiet: [{ tts: quiet }],
       promptText: `${ask} ${phrase(e)}?`, promptTextQuiet: quiet, kind: e.qc.kind, options,
     },
@@ -406,7 +461,7 @@ for (const L of c.lessons) { const b = boardWords(c.lessons.map((x) => x.sound),
 // in most stops, a different mix at every stop, and Ticket Check last. Picked by hand, then checked here and in test/check-content.mjs.
 // Every world ends with a Review Stop (owner rule, World 3 build): after lessons 6, 17 and 25 (the end of Starter Station, Green Valley and Sunny Hills),
 // with more inside the worlds. The ids are fixed (never renumbered: a saved result is keyed by id), so v1 to v5 stay where they were and the new stops are v6 to v9.
-const REVIEW_AFTER = [[3, 'v1'], [6, 'v6'], [9, 'v2'], [12, 'v3'], [15, 'v4'], [17, 'v5'], [20, 'v7'], [23, 'v8'], [25, 'v9'], [30, 'v10'], [33, 'v11'], [38, 'v12'], [42, 'v13'], [46, 'v14'], [50, 'v15']];
+const REVIEW_AFTER = [[3, 'v1'], [6, 'v6'], [9, 'v2'], [12, 'v3'], [15, 'v4'], [17, 'v5'], [20, 'v7'], [23, 'v8'], [25, 'v9'], [30, 'v10'], [33, 'v11'], [38, 'v12'], [42, 'v13'], [46, 'v14'], [50, 'v15'], [54, 'v16'], [57, 'v17']];
 const REVIEW_PLANS = {
   // three sounds only: Green Light needs a fourth letter for its lamps. The first stop also has the child's first word: ma, then mama (the 'read' step)
   3: [['hunt', 3], ['wagons', 2], ['hunt', 1], ['read', 3, ['ma', 'mama']], ['check', 2]],
@@ -429,20 +484,26 @@ const REVIEW_PLANS = {
   // Endings Junction: the middle stop leans on -es -ing -ed (44 45 46) with Green Light on -s; the last stop mixes the endings and the bigger words (each game deals its lesson's car with the cars before it)
   46: [['hunt', 46], ['couple', 45], ['wagons', 44], ['signals', 43], ['check', 45]],
   50: [['couple', 50], ['split', 49], ['hunt', 47], ['wagons', 46], ['check', 45]],
+  // Silent E Summit: the middle stop leans on a_e i_e o_e (52 53 54) with Green Light on the open vowels; the last stop mixes every pattern (each game deals its lesson's card with the cards before it)
+  54: [['hunt', 54], ['magic', 53], ['wagons', 52], ['signals', 51], ['check', 53]],
+  57: [['magic', 57], ['hunt', 55], ['wagons', 54], ['signals', 53], ['check', 56]],
 };
 // Ticket Check is always a letter question (lessons 2, 4, 6 ...): its wrong cards are letters taught by then, where a picture question
 // shows pictures (and their words) that begin with letters not taught yet.
 // The grown-up's message at the end of a stop: N sounds taught (c/k and qu count once each: one lesson is one sound) and W, how many words of
-const NAMES = new Set(['sam', 'tim', 'pam', 'pip', 'kim', 'ben', 'ted', 'dan', 'meg', 'jen', 'jim', 'tom', 'bob', 'nan', 'pat']);
+const NAMES = new Set(['sam', 'tim', 'pam', 'pip', 'kim', 'ben', 'ted', 'dan', 'meg', 'jen', 'jim', 'tom', 'bob', 'nan', 'pat', 'pete', 'steve']);
 // data/words-decodable.json use only the letters taught by then. W is counted here, never typed. The examples are a sample of those words,
 // favouring words the child has already met in the lessons and books, then words that use the newest letters; at most 8 (all of them when fewer).
 const WORDS_JSON = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/words-decodable.json'), 'utf8'));
-const WORD_LIST = [...WORDS_JSON.words, ...(WORDS_JSON.blendWords || []), ...(WORDS_JSON.endingWords || [])];
+const WORD_LIST = [...WORDS_JSON.words, ...(WORDS_JSON.blendWords || []), ...(WORDS_JSON.endingWords || []), ...(WORDS_JSON.patternWords || [])];
 const BLEND_ONLY = new Set(WORDS_JSON.blendWords || []);
 const END_ONLY = new Set(WORDS_JSON.endingWords || []); // World 6: counted once every letter, blend and word part they use is taught
 for (const w of BLEND_ONLY) if (WORDS_JSON.words.includes(w) || !isReadableBlends(w, lettersOfSounds(ORDER_SOUNDS))) throw new Error('blendWords: "' + w + '" is in the old list or is not readable once every blend is taught');
 for (const w of END_ONLY) if (WORDS_JSON.words.includes(w) || BLEND_ONLY.has(w) || !PARTS.has(w) || !isReadableEndings(w, lettersOfSounds(ORDER_SOUNDS))) throw new Error('endingWords: "' + w + '" is in an older list, has no word part, or is not readable once everything is taught');
-const readableNow = (w, taught) => (END_ONLY.has(w) ? isReadableEndings(w, taught) : BLEND_ONLY.has(w) ? isReadableBlends(w, taught) : isReadable(w, taught));
+const PAT_ONLY = new Set(WORDS_JSON.patternWords || []); // World 7: counted once every letter, blend, word part and long-vowel pattern they use is taught
+const HEART_WORDS_NOW = ['he', 'me', 'be', 'we', 'she', 'go', 'no', 'so', 'my']; // heart words stay heart words: they are counted apart, never inside "can read N words"
+for (const w of PAT_ONLY) if ([WORDS_JSON.words, WORDS_JSON.blendWords, WORDS_JSON.endingWords].some((l) => l.includes(w)) || HEART_WORDS_NOW.includes(w) || !PAT.has(w) || !isReadablePatterns(w, lettersOfSounds(ORDER_SOUNDS))) throw new Error('patternWords: "' + w + '" is in an older list, is a heart word, has no pattern, or is not readable once everything is taught');
+const readableNow = (w, taught) => (PAT_ONLY.has(w) ? isReadablePatterns(w, taught) : END_ONLY.has(w) ? isReadableEndings(w, taught) : BLEND_ONLY.has(w) ? isReadableBlends(w, taught) : isReadable(w, taught));
 // The words a child has met in the lessons: those of lessons 1 to 33 for every stop (as before World 5, so no earlier stop changes), and of the World 5 lessons up to the stop's own.
 const metBy = (after) => new Set([...c.lessons.filter((L) => L.number <= Math.max(33, after)).flatMap((L) => [...L.sayingSounds.map((w) => w.word), ...(L.board || []).map((b) => b.word)]), ...Object.entries(c.sounds).filter(([k]) => ORDER_SOUNDS.indexOf(k) < Math.max(33, after)).flatMap(([, x]) => x.words.map((w) => w.word))]);
 // Add a Car (task 'chains', js/screens/tasks/chains.js): a word train gains one letter car to make a new word (top, stop). `from` and `to` differ by one letter unit; the
@@ -497,6 +558,30 @@ const SPLITS = {
   49: ['napkin', 'rabbit', 'picnic', 'kitten'],
   50: ['hotdog', 'basket', 'backpack', 'magnet'],
 };
+// Magic e Car (task 'magic', js/screens/tasks/magic.js): a short word is a train of letter cars with a gap at the end; the child taps the e car that couples on, and the word becomes its long partner
+// (cap, cape): the e goes dim and the jump arc runs back to the vowel. The wrong cars are letters that make no word with the short word. Every word is readable by the lesson, and `to` is `from` plus e.
+const MAGIC = {
+  52: [['cap', 'cape'], ['tap', 'tape'], ['mad', 'made'], ['man', 'mane'], ['hat', 'hate'], ['can', 'cane']],
+  53: [['kit', 'kite'], ['pin', 'pine'], ['bit', 'bite'], ['rid', 'ride'], ['dim', 'dime'], ['fin', 'fine']],
+  54: [['hop', 'hope'], ['rod', 'rode'], ['not', 'note'], ['cod', 'code'], ['rob', 'robe'], ['slop', 'slope']],
+  55: [['cub', 'cube'], ['cut', 'cute'], ['tub', 'tube'], ['mut', 'mute'], ['plum', 'plume'], ['dun', 'dune']],
+  56: [['them', 'theme'], ['pet', 'pete'], ['kit', 'kite'], ['hop', 'hope']],
+  57: [['cap', 'cape'], ['kit', 'kite'], ['hop', 'hope'], ['cub', 'cube'], ['pin', 'pine'], ['tub', 'tube']],
+};
+const MAGIC_DECOYS = [...'jkvwxzy'];
+const KNOWN7 = new Set([...KNOWN, ...PAT_ONLY]);
+function magicFor(n) {
+  const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, n));
+  return (MAGIC[n] || []).map(([from, to], i) => {
+    if (to !== from + 'e') throw new Error(`lesson ${n} magic ${from} to ${to}: the long word is the short word plus e`);
+    for (const w of [from, to]) if (!isReadablePatterns(w, taught)) throw new Error(`lesson ${n} magic: "${w}" is not readable by lesson ${n}`);
+    const p = patternOf(to);
+    if (!p || p.e === null || vowelLength(from) !== 'short') throw new Error(`lesson ${n} magic ${from} to ${to}: needs a silent-e word and a short partner`);
+    const fake = MAGIC_DECOYS.filter((u) => !KNOWN7.has(from + u) && !PARTS.has(from + u) && !PAT.has(from + u));
+    return { from, to, vowel: p.vowel, options: ['e', fake[(n + i) % fake.length], fake[(n + i + 3) % fake.length]] };
+  });
+}
+for (const L of c.lessons) { delete L.magic; if (MAGIC[L.number]) L.magic = magicFor(L.number); }
 const ENDING_KEYS = ['end-s', 'end-es', 'end-ing', 'end-ed', 'end-ted'];
 const DECOY_LETTERS = [...'mpnfkj'];
 function couplesFor(n) {
@@ -538,11 +623,13 @@ function reviewSummary(after) {
   const readable = WORD_LIST.filter((w) => readableNow(w, taught));
   const newPairs = new Set(sounds.filter((k) => k in BLENDS).slice(-3).flatMap((k) => BLENDS[k])); // World 5: the words that use the newest blends lead
   const newParts = new Set(sounds.filter((k) => WORD_PART_KEYS.includes(k)).slice(-3)); // World 6: the words that use the newest word parts lead
-  const score = (w) => (met.has(w) ? 100 : 0) + (after > 33 && after <= 42 ? blendPairsIn(w).filter((q) => newPairs.has(q)).length * 40 : 0) + (after > 42 && PARTS.has(w) && newParts.has(PARTS.get(w).key) ? 160 : 0) + [...new Set(letterUnits(w, taught))].filter((ch) => newest.has(ch)).length * 10 + Math.min(w.length, 4);
+  const newPats = new Set(sounds.filter((k) => PATTERN_KEYS.includes(k)).slice(-3)); // World 7: the words that use the newest patterns lead
+  const score = (w) => (met.has(w) ? 100 : 0) + (after > 33 && after <= 42 ? blendPairsIn(w).filter((q) => newPairs.has(q)).length * 40 : 0) + (after > 42 && after <= 50 && PARTS.has(w) && newParts.has(PARTS.get(w).key) ? 160 : 0) + (after > 50 && PAT.has(w) && newPats.has(PAT.get(w).key) ? 160 : 0) + [...new Set(letterUnits(w, taught))].filter((ch) => newest.has(ch)).length * 10 + Math.min(w.length, 4);
   const examples = readable.map((w, i) => ({ w, i })).sort((a, b) => score(b.w) - score(a.w) || a.i - b.i).slice(0, 8).map((x) => (NAMES.has(x.w) ? x.w[0].toUpperCase() + x.w.slice(1) : x.w)); // names are shown capitalised (Sam)
   const blends = new Set(sounds.flatMap((k) => (isBlendKey(k) && k !== 'mix' ? BLENDS[k] : []))).size;
   const endings = new Set(sounds.filter((k) => k in ENDED).map((k) => ENDED[k].suffix)).size; // -s -es -ing -ed: an ending is a word part, not a sound
-  return { sounds: sounds.filter((k) => !isBlendKey(k) && !isEndKey(k)).length, ...(blends ? { blends } : {}), ...(endings ? { endings } : {}), words: readable.length, examples, hearts: HEART.filter((x) => x.n <= after).map((x) => x.w) };
+  const patterns = sounds.filter((k) => PATTERN_KEYS.includes(k)).length; // open vowels and the silent-e patterns: a way a vowel says its name, not a sound
+  return { sounds: sounds.filter((k) => !isBlendKey(k) && !isEndKey(k) && !isPatternKey(k)).length, ...(blends ? { blends } : {}), ...(endings ? { endings } : {}), ...(patterns ? { patterns } : {}), words: readable.length, examples, hearts: HEART.filter((x) => x.n <= after).map((x) => x.w) };
 }
 REVIEW_AFTER.forEach(([after, id]) => {
   if (after > c.lessons.length) return;
@@ -553,13 +640,14 @@ REVIEW_AFTER.forEach(([after, id]) => {
     if (task === 'check' && L.quickCheck.kind !== 'letter') throw new Error(`review stop after ${after}: lesson ${lesson}'s Ticket Check is a picture question`);
     if (task === 'chains' && !(L.chains || []).length) throw new Error(`review stop after ${after}: lesson ${lesson} has no chains`);
     if (task === 'couple' && !(L.couples || []).length) throw new Error(`review stop after ${after}: lesson ${lesson} has nothing to couple`);
+    if (task === 'magic' && !(L.magic || []).length) throw new Error(`review stop after ${after}: lesson ${lesson} has no magic e words`);
     if (task === 'split' && !(L.splits || []).length) throw new Error(`review stop after ${after}: lesson ${lesson} has nothing to split`);
     if (task === 'board' && !L.board) throw new Error(`review stop after ${after}: lesson ${lesson} has no Station Board words`);
     if (task === 'read') for (const w of words) if (!isReadable(w, lettersOfSounds(ORDER_SOUNDS.slice(0, after)))) throw new Error(`review stop after ${after}: "${w}" is not readable yet`);
     return { task, lesson, ...(words ? { words } : {}) };
   });
   if (plan[plan.length - 1].task !== 'check') throw new Error('Ticket Check comes last');
-  c.checkpoints.push({ id, kind: 'review', title: 'Review Stop', after, ...(after === 25 ? { mix: 'vowels' } : after === 33 ? { mix: 'digraphs' } : after === 42 ? { mix: 'blends' } : after === 50 ? { mix: 'endings' } : {}), summary: reviewSummary(after), plan });
+  c.checkpoints.push({ id, kind: 'review', title: 'Review Stop', after, ...(after === 25 ? { mix: 'vowels' } : after === 33 ? { mix: 'digraphs' } : after === 42 ? { mix: 'blends' } : after === 50 ? { mix: 'endings' } : after === 57 ? { mix: 'patterns' } : {}), summary: reviewSummary(after), plan });
 });
 
 // Tricky Sounds (checkpoint kind "contrast", ids x1 to x8; docs/LESSON-REBUILD.md section 12): a stop that sets two easily mixed sounds side by side.
@@ -626,29 +714,37 @@ const CONTRAST = [
     qc: { text: 'Which car is -ed with an extra beat, as in landed?', gist: 'Which has an extra beat?', script: "Say: 'Which car is -ed with an extra beat, as in landed?'" },
     sides: [{ signText: 'one beat', letters: [], says: ['t-', 'd-'], words: ['jumped', 'picked', 'kicked', 'filled', 'spilled', 'helped'] }, { signText: 'extra beat', letters: [], says: ['id-'], words: ['landed', 'rested', 'lifted', 'melted', 'hunted', 'handed'] }],
     pairs: [['jump', 'jumped'], ['land', 'landed'], ['rest', 'rested'], ['fill', 'filled']] },
+  // Silent E Summit: short against long vowels, the same word with and without a silent e (cap / cape, kit / kite, hop / hope, cub / cube). mode 'says': the tunnels are marked
+  // short vowel and long vowel and hold whole words; Which One? asks for the word with the silent e against the short word. It sits after u_e, when all four partners are taught.
+  { id: 'x15', after: 55, mode: 'says', pair: [], check: ['a_e', 'i_e', 'o_e'], hint: 'Listen to the vowel: does it say its name (cape) or its short sound (cap)?',
+    line: "Easy to mix up: a short vowel and a long vowel. Cap has a short a, cape has a silent e and the a says its name. Let's listen closely.", end: 'Great listening! Your child can hear when a vowel says its short sound (cap) and when a silent e makes it say its name (cape).',
+    tunnelLine: 'Your child reads the word on the car and listens to the vowel. Short vowel: cap, kit, hop, cub. Long vowel, with a silent e: cape, kite, hope, cube.',
+    qc: { text: 'Which one has the letter a and a silent e, as in cape?', gist: 'Which has a and silent e?', script: "Say: 'Which one has the letter a and a silent e, as in cape?'" },
+    sides: [{ signText: 'short vowel', letters: [], says: ['short'], words: ['cap', 'kit', 'hop', 'cub', 'tap', 'pin'] }, { signText: 'long vowel', letters: [], says: ['long'], words: ['cape', 'kite', 'hope', 'cube', 'tape', 'pine'] }],
+    pairs: [['cap', 'cape'], ['kit', 'kite'], ['hop', 'hope'], ['cub', 'cube'], ['tap', 'tape'], ['pin', 'pine']] },
 ];
 const contrastStops = [];
 const say2 = (k) => { const s = c.sounds[k]; return s.asIn ? `${s.sayItLike} as in ${s.asIn}` : s.sayItLike; };
 for (const x of CONTRAST) {
   if (x.after > c.lessons.length) continue;
   const taught = lettersOfSounds(ORDER_SOUNDS.slice(0, x.after));
-  const first = (side, w) => (x.mode === 'says' ? side.says.includes(endingSay(w)) : x.mode === 'ends' ? side.letters.some((l) => w.endsWith(l)) && !x.sides.some((o) => o !== side && o.letters.some((l) => l.length > 1 && w.endsWith(l))) : x.mode === 'vowel' ? w.includes(side.letters[0]) && !x.sides.some((o) => o !== side && w.includes(o.letters[0])) : side.letters.some((l) => w.startsWith(l)) && !x.sides.some((o) => o !== side && o.letters.some((l) => l.length > 1 && w.startsWith(l))));
+  const first = (side, w) => (x.mode === 'says' ? side.says.includes(endingSay(w) || (x.after >= 51 ? vowelLength(w) : null)) : x.mode === 'ends' ? side.letters.some((l) => w.endsWith(l)) && !x.sides.some((o) => o !== side && o.letters.some((l) => l.length > 1 && w.endsWith(l))) : x.mode === 'vowel' ? w.includes(side.letters[0]) && !x.sides.some((o) => o !== side && w.includes(o.letters[0])) : side.letters.some((l) => w.startsWith(l)) && !x.sides.some((o) => o !== side && o.letters.some((l) => l.length > 1 && w.startsWith(l))));
   const inSide = (side, w) => side.letters.some((l) => w.includes(l)) && !x.sides.some((o) => o !== side && o.letters.some((l) => w.includes(l))); // a pair may differ at the end (am / an)
-  const readableAt = x.after >= 43 ? isReadableEndings : x.after >= 34 ? isReadableBlends : isReadable;
+  const readableAt = x.after >= 51 ? isReadablePatterns : x.after >= 43 ? isReadableEndings : x.after >= 34 ? isReadableBlends : isReadable;
   for (const side of x.sides) for (const w of side.words) if (!readableAt(w, taught) || !first(side, w)) throw new Error(`${x.id}: "${w}" is not a decodable word of its tunnel`);
   for (const [a, b] of x.pairs) if (![a, b].every((w, i) => readableAt(w, taught) && (x.mode === 'says' || first(x.sides[i], w) || inSide(x.sides[i], w)))) throw new Error(`${x.id}: pair ${a}/${b} is not decodable or sits in the wrong tunnel`);
   for (const k of [...x.pair, ...x.check]) if (!taught.has(k) && !ORDER_SOUNDS.slice(0, x.after).includes(k)) throw new Error(`${x.id}: ${k} is not taught yet`);
   const [key, mate, other] = x.check;
   const ask = 'Which letter says', quiet = 'Listen to your grown-up. Then touch the letter.';
   const sk = c.sounds[key], tail = sk.asIn ? [{ tts: `as in ${sk.asIn}.` }] : [];
-  const says = x.mode === 'says'; // World 6: the Ticket Check asks for a car, not a letter sound
+  const says = x.mode === 'says'; // World 6 and 7: the Ticket Check asks for a car or a card, not a letter sound
   const pairs = x.pairs.map(([a, b]) => { const ia = tileFor(a), ib = tileFor(b); return { a, b, ...(ia && ib ? { images: { [a]: ia, [b]: ib } } : {}) }; });
   const A = says ? [] : x.pair.map(say2);
-  const quietCar = 'Listen to your grown-up. Then touch the car.';
+  const quietCar = x.after >= 51 ? 'Listen to your grown-up. Then touch the card.' : 'Listen to your grown-up. Then touch the car.';
   contrastStops.push({ id: x.id, kind: 'contrast', title: 'Tricky Sounds', after: x.after, pair: x.pair, sides: x.sides, pairs, ...(x.whichLetters ? { whichLetters: x.whichLetters } : {}), ...(x.mode === 'ends' || says ? { mode: x.mode } : {}), ...(x.hint ? { hint: x.hint } : {}), ...(x.tunnelLine ? { tunnelLine: x.tunnelLine } : {}),
     line: x.line || `Two sounds that are easy to mix up: ${A[0]} and ${A[1]}. Let's listen closely.`,
     end: x.end || `Great listening! Your child can tell ${A[0]} from ${A[1]}.`,
-    quickCheck: says ? { prompt: [{ tts: 'Which car is the right one?' }], promptQuiet: [{ tts: quietCar }], promptText: x.qc.text, promptTextQuiet: quietCar, gist: x.qc.gist, script: x.qc.script + ' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its parts together.', kind: 'letter', options: [key, mate, other].map((g, i) => ({ glyph: g, correct: i === 0 })) }
+    quickCheck: says ? { prompt: [{ tts: x.after >= 51 ? 'Which one is the right one?' : 'Which car is the right one?' }], promptQuiet: [{ tts: quietCar }], promptText: x.qc.text, promptTextQuiet: quietCar, gist: x.qc.gist, script: x.qc.script + ' Your child touches one card. The app does not say right or wrong. The grown-up decides. If it was not the right one, say the word and look at its ' + (x.after >= 51 ? 'letters' : 'parts') + ' together.', kind: 'letter', options: [key, mate, other].map((g, i) => ({ glyph: g, correct: i === 0 })) }
       : { prompt: [{ tts: ask }, { clip: key }, ...tail], promptQuiet: [{ tts: quiet }], promptText: `${ask} ${say2(key)}?`, promptTextQuiet: quiet, kind: 'letter', options: [key, mate, other].map((g, i) => ({ glyph: g, correct: i === 0 })) },
     plan: says ? [{ task: 'tunnels' }, { task: 'which' }, { task: 'check', lesson: x.after }] : [{ task: 'tunnels' }, { task: 'which' }, { task: 'signals', lesson: x.after, pair: x.pair }, { task: 'check', lesson: x.after }] });
 }
@@ -712,6 +808,14 @@ const MOUTH = {
   join: { voice: true, text: 'Say sun, then set, then sunset. Your chin drops once for each short word. Voice on.' },
   beats: { voice: true, text: 'Clap the beats of napkin: nap-kin has two. Your chin drops once on each beat. Voice on.' },
   endmix: { voice: true, text: 'Say each word and listen for the ending or the beats. Clap if it helps. Voice on.' },
+  // Silent E Summit: the mouth for a long vowel says the vowel's name; the silent e makes no sound and has no mouth shape
+  open: { voice: true, text: 'Say me, go, hi. Listen to the last sound: it is the name of the letter. Your mouth stays open at the end. Voice on.' },
+  a_e: { voice: true, text: 'Say cap: your mouth opens wide. Say cape: your mouth starts open and glides to a smile (ay). The e makes no sound. Voice on.' },
+  i_e: { voice: true, text: 'Say kit: your mouth stays small. Say kite: your mouth opens wide and glides up to a smile (eye). The e makes no sound. Voice on.' },
+  o_e: { voice: true, text: 'Say hop: your mouth opens wide. Say hope: your lips start round and stay round (oh). The e makes no sound. Voice on.' },
+  u_e: { voice: true, text: 'Say cub, then cube: your lips glide from a smile to round (yoo). Tube just says oo, with round lips. The e makes no sound. Voice on.' },
+  e_e: { voice: true, text: 'Say them, then theme: your mouth smiles wide and stays there (ee). The last e makes no sound. Voice on.' },
+  semix: { voice: true, text: 'Say each word and listen to the vowel: short, or its name? Voice on.' },
 };
 for (const [k, m] of Object.entries(MOUTH)) if (c.sounds[k]) c.sounds[k].mouth = m;
 for (const k of Object.keys(c.sounds)) if (!MOUTH[k]) throw new Error('no Watch My Mouth text for ' + k);
@@ -745,7 +849,7 @@ for (const x of HEART.filter((y) => y.n <= c.lessons.length)) {
 // Milestones (docs/PLAN-v1.9.md). A level is earned when its `after` lesson is done; after is null while a needed sound
 // is not built yet. Keep levels 4 to 15 sounds apart. Level two is the end of Green Valley (World 2): all 17 sounds of lessons 1 to 17; level three is the end of Sunny Hills (World 3): all 25
 // (k is the second spelling of c, so it is not a separate need). Later levels name the sounds still to build.
-const ALL50 = ORDER_SOUNDS, ALL42 = ORDER_SOUNDS.slice(0, 42), ALL33 = ORDER_SOUNDS.slice(0, 33), ALL25 = ORDER_SOUNDS.slice(0, 25), ALL17 = ORDER_SOUNDS.slice(0, 17);
+const ALL57 = ORDER_SOUNDS, ALL50 = ORDER_SOUNDS.slice(0, 50), ALL42 = ORDER_SOUNDS.slice(0, 42), ALL33 = ORDER_SOUNDS.slice(0, 33), ALL25 = ORDER_SOUNDS.slice(0, 25), ALL17 = ORDER_SOUNDS.slice(0, 17);
 const LEVELS = [
   { id: 'L1', n: 1, car: 'caboose', needs: ['m', 'a', 's', 'i', 't', 'p'] },
   { id: 'L2', n: 2, car: 'coach', needs: ALL17 },
@@ -753,6 +857,7 @@ const LEVELS = [
   { id: 'L4', n: 4, car: 'tanker', needs: ALL33 },
   { id: 'L5', n: 5, car: 'dome', needs: ALL42 },
   { id: 'L6', n: 6, car: 'boxcar', needs: ALL50 },
+  { id: 'L7', n: 7, car: 'gondola', needs: ALL57 },
 ];
 const builtAt = (s) => { const i = c.lessons.findIndex((L) => L.sound === s); return i < 0 ? null : i + 1; };
 c.levels = LEVELS.map((v) => { const at = v.needs.map(builtAt); return { ...v, after: at.includes(null) ? null : Math.max(...at) }; });

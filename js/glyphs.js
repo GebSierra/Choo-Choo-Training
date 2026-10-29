@@ -3,7 +3,7 @@
 // handwriting order on a 100 by 100 box (baseline y=80, x-height top y=38). The same strokes
 // drive the big letters, the slide track, the word rows and the trace guide.
 import { h, animate, reduced } from './dom.js';
-import { letterUnits, blendAtUnits, chunkSpans, BLENDS } from './order.js';
+import { letterUnits, blendAtUnits, chunkSpans, patternSpans, BLENDS } from './order.js';
 
 export const STROKE_WIDTH = 11.5;
 export const BASELINE = 80;
@@ -266,6 +266,28 @@ GLYPHS.join = { strokes: [{ d: 'M40 62 L60 62', start: [40, 62] }, { d: 'M50 52 
 GLYPHS.beats = { strokes: [{ d: 'M10 78 Q27 22 44 78', start: [10, 78] }, { d: 'M56 78 Q73 22 90 78', start: [56, 78] }], link: 'M4 88 L96 88', minX: 4, maxX: 96, minY: 36, maxY: 90, end: true };
 GLYPHS.endmix = GLYPHS['end-ing'];
 
+// ---- Long-vowel patterns (World 7). A pattern is not a sound or a word part: it is a way a vowel says its name. A silent-e glyph is the vowel, a slot for the consonant, and the e, with a
+// jump arc from the e over the slot back to the vowel (the arc and the slot line are `link`: drawn, never traced; the two letters are traced in order). The arc shows in words only once the
+// pattern is taught (wordSvg below). 'open' is the vowels that end a word (e o y) before a wall: the word ends here, so the vowel says its name.
+function splitGlyph(vowel) {
+  const A = GLYPHS[vowel], E = GLYPHS.e, SLOT = 40, PAD = 8, aw = A.maxX - A.minX, ew = E.maxX - E.minX;
+  const xA = PAD, xE = PAD + aw + SLOT, total = xE + ew + PAD, dA = xA - A.minX, dE = xE - E.minX;
+  const strokes = [[A, dA], [E, dE]].flatMap(([g, dx]) => g.strokes.map((s) => ({ d: mapPath(s.d, 1, dx), start: [+(s.start[0] + dx).toFixed(2), s.start[1]] })));
+  const ca = +(xA + aw / 2).toFixed(2), ce = +(xE + ew / 2).toFixed(2);
+  const link = `M${ce} 29 C${ce} -2 ${ca} -2 ${ca} 29 M${ca - 7} 19 L${ca} 30 L${ca + 7} 19 M${xA + aw + 8} 88 L${xE - 8} 88`;
+  return { strokes, link, minX: 0, maxX: +total.toFixed(2), minY: 0, maxY: 88, pattern: true, wide: true };
+}
+for (const v of ['a', 'i', 'o', 'u', 'e']) GLYPHS[v + '_e'] = splitGlyph(v);
+function openGlyph() {
+  const gs = ['e', 'o', 'y'].map((c) => GLYPHS[c]), gap = 8, PAD = 6;
+  let x = PAD;
+  const strokes = gs.flatMap((g) => { const dx = x - g.minX; x += g.maxX - g.minX + gap; return g.strokes.map((s) => ({ d: mapPath(s.d, 1, dx), start: [+(s.start[0] + dx).toFixed(2), s.start[1]] })); });
+  const wall = +(x - gap + 10).toFixed(2), total = wall + 8;
+  return { strokes, link: `M${wall} 30 L${wall} 92 M${wall + 6} 30 L${wall + 6} 92`, minX: 0, maxX: +total.toFixed(2), minY: 14, maxY: 96, pattern: true, wide: true };
+}
+GLYPHS.open = openGlyph();
+GLYPHS.semix = GLYPHS.a_e; // the mixed review (lesson 57) wears the a_e badge; the letter games never deal it (order.js NO_GLYPH)
+
 const SPACING = 4;
 export const hasGlyph = (ch) => !!GLYPHS[ch];
 
@@ -382,12 +404,31 @@ export function wordSvg(word, opts = {}) {
     for (let i = c.from; i <= c.to; i++) groups[i].grp.classList.add('in-chunk');
     groups[c.from].cmark = h('path', { d: `M${x0 + 2} ${y - 7} L${x0 + 2} ${y} L${x1 - 2} ${y} L${x1 - 2} ${y - 7}`, class: 'chunk-mark', fill: 'none', stroke: opts.color || 'currentColor', 'stroke-width': 4.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.6 });
   }
+  // World 7: a word whose long-vowel pattern is taught shows the silent e jumping back to the vowel: the e is dimmed and an arc with an arrow runs from the e to the vowel.
+  // Only once the lesson has taught it (opts.level); an open vowel (he, go) has no jump.
+  let arcTop = Infinity;
+  const pat = opts.level != null ? patternSpans(word, opts.level) : null;
+  if (pat && pat.e != null && letters.length === letterUnits(word, opts.level, reading).length) {
+    const start = []; let at = 0;
+    for (const u of letters) { start.push(at); at += u.length; }
+    const unitAt = (li) => start.findIndex((st, i) => st <= li && li < st + letters[i].length);
+    const vi = unitAt(pat.vowel), ei = unitAt(pat.e);
+    if (vi >= 0 && ei > vi && groups[vi] && groups[ei]) {
+      const cx = (g) => (Number(g.grp.dataset.x0) + Number(g.grp.dataset.x1)) / 2;
+      const ext0 = reading ? readingExtent : extent;
+      const y0 = Math.min(...letters.slice(vi, ei + 1).map((c) => ext0(c).top)) - 9, apex = y0 - 26;
+      const xe = cx(groups[ei]), xv = cx(groups[vi]);
+      groups[ei].grp.classList.add('silent-e'); groups[vi].grp.classList.add('says-name');
+      groups[ei].arc = h('path', { d: `M${xe} ${y0} C${xe} ${apex} ${xv} ${apex} ${xv} ${y0} M${xv - 7} ${y0 - 10} L${xv} ${y0 + 1} L${xv + 7} ${y0 - 10}`, class: 'silent-arc', fill: 'none', stroke: opts.color || 'currentColor', 'stroke-width': 4.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.6 });
+      arcTop = apex * 0.75 + y0 * 0.25 - 4; // where the curve peaks (a cubic reaches three quarters of the way to its control points)
+    }
+  }
   const half = STROKE_WIDTH / 2 + 3;
   const ext = reading ? readingExtent : extent;
-  const top = Math.min(BAND_TOP, ...letters.map((c) => ext(c).top - (reading ? 2 : half))), bottom = Math.max(BAND_BOTTOM, marks.length ? BASELINE + 19 : 0, cmarks.length ? BASELINE + 30 : 0, ...letters.map((c) => ext(c).bottom + (reading ? 2 : half)));
+  const top = Math.min(BAND_TOP, arcTop, ...letters.map((c) => ext(c).top - (reading ? 2 : half))), bottom = Math.max(BAND_BOTTOM, marks.length ? BASELINE + 19 : 0, cmarks.length ? BASELINE + 30 : 0, ...letters.map((c) => ext(c).bottom + (reading ? 2 : half)));
   const svg = h('svg', { class: 'glyph word-glyphs ' + (reading ? 'reading-font ' : '') + (opts.class || ''), viewBox: `0 ${top} ${width} ${bottom - top}`, role: 'img', 'aria-label': opts.label || 'letters' });
   groups.forEach((g) => svg.append(g.grp));
-  groups.forEach((g) => { if (g.mark) svg.append(g.mark); if (g.cmark) svg.append(g.cmark); });
+  groups.forEach((g) => { if (g.mark) svg.append(g.mark); if (g.cmark) svg.append(g.cmark); if (g.arc) svg.append(g.arc); });
   svg.dataset.width = String(width);
   svg.dataset.height = String(bottom - top);
   return svg;
