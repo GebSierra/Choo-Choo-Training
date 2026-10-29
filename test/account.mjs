@@ -327,7 +327,7 @@ let backend;
   await A.page.goto(url + '#/lesson/5/finish'); await A.page.waitForSelector('.finish .got:not([disabled])', { timeout: 6000 });
   await A.page.waitForTimeout(2600); // let any push still pending from opening the finish screen go out first
   const pushesBefore = b.calls(/POST \/rest\/v1\/progress/).length;
-  await A.page.click('.finish .got'); await A.page.waitForSelector('.finish .got:not([disabled])', { timeout: 6000 }); await A.page.click('.finish .got');
+  await A.page.click('.finish .got'); // one tap (1.9.47: the finish screen is one tap with two buttons)
   await A.page.waitForSelector('.screen:not(.leaving) .path, .home, .screen', { timeout: 6000 });
   await A.page.waitForTimeout(500);
   ok(b.calls(/POST \/rest\/v1\/progress/).length === pushesBefore, 'sync: a push waits (debounced about 2 s), it does not fire at once');
