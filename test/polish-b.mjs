@@ -92,7 +92,7 @@ export async function polishBChecks({ browser, url, ok }) {
       ok(f.endless === 0, `${t}: nothing loops forever (${f.endless} endless animations)`);
       if (reduce) ok(f.running === 0 && f.anim === 'none' && Number(f.op) > 0.5, `${t}: static (${f.running} running animations, confetti animation "${f.anim}", still visible at ${f.op})`);
       else ok(f.running === 0, `${t}: the burst is over after 3.6 s (${f.running} still running)`);
-      ok(f.btns.length === 3 && f.btns.every((b) => !b.dis && b.h >= 47.5), `${t}: the three buttons are open and at least 48 px tall (${f.btns.map((b) => Math.round(b.h)).join(',')})`);
+      ok(f.btns.length === 2 && f.btns.every((b) => !b.dis && b.h >= 47.5), `${t}: the two buttons (Yes, go on; Not yet) are open and at least 48 px tall (${f.btns.map((b) => Math.round(b.h)).join(',')})`);
       ok(f.sw <= 0, `${t}: no sideways scroll`);
       ok(errors.length === 0, `${t}: errors ${errors.join(' | ')}`);
       await ctx.close();

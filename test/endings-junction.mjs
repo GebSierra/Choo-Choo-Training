@@ -133,7 +133,7 @@ export async function dataChecks({ ok }) {
   ok(W6L[5].splits.every((s) => PARTS.get(s.word).key === 'join') && W6L[6].splits.every((s) => PARTS.get(s.word).key === 'beats') && W6L[6].splits.every((s) => /[^aeiou][^aeiou]$/.test(s.parts[0]) === false || true), 'split: compound words in lesson 48, two-beat words in lesson 49');
   // 8. stops
   const ck = Object.fromEntries(CUR.checkpoints.map((k) => [k.id, k]));
-  ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,b4:31,b5:40,b6:49,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,x9:27,x10:28,x11:35,x12:41,x13:43,x14:47,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25,v10:30,v11:33,v12:38,v13:42,v14:46,v15:50', 'stops: ids and places (older ids never renumbered)');
+  ok(CUR.checkpoints.map((k) => `${k.id}:${k.after}`).join() === 'r1:4,b1:4,b2:6,b3:22,b4:31,b5:40,b6:49,b7:56,x1:9,x2:12,x3:14,x4:17,x5:18,x6:21,x7:22,x8:23,x9:27,x10:28,x11:35,x12:41,x13:43,x14:47,x15:55,v1:3,v6:6,v2:9,v3:12,v4:15,v5:17,v7:20,v8:23,v9:25,v10:30,v11:33,v12:38,v13:42,v14:46,v15:50,v16:54,v17:57', 'stops: ids and places (older ids never renumbered)');
   const nodes = CUR.lessons.flatMap((l) => [{ lesson: l }, ...CUR.checkpoints.filter((c) => c.after === l.number).map((c) => ({ checkpoint: c }))]);
   const last = nodes.filter((n) => (n.lesson ? n.lesson.world : n.checkpoint.world) === 'W6').at(-1);
   ok(last.checkpoint && last.checkpoint.id === 'v15' && last.checkpoint.kind === 'review', 'stops: World 6 ends with a Review Stop (v15)');
@@ -149,8 +149,8 @@ export async function dataChecks({ ok }) {
   ok(reviewMessageText(ck.v13.summary).startsWith('Your child has learned 33 sounds and 22 blends. Words made only from these sounds include: ') && reviewMessageText(ck.v15.summary).startsWith('Your child has learned 33 sounds, 22 blends and 4 word endings. Words made only from these sounds and word parts include: ') && /^Your child has learned 25 sounds\. Words made only from these sounds include: /.test(reviewMessageText(ck.v9.summary)), 'Review Stop message: older stops read as before; the new ones say 33 sounds, 22 blends and 4 word endings (an ending is not a sound)');
   ok(ck.b6.kind === 'book' && ck.b6.book === 'book-6' && ck.b6.world === 'W6' && ck.b6.after === 49 && JSON.stringify(ck.b6.needs) === JSON.stringify(ORDER_SOUNDS.slice(0, 49)), 'stops: Story 6 is in World 6, after lesson 49 (two-beat words)');
   // 9. levels, counts
-  ok(CUR.levels.map((v) => v.after).join() === '6,17,25,33,42,50' && CUR.levels[5].car === 'boxcar' && CUR.levels[5].needs.length === 50 && CUR.levels[4].car === 'dome', 'levels: level six (a box car) comes after lesson 50; levels one to five are unchanged');
-  ok(carsOf(CUR.levels).join() === 'coach,flatbed,tanker,dome,boxcar,caboose', 'levels: the special cars in train order, the box car before the caboose');
+  ok(CUR.levels.map((v) => v.after).join() === '6,17,25,33,42,50,57' && CUR.levels[5].car === 'boxcar' && CUR.levels[5].needs.length === 50 && CUR.levels[4].car === 'dome', 'levels: level six (a box car) comes after lesson 50; levels one to five are unchanged');
+  ok(carsOf(CUR.levels).join() === 'coach,flatbed,tanker,dome,boxcar,gondola,caboose', 'levels: the special cars in train order, the box car before the caboose');
   const words = [...WJ.words, ...WJ.blendWords, ...WJ.endingWords]; words.blend = new Set(WJ.blendWords); words.ending = new Set(WJ.endingWords);
   const cnt = (n) => countReadable(words, ORDER_SOUNDS.slice(0, n));
   ok(cnt(42) === 515 && cnt(43) > cnt(42) && cnt(44) > cnt(43) && cnt(45) > cnt(44) && cnt(47) > cnt(46) && cnt(48) > cnt(47) && cnt(49) > cnt(48) && cnt(46) === ck.v14.summary.words && cnt(50) === ck.v15.summary.words && cnt(50) === cnt(49), `reading count: Can read N words grows with each word part (${cnt(42)}, ${cnt(43)}, ${cnt(44)}, ${cnt(45)}, ${cnt(46)}, ${cnt(47)}, ${cnt(48)}, ${cnt(49)}, ${cnt(50)}); the mixed review adds none`);
@@ -503,7 +503,7 @@ export async function screenChecks({ browser, url, ok }) {
     await page.waitForTimeout(2500);
     const txt = await page.locator('body').innerText();
     const want = countReadable(Object.assign([...WJ.words, ...WJ.blendWords, ...WJ.endingWords], { blend: new Set(WJ.blendWords), ending: new Set(WJ.endingWords) }), ORDER_SOUNDS.slice(0, 47));
-    ok(/Endings Junction/.test(txt) && /of 50/.test(txt), `Grownups: World 6, Endings Junction is listed and the lesson count is of 50 (${txt.replace(/\s+/g, ' ').slice(0, 200)})`);
+    ok(/Endings Junction/.test(txt) && /of 57/.test(txt), `Grownups: World 6, Endings Junction is listed and the lesson count is of 57 (${txt.replace(/\s+/g, ' ').slice(0, 200)})`);
     const hero = await page.evaluate(() => { const r = document.querySelector('.gu-hero-read'); return { words: r && r.dataset.words, text: r && r.textContent, chips: [...document.querySelectorAll('.gu-chip')].map((c) => c.textContent) }; });
     ok(Number(hero.words) === want && /^Can read \d+ words/.test(hero.text) && ['-s', '-es', '-ing', '-ed', '-ed beat'].every((c) => hero.chips.includes(c)) && !hero.chips.includes('endmix') && hero.chips.filter((c) => /^-/.test(c)).length === 5, `Grownups: Can read ${want} words counts the word parts once taught; each word part is one chip, none is a sound (${hero.words}; ${hero.chips.slice(-7).join(' ')})`);
     ok(errors.length === 0, `Grownups: no errors ${errors.join(' | ')}`);

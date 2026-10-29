@@ -2264,7 +2264,7 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 
 /* Placement result with many known sounds (World 5 brings 42): compact chips, and the list scrolls inside the card on short screens so Start here stays in view */
 .pc-kchip { font-size: 22px; min-width: 34px; padding: 2px 8px; }
-@media (max-height: 700px), (orientation: landscape) and (max-height: 520px) {
+@media (max-height: 900px), (orientation: landscape) and (max-height: 520px) {
   .pc-known { gap: 4px; max-height: 16dvh; overflow-y: auto; overscroll-behavior: contain; }
   .pc-kchip { font-size: 18px; min-width: 30px; padding: 1px 6px; border-radius: 10px; }
 }
