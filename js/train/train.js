@@ -163,7 +163,7 @@ function buildCar(bag, glyph, accent) {
 }
 
 // A level's special car: the same chassis, wheels and coupler as a letter wagon, with its own body (docs/PLAN-v1.9.md, Levels).
-const SPECIAL_COLORS = { sky: '#7DB8F5', mint: '#5FE3B0', lilac: '#CDC4F8', pale: '#EDE8FF', cream: '#FFF6D6', coral: '#F2956B', coralDark: '#C9693F' };
+const SPECIAL_COLORS = { sky: '#7DB8F5', mint: '#5FE3B0', lilac: '#CDC4F8', pale: '#EDE8FF', cream: '#FFF6D6', coral: '#F2956B', coralDark: '#C9693F', slate: '#9A93E0', slateDark: '#6F68BD', snow: '#FFFFFF' };
 function buildSpecial(bag, kind) {
   const g = new THREE.Group();
   g.name = 'special-' + kind;
@@ -199,6 +199,15 @@ function buildSpecial(bag, kind) {
     add(block(bag, 1.26, 0.78, 1.8, SPECIAL_COLORS.coral, { r: 0.1 }), 0, 1.0, 0);
     add(block(bag, 1.32, 0.08, 1.86, PAL.sun, { r: 0.03 }), 0, 1.43, 0);
     for (const side of [-1, 1]) { add(block(bag, 0.06, 0.56, 0.7, SPECIAL_COLORS.coralDark, { r: 0.03 }), side * 0.64, 0.98, 0); add(block(bag, 0.07, 0.05, 0.74, SPECIAL_COLORS.cream, { r: 0.02 }), side * 0.65, 1.08, 0); }
+  } else if (kind === 'gondola') { // World 7: an open slate-violet gondola car with three snowy peaks standing in it (the Summit)
+    add(block(bag, 1.26, 0.14, 1.8, SPECIAL_COLORS.slate, { r: 0.05 }), 0, 0.64, 0);
+    for (const side of [-1, 1]) add(block(bag, 0.07, 0.5, 1.8, SPECIAL_COLORS.slate, { r: 0.03 }), side * 0.6, 0.95, 0);
+    for (const z of [-1, 1]) add(block(bag, 1.26, 0.5, 0.07, SPECIAL_COLORS.slate, { r: 0.03 }), 0, 0.95, z * 0.87);
+    add(block(bag, 1.32, 0.07, 1.86, PAL.sun, { r: 0.03 }), 0, 1.22, 0);
+    for (const [x, z, r, hgt] of [[-0.25, -0.35, 0.34, 0.78], [0.22, 0.1, 0.4, 0.98], [-0.18, 0.5, 0.26, 0.56]]) {
+      const peak = add(new THREE.Mesh(bag.geo(`peak${r}`, () => new THREE.ConeGeometry(r, hgt, 14)), bag.paint(SPECIAL_COLORS.snow, { roughness: 0.8 })), x, 0.72 + hgt / 2, z);
+      peak.castShadow = true;
+    }
   } else { // dome
     add(block(bag, 1.26, 0.7, 1.8, SPECIAL_COLORS.lilac, { r: 0.12 }), 0, 0.95, 0);
     add(block(bag, 1.32, 0.08, 1.86, PAL.sun, { r: 0.03 }), 0, 1.3, 0);

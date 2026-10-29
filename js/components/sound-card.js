@@ -1,7 +1,7 @@
 import { h, icon } from '../dom.js';
 import { richText } from '../letters.js';
 import { accentOf } from '../theme.js';
-import { soundCardLines, isTwoLetterSound, PART_LINE } from '../lessons.js';
+import { soundCardLines, isTwoLetterSound, PART_LINE, PATTERN_LINE } from '../lessons.js';
 import { wordPartsOf } from '../order.js';
 
 // "This letter says mmm. Hold it. Do not say muh." plus how to make the sound.
@@ -10,6 +10,7 @@ export function soundCard(sound, { lead = false } = {}) {
   const accent = accentOf(sound.glyph);
   if (sound.blend) return blendCard(sound, lead, accent);
   if (sound.part) return partCard(sound, lead, accent);
+  if (sound.pattern) return patternCard(sound, lead, accent);
   const lines = soundCardLines(sound);
   const first = h('p', { class: 'sc-first' });
   if (isTwoLetterSound(sound)) { // two letters, one sound (sh, qu, ff ll ss zz ...)
@@ -44,6 +45,18 @@ function partCard(sound, lead, accent) {
   const rows = h('ul', { class: 'blend-rows' }, (sound.parts || []).filter((p) => p.asIn).map((p) => { const w = wordPartsOf(p.asIn), key = w && w.parts.length === 2 && w.key.startsWith('end-') ? `${w.parts[0]} + -${p.asIn.slice(w.parts[0].length)}` : w ? w.parts.join(' + ') : p.asIn;
     return h('li', { dataset: { pair: p.asIn } }, h('span', { class: 'br-pair' }, key), h('span', { class: 'br-say' }, h('strong', {}, p.say), `, as in ${p.asIn}`)); }));
   return h('div', { class: 'sound-card blend-card part-card' + (lead ? ' lead' : ''), style: { '--accent': accent } },
+    h('span', { class: 'sc-ic' }, icon('speaker', 20)),
+    h('div', { class: 'sc-text' }, first, rows, h('p', { class: 'sc-how' }, richText(sound.howTo, { every: true }))));
+}
+
+// A long-vowel pattern (World 7) is not a sound: the vowel says its name. One line for each form: "cap + e: cape, ayyy" (a silent-e pattern) or "me: eeee" (a vowel at the end of a word).
+// The grown-up's notation (ayyy ...) is shown, never spoken. A mixed review has no rows of its own.
+function patternCard(sound, lead, accent) {
+  const first = h('p', { class: 'sc-first' }, PATTERN_LINE[sound.pattern]);
+  const forms = (sound.forms || []).filter((f) => f.asIn);
+  const rows = forms.length ? h('ul', { class: 'blend-rows' }, forms.map((f) => h('li', { dataset: { pair: f.asIn } },
+    h('span', { class: 'br-pair' }, f.short ? `${f.short} + e` : f.asIn), h('span', { class: 'br-say' }, h('strong', {}, f.long || f.asIn), `, ${f.say}`)))) : null;
+  return h('div', { class: 'sound-card blend-card part-card pattern-card' + (lead ? ' lead' : ''), style: { '--accent': accent } },
     h('span', { class: 'sc-ic' }, icon('speaker', 20)),
     h('div', { class: 'sc-text' }, first, rows, h('p', { class: 'sc-how' }, richText(sound.howTo, { every: true }))));
 }

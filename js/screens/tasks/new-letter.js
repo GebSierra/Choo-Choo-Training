@@ -18,6 +18,15 @@ const partScript = (sound) => {
 };
 const partGist = (sound) => { const ex = exampleOf(sound); if (sound.part === 'ending' && ex) return fit(`Say ${ex.base}, then ${ex.say}: ${ex.word}.`, `${ex.base} + ${ex.say} = ${ex.word}`, 'Base word, then ending.'); if (sound.part === 'chunk' && ex) return fit(`Clap ${ex.say}, then glue.`, 'Clap, split, glue.'); return 'Endings and bigger words.'; };
 
+// World 7: what the grown-up does for a long-vowel pattern. Say the short word, then the long one, and show the jump: the silent e makes no sound but the vowel says its name.
+const patScript = (sound) => {
+  const f = (sound.forms || [])[0] || {}, note = sound.parentNote ? ' ' + sound.parentNote : '';
+  if (sound.pattern === 'split' && f.short) return `I do: say the short word, then the long one: ${f.short} ... ${f.long}. Point to the jump: the silent e makes no sound, but the vowel says its name. We do: slide a finger under the letters of ${f.long} and say it together. You do: your child slides and says the word alone.${note}`;
+  if (sound.pattern === 'open') return `I do: say each word and listen to the last sound: me, go, hi. The vowel at the end says its name. We do: slide a finger under each word and say it together. You do: your child slides and says the word alone.${note}`;
+  return `Say each word, then ask whether the vowel says its short sound or its name. Your child slides a finger under it and says it.${note}`;
+};
+const patGist = (sound) => { const f = (sound.forms || [])[0] || {}; return sound.pattern === 'split' && f.short ? fit(`Say ${f.short}, then ${f.long}.`, `${f.short}, then ${f.long}.`, 'Say it short, then long.') : sound.pattern === 'open' ? fit('Say me, go, hi.', 'Vowel says its name.') : 'Short, then long vowels.'; };
+
 // Task 2: the new letter, its sound card, the slide track and the example pictures.
 export function build({ lesson, sound, speech, store }) {
   const accent = accentOf(sound.glyph);
@@ -38,8 +47,8 @@ export function build({ lesson, sound, speech, store }) {
     el,
     parts: () => introParts(lesson, store),
     // I do, we do, you do: the grown-up models, then they slide together, then the child slides alone.
-    script: () => (sound.part ? partScript(sound) : sound.blend ? `I do: say each pair slowly and smooth: ${sound.pairs.map((p) => p.say).join(', ')}. Each letter keeps its own sound, so glide with no uh in between. We do: slide a finger under the two letters and say it together. You do: your child slides under the letters and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}` : `I do: say ${soundPhrase(sound)}. We do: slide a finger under the letter and say it together. You do: your child slides under the letter and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}`),
-    gist: () => (sound.part ? partGist(sound) : sound.blend ? fit(`Glide ${sound.sayItLike} as in ${sound.asIn}.`, `Glide ${sound.sayItLike}.`) : fit(`I do: say ${soundPhrase(sound)}.`, `Say ${soundPhrase(sound)}.`)),
+    script: () => (sound.pattern ? patScript(sound) : sound.part ? partScript(sound) : sound.blend ? `I do: say each pair slowly and smooth: ${sound.pairs.map((p) => p.say).join(', ')}. Each letter keeps its own sound, so glide with no uh in between. We do: slide a finger under the two letters and say it together. You do: your child slides under the letters and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}` : `I do: say ${soundPhrase(sound)}. We do: slide a finger under the letter and say it together. You do: your child slides under the letter and says it alone.${sound.parentNote ? ' ' + sound.parentNote : ''}`),
+    gist: () => (sound.pattern ? patGist(sound) : sound.part ? partGist(sound) : sound.blend ? fit(`Glide ${sound.sayItLike} as in ${sound.asIn}.`, `Glide ${sound.sayItLike}.`) : fit(`I do: say ${soundPhrase(sound)}.`, `Say ${soundPhrase(sound)}.`)),
     cleanup: () => track.cleanup(),
     again: () => { draw(); speech.say(introParts(lesson, store)); },
   };

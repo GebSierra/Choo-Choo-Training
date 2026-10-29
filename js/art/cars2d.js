@@ -1,5 +1,5 @@
 // The six special cars as small flat SVG icons (the level banner): caboose red with a cupola, coach sky-blue with three
-// windows, flatbed navy with a wooden block, tanker mint with a round tank, dome lilac with a pale dome, box car coral with a sliding door. Same palette
+// windows, flatbed navy with a wooden block, tanker mint with a round tank, dome lilac with a pale dome, box car coral with a sliding door, gondola slate-violet with three snowy peaks. Same palette
 // as the 3D cars in js/train/train.js and the rest of the train world.
 import { h } from '../dom.js';
 import { TRAIN } from './train2d.js';
@@ -34,6 +34,12 @@ const BODY = {
     h('rect', { x: 18, y: 30, width: 164, height: 58, rx: 8, fill: '#F2956B' }), h('rect', { x: 18, y: 30, width: 164, height: 7, rx: 3.5, fill: C.sun }),
     h('rect', { x: 66, y: 44, width: 68, height: 44, rx: 4, fill: '#C9693F' }), h('rect', { x: 100, y: 44, width: 4, height: 44, fill: 'rgba(0,0,0,.18)' }), h('rect', { x: 72, y: 56, width: 22, height: 5, rx: 2.5, fill: '#FFF6D6' }),
     h('rect', { x: 40, y: 46, width: 12, height: 20, rx: 3, fill: '#FFF6D6' }), h('rect', { x: 148, y: 46, width: 12, height: 20, rx: 3, fill: '#FFF6D6' }),
+  ],
+  gondola: () => [
+    h('path', { d: 'M52 56 L74 18 L96 56 Z', fill: '#FFFFFF' }), h('path', { d: 'M82 56 L112 8 L142 56 Z', fill: '#FFFFFF' }), h('path', { d: 'M126 56 L144 28 L162 56 Z', fill: '#FFFFFF' }),
+    h('path', { d: 'M112 8 L142 56 L124 56 Z', fill: '#DCE4F8' }), h('path', { d: 'M74 18 L96 56 L84 56 Z', fill: '#DCE4F8' }),
+    h('rect', { x: 18, y: 48, width: 164, height: 40, rx: 8, fill: '#9A93E0' }), h('rect', { x: 18, y: 48, width: 164, height: 7, rx: 3.5, fill: C.sun }),
+    h('rect', { x: 34, y: 62, width: 132, height: 5, rx: 2.5, fill: 'rgba(255,255,255,.35)' }), h('rect', { x: 34, y: 74, width: 132, height: 5, rx: 2.5, fill: 'rgba(0,0,0,.14)' }),
   ],
   dome: () => [
     h('rect', { x: 18, y: 44, width: 164, height: 44, rx: 10, fill: LILAC }), h('rect', { x: 18, y: 44, width: 164, height: 7, rx: 3.5, fill: C.sun }),

@@ -1,0 +1,213 @@
+{
+  "id": "book-7",
+  "title": "Pip at Silent E Summit",
+  "draft": true,
+  "needs": [
+    "m",
+    "a",
+    "s",
+    "i",
+    "t",
+    "p",
+    "f",
+    "o",
+    "n",
+    "d",
+    "c",
+    "h",
+    "u",
+    "g",
+    "l",
+    "r",
+    "b",
+    "e",
+    "j",
+    "w",
+    "v",
+    "y",
+    "z",
+    "x",
+    "q",
+    "sh",
+    "ch",
+    "th",
+    "ck",
+    "ff",
+    "wh",
+    "ng",
+    "nk",
+    "st",
+    "nd",
+    "sp",
+    "sn",
+    "bl",
+    "pl",
+    "br",
+    "dr",
+    "mix",
+    "end-s",
+    "end-es",
+    "end-ing",
+    "end-ed",
+    "end-ted",
+    "join",
+    "beats",
+    "endmix",
+    "open",
+    "a_e",
+    "i_e",
+    "o_e",
+    "u_e",
+    "e_e"
+  ],
+  "sight": [],
+  "pages": [
+    {
+      "scene": "track",
+      "read": "Toot toot! Pip’s train climbs up to Silent E Summit, where the little e at the end of a word makes no sound at all. Pip, {name} and Sam hop off the train. Pip says, \"Let’s explore!\"",
+      "art": {
+        "train": true,
+        "pip": "wave"
+      },
+      "tap": {
+        "on": "train",
+        "anim": "toot",
+        "label": "Pip's whistle"
+      }
+    },
+    {
+      "scene": "meadow",
+      "read": "A cool breeze blows over the mountain path. Sam sniffs the air and finds a basket in the grass. {name} lifts the lid. Pip cheers, \"Look! A big ...\"",
+      "child": "cake",
+      "slider": "cake",
+      "art": {
+        "emoji": [
+          "🍰"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "giggle",
+        "label": "the cake"
+      }
+    },
+    {
+      "scene": "hill",
+      "read": "After the snack, a strong wind swirls around the hill. Sam laughs. Pip waves at the sky. \"Let’s fly a ...\"",
+      "child": "kite",
+      "slider": "kite",
+      "art": {
+        "emoji": [
+          "🪁"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the kite"
+      }
+    },
+    {
+      "scene": "hill",
+      "read": "Pip lets go of the string. Whoosh! The kite zooms up past the clouds. {name} and Sam tip back their heads. Pip says, \"Look at it ...\"",
+      "child": "fly",
+      "slider": "fly",
+      "art": {
+        "emoji": [
+          "🪁"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the kite in the sky"
+      }
+    },
+    {
+      "scene": "track",
+      "kind": "drag",
+      "read": "\"Hold on tight! The train is rolling up the Summit!\""
+    },
+    {
+      "scene": "station",
+      "read": "The path gets steep and icy. Sam finds something tied to a post by the track. Pip tugs on it and grins. \"{name}, it is a strong ...\"",
+      "child": "rope",
+      "slider": "rope",
+      "art": {
+        "emoji": [
+          "🪢"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "bounce",
+        "label": "the rope"
+      }
+    },
+    {
+      "scene": "meadow",
+      "read": "Up, up, up they climb, with the rope in their hands. A mountain goat peeks over a rock. {name} waves and says, \"...\"",
+      "child": "hi",
+      "slider": "hi",
+      "art": {
+        "emoji": [
+          "🐐"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the goat"
+      }
+    },
+    {
+      "scene": "station",
+      "read": "At the very top, there is a little wooden cabin with a warm light inside. Sam sighs. Pip smiles and says, \"This is our ...\"",
+      "child": "home",
+      "slider": "home",
+      "art": {
+        "emoji": [
+          "🏠"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "giggle",
+        "label": "the cabin"
+      }
+    },
+    {
+      "scene": "sunset",
+      "read": "The sky glows orange and pink over the Summit. Pip waves to the sunset. {name} and Sam wave too. Sam whispers, \"I ... we can come back soon.\"",
+      "child": "hope",
+      "slider": "hope",
+      "art": {
+        "train": true,
+        "pip": "cheer",
+        "friend": true,
+        "emoji": [
+          "🌅"
+        ]
+      },
+      "tap": {
+        "on": "emoji",
+        "anim": "wave",
+        "label": "the sunset"
+      }
+    },
+    {
+      "scene": "sunset",
+      "kind": "review",
+      "read": "Toot toot! You did it! Read all your words:",
+      "words": [
+        "cake",
+        "kite",
+        "fly",
+        "rope",
+        "hi",
+        "home",
+        "hope"
+      ]
+    }
+  ]
+}
