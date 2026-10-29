@@ -161,13 +161,13 @@ export const isReadableEndings = (word, taught) => isReadableBlends(word, taught
 export const PATTERN_KEYS = ['open', 'a_e', 'i_e', 'o_e', 'u_e', 'e_e'];
 export const SILENT_E_KEYS = ['a_e', 'i_e', 'o_e', 'u_e', 'e_e'];
 export const isPatternKey = (key) => PATTERN_KEYS.includes(key) || key === 'semix';
-// How the grown-up writes each long vowel (a stretched run is shown, never spoken; ooo is never used alone: it is short o): a ayyy, i iyyy, o ohhh, e eeee, u yooo (cube) or oooo (tube).
-export const LONG_SAY = { a: 'ayyy', i: 'iyyy', o: 'ohhh', e: 'eeee', 'u-yoo': 'yooo', 'u-oo': 'oooo' };
+// How the grown-up writes each long vowel (a stretched run is shown, never spoken; ooo is never used alone: it is short o): a aaay, i iiiy, o oooh, e eeee, u yooo (cube) or oooo (tube).
+export const LONG_SAY = { a: 'aaay', i: 'iiiy', o: 'oooh', e: 'eeee', 'u-yoo': 'yooo', 'u-oo': 'oooo' };
 export const PATTERNS = {
-  open: { says: { eeee: list('he me be we she'), ohhh: list('go no so'), iyyy: list('hi my by fly cry try dry fry sky shy spy') } },
-  a_e: { says: { ayyy: list('cape cake make bake lake take wake name game same came late gate hate date safe wave save cave gave shape shade plane snake grape frame flame skate state jade made fade wade lane mane cane pane sale tale male pale maze blaze brave crane crate grade trade blame shake flake stake tape mate rate fate') } },
-  i_e: { says: { iyyy: list('kite bike hike like time dime lime line mine nine pine fine five dive hive wide ride side hide slide smile while white shine slime drive crime bride pride stripe bite site mite wine dine spine pipe ripe') } },
-  o_e: { says: { ohhh: list('hope rope home bone note joke poke woke stone stove globe smoke hole pole mole vote rode code robe cone slope') } },
+  open: { says: { eeee: list('he me be we she'), oooh: list('go no so'), iiiy: list('hi my by fly cry try dry fry sky shy spy') } },
+  a_e: { says: { aaay: list('cape cake make bake lake take wake name game same came late gate hate date safe wave save cave gave shape shade plane snake grape frame flame skate state jade made fade wade lane mane cane pane sale tale male pale maze blaze brave crane crate grade trade blame shake flake stake tape mate rate fate') } },
+  i_e: { says: { iiiy: list('kite bike hike like time dime lime line mine nine pine fine five dive hive wide ride side hide slide smile while white shine slime drive crime bride pride stripe bite site mite wine dine spine pipe ripe') } },
+  o_e: { says: { oooh: list('hope rope home bone note joke poke woke stone stove globe smoke hole pole mole vote rode code robe cone slope') } },
   u_e: { says: { yooo: list('cube cute mule mute'), oooo: list('tube flute tune rule prune plume dune') } },
   e_e: { says: { eeee: list('eve pete theme steve') } },
 };
@@ -191,7 +191,7 @@ export function patternSpans(word, ctx) {
 // Is a word of the lists (data/words-decodable.json `patternWords`) readable once the pattern, and every letter, blend and word part, is taught?
 export const patternTaught = (word, taught) => { const p = PAT.get(word); return !p || taught.has(p.key); };
 export const isReadablePatterns = (word, taught) => isReadableEndings(word, taught) && patternTaught(word, taught);
-// The long-vowel notation of a word at `ctx`: what the grown-up writes for the vowel (ayyy), or null when the word shows no pattern yet.
+// The long-vowel notation of a word at `ctx`: what the grown-up writes for the vowel (aaay), or null when the word shows no pattern yet.
 export const patternSay = (word) => { const p = PAT.get(word); return p ? p.say : null; };
 // Contrast: does the word say a long vowel (it has a pattern) or a short one?
 export const vowelLength = (word) => (PAT.has(word) ? 'long' : 'short');

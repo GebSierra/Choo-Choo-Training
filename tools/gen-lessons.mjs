@@ -227,23 +227,23 @@ const TABLE = [
     note: 'The mixed review: endings (-s, -es, -ing, -ed in its three ways) and bigger words (compound and two-beat). For an ending word, find the base word first, then the ending. For a bigger word, clap the beats, split, read each chunk, and glue.' },
   // ---- Silent E Summit (World 7, lessons 51 to 57): a long-vowel PATTERN is not a new sound, a new letter or a word part. The vowel says its name. `pattern` is the kind: 'open' (51: a vowel
   // at the end of a word), 'split' (52 to 56: a silent e jumps back over one consonant to the vowel) or 'mix' (57). `forms` lists what the card shows: a short word and its long partner (cap, cape) with how the
-  // grown-up writes the vowel (ayyy iyyy ohhh yooo oooo eeee: shown, never spoken). The key is also the glyph (a vowel, a slot and an e with a jump arc: js/glyphs.js). Pictures: only where a tile fits.
-  { n: 51, k: 'open', pattern: 'open', forms: [{ say: 'eeee', asIn: 'me' }, { say: 'ohhh', asIn: 'go' }, { say: 'iyyy', asIn: 'hi' }], practice: ['cry'], hold: false, not: null,
+  // grown-up writes the vowel (aaay iiiy oooh yooo oooo eeee: shown, never spoken). The key is also the glyph (a vowel, a slot and an e with a jump arc: js/glyphs.js). Pictures: only where a tile fits.
+  { n: 51, k: 'open', pattern: 'open', forms: [{ say: 'eeee', asIn: 'me' }, { say: 'oooh', asIn: 'go' }, { say: 'iiiy', asIn: 'hi' }], practice: ['cry'], hold: false, not: null,
     how: 'A vowel at the end of a word says its name: me, go, hi. The letter y at the end of a short word says long i: my, by, fly.',
     tiles: ['ie/cry'], start: [], words: ['me', 'go', 'hi', 'fly'], pic: 'cry',
     qc: { kind: 'letter', target: 'open', others: ['end-ing', 'end-s'], text: 'Which one has a vowel at the end, as in go?', gist: 'Which ends with a vowel?', script: "Say: 'Which one has a vowel at the end, as in go?'" }, hunt: 'mohnuabs',
-    note: 'This is a pattern, not a new sound. When a vowel is the last letter of a short word, it says its name: me, he, go, no, hi. The letter y at the end says long i: my, by, fly. Your child already knows some of these as heart words (he, me, go, my); now they see why.' },
-  { n: 52, k: 'a_e', pattern: 'split', forms: [{ say: 'ayyy', asIn: 'cake', short: 'cap', long: 'cape' }], practice: ['cake', 'gate'], hold: false, not: null,
+    note: 'This is a pattern, not a new sound. When a vowel is the last letter of a short word, it says its name: me, he, go, no, hi. The letter y at the end says long i: my, by, fly. Your child already knows some of these as heart words (he, me, go, my); now they learn why.' },
+  { n: 52, k: 'a_e', pattern: 'split', forms: [{ say: 'aaay', asIn: 'cake', short: 'cap', long: 'cape' }], practice: ['cake', 'gate'], hold: false, not: null,
     how: 'The silent e makes the a say its name: cap becomes cape. The e makes no sound. It jumps back over one consonant to the a.',
     tiles: ['ae/cake', 'g/gate', 's/snake'], start: [], words: ['cape', 'game', 'lane', 'shade'], pic: 'cake',
     qc: { kind: 'letter', target: 'a_e', others: ['open', 'end-ing'], text: 'Which one has the letter a and a silent e, as in cake?', gist: 'Which has a and silent e?', script: "Say: 'Which one has the letter a and a silent e, as in cake?'" }, hunt: 'mohnuabs',
     note: 'A pattern, not a new sound. Say cap, then cape. The silent e makes no sound, but it makes the a say its name. Show the jump: the e jumps back over the p to the a. Teach the short word and its partner together: cap and cape, man and mane.' },
-  { n: 53, k: 'i_e', pattern: 'split', forms: [{ say: 'iyyy', asIn: 'kite', short: 'kit', long: 'kite' }], practice: ['kite'], hold: false, not: null,
+  { n: 53, k: 'i_e', pattern: 'split', forms: [{ say: 'iiiy', asIn: 'kite', short: 'kit', long: 'kite' }], practice: ['kite'], hold: false, not: null,
     how: 'The silent e makes the i say its name: kit becomes kite. The e makes no sound. It jumps back over one consonant to the i.',
     tiles: ['ie/kite'], start: [], words: ['bike', 'hike', 'time', 'slide'], pic: 'kite',
     qc: { kind: 'letter', target: 'i_e', others: ['a_e', 'open'], text: 'Which one has the letter i and a silent e, as in kite?', gist: 'Which has i and silent e?', script: "Say: 'Which one has the letter i and a silent e, as in kite?'" }, hunt: 'mohnuabs',
     note: 'The same idea with i. Say kit, then kite. The silent e jumps back over the t to the i, and the i says its name. Try kit and kite, pin and pine, rid and ride.' },
-  { n: 54, k: 'o_e', pattern: 'split', forms: [{ say: 'ohhh', asIn: 'bone', short: 'hop', long: 'hope' }], practice: ['bone'], hold: false, not: null,
+  { n: 54, k: 'o_e', pattern: 'split', forms: [{ say: 'oooh', asIn: 'bone', short: 'hop', long: 'hope' }], practice: ['bone'], hold: false, not: null,
     how: 'The silent e makes the o say its name: hop becomes hope. The e makes no sound. It jumps back over one consonant to the o.',
     tiles: ['oe/bone'], start: [], words: ['hope', 'rope', 'home', 'stone'], pic: 'bone',
     qc: { kind: 'letter', target: 'o_e', others: ['a_e', 'i_e'], text: 'Which one has the letter o and a silent e, as in hope?', gist: 'Which has o and silent e?', script: "Say: 'Which one has the letter o and a silent e, as in hope?'" }, hunt: 'mohnuabs',
@@ -258,7 +258,7 @@ const TABLE = [
     tiles: [], start: [], words: ['eve', 'pete', 'theme'], pic: null,
     qc: { kind: 'letter', target: 'e_e', others: ['u_e', 'a_e'], text: 'Which one has two e letters, as in theme?', gist: 'Which has two e letters?', script: "Say: 'Which one has two e letters, as in theme?'" }, hunt: 'mohnuabs',
     note: 'This pattern is rare: only a few words use it (eve, Pete, theme). It works like the others: the silent e makes the first e say its name. Say them, then theme.' },
-  { n: 57, k: 'semix', pattern: 'mix', forms: [{ say: 'ayyy iyyy ohhh yooo', asIn: null }], practice: [], hold: false, not: null,
+  { n: 57, k: 'semix', pattern: 'mix', forms: [{ say: 'aaay iiiy oooh yooo', asIn: null }], practice: [], hold: false, not: null,
     how: 'Short vowel, or long vowel with a silent e? Say the word and listen: cap, cape; kit, kite; hop, hope; cub, cube.',
     tiles: ['ae/cake', 'ie/kite', 'oe/bone', 'ue-you/cube'], start: [], words: ['cape', 'kite', 'hope', 'cube', 'theme', 'fly'], pic: null,
     qc: { kind: 'letter', target: 'o_e', others: ['i_e', 'u_e'], text: 'Which one has the letter o and a silent e, as in hope?', gist: 'Which has o and silent e?', script: "Say: 'Which one has the letter o and a silent e, as in hope?'" }, hunt: 'mohnuabs',
@@ -301,7 +301,7 @@ const HEART = [
   { n: 51, w: 'bye', parts: P('b', ['y'], ['e']), tricky: 'The letter y says long i here, and the e makes no sound.', phrase: 'bye Dad', find: ['bad', 'bug'] },
   { n: 56, w: 'have', parts: P('h', ['a'], 'v', ['e']), tricky: 'English words do not end in v, so this e does not change the a. The a says its short sound.', phrase: 'I have a hat', find: ['hat', 'had'] },
   { n: 57, w: 'give', parts: P('g', ['i'], 'v', ['e']), tricky: 'English words do not end in v, so this e does not change the i. The i says its short sound.', phrase: 'give a hug', find: ['gift', 'gum'] },
-  { n: 57, w: 'live', parts: P('l', ['i'], 'v', ['e']), tricky: 'English words do not end in v, so this e does not change the i. The i says its short sound.', phrase: 'I live in a hut', find: ['lid', 'lip'] },
+  { n: 57, w: 'live', parts: P('l', ['i'], 'v', ['e']), tricky: 'English words do not end in v, so this e does not change the i. The i says its short sound.', phrase: 'live in a hut', find: ['lid', 'lip'] },
 ];
 
 // Words for the wrong cards of the Sound Sack and Quick Check: tiles whose word begins with none of the sounds taught so far.
@@ -405,7 +405,7 @@ for (const e of TABLE.filter((t) => t.part)) { e.say = e.parts[0].say; e.asIn = 
 for (const e of TABLE.filter((t) => t.pattern)) { e.say = e.forms[0].say; e.asIn = e.forms[0].asIn; }
 for (const e of TABLE.filter((t) => t.n <= lastLesson)) {
   const words = e.tiles.map((t) => tile(...t.split('/')));
-  const start = (e.start ? e.start.map((t) => tile(...t.split('/'))) : words).filter((w) => spellingsOf(e.k).some((sp) => w.word.startsWith(sp)));
+  const start = e.pattern ? words : (e.start ? e.start.map((t) => tile(...t.split('/'))) : words).filter((w) => spellingsOf(e.k).some((sp) => w.word.startsWith(sp))); // World 7: a pattern lesson has no first sound, so its start words are all its tiles
   c.sounds[e.k] = { glyph: e.blend ? e.blend[0].g : e.k, ...(e.blend ? { blend: true, pairs: e.blend } : {}), ...(e.part ? { part: e.part, parts: e.parts } : {}), ...(e.pattern ? { pattern: e.pattern, forms: e.forms } : {}), ...(e.alt ? { alt: e.alt } : {}), sayItLike: e.say, hold: e.hold, doNotSay: e.not, howTo: e.how, ...(e.endOnly ? { endOnly: true } : {}), ...(e.noPictures ? { noPictures: true } : {}), ...(e.voiced ? { voiced: e.voiced, voicedWords: e.voicedWords } : {}), ...(e.note ? { parentNote: e.note } : {}), asIn: e.asIn || null, clip: e.blend || e.part || e.pattern ? null : `assets/audio/sounds/${e.k}.mp3`, words, startWords: start, practice: e.practice };
   const pickPicture = (w) => words.find((x) => x.word === w) || (() => { throw new Error('no tile for ' + w); })();
   // Every word a child reads must be spelt with the letters taught up to this lesson. A picture word whose letters are not all taught yet
@@ -810,11 +810,11 @@ const MOUTH = {
   endmix: { voice: true, text: 'Say each word and listen for the ending or the beats. Clap if it helps. Voice on.' },
   // Silent E Summit: the mouth for a long vowel says the vowel's name; the silent e makes no sound and has no mouth shape
   open: { voice: true, text: 'Say me, go, hi. Listen to the last sound: it is the name of the letter. Your mouth stays open at the end. Voice on.' },
-  a_e: { voice: true, text: 'Say cap: your mouth opens wide. Say cape: your mouth starts open and glides to a smile (ay). The e makes no sound. Voice on.' },
-  i_e: { voice: true, text: 'Say kit: your mouth stays small. Say kite: your mouth opens wide and glides up to a smile (eye). The e makes no sound. Voice on.' },
-  o_e: { voice: true, text: 'Say hop: your mouth opens wide. Say hope: your lips start round and stay round (oh). The e makes no sound. Voice on.' },
-  u_e: { voice: true, text: 'Say cub, then cube: your lips glide from a smile to round (yoo). Tube just says oo, with round lips. The e makes no sound. Voice on.' },
-  e_e: { voice: true, text: 'Say them, then theme: your mouth smiles wide and stays there (ee). The last e makes no sound. Voice on.' },
+  a_e: { voice: true, text: 'Say cap, then cape: the mouth opens wide, then glides to a smile (aaay). The e is silent. Voice on.' },
+  i_e: { voice: true, text: 'Say kit, then kite: the mouth opens wide, then glides up to a smile (iiiy). The e is silent. Voice on.' },
+  o_e: { voice: true, text: 'Say hop: your mouth opens wide. Say hope: your lips start round and stay round (oooh). The e makes no sound. Voice on.' },
+  u_e: { voice: true, text: 'Say cub, then cube: the lips glide from a smile to round (yooo). Tube stays round (oooo). Voice on.' },
+  e_e: { voice: true, text: 'Say them, then theme: your mouth smiles wide and stays there (eeee). The last e makes no sound. Voice on.' },
   semix: { voice: true, text: 'Say each word and listen to the vowel: short, or its name? Voice on.' },
 };
 for (const [k, m] of Object.entries(MOUTH)) if (c.sounds[k]) c.sounds[k].mouth = m;

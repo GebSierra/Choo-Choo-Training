@@ -13,7 +13,7 @@ export const soundText = (ch, sounds, word) => {
   if (s && s.blend && ch.length > 1) { const pair = (s.pairs || []).find((x) => x.g === ch); return pair ? pair.say : s.sayItLike; }
   // World 6: an ending car (or a compound or two-beat word) is a word part: it is written as what the ending says in this word (sss or zzz, iz-, ing-, t- or d-, id-), never as letters
   if (s && s.part && ch === s.glyph) return (word && endingSay(word)) || s.sayItLike;
-  // World 7: a long-vowel pattern card (a_e, open ...) is written as how its vowel says its name (ayyy, eeee), never as letters; shown, never spoken
+  // World 7: a long-vowel pattern card (a_e, open ...) is written as how its vowel says its name (aaay, eeee), never as letters; shown, never spoken
   if (s && s.pattern && ch === s.glyph) return s.sayItLike;
   // th is one lesson with two kinds: the buzzing one (that, this) is written "thhh", the quiet one (thin, bath) "th-"
   if (ch === 'th' && s && s.voiced) return s.voicedWords && s.voicedWords.includes(word) ? s.voiced : s.sayItLike;
@@ -30,7 +30,7 @@ export const soundText = (ch, sounds, word) => {
 const blendOf = (units, i, sounds, level) => { const pair = units[i] + (units[i + 1] || ''); return pair.length === 2 && units[i].length === 1 && units[i + 1].length === 1 && blendAtUnits([units[i], units[i + 1]], level).length && sounds && sounds[soundOfLetter(pair)] && sounds[soundOfLetter(pair)].blend ? pair : null; };
 export const slowSounds = (word, sounds, level = ALL) => {
   const units = letterUnits(word, level), out = [];
-  // World 7: a word whose long-vowel pattern is taught says its vowel's name (ayyy) and its silent e says nothing: cape is k-ayyy-p-, hope h-ohhh-p-, cube k-yooo-b-.
+  // World 7: a word whose long-vowel pattern is taught says its vowel's name (aaay) and its silent e says nothing: cape is k-aaay-p-, hope h-oooh-p-, cube k-yooo-b-.
   const pat = patternSpans(word, level);
   const at = []; { let n = 0; for (const u of units) { at.push(n); n += u.length; } }
   for (let i = 0; i < units.length; i++) {
@@ -43,8 +43,8 @@ export const slowSounds = (word, sounds, level = ALL) => {
   }
   return out.join('');
 };
-// How the grown-up writes the long vowel of a pattern word: the vowel's name, stretched (ayyy). The long u says yoo (cube) or oo (tube, flute): the say group of the word tells which.
-export const longText = (word, pat) => (pat.key === 'u_e' ? LONG_SAY[pat.say === 'oooo' ? 'u-oo' : 'u-yoo'] : pat.key === 'open' && pat.say === 'iyyy' ? LONG_SAY.i : LONG_SAY[word[pat.vowel]] || pat.say);
+// How the grown-up writes the long vowel of a pattern word: the vowel's name, stretched (aaay). The long u says yoo (cube) or oo (tube, flute): the say group of the word tells which.
+export const longText = (word, pat) => (pat.key === 'u_e' ? LONG_SAY[pat.say === 'oooo' ? 'u-oo' : 'u-yoo'] : pat.key === 'open' && pat.say === 'iiiy' ? LONG_SAY.i : LONG_SAY[word[pat.vowel]] || pat.say);
 // A picture word: only its first sound is brought out, held ("sssun") or short ("t-iger"); the rest stays as it is.
 export const firstSoundOut = (word, sounds, level = ALL) => { const units = letterUnits(word, level), pair = blendOf(units, 0, sounds, level); if (pair) return soundText(pair, sounds, word) + word.slice(2); const u = units[0], n = u === 'q' ? 2 : u.length; return soundText(u, sounds, word) + word.slice(n); };
 

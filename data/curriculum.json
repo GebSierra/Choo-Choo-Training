@@ -2128,11 +2128,11 @@
           "asIn": "me"
         },
         {
-          "say": "ohhh",
+          "say": "oooh",
           "asIn": "go"
         },
         {
-          "say": "iyyy",
+          "say": "iiiy",
           "asIn": "hi"
         }
       ],
@@ -2140,7 +2140,7 @@
       "hold": false,
       "doNotSay": null,
       "howTo": "A vowel at the end of a word says its name: me, go, hi. The letter y at the end of a short word says long i: my, by, fly.",
-      "parentNote": "This is a pattern, not a new sound. When a vowel is the last letter of a short word, it says its name: me, he, go, no, hi. The letter y at the end says long i: my, by, fly. Your child already knows some of these as heart words (he, me, go, my); now they see why.",
+      "parentNote": "This is a pattern, not a new sound. When a vowel is the last letter of a short word, it says its name: me, he, go, no, hi. The letter y at the end says long i: my, by, fly. Your child already knows some of these as heart words (he, me, go, my); now they learn why.",
       "asIn": "me",
       "clip": null,
       "words": [
@@ -2149,7 +2149,12 @@
           "image": "assets/images/mentava/web/ie/cry.webp"
         }
       ],
-      "startWords": [],
+      "startWords": [
+        {
+          "word": "cry",
+          "image": "assets/images/mentava/web/ie/cry.webp"
+        }
+      ],
       "practice": [
         "cry"
       ],
@@ -2163,13 +2168,13 @@
       "pattern": "split",
       "forms": [
         {
-          "say": "ayyy",
+          "say": "aaay",
           "asIn": "cake",
           "short": "cap",
           "long": "cape"
         }
       ],
-      "sayItLike": "ayyy",
+      "sayItLike": "aaay",
       "hold": false,
       "doNotSay": null,
       "howTo": "The silent e makes the a say its name: cap becomes cape. The e makes no sound. It jumps back over one consonant to the a.",
@@ -2190,14 +2195,27 @@
           "image": "assets/images/mentava/web/s/snake.webp"
         }
       ],
-      "startWords": [],
+      "startWords": [
+        {
+          "word": "cake",
+          "image": "assets/images/mentava/web/ae/cake.webp"
+        },
+        {
+          "word": "gate",
+          "image": "assets/images/mentava/web/g/gate.webp"
+        },
+        {
+          "word": "snake",
+          "image": "assets/images/mentava/web/s/snake.webp"
+        }
+      ],
       "practice": [
         "cake",
         "gate"
       ],
       "mouth": {
         "voice": true,
-        "text": "Say cap: your mouth opens wide. Say cape: your mouth starts open and glides to a smile (ay). The e makes no sound. Voice on."
+        "text": "Say cap, then cape: the mouth opens wide, then glides to a smile (aaay). The e is silent. Voice on."
       }
     },
     "i_e": {
@@ -2205,13 +2223,13 @@
       "pattern": "split",
       "forms": [
         {
-          "say": "iyyy",
+          "say": "iiiy",
           "asIn": "kite",
           "short": "kit",
           "long": "kite"
         }
       ],
-      "sayItLike": "iyyy",
+      "sayItLike": "iiiy",
       "hold": false,
       "doNotSay": null,
       "howTo": "The silent e makes the i say its name: kit becomes kite. The e makes no sound. It jumps back over one consonant to the i.",
@@ -2224,13 +2242,18 @@
           "image": "assets/images/mentava/web/ie/kite.webp"
         }
       ],
-      "startWords": [],
+      "startWords": [
+        {
+          "word": "kite",
+          "image": "assets/images/mentava/web/ie/kite.webp"
+        }
+      ],
       "practice": [
         "kite"
       ],
       "mouth": {
         "voice": true,
-        "text": "Say kit: your mouth stays small. Say kite: your mouth opens wide and glides up to a smile (eye). The e makes no sound. Voice on."
+        "text": "Say kit, then kite: the mouth opens wide, then glides up to a smile (iiiy). The e is silent. Voice on."
       }
     },
     "o_e": {
@@ -2238,13 +2261,13 @@
       "pattern": "split",
       "forms": [
         {
-          "say": "ohhh",
+          "say": "oooh",
           "asIn": "bone",
           "short": "hop",
           "long": "hope"
         }
       ],
-      "sayItLike": "ohhh",
+      "sayItLike": "oooh",
       "hold": false,
       "doNotSay": null,
       "howTo": "The silent e makes the o say its name: hop becomes hope. The e makes no sound. It jumps back over one consonant to the o.",
@@ -2257,13 +2280,18 @@
           "image": "assets/images/mentava/web/oe/bone.webp"
         }
       ],
-      "startWords": [],
+      "startWords": [
+        {
+          "word": "bone",
+          "image": "assets/images/mentava/web/oe/bone.webp"
+        }
+      ],
       "practice": [
         "bone"
       ],
       "mouth": {
         "voice": true,
-        "text": "Say hop: your mouth opens wide. Say hope: your lips start round and stay round (oh). The e makes no sound. Voice on."
+        "text": "Say hop: your mouth opens wide. Say hope: your lips start round and stay round (oooh). The e makes no sound. Voice on."
       }
     },
     "u_e": {
@@ -2300,14 +2328,23 @@
           "image": "assets/images/mentava/web/ue-you/mule.webp"
         }
       ],
-      "startWords": [],
+      "startWords": [
+        {
+          "word": "cube",
+          "image": "assets/images/mentava/web/ue-you/cube.webp"
+        },
+        {
+          "word": "mule",
+          "image": "assets/images/mentava/web/ue-you/mule.webp"
+        }
+      ],
       "practice": [
         "cube",
         "mule"
       ],
       "mouth": {
         "voice": true,
-        "text": "Say cub, then cube: your lips glide from a smile to round (yoo). Tube just says oo, with round lips. The e makes no sound. Voice on."
+        "text": "Say cub, then cube: the lips glide from a smile to round (yooo). Tube stays round (oooo). Voice on."
       }
     },
     "e_e": {
@@ -2334,7 +2371,7 @@
       "practice": [],
       "mouth": {
         "voice": true,
-        "text": "Say them, then theme: your mouth smiles wide and stays there (ee). The last e makes no sound. Voice on."
+        "text": "Say them, then theme: your mouth smiles wide and stays there (eeee). The last e makes no sound. Voice on."
       }
     },
     "semix": {
@@ -2342,11 +2379,11 @@
       "pattern": "mix",
       "forms": [
         {
-          "say": "ayyy iyyy ohhh yooo",
+          "say": "aaay iiiy oooh yooo",
           "asIn": null
         }
       ],
-      "sayItLike": "ayyy iyyy ohhh yooo",
+      "sayItLike": "aaay iiiy oooh yooo",
       "hold": false,
       "doNotSay": null,
       "howTo": "Short vowel, or long vowel with a silent e? Say the word and listen: cap, cape; kit, kite; hop, hope; cub, cube.",
@@ -2371,7 +2408,24 @@
           "image": "assets/images/mentava/web/ue-you/cube.webp"
         }
       ],
-      "startWords": [],
+      "startWords": [
+        {
+          "word": "cake",
+          "image": "assets/images/mentava/web/ae/cake.webp"
+        },
+        {
+          "word": "kite",
+          "image": "assets/images/mentava/web/ie/kite.webp"
+        },
+        {
+          "word": "bone",
+          "image": "assets/images/mentava/web/oe/bone.webp"
+        },
+        {
+          "word": "cube",
+          "image": "assets/images/mentava/web/ue-you/cube.webp"
+        }
+      ],
       "practice": [],
       "mouth": {
         "voice": true,
@@ -14557,7 +14611,7 @@
         }
       ],
       "tricky": "English words do not end in v, so this e does not change the i. The i says its short sound.",
-      "phrase": "I live in a hut",
+      "phrase": "live in a hut",
       "find": [
         "lid",
         "lip"
