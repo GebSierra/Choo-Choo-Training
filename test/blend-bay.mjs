@@ -284,7 +284,7 @@ export async function screenChecks({ browser, url, ok }) {
     await page.waitForSelector('.grownups', { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(2500);
     const txt = await page.locator('body').innerText();
-    ok(/Blend Bay/.test(txt) && /of 50/.test(txt), `Grownups: World 5, Blend Bay is listed and the lesson count is of 50 (${txt.replace(/\s+/g, ' ').slice(0, 260)})`);
+    ok(/Blend Bay/.test(txt) && /of 57/.test(txt), `Grownups: World 5, Blend Bay is listed and the lesson count is of 57 (${txt.replace(/\s+/g, ' ').slice(0, 260)})`);
     ok(errors.length === 0, `Grownups: no errors ${errors.join(' | ')}`);
     await ctx.close();
   }

@@ -31,7 +31,7 @@ const PHONE = { name: '390x844', width: 390, height: 844, deviceScaleFactor: 2 }
 const SMALL = { name: '360x640', width: 360, height: 640, deviceScaleFactor: 2 };
 const WIDE = { name: '915x412', width: 915, height: 412, deviceScaleFactor: 2 };
 const SOUNDS = CUR.lessons.map((L) => L.sound);
-const W6L = CUR.lessons.slice(42);
+const W6L = CUR.lessons.slice(42, 50); // World 7 (lessons 51 to 57) comes after these eight; test/silent-e.mjs covers it
 const shot = async (page, name) => { if (!SHOTS) return; fs.mkdirSync(SHOT_DIR, { recursive: true }); await page.screenshot({ path: path.join(SHOT_DIR, name + '.png') }); };
 
 // The reading words of each new lesson (Saying Sounds); docs/LESSON-REBUILD.md section 16.
@@ -55,9 +55,9 @@ const sha = (x) => crypto.createHash('sha256').update(JSON.stringify(x)).digest(
 // ---- data and the store, no browser ----
 export async function dataChecks({ ok }) {
   // 1. the order and the count
-  ok(ORDER_SOUNDS.length === 50 && ORDER_SOUNDS.slice(0, 42).join(' ') === 'm a s i t p f o n d c h u g l r b e j w v y z x q sh ch th ck ff wh ng nk st nd sp sn bl pl br dr mix' && ORDER_SOUNDS.slice(42).join(' ') === 'end-s end-es end-ing end-ed end-ted join beats endmix', 'order: 50 sounds, the first 42 unchanged, the eight Endings Junction lessons appended');
-  ok(ORDER === ORDER_SOUNDS.join(' ') && PRIOR_ORDERS.length === 4 && PRIOR_ORDERS[3] === ORDER_SOUNDS.slice(0, 42).join(' ') && PRIOR_ORDERS.every((p) => ORDER.startsWith(p + ' ')) && PRIOR_ORDERS.map((p) => p.split(' ').length).join() === '17,25,33,42', 'order: the 17, 25, 33 and 42-sound strings are prefixes of the current one (PRIOR_ORDERS), so every older save is read as it is');
-  ok(SOUNDS.join(' ') === ORDER && CUR.lessons.length === 50 && Object.keys(CUR.sounds).join(' ') === ORDER, 'data: 50 lessons, one key each, in order');
+  ok(ORDER_SOUNDS.slice(0, 50).length === 50 && ORDER_SOUNDS.slice(0, 42).join(' ') === 'm a s i t p f o n d c h u g l r b e j w v y z x q sh ch th ck ff wh ng nk st nd sp sn bl pl br dr mix' && ORDER_SOUNDS.slice(42, 50).join(' ') === 'end-s end-es end-ing end-ed end-ted join beats endmix', 'order: 50 sounds, the first 42 unchanged, the eight Endings Junction lessons appended');
+  ok(ORDER === ORDER_SOUNDS.join(' ') && PRIOR_ORDERS.length === 5 && PRIOR_ORDERS[3] === ORDER_SOUNDS.slice(0, 42).join(' ') && PRIOR_ORDERS.every((p) => ORDER.startsWith(p + ' ')) && PRIOR_ORDERS.map((p) => p.split(' ').length).join() === '17,25,33,42,50', 'order: the 17, 25, 33 and 42-sound strings are prefixes of the current one (PRIOR_ORDERS), so every older save is read as it is');
+  ok(SOUNDS.slice(0, 50).join(' ') === ORDER_SOUNDS.slice(0, 50).join(' ') && CUR.lessons.length >= 50 && Object.keys(CUR.sounds).slice(0, 50).join(' ') === ORDER_SOUNDS.slice(0, 50).join(' '), 'data: the first 50 lessons, one key each, in order');
   ok(W6L.every((L) => L.world === 'W6' && L.part) && lessonsIn(CUR, 'W6').length === 8 && CUR.worlds[5].name === 'Endings Junction' && CUR.lessons.slice(0, 42).every((L) => !L.part), 'data: lessons 43 to 50 are World 6, Endings Junction, and the only word-part lessons');
   ok(W6L.every((L) => L.unit === UNIT[L.number]) && CUR.units.filter((u) => u.stage === 5).map((u) => u.id).join() === '5.1,5.2,5.3,5.4,5.5', 'data: units 5.1 to 5.5 (-s and -es, -ing, -ed, compound and two-beat words, mixed review)');
   ok(W6L.every((L) => L.sound === KEYS[L.number] && CUR.sounds[L.sound].glyph === L.sound && CUR.sounds[L.sound].clip === null && CUR.sounds[L.sound].part === L.part && spellingsOf(L.sound).join() === L.sound), 'data: each lesson has one key that is also its glyph, a word part, and no recording (the grown-up says it)');
@@ -66,7 +66,7 @@ export async function dataChecks({ ok }) {
   ok(sha(CUR.lessons.slice(0, 42)) === 'f740de405288080f', 'frozen: lessons 1 to 42 are byte for byte unchanged');
   ok(sha(Object.fromEntries(Object.entries(CUR.sounds).slice(0, 42))) === 'f4abe1ddbf35f482', 'frozen: the sounds of lessons 1 to 42 are unchanged');
   ok(sha(CUR.checkpoints.filter((k) => k.after <= 42 && !['x13', 'x14', 'b6', 'v14', 'v15'].includes(k.id))) === '595f6a5a47fcbb17', 'frozen: every stop up to the end of World 5 (stories, Tricky Sounds, Review Stops v1 to v13) is unchanged');
-  ok(sha(CUR.heartWords) === '350e8aa1847da2de', 'frozen: the heart words are unchanged');
+  ok(sha(Object.fromEntries(Object.entries(CUR.heartWords).slice(0, 25))) === '350e8aa1847da2de', 'frozen: the heart words are unchanged');
   // 3. the words of each lesson, and decodability proven from scratch
   for (const [n, words] of Object.entries(WORDS)) ok(CUR.lessons[n - 1].sayingSounds.filter((w) => w.showLetters).map((w) => w.word).join(' ') === words, `lesson ${n} (${SOUNDS[n - 1]}): reading words are ${words}`);
   for (const L of W6L) {
