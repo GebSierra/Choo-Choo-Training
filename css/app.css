@@ -2294,3 +2294,21 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 .glyph-letter.silent-e { opacity: .42; } .glyph-letter.silent-e.lit { opacity: .7; }
 .silent-e { opacity: .42; }
 .silent-arc { pointer-events: none; }
+/* Magic e Car (lesson 52 on): the coupled word becomes the short word, an arrow and the long word with its jump arc, on a cream card so the dim e and the arc read on the brick wall */
+.magic-track.magic-done { align-items: center; }
+.magic-pair { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 18px; background: #FFF8EC; border: 4px solid #FFD166; box-shadow: 0 4px 0 rgba(60,40,20,.2); }
+.magic-pair .mp-from { flex: 0 1 34%; display: block; } .magic-pair .mp-to { flex: 0 1 54%; display: block; }
+.magic-pair svg.word-glyphs { display: block; width: 100%; height: auto; max-height: 120px; }
+.magic-pair .mp-arrow { flex: 0 0 auto; font-size: 30px; font-weight: 800; color: #6B4F2A; line-height: 1; }
+@media (max-height: 700px) { .magic-pair { padding: 6px 12px; } .magic-pair svg.word-glyphs { max-height: 84px; } }
+/* New Pattern on a short or narrow phone: the card shares the row with the pattern tile, so its text is smaller and the how-to (it is on Watch My Mouth too) is left out */
+@media (orientation: portrait) and (max-height: 820px) {
+  .new-letter .pattern-card { padding: 10px 12px; }
+  .new-letter:has(.pattern-card) { grid-template-columns: 100px minmax(0, 1fr); }
+  .new-letter:has(.pattern-card) > .letter-card.big { height: 100px; }
+  .new-letter .pattern-card.lead .sc-first, .new-letter .pattern-card .sc-first { font-size: 15px; line-height: 1.18; padding-right: 50px; }
+  .new-letter .pattern-card .blend-rows { margin: 4px 0; gap: 2px; }
+  .new-letter .pattern-card .blend-rows li { font-size: 15px; gap: 6px; flex-wrap: nowrap; }
+  .new-letter .pattern-card .br-pair { min-width: 0; }
+}
+@media (max-width: 380px), (max-height: 700px) { .new-letter .pattern-card .sc-how { display: none; } }

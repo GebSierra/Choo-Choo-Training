@@ -11910,7 +11910,7 @@
       "pair": [],
       "sides": [
         {
-          "signText": "short vowel",
+          "signText": "short",
           "letters": [],
           "says": [
             "short"
@@ -11925,7 +11925,7 @@
           ]
         },
         {
-          "signText": "long vowel",
+          "signText": "long",
           "letters": [],
           "says": [
             "long"

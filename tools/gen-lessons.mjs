@@ -720,7 +720,7 @@ const CONTRAST = [
     line: "Easy to mix up: a short vowel and a long vowel. Cap has a short a, cape has a silent e and the a says its name. Let's listen closely.", end: 'Great listening! Your child can hear when a vowel says its short sound (cap) and when a silent e makes it say its name (cape).',
     tunnelLine: 'Your child reads the word on the car and listens to the vowel. Short vowel: cap, kit, hop, cub. Long vowel, with a silent e: cape, kite, hope, cube.',
     qc: { text: 'Which one has the letter a and a silent e, as in cape?', gist: 'Which has a and silent e?', script: "Say: 'Which one has the letter a and a silent e, as in cape?'" },
-    sides: [{ signText: 'short vowel', letters: [], says: ['short'], words: ['cap', 'kit', 'hop', 'cub', 'tap', 'pin'] }, { signText: 'long vowel', letters: [], says: ['long'], words: ['cape', 'kite', 'hope', 'cube', 'tape', 'pine'] }],
+    sides: [{ signText: 'short', letters: [], says: ['short'], words: ['cap', 'kit', 'hop', 'cub', 'tap', 'pin'] }, { signText: 'long', letters: [], says: ['long'], words: ['cape', 'kite', 'hope', 'cube', 'tape', 'pine'] }],
     pairs: [['cap', 'cape'], ['kit', 'kite'], ['hop', 'hope'], ['cub', 'cube'], ['tap', 'tape'], ['pin', 'pine']] },
 ];
 const contrastStops = [];

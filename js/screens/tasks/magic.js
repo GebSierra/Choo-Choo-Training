@@ -92,7 +92,7 @@ export function build(ctx) {
     const mine = round;
     // the coupled e car turns into the word: the short word, an arrow, and the long word with its jump
     T.later(() => {
-      if (mine !== round) return;
+      if (mine !== round - 1) return; // the round has not moved on (round was counted just after this was scheduled)
       const pair = result(item);
       track.classList.add('magic-done');
       track.replaceChildren(pair);
