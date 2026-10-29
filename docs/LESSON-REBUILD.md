@@ -819,3 +819,71 @@ No tile shows a word with an ending, a compound word or a two-beat word, and a p
 
 ### Tests
 New: `test/endings-junction.mjs` (in `npm test`, before no-autoplay). Changed deliberately: `store` (the order string), `check-content` (word parts, mode says, couple and split, the box car, the counts), `blend-bay` (scoped to its nine lessons) and the suites whose counts follow the data (see git log). Screenshots (390x844 and some 360x640): docs/screenshots/endings-junction/.
+
+## 17. World 7, Silent E Summit: lessons 51 to 57
+
+Units 6.1 to 6.5 of docs/CURRICULUM.md. Built with no version change; nothing is pushed. All lesson data comes from `node tools/gen-lessons.mjs` (`TABLE`, `MOUTH`, `CONTRAST`, `REVIEW_PLANS`, `MAGIC`, `HEART`); `data/curriculum.json` is never edited by hand. Lessons 1 to 50 and every stop before World 7 are byte for byte unchanged (test/silent-e.mjs asserts their digests, as World 6 did).
+
+### The teaching point: a long-vowel pattern is not a sound, a letter or a word part
+A digraph is one sound written with two letters (World 4), a blend is two sounds that glide (World 5), an ending is a piece of a word (World 6). **A long-vowel pattern is a way a vowel says its name.** With a silent e (a_e i_e o_e u_e e_e) the e makes no sound and jumps back over one consonant to the vowel (cap becomes cape); at the end of a word (key `open`) a vowel says its name too (me, go, hi, and y in my, by, fly). No letter is new, no sound is new.
+So the app never calls a pattern a sound: the card says "A pattern, not a new sound. The silent e makes the vowel say its name."; the step is named **New Pattern**; the grown-up notes say "pattern"; the counts are kept apart (below).
+
+### Order, units, world
+`ORDER_SOUNDS` gains `open a_e i_e o_e u_e e_e semix` (57 lessons). The key is the lesson's pattern **and** its glyph, so a lesson has one key like every other. `PRIOR_ORDERS` gains the 50-key string (a prefix of the current order), so every older save, the live 1.9.48 saves included, is read as it is (`reading.v1` is untouched).
+
+| Lesson | Key | Unit | Pattern | Saying Sounds words | Magic e Car (a sample) | Picture word |
+| --- | --- | --- | --- | --- | --- | --- |
+| 51 | open | 6.1 | a vowel at the end of a word says its name; y at the end says long i | me go hi fly | none (no e to couple) | cry |
+| 52 | a_e | 6.2 | cap, cape | cape game lane shade | cap cape, tap tape, mad made, man mane | cake |
+| 53 | i_e | 6.3 | kit, kite | bike hike time slide | kit kite, pin pine, bit bite, rid ride | kite |
+| 54 | o_e | 6.3 | hop, hope | hope rope home stone | hop hope, rod rode, not note, cod code | bone |
+| 55 | u_e | 6.4 | cub, cube (yoo) and tub, tube (oo) | cute tube flute tune | cub cube, cut cute, tub tube, mut mute | cube |
+| 56 | e_e | 6.4 | them, theme; pet, Pete (rare) | eve pete theme | them theme, pet pete, kit kite, hop hope | none |
+| 57 | semix | 6.5 | mixed review, every pattern with its short partner | cape kite hope cube theme fly | cap cape, kit kite, hop hope, cub cube, pin pine, tub tube | none |
+
+Choices (deviations from the one-lesson-per-unit-item reading of the curriculum):
+- Seven lessons, not five: units 6.3 (i_e and o_e) and 6.4 (u_e and e_e) each hold two lessons, because one key is one glyph and one glyph is one card for the letter games. 6.1 is lesson 51, 6.5 the mixed review (lesson 57, key `semix`, no glyph of its own: it wears the a_e badge and the letter games never deal it, `NO_GLYPH`).
+- u_e is **one lesson with two sounds** (like th): yoo as in cube and cute, oo as in tube and flute. The card lists both, with the short partner of each (cub, tub), and the grown-up note says to try one, then the other, and pick the real word.
+- The curriculum lists bye, have, give and live as heart words for 6.1 and 6.5. The app teaches no more than two heart words a lesson, so **bye is in lesson 51, have in 56, give and live in 57**. have, give and live say their short vowel (English words do not end in v); each is a heart word with its silent e marked as a heart part. The open-vowel words he, me, be, we, she, go, no, so and my were heart words already (lessons 18 to 26) and stay heart words: they are counted apart, never inside "can read N words", and are not in `patternWords`.
+- No word where the s says z (nose, rise, these, use): a child would have to learn an exception inside a pattern lesson. The curriculum's "these" and "use" are left out for that reason; nose has a tile and is not used.
+
+### Words: `PATTERNS`, `PAT` (js/order.js)
+`PATTERNS` lists, for each pattern key, the words by how the grown-up writes the vowel (`says`); `PAT` maps every word to `{ key, say, vowel, e }`, the letter indexes of the vowel and the silent e (`e` is null for an open vowel). 149 words, 9 of them heart words (not counted); `patternWords` in data/words-decodable.json holds the other 140. `patternSpans(word, ctx)` returns the pattern **only once its lesson has taught it** (cape at 52, kite at 53, hope at 54, cube at 55, theme at 56, go at 51). `letterUnits` never joins the e (cape is c a p e at every lesson), so the reading font, the decodability rules and every game still see plain letters. `isReadablePatterns(word, taught)` = readable with blends and word parts taught, and the word's pattern taught.
+
+### Glyphs and the jump arc (js/glyphs.js, js/letters.js)
+- A silent-e card (`a_e` and so on) is the vowel, a slot and the e, drawn at their normal size (a wide glyph) with a **jump arc from the e over the slot back to the vowel, with an arrow head on the vowel**, and a short slot line. The arc and the slot line are `link` (drawn, never traced); the two letters are traced in order. `open` is e o y before a wall (the word ends here). `semix` wears the a_e card.
+- In a word row (`wordSvg` with a lesson number) a word whose pattern is taught is drawn with the **e dim (it makes no sound) and the same arc running from the e to the vowel**; the picture grows upwards so the arc is never clipped. Before the lesson it is plain letters. An open vowel and a short word have no arc. The reading font (Story 7) draws the arc too once the pattern is taught. HTML text (`letterText`) dims the silent e.
+
+### Notation (js/scripts.js)
+The grown-up writes a long vowel as its name stretched: a **aaay**, i **iiiy**, o **oooh**, u **yooo** (cube) or **oooo** (tube, flute), e **eeee**. cape is `k-aaayp-`, hope `h-ooohp-`, cube `k-yooob-`, theme `th-eeeemmm`, me `mmmeeee`, go `g-oooh`, fly `fl-iiiy`; the silent e is not written. These are shown, never spoken: a run of four or more of one letter is long-vowel notation (never turned into the short vowel clip), and the other tokens contain a stretched run, so `scriptToParts` leaves them out of the phone's voice. A bare letter name is never used ("the a says its name" is written as "the vowel says its name"). No notation stretches a clipped sound (no yyy, no hhh).
+
+### The lesson frame for a pattern (a variant, not a new frame)
+- **New Pattern** (task `newLetter`, named New Pattern): the pattern card big (the arc on it), a card "A pattern, not a new sound. The silent e makes the vowel say its name." with one row per form ("cap + e  cape, aaay"), and the picture tiles that fit. The grown-up gist is `Say cap, then cape.` (lesson 51 `Say me, go, hi.`). On a short portrait phone the card text is smaller and the how-to is left out (it is on Watch My Mouth too).
+- **Watch My Mouth**: the mouth for the long vowel, and "the e is silent".
+- **Saying Sounds**: each reading word is drawn with its arc and dim e, the slide runs under the letters; the gist is the stretched word (`k-aaayp-, then cape.`).
+- **Magic e Car** (new task `magic`, `js/screens/tasks/magic.js`, in lessons 52 to 57 and in both Review Stops): a short word is a train of letter cars with a gap; the child taps the e car among three (the wrong two are letters that make no word, such as y or w); the e car couples on, the grown-up line reads "Say: cape! The e is silent. The vowel says its name.", and the train turns into a cream card with the short word, an arrow and the long word with its jump arc and dim e. The prompt reads "Say: cap. Add the magic e to make cape." (gist `Magic e: cap to cape.`). A recording of the new word plays **only when the speaker is tapped** (never text to speech, never a sound clip); a wrong car only wobbles; four rounds a lesson; no idle frame loop.
+- Letter Hunt, Wagon Parade and Track Tracing deal and trace the pattern card unchanged (wide glyph, like World 6's ending cars). `otherLetters` deals a pattern card with other patterns and letters, never with the train cars of World 6. Green Light is only in Review Stops. No Station Board and no Add a Car (a letter, not a car, is added).
+- Ticket Check asks for a card ("Which one has the letter i and a silent e, as in kite?", three cards, quiet prompt "touch the card").
+
+### Stops
+| Stop | After lesson | Notes |
+| --- | --- | --- |
+| **v16** Review Stop | 54 | mid-world: Letter Hunt o_e, Magic e Car (i_e words), Wagon Parade a_e, Green Light on the open vowels, Ticket Check i_e |
+| **x15** Tricky Sounds | 55 | short against long vowels: two tunnels marked short and long hold whole words (cap kit hop cub / cape kite hope cube), then Which One? with the short word against the same word with a silent e (cap/cape, kit/kite, hop/hope, cub/cube, tap/tape, pin/pine) and Ticket Check. `mode: 'says'` as in World 6, sorted by `vowelLength` |
+| **b7** Story 7 | 56 | DRAFT (below) |
+| **v17** Review Stop | 57 | the end of the world, `mix: 'patterns'`: Magic e Car (mixed), Letter Hunt u_e, Wagon Parade o_e, Green Light i_e, Ticket Check e_e |
+
+### Story 7 (`data/books/book-7.json`, stop b7 after lesson 56) DRAFT, pending owner approval
+"Pip at Silent E Summit", 10 pages, a child-read word on seven (cake, kite, fly, rope, hi, home, hope), Pip, Sam and {name}, no he, she, his or her anywhere (Pip and Sam are never gendered). Marked `"draft": true`. The scenes reuse the existing backdrops.
+
+### Levels, crossing, saves
+Level seven (a slate-violet **gondola** car with three snowy peaks, before the caboose) is earned after lesson 57. The W6 to W7 crossing, the Home of World 7 (its theme and props were built earlier), going back, Grownups and the keepsakes are data-driven. Appending to `ORDER` keeps every save unchanged.
+
+### Counting
+`data/words-decodable.json` gains `patternWords` (140 words). They are counted apart and only once their pattern is taught (`isReadablePatterns`); the older lists keep their rules, so no Review Stop before World 7 changes (v1 to v15 are byte for byte the same). `readingProgress` returns `sounds` (still the letters and digraphs: 33), `blends` (22), `endings` (4) and `patterns` (open vowels and the silent-e patterns: 4 at the middle stop, 6 at the end). The Review Stop message reads "Your child has learned 33 sounds, 22 blends, 4 word endings and 6 long-vowel patterns. Words made only from these sounds, word parts and patterns include: ... That's N words in all." (v16 has 841 words, v17 856). The Grownups chips show one chip per pattern (open vowels, a_e, i_e, o_e, u_e, e_e). "Can read N words" counts every readable word, patterns included; the heart words stay apart.
+
+### Pictures
+Existing tiles are used where the word and the pattern are right (cry, cake, gate, snake, kite, bone, cube, mule); a lesson shows none for a word without a tile, never a wrong one (`noPictures` for e_e). The 20 missing pictures and their prompts are in docs/IMAGE-PROMPTS.md ("World 7 additions").
+
+### Tests
+New: `test/silent-e.mjs` (in `npm test`, before stop-hold and no-autoplay). Changed deliberately: the suites whose counts follow the data (order string, lesson and stop counts, levels, regions; see git log). Screenshots (360x640, 390x844, 915x412): docs/screenshots/silent-e/.

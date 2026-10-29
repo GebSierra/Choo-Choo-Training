@@ -419,3 +419,32 @@ Lessons 43 to 50 (word parts: -s, -es, -ing, -ed in two ways, compound words, tw
 | beats | basket | new, no current file | an empty woven basket with a handle |
 
 Story 6 ("Pip at Endings Junction", `data/books/book-6.json`, a draft) reuses the existing backdrops (meadow, track, station, hill, picnic, sunset); a junction backdrop (rails crossing, a signal lamp, a turntable) would suit it.
+
+## World 7 additions (new, no current file)
+
+Lessons 51 to 57 (long-vowel patterns: open vowels, a_e, i_e, o_e, u_e, e_e, mixed review) use the tiles that already exist and fit the pattern: **cry** (open vowels, `ie` folder), **cake**, **gate**, **snake** (a_e, `ae` and other folders), **kite** (i_e), **bone** (o_e) and **cube**, **mule** (u_e, `ue-you`). Every other word of these lessons has no tile, and a picture of a nearby word would be wrong, so a lesson shows no picture for it (the e_e lesson, "eve, Pete, theme", shows none at all). These are the pictures that would let the lessons show them later. Folder names are the existing phonics folders.
+
+| folder | word | current file | prompt |
+|---|---|---|---|
+| ie | fly | new, no current file | a friendly housefly in mid-air, side-on, big round eyes and two clear wings (cartoon, not scary) |
+| ie | sky | new, no current file | a wide blue sky with two white clouds and a small sun |
+| ie | bike | new, no current file | a child's red bicycle, side-on, with a bell and a basket |
+| ie | hive | new, no current file | a round beehive with two bees flying near it |
+| ie | slide | new, no current file | a playground slide with a ladder, side-on, bright yellow |
+| ie | smile | new, no current file | a round yellow face with a big smile |
+| ie | time | new, no current file | a round alarm clock with a smile and two little bells |
+| ae | cape | new, no current file | a red superhero cape on a hanger, front on |
+| ae | plane | new, no current file | a small white airplane, side-on, flying with a blue stripe |
+| ae | lake | new, no current file | a calm blue lake with a small rowing boat and green hills |
+| ae | game | new, no current file | a board game with a die and two coloured pawns |
+| ae | lane | new, no current file | a little country lane with a fence on both sides |
+| ae | shade | new, no current file | a big tree with a pool of shade under it and a picnic blanket in the shade |
+| oe | rope | new, no current file | a coiled brown rope with a loop at the top |
+| oe | home | new, no current file | a small cosy house with a red roof, a door and a chimney |
+| oe | stone | new, no current file | a smooth grey stone sitting on grass |
+| oe | globe | new, no current file | a desk globe on a stand, blue seas and green land |
+| ue-you | tube | new, no current file | a squeezable tube of toothpaste with the cap off |
+| ue-you | flute | new, no current file | a silver flute, lying across the picture |
+| ee | eve | new, no current file | a soft evening sky with the first star and a crescent moon (the word "eve" is the evening before) |
+
+Story 7 ("Pip at Silent E Summit", `data/books/book-7.json`, a draft) reuses the existing backdrops (track, meadow, hill, station, sunset); a snowy-peak backdrop (a path up a mountain, a little cabin, a pine tree with snow) would suit it. The level-seven gondola car is drawn in code (`js/art/cars2d.js`, `js/train/train.js`); no picture is needed for it.

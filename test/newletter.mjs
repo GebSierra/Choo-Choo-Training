@@ -36,7 +36,7 @@ export async function newLetterChecks(ok, browser, url) {
     for (const lesson of CUR.lessons) {
       // New Letter is the first task of lesson 1 (no review) and the second of every other lesson
       await page.goto(`${url}#/lesson/${lesson.number}/task/${lesson.number === 1 ? 0 : 1}`);
-      await page.waitForSelector('.new-letter .letter-card .glyph');
+      await page.waitForSelector('.new-letter .letter-card .glyph').catch((e) => { throw new Error('lesson ' + lesson.number + ' has no New Sound card: ' + e.message.split('\n')[0]); });
       await page.waitForTimeout(700);
       const m = await page.evaluate(() => {
         const c = document.querySelector('.new-letter .letter-card').getBoundingClientRect();

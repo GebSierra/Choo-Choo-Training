@@ -427,6 +427,8 @@ pattern is taught with its short-vowel partner.
 | 6.4 | u_e as in "cute" and "tube"; e_e as in "theme" | cube, cute, use, tube, flute, tune, eve, theme, Pete | | u_e has two sounds: /yoo/ (cute) and /oo/ (tube): try one, then the other, and pick the real word. e_e is rare |
 | 6.5 | Mixed review: all silent-e patterns | hike, rope, make, tune, eve, plus contrast pairs | have, give, live | English words don't end in v, so these get an e that doesn't change the vowel |
 
+**Built (World 7, Silent E Summit, lessons 51 to 57; docs/LESSON-REBUILD.md section 17).** Seven lessons: 51 open vowels (6.1: a vowel at the end of a word says its name; y at the end says long i), 52 a_e (6.2), 53 i_e and 54 o_e (6.3), 55 u_e with its two sounds and 56 e_e (6.4), 57 mixed review (6.5). A long-vowel pattern is not a sound, not a letter and not a word part: the vowel says its name, and the silent e makes no sound. The app draws a pattern as the vowel, a slot and the e with a jump arc from the e back to the vowel, shows the arc in words only once the pattern is taught, and teaches every silent-e pattern with its short-vowel partner (cap/cape, kit/kite, hop/hope, cub/cube). New game Magic e Car (an e car couples on and the word becomes its long partner). Tricky Sounds after 55 (short against long vowels); Story 7 after 56; Review Stops after 54 and 57. Heart words: bye (51), have (56), give and live (57), two at most a lesson. The Review Stop message counts the patterns apart from the sounds.
+
 ### Stage 7: Long Vowels, Part 2: Vowel Teams (Grade 1 for 7.1 to 7.4, then Grade 2)
 Vowel teams are grouped by the sound they make, so "long a can be spelled ai, ay or a_e" is one chunk.
 

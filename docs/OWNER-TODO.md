@@ -150,3 +150,10 @@ with the date.
 - Make the 25 World 6 pictures if you want the lessons to show them: prompts are in docs/IMAGE-PROMPTS.md under "World 6 additions". Until then these lessons show no pictures (a picture of the base word would be wrong).
 - Record the World 6 words (the grown-up taps the speaker to hear a recording of the word; there are none yet for the 201 new words, the compound and the two-beat words).
 - Check the wording of the new cards: "A word ending, not a new sound. Find the base word first, then the ending." and the notation iz- ing- t- d- id- shown to the grown-up.
+
+## World 7 Silent E Summit (built, not released yet)
+- Approve or edit Story 7 "Pip at Silent E Summit" (data/books/book-7.json, marked draft; the text uses no he, she, his or her at all: the child is {name}, Pip and Sam are never gendered). It reads one word on seven pages: cake, kite, fly, rope, hi, home, hope.
+- Make the World 7 pictures if you want the lessons to show them: prompts are in docs/IMAGE-PROMPTS.md under "World 7 additions". Until then a lesson shows only the tiles that already fit (cry, cake, gate, snake, kite, bone, cube, mule) and none for the other words (a wrong picture is never shown).
+- Record the World 7 words (the grown-up taps the speaker to hear a recording of the word; there are none yet for the new pattern words, for the 4 new heart words bye, have, give and live, or for the Magic e Car new words). The long-vowel notation (aaay iiiy oooh yooo oooo eeee) is shown to the grown-up and never spoken by the phone, so no sound recording is needed for the patterns.
+- Check the wording of the new cards: "A pattern, not a new sound. The silent e makes the vowel say its name." and the notation aaay iiiy oooh yooo oooo eeee shown to the grown-up. Decide whether a run of four or more letters (eeee, oooo) is clear enough next to the short sounds (eee, ooo).
+- Decide about the heart words: the curriculum puts bye, have, give and live all in units 6.1 and 6.5; the app teaches no more than two heart words a lesson, so bye is in lesson 51, have in 56, give and live in 57.

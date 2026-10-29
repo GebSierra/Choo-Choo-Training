@@ -64,7 +64,7 @@
   "pages": [
     {
       "scene": "track",
-      "read": "Toot toot! Pip’s train climbs up to Silent E Summit, where the little e at the end of a word makes no sound at all. Pip, {name} and Sam hop off the train. Pip says, \"Let’s explore!\"",
+      "read": "Toot toot! Pip’s train climbs to Silent E Summit, where the e on the end of a word is silent. Pip, {name} and Sam hop off. Pip says, \"Let’s explore!\"",
       "art": {
         "train": true,
         "pip": "wave"
