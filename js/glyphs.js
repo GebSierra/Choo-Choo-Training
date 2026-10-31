@@ -250,7 +250,7 @@ function endCar(letters, mark) {
   const L = +(off + STUB).toFixed(2), Rt = +(off + W).toFixed(2);
   let link = `M${L + R0} ${T} H${Rt - R0} Q${Rt} ${T} ${Rt} ${T + R0} V${B - R0} Q${Rt} ${B} ${Rt - R0} ${B} H${L + R0} Q${L} ${B} ${L} ${B - R0} V${T + R0} Q${L} ${T} ${L + R0} ${T} M${+(off).toFixed(2)} 64 L${L} 64`;
   let minY = T;
-  if (mark === 'beat') { const cx = (L + Rt) / 2; link += ` M${cx - 9} 4 L${cx - 8.99} 4 M${cx + 9} 4 L${cx + 9.01} 4`; minY = 0; } // two dots: the extra beat
+  if (mark === 'beat') { const cx = (L + Rt) / 2; link += ` M${cx - 9} 4 L${cx - 8.99} 4 M${cx + 9} 4 L${cx + 9.01} 4`; minY = 4; } // two dots: the extra beat
   return { strokes, link, minX: +(off - 2).toFixed(2), maxX: +(Rt + 2).toFixed(2), minY, maxY: B, end: true, wide: W > 100 };
 }
 GLYPHS['end-s'] = endCar(['s']);
@@ -262,8 +262,8 @@ GLYPHS['end-ted'] = endCar(['e', 'd'], 'beat');
 const carBox = (x0, x1) => `M${x0 + 8} 38 H${x1 - 8} Q${x1} 38 ${x1} 46 V74 Q${x1} 84 ${x1 - 8} 84 H${x0 + 8} Q${x0} 84 ${x0} 76 V46 Q${x0} 38 ${x0 + 8} 38`;
 const dot = (x, y) => `M${x} ${y} L${x + 0.01} ${y}`;
 // join: two little cars coupled, a plus between them (sun + set). beats: two hops along the ground (two beats: nap-kin).
-GLYPHS.join = { strokes: [{ d: 'M40 62 L60 62', start: [40, 62] }, { d: 'M50 52 L50 72', start: [50, 52] }], link: `${carBox(2, 34)} ${carBox(66, 98)} M34 62 L40 62 M60 62 L66 62 ${dot(12, 90)} ${dot(24, 90)} ${dot(76, 90)} ${dot(88, 90)}`, minX: 0, maxX: 100, minY: 36, maxY: 92, end: true };
-GLYPHS.beats = { strokes: [{ d: 'M10 78 Q27 22 44 78', start: [10, 78] }, { d: 'M56 78 Q73 22 90 78', start: [56, 78] }], link: 'M4 88 L96 88', minX: 4, maxX: 96, minY: 36, maxY: 90, end: true };
+GLYPHS.join = { strokes: [{ d: 'M40 62 L60 62', start: [40, 62] }, { d: 'M50 52 L50 72', start: [50, 52] }], link: `${carBox(2, 34)} ${carBox(66, 98)} M34 62 L40 62 M60 62 L66 62 ${dot(12, 90)} ${dot(24, 90)} ${dot(76, 90)} ${dot(88, 90)}`, minX: 0, maxX: 100, minY: 38, maxY: 90, end: true };
+GLYPHS.beats = { strokes: [{ d: 'M10 78 Q27 22 44 78', start: [10, 78] }, { d: 'M56 78 Q73 22 90 78', start: [56, 78] }], link: 'M4 88 L96 88', minX: 4, maxX: 96, minY: 50, maxY: 88, end: true };
 GLYPHS.endmix = GLYPHS['end-ing'];
 
 // ---- Long-vowel patterns (World 7). A pattern is not a sound or a word part: it is a way a vowel says its name. A silent-e glyph is the vowel, a slot for the consonant, and the e, with a
@@ -275,7 +275,7 @@ function splitGlyph(vowel) {
   const strokes = [[A, dA], [E, dE]].flatMap(([g, dx]) => g.strokes.map((s) => ({ d: mapPath(s.d, 1, dx), start: [+(s.start[0] + dx).toFixed(2), s.start[1]] })));
   const ca = +(xA + aw / 2).toFixed(2), ce = +(xE + ew / 2).toFixed(2);
   const link = `M${ce} 29 C${ce} -2 ${ca} -2 ${ca} 29 M${ca - 7} 19 L${ca} 30 L${ca + 7} 19 M${xA + aw + 8} 88 L${xE - 8} 88`;
-  return { strokes, link, minX: 0, maxX: +total.toFixed(2), minY: 0, maxY: 88, pattern: true, wide: true };
+  return { strokes, link, minX: 0, maxX: +total.toFixed(2), minY: 6, maxY: 88, pattern: true, wide: true };
 }
 for (const v of ['a', 'i', 'o', 'u', 'e']) GLYPHS[v + '_e'] = splitGlyph(v);
 function openGlyph() {
@@ -283,7 +283,7 @@ function openGlyph() {
   let x = PAD;
   const strokes = gs.flatMap((g) => { const dx = x - g.minX; x += g.maxX - g.minX + gap; return g.strokes.map((s) => ({ d: mapPath(s.d, 1, dx), start: [+(s.start[0] + dx).toFixed(2), s.start[1]] })); });
   const wall = +(x - gap + 10).toFixed(2), total = wall + 8;
-  return { strokes, link: `M${wall} 30 L${wall} 92 M${wall + 6} 30 L${wall + 6} 92`, minX: 0, maxX: +total.toFixed(2), minY: 14, maxY: 96, pattern: true, wide: true };
+  return { strokes, link: `M${wall} 30 L${wall} 92 M${wall + 6} 30 L${wall + 6} 92`, minX: 0, maxX: +total.toFixed(2), minY: 30, maxY: 96, pattern: true, wide: true };
 }
 GLYPHS.open = openGlyph();
 GLYPHS.semix = GLYPHS.a_e; // the mixed review (lesson 57) wears the a_e badge; the letter games never deal it (order.js NO_GLYPH)

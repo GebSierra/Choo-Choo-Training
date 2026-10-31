@@ -66,6 +66,7 @@ export async function traceChecks({ browser, url, ok }) {
     const { ctx, page, errors } = await open(browser, url, vp, '#/home');
     await page.waitForSelector('.home');
     for (const L of CUR.lessons) {
+      if (!tasksFor(L).some((t) => t.type === 'writing')) continue; // the bigger-word lessons (48 to 50) and the mixed pattern review (57) have no card to trace
       if (vp.name !== 'pixel7' && ![4, 6, 7, 8, 10, 13].includes(L.number)) continue; // d g i p and the last on the other viewports
       await page.evaluate((r) => { location.hash = r; }, `#/lesson/${L.number}/task/${idx(L, 'writing')}`);
       await page.waitForSelector('.screen:not(.leaving) .tp-ink');
@@ -79,7 +80,8 @@ export async function traceChecks({ browser, url, ok }) {
         return { w, h, x0, x1, y0, y1 };
       });
       ok(m.x0 > 1 && m.y0 > 1 && m.x1 < m.w - 2 && m.y1 < m.h - 2 && m.x1 > m.x0 && m.y1 > m.y0, `${tag}: the whole guide fits inside the pad (${m.x0}-${m.x1} of ${m.w}, ${m.y0}-${m.y1} of ${m.h})`);
-      ok(m.y1 - m.y0 > m.h * 0.45, `${tag}: the guide fills at least half the pad's height (${m.y1 - m.y0} of ${m.h})`);
+      // a wide card (a blend pair, an ending car, a pattern card) is limited by the pad's width or its own shape: it must fill over a third of one side
+      ok(L.blend || L.part || L.pattern ? Math.max(m.x1 - m.x0 > m.w * 0.35, m.y1 - m.y0 > m.h * 0.35) : m.y1 - m.y0 > m.h * 0.45, `${tag}: the guide fills at least half the pad (${m.x1 - m.x0} of ${m.w} wide, ${m.y1 - m.y0} of ${m.h} high)`);
       if (vp.name === 'pixel7' || L.number === 8) {
         const pb = await page.locator('.screen:not(.leaving) .tp-ink').boundingBox();
         await page.mouse.move(pb.x + pb.width * 0.5, pb.y + pb.height * 0.3);

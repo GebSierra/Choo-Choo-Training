@@ -114,7 +114,7 @@ export async function levelChecks({ browser, url, ok }) {
     await r.page.waitForTimeout(2500);
     ok((await r.page.evaluate(() => window.__train.level.id)) === null && (await r.page.locator('.level-banner').count()) === 0 && (await r.page.locator('.map-btn[data-stars="0"]').count()) === 1, 'before the threshold: five lessons, no celebration, no stars');
     await r.page.locator('.map-btn').click(); await r.page.waitForSelector('.jb .level-star');
-    ok((await r.page.locator('.jb .level-star').count()) === 6 && (await r.page.locator('.jb .level-star.on').count()) === 0, 'before the threshold: six empty star outlines (the built levels), now inside the journey board');
+    ok((await r.page.locator('.jb .level-star').count()) === 7 && (await r.page.locator('.jb .level-star.on').count()) === 0, 'before the threshold: seven empty star outlines (the built levels), now inside the journey board');
     await r.page.locator('.jb-x').click();
     ok((await stored(r.page)).levels.seen === 0, 'before the threshold: seen stays 0');
     ok(r.errors.length === 0, 'before the threshold: errors ' + r.errors.join(' | '));
