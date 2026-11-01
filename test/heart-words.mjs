@@ -30,7 +30,7 @@ const all = CUR.lessons.flatMap((L) => L.heart || []);
 ok(all.length === 29 && new Set(all).size === 29, 'the 29 heart words of units 2.1 to 3.3 and 6.1 to 6.5 (World 4 adds she, they, what, where; World 7 adds bye, have, give, live) are each taught once');
 ok(Object.keys(CUR.heartWords).length === 29, 'curriculum.heartWords holds all 29');
 // every word of unit 2.x arrives at or after its unit starts, never before a book or story that uses it
-const UNIT_START = { a: 1, I: 4, is: 4, the: 6, to: 9, he: 18, me: 18, be: 18, go: 18, no: 18, so: 18, we: 19, want: 19, was: 19, my: 22, you: 22, of: 22, said: 22, do: 22, does: 22, are: 22, she: 26, they: 28, what: 31, where: 31 };
+const UNIT_START = { a: 1, I: 4, is: 4, the: 6, to: 9, he: 18, me: 18, be: 18, go: 18, no: 18, so: 18, we: 19, want: 19, was: 19, my: 22, you: 22, of: 22, said: 22, do: 22, does: 22, are: 22, she: 26, they: 28, what: 31, where: 31, bye: 51, have: 51, give: 51, live: 51 }; // World 7 (unit 6.1 to 6.5): the curriculum lists them for units 6.1 and 6.5; the app teaches bye at 51, have at 56, give and live at 57
 for (const L of CUR.lessons) for (const w of L.heart || []) ok(L.number >= UNIT_START[w], `${w} is not taught before its unit (lesson ${L.number})`);
 ok(heartTaught(CUR, 4).join(' ') === 'a I is', 'heartTaught: a, I, is by lesson 4 (Story 1 uses I and is)');
 ok(checkHeartWords(CUR).length === 0, 'live data passes checkHeartWords');

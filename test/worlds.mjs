@@ -502,7 +502,7 @@ export async function liveOtherChecks({ browser, url, ok }) {
   {
     // a finished world shown again (the gateway preview of world 1 once it is done): its six wagons stand on the siding and the
     // train pulls none; the engine carries world 1's upgrade
-    const done6 = state(42, { trainDone: 42, trainAt: 0 }, { lessons: doneL(42), levels: { seen: 5, earned: { ...L1, L2: '2026-10-17T10:00:00.000Z', L3: '2026-10-25T10:00:00.000Z', L4: '2026-10-30T10:00:00.000Z', L5: '2026-11-05T10:00:00.000Z' } }, worlds: { seen: 'W5' }, character: CHARACTER, meetDue: false }); // with every built world done the current world is the last one, Blend Bay, so the gateway preview shows world 1 again
+    const done6 = state(57, { trainDone: 57, trainAt: 0 }, { lessons: doneL(57), levels: { seen: 7, earned: { ...L1, L2: '2026-10-17T10:00:00.000Z', L3: '2026-10-25T10:00:00.000Z', L4: '2026-10-30T10:00:00.000Z', L5: '2026-11-05T10:00:00.000Z', L6: '2026-11-20T10:00:00.000Z', L7: '2026-12-01T10:00:00.000Z' } }, worlds: { seen: 'W7' }, character: CHARACTER, meetDue: false }); // every built world done (57 lessons): the current world is the last one, Silent E Summit // with every built world done the current world is the last one, Blend Bay, so the gateway preview shows world 1 again
     const { ctx, page, errors } = await openHome(browser, url, vp, done6, { init: [RAF_COUNT], route: '#/preview/gateway' });
     ok(await until(page, () => window.__train && window.__train.world === 'W1' && window.__train.frames > 1, null, 20000), 'siding: world 1 is shown again');
     const t = await page.evaluate(() => ({ wagons: window.__train.wagons, parked: window.__train.parked, up: window.__train.engineUpgrade, world: window.__train.world }));

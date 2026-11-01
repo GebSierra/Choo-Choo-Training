@@ -323,9 +323,9 @@ export async function homeChecks({ browser, url, ok }) {
   await g.page.mouse.move(gb.x + gb.width / 2, gb.y + gb.height / 2); await g.page.mouse.down(); await g.page.waitForTimeout(2250); await g.page.mouse.up();
   await g.page.waitForSelector('.grownups');
   const rows = await g.page.locator('.gu-row').allInnerTexts();
-  ok(await g.page.locator('.gu-world').count() === 6, 'grownups: with Green Valley done all six worlds that have lessons are listed (Blend Bay and Endings Junction too)');
-  ok(rows.filter((r) => r.includes('Review Stop')).length === 15 && rows.some((r) => r.includes('Read It Again')) && !rows.some((r) => /Smooth/.test(r)), `grownups: fifteen Review Stops and Read It Again are listed (${rows.length} rows)`);
-  ok((await g.page.locator('.gu-row .ticket-art').count()) === 15 && (await g.page.locator('.gu-row .reread-art').count()) === 1, 'grownups: each stop kind has its own icon');
+  ok(await g.page.locator('.gu-world').count() === 7, 'grownups: with Green Valley done all seven worlds that have lessons are listed (Blend Bay, Endings Junction and Silent E Summit too)');
+  ok(rows.filter((r) => r.includes('Review Stop')).length === 17 && rows.some((r) => r.includes('Read It Again')) && !rows.some((r) => /Smooth/.test(r)), `grownups: seventeen Review Stops and Read It Again are listed (${rows.length} rows)`);
+  ok((await g.page.locator('.gu-row .ticket-art').count()) === 17 && (await g.page.locator('.gu-row .reread-art').count()) === 1, 'grownups: each stop kind has its own icon');
   await g.ctx.close();
 }
 

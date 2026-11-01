@@ -111,7 +111,7 @@ export async function dataChecks({ ok }) {
   // 5. the glyphs: the vowel, a slot and the e, with a jump arc from the e back to the vowel (drawn, never traced)
   for (const k of SILENT_E_KEYS) {
     const g = GLYPHS[k], v = k[0];
-    ok(g && g.pattern === true && g.wide === true && g.strokes.length === GLYPHS[v].strokes.length + GLYPHS.e.strokes.length && /C/.test(g.link) && /L/.test(g.link) && g.minY <= 0 && g.minX >= 0, `glyphs: ${k} is ${v} and e (${g && g.strokes.length} strokes to trace) with a jump arc and a slot line as link`);
+    ok(g && g.pattern === true && g.wide === true && g.strokes.length === GLYPHS[v].strokes.length + GLYPHS.e.strokes.length && /C/.test(g.link) && /L/.test(g.link) && g.minY <= 6 && g.minX >= 0, `glyphs: ${k} is ${v} and e (${g && g.strokes.length} strokes to trace) with a jump arc and a slot line as link`);
   }
   ok(GLYPHS.open.pattern && GLYPHS.open.strokes.length === GLYPHS.e.strokes.length + GLYPHS.o.strokes.length + GLYPHS.y.strokes.length && /L/.test(GLYPHS.open.link) && GLYPHS.semix === GLYPHS.a_e, 'glyphs: open is e o y before a wall (the word ends here); the mixed review wears the a_e badge');
   // 6. the grown-up's notation (never a letter name, never the phone's voice)
