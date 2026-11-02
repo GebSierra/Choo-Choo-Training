@@ -487,6 +487,7 @@ export async function rotationChecks({ browser, url, ok, CUR }) {
     const { ctx, page, errors } = await open(browser, url, vp, { n, type });
     await page.goto(url + `#/lesson/${n}`);
     await page.waitForSelector('.task-card');
+    await page.waitForFunction(() => document.querySelectorAll('.screen').length === 1, null, { timeout: 4000 }).catch(() => {}); // the outgoing screen has left
     const cards = await page.locator('.task-card .card-name').allInnerTexts();
     const names = tasksFor(CUR.lessons[n - 1]).map((t) => t.name);
     ok(JSON.stringify(cards) === JSON.stringify(names) && !cards.includes('Barn Doors') && !cards.includes('Word Cars'), `lesson ${n}: the cards run ${names.join(', ')} (${cards.join(', ')})`);
