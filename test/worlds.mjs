@@ -506,7 +506,7 @@ export async function liveOtherChecks({ browser, url, ok }) {
     const { ctx, page, errors } = await openHome(browser, url, vp, done6, { init: [RAF_COUNT], route: '#/preview/gateway' });
     ok(await until(page, () => window.__train && window.__train.world === 'W1' && window.__train.frames > 1, null, 20000), 'siding: world 1 is shown again');
     const t = await page.evaluate(() => ({ wagons: window.__train.wagons, parked: window.__train.parked, up: window.__train.engineUpgrade, world: window.__train.world }));
-    ok(t.wagons === 0 && t.parked === 6 && t.up === 5, `siding: the six letter wagons stand on the siding, none on the train, the engine carries one upgrade for each of the five finished worlds (${JSON.stringify(t)})`);
+    ok(t.wagons === 0 && t.parked === 6 && t.up === 7, `siding: the six letter wagons stand on the siding, none on the train, the engine carries one upgrade for each of the seven finished worlds (${JSON.stringify(t)})`);
     await page.evaluate(() => window.__train.show(100));
     await page.waitForTimeout(500);
     await liveShot(page, 'w1-siding', vp.name);
