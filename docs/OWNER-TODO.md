@@ -145,13 +145,13 @@ with the date.
 - Make the 36 World 5 pictures: prompts are in docs/IMAGE-PROMPTS.md under "World 5 additions". A beach backdrop for Story 5 would help too.
 - Record the World 5 words (blend words have no recordings yet).
 
-## World 6 Endings Junction (built, not released yet)
+## World 6 Endings Junction (live in 1.9.49)
 - Approve or edit Story 6 "Pip at Endings Junction" (data/books/book-6.json, marked draft; the text uses no he or she at all). It reads one word on seven pages: cats, boxes, jumping, landed, picnic, hotdog, sunset.
 - Make the 25 World 6 pictures if you want the lessons to show them: prompts are in docs/IMAGE-PROMPTS.md under "World 6 additions". Until then these lessons show no pictures (a picture of the base word would be wrong).
 - Record the World 6 words (the grown-up taps the speaker to hear a recording of the word; there are none yet for the 201 new words, the compound and the two-beat words).
 - Check the wording of the new cards: "A word ending, not a new sound. Find the base word first, then the ending." and the notation iz- ing- t- d- id- shown to the grown-up.
 
-## World 7 Silent E Summit (built, not released yet)
+## World 7 Silent E Summit (live in 1.9.49)
 - Approve or edit Story 7 "Pip at Silent E Summit" (data/books/book-7.json, marked draft; the text uses no he, she, his or her at all: the child is {name}, Pip and Sam are never gendered). It reads one word on seven pages: cake, kite, fly, rope, hi, home, hope.
 - Make the World 7 pictures if you want the lessons to show them: prompts are in docs/IMAGE-PROMPTS.md under "World 7 additions". Until then a lesson shows only the tiles that already fit (cry, cake, gate, snake, kite, bone, cube, mule) and none for the other words (a wrong picture is never shown).
 - Record the World 7 words (the grown-up taps the speaker to hear a recording of the word; there are none yet for the new pattern words, for the 4 new heart words bye, have, give and live, or for the Magic e Car new words). The long-vowel notation (aaay iiiy oooh yooo oooo eeee) is shown to the grown-up and never spoken by the phone, so no sound recording is needed for the patterns.
