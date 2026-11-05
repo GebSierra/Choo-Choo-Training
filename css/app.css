@@ -2628,3 +2628,86 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
   .ra-goal { width: 110px; height: 92px; }
   .ra-sentence { font-size: clamp(30px, 3.2vw, 44px); }
 }
+@media (min-width: 700px) and (min-height: 700px) {
+  /* New Sound sizes follow the height of the screen, so the pictures always fit under the sound card */
+  .letter-card.big, .new-letter .letter-card.big { height: clamp(130px, 19dvh, 250px); margin-bottom: clamp(10px, 1.6dvh, 20px); }
+  .new-letter .letter-card.big.pair { height: clamp(110px, 16dvh, 200px); }
+  .new-letter .sound-card, .new-letter .sound-card.lead, .new-letter .blend-card { padding: clamp(12px, 1.8dvh, 22px) 24px; margin-bottom: clamp(10px, 1.6dvh, 20px); }
+  .new-letter .sound-card.lead .sc-first, .new-letter .blend-card .sc-first { font-size: clamp(24px, 3dvh, 34px); }
+  .new-letter .sound-card.lead .sc-rules, .new-letter .blend-card .sc-rules { font-size: clamp(20px, 2.4dvh, 27px); }
+  .new-letter .sc-how { font-size: clamp(18px, 2dvh, 22px); }
+  .new-letter .blend-card .blend-rows li { font-size: clamp(18px, 2.2dvh, 24px); }
+  .new-letter .slide-track { margin-bottom: clamp(12px, 2dvh, 24px); }
+  .new-letter .word-tile { max-width: clamp(110px, 18dvh, 210px); }
+  .new-letter .word-tile .word { font-size: clamp(20px, 2.8dvh, 30px); min-height: clamp(26px, 3.6dvh, 40px); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .new-letter .word-tile { max-width: none; }
+  .new-letter .sc-how, .review-body .sc-how { display: none; }
+  .new-letter > .letter-card.big { height: clamp(130px, 21dvh, 230px); }
+  /* Watch My Mouth: the face on the left, the buttons and the how-to on the right */
+  .mouth-task .ns-body { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-auto-rows: min-content; align-content: center; justify-items: center; column-gap: 40px; row-gap: 16px; }
+  .mouth-task .ns-body > .mouth-art { grid-column: 1; grid-row: 1 / span 5; align-self: center; }
+  .mouth-task .ns-body > :not(.mouth-art) { grid-column: 2; }
+  .mouth-art { width: min(40vw, 400px, calc(100dvh - 330px)); }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .new-letter .word-tile { max-width: clamp(110px, 15.5dvh, 210px); }
+  .new-letter:has(.blend-card) .letter-card.big { height: clamp(100px, 13dvh, 180px); }
+  .new-letter .blend-card .blend-rows { margin: 4px 0; gap: 2px; }
+  .new-letter .blend-card .sc-rules { margin: 0; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .letter-card.pair .glyph { height: calc(100% - 20px); width: auto; max-width: 46%; }
+  .new-letter:has(.blend-card) .letter-card.big { height: clamp(110px, 15dvh, 190px); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (max-height: 1150px) {
+  .new-letter .blend-card .sc-how, .new-letter .sound-card.pair .sc-how { display: none; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .letter-card.big, .new-letter .letter-card.big { height: clamp(130px, 17.5dvh, 250px); }
+  .new-letter .blend-card .sc-first, .new-letter .blend-card.lead .sc-first { font-size: clamp(20px, 2.5dvh, 30px); }
+  .new-letter .blend-card .sc-rules { font-size: clamp(18px, 2.1dvh, 24px); }
+  .new-letter .blend-card .blend-rows li { font-size: clamp(17px, 2dvh, 22px); }
+  .new-letter .word-strip { padding-bottom: 4px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .task-activity { padding: 20px 28px 20px; }
+  .new-letter:has(.blend-card) .letter-card.big { height: clamp(100px, 14dvh, 180px); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  /* Track Tracing: the pad as tall as the stage, the buttons beside it */
+  .writing { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 48px; flex: 1; }
+  .pad-wrap { width: min(60%, calc(100dvh - 330px), 780px); flex: 0 0 auto; }
+  .writing-buttons { flex-direction: column; flex: 0 0 auto; gap: 20px; }
+  .writing-buttons .btn { width: 240px; flex: 0 0 auto; max-width: none; min-height: 72px; font-size: 26px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .hw-col { gap: 10px; }
+  .hw-tile { --cap: clamp(60px, 9dvh, 120px); padding: 14px 22px 26px; }
+  .hw-word { padding-top: 34px; } .hw-heartwrap { top: -30px; width: 48px; margin-left: -24px; }
+  .hw-legend { font-size: 19px; padding: 6px 16px; }
+  .judge-btn { min-height: 68px; font-size: 26px; } .judge-bar { padding-top: 18px; }
+  .px-chip { margin-bottom: 4px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .hw-tile { --cap: clamp(56px, 8dvh, 110px); }
+  .hw-note { padding: 8px 16px; font-size: 20px; }
+  .px-model { min-height: 56px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  /* Which One? */
+  .which-scene .say-prompt { left: 124px; max-width: calc(100% - 240px); }
+  .which-row { left: 20px; right: 20px; top: 130px; gap: 22px; }
+  .which-card { height: min(100%, 460px); max-width: 380px; border-width: 5px; border-radius: 28px; padding: 14px; }
+  .which-card .pic-frame { width: min(100%, 200px); }
+  .which-word { font-size: clamp(44px, 15vmin, 130px); }
+  .which-glyph svg { height: clamp(48px, 16vmin, 140px); }
+  .which-word:has(svg[class*="inline-end-"]) { font-size: clamp(34px, 11vmin, 100px); }
+  .say-hear.which-hear { width: 92px; height: 92px; }
+  .new-letter:has(.blend-card) .letter-card.big { height: clamp(96px, 13dvh, 170px); }
+  .hw-tile { --cap: clamp(56px, 7.6dvh, 110px); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .px-model { min-height: 44px; } .hw-col { gap: 8px; } .hw-word { padding-top: 30px; }
+}
