@@ -3,7 +3,7 @@ import { engineSvg, stationSvg, huntBackdrop, puffEl, FUNNEL_TOP } from '../../a
 import { pipSvg } from '../../art/pip.js';
 import { letterFace, tintLetter } from '../../components/letter-face.js';
 import { sparkle } from '../../components/sparkle.js';
-import { timers, watchSize, findCard, starRow, shake, idleHints, pulseCard } from '../../components/game-kit.js';
+import { K, timers, watchSize, findCard, starRow, shake, idleHints, pulseCard } from '../../components/game-kit.js';
 import { skyCells, deal, BOX } from './hunt-deal.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase } from '../../lessons.js';
@@ -12,7 +12,7 @@ import { spellingsOf } from '../../order.js';
 
 const STEPS = 5;     // correct touches to reach the station
 const INK = '#1E2140';
-const TRAIN_W = 116, GOAL_W = 152;
+const TRAIN_W = Math.round(116 * K), GOAL_W = Math.round(152 * K);
 const DRAG = 10;     // px a finger must travel before a touch counts as a drag
 const ARRIVE = 700, DEPART = 1100, LEAVE_MS = 1500, HOP = 500, WIN_AT = 2050;
 // The ending (about 2.6 s): the train pulls in (0.7 s), Pip waves and the bunting drops; at 1.1 s smoke billows, it toots
@@ -86,7 +86,7 @@ export function build({ lesson, sound, speech, curriculum, setDone }) {
     const travel = Math.max(40, W - TRAIN_W - 26); // the fifth step ends at the station, in front of its platform
     train.style.setProperty('--travel', travel + 'px');
     train.style.transform = `translateX(${(travel * steps) / STEPS}px)`;
-    grid = skyCells(W, H, { goalW: 150, cardW: card.offsetWidth, cardH: card.offsetHeight }); // the station's box stays inside the sky's goal reserve
+    grid = skyCells(W, H, { goalW: Math.round(150 * K), cardW: card.offsetWidth, cardH: card.offsetHeight }); // the station's box stays inside the sky's goal reserve
     // The scene changed size (the parent script wrapped, or the phone turned): deal the sky again onto the new grid.
     if (first || steps < STEPS) dealSky();
   }

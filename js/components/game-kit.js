@@ -21,6 +21,9 @@ export function timers() {
   };
 }
 
+// Tablet scale (iPad): game pieces and distances are drawn this much larger on a screen at least 700 px wide and tall. The same query sets --k in css/app.css. A phone is always 1.
+export const K = typeof matchMedia === 'function' && matchMedia('(min-width: 700px) and (min-height: 700px)').matches ? 1.5 : 1;
+
 export const farm = () => h('div', { class: 'farm' }, farmBackdrop());
 
 // Calls cb(width, height) now and whenever the element's size changes (rotation included).

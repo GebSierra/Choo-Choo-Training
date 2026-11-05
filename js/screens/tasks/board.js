@@ -4,7 +4,7 @@ import { pipSvg } from '../../art/pip.js';
 import { letterFace, tintLetter } from '../../components/letter-face.js';
 import { sayPrompt, saySound } from '../../components/say-sound.js';
 import { sparkle } from '../../components/sparkle.js';
-import { timers, watchSize, starRow, shake, idleHints } from '../../components/game-kit.js';
+import { K, timers, watchSize, starRow, shake, idleHints } from '../../components/game-kit.js';
 import { order, roundsFor, boardWords } from '../../games-data.js';
 import { accentOf } from '../../theme.js';
 import { soundPhrase } from '../../lessons.js';
@@ -12,7 +12,7 @@ import { sfx } from '../../sfx.js';
 import { soundOfLetter, letterUnits } from '../../order.js';
 
 const INK = '#1E2140';
-const TRAIN_W = 116, FLIP = 150, STAGGER = 60, NEXT_MS = 600, FIRST_MS = 400;
+const TRAIN_W = Math.round(116 * K), FLIP = 150, STAGGER = 60, NEXT_MS = 600, FIRST_MS = 400;
 
 // Station Board. A split-flap departures board hangs on the station wall; its tiles spell a short word. The grown-up's
 // recorded sound plays (or "Say: This is sad. Tap aaa." shows for the grown-up); the child taps the tile that makes the
@@ -66,7 +66,7 @@ export function build(ctx) {
   function layout(w) {
     const first = !W;
     W = w;
-    scene.style.setProperty('--tw', Math.max(72, Math.min(80, Math.floor((w - 14 - 16 - 18) / 4))) + 'px');
+    scene.style.setProperty('--tw', Math.max(72, Math.min(80 * K, Math.floor((w - 14 - 16 - 18) / 4))) + 'px');
     if (first) show(0);
   }
   const stopWatching = watchSize(scene, layout);

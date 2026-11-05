@@ -3,14 +3,14 @@ import { engineSvg, signalSvg, huntBackdrop, puffEl, FUNNEL_TOP } from '../../ar
 import { pipSvg } from '../../art/pip.js';
 import { letterFace } from '../../components/letter-face.js';
 import { sayPrompt, saySound } from '../../components/say-sound.js';
-import { timers, watchSize, starRow, shake, idleHints, shuffle } from '../../components/game-kit.js';
+import { K, timers, watchSize, starRow, shake, idleHints, shuffle } from '../../components/game-kit.js';
 import { order, roundTargets, roundsFor, otherLetters, spellingFor } from '../../games-data.js';
 import { soundOfLetter } from '../../order.js';
 import { soundPhrase } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
 
 const INK = '#1E2140';
-const TRAIN_W = 116, LEAVE_MS = 1500, NEXT_MS = 900, FIRST_MS = 400;
+const TRAIN_W = Math.round(116 * K), LEAVE_MS = 1500, NEXT_MS = 900, FIRST_MS = 400;
 
 // Green Light. Four railway signal posts stand beside the track; each lamp carries a letter. The grown-up's recorded sound
 // plays (or "Say: aaa" shows for the grown-up to say), and the child taps the lamp with that letter: it turns green, Pip
@@ -55,9 +55,10 @@ export function build(ctx) {
     train.style.setProperty('--travel', travel + 'px');
     train.style.transform = `translateX(${(travel * round) / rounds}px)`;
     // the posts share what is left between the prompt row and the track
-    const sb = Math.max(108, Math.min(200, Math.round(H * 0.26)));
-    const avail = H - 100 - sb;
-    const sw = Math.max(72, Math.min(110, (W - 32 - 24) / 4, avail / 1.7));
+    const wide = K > 1 && W > H * 1.3; // a tablet held sideways: the prompt sits left of the posts, so they may stand taller
+    const sb = Math.max(108, Math.min(200 * K, Math.round(H * (wide ? 0.24 : 0.26))));
+    const avail = H - (wide ? 60 : 100) * K - sb;
+    const sw = Math.max(72, Math.min(110 * K, (W - 32 - 24) / 4, avail / 1.7));
     scene.style.setProperty('--sw', sw + 'px');
     scene.style.setProperty('--sb', sb + 'px');
     if (first) newRound();
