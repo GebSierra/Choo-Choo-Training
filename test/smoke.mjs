@@ -99,7 +99,7 @@ for (const vp of VIEWPORTS) {
   const hb = await page.locator('.st-handle').boundingBox();
   let midScroll = null, reached = null;
   await touchDrag(page, { x: hb.x + hb.width / 2, y: hb.y + hb.height / 2 }, { x: hb.x + hb.width / 2 + tb.width - hb.width + 4, y: hb.y + hb.height / 2 }, {
-    during: async () => { midScroll = await page.evaluate(() => scrollY); reached = await page.evaluate(() => document.querySelector('.slide-track').classList.contains('is-end')); },
+    during: async () => { await page.waitForFunction(() => document.querySelector('.slide-track').classList.contains('is-end'), null, { timeout: 1500 }).catch(() => {}); midScroll = await page.evaluate(() => scrollY); reached = await page.evaluate(() => document.querySelector('.slide-track').classList.contains('is-end')); },
   });
   ok(reached, `${vp.name}: slide track reaches end state`);
   ok(midScroll === scrollBefore && (await page.evaluate(() => scrollY)) === scrollBefore, `${vp.name}: page did not scroll during drag`);
@@ -206,7 +206,7 @@ for (const vp of VIEWPORTS) {
   const eventsBefore = await page.evaluate(() => window.__events.length);
   let mid = null, reached = null, sparks = 0;
   await touchDrag(page, { x: hb.x + hb.width / 2, y: hb.y + hb.height / 2 }, { x: hb.x + hb.width / 2 + tb.width - hb.width + 4, y: hb.y + hb.height / 2 }, {
-    during: async () => { mid = await top(); const s = await page.evaluate(() => ({ end: document.querySelector('.slide-track').classList.contains('is-end'), sparks: document.querySelectorAll('.slide-track .spark').length })); reached = s.end; sparks = Math.max(sparks, s.sparks); },
+    during: async () => { await page.waitForFunction(() => document.querySelector('.slide-track').classList.contains('is-end'), null, { timeout: 1500 }).catch(() => {}); mid = await top(); const s = await page.evaluate(() => ({ end: document.querySelector('.slide-track').classList.contains('is-end'), sparks: document.querySelectorAll('.slide-track .spark').length })); reached = s.end; sparks = Math.max(sparks, s.sparks); },
   });
   ok(reached, `${vp.name}: New Letter slide track reaches the end by touch`);
   ok((await page.evaluate(() => window.__events.length)) === eventsBefore, `${vp.name}: dragging the letter plays no sound and speaks nothing`);
