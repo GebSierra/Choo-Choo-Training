@@ -2747,7 +2747,7 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
   .reveal-word { font-size: clamp(40px, 6.5dvh, 56px); }
 }
 @media (min-width: 700px) and (min-height: 700px) {
-  .book-intro .btn, .ride-intro-btns .btn { min-height: 76px; font-size: 26px; padding: 0 44px; }
+  .book-intro .btn { min-height: 76px; font-size: 26px; padding: 0 44px; }
 }
 @media (min-width: 700px) and (min-height: 700px) {
   .opts.n3 .opt-pic .pic-frame { width: clamp(130px, 17vw, 220px); height: clamp(130px, 17vw, 220px); }

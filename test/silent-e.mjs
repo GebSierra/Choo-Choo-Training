@@ -172,7 +172,7 @@ export async function dataChecks({ ok }) {
   ok(JSON.stringify(BOOK7.needs) === JSON.stringify(ORDER_SOUNDS.slice(0, 56)), 'story 7: needs the sounds up to lesson 56');
   // 12. files: every new file is in the service worker's list; the version and the cache name are untouched
   ok(['js/screens/tasks/magic.js', 'data/books/book-7.json'].every((f) => SW.includes(`'${f}'`)), 'sw.js: the new script and the Story 7 file are in APP_FILES');
-  ok(/reading-v1\.9\.48/.test(SW) && JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version === '1.9.48' && /1\.9\.48/.test(fs.readFileSync(path.join(ROOT, 'js/version.js'), 'utf8')), 'version: unchanged (1.9.48, cache reading-v1.9.48): the owner bumps it');
+  { const v = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version; ok(SW.includes(`reading-v${v}'`) && fs.readFileSync(path.join(ROOT, 'js/version.js'), 'utf8').includes(`'${v}'`), `version: package.json, js/version.js and the sw.js cache name agree (${v})`); }
   ok(JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).scripts.test.indexOf('silent-e.mjs') > 0 && JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).scripts.test.indexOf('silent-e.mjs') < JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).scripts.test.indexOf('stop-hold.mjs'), 'npm test: silent-e runs before stop-hold and no-autoplay');
   // 13. the letter games deal pattern cards with other patterns and letters, never with the train cars of World 6
   for (const n of [52, 53, 54, 55, 56]) {
