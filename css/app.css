@@ -2491,3 +2491,30 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
   .wall-clock { width: 64px; height: 64px; right: 120px; bottom: 22px; border-width: 5px; }
   .wall-clock i:first-child { height: 21px; } .wall-clock i:last-child { height: 15px; }
 }
+@media (min-width: 700px) and (min-height: 700px) {
+  /* the pad takes what the stage leaves after the title, the foot and the two buttons, so Clear and Show me are never cut off */
+  .writing { justify-items: center; }
+  .pad-wrap { width: min(100%, calc(100dvh - 450px), 780px); }
+  .trace-pad { width: 100%; max-height: none; margin: 0; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .mouth-art { width: min(40vw, 460px, calc(100dvh - 380px)); }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  /* Heart Word */
+  .hw-col { gap: 14px; }
+  .hw-word { gap: 20px; padding-top: 44px; }
+  .hw-tile { --cap: clamp(90px, 13dvh, 150px); padding: 20px 26px 34px; border-radius: 34px; }
+  .hw-heartwrap { top: -38px; width: 60px; margin-left: -30px; }
+  .hw-link { bottom: 15px; height: 14px; border-width: 5px; }
+  .hw-legend { font-size: 21px; padding: 8px 18px; } .hw-note { font-size: 23px; padding: 12px 20px; border-radius: 22px; }
+  .hw-w.hw-card { --cap: clamp(44px, 6dvh, 64px); min-height: 84px; padding: 10px 16px; }
+  .hw-cards { gap: 20px 14px; padding-top: 22px; }
+  .hw-pw { --cap: clamp(44px, 6.5dvh, 64px); } .hw-phrase { gap: 12px 16px; padding: 14px 20px; }
+  .hw-w { --cap: clamp(50px, 7.5dvh, 76px); min-height: 80px; }
+  .hw-wheart { width: 34px; margin-left: -17px; top: -20px; }
+  .hw-msg { font-size: 23px; min-height: 32px; } .hw-btns { min-height: 68px; gap: 16px; }
+  .hw-done-row { gap: 18px; padding-top: 40px; } .hw-done-kid, .hw-done-pip { width: 96px; height: 120px; }
+  .proto-heart-done .hw-tile { --cap: 84px; }
+  .px-btns .btn, .hw-btns .btn { min-height: 60px; font-size: 22px; }
+}
