@@ -4,7 +4,7 @@ import { pipSvg } from '../../art/pip.js';
 import { letterFace } from '../../components/letter-face.js';
 import { sayPrompt, saySound } from '../../components/say-sound.js';
 import { sparkle } from '../../components/sparkle.js';
-import { timers, watchSize, findCard, starRow, idleHints, pulseCard, shake } from '../../components/game-kit.js';
+import { K, timers, watchSize, findCard, starRow, idleHints, pulseCard, shake } from '../../components/game-kit.js';
 import { roundsFor, otherLetters, parade } from '../../games-data.js';
 import { soundPhrase, fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
@@ -12,8 +12,8 @@ import { starSvg } from '../../art.js';
 import { soundOfLetter, spellingsOf } from '../../order.js';
 
 const INK = '#1E2140';
-const TRAIN_W = 116, WAGON_W = 104, CW = 62, GAP = 16, SIZE = 8, HITS = 3, SPEED = 80; // px and px per second
-const SLOT = WAGON_W + GAP, LOOP = SIZE * SLOT, OFF = 120; // a wagon is drawn from -OFF to LOOP - OFF, so it wraps out of sight
+const TRAIN_W = Math.round(116 * K), WAGON_W = Math.round(104 * K), CW = Math.round(62 * K), GAP = Math.round(16 * K), SIZE = 8, HITS = 3, SPEED = Math.round(80 * K); // px and px per second
+const SLOT = WAGON_W + GAP, LOOP = SIZE * SLOT, OFF = Math.round(120 * K); // a wagon is drawn from -OFF to LOOP - OFF, so it wraps out of sight
 const NEXT_MS = 1900, FIRST_MS = 400, FLY_MS = 900, STAR_MS = 750; // NEXT_MS leaves time to see the last wagon couple before the train uncouples
 // Soft wagon colours that are never tied to which letter is the target.
 const PAINT = [{ body: '#D65A4A', rib: '#B8463A' }, { body: '#5AA7DD', rib: '#3F86BD' }, { body: '#4FB783', rib: '#3A9568' }, { body: '#9B7FE0', rib: '#7B5FC0' }];

@@ -1,9 +1,9 @@
 // Letter Hunt's sky: where the letters sit (skyCells) and which of them are targets (deal). Both are pure, so the
 // dealer can be tested with a seeded random number generator.
 
-import { shuffle } from '../../components/game-kit.js';
+import { K, shuffle } from '../../components/game-kit.js';
 
-export const BOX = 56; // touch target of a letter
+export const BOX = Math.round(56 * K); // touch target of a letter
 
 // Cells of a loose grid in the sky of a scene W by H, clear of the "Find this" card, the speaker button, the sun, the
 // goal station and the grass. At most `count` of them are returned, spread evenly over the grid; each has the room its
@@ -11,11 +11,11 @@ export const BOX = 56; // touch target of a letter
 // A short scene (a phone with the browser's bars showing) gives the grass less room; if that still leaves under 8
 // cells, the grid packs tighter (letters exactly 12 px apart, no nudging). The keep-outs are the art's real size.
 export function skyCells(W, H, { goalW = 150, count = 16, cardW = 0, cardH = 0 } = {}) { // cardW/cardH: the real size of the Find card (a digraph or a pair of spellings is wider than one letter)
-  const bottom = H < 360 ? 50 : 92, y0 = 10, yMax = H - bottom;
-  const keepOut = [[0, 0, Math.max(120, cardW + 14), Math.max(80, cardH + 14)], [W - 76, 0, W, 76], [W * 0.56 - 8, 0, W * 0.56 + 64, 72], [W - goalW - 20, H - (goalW * 0.84 + 50), W, H]];
+  const bottom = H < 360 ? 50 : Math.round(92 * K), y0 = 10, yMax = H - bottom;
+  const keepOut = [[0, 0, Math.max(120 * K, cardW + 14), Math.max(80 * K, cardH + 14)], [W - 76 * K, 0, W, 76 * K], [W * 0.56 - 8, 0, W * 0.56 + 64 * K, 72 * K], [W - goalW - 20, H - (goalW * 0.84 + 50 * K), W, H]];
   const clear = (x, y) => !keepOut.some(([a, b, c2, d]) => x + BOX / 2 > a && x - BOX / 2 < c2 && y + BOX / 2 > b && y - BOX / 2 < d);
   const loose = () => {
-    const cols = Math.max(1, Math.floor((W - 20) / 70)), rows = Math.max(1, Math.floor((yMax - y0) / 68));
+    const cols = Math.max(1, Math.floor((W - 20) / (BOX + 14))), rows = Math.max(1, Math.floor((yMax - y0) / (BOX + 12)));
     const cw = (W - 20) / cols, ch = (yMax - y0) / rows, out = [];
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
       const x = 10 + cw * (c + 0.5), y = y0 + ch * (r + 0.5);

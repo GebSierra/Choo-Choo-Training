@@ -2,7 +2,7 @@ import { h, animate, reduced, icon } from '../dom.js';
 import { engineSvg, wagonSvg, stationSvg, huntBackdrop, puffEl, FUNNEL_TOP } from '../art/train2d.js';
 import { pipSvg } from '../art/pip.js';
 import { sparkle } from '../components/sparkle.js';
-import { timers, watchSize } from '../components/game-kit.js';
+import { K, timers, watchSize } from '../components/game-kit.js';
 import { fit } from '../lessons.js';
 import { sfx } from '../sfx.js';
 
@@ -13,7 +13,7 @@ import { sfx } from '../sfx.js';
 // The app never listens or records: the grown-up judges. Only CSS transforms and opacity move; nothing runs while idle.
 const WAGON = [{ body: '#D65A4A', rib: '#B8463A' }, { body: '#E5A73A', rib: '#C58A22' }, { body: '#4FB286', rib: '#3A9470' }, { body: '#5A8FE0', rib: '#4474C0' }];
 const STAR = 'M12 2.4l2.8 6 6.5.7-4.9 4.4 1.4 6.4L12 16.6 6.2 19.9l1.4-6.4L2.7 9.1l6.5-.7z';
-const ENGINE_W = 68, WAGON_W = 46;
+const ENGINE_W = Math.round(68 * K), WAGON_W = Math.round(46 * K);
 
 export function rereadBuild({ checkpoint, speech, refresh, setProgress, setDone }) {
   const story = checkpoint.story;

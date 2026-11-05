@@ -2312,3 +2312,448 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
   .new-letter .pattern-card .br-pair { min-width: 0; }
 }
 @media (max-width: 380px), (max-height: 700px) { .new-letter .pattern-card .sc-how { display: none; } }
+/* ============================================================================================================
+   TABLET (iPad) layouts. Every rule below sits inside a query no phone matches: at least 700 px wide AND 700 px
+   tall (a phone in landscape is under 450 px tall; a phone in portrait is under 500 px wide). Phones are untouched.
+   ============================================================================================================ */
+@media (min-width: 700px) and (min-height: 700px) {
+  /* ----- the task shell ----- */
+  .task-head { grid-template-columns: 64px 1fr 64px; padding: calc(12px + var(--sat)) 20px 0; }
+  .task-head .icon-btn { width: 64px; height: 64px; }
+  .task-head h1 { font-size: 36px; }
+  .dots { padding: 6px 0 14px; }
+  .task-stage { margin: 0 20px; border-radius: 34px 34px 0 0; }
+  .task-activity { padding: 24px 28px 28px; }
+  .task-stage > .speak-btn { right: 20px; top: 20px; }
+  .task-foot { padding: 14px 20px calc(18px + var(--sab)); gap: 12px; }
+  .task-buttons { gap: 16px; }
+  .task-buttons .btn { min-height: 68px; font-size: 24px; }
+  .script-toggle { height: 68px; grid-template-columns: 44px minmax(0, 1fr) 36px; border-radius: 22px; padding: 0 12px 0 12px; }
+  .script-first { font-size: 21px; } .script-tag { font-size: 19px; }
+  .script-text { font-size: 21px; }
+  .btn.small { min-height: 56px; font-size: 21px; padding: 0 26px; }
+
+  /* ----- lesson overview (portrait): bigger cards that use the height ----- */
+  .lo-head { grid-template-columns: 64px 1fr 68px; padding: calc(18px + var(--sat)) 28px 8px; }
+  .lo-title h1 { font-size: 38px; } .lo-title p { font-size: 21px; }
+  .cards { gap: 22px; padding: 0 32px; }
+  .task-card { width: min(44vw, 380px); height: min(66vh, 780px); border-radius: 36px; }
+  .card-num { font-size: 170px; left: 26px; top: 6px; }
+  .card-art { top: 150px; }
+  .card-art .flash { width: 124px; height: 148px; border-radius: 20px; }
+  .big-glyph .glyph { width: 190px; } .big-glyph.pair .glyph { width: 96px; }
+  .play { width: 120px; height: 120px; } .emo { font-size: 80px; } .qmark { font-size: 150px; }
+  .card-body { padding: 26px 26px 28px; gap: 8px; }
+  .card-name { font-size: 34px; } .card-label { font-size: 21px; }
+  .chip { min-height: 48px; font-size: 24px; padding: 0 18px; border-radius: 16px; } .chip-glyph .glyph { height: calc(28px * var(--vh, 1)); }
+  .card-tick { width: 52px; height: 52px; right: 20px; top: 20px; }
+  .lo-foot .start-btn { min-height: 84px; font-size: 30px; max-width: 640px; }
+
+  /* ----- New Sound and Letter Review ----- */
+  .letter-card.big, .new-letter .letter-card.big { width: min(calc(100% - 240px), 460px); height: 250px; margin-bottom: 20px; }
+  .new-letter .letter-card.big.pair { height: 200px; }
+  .letter-card { width: 220px; height: 190px; }
+  .sound-card { grid-template-columns: 56px 1fr; gap: 18px; padding: 22px 24px; margin-bottom: 20px; border-radius: 26px; border-left-width: 8px; }
+  .sc-ic { width: 56px; height: 56px; }
+  .sc-first { font-size: 26px; } .sound-card.lead { padding: 22px 24px; } .sound-card.lead .sc-first { font-size: 34px; } .sound-card.lead .sc-rules { font-size: 27px; }
+  .sc-rules { font-size: 24px; } .sc-how { font-size: 22px; margin-top: 6px; }
+  .new-letter .slide-track, .review-body .slide-track { margin-bottom: 24px; }
+  .word-strip { margin: 0; padding: 4px 4px 12px; gap: 16px; justify-content: center; overflow-x: visible; }
+  .word-tile { flex: 1 1 0; width: auto; max-width: 210px; min-width: 0; padding: 12px 12px 14px; border-radius: 26px; gap: 8px; }
+  .word-tile .pic { width: 100%; height: auto; aspect-ratio: 1; border-radius: 18px; }
+  .word-tile .emoji { font-size: 90px; } .word-tile .word { font-size: 30px; min-height: 40px; }
+  .review-count i { width: 12px; height: 12px; } .review-count { gap: 10px; margin-bottom: 8px; }
+
+  /* ----- Watch My Mouth ----- */
+  .mouth-art { width: min(62vw, 440px, calc(100dvh - 520px)); border-radius: 40px; }
+  .mouth-task .ns-body { gap: 18px; }
+  .mouth-same { font-size: 26px; }
+  .mouth-task .px-btns { gap: 14px; }
+  .mouth-how { width: min(100%, 560px); padding: 18px 24px 20px; border-radius: 26px; }
+  .mouth-how-title { font-size: 24px; } .mouth-how-text { font-size: 24px; } .mouth-voice { font-size: 18px; }
+  .ns-body > .say-prompt, .px-model .say-prompt { font-size: 28px; }
+
+  /* ----- Saying Sounds ----- */
+  .sounds-body { gap: 26px; }
+  .sounds-stage { width: min(100%, 560px); min-height: 330px; border-radius: 36px; padding: 28px; }
+  .emoji.huge { font-size: 160px; } .reveal-word { font-size: 56px; }
+  .pic-frame.huge { width: 220px; height: 220px; border-radius: 30px; }
+  .opt-pic .pic-frame { width: 140px; height: 140px; }
+  .merged-tile { width: min(86%, 440px); min-height: 250px; border-radius: 36px; } .merged-tile .word.big { font-size: 56px; } .merged-tile .q { font-size: 96px; }
+  .part-tile { width: 190px; padding: 20px 12px 16px; border-radius: 30px; } .part-tile .pic-frame { width: 120px; height: 120px; } .part-tile .word { font-size: 30px; }
+  .plus-sign { font-size: 52px; width: 40px; }
+  .parts-row { gap: 18px; } .merge { gap: 28px; }
+
+  /* ----- Track Tracing ----- */
+  .writing { gap: 18px; }
+  .trace-pad { max-height: min(62vh, 760px); width: auto; max-width: 100%; margin: 0 auto; }
+  .writing-buttons { gap: 16px; } .writing-buttons .btn { max-width: 260px; min-height: 64px; font-size: 24px; }
+  .letter-pick { width: 64px; height: 64px; min-height: 64px; border-radius: 20px; } .letter-pick .glyph { height: 36px; }
+
+  /* ----- Ticket Check ----- */
+  .check { gap: 40px; }
+  .check-prompt { font-size: 40px; min-height: 100px; }
+  .opts { gap: 22px; }
+  .opt-card { min-height: 250px; border-radius: 32px; padding: 18px; }
+  .opt-glyph .glyph { width: 170px; } .opts.n3 .opt-glyph .glyph { width: 130px; }
+  .opt-pic { gap: 12px; } .opt-pic .emoji { font-size: 110px; } .opt-pic .word { font-size: 32px; }
+  .opts.n3 .opt-pic .pic-frame { width: 130px; height: 130px; }
+
+  /* ----- finish ----- */
+  .finish h1 { font-size: 56px; } .finish { gap: 30px; }
+  .finish-glyph { width: 260px; height: 260px; }
+  .finish-card { width: min(100%, 600px); padding: 28px; gap: 20px; } .finish-q { font-size: 28px; }
+  .finish .btn.big { min-height: 80px; font-size: 28px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  /* the lesson overview: a roomy grid of big cards */
+  .cards-scroll { align-items: center; padding: 8px 0 120px; }
+  .cards { grid-template-columns: repeat(5, 1fr); gap: 20px; padding: 0 32px; }
+  .task-card { width: auto; height: min(27vh, 250px); min-height: 180px; border-radius: 30px; }
+  .card-num { font-size: 110px; left: 18px; top: -4px; }
+  .card-tick { width: 44px; height: 44px; bottom: 14px; right: 14px; top: auto; }
+  .card-art { right: 10px; top: 14px; width: 52%; height: 100px; transform: scale(.85); }
+  .card-body { padding: 14px 18px 16px; }
+  .card-name { font-size: 28px; }
+  .chips { margin-top: 6px; flex-wrap: nowrap; overflow: hidden; } .chip { min-height: 44px; font-size: 22px; padding: 0 14px; }
+  .lo-foot { position: fixed; left: 0; right: 0; bottom: 0; padding-top: 6px; }
+  .lo-foot .start-btn { min-height: 76px; font-size: 28px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .cards-wrap .task-card { width: min(44vw, 380px); height: clamp(480px, calc(100dvh - 330px), 860px); min-height: 0; }
+  .cards-wrap .cards-scroll { padding-bottom: 28px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .cards-wrap .cards-scroll { align-items: center; padding: 8px 0 120px; overflow-y: auto; }
+  .cards-wrap .task-card { width: auto; height: clamp(230px, 32vh, 330px); flex-direction: column; justify-content: flex-end; align-items: stretch; }
+  .task-card .card-num { font-size: 96px; left: 16px; top: -2px; }
+  .task-card .card-tick { top: 12px; bottom: auto; right: 12px; width: 40px; height: 40px; }
+  .task-card .card-art { left: 0; right: 0; top: 56px; width: auto; height: 38%; transform: scale(.78); transform-origin: 50% 40%; justify-content: center; }
+  .task-card .card-body { position: relative; left: auto; right: auto; bottom: auto; padding: 12px 16px 14px; }
+  .task-card .card-name { font-size: 26px; } .task-card .card-label { display: block; font-size: 18px; }
+  .task-card .chips { margin-top: 4px; }
+
+  /* New Sound and Letter Review side by side: the letter and the sound card left, the track and the pictures right */
+  .new-letter, .review-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 0 26px; align-content: center; align-items: center; flex: 1; }
+  .new-letter > .letter-card, .review-body > .letter-card { grid-column: 1; grid-row: 1; width: 100%; height: clamp(140px, 22vh, 230px); margin: 0 0 16px; }
+  .new-letter > .letter-card.big.pair { height: clamp(120px, 20vh, 200px); }
+  .new-letter > .sound-card, .review-body > .sound-card { grid-column: 1; grid-row: 2; margin-bottom: 0; align-self: start; }
+  .new-letter > .slide-track, .review-body > .slide-track { grid-column: 2; grid-row: 1; margin: 0 0 16px; align-self: center; }
+  .new-letter > .word-strip { grid-column: 2; grid-row: 2; align-self: start; padding: 0; }
+  .new-letter .word-tile { padding: 8px 8px 10px; border-radius: 22px; } .new-letter .word-tile .word { font-size: 24px; min-height: 32px; }
+  .new-letter .sound-card .sc-ic { width: 44px; height: 44px; } .new-letter .sound-card { grid-template-columns: 44px 1fr; padding: 16px 18px; }
+  .new-letter .sound-card.lead .sc-first { font-size: 28px; } .new-letter .sound-card.lead .sc-rules { font-size: 22px; } .new-letter .sc-how { font-size: 18px; }
+  .review-body { align-content: center; }
+  .mouth-art { width: min(40vw, 380px, calc(100dvh - 400px)); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .cards-wrap .task-card { height: clamp(240px, 31vh, 330px); }
+  .task-card .card-label { display: none; }
+  .task-card .card-name { font-size: 23px; line-height: 1.1; }
+  .task-card .card-art { top: 40px; transform: scale(.68); }
+  .task-card .card-num { font-size: 84px; }
+  .task-card .chip { min-height: 40px; font-size: 20px; }
+  .new-letter .word-tile .word { font-size: clamp(17px, 2.3vh, 26px); min-height: 28px; }
+  .new-letter .word-tile { padding: 6px 6px 8px; }
+  .new-letter .word-strip { gap: 10px; }
+}
+
+/* ----- tablet: the games. --k is the scale js/components/game-kit.js reads too (K): the JS sizes what it places, this sizes the rest. ----- */
+:root { --k: 1; }
+@media (min-width: 700px) and (min-height: 700px) {
+  :root { --k: 1.5; }
+  .task-activity.flush { padding: 0; }
+  .say-hear { width: 92px; height: 92px; top: 14px; left: 16px; }
+  .say-hear svg, .say-hear .icon { width: 44px; height: 44px; }
+  .say-prompt { top: 14px; left: 16px; padding: 12px 20px 13px; font-size: 27px; border-radius: 26px; gap: 6px; }
+  .say-who { font-size: 16px; padding: 4px 12px; border-radius: 12px; }
+  .signals-scene .say-prompt { left: 124px; max-width: calc(100% - 240px); }
+  .wagons-scene .say-prompt { left: 190px; max-width: calc(100% - 290px); }
+  .wagons-scene .say-hear { top: 140px; left: 16px; width: 80px; height: 80px; }
+  .board-scene .say-prompt { left: 16px; right: 100px; max-width: calc(100% - 120px); }
+  .board-scene .say-hear { bottom: 20px; right: 18px; width: 92px; height: 92px; }
+  .find-card { left: 16px; top: 14px; padding: 10px 22px 10px; border-radius: 24px; font-size: 22px; gap: 4px; }
+  .find-card .glyph { height: calc(56px * var(--vh, 1)); } .find-card.pair .glyph { height: calc(44px * var(--vh, 1)); }
+  .star-row { height: 60px; gap: 16px; } .star-slot, .star-slot .gold-star { width: 44px; height: 44px; }
+  .game .star-row { flex: 0 0 auto; }
+  /* the backdrop and the track */
+  .tw-hills { bottom: calc(70px * var(--k)); height: calc(150px * var(--k)); }
+  .tw-grass { height: calc(76px * var(--k)); border-top-width: 6px; }
+  .tw-track { bottom: calc(16px * var(--k)); height: 20px; }
+  .train-wrap { bottom: calc(12px * var(--k)); left: 12px; }
+  .wagons-scene .train-wrap, .signals-scene .train-wrap { bottom: calc(12px * var(--k)); }
+  .wagons-scene .train-wrap { left: auto; right: 12px; }
+  /* Green Light */
+  .signal-row { gap: 16px; }
+  .signal { min-width: 72px; }
+  /* Letter Hunt */
+  .sky-letter { width: calc(56px * var(--k)); height: calc(56px * var(--k)); }
+  .sky-letter .glyph { width: calc(44px * var(--k)); }
+  .hunt-scene .sky-letter .face::after { width: 15px; height: 12px; margin-left: -7px; bottom: -7px; }
+  .hunt-scene .sky-letter .string { height: 33px; }
+  .hunt-goal { right: 14px; bottom: calc(22px * var(--k)); }
+  /* Wagon Parade */
+  .parade-rail { bottom: calc(112px * var(--k)); height: 22px; }
+  .parade { bottom: calc(119px * var(--k)); height: calc(104px * var(--k)); }
+  .parade .pw { width: calc(104px * var(--k)); height: calc(104px * var(--k)); }
+  .parade .pw::after { left: -24px; bottom: 28px; width: 27px; height: 7px; }
+  .parade-wagon .crate { top: 3px; width: 69px; height: 69px; margin-left: -34px; border-width: 4px; border-radius: 10px; }
+  .parade-wagon .crate .glyph { height: 48px; } .parade-wagon .crate .font-letter { font-size: 51px; }
+  .parade .pw .no-x { top: 21px; width: 60px; height: 60px; margin-left: -30px; }
+  .coupled { gap: 6px; } .coupled-wagon { width: 93px; height: 93px; }
+  .coupled-wagon .crate { top: 2px; width: 42px; height: 42px; margin-left: -21px; }
+  .coupled-wagon .crate .glyph { height: 28px; } .coupled-wagon .crate .font-letter { font-size: 31px; }
+  .coupled-wagon::after { width: 10px; height: 4px; bottom: 16px; right: -7px; }
+  .star-fly { width: 45px; height: 45px; }
+  .parade.still { bottom: calc(126px * var(--k)); gap: 10px; }
+  .parade.still .pw { width: 108px; height: 108px; }
+  .parade.still .parade-wagon .crate { width: 48px; height: 48px; margin-left: -24px; }
+  .parade.still .parade-wagon .crate .glyph { height: 33px; } .parade.still .parade-wagon .crate .font-letter { font-size: 36px; }
+  /* Station Board */
+  .station-wall { bottom: calc(112px * var(--k)); }
+  .station-platform { bottom: calc(96px * var(--k)); height: 26px; }
+  .flap-board { top: max(170px, calc(170px + (100% - 520px) * .2)); padding: 20px 12px 12px; border-radius: 22px; border-top-width: 8px; }
+  .flap-chain { top: -48px; height: 44px; width: 6px; }
+  .flap-row { gap: 10px; }
+  .flap-tile { height: calc(96px * var(--k)); border-radius: 14px; }
+  .flap-tile .glyph { height: 99px; } .flap-tile .font-letter { font-size: 105px; }
+  .wall-clock { width: 64px; height: 64px; right: 120px; bottom: 22px; border-width: 5px; }
+  .wall-clock i:first-child { height: 21px; } .wall-clock i:last-child { height: 15px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  /* the pad takes what the stage leaves after the title, the foot and the two buttons, so Clear and Show me are never cut off */
+  .writing { justify-items: center; }
+  .pad-wrap { width: min(100%, calc(100dvh - 450px), 780px); }
+  .trace-pad { width: 100%; max-height: none; margin: 0; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .mouth-art { width: min(40vw, 460px, calc(100dvh - 380px)); }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  /* Heart Word */
+  .hw-col { gap: 14px; }
+  .hw-word { gap: 20px; padding-top: 44px; }
+  .hw-tile { --cap: clamp(90px, 13dvh, 150px); padding: 20px 26px 34px; border-radius: 34px; }
+  .hw-heartwrap { top: -38px; width: 60px; margin-left: -30px; }
+  .hw-link { bottom: 15px; height: 14px; border-width: 5px; }
+  .hw-legend { font-size: 21px; padding: 8px 18px; } .hw-note { font-size: 23px; padding: 12px 20px; border-radius: 22px; }
+  .hw-w.hw-card { --cap: clamp(44px, 6dvh, 64px); min-height: 84px; padding: 10px 16px; }
+  .hw-cards { gap: 20px 14px; padding-top: 22px; }
+  .hw-pw { --cap: clamp(44px, 6.5dvh, 64px); } .hw-phrase { gap: 12px 16px; padding: 14px 20px; }
+  .hw-w { --cap: clamp(50px, 7.5dvh, 76px); min-height: 80px; }
+  .hw-wheart { width: 34px; margin-left: -17px; top: -20px; }
+  .hw-msg { font-size: 23px; min-height: 32px; } .hw-btns { min-height: 68px; gap: 16px; }
+  .hw-done-row { gap: 18px; padding-top: 40px; } .hw-done-kid, .hw-done-pip { width: 96px; height: 120px; }
+  .proto-heart-done .hw-tile { --cap: 84px; }
+  .px-btns .btn, .hw-btns .btn { min-height: 60px; font-size: 22px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  /* Add a Car, Couple a Car, Clap Split Glue */
+  .chains-scene:not(.couple-scene):not(.split-scene) .chain-track { top: max(170px, calc(160px + (100% - 520px) * .2)); }
+  .chain-track { gap: 12px; } .chain-choices { gap: 28px; }
+  .chain-car { border-width: 5px; border-radius: 14px; }
+  .chain-car::before, .chain-car::after { width: 21px; height: 21px; bottom: -16px; box-shadow: inset 0 0 0 4px #6B6F9E; }
+  .chain-car.gap b { font-size: 48px; }
+  .chain-car.choice { width: 108px; height: 132px; }
+  .chain-car.choice .glyph { height: 78px; } .chain-car.choice .font-letter { font-size: 87px; }
+  .chain-car.choice.end { width: 150px; height: 132px; } .chain-car.choice.end .glyph { height: 87px; } .chain-car.choice.end .word-glyphs { width: 126px; max-height: 81px; }
+  .chain-track .coupler { width: 24px; height: 12px; margin: 0 -9px 24px; }
+  .couple-choices { gap: 16px; }
+  .split-gap { width: 72px; min-height: 72px; }
+  .couple-scene .say-hear, .split-scene .say-hear { width: 84px; height: 84px; bottom: 14px; right: 18px; }
+  .split-scene .glue-btn { min-width: 220px; min-height: 68px; font-size: 26px; }
+  .couple-stack { top: var(--stack-top, 150px); bottom: 110px; gap: 14px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .chain-car.choice { width: calc(var(--cw, 60px) * 1.35); height: calc(var(--cw, 60px) * 1.65); }
+  .chain-car.choice .glyph { height: 60%; } .chain-car.choice .font-letter { font-size: calc(var(--cw, 60px) * 1.2); }
+  .chain-car.choice.end { width: var(--ew, 100px); height: calc(var(--cw, 60px) * 1.65); } .chain-car.choice.end .glyph { height: 62%; } .chain-car.choice.end .word-glyphs { width: 84%; max-height: 62%; }
+  .chain-car.gap.end, .couple-track .chain-car.end.fresh { height: calc(var(--cw, 60px) * 1.25); }
+  .chains-scene:not(.couple-scene):not(.split-scene) .chain-choices { bottom: calc(100px * var(--k)); }
+  .chain-car .font-letter { font-size: calc(var(--cw, 60px) * .8); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .chains-scene:not(.couple-scene):not(.split-scene) .chain-track { top: 104px; }
+  .chains-scene:not(.couple-scene):not(.split-scene) .chain-choices { bottom: 64px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  /* Review Stop and Tricky Sounds opening card */
+  .review-intro { gap: 28px; padding: 40px 32px; }
+  .review-intro-icon svg { width: 180px; height: 180px; }
+  .review-intro h1 { font-size: 56px; }
+  .review-intro-line { max-width: 560px; font-size: 30px; line-height: 1.4; }
+  .review-intro .btn { min-width: 360px; min-height: 80px; font-size: 28px; }
+  .task-kicker { font-size: 17px; margin-top: 3px; }
+  .finish-pip, .finish-kid { width: 120px; height: 150px; }
+  .finish-pip { right: -110px; } .finish-kid { left: -110px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .finish { gap: 20px; }
+  .finish-glyph { width: min(230px, 27dvh); height: min(230px, 27dvh); }
+  .finish-pip { left: -100px; right: auto; }
+  .finish-card { padding: 22px; gap: 14px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  /* shared prototype surfaces: warm-ups, placement check, stories, heart words */
+  .proto { gap: 18px; }
+  .px-chip { font-size: 22px; padding: 7px 22px; }
+  .px-model { min-height: 72px; gap: 14px; } .px-btns { gap: 14px; }
+  .px-dots { min-height: 52px; gap: 12px; } .px-dot { width: 14px; height: 14px; } .px-dot.now { width: 36px; }
+  .px-model .say-prompt, .reading-item .say-prompt, .ns-body > .say-prompt { font-size: 28px; padding: 10px 20px 11px 12px; }
+  .judge-bar { gap: 18px; padding-top: 22px; } .judge-tag { font-size: 15px; }
+  .judge-btn { min-height: 80px; font-size: 28px; }
+  .proto.warmup { --pic: clamp(120px, 20dvh, 240px); --box: clamp(110px, 16vw, 160px); --wcap: clamp(90px, 20dvh, 190px); }
+  .proto.blendit { --cap: clamp(90px, 16dvh, 160px); }
+  .proto.buildit { --tile: clamp(84px, 13vw, 110px); --lt: clamp(110px, 17vw, 140px); }
+  .proto.story-row { --s: min(19vw, 160px, 24dvh); } .proto.pick { --o: min(24vw, 190px, 24dvh); }
+  .lr-row, .pk-opts { gap: 16px; }
+  .ns-art { width: min(52vw, 400px, calc(100dvh - 520px)); }
+  .ns-word { font-size: 38px; } .ns-line { font-size: 28px; max-width: 560px; } .ns-mouth { width: min(100%, 520px); }
+  .ns-dot { width: 104px; height: 104px; } .ns-dots { gap: 24px; } .ns-bigf { width: min(46%, 260px); }
+  .rs-scene { height: clamp(130px, calc(20dvh - 20px), 280px); }
+  .rs-line-words { --cap: 62px; } .rs-line-words.small { --cap: clamp(32px, 4dvh, 46px); }
+  .rs-thumb { flex-basis: 110px; width: 110px; height: 70px; } .rs-row { padding: 10px 18px 10px 10px; gap: 16px; border-radius: 24px; }
+  .rs-msg { font-size: 29px; min-height: 36px; } .rs-q { font-size: 46px; }
+  .rs-choice { min-height: 180px; border-radius: 30px; } .rs-choice-pic { width: 120px; height: 120px; } .rs-choice-word { font-size: 34px; }
+  .rs-choices { gap: 18px; } .rs-recheck { --cap: clamp(44px, 6.4dvh, 62px); }
+  /* placement check */
+  .pc-welcome { gap: 12px; } .pc-welcome h2 { font-size: 44px; } .pc-welcome p { font-size: 27px; }
+  .pc-note { font-size: 22px; padding: 14px 20px; border-radius: 22px; }
+  .pc-word { --cap: clamp(90px, 16dvh, 160px); padding: 28px 20px; border-radius: 36px; }
+  .pc-suggest { font-size: 36px; } .pc-why { font-size: 25px; } .pc-line { font-size: 24px; } .pc-fine { font-size: 21px; } .pc-skip { font-size: 21px; }
+  .pc-teach { font-size: 28px; } .pc-notes { font-size: 23px; gap: 8px; }
+  .pc-pic { width: clamp(120px, 20dvh, 200px); height: clamp(120px, 20dvh, 200px); font-size: clamp(80px, 14dvh, 130px); }
+  .pc-three .pc-pic { width: clamp(100px, 18vw, 170px); height: clamp(100px, 18vw, 170px); font-size: clamp(66px, 11vw, 110px); }
+  .pc-start small { font-size: 20px; } .pc-kchip { font-size: 28px; min-width: 48px; }
+  .pc-pad .btn, .pc-host .btn { min-height: 72px; font-size: 26px; }
+  .pc-quick { min-height: 64px; }
+  /* Read It Again */
+  .reread { gap: 14px; padding: 14px 24px 16px; }
+  .ra-scene { height: clamp(170px, 22dvh, 300px); border-radius: 30px; }
+  .ra-train { bottom: 18px; }
+  .ra-goal { width: 138px; height: 115px; bottom: 33px; }
+  .ra-page { padding: 14px 22px 16px; border-radius: 30px; }
+  .ra-list { gap: 10px; } .ra-row { padding: 8px 14px; border-radius: 22px; gap: 18px; }
+  .ra-sentence { font-size: clamp(34px, 5vw, 50px); }
+  .ra-read { min-width: 170px; min-height: 68px; font-size: 26px; padding: 0 24px; }
+  .ra-row[data-state="done"] .ra-read { min-width: 68px; }
+  .ra-foot .ra-turn { min-height: 76px; font-size: 27px; }
+  /* books */
+  .book-read { --read-fs: clamp(30px, 3.6vw, 42px); } .book-read[data-size="l"] { --read-fs: clamp(34px, 4vw, 46px); }
+  .book-folio { font-size: 20px; }
+  .book-intro-list { font-size: 24px; gap: 12px; line-height: 1.35; }
+  .book-arrow { width: 64px; height: 64px; } .book-arrow svg { width: 34px; height: 34px; }
+  .book-corner { width: 76px; height: 76px; } .book-corner.next::before, .book-corner.next::after { width: 58px; height: 58px; }
+  .book-info { width: 64px; height: 64px; font-size: 30px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .ra-scene { height: clamp(130px, 20dvh, 220px); }
+  .ra-sentence { font-size: clamp(30px, 3.4vw, 44px); }
+  .pc-welcome h2 { font-size: 36px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .reread { flex-direction: row-reverse; }
+  .ra-scene { flex: 0 0 40%; height: auto; }
+  .ra-goal { width: 110px; height: 92px; }
+  .ra-sentence { font-size: clamp(30px, 3.2vw, 44px); }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  /* New Sound sizes follow the height of the screen, so the pictures always fit under the sound card */
+  .letter-card.big, .new-letter .letter-card.big { height: clamp(130px, 19dvh, 250px); margin-bottom: clamp(10px, 1.6dvh, 20px); }
+  .new-letter .letter-card.big.pair { height: clamp(110px, 16dvh, 200px); }
+  .new-letter .sound-card, .new-letter .sound-card.lead, .new-letter .blend-card { padding: clamp(12px, 1.8dvh, 22px) 24px; margin-bottom: clamp(10px, 1.6dvh, 20px); }
+  .new-letter .sound-card.lead .sc-first, .new-letter .blend-card .sc-first { font-size: clamp(24px, 3dvh, 34px); }
+  .new-letter .sound-card.lead .sc-rules, .new-letter .blend-card .sc-rules { font-size: clamp(20px, 2.4dvh, 27px); }
+  .new-letter .sc-how { font-size: clamp(18px, 2dvh, 22px); }
+  .new-letter .blend-card .blend-rows li { font-size: clamp(18px, 2.2dvh, 24px); }
+  .new-letter .slide-track { margin-bottom: clamp(12px, 2dvh, 24px); }
+  .new-letter .word-tile { max-width: clamp(110px, 18dvh, 210px); }
+  .new-letter .word-tile .word { font-size: clamp(20px, 2.8dvh, 30px); min-height: clamp(26px, 3.6dvh, 40px); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .new-letter .word-tile { max-width: none; }
+  .new-letter .sc-how, .review-body .sc-how { display: none; }
+  .new-letter > .letter-card.big { height: clamp(130px, 21dvh, 230px); }
+  /* Watch My Mouth: the face on the left, the buttons and the how-to on the right */
+  .mouth-task .ns-body { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-auto-rows: min-content; align-content: center; justify-items: center; column-gap: 40px; row-gap: 16px; }
+  .mouth-task .ns-body > .mouth-art { grid-column: 1; grid-row: 1 / span 5; align-self: center; }
+  .mouth-task .ns-body > :not(.mouth-art) { grid-column: 2; }
+  .mouth-art { width: min(40vw, 400px, calc(100dvh - 330px)); }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .new-letter .word-tile { max-width: clamp(110px, 15.5dvh, 210px); }
+  .new-letter:has(.blend-card) .letter-card.big { height: clamp(100px, 13dvh, 180px); }
+  .new-letter .blend-card .blend-rows { margin: 4px 0; gap: 2px; }
+  .new-letter .blend-card .sc-rules { margin: 0; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .letter-card.pair .glyph { height: auto; width: 44%; max-width: 44%; }
+  .new-letter:has(.blend-card) .letter-card.big { height: clamp(110px, 15dvh, 190px); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (max-height: 1150px) {
+  .new-letter .blend-card .sc-how, .new-letter .sound-card.pair .sc-how { display: none; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .letter-card.big, .new-letter .letter-card.big { height: clamp(130px, 17.5dvh, 250px); }
+  .new-letter .blend-card .sc-first, .new-letter .blend-card.lead .sc-first { font-size: clamp(20px, 2.5dvh, 30px); }
+  .new-letter .blend-card .sc-rules { font-size: clamp(18px, 2.1dvh, 24px); }
+  .new-letter .blend-card .blend-rows li { font-size: clamp(17px, 2dvh, 22px); }
+  .new-letter .word-strip { padding-bottom: 4px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .task-activity { padding: 20px 28px 20px; }
+  .new-letter:has(.blend-card) .letter-card.big { height: clamp(100px, 14dvh, 180px); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  /* Track Tracing: the pad as tall as the stage, the buttons beside it */
+  .writing { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 48px; flex: 1; }
+  .pad-wrap { width: min(60%, calc(100dvh - 330px), 780px); flex: 0 0 auto; }
+  .writing-buttons { flex-direction: column; flex: 0 0 auto; gap: 20px; }
+  .writing-buttons .btn { width: 240px; flex: 0 0 auto; max-width: none; min-height: 72px; font-size: 26px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .hw-col { gap: 10px; }
+  .hw-tile { --cap: clamp(60px, 9dvh, 120px); padding: 14px 22px 26px; }
+  .hw-word { padding-top: 34px; } .hw-heartwrap { top: -30px; width: 48px; margin-left: -24px; }
+  .hw-legend { font-size: 19px; padding: 6px 16px; }
+  .judge-btn { min-height: 68px; font-size: 26px; } .judge-bar { padding-top: 18px; }
+  .px-chip { margin-bottom: 4px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .hw-tile { --cap: clamp(56px, 8dvh, 110px); }
+  .hw-note { padding: 8px 16px; font-size: 20px; }
+  .px-model { min-height: 56px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  /* Which One? */
+  .which-scene .say-prompt { left: 124px; max-width: calc(100% - 240px); }
+  .which-row { left: 20px; right: 20px; top: 130px; gap: 22px; }
+  .which-card { height: min(100%, 460px); max-width: 380px; border-width: 5px; border-radius: 28px; padding: 14px; }
+  .which-card .pic-frame { width: min(100%, 200px); }
+  .which-word { font-size: clamp(44px, 15vmin, 130px); }
+  .which-glyph svg { height: clamp(48px, 16vmin, 140px); }
+  .which-word:has(svg[class*="inline-end-"]) { font-size: clamp(34px, 11vmin, 100px); }
+  .say-hear.which-hear { width: 92px; height: 92px; }
+  .new-letter:has(.blend-card) .letter-card.big { height: clamp(96px, 13dvh, 170px); }
+  .hw-tile { --cap: clamp(56px, 7.6dvh, 110px); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .px-model { min-height: 44px; } .hw-col { gap: 8px; } .hw-word { padding-top: 30px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .pic-frame.huge, .sounds-stage.revealed .pic-frame.huge { width: clamp(100px, 19dvh, 220px); height: clamp(100px, 19dvh, 220px); }
+  .sounds-stage { min-height: 0; padding: 20px 28px; gap: 12px; }
+  .sounds-body { gap: 16px; }
+  .reveal-word { font-size: clamp(40px, 6.5dvh, 56px); }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .book-intro .btn, .ride-intro-btns .btn { min-height: 76px; font-size: 26px; padding: 0 44px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .opts.n3 .opt-pic .pic-frame { width: clamp(130px, 17vw, 220px); height: clamp(130px, 17vw, 220px); }
+  .opts.n3 .opt-card, .opt-card { min-height: clamp(250px, 30dvh, 380px); }
+  .opts.n3 .opt-pic .word { font-size: 36px; } .opts.n3 .opt-card { padding: 14px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .wagons-scene .say-hear { top: 124px; width: 64px; height: 64px; }
+}

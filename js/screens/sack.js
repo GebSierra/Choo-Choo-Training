@@ -4,7 +4,7 @@ import { pipSvg } from '../art/pip.js';
 import { glyphSvg } from '../glyphs.js';
 import { sparkle } from '../components/sparkle.js';
 import { picture } from '../components/picture.js';
-import { timers, watchSize, starRow, shake, shuffle } from '../components/game-kit.js';
+import { K, timers, watchSize, starRow, shake, shuffle } from '../components/game-kit.js';
 import { accentOf } from '../theme.js';
 import { soundPhrase, fit, sackPool, roundCaps } from '../lessons.js';
 import { firstSoundOut } from '../scripts.js';
@@ -88,10 +88,10 @@ export function build({ checkpoint, curriculum, speech, refresh, setProgress, se
   let engineW = 0, engineTop = 0;
   function layout(w, hgt) {
     W = w; H = hgt;
-    const landscape = W > H * 1.2, gap = 12, minTop = landscape ? 10 : 18;
-    const sw = Math.max(150, Math.min(240, landscape ? H * 0.5 : W * 0.58)), sh = (sw * 150) / 200;
+    const landscape = W > H * 1.2, gap = Math.round(12 * K), minTop = landscape ? 10 : 18;
+    const sw = Math.max(150, Math.min(240 * K, landscape ? H * 0.5 : W * 0.58)), sh = (sw * 150) / 200;
     sackRect = { x: (W - sw) / 2, y: H - 22 - sh * (140 / 150), w: sw, h: sh };
-    size = Math.max(96, Math.min(120, Math.floor((W - 24 - 2 * gap) / 3), Math.floor(sackRect.y - 16 - minTop)));
+    size = Math.max(96, Math.min(Math.round(120 * K * (K > 1 ? 1.1 : 1)), Math.floor((W - 24 - 2 * gap) / 3), Math.floor(sackRect.y - 16 - minTop)));
     // the crates stand on the dock just above the wagon (a short way to drag); the dock runs down to the track behind it
     const top = Math.max(minTop, Math.round(sackRect.y - 16 - size));
     const x0 = (W - (3 * size + 2 * gap)) / 2;

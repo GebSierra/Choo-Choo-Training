@@ -3,7 +3,7 @@ import { huntBackdrop } from '../../art/train2d.js';
 import { letterFace, tintLetter } from '../../components/letter-face.js';
 import { sayPrompt } from '../../components/say-sound.js';
 import { sparkle } from '../../components/sparkle.js';
-import { timers, watchSize, starRow, shake, shuffle } from '../../components/game-kit.js';
+import { K, timers, watchSize, starRow, shake, shuffle } from '../../components/game-kit.js';
 import { accentOf } from '../../theme.js';
 import { sfx } from '../../sfx.js';
 import { letterUnits, blendAtUnits } from '../../order.js';
@@ -40,9 +40,10 @@ export function build(ctx) {
     if (first) show();
     sizeCars();
   }
+  const tall = () => (K > 1 && scene.clientHeight ? Math.floor((scene.clientHeight - 250) / 2.9) : 999); // a tablet held sideways: two rows of cars must fit the short scene
   const sizeCars = () => {
     const n = Math.max(letterUnits(word().to, lesson.number).length, 1);
-    scene.style.setProperty('--cw', Math.max(44, Math.min(64, Math.floor((W - 28 - 8 * (n - 1)) / n))) + 'px');
+    scene.style.setProperty('--cw', Math.max(44, Math.min(Math.round(64 * K), Math.floor((W - 28 - 8 * (n - 1)) / n), tall())) + 'px');
   };
   const stopWatching = watchSize(scene, layout);
 

@@ -3,7 +3,7 @@ import { huntBackdrop } from '../../art/train2d.js';
 import { letterFace } from '../../components/letter-face.js';
 import { sayPrompt } from '../../components/say-sound.js';
 import { sparkle } from '../../components/sparkle.js';
-import { timers, watchSize, starRow, shake } from '../../components/game-kit.js';
+import { K, timers, watchSize, starRow, shake } from '../../components/game-kit.js';
 import { accentOf } from '../../theme.js';
 import { fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
@@ -42,7 +42,7 @@ export function build(ctx) {
 
   const sizeCars = () => {
     const n = Math.max(unitsOf(cur()).length, 1);
-    scene.style.setProperty('--cw', Math.max(44, Math.min(60, Math.floor((W - 44 - 4 * (n - 1) - APART) / n))) + 'px');
+    scene.style.setProperty('--cw', Math.max(44, Math.min(Math.round(60 * K), Math.floor((W - 44 - 4 * (n - 1) - APART) / n), K > 1 && scene.clientHeight ? Math.floor((scene.clientHeight - 200) / 1.6) : 999)) + 'px');
   };
   const place = () => { const s = scene.getBoundingClientRect(), p = prompt.el.getBoundingClientRect(); if (s.height && p.height) scene.style.setProperty('--stack-top', Math.max(96, Math.round(p.bottom - s.top + 8)) + 'px'); };
   const stopWatching = watchSize(scene, (w) => { const first = !W; W = w; if (first) show(); sizeCars(); place(); placeGaps(); });
