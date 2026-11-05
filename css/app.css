@@ -2547,3 +2547,20 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
   .chains-scene:not(.couple-scene):not(.split-scene) .chain-track { top: 104px; }
   .chains-scene:not(.couple-scene):not(.split-scene) .chain-choices { bottom: 64px; }
 }
+@media (min-width: 700px) and (min-height: 700px) {
+  /* Review Stop and Tricky Sounds opening card */
+  .review-intro { gap: 28px; padding: 40px 32px; }
+  .review-intro-icon svg { width: 180px; height: 180px; }
+  .review-intro h1 { font-size: 56px; }
+  .review-intro-line { max-width: 560px; font-size: 30px; line-height: 1.4; }
+  .review-intro .btn { min-width: 360px; min-height: 80px; font-size: 28px; }
+  .task-kicker { font-size: 17px; margin-top: 3px; }
+  .finish-pip, .finish-kid { width: 120px; height: 150px; }
+  .finish-pip { right: -110px; } .finish-kid { left: -110px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .finish { gap: 20px; }
+  .finish-glyph { width: min(230px, 27dvh); height: min(230px, 27dvh); }
+  .finish-pip { left: -100px; right: auto; }
+  .finish-card { padding: 22px; gap: 14px; }
+}
