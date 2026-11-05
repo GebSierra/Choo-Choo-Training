@@ -2518,3 +2518,32 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
   .proto-heart-done .hw-tile { --cap: 84px; }
   .px-btns .btn, .hw-btns .btn { min-height: 60px; font-size: 22px; }
 }
+@media (min-width: 700px) and (min-height: 700px) {
+  /* Add a Car, Couple a Car, Clap Split Glue */
+  .chains-scene:not(.couple-scene):not(.split-scene) .chain-track { top: max(170px, calc(160px + (100% - 520px) * .2)); }
+  .chain-track { gap: 12px; } .chain-choices { gap: 28px; }
+  .chain-car { border-width: 5px; border-radius: 14px; }
+  .chain-car::before, .chain-car::after { width: 21px; height: 21px; bottom: -16px; box-shadow: inset 0 0 0 4px #6B6F9E; }
+  .chain-car.gap b { font-size: 48px; }
+  .chain-car.choice { width: 108px; height: 132px; }
+  .chain-car.choice .glyph { height: 78px; } .chain-car.choice .font-letter { font-size: 87px; }
+  .chain-car.choice.end { width: 150px; height: 132px; } .chain-car.choice.end .glyph { height: 87px; } .chain-car.choice.end .word-glyphs { width: 126px; max-height: 81px; }
+  .chain-track .coupler { width: 24px; height: 12px; margin: 0 -9px 24px; }
+  .couple-choices { gap: 16px; }
+  .split-gap { width: 72px; min-height: 72px; }
+  .couple-scene .say-hear, .split-scene .say-hear { width: 84px; height: 84px; bottom: 14px; right: 18px; }
+  .split-scene .glue-btn { min-width: 220px; min-height: 68px; font-size: 26px; }
+  .couple-stack { top: var(--stack-top, 150px); bottom: 110px; gap: 14px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .chain-car.choice { width: calc(var(--cw, 60px) * 1.35); height: calc(var(--cw, 60px) * 1.65); }
+  .chain-car.choice .glyph { height: 60%; } .chain-car.choice .font-letter { font-size: calc(var(--cw, 60px) * 1.2); }
+  .chain-car.choice.end { width: var(--ew, 100px); height: calc(var(--cw, 60px) * 1.65); } .chain-car.choice.end .glyph { height: 62%; } .chain-car.choice.end .word-glyphs { width: 84%; max-height: 62%; }
+  .chain-car.gap.end, .couple-track .chain-car.end.fresh { height: calc(var(--cw, 60px) * 1.25); }
+  .chains-scene:not(.couple-scene):not(.split-scene) .chain-choices { bottom: calc(100px * var(--k)); }
+  .chain-car .font-letter { font-size: calc(var(--cw, 60px) * .8); }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .chains-scene:not(.couple-scene):not(.split-scene) .chain-track { top: 104px; }
+  .chains-scene:not(.couple-scene):not(.split-scene) .chain-choices { bottom: 64px; }
+}

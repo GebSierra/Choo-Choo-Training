@@ -4,7 +4,7 @@ import { letterFace } from '../../components/letter-face.js';
 import { glyphSvg, wordSvg } from '../../glyphs.js';
 import { sayPrompt } from '../../components/say-sound.js';
 import { sparkle } from '../../components/sparkle.js';
-import { timers, watchSize, starRow, shake, shuffle } from '../../components/game-kit.js';
+import { K, timers, watchSize, starRow, shake, shuffle } from '../../components/game-kit.js';
 import { accentOf } from '../../theme.js';
 import { fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
@@ -12,7 +12,7 @@ import { letterUnits } from '../../order.js';
 
 const INK = '#1E2140';
 const NEXT_MS = 900;
-const EW = 100; // the width of the car that couples on (an ending car or a word car), in px
+const EW = Math.round(100 * K); // the width of the car that couples on (an ending car or a word car), in px
 
 // Couple a Car (World 6, Endings Junction). A base word is a little train of letter cars with a coupler and a gap at the end. The child taps the car that couples on to make the
 // new word: an ending car (jump + -ing = jumping) or a word car (sun + set = sunset). The wrong cars are other endings, other words or plain letters that make no word here.
@@ -40,9 +40,10 @@ export function build(ctx) {
   const baseCar = (u) => h('span', { class: 'chain-car', dataset: { letter: u } }, letterFace(u, INK));
   // The car that couples on: an ending car is the glyph of its lesson key; a word car shows the word; a plain letter is a letter car.
   const faceOf = (item, o) => (item.kind === 'word' ? wordSvg(o, { color: INK, label: 'word', level: lesson.number }) : o.startsWith('end-') ? glyphSvg(o, { color: INK, label: 'ending' }) : letterFace(o, INK));
+  const tall = () => (K > 1 && scene.clientHeight ? Math.floor((scene.clientHeight - 250) / 2.9) : 999);
   const sizeCars = () => {
     const n = Math.max(letterUnits(cur().from, lesson.number).length, 1);
-    scene.style.setProperty('--cw', Math.max(40, Math.min(56, Math.floor((W - 28 - EW - 14 - 4 * n) / n))) + 'px');
+    scene.style.setProperty('--cw', Math.max(40, Math.min(Math.round(56 * K), Math.floor((W - 28 - EW - 14 - 4 * n) / n), tall())) + 'px');
     scene.style.setProperty('--ew', EW + 'px');
   };
   // the column starts under the prompt, which is one to three lines tall depending on the width
