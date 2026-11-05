@@ -2564,3 +2564,67 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
   .finish-pip { left: -100px; right: auto; }
   .finish-card { padding: 22px; gap: 14px; }
 }
+@media (min-width: 700px) and (min-height: 700px) {
+  /* shared prototype surfaces: warm-ups, placement check, stories, heart words */
+  .proto { gap: 18px; }
+  .px-chip { font-size: 22px; padding: 7px 22px; }
+  .px-model { min-height: 72px; gap: 14px; } .px-btns { gap: 14px; }
+  .px-dots { min-height: 52px; gap: 12px; } .px-dot { width: 14px; height: 14px; } .px-dot.now { width: 36px; }
+  .px-model .say-prompt, .reading-item .say-prompt, .ns-body > .say-prompt { font-size: 28px; padding: 10px 20px 11px 12px; }
+  .judge-bar { gap: 18px; padding-top: 22px; } .judge-tag { font-size: 15px; }
+  .judge-btn { min-height: 80px; font-size: 28px; }
+  .proto.warmup { --pic: clamp(120px, 20dvh, 240px); --box: clamp(110px, 16vw, 160px); --wcap: clamp(90px, 20dvh, 190px); }
+  .proto.blendit { --cap: clamp(90px, 16dvh, 160px); }
+  .proto.buildit { --tile: clamp(84px, 13vw, 110px); --lt: clamp(110px, 17vw, 140px); }
+  .proto.story-row { --s: min(19vw, 160px, 24dvh); } .proto.pick { --o: min(24vw, 190px, 24dvh); }
+  .lr-row, .pk-opts { gap: 16px; }
+  .ns-art { width: min(52vw, 400px, calc(100dvh - 520px)); }
+  .ns-word { font-size: 38px; } .ns-line { font-size: 28px; max-width: 560px; } .ns-mouth { width: min(100%, 520px); }
+  .ns-dot { width: 104px; height: 104px; } .ns-dots { gap: 24px; } .ns-bigf { width: min(46%, 260px); }
+  .rs-scene { height: clamp(130px, calc(20dvh - 20px), 280px); }
+  .rs-line-words { --cap: 62px; } .rs-line-words.small { --cap: clamp(32px, 4dvh, 46px); }
+  .rs-thumb { flex-basis: 110px; width: 110px; height: 70px; } .rs-row { padding: 10px 18px 10px 10px; gap: 16px; border-radius: 24px; }
+  .rs-msg { font-size: 29px; min-height: 36px; } .rs-q { font-size: 46px; }
+  .rs-choice { min-height: 180px; border-radius: 30px; } .rs-choice-pic { width: 120px; height: 120px; } .rs-choice-word { font-size: 34px; }
+  .rs-choices { gap: 18px; } .rs-recheck { --cap: clamp(44px, 6.4dvh, 62px); }
+  /* placement check */
+  .pc-welcome { gap: 12px; } .pc-welcome h2 { font-size: 44px; } .pc-welcome p { font-size: 27px; }
+  .pc-note { font-size: 22px; padding: 14px 20px; border-radius: 22px; }
+  .pc-word { --cap: clamp(90px, 16dvh, 160px); padding: 28px 20px; border-radius: 36px; }
+  .pc-suggest { font-size: 36px; } .pc-why { font-size: 25px; } .pc-line { font-size: 24px; } .pc-fine { font-size: 21px; } .pc-skip { font-size: 21px; }
+  .pc-teach { font-size: 28px; } .pc-notes { font-size: 23px; gap: 8px; }
+  .pc-pic { width: clamp(120px, 20dvh, 200px); height: clamp(120px, 20dvh, 200px); font-size: clamp(80px, 14dvh, 130px); }
+  .pc-three .pc-pic { width: clamp(100px, 18vw, 170px); height: clamp(100px, 18vw, 170px); font-size: clamp(66px, 11vw, 110px); }
+  .pc-start small { font-size: 20px; } .pc-kchip { font-size: 28px; min-width: 48px; }
+  .pc-pad .btn, .pc-host .btn { min-height: 72px; font-size: 26px; }
+  .pc-quick { min-height: 64px; }
+  /* Read It Again */
+  .reread { gap: 14px; padding: 14px 24px 16px; }
+  .ra-scene { height: clamp(170px, 22dvh, 300px); border-radius: 30px; }
+  .ra-train { bottom: 18px; }
+  .ra-goal { width: 138px; height: 115px; bottom: 33px; }
+  .ra-page { padding: 14px 22px 16px; border-radius: 30px; }
+  .ra-list { gap: 10px; } .ra-row { padding: 8px 14px; border-radius: 22px; gap: 18px; }
+  .ra-sentence { font-size: clamp(34px, 5vw, 50px); }
+  .ra-read { min-width: 170px; min-height: 68px; font-size: 26px; padding: 0 24px; }
+  .ra-row[data-state="done"] .ra-read { min-width: 68px; }
+  .ra-foot .ra-turn { min-height: 76px; font-size: 27px; }
+  /* books */
+  .book-read { --read-fs: clamp(30px, 3.6vw, 42px); } .book-read[data-size="l"] { --read-fs: clamp(34px, 4vw, 46px); }
+  .book-folio { font-size: 20px; }
+  .book-intro-list { font-size: 24px; gap: 12px; line-height: 1.35; }
+  .book-arrow { width: 64px; height: 64px; } .book-arrow svg { width: 34px; height: 34px; }
+  .book-corner { width: 76px; height: 76px; } .book-corner.next::before, .book-corner.next::after { width: 58px; height: 58px; }
+  .book-info { width: 64px; height: 64px; font-size: 30px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .ra-scene { height: clamp(130px, 20dvh, 220px); }
+  .ra-sentence { font-size: clamp(30px, 3.4vw, 44px); }
+  .pc-welcome h2 { font-size: 36px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .reread { flex-direction: row-reverse; }
+  .ra-scene { flex: 0 0 40%; height: auto; }
+  .ra-goal { width: 110px; height: 92px; }
+  .ra-sentence { font-size: clamp(30px, 3.2vw, 44px); }
+}
