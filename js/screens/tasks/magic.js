@@ -4,7 +4,7 @@ import { letterFace } from '../../components/letter-face.js';
 import { wordSvg } from '../../glyphs.js';
 import { sayPrompt } from '../../components/say-sound.js';
 import { sparkle } from '../../components/sparkle.js';
-import { timers, watchSize, starRow, shake, shuffle } from '../../components/game-kit.js';
+import { K, timers, watchSize, starRow, shake, shuffle } from '../../components/game-kit.js';
 import { accentOf } from '../../theme.js';
 import { fit } from '../../lessons.js';
 import { sfx } from '../../sfx.js';
@@ -40,7 +40,7 @@ export function build(ctx) {
   const baseCar = (u) => h('span', { class: 'chain-car', dataset: { letter: u } }, letterFace(u, INK));
   const sizeCars = () => {
     const n = Math.max(letterUnits(cur().from, lesson.number).length, 1);
-    scene.style.setProperty('--cw', Math.max(36, Math.min(56, Math.floor((W - 28 - 16 - 8 * (n + 2)) / (n + 1)))) + 'px');
+    scene.style.setProperty('--cw', Math.max(36, Math.min(Math.round(56 * K), Math.floor((W - 28 - 16 - 8 * (n + 2)) / (n + 1)), K > 1 && scene.clientHeight ? Math.floor((scene.clientHeight - 250) / 2.9) : 999)) + 'px');
   };
   // the column starts under the prompt, which is one to three lines tall depending on the width
   const place = () => { const s = scene.getBoundingClientRect(), p = prompt.el.getBoundingClientRect(); if (s.height && p.height) scene.style.setProperty('--stack-top', Math.max(96, Math.round(p.bottom - s.top + 8)) + 'px'); };
