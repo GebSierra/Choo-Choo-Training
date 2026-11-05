@@ -2658,7 +2658,7 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
   .new-letter .blend-card .sc-rules { margin: 0; }
 }
 @media (min-width: 700px) and (min-height: 700px) {
-  .letter-card.pair .glyph { height: calc(100% - 20px); width: auto; max-width: 46%; }
+  .letter-card.pair .glyph { height: auto; width: 44%; max-width: 44%; }
   .new-letter:has(.blend-card) .letter-card.big { height: clamp(110px, 15dvh, 190px); }
 }
 @media (min-width: 700px) and (min-height: 700px) and (max-height: 1150px) {
@@ -2710,4 +2710,21 @@ button.scene-tunnel.tappable:focus-visible { outline: 4px solid var(--violet); o
 }
 @media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
   .px-model { min-height: 44px; } .hw-col { gap: 8px; } .hw-word { padding-top: 30px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .pic-frame.huge, .sounds-stage.revealed .pic-frame.huge { width: clamp(100px, 19dvh, 220px); height: clamp(100px, 19dvh, 220px); }
+  .sounds-stage { min-height: 0; padding: 20px 28px; gap: 12px; }
+  .sounds-body { gap: 16px; }
+  .reveal-word { font-size: clamp(40px, 6.5dvh, 56px); }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .book-intro .btn, .ride-intro-btns .btn { min-height: 76px; font-size: 26px; padding: 0 44px; }
+}
+@media (min-width: 700px) and (min-height: 700px) {
+  .opts.n3 .opt-pic .pic-frame { width: clamp(130px, 17vw, 220px); height: clamp(130px, 17vw, 220px); }
+  .opts.n3 .opt-card, .opt-card { min-height: clamp(250px, 30dvh, 380px); }
+  .opts.n3 .opt-pic .word { font-size: 36px; } .opts.n3 .opt-card { padding: 14px; }
+}
+@media (min-width: 700px) and (min-height: 700px) and (orientation: landscape) {
+  .wagons-scene .say-hear { top: 124px; width: 64px; height: 64px; }
 }

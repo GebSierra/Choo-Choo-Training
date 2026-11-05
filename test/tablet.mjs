@@ -58,15 +58,24 @@ const SCREENS = [
   stop('x1', 2, { name: 'tricky-signals', wait: '.signal', big: ['.signal', 1.3] }),
   { name: 'reread', route: '/checkpoint/r1', wait: '.ra-page', inside: ['.ra-sentence', '.ra-turn'], big: ['.ra-sentence', 1.1] },
   { name: 'book-cover', route: '/checkpoint/b1', wait: '.book-stage', inside: ['.book-stage'] },
+  { name: 'book-intro', route: '/checkpoint/b1', wait: '.book-intro-go', unseen: ['storyIntro:b1'], inside: ['.book-intro-go'] },
+  { name: 'book-page-1', route: '/checkpoint/b1', wait: '.book-cover', after: async (p) => { await p.click('.book-cover'); await p.waitForTimeout(1400); }, inside: ['.book-read'] },
+  { name: 'book-page-4', route: '/checkpoint/b1', wait: '.book-cover', after: async (p) => { await p.click('.book-cover'); await p.waitForTimeout(1400); for (let i = 0; i < 3; i++) { await p.click('.book-arrow.book-next:not([disabled])').catch(() => {}); await p.waitForTimeout(900); } }, inside: ['.book-read'] },
+  { name: 'reread-reading', route: '/checkpoint/r1', wait: '.ra-turn', after: async (p) => { await p.click('.ra-turn'); await p.waitForTimeout(2500); }, inside: ['.ra-sentence'] },
+  task(11, 'hunt', { name: 'L11-hunt-pair', wait: '.sky-letter', inside: ['.find-card', '.hunt-goal'] }),
+  { ...task(1, 'sounds', { name: 'L1-sounds-revealed', inside: ['.sounds-stage'] }), after: async (p) => { await p.click('.sounds-stage'); await p.waitForTimeout(2600); } },
+  task(4, 'check', { name: 'L4-check', wait: '.opt-card', inside: ['.opt-card', '.check-prompt'] }),
+  task(5, 'check', { name: 'L5-check', wait: '.opt-card', inside: ['.opt-card', '.check-prompt'] }),
+  task(9, 'practice', { name: 'L9-practice', wait: '.sack-card', inside: ['.sack-card'] }),
   { name: 'placement', route: '/proto/placement', wait: '.pc-welcome', inside: ['.pc-begin', '.pc-quick'], big: ['.pc-begin', 1.1] },
 ];
 
-const settings = { seenScripts: SEEN_ALL };
+const seenFor = (s) => { const o = { ...SEEN_ALL }; for (const k of s.unseen || []) delete o[k]; return o; };
 async function openScreen(browser, url, vp, s) {
   const made = await newPage(browser, vp);
   const { page } = made;
   await page.addInitScript(SPEECH_STUB);
-  await page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: JSON.parse(DONE_JSON), settings, firstRunDone: true, meetDue: false })}))`);
+  await page.addInitScript(`localStorage.setItem('reading.v1', JSON.stringify(${JSON.stringify({ schema: 1, lessons: JSON.parse(DONE_JSON), settings: { seenScripts: seenFor(s) }, firstRunDone: true, meetDue: false })}))`);
   await page.goto(url + '#' + s.route);
   await page.waitForSelector(s.wait, { timeout: 8000 });
   await page.waitForTimeout(900);
